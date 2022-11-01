@@ -31,7 +31,6 @@ export class SundaeSDK {
   public async getLucid(): Promise<Lucid> {
     if (!this.lucid) {
       this.lucid = await import("lucid-cardano").then(async ({ Lucid }) => {
-        console.log(Lucid);
         return await Lucid.new(this.provider, this.network);
       });
       this.lucid.selectWallet(this.api);
@@ -74,28 +73,33 @@ export class SundaeSDK {
     ]);
 
     const lucid = await this.getLucid();
-    console.log(lucid);
-    const tx = lucid.newTx();
-    const payment: Record<string, bigint> = {};
 
-    if (assetIDs.name === "" && swapFromAsset) {
-      payment.lovelace =
-        this.params.SCOOPER_FEE +
-        BigInt(toLovelace(asset.amount, asset.metadata.decimals));
-    } else {
-      payment.lovelace = this.params.SCOOPER_FEE;
-      payment[assetIDs.concatenated] = BigInt(
-        toLovelace(asset.amount, asset.metadata.decimals)
-      );
+    try {
+      const tx = lucid.newTx();
+      const payment: Record<string, bigint> = {};
+
+      if (assetIDs.name === "" && swapFromAsset) {
+        payment.lovelace =
+          this.params.SCOOPER_FEE +
+          BigInt(toLovelace(asset.amount, asset.metadata.decimals));
+      } else {
+        payment.lovelace = this.params.SCOOPER_FEE;
+        payment[assetIDs.concatenated] = BigInt(
+          toLovelace(asset.amount, asset.metadata.decimals)
+        );
+      }
+
+      tx.payToContract(this.params.ESCROW_ADDRESS, Data.to(data), payment);
+
+      const finishedTx = await tx.complete();
+      const signedTx = await finishedTx.sign().complete();
+      const txHash = await signedTx.submit();
+      this.swapping = false;
+      return txHash;
+    } catch (e) {
+      this.swapping = false;
+      throw e;
     }
-
-    tx.payToContract(this.params.ESCROW_ADDRESS, Data.to(data), payment);
-
-    const finishedTx = await tx.complete();
-    const signedTx = await finishedTx.sign().complete();
-    const txHash = await signedTx.submit();
-    this.swapping = false;
-    return txHash;
   }
 
   private ensureNotSwapping() {

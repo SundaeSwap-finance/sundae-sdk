@@ -11,5 +11,6 @@ module.exports = {
       useESM: true,
     }
   },
+  testMatch: ["**/?(*.)+(spec|test).[jt]s?(x)"],
   testPathIgnorePatterns: ["<rootDir>/dist/"],
 };

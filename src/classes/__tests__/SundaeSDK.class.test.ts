@@ -1,7 +1,9 @@
+import { jest } from "@jest/globals";
 import { Lucid, WalletApi, Provider, ProtocolParameters } from "lucid-cardano";
 
 import { params } from "../../lib/params";
 import { SundaeSDK } from "../SundaeSDK.class";
+import { PreviewParams } from "./PreviewParams";
 
 let sdk: SundaeSDK;
 let mockWallet: WalletApi;
@@ -58,24 +60,34 @@ class MockWalletApi {
     });
   }
 }
-// class MockBlockfrost {
-//   address: string;
-//   constructor(address: string) {
-//     this.address = address;
-//   }
+class MockBlockfrost {
+  address: string;
+  constructor(address: string) {
+    this.address = address;
+  }
 
-//   static new(address: string): Provider {
-//     return new this(address) as unknown as Provider;
-//   }
+  static new(address: string): Provider {
+    return new this(address) as unknown as Provider;
+  }
 
-//   async getProtocolParameters(): Promise<ProtocolParameters> {
-//     return HYDRA_PROTOCOL_PARAMETERS as unknown as ProtocolParameters;
-//   }
-// }
+  async getProtocolParameters(): Promise<ProtocolParameters> {
+    return PreviewParams as unknown as ProtocolParameters;
+  }
+}
 
 beforeEach(() => {
-  mockWallet = MockWalletApi.new("mockAddr", "mockPrivKey", "mockPubKey");
-  sdk = new SundaeSDK(mockWallet, undefined, "Preview");
+  mockWallet = MockWalletApi.new(
+    "00c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0",
+    "mockPrivKey",
+    "mockPubKey"
+  );
+  sdk = new SundaeSDK(
+    mockWallet,
+    MockBlockfrost.new(
+      "00c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0"
+    ),
+    "Preview"
+  );
 });
 
 describe("SundaeSDK class methods", () => {
@@ -83,7 +95,7 @@ describe("SundaeSDK class methods", () => {
     expect(sdk.network).toEqual("Preview");
     expect(sdk.api).toBeInstanceOf(MockWalletApi);
     expect(sdk.params).toMatchObject(params.Preview);
-    expect(sdk.provider).toBeUndefined();
+    expect(sdk.provider).toBeInstanceOf(MockBlockfrost);
     expect(sdk.swapping).toBeFalsy();
   });
 
@@ -94,22 +106,25 @@ describe("SundaeSDK class methods", () => {
     expect(sdk.lucid).toBeInstanceOf(Lucid);
   });
 
-  // it("should perform successfully perform a swap", async () => {
-  //   try {
-  //     await sdk.swap({
-  //       poolIdent: "03",
-  //       asset: {
-  //         amount: 20n,
-  //         metadata: {
-  //           assetID:
-  //             "cf9722966a212e61baa3a1a61a40f5c42a639b5a9272a8d85d1d6998.6c702004",
-  //           decimals: 6,
-  //         },
-  //       },
-  //       walletHash: "",
-  //     });
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // });
+  it("should perform successfully perform a swap", async () => {
+    const lucid = await sdk.getLucid();
+    const spiedNewTx = jest.spyOn(lucid, "newTx");
+    try {
+      await sdk.swap({
+        poolIdent: "03",
+        asset: {
+          amount: 20n,
+          metadata: {
+            assetID:
+              "cf9722966a212e61baa3a1a61a40f5c42a639b5a9272a8d85d1d6998.6c702004",
+            decimals: 6,
+          },
+        },
+        walletHash: "",
+      });
+    } catch (e) {
+      expect(sdk.swapping).toBeFalsy();
+      expect(spiedNewTx).toHaveBeenCalled();
+    }
+  });
 });
