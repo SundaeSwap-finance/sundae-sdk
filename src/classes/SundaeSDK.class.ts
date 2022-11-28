@@ -1,5 +1,7 @@
-import type { Lucid, Provider, WalletApi } from "lucid-cardano";
-import { Constr, Data } from "lucid-cardano";
+// import type { Lucid, Provider, WalletApi } from "lucid-cardano";
+import { Constr } from "lucid-cardano";
+
+import type { BrowserWallet, Data } from "@martifylabs/mesh";
 
 import { params } from "../lib/params";
 import { ERROR_CODES } from "../lib/errors";
@@ -8,40 +10,36 @@ import { TSupportedNetworks, IParams, IGetSwapArgs } from "../types";
 
 export class SundaeSDK {
   // Instances.
-  public lucid?: Lucid;
+  public meshWallet?: BrowserWallet;
 
   // States.
-  public api: WalletApi;
+  public preferredWallet: string;
   public swapping: boolean = false;
   public network: TSupportedNetworks;
   public params: IParams;
-  public provider?: Provider;
+  // public provider?: Provider;
 
   constructor(
-    api: WalletApi,
-    provider?: Provider,
+    preferredWallet: string,
+    // provider?: Provider,
     network?: TSupportedNetworks
   ) {
-    this.api = api;
-    this.provider = provider;
+    this.preferredWallet = preferredWallet;
+    // this.provider = provider;
     this.network = network ?? "Mainnet";
     this.params = params[this.network];
   }
 
-  public async getLucid(): Promise<Lucid> {
-    if (!this.lucid) {
-      this.lucid = await import("lucid-cardano").then(async ({ Lucid }) => {
-        return await Lucid.new(this.provider, this.network);
-      });
-      this.lucid.selectWallet(this.api);
+  public async getMeshWallet(): Promise<BrowserWallet> {
+    if (!this.meshWallet) {
+      this.meshWallet = await import("@martifylabs/mesh").then(
+        async ({ BrowserWallet }) => {
+          return await BrowserWallet.enable(this.preferredWallet);
+        }
+      );
     }
 
-    return this.lucid;
-  }
-
-  public setWalletApi(api: WalletApi) {
-    this.api = api;
-    this.lucid?.selectWallet(api);
+    return this.meshWallet;
   }
 
   public async swap({
@@ -55,7 +53,20 @@ export class SundaeSDK {
     const assetIDs = getAssetIDs(asset);
 
     this.swapping = true;
-    const data = new Constr(0, [
+    const swapFromAssetData: Data = new Map<Data, Data>();
+    swapFromAssetData.set(swapFromAsset ? 0 : 1, []);
+
+    const data: Data = [
+      [poolIdent, [[[[[walletHash], []]]], []]],
+      "0n",
+      [
+        swapFromAssetData,
+        `${toLovelace(asset.amount, asset.metadata.decimals)}n`,
+        [[minimumReceivableAsset.toString()]],
+      ],
+    ];
+
+    const data2 = new Constr(0, [
       poolIdent,
       new Constr(0, [
         new Constr(0, [
@@ -72,10 +83,12 @@ export class SundaeSDK {
       ]),
     ]);
 
-    const lucid = await this.getLucid();
-
     try {
-      const tx = lucid.newTx();
+      const wallet = await this.getMeshWallet();
+      const { Transaction, resolveDataHash } = await import(
+        "@martifylabs/mesh"
+      );
+      const tx = new Transaction({ initiator: wallet });
       const payment: Record<string, bigint> = {};
 
       if (assetIDs.name === "" && swapFromAsset) {
@@ -89,11 +102,43 @@ export class SundaeSDK {
         );
       }
 
-      tx.payToContract(this.params.ESCROW_ADDRESS, Data.to(data), payment);
+      tx.sendAssets(
+        {
+          address: this.params.ESCROW_ADDRESS,
+          datum: {
+            value: data,
+          },
+        },
+        [
+          {
+            unit: asset.metadata.assetID,
+            quantity: payment,
+          },
+        ]
+      );
 
-      const finishedTx = await tx.complete();
-      const signedTx = await finishedTx.sign().complete();
-      const txHash = await signedTx.submit();
+      const unsignedTx = await tx.build();
+      const signedTx = await wallet.signTx(unsignedTx);
+      const txHash = await wallet.submitTx(signedTx);
+
+      // const payment: Record<string, bigint> = {};
+
+      // if (assetIDs.name === "" && swapFromAsset) {
+      //   payment.lovelace =
+      //     this.params.SCOOPER_FEE +
+      //     BigInt(toLovelace(asset.amount, asset.metadata.decimals));
+      // } else {
+      //   payment.lovelace = this.params.SCOOPER_FEE;
+      //   payment[assetIDs.concatenated] = BigInt(
+      //     toLovelace(asset.amount, asset.metadata.decimals)
+      //   );
+      // }
+
+      // tx.payToContract(this.params.ESCROW_ADDRESS, Data.to(data), payment);
+
+      // const finishedTx = await tx.complete();
+      // const signedTx = await finishedTx.sign().complete();
+      // const txHash = await signedTx.submit();
       this.swapping = false;
       return txHash;
     } catch (e) {
