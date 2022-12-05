@@ -22,7 +22,7 @@
     "declarationMap": false,
     "noEmitOnError": true,
   },
-  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.d.ts", "src/classes/__tests__/SundaeSDK.class.test.cjs"],
+  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.d.ts", "packages/sdk/src/classes/__tests__/SundaeSDK.class.test.cjs"],
   "exclude": ["node_modules", "temporary_modules", "tools/*.ts", "dist"],
   "ts-node": {
     "require": ["tsconfig-paths/register"],

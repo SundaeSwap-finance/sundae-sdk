@@ -1,5 +1,5 @@
 import { IAsset, IAssetParsedID } from "../types";
-import { ERROR_CODES } from "./errors";
+import { ERROR_CODES } from "./errors.js";
 
 export const toLovelace = (val: BigInt, decimals: number) =>
   Math.floor(Number(val) * Math.pow(10, decimals));

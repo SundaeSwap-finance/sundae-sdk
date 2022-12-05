@@ -1,85 +1,16 @@
 {
-  "name": "sundae-sdk",
-  "version": "0.1.0",
-  "description": "The official SundaeSwap protocol SDK for clients.",
-  "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
-  "author": "Calvin Koepke <calvin@sundaeswap.finance>",
-  "license": "MIT",
+  "name": "root",
   "private": true,
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/types/index.d.ts"
-    }
-  },
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
-  "files": [
-    "dist",
-    "src",
-    "tools"
+  "workspaces": [
+    "packages/*"
   ],
   "scripts": {
-    "lint": "eslint . --ext js,jsx,ts,tsx",
-    "lint:fix": "yarn lint -- --fix",
-    "lint-staged": "lint-staged",
-    "preauth": "aws codeartifact login --tool npm --repository ui --domain sundae --domain-owner 320450105600 --namespace @sundae",
-    "preinstall": "node tools/preinstall.js",
-    "prepublishOnly": "yarn build && tools/prepublish.cjs",
-    "postpublish": "node tools/postpublish.cjs",
+    "postinstall": "lerna bootstrap",
     "prepare": "husky install",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
-    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage --watchAll=false",
-    "clean": "rm -rf ./dist",
-    "typecheck": "tsc --noEmit",
-    "compile:esm": "tsc --outDir dist/esm",
-    "compile:cjs": "tsc --outDir dist/cjs --module commonjs",
-    "compile:types": "tsc --outDir dist/types --emitDeclarationOnly --declarationMap --declaration",
-    "compile": "yarn compile:cjs && yarn compile:esm && yarn compile:types",
-    "build": "yarn clean && yarn compile"
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "yarn lint:fix"
-    ]
-  },
-  "dependencies": {
-    "@martifylabs/mesh": "^1.2.0-beta.3",
-    "lucid-cardano": "^0.7.0"
+    "build": "cd packages/sdk && yarn build",
+    "release": "yarn build && lerna publish from-package -y"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.6",
-    "@babel/plugin-transform-modules-commonjs": "^7.19.6",
-    "@dcspark/cardano-multiplatform-lib-nodejs": "^3.1.0",
-    "@sundae/eslint-config": "^1.6.2",
-    "@sundae/jest-config": "^1.3.1",
-    "@sundae/react-hooks": "^1.7.1",
-    "@sundae/tailwind-config": "^1.7.0",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.3.0",
-    "@testing-library/user-event": "^14.3.0",
-    "@types/jest": "^28.1.3",
-    "@types/react": "^18.0.8",
-    "@types/react-table": "^7.7.12",
-    "autoprefixer": "^10.4.7",
-    "babel-jest": "^29.2.2",
-    "babel-loader": "^8.2.5",
-    "buffer": "^6.0.3",
-    "husky": "^7.0.0",
-    "jest-dom": "^4.0.0",
-    "lint-staged": "^12.4.1",
-    "postcss": "^8",
-    "prettier": "^2.6.2",
-    "prettier-plugin-tailwindcss": "^0.1.10",
-    "tailwindcss": "^3.0.24",
-    "tailwindcss-animation-delay": "^1.0.7",
-    "tailwindcss-radix": "^2.5.0",
-    "typescript": "^4.6.4",
-    "webpack": "^5.74.0"
+    "lerna": "^5.6.2"
   }
 }

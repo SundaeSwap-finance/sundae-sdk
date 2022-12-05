@@ -1,45 +1,26 @@
 // import type { Lucid, Provider, WalletApi } from "lucid-cardano";
-import { Constr } from "lucid-cardano";
+// import { Constr } from "lucid-cardano";
 
-import type { BrowserWallet, Data } from "@martifylabs/mesh";
+import type { BrowserWallet, Data, Asset } from "@martifylabs/mesh";
 
-import { params } from "../lib/params";
-import { ERROR_CODES } from "../lib/errors";
-import { getAssetIDs, toLovelace } from "../lib/utils";
+import { params } from "../lib/params.js";
+import { ERROR_CODES } from "../lib/errors.js";
+import { getAssetIDs, toLovelace } from "../lib/utils.js";
 import { TSupportedNetworks, IParams, IGetSwapArgs } from "../types";
 
 export class SundaeSDK {
   // Instances.
-  public meshWallet?: BrowserWallet;
+  public wallet: BrowserWallet;
 
   // States.
-  public preferredWallet: string;
   public swapping: boolean = false;
   public network: TSupportedNetworks;
   public params: IParams;
-  // public provider?: Provider;
 
-  constructor(
-    preferredWallet: string,
-    // provider?: Provider,
-    network?: TSupportedNetworks
-  ) {
-    this.preferredWallet = preferredWallet;
-    // this.provider = provider;
+  constructor(wallet: BrowserWallet, network?: TSupportedNetworks) {
+    this.wallet = wallet;
     this.network = network ?? "Mainnet";
     this.params = params[this.network];
-  }
-
-  public async getMeshWallet(): Promise<BrowserWallet> {
-    if (!this.meshWallet) {
-      this.meshWallet = await import("@martifylabs/mesh").then(
-        async ({ BrowserWallet }) => {
-          return await BrowserWallet.enable(this.preferredWallet);
-        }
-      );
-    }
-
-    return this.meshWallet;
   }
 
   public async swap({
@@ -51,6 +32,11 @@ export class SundaeSDK {
   }: IGetSwapArgs): Promise<string> {
     this.ensureNotSwapping();
     const assetIDs = getAssetIDs(asset);
+
+    console.log({
+      usedUtxos: await this.wallet.getUsedUTxOs(),
+      utxos: await this.wallet.getUtxos(),
+    });
 
     this.swapping = true;
     const swapFromAssetData: Data = new Map<Data, Data>();
@@ -66,60 +52,45 @@ export class SundaeSDK {
       ],
     ];
 
-    const data2 = new Constr(0, [
-      poolIdent,
-      new Constr(0, [
-        new Constr(0, [
-          new Constr(0, [new Constr(0, [walletHash]), new Constr(1, [])]),
-          new Constr(1, []),
-        ]),
-        new Constr(1, []),
-      ]),
-      "0n",
-      new Constr(0, [
-        new Constr(swapFromAsset ? 0 : 1, []),
-        `${toLovelace(asset.amount, asset.metadata.decimals)}n`,
-        new Constr(0, [minimumReceivableAsset]),
-      ]),
-    ]);
-
     try {
-      const wallet = await this.getMeshWallet();
       const { Transaction, resolveDataHash } = await import(
         "@martifylabs/mesh"
       );
-      const tx = new Transaction({ initiator: wallet });
-      const payment: Record<string, bigint> = {};
+      const tx = new Transaction({ initiator: this.wallet });
+      const paymentsData: Record<string, bigint> = {};
 
       if (assetIDs.name === "" && swapFromAsset) {
-        payment.lovelace =
+        paymentsData.lovelace =
           this.params.SCOOPER_FEE +
           BigInt(toLovelace(asset.amount, asset.metadata.decimals));
       } else {
-        payment.lovelace = this.params.SCOOPER_FEE;
-        payment[assetIDs.concatenated] = BigInt(
+        paymentsData.lovelace = this.params.SCOOPER_FEE;
+        paymentsData[assetIDs.concatenated] = BigInt(
           toLovelace(asset.amount, asset.metadata.decimals)
         );
       }
 
-      tx.sendAssets(
-        {
-          address: this.params.ESCROW_ADDRESS,
-          datum: {
-            value: data,
-          },
+      const recipient = {
+        address: this.params.ESCROW_ADDRESS,
+        datum: {
+          value: "supersecret",
         },
-        [
-          {
-            unit: asset.metadata.assetID,
-            quantity: payment,
-          },
-        ]
+      };
+      const assets: Asset[] = Object.entries(paymentsData).map(
+        ([unit, quantity]) => {
+          return {
+            unit,
+            quantity: quantity.toString(),
+          };
+        }
       );
 
+      console.log(recipient, assets);
+      tx.sendValue(recipient, assets);
+
       const unsignedTx = await tx.build();
-      const signedTx = await wallet.signTx(unsignedTx);
-      const txHash = await wallet.submitTx(signedTx);
+      const signedTx = await this.wallet.signTx(unsignedTx);
+      const txHash = await this.wallet.submitTx(signedTx);
 
       // const payment: Record<string, bigint> = {};
 

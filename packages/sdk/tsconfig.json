@@ -6,7 +6,7 @@
     "sourceMap": true,
     "target": "ESNext",
     "paths": {
-      "@sundae/sdk": ["../sdk/"]
+      "@sundae/sdk": ["../"]
     },
     "plugins": [
       {
@@ -14,7 +14,7 @@
       }
     ]
   },
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.json",
   "include": [
     "./**/*.ts",
     "./**/*.tsx",
