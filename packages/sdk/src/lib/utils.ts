@@ -10,7 +10,7 @@ export const getAssetIDs = (asset: IAsset): IAssetParsedID => {
     metadata: { assetID },
   } = asset;
 
-  if (56 !== assetID.indexOf(".")) {
+  if (assetID.length > 56 && 56 !== assetID.indexOf(".")) {
     console.error(ERROR_CODES[2]);
     throw new Error(ERROR_CODES[2].message);
   }

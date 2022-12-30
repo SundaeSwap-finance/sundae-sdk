@@ -16,7 +16,6 @@
       "npm run lint:fix"
     ]
   },
-  "type": "module",
   "browserslist": {
     "production": [
       "last 1 chrome version",
@@ -56,13 +55,11 @@
     "webpack-filter-warnings-plugin": "^1.2.1"
   },
   "dependencies": {
-    "@dcspark/cardano-multiplatform-lib-browser": "^3.1.1",
-    "@martifylabs/mesh": "^1.2.0-beta.3",
-    "@martifylabs/mesh-react": "^1.1.0",
-    "@sundae/sdk": "file:../packages/sdk",
+    "@sundae/sdk-js": "^0.1.0",
     "@tailwindcss/forms": "^0.5.2",
     "autoprefixer": "^9",
     "buffer": "^6.0.3",
+    "lucid-cardano": "^0.8.4",
     "postcss": "^8.4.19",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

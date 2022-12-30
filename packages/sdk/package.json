@@ -1,5 +1,5 @@
 {
-  "name": "@sundae/sdk",
+  "name": "@sundae/sdk-js",
   "version": "0.1.0",
   "description": "The official SundaeSwap protocol SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
@@ -40,15 +40,9 @@
       "yarn lint:fix"
     ]
   },
-  "dependencies": {
-    "@martifylabs/mesh": "^1.2.0-beta.4"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.19.6",
-    "@sundae/eslint-config": "^1.6.2",
-    "@sundae/jest-config": "^1.3.1",
-    "@sundae/react-hooks": "^1.7.1",
-    "@sundae/tailwind-config": "^1.7.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.3.0",
@@ -70,5 +64,9 @@
     "tailwindcss-radix": "^2.5.0",
     "typescript": "^4.6.4",
     "webpack": "^5.74.0"
+  },
+  "peerDependencies": {
+    "@meshsdk/core": "^1.3.0",
+    "lucid-cardano": "^0.8.4"
   }
 }

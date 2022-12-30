@@ -90,7 +90,8 @@ const config = {
           templateParameters: {
             appConfig: {
               "envName": "local",
-              "apiUrls": {}
+              "apiUrls": {},
+              "blockfrostAPI": "previewAPAXSjJaFkfvLu7NxHg4f3N9XqNlNmuM"
             },
           },
         }
@@ -113,6 +114,7 @@ const config = {
       },
     },
     experiments: {
+      topLevelAwait: true,
       asyncWebAssembly: true,
     },
   }
