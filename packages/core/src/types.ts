@@ -1,5 +1,7 @@
 import type { BrowserWallet } from "@meshsdk/core";
 import type { Lucid } from "lucid-cardano";
+import { TxBuilderLucid } from "./classes/modules/TxBuilder/TxBuilder.Lucid.class";
+import { TxBuilderMesh } from "./classes/modules/TxBuilder/TxBuilder.Mesh.class";
 
 export type TSupportedNetworks = "Mainnet" | "Preview";
 
@@ -43,14 +45,30 @@ export enum ESupportedTxBuilders {
   Mesh = "mesh",
 }
 
-export type TSupportedTxBuilder = Lucid | BrowserWallet;
+export enum ESupportedWallets {
+  Nami = "nami",
+  Eternl = "eternl",
+  TyphonCip30 = "typhoncip30",
+  CCVault = "ccvault",
+  Typhon = "typhon",
+  Yoroi = "yoroi",
+  Flint = "flint",
+  Gero = "gerowallet",
+  CardWallet = "cardwallet",
+  NuFi = "nufi",
+  Begin = "begin",
+}
+
+export type TTxBuilderInstances = TxBuilderMesh | TxBuilderLucid;
+export type TSupportedTxBuilderLibs = Lucid | BrowserWallet;
 
 export type TTxBuilderLoader = {
-  loader: () => Promise<TSupportedTxBuilder>;
+  loader: () => Promise<TSupportedTxBuilderLibs>;
   type: ESupportedTxBuilders;
 };
 
 export interface ISundaeSDKConstructorArgs {
   TxBuilderLoader: TTxBuilderLoader;
   Network: TSupportedNetworks;
+  wallet: ESupportedWallets;
 }

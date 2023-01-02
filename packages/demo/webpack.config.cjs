@@ -8,7 +8,7 @@ const util = require("util");
 const path = require("path");
 
 const config = {
-    entry: path.resolve(__dirname, "./index.tsx"),
+    entry: path.resolve(__dirname, "./src/index.tsx"),
     devtool: "source-map",
     devServer: {
       static: path.resolve(process.cwd(), "dist"),
@@ -38,21 +38,19 @@ const config = {
           type: "asset/resource",
         },
         {
-          test: /\.scss$/i,
+          test: /\.css$/i,
           use: [
             MiniCssExtractPlugin.loader,
             {
               loader: "css-loader",
               options: {
                 importLoaders: 2,
-                sourceMap: true,
-                modules: true,
+                sourceMap: true
               },
             },
-            "postcss-loader",
-            "sass-loader"
+            "postcss-loader"
           ],
-          exclude: /\.module\.scss$/,
+          exclude: /\.module\.css$/,
         },
         {
           test: /\.m?js$/,
@@ -86,7 +84,7 @@ const config = {
       // new CleanWebpackPlugin(),
       new HtmlWebpackPlugin(
         {
-          template: path.resolve("./index.ejs"),
+          template: path.resolve("./src/index.ejs"),
           templateParameters: {
             appConfig: {
               "envName": "local",
@@ -108,7 +106,7 @@ const config = {
       })
     ],
     resolve: {
-      extensions: [".tsx", ".ts", ".js", ".scss"],
+      extensions: [".tsx", ".js", ".jsx", ".ts", ".css"],
       fallback: {
         stream: require.resolve('stream-browserify'),
         buffer: require.resolve('buffer/')

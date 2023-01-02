@@ -1,5 +1,5 @@
 {
-  "name": "@sundae/sdk-js",
+  "name": "@sundae/sdk-core",
   "version": "0.1.0",
   "description": "The official SundaeSwap protocol SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
@@ -9,7 +9,8 @@
   "files": [
     "dist"
   ],
-  "module": "dist/esm/index.js",
+  "main": "dist/cjs/index",
+  "module": "dist/esm/index",
   "types": "dist/types/index.d.ts",
   "scripts": {
     "lint": "eslint . --ext js,jsx,ts,tsx",

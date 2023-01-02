@@ -3,22 +3,35 @@ import {
   TSupportedNetworks,
   ISundaeSDKConstructorArgs,
   TTxBuilderLoader,
-} from "../types.js";
+  ESupportedWallets,
+} from "../types";
 
 export class SundaeSDK {
-  private txBuilder?: TxBuilder;
-  private txBuilderLoader: TTxBuilderLoader;
-  private network: TSupportedNetworks;
+  public wallet: ESupportedWallets;
+  public txBuilder?: TxBuilder;
+  public txBuilderLoader: TTxBuilderLoader;
+  public network: TSupportedNetworks;
 
-  public constructor({ TxBuilderLoader, Network }: ISundaeSDKConstructorArgs) {
+  public constructor({
+    TxBuilderLoader,
+    Network,
+    wallet,
+  }: ISundaeSDKConstructorArgs) {
     this.network = Network;
     this.txBuilderLoader = TxBuilderLoader;
+    this.wallet = wallet;
+  }
+
+  public async loadTxBuilder() {
+    if (!this.txBuilder) {
+      this.txBuilder = await TxBuilder.new(this);
+    }
+
+    return this.txBuilder;
   }
 
   public async build() {
-    if (!this.txBuilder) {
-      this.txBuilder = await TxBuilder.new(this.txBuilderLoader);
-    }
+    await this.loadTxBuilder();
 
     return this.txBuilder;
   }
