@@ -38,7 +38,17 @@ export interface ISwapResponse {
   ttl: number;
 }
 
-export type TTxBuilderLoader = () => Promise<Lucid | BrowserWallet>;
+export enum ESupportedTxBuilders {
+  Lucid = "lucid",
+  Mesh = "mesh",
+}
+
+export type TSupportedTxBuilder = Lucid | BrowserWallet;
+
+export type TTxBuilderLoader = {
+  loader: () => Promise<TSupportedTxBuilder>;
+  type: ESupportedTxBuilders;
+};
 
 export interface ISundaeSDKConstructorArgs {
   TxBuilderLoader: TTxBuilderLoader;

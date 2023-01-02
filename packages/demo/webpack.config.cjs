@@ -55,13 +55,13 @@ const config = {
           exclude: /\.module\.scss$/,
         },
         {
-          test: /\.(m?js|ts)x?$/,
+          test: /\.m?js$/,
           exclude: /(node_modules)/,
           use: {
             loader: "swc-loader",
             options: {
               jsc: {
-                target: "es2016",
+                target: "es2020",
                 transform: {
                   react: {
                     runtime: "automatic",
@@ -91,6 +91,7 @@ const config = {
             appConfig: {
               "envName": "local",
               "apiUrls": {},
+              // TODO: discard and retrieve from external server
               "blockfrostAPI": "previewAPAXSjJaFkfvLu7NxHg4f3N9XqNlNmuM"
             },
           },

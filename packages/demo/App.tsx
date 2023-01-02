@@ -1,61 +1,77 @@
 import { FC, StrictMode, useCallback } from "react";
 import { useMemo } from "react";
-import SundaeSDK from "@sundae/sdk-js";
+import SundaeSDK, {
+  ESupportedTxBuilders,
+  TTxBuilderLoader,
+} from "@sundae/sdk-js";
+import { useState } from "react";
 
 export const App: FC = () => {
+  const [builderLib, setBuilderLib] = useState<ESupportedTxBuilders>();
+
+  const handleTxBuilderLoaderSelect = (key: ESupportedTxBuilders) => {
+    setBuilderLib(key);
+  };
+
   const sdk = useMemo(() => {
-    return new SundaeSDK({
-      TxBuilderLoader: async () => {
-        return await import("lucid-cardano").then(({ Lucid, Blockfrost }) =>
-          Lucid.new(
-            new Blockfrost(
-              "https://cardano-preview.blockfrost.io/api/v0/",
-              // @ts-ignore
-              window.__APP_CONFIG.blockfrostAPI
+    let loader: TTxBuilderLoader;
+    switch (builderLib) {
+      case "mesh":
+        loader = {
+          type: ESupportedTxBuilders.Mesh,
+          loader: () =>
+            import("@meshsdk/core").then(({ BrowserWallet }) =>
+              BrowserWallet.enable("eternl")
             ),
-            "Preview"
-          )
-        );
-      },
+        };
+        break;
+      default:
+      case "lucid":
+        loader = {
+          type: ESupportedTxBuilders.Lucid,
+          loader: () =>
+            import("lucid-cardano").then(({ Lucid, Blockfrost }) =>
+              Lucid.new(
+                new Blockfrost(
+                  "https://cardano-preview.blockfrost.io/api/v0/",
+                  // @ts-ignore
+                  window.__APP_CONFIG.blockfrostAPI
+                ),
+                "Preview"
+              )
+            ),
+        };
+    }
+    return new SundaeSDK({
+      TxBuilderLoader: loader,
       Network: "Preview",
     });
-  }, []);
+  }, [builderLib]);
+
+  console.log(sdk);
 
   const handleSwap = useCallback(async () => {
     if (!sdk) {
       return;
     }
 
-    await sdk.build();
-
-    // try {
-    //   const swapArgs: IGetSwapArgs = {
-    //     submit: true,
-    //     poolIdent: "00",
-    //     asset: {
-    //       amount: 20n,
-    //       metadata: {
-    //         assetID:
-    //           "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15.524245525259",
-    //         decimals: 6,
-    //       },
-    //     },
-    //   };
-
-    //   setSwapping(true);
-    //   const txHash = await sdk.swap(swapArgs);
-    //   console.log(txHash);
-    //   setSwapping(false);
-    // } catch (e) {
-    //   console.log(e);
-    //   setSwapping(false);
-    // }
-  }, []);
+    const builder = await sdk.build();
+  }, [sdk]);
 
   return (
     <div className="flex gap-10">
       <div className="w-3/4 p-4">
-        <button onClick={handleSwap}>Start Building</button>
+        <p>Select preferred Tx Builder</p>
+        <select
+          onChange={(e) =>
+            handleTxBuilderLoaderSelect(e.target.value as ESupportedTxBuilders)
+          }
+        >
+          {Object.entries(ESupportedTxBuilders).map(([name, key]) => (
+            <option value={key}>{name}</option>
+          ))}
+        </select>
+        <button onClick={handleSwap}>Build Tx</button>
       </div>
     </div>
   );

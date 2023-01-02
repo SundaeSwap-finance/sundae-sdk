@@ -2,17 +2,12 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./dist/",
-    "module": "ESNext",
+    "module": "ES2020",
     "sourceMap": true,
-    "target": "ESNext",
+    "target": "ES2020",
     "paths": {
       "@sundae/sdk": ["../"]
-    },
-    "plugins": [
-      {
-        "name": "typescript-plugin-css-modules"
-      }
-    ]
+    }
   },
   "extends": "../../tsconfig.json",
   "include": [

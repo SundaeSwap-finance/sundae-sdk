@@ -1,4 +1,4 @@
-import { TxBuilder } from "./modules/TxBuilder/TxBuilder.class.js";
+import { TxBuilder } from "./modules/TxBuilder";
 import {
   TSupportedNetworks,
   ISundaeSDKConstructorArgs,
