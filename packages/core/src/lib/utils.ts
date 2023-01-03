@@ -35,14 +35,33 @@ export const getAssetIDs = (asset: IAsset): IAssetParsedID => {
 
 export const makeLucidLoader = ({
   provider,
+  blockfrost,
   network,
 }: {
-  provider: Provider;
+  provider: "blockfrost";
+  blockfrost?: {
+    url: string;
+    apiKey: string;
+  };
   network: TSupportedNetworks;
 }): TTxBuilderLoader => ({
   type: ESupportedTxBuilders.Lucid,
   loader: () =>
-    import("lucid-cardano").then(({ Lucid }) => Lucid.new(provider, network)),
+    import("lucid-cardano").then(({ Lucid, Blockfrost }) => {
+      let ThisProvider: Provider;
+      switch (provider) {
+        default:
+        case "blockfrost":
+          if (!blockfrost) {
+            throw new Error(
+              "Must provide a Blockfrost object when choosing it as a Provider for Lucid."
+            );
+          }
+
+          ThisProvider = new Blockfrost(blockfrost.url, blockfrost.apiKey);
+      }
+      return Lucid.new(ThisProvider, network);
+    }),
 });
 
 export const makeMeshLoader = ({

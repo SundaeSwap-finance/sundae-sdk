@@ -5,9 +5,7 @@ import {
   TTxBuilderLoader,
   Utils,
 } from "@sundae/sdk-core";
-import { Blockfrost } from "lucid-cardano";
 import { FC, useState, useEffect } from "react";
-
 import { useAppState } from "../../state/context";
 
 const SelectBuilderOption: FC<{ slug: string; name: string }> = ({
@@ -33,11 +31,12 @@ const SelectBuilder: FC = () => {
         break;
       case "lucid":
         loader = Utils.makeLucidLoader({
-          provider: new Blockfrost(
-            "https://cardano-preview.blockfrost.io/api/v0/",
+          provider: "blockfrost",
+          blockfrost: {
+            url: "https://cardano-preview.blockfrost.io/api/v0/",
             // @ts-ignore
-            window.__APP_CONFIG.blockfrostAPI
-          ),
+            apiKey: window.__APP_CONFIG.blockfrostAPI,
+          },
           network: "Preview",
         });
         break;

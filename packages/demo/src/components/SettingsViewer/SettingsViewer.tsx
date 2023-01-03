@@ -4,6 +4,11 @@ import { useAppState } from "../../state/context";
 
 const SettingsViewer: FC = () => {
   const { SDK } = useAppState();
+
+  if (!SDK) {
+    return null;
+  }
+
   return (
     <div className="rounded-md p-4">
       <h4 className="mb-4 text-lg font-bold text-white">
@@ -18,7 +23,8 @@ const SettingsViewer: FC = () => {
           border: "1px solid #555",
         }}
         src={{
-          builder: SDK?.txBuilderLoader.type,
+          builderType: SDK?.txBuilderLoader.type,
+          builder: SDK?.txBuilder,
           network: SDK?.network,
         }}
       />
