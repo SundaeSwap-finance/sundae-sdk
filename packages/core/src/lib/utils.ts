@@ -1,12 +1,4 @@
-import type { Provider } from "lucid-cardano";
-import {
-  ESupportedTxBuilders,
-  ESupportedWallets,
-  IAsset,
-  IAssetParsedID,
-  TSupportedNetworks,
-  TTxBuilderLoader,
-} from "../types";
+import { IAsset, IAssetParsedID } from "../types";
 import { ERROR_CODES } from "./errors";
 
 export const toLovelace = (val: BigInt, decimals: number) =>
@@ -33,45 +25,45 @@ export const getAssetIDs = (asset: IAsset): IAssetParsedID => {
   };
 };
 
-export const makeLucidLoader = ({
-  provider,
-  blockfrost,
-  network,
-}: {
-  provider: "blockfrost";
-  blockfrost?: {
-    url: string;
-    apiKey: string;
-  };
-  network: TSupportedNetworks;
-}): TTxBuilderLoader => ({
-  type: ESupportedTxBuilders.Lucid,
-  loader: () =>
-    import("lucid-cardano").then(({ Lucid, Blockfrost }) => {
-      let ThisProvider: Provider;
-      switch (provider) {
-        default:
-        case "blockfrost":
-          if (!blockfrost) {
-            throw new Error(
-              "Must provide a Blockfrost object when choosing it as a Provider for Lucid."
-            );
-          }
+// export const makeLucidLoader = ({
+//   provider,
+//   blockfrost,
+//   network,
+// }: {
+//   provider: "blockfrost";
+//   blockfrost?: {
+//     url: string;
+//     apiKey: string;
+//   };
+//   network: TSupportedNetworks;
+// }): TTxBuilderLoaderOptions => ({
+//   type: ESupportedTxBuilders.Lucid,
+//   loader: () =>
+//     import("lucid-cardano").then(({ Lucid, Blockfrost }) => {
+//       let ThisProvider: Provider;
+//       switch (provider) {
+//         default:
+//         case "blockfrost":
+//           if (!blockfrost) {
+//             throw new Error(
+//               "Must provide a Blockfrost object when choosing it as a Provider for Lucid."
+//             );
+//           }
 
-          ThisProvider = new Blockfrost(blockfrost.url, blockfrost.apiKey);
-      }
-      return Lucid.new(ThisProvider, network);
-    }),
-});
+//           ThisProvider = new Blockfrost(blockfrost.url, blockfrost.apiKey);
+//       }
+//       return Lucid.new(ThisProvider, network);
+//     }),
+// });
 
-export const makeMeshLoader = ({
-  wallet,
-}: {
-  wallet: ESupportedWallets;
-}): TTxBuilderLoader => ({
-  type: ESupportedTxBuilders.Mesh,
-  loader: () =>
-    import("@meshsdk/core").then(({ BrowserWallet }) =>
-      BrowserWallet.enable(wallet)
-    ),
-});
+// export const makeMeshLoader = ({
+//   wallet,
+// }: {
+//   wallet: ESupportedWallets;
+// }): TTxBuilderLoaderOptions => ({
+//   type: ESupportedTxBuilders.Mesh,
+//   loader: () =>
+//     import("@meshsdk/core").then(({ BrowserWallet }) =>
+//       BrowserWallet.enable(wallet)
+//     ),
+// });

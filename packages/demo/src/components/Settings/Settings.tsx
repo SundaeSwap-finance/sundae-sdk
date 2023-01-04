@@ -1,57 +1,55 @@
 import {
-  ESupportedTxBuilders,
+  TSupportedTxBuilders,
   ESupportedWallets,
   SundaeSDK,
-  TTxBuilderLoader,
-  Utils,
+  TxBuilder,
+  TxBuilderLucid,
+  TxBuilderMesh,
 } from "@sundae/sdk-core";
 import { FC, useState, useEffect } from "react";
 import { useAppState } from "../../state/context";
 
-const SelectBuilderOption: FC<{ slug: string; name: string }> = ({
-  slug,
-  name,
-}) => <option value={slug}>{name}</option>;
+const SelectBuilderOption: FC<{
+  builder: TSupportedTxBuilders;
+  name: string;
+}> = ({ builder, name }) => <option value={builder}>{name}</option>;
 
 const SelectBuilder: FC = () => {
   const { setSDK } = useAppState();
-  const [builderLib, setBuilderLib] = useState<ESupportedTxBuilders>();
+  const [builderLib, setBuilderLib] = useState<TSupportedTxBuilders>();
 
-  const handleTxBuilderLoaderSelect = (key: ESupportedTxBuilders) => {
+  const handleTxBuilderLoaderSelect = (key: TSupportedTxBuilders) => {
     setBuilderLib(key);
   };
 
   useEffect(() => {
-    let loader: TTxBuilderLoader;
+    let sdk: SundaeSDK | undefined = undefined;
     switch (builderLib) {
       case "mesh":
-        loader = Utils.makeMeshLoader({
-          wallet: ESupportedWallets.Eternl,
-        });
+        sdk = new SundaeSDK(
+          TxBuilderMesh.new({
+            wallet: ESupportedWallets.Eternl,
+            network: "preview",
+          })
+        );
         break;
       case "lucid":
-        loader = Utils.makeLucidLoader({
-          provider: "blockfrost",
-          blockfrost: {
-            url: "https://cardano-preview.blockfrost.io/api/v0/",
-            // @ts-ignore
-            apiKey: window.__APP_CONFIG.blockfrostAPI,
-          },
-          network: "Preview",
-        });
+        sdk = new SundaeSDK(
+          TxBuilderLucid.new({
+            provider: "blockfrost",
+            blockfrost: {
+              url: "https://cardano-preview.blockfrost.io/api/v0/",
+              // @ts-ignore
+              apiKey: window.__APP_CONFIG.blockfrostAPI,
+            },
+            network: "preview",
+            wallet: ESupportedWallets.Eternl,
+          })
+        );
         break;
-      default:
-        setSDK(undefined);
-        return;
     }
 
-    setSDK(
-      new SundaeSDK({
-        TxBuilderLoader: loader,
-        Network: "Preview",
-        wallet: ESupportedWallets.Eternl,
-      })
-    );
+    setSDK(sdk);
   }, [builderLib, setSDK]);
 
   return (
@@ -64,13 +62,12 @@ const SelectBuilder: FC = () => {
           className="mr-4 w-full rounded-md bg-slate-800 px-4 py-2"
           value={builderLib}
           onChange={(e) =>
-            handleTxBuilderLoaderSelect(e.target.value as ESupportedTxBuilders)
+            handleTxBuilderLoaderSelect(e.target.value as TSupportedTxBuilders)
           }
         >
-          <SelectBuilderOption slug="undefined" name="None" />
-          {Object.entries(ESupportedTxBuilders).map(([name, key]) => (
-            <SelectBuilderOption key={key} slug={key} name={name} />
-          ))}
+          <option value="undefined">None</option>
+          <SelectBuilderOption builder="lucid" name="Lucid" />
+          <SelectBuilderOption builder="mesh" name="Mesh" />
         </select>
       </div>
     </div>

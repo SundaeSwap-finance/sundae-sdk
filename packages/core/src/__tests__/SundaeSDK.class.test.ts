@@ -2,7 +2,7 @@
 import { jest } from "@jest/globals";
 import { Lucid, WalletApi, Provider, ProtocolParameters } from "lucid-cardano";
 
-import { params } from "../lib/params";
+import { protocolParams } from "../lib/params";
 import { SundaeSDK } from "../classes/SundaeSDK.class";
 import { PreviewParams } from "./PreviewParams";
 
@@ -95,7 +95,7 @@ describe("SundaeSDK class methods", () => {
   it("should have the right variables", () => {
     expect(sdk.network).toEqual("Preview");
     expect(sdk.api).toBeInstanceOf(MockWalletApi);
-    expect(sdk.params).toMatchObject(params.Preview);
+    expect(sdk.params).toMatchObject(protocolParams.Preview);
     expect(sdk.provider).toBeInstanceOf(MockBlockfrost);
     expect(sdk.swapping).toBeFalsy();
   });

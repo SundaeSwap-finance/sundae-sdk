@@ -22,11 +22,7 @@ const SettingsViewer: FC = () => {
           borderRadius: 8,
           border: "1px solid #555",
         }}
-        src={{
-          builderType: SDK?.txBuilderLoader.type,
-          builder: SDK?.txBuilder,
-          network: SDK?.network,
-        }}
+        src={SDK?.TxBuilderOptions}
       />
     </div>
   );

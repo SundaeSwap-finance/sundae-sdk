@@ -1,39 +1,44 @@
-import { TxBuilder } from "./modules/TxBuilder";
-import {
-  TSupportedNetworks,
-  ISundaeSDKConstructorArgs,
-  TTxBuilderLoader,
-  ESupportedWallets,
-} from "../types";
+import { TSupportedTxBuilderOptions, TSwapAsset } from "../types";
+import type { Provider } from "./modules/Provider/Provider.abstract.class";
+import { ProviderSundaeSwap } from "./modules/Provider/Provider.SundaeSwap";
+import type { TxBuilder } from "./modules/TxBuilder/TxBuilder.abstract";
 
 export class SundaeSDK {
-  public wallet: ESupportedWallets;
-  public txBuilder?: TxBuilder;
-  public txBuilderLoader: TTxBuilderLoader;
-  public network: TSupportedNetworks;
+  private provider: Provider;
+  public TxBuilderOptions: TSupportedTxBuilderOptions;
 
-  public constructor({
-    TxBuilderLoader,
-    Network,
-    wallet,
-  }: ISundaeSDKConstructorArgs) {
-    this.network = Network;
-    this.txBuilderLoader = TxBuilderLoader;
-    this.wallet = wallet;
+  constructor(private builder: TxBuilder, provider?: Provider) {
+    this.builder = builder;
+    this.provider = provider ?? new ProviderSundaeSwap(builder.options.network);
+    this.TxBuilderOptions = builder.options;
   }
 
-  public async loadTxBuilder() {
-    if (!this.txBuilder) {
-      this.txBuilder = await TxBuilder.new(this);
-    }
-
-    return this.txBuilder;
+  query(): Provider {
+    return this.provider;
   }
 
-  public async build() {
-    await this.loadTxBuilder();
+  /**
+   *
+   * @param givenAsset The asset which you are providing for the swap.
+   * @param coinA The first human-readable ticker name or concatenated assetID of the pool.
+   * @param coinB The second human-readable ticker name or concatenated assetID of the pool.
+   * @param fee The desired fee of the pool you want to use.
+   * @param receiverAddress Where you want coinB to be sent to.
+   */
+  async swap(
+    givenAsset: TSwapAsset,
+    coinA: string,
+    coinB: string,
+    fee: string,
+    receiverAddress: string
+  ) {
+    const poolData = await this.provider.findPoolData(coinA, coinB, fee);
 
-    return this.txBuilder;
+    return this.builder.buildSwap({
+      givenAsset,
+      poolData,
+      receiverAddress,
+    });
   }
 }
 
