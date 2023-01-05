@@ -4,7 +4,6 @@ import {
   SundaeSDK,
   TxBuilder,
   TxBuilderLucid,
-  TxBuilderMesh,
 } from "@sundae/sdk-core";
 import { FC, useState, useEffect } from "react";
 import { useAppState } from "../../state/context";
@@ -25,14 +24,14 @@ const SelectBuilder: FC = () => {
   useEffect(() => {
     let sdk: SundaeSDK | undefined = undefined;
     switch (builderLib) {
-      case "mesh":
-        sdk = new SundaeSDK(
-          TxBuilderMesh.new({
-            wallet: ESupportedWallets.Eternl,
-            network: "preview",
-          })
-        );
-        break;
+      // case "mesh":
+      //   sdk = new SundaeSDK(
+      //     TxBuilderMesh.new({
+      //       wallet: ESupportedWallets.Eternl,
+      //       network: "preview",
+      //     })
+      //   );
+      //   break;
       case "lucid":
         sdk = new SundaeSDK(
           TxBuilderLucid.new({

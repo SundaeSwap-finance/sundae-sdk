@@ -1,34 +1,65 @@
-import { FC, useCallback, useState } from "react";
+import { AssetAmount, SwapConfig } from "@sundae/sdk-core";
+import { FC, useCallback, useMemo, useState } from "react";
 import { useAppState } from "../../state/context";
 import Button from "../Button";
 
 export const Actions: FC = () => {
   const { SDK } = useAppState();
   const [swapping, setSwapping] = useState(false);
+  const [reverseSwapping, setReverseSwapping] = useState(false);
 
   const handleSwap = useCallback(async () => {
     if (!SDK) {
       return;
     }
 
-    try {
-      setSwapping(true);
-      const txBuilder = await SDK.build().swap({
-        ident: "03",
-        providedAsset: {
-          amount: 20n,
-          name: "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-        },
-        receiverAddress:
-          "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32",
-      });
-      const res = await txBuilder.complete();
-      console.log(res);
-    } catch (e) {
-      console.log(e);
+    setSwapping(true);
+    const pool = await SDK.query().findPoolData(
+      "",
+      "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
+      "0.30"
+    );
+    const config = new SwapConfig()
+      .setPool(pool)
+      .setFunding({
+        assetID:
+          "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
+        amount: new AssetAmount(20n, 6),
+      })
+      .setReceiverAddress(
+        "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32"
+      );
+
+    const txHash = await SDK.swap(config);
+    console.log(txHash);
+    setSwapping(false);
+  }, [SDK]);
+
+  const handleReverseSwap = useCallback(async () => {
+    if (!SDK) {
+      return;
     }
 
-    setSwapping(false);
+    setReverseSwapping(true);
+    const pool = await SDK.query().findPoolData(
+      "",
+      "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
+      "0.30"
+    );
+
+    const config = new SwapConfig()
+      .setPool(pool)
+      .setFunding({
+        assetID: "",
+        amount: new AssetAmount(25n, 6),
+      })
+      .setReceiverAddress(
+        "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32"
+      );
+
+    const txHash = await SDK.swap(config);
+    console.log(txHash);
+    setReverseSwapping(false);
   }, [SDK]);
 
   if (!SDK) {
@@ -43,6 +74,9 @@ export const Actions: FC = () => {
       <div className="grid grid-cols-3 gap-4">
         <Button onClick={handleSwap} loading={swapping}>
           Swap tINDY for tADA
+        </Button>
+        <Button onClick={handleReverseSwap} loading={reverseSwapping}>
+          Swap tADA for tINDY
         </Button>
       </div>
     </div>

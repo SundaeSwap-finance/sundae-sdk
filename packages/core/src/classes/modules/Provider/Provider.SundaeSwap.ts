@@ -1,5 +1,5 @@
-import { providerBaseUrls } from "src/lib/params";
-import { TSupportedNetworks } from "src/types";
+import { providerBaseUrls } from "../../../lib/params";
+import { TSupportedNetworks } from "../../../types";
 import { IPoolData, Provider } from "./Provider.abstract.class";
 
 export class ProviderSundaeSwap extends Provider {
@@ -43,9 +43,11 @@ export class ProviderSundaeSwap extends Provider {
                 ident
                 assetA {
                   assetId
+                  decimals
                 }
                 assetB {
                   assetId
+                  decimals
                 }
               }
           }
@@ -68,10 +70,7 @@ export class ProviderSundaeSwap extends Provider {
       ({ fee: poolFee }) => poolFee === fee
     );
     if (!pool) {
-      throw new Error(
-        "Pool ident not found with those parameters! Full response: " +
-          JSON.stringify(res)
-      );
+      throw new Error("Pool ident not found with a fee of: " + fee);
     }
 
     return pool;

@@ -1,6 +1,14 @@
-import type { BrowserWallet, Data, Transaction } from "@meshsdk/core";
-import type { Constr, Lucid, Tx } from "lucid-cardano";
-import { IPoolData } from "src/classes/modules/Provider/Provider.abstract.class";
+import type {
+  BrowserWallet,
+  Data as MeshData,
+  Transaction,
+} from "@meshsdk/core";
+import type { Data, Lucid, Tx } from "lucid-cardano";
+import { AssetAmount } from "../classes/utilities/AssetAmount.class";
+import {
+  IPoolData,
+  IPoolDataAsset,
+} from "../classes/modules/Provider/Provider.abstract.class";
 
 export type TSupportedNetworks = "mainnet" | "preview";
 
@@ -22,14 +30,14 @@ export interface IAssetParsedID {
 }
 
 export interface IAsset {
-  amount: bigint;
+  amount: AssetAmount;
   metadata: IAssetMetadata;
 }
 
 export interface IGetSwapArgs {
   poolIdent: string;
   asset: IAsset;
-  minimumReceivableAsset?: bigint;
+  minimumReceivableAsset?: AssetAmount;
   submit?: boolean;
   swapDirection?: 0 | 1;
 }
@@ -79,21 +87,23 @@ export type TMeshArgs = {
   network: TSupportedNetworks;
 };
 
-export type TDatumType<T = any> = Constr<T> | Data;
+export type TDatumType = Data | MeshData;
 export type TTxBuilderComplete = {
   cbor: string;
   submit: () => Promise<string>;
 };
 
 export type TSwapAsset = {
-  name: string;
-  amount: bigint;
+  assetID: string;
+  amount: AssetAmount;
 };
 
 export interface IBuildSwapArgs {
+  ident: string;
   givenAsset: TSwapAsset;
+  assetA: IPoolDataAsset;
+  assetB: IPoolDataAsset;
   receiverAddress: string;
-  poolData: IPoolData;
   additionalCanceler?: string;
-  minReceivable?: bigint;
+  minReceivable?: AssetAmount;
 }

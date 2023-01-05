@@ -1,6 +1,6 @@
 export interface IPoolDataAsset {
   assetId: string;
-  name: string;
+  decimals: number;
 }
 
 export interface IPoolData {

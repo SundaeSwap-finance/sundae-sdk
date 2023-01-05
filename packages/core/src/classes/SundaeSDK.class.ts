@@ -2,43 +2,24 @@ import { TSupportedTxBuilderOptions, TSwapAsset } from "../types";
 import type { Provider } from "./modules/Provider/Provider.abstract.class";
 import { ProviderSundaeSwap } from "./modules/Provider/Provider.SundaeSwap";
 import type { TxBuilder } from "./modules/TxBuilder/TxBuilder.abstract";
+import type { SwapConfig } from "./utilities/SwapConfig.class";
 
 export class SundaeSDK {
-  private provider: Provider;
-  public TxBuilderOptions: TSupportedTxBuilderOptions;
-
-  constructor(private builder: TxBuilder, provider?: Provider) {
+  constructor(private builder: TxBuilder) {
     this.builder = builder;
-    this.provider = provider ?? new ProviderSundaeSwap(builder.options.network);
-    this.TxBuilderOptions = builder.options;
   }
 
   query(): Provider {
-    return this.provider;
+    return this.builder.provider;
   }
 
-  /**
-   *
-   * @param givenAsset The asset which you are providing for the swap.
-   * @param coinA The first human-readable ticker name or concatenated assetID of the pool.
-   * @param coinB The second human-readable ticker name or concatenated assetID of the pool.
-   * @param fee The desired fee of the pool you want to use.
-   * @param receiverAddress Where you want coinB to be sent to.
-   */
-  async swap(
-    givenAsset: TSwapAsset,
-    coinA: string,
-    coinB: string,
-    fee: string,
-    receiverAddress: string
-  ) {
-    const poolData = await this.provider.findPoolData(coinA, coinB, fee);
+  async swap(config: SwapConfig, submit?: boolean) {
+    const tx = await this.builder.buildSwap(config.build());
+    if (false !== submit) {
+      return await tx.submit();
+    }
 
-    return this.builder.buildSwap({
-      givenAsset,
-      poolData,
-      receiverAddress,
-    });
+    return tx;
   }
 }
 

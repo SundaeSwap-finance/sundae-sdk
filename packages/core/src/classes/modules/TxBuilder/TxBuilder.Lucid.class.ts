@@ -5,8 +5,8 @@ import type {
   Provider as ProviderType,
   Network as NetworkType,
   Data as DataType,
-  Constr as ConstrType,
 } from "lucid-cardano";
+
 import {
   IBuildSwapArgs,
   TLucidArgs,
@@ -15,21 +15,26 @@ import {
   TTxBuilderComplete,
   TSwapAsset,
 } from "../../../types";
-import { TLucidDatum } from "../../../types/datums";
-import { IPoolDataAsset } from "../Provider/Provider.abstract.class";
+import { AssetAmount } from "../../../classes/utilities/AssetAmount.class";
+import { IPoolDataAsset, Provider } from "../Provider/Provider.abstract.class";
 import { TxBuilder } from "./TxBuilder.abstract";
+import { ProviderSundaeSwap } from "../Provider/Provider.SundaeSwap";
 
 export class TxBuilderLucid extends TxBuilder {
   protected lib?: LucidType;
   protected currentTx?: TxType;
-  protected currentDatum?: TLucidDatum;
+  protected currentDatum?: DataType;
 
-  private constructor(public options: TLucidArgs) {
+  private constructor(public options: TLucidArgs, public provider: Provider) {
     super();
     this.options = options;
+    this.provider = provider;
   }
 
-  static new(args: ITxBuilderLoaderOptions["lucid"]): TxBuilderLucid {
+  static new(
+    args: ITxBuilderLoaderOptions["lucid"],
+    provider?: Provider
+  ): TxBuilderLucid {
     switch (args?.provider) {
       case "blockfrost":
         if (!args?.blockfrost) {
@@ -39,7 +44,10 @@ export class TxBuilderLucid extends TxBuilder {
         }
     }
 
-    return new TxBuilderLucid(args as TLucidArgs);
+    return new TxBuilderLucid(
+      args as TLucidArgs,
+      provider ?? new ProviderSundaeSwap(args?.network ?? "preview")
+    );
   }
 
   async getLib(): Promise<LucidType> {
@@ -97,18 +105,20 @@ export class TxBuilderLucid extends TxBuilder {
         : Buffer;
 
     return {
-      submit: signedTx.submit,
+      submit: async () => await signedTx.submit(),
       cbor: CtxBuffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
     };
   }
 
   async buildSwap({
-    poolData: { assetA, assetB, ident },
+    ident,
+    assetA,
+    assetB,
     receiverAddress,
     givenAsset,
-    minReceivable = 1n,
+    minReceivable = new AssetAmount(1n),
     additionalCanceler,
-  }: IBuildSwapArgs): Promise<TxBuilderLucid> {
+  }: IBuildSwapArgs): Promise<TTxBuilderComplete> {
     const lucid = await this.getLib();
     this.currentTx = lucid.newTx();
 
@@ -116,7 +126,7 @@ export class TxBuilderLucid extends TxBuilder {
       lucid.utils.getAddressDetails(receiverAddress);
 
     if (!paymentCredential) {
-      throw new Error();
+      throw new Error("Invalid receiver address provided.");
     }
 
     const { Constr, Data } = await import("lucid-cardano");
@@ -143,23 +153,25 @@ export class TxBuilderLucid extends TxBuilder {
 
     const payment: Record<string, bigint> = {};
 
-    if (givenAsset.name === "") {
-      payment.lovelace = SCOOPER_FEE + RIDER_FEE + givenAsset.amount;
+    if (givenAsset.assetID === "") {
+      payment.lovelace =
+        SCOOPER_FEE +
+        RIDER_FEE +
+        givenAsset.amount.getRawAmount(assetA.decimals);
     } else {
       payment.lovelace = SCOOPER_FEE + RIDER_FEE;
-      payment[givenAsset.name.replace(".", "")] = givenAsset.amount;
+      payment[givenAsset.assetID.replace(".", "")] =
+        givenAsset.amount.getRawAmount(assetA.decimals);
     }
 
-    console.log(data, payment);
-
-    // this.currentDatum = data;
+    this.currentDatum = data;
     this.currentTx = this.currentTx.payToContract(
       ESCROW_ADDRESS,
       Data.to(data),
       payment
     );
 
-    return this;
+    return await this.complete();
   }
 
   protected async buildDatumDestination(
@@ -168,7 +180,7 @@ export class TxBuilderLucid extends TxBuilder {
     datum?: DataType
   ): Promise<DataType> {
     const { Constr, Data } = await import("lucid-cardano");
-    const hash = Data.to(datum);
+    const hash = datum && Data.to(datum);
     return new Constr(0, [
       new Constr(0, [
         new Constr(0, [paymentCred]),
@@ -203,13 +215,15 @@ export class TxBuilderLucid extends TxBuilder {
     givenAsset: TSwapAsset,
     assetA: IPoolDataAsset,
     assetB: IPoolDataAsset,
-    minReceivable: bigint
+    minReceivable: AssetAmount
   ): Promise<DataType> {
     const { Constr } = await import("lucid-cardano");
     return new Constr(0, [
       new Constr(super.getSwapDirection(givenAsset, [assetA, assetB]), []),
-      givenAsset.amount,
-      minReceivable ? new Constr(0, [minReceivable]) : new Constr(1, []),
+      givenAsset.amount.getRawAmount(assetA.decimals),
+      minReceivable
+        ? new Constr(0, [minReceivable.getRawAmount(assetB.decimals)])
+        : new Constr(1, []),
     ]);
   }
 

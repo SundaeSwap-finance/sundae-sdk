@@ -1,5 +1,6 @@
 import type { Data as MeshData } from "@meshsdk/core";
-import type { Constr, Data } from "lucid-cardano";
+import type { Data } from "lucid-cardano";
+
 import {
   TDatumType,
   TSupportedTxBuilderLibs,
@@ -11,7 +12,8 @@ import {
   IParams,
   TSwapAsset,
 } from "../../../types";
-import { IPoolDataAsset } from "../Provider/Provider.abstract.class";
+import { AssetAmount } from "../../../classes/utilities/AssetAmount.class";
+import { IPoolDataAsset, Provider } from "../Provider/Provider.abstract.class";
 
 export abstract class TxBuilder {
   protected protocolParams: Record<TSupportedNetworks, IParams> = {
@@ -28,14 +30,14 @@ export abstract class TxBuilder {
     },
   };
 
+  abstract provider: Provider;
   abstract options: TSupportedTxBuilderOptions;
   protected abstract lib?: TSupportedTxBuilderLibs;
   protected abstract currentTx?: TSupportedTxBuilderTxTypes;
   protected abstract currentDatum?: TDatumType;
 
   // Main builder methods.
-  abstract buildSwap(args: IBuildSwapArgs): Promise<TxBuilder>;
-  abstract complete(): Promise<TTxBuilderComplete>;
+  abstract buildSwap(args: IBuildSwapArgs): Promise<TTxBuilderComplete>;
 
   protected abstract buildDatumDestination(
     paymentCred: string,
@@ -51,23 +53,23 @@ export abstract class TxBuilder {
     givenAsset: TSwapAsset,
     assetA: IPoolDataAsset,
     assetB: IPoolDataAsset,
-    minimumReceivable: bigint
+    minimumReceivable: AssetAmount
   ): Promise<Data | MeshData>;
 
   // Class utility methods.
   protected abstract getLib(): Promise<TSupportedTxBuilderLibs>;
   protected abstract createCurrentTx(): Promise<TSupportedTxBuilderTxTypes>;
 
-  sortSwapAssets(assets: [IPoolDataAsset, IPoolDataAsset]) {
-    return assets.sort((a, b) => a.name.localeCompare(b.name));
+  protected sortSwapAssets(assets: [IPoolDataAsset, IPoolDataAsset]) {
+    return assets.sort((a, b) => a.assetId.localeCompare(b.assetId));
   }
 
-  getSwapDirection(
-    { name }: TSwapAsset,
+  protected getSwapDirection(
+    { assetID }: TSwapAsset,
     assets: [IPoolDataAsset, IPoolDataAsset]
   ): 0 | 1 {
     const sorted = this.sortSwapAssets(assets);
-    if (Object.values(sorted[1]).includes(name)) {
+    if (Object.values(sorted[1]).includes(assetID)) {
       return 1;
     }
 
