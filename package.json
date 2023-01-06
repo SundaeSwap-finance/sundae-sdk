@@ -1,5 +1,6 @@
 {
   "name": "root",
+  "type": "module",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -8,12 +9,19 @@
     "postinstall": "lerna bootstrap",
     "prepare": "husky install",
     "build": "cd packages/sdk && yarn build",
-    "release": "yarn build && lerna publish from-package -y"
+    "release": "yarn build && lerna publish from-package -y",
+    "docs:generate": "ts-node ./scripts/generateDocs.ts",
+    "docs:build": "api-documenter markdown --input ./docs/config --output ./docs/pages"
   },
   "devDependencies": {
     "@meshsdk/core": "^1.3.0",
+    "@microsoft/api-documenter": "^7.19.27",
+    "@microsoft/api-extractor": "^7.33.7",
+    "glob": "^8.0.3",
     "lerna": "^5.6.2",
     "lucid-cardano": "^0.8.4",
-    "ts-jest": "^29.0.3"
-  }
+    "ts-jest": "^29.0.3",
+    "ts-node": "^10.9.1"
+  },
+  "dependencies": {}
 }

@@ -1,6 +1,6 @@
 import { providerBaseUrls } from "../../../lib/params";
 import { TSupportedNetworks } from "../../../types";
-import { IPoolData, Provider } from "./Provider.abstract.class";
+import { IPoolData, IPoolQuery, Provider } from "./Provider.abstract.class";
 
 export class ProviderSundaeSwap extends Provider {
   protected baseUrl: string;
@@ -11,12 +11,8 @@ export class ProviderSundaeSwap extends Provider {
     this.baseUrl = providerBaseUrls[network];
   }
 
-  async findPoolIdent(
-    tickerA: string,
-    tickerB: string,
-    fee: string
-  ): Promise<string> {
-    const data = await this.findPoolData(tickerA, tickerB, fee);
+  async findPoolIdent(query: IPoolQuery): Promise<string> {
+    const data = await this.findPoolData(query);
     if (!data.ident) {
       throw new Error("Unable to find matching ident for that pair!");
     }
@@ -24,11 +20,10 @@ export class ProviderSundaeSwap extends Provider {
     return data.ident;
   }
 
-  async findPoolData(
-    tickerA: string,
-    tickerB: string,
-    fee: string
-  ): Promise<IPoolData> {
+  async findPoolData({
+    pair: [coinA, coinB],
+    fee,
+  }: IPoolQuery): Promise<IPoolData> {
     const res: {
       data?: {
         poolsByPair: IPoolData[];
@@ -37,8 +32,8 @@ export class ProviderSundaeSwap extends Provider {
       method: "POST",
       body: JSON.stringify({
         query: `
-          query poolsByPair($tickerA: String!, $tickerB: String!) {
-              poolsByPair(coinA: $tickerA, coinB: $tickerB) {
+          query poolsByPair($coinA: String!, $coinB: String!) {
+              poolsByPair(coinA: $coinA, coinB: $coinB) {
                 fee
                 ident
                 assetA {
@@ -53,8 +48,8 @@ export class ProviderSundaeSwap extends Provider {
           }
         `,
         variables: {
-          tickerA,
-          tickerB,
+          coinA,
+          coinB,
         },
       }),
     }).then((res) => res.json());
@@ -69,6 +64,7 @@ export class ProviderSundaeSwap extends Provider {
     const pool = res.data.poolsByPair.find(
       ({ fee: poolFee }) => poolFee === fee
     );
+
     if (!pool) {
       throw new Error("Pool ident not found with a fee of: " + fee);
     }

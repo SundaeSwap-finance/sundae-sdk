@@ -111,11 +111,9 @@ export class TxBuilderLucid extends TxBuilder {
   }
 
   async buildSwap({
-    ident,
-    assetA,
-    assetB,
+    pool: { ident, assetA, assetB },
     receiverAddress,
-    givenAsset,
+    suppliedAsset,
     minReceivable = new AssetAmount(1n),
     additionalCanceler,
   }: IBuildSwapArgs): Promise<TTxBuilderComplete> {
@@ -134,7 +132,7 @@ export class TxBuilderLucid extends TxBuilder {
 
     const canceler = await this.buildDatumCancelSignatory(additionalCanceler);
     const swap = await this.buildSwapDatum(
-      givenAsset,
+      suppliedAsset,
       assetA,
       assetB,
       minReceivable
@@ -153,15 +151,15 @@ export class TxBuilderLucid extends TxBuilder {
 
     const payment: Record<string, bigint> = {};
 
-    if (givenAsset.assetID === "") {
+    if (suppliedAsset.assetID === "") {
       payment.lovelace =
         SCOOPER_FEE +
         RIDER_FEE +
-        givenAsset.amount.getRawAmount(assetA.decimals);
+        suppliedAsset.amount.getRawAmount(assetA.decimals);
     } else {
       payment.lovelace = SCOOPER_FEE + RIDER_FEE;
-      payment[givenAsset.assetID.replace(".", "")] =
-        givenAsset.amount.getRawAmount(assetA.decimals);
+      payment[suppliedAsset.assetID.replace(".", "")] =
+        suppliedAsset.amount.getRawAmount(assetA.decimals);
     }
 
     this.currentDatum = data;

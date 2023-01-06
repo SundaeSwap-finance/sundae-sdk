@@ -26,7 +26,8 @@
     "compile:types": "tsc --outDir dist/types --emitDeclarationOnly --declarationMap --declaration",
     "compile": "yarn compile:cjs && yarn compile:esm && yarn compile:types",
     "build": "yarn clean && yarn compile",
-    "watch": "yarn compile:cjs && yarn compile:types && yarn compile:esm --watch"
+    "watch": "yarn compile:cjs && yarn compile:types && yarn compile:esm --watch",
+    "docs:generate": "api-extractor run --local && api-documenter --input-folder './docs/config' --output-folder './docs/markdown'"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -34,6 +35,8 @@
     ]
   },
   "devDependencies": {
+    "@microsoft/api-documenter": "^7.19.27",
+    "@microsoft/api-extractor": "^7.33.7",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^14.3.0",
     "@types/jest": "^28.1.3",

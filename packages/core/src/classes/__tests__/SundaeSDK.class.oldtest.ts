@@ -2,9 +2,9 @@
 import { jest } from "@jest/globals";
 import { Lucid, WalletApi, Provider, ProtocolParameters } from "lucid-cardano";
 
-import { protocolParams } from "../lib/params";
-import { SundaeSDK } from "../classes/SundaeSDK.class";
-import { PreviewParams } from "./PreviewParams";
+import { protocolParams } from "../../lib/params";
+import { SundaeSDK } from "../SundaeSDK.class";
+import { PreviewParams } from "./data/PreviewParams";
 
 let sdk: SundaeSDK;
 let mockWallet: WalletApi;

@@ -1,5 +1,5 @@
-import { AssetAmount } from "../../classes/utilities/AssetAmount.class";
-import { SwapConfig } from "../../classes/utilities/SwapConfig.class";
+import { AssetAmount } from "../AssetAmount.class";
+import { SwapConfig } from "../SwapConfig.class";
 
 const mockPool = {
   assetA: {
@@ -12,6 +12,7 @@ const mockPool = {
     decimals: 0,
   },
   ident: "06",
+  fee: "0.30",
 };
 
 const mockFunding = {

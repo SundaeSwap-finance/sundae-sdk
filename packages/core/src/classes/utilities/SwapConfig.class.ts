@@ -2,7 +2,7 @@ import type { IBuildSwapArgs, TSwapAsset } from "../../types";
 import { IPoolData } from "../modules/Provider/Provider.abstract.class";
 
 export class SwapConfig {
-  private pool?: Omit<IPoolData, "fee">;
+  private pool?: IPoolData;
   private funding?: TSwapAsset;
   private receiverAddress?: string;
 
@@ -23,7 +23,7 @@ export class SwapConfig {
     return this;
   }
 
-  setPool(pool: Omit<IPoolData, "fee">) {
+  setPool(pool: IPoolData) {
     this.pool = pool;
     return this;
   }
@@ -47,8 +47,8 @@ export class SwapConfig {
 
   build(): IBuildSwapArgs {
     return {
-      ...this.validateAndGetPool(),
-      givenAsset: this.validateAndGetFunding(),
+      pool: this.validateAndGetPool(),
+      suppliedAsset: this.validateAndGetFunding(),
       receiverAddress: this.validateAndGetReceiverAddr(),
     };
   }
@@ -61,7 +61,7 @@ export class SwapConfig {
     return this.receiverAddress;
   }
 
-  private validateAndGetPool(): Omit<IPoolData, "fee"> {
+  private validateAndGetPool(): IPoolData {
     if (!this.pool) {
       throw this.getPropertyDoesNotExistError("pool", "setPool");
     }

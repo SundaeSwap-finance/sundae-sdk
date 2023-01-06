@@ -99,10 +99,8 @@ export type TSwapAsset = {
 };
 
 export interface IBuildSwapArgs {
-  ident: string;
-  givenAsset: TSwapAsset;
-  assetA: IPoolDataAsset;
-  assetB: IPoolDataAsset;
+  pool: IPoolData;
+  suppliedAsset: TSwapAsset;
   receiverAddress: string;
   additionalCanceler?: string;
   minReceivable?: AssetAmount;

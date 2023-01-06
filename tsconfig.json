@@ -24,7 +24,7 @@
   },
   "exclude": ["node_modules", "temporary_modules", "tools/*.ts", "dist"],
   "ts-node": {
-    "require": ["tsconfig-paths/register"],
+    "esm": true,
     "compilerOptions": {
       "module": "ESNext"
     }

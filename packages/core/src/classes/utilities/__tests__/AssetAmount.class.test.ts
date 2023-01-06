@@ -1,4 +1,4 @@
-import { AssetAmount } from "../../classes/utilities/AssetAmount.class";
+import { AssetAmount } from "../AssetAmount.class";
 
 describe("AssetAmount class", () => {
   it("should accurately convert an amount when decimals are provided", () => {
