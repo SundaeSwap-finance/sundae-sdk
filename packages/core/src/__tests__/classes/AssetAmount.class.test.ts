@@ -1,4 +1,3 @@
-import { jest } from "@jest/globals";
 import { AssetAmount } from "../../classes/utilities/AssetAmount.class";
 
 describe("AssetAmount class", () => {

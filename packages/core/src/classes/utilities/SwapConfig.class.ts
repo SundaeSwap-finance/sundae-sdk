@@ -33,6 +33,18 @@ export class SwapConfig {
     return this;
   }
 
+  getFunding() {
+    return this.funding;
+  }
+
+  getPool() {
+    return this.pool;
+  }
+
+  getReceiverAddress() {
+    return this.receiverAddress;
+  }
+
   build(): IBuildSwapArgs {
     return {
       ...this.validateAndGetPool(),
@@ -51,7 +63,7 @@ export class SwapConfig {
 
   private validateAndGetPool(): Omit<IPoolData, "fee"> {
     if (!this.pool) {
-      throw this.getPropertyDoesNotExistError("pool");
+      throw this.getPropertyDoesNotExistError("pool", "setPool");
     }
 
     if (!this.pool.ident) {
@@ -62,17 +74,12 @@ export class SwapConfig {
       throw this.getPropertyDoesNotExistError("assetA", "setPool");
     }
 
-    if (!this.isValidAssetID(this.pool.assetA.assetId)) {
-      throw this.getMinAssetLengthError(`assetA`, this.pool.assetA.assetId);
-    }
-
     if (!this.pool.assetB) {
       throw this.getPropertyDoesNotExistError("assetB", "setPool");
     }
 
-    if (!this.isValidAssetID(this.pool.assetB.assetId)) {
-      throw this.getMinAssetLengthError(`assetB`, this.pool.assetB.assetId);
-    }
+    this.validateAssetID(this.pool.assetA.assetId);
+    this.validateAssetID(this.pool.assetB.assetId);
 
     return this.pool;
   }
@@ -82,17 +89,15 @@ export class SwapConfig {
       throw this.getPropertyDoesNotExistError("funding");
     }
 
-    if (!this.isValidAssetID(this.funding.assetID)) {
-      throw this.getMinAssetLengthError(`funding`, this.funding.assetID);
-    }
+    this.validateAssetID(this.funding.assetID);
 
     return this.funding;
   }
 
   private getPropertyDoesNotExistError(prop: string, method?: string): Error {
     return new Error(
-      `The parameter does not exist: ${prop}. Use the set${
-        method ?? prop
+      `The parameter does not exist: ${prop}. Use the ${
+        method ? method : `set${prop}`
       }() method.`
     );
   }
@@ -103,20 +108,23 @@ export class SwapConfig {
     );
   }
 
-  private isValidAssetID(assetID: string) {
+  private validateAssetID(assetID: string) {
     // Valid for ADA native currency.
     if (assetID === "") {
-      return true;
+      return;
     }
 
     if (assetID.length < SwapConfig.minAssetLength) {
-      return false;
+      throw this.getMinAssetLengthError("assetID", assetID);
     }
 
     if (assetID.split("")?.[56] !== ".") {
-      return false;
+      throw new Error(
+        `Invalid assetID: ${assetID}. You likely forgot to concatenate with a period, like so: ${assetID.slice(
+          0,
+          56
+        )}.${assetID.slice(56)}`
+      );
     }
-
-    return true;
   }
 }
