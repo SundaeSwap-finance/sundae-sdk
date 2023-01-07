@@ -1,5 +1,4 @@
-import type { IBuildSwapArgs, TSwapAsset } from "../../types";
-import { IPoolData } from "../modules/Provider/Provider.abstract.class";
+import type { IBuildSwapArgs, TSwapAsset, IPoolData } from "../../types";
 
 export class SwapConfig {
   private pool?: IPoolData;

@@ -1,69 +1,41 @@
-import { IAsset, IAssetParsedID } from "../types";
-import { ERROR_CODES } from "./errors";
+import {
+  IParams,
+  IPoolDataAsset,
+  IProtocolParams,
+  TSupportedNetworks,
+  TSwapAsset,
+} from "../types";
 
-export const toLovelace = (val: BigInt, decimals: number) =>
-  Math.floor(Number(val) * Math.pow(10, decimals));
-export const fromLovelace = (val: BigInt, decimals: number) =>
-  Math.floor(Number(val) / Math.pow(10, decimals));
-export const getAssetIDs = (asset: IAsset): IAssetParsedID => {
-  const {
-    metadata: { assetID },
-  } = asset;
-
-  if (assetID.length > 56 && 56 !== assetID.indexOf(".")) {
-    console.error(ERROR_CODES[2]);
-    throw new Error(ERROR_CODES[2].message);
-  }
-
-  const policy = assetID.slice(0, 56);
-  const name = assetID.slice(58);
-
-  return {
-    name,
-    policy,
-    concatenated: `${policy}${name}`,
-  };
+export const sortSwapAssets = (assets: [IPoolDataAsset, IPoolDataAsset]) => {
+  return assets.sort((a, b) => a.assetId.localeCompare(b.assetId));
 };
 
-// export const makeLucidLoader = ({
-//   provider,
-//   blockfrost,
-//   network,
-// }: {
-//   provider: "blockfrost";
-//   blockfrost?: {
-//     url: string;
-//     apiKey: string;
-//   };
-//   network: TSupportedNetworks;
-// }): TTxBuilderLoaderOptions => ({
-//   type: ESupportedTxBuilders.Lucid,
-//   loader: () =>
-//     import("lucid-cardano").then(({ Lucid, Blockfrost }) => {
-//       let ThisProvider: Provider;
-//       switch (provider) {
-//         default:
-//         case "blockfrost":
-//           if (!blockfrost) {
-//             throw new Error(
-//               "Must provide a Blockfrost object when choosing it as a Provider for Lucid."
-//             );
-//           }
+export const getAssetSwapDirection = (
+  { assetID }: TSwapAsset,
+  assets: [IPoolDataAsset, IPoolDataAsset]
+): 0 | 1 => {
+  const sorted = sortSwapAssets(assets);
+  if (Object.values(sorted[1]).includes(assetID)) {
+    return 1;
+  }
 
-//           ThisProvider = new Blockfrost(blockfrost.url, blockfrost.apiKey);
-//       }
-//       return Lucid.new(ThisProvider, network);
-//     }),
-// });
+  return 0;
+};
 
-// export const makeMeshLoader = ({
-//   wallet,
-// }: {
-//   wallet: ESupportedWallets;
-// }): TTxBuilderLoaderOptions => ({
-//   type: ESupportedTxBuilders.Mesh,
-//   loader: () =>
-//     import("@meshsdk/core").then(({ BrowserWallet }) =>
-//       BrowserWallet.enable(wallet)
-//     ),
-// });
+export const getParams = (network: TSupportedNetworks): IParams => {
+  const params: Record<TSupportedNetworks, IProtocolParams> = {
+    mainnet: {
+      ESCROW_ADDRESS: "",
+      SCOOPER_FEE: 2500000n,
+      RIDER_FEE: 2000000n,
+    },
+    preview: {
+      ESCROW_ADDRESS:
+        "addr_test1wpesulg5dtt5y73r4zzay9qmy3wnlrxdg944xg4rzuvewls7nrsf0",
+      SCOOPER_FEE: 2500000n,
+      RIDER_FEE: 2000000n,
+    },
+  };
+
+  return params[network];
+};

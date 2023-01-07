@@ -10,18 +10,20 @@
     "prepare": "husky install",
     "build": "cd packages/sdk && yarn build",
     "release": "yarn build && lerna publish from-package -y",
-    "docs:generate": "ts-node ./scripts/generateDocs.ts",
-    "docs:build": "api-documenter markdown --input ./docs/config --output ./docs/pages"
+    "docs:generate": "sh ./scripts/generateDocs.sh",
+    "docs:build": "redocly bundle ./packages/**/openapi/**/types.yaml --output ./openapi/components/core"
   },
   "devDependencies": {
     "@meshsdk/core": "^1.3.0",
     "@microsoft/api-documenter": "^7.19.27",
     "@microsoft/api-extractor": "^7.33.7",
+    "@redocly/cli": "^1.0.0-beta.120",
     "glob": "^8.0.3",
     "lerna": "^5.6.2",
     "lucid-cardano": "^0.8.4",
     "ts-jest": "^29.0.3",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "typeconv": "^1.8.0"
   },
   "dependencies": {}
 }

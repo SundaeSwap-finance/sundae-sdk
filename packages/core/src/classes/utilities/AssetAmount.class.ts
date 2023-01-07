@@ -1,6 +1,8 @@
-export class AssetAmount {
-  private amount: bigint;
-  private decimals: number;
+import { IAssetAmountClass } from "../../types";
+
+export class AssetAmount implements IAssetAmountClass {
+  public amount: bigint;
+  public decimals: number;
 
   constructor(amount: bigint, decimals?: number) {
     this.amount = amount;

@@ -1,17 +1,19 @@
-import { IBuildSwapArgs } from "../types";
 import type {
+  IBuildSwapArgs,
   IPoolQuery,
-  Provider,
-} from "./modules/Provider/Provider.abstract.class";
-import type { TxBuilder } from "./modules/TxBuilder/TxBuilder.abstract";
+  IProviderClass,
+  ISwapArgs,
+  ITxBuilderClass,
+  SundaeSDKClass,
+} from "../types";
 import { SwapConfig } from "./utilities/SwapConfig.class";
 
-export class SundaeSDK {
-  constructor(private builder: TxBuilder) {
+export class SundaeSDK implements SundaeSDKClass {
+  constructor(private builder: ITxBuilderClass) {
     this.builder = builder;
   }
 
-  query(): Provider {
+  query(): IProviderClass {
     return this.builder.provider;
   }
 
@@ -21,9 +23,7 @@ export class SundaeSDK {
     receiverAddress,
     additionalCanceler,
     minReceivable,
-  }: Omit<IBuildSwapArgs, "pool"> & {
-    poolQuery: IPoolQuery;
-  }) {
+  }: ISwapArgs) {
     const pool = await this.query().findPoolData(poolQuery);
 
     const config = new SwapConfig()
@@ -33,11 +33,6 @@ export class SundaeSDK {
       .build();
 
     const tx = await this.builder.buildSwap(config);
-    return {
-      submit: tx.submit.bind(tx),
-      toString: () => tx.cbor,
-    };
+    return tx;
   }
-
-  async marketBuy(config: SwapConfig, submit?: boolean) {}
 }

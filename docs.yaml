@@ -1,0 +1,276 @@
+openapi: 3.0.0
+info:
+  title: Converted from types.yaml with typeconv
+  version: '1'
+  x-id: types.yaml
+  x-comment: Generated from packages/core/src/types.ts by core-types-json-schema (https://github.com/grantila/core-types-json-schema) on behalf of typeconv (https://github.com/grantila/typeconv)
+paths: {}
+components:
+  schemas:
+    IProtocolParams:
+      properties:
+        ESCROW_ADDRESS:
+          title: IProtocolParams.ESCROW_ADDRESS
+          type: string
+        SCOOPER_FEE:
+          title: IProtocolParams.SCOOPER_FEE
+        RIDER_FEE:
+          title: IProtocolParams.RIDER_FEE
+      required:
+        - ESCROW_ADDRESS
+        - SCOOPER_FEE
+        - RIDER_FEE
+      additionalProperties: false
+      title: IProtocolParams
+      type: object
+    IPoolDataAsset:
+      properties:
+        assetId:
+          title: IPoolDataAsset.assetId
+          type: string
+        decimals:
+          title: IPoolDataAsset.decimals
+          type: number
+      required:
+        - assetId
+        - decimals
+      additionalProperties: false
+      title: IPoolDataAsset
+      type: object
+    IPoolData:
+      properties:
+        fee:
+          title: IPoolData.fee
+          type: string
+        ident:
+          title: IPoolData.ident
+          type: string
+        assetA:
+          $ref: '#/components/schemas/IPoolDataAsset'
+          title: IPoolData.assetA
+        assetB:
+          $ref: '#/components/schemas/IPoolDataAsset'
+          title: IPoolData.assetB
+      required:
+        - fee
+        - ident
+        - assetA
+        - assetB
+      additionalProperties: false
+      title: IPoolData
+      type: object
+    IPoolQuery:
+      properties:
+        pair:
+          items:
+            - title: IPoolQuery.pair.0
+              type: string
+            - title: IPoolQuery.pair.1
+              type: string
+          additionalItems: false
+          minItems: 2
+          title: IPoolQuery.pair
+          type: array
+        fee:
+          title: IPoolQuery.fee
+          type: string
+      required:
+        - pair
+        - fee
+      additionalProperties: false
+      title: IPoolQuery
+      type: object
+    IProviderClass:
+      properties:
+        findPoolData:
+          title: IProviderClass.findPoolData
+          description: |-
+            Finds a matching pool on the SundaeSwap protocol.
+            @param An array of the hex-encoded assetIDs in the pool, separated by a period (i.e. POLICY_ID.ASSET_NAME).
+            @param A string representation of the pool fee, as a float (i.e. "0.03").
+        findPoolIdent:
+          title: IProviderClass.findPoolIdent
+          description: |-
+            Finds a matching pool on the SundaeSwap protocol and returns only the ident.
+            @param An array of the hex-encoded assetIDs in the pool, separated by a period (i.e. POLICY_ID.ASSET_NAME).
+            @param A string representation of the pool fee, as a float (i.e. "0.03").
+      required:
+        - findPoolData
+        - findPoolIdent
+      additionalProperties: false
+      title: IProviderClass
+      type: object
+    ISwapArgs:
+      properties:
+        poolQuery:
+          $ref: '#/components/schemas/IPoolQuery'
+          title: ISwapArgs.poolQuery
+        suppliedAsset:
+          $ref: '#/components/schemas/TSwapAsset'
+          title: ISwapArgs.suppliedAsset
+        receiverAddress:
+          title: ISwapArgs.receiverAddress
+          type: string
+        additionalCanceler:
+          title: ISwapArgs.additionalCanceler
+          type: string
+        minReceivable:
+          $ref: '#/components/schemas/IAssetAmountClass'
+          title: ISwapArgs.minReceivable
+      required:
+        - poolQuery
+        - suppliedAsset
+        - receiverAddress
+      additionalProperties: false
+      title: ISwapArgs
+      type: object
+    SundaeSDKClass:
+      properties:
+        swap:
+          title: SundaeSDKClass.swap
+      required:
+        - swap
+      additionalProperties: false
+      title: SundaeSDKClass
+      type: object
+    TSupportedWallets:
+      enum:
+        - nami
+        - eternl
+        - typhoncip30
+        - ccvault
+        - typhon
+        - yoroi
+        - flint
+        - gerowallet
+        - cardwallet
+        - nufi
+        - begin
+      title: TSupportedWallets
+      type: string
+    TTxBuilderComplete:
+      properties:
+        cbor:
+          title: TTxBuilderComplete.cbor
+          type: string
+        submit:
+          title: TTxBuilderComplete.submit
+      required:
+        - cbor
+        - submit
+      additionalProperties: false
+      title: TTxBuilderComplete
+      type: object
+    IParams:
+      properties:
+        ESCROW_ADDRESS:
+          title: IParams.ESCROW_ADDRESS
+          type: string
+        SCOOPER_FEE:
+          title: IParams.SCOOPER_FEE
+        RIDER_FEE:
+          title: IParams.RIDER_FEE
+      required:
+        - ESCROW_ADDRESS
+        - SCOOPER_FEE
+        - RIDER_FEE
+      additionalProperties: false
+      title: IParams
+      type: object
+    TSupportedNetworks:
+      enum:
+        - mainnet
+        - preview
+      title: TSupportedNetworks
+      type: string
+    ITxBuilderOptions:
+      properties:
+        wallet:
+          $ref: '#/components/schemas/TSupportedWallets'
+          title: ITxBuilderOptions.wallet
+        network:
+          $ref: '#/components/schemas/TSupportedNetworks'
+          title: ITxBuilderOptions.network
+      required:
+        - wallet
+        - network
+      additionalProperties: false
+      title: ITxBuilderOptions
+      type: object
+    ITxBuilderLucidOptions:
+      properties:
+        provider:
+          title: ITxBuilderLucidOptions.provider
+          enum:
+            - blockfrost
+          type: string
+        blockfrost:
+          properties:
+            url:
+              title: ITxBuilderLucidOptions.blockfrost.url
+              type: string
+            apiKey:
+              title: ITxBuilderLucidOptions.blockfrost.apiKey
+              type: string
+          required:
+            - url
+            - apiKey
+          additionalProperties: false
+          title: ITxBuilderLucidOptions.blockfrost
+          type: object
+      required:
+        - provider
+      additionalProperties: false
+      title: ITxBuilderLucidOptions
+      type: object
+    IAssetAmountClass:
+      properties:
+        amount:
+          title: IAssetAmountClass.amount
+        decimals:
+          title: IAssetAmountClass.decimals
+          type: number
+      required:
+        - amount
+        - decimals
+      additionalProperties: false
+      title: IAssetAmountClass
+      type: object
+    IBuildSwapArgs:
+      properties:
+        pool:
+          $ref: '#/components/schemas/IPoolData'
+          title: IBuildSwapArgs.pool
+        suppliedAsset:
+          $ref: '#/components/schemas/TSwapAsset'
+          title: IBuildSwapArgs.suppliedAsset
+        receiverAddress:
+          title: IBuildSwapArgs.receiverAddress
+          type: string
+        additionalCanceler:
+          title: IBuildSwapArgs.additionalCanceler
+          type: string
+        minReceivable:
+          $ref: '#/components/schemas/IAssetAmountClass'
+          title: IBuildSwapArgs.minReceivable
+      required:
+        - pool
+        - suppliedAsset
+        - receiverAddress
+      additionalProperties: false
+      title: IBuildSwapArgs
+      type: object
+    TSwapAsset:
+      properties:
+        assetID:
+          title: TSwapAsset.assetID
+          type: string
+        amount:
+          $ref: '#/components/schemas/IAssetAmountClass'
+          title: TSwapAsset.amount
+      required:
+        - assetID
+        - amount
+      additionalProperties: false
+      title: TSwapAsset
+      type: object
