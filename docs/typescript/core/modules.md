@@ -38,7 +38,7 @@ A type constant used for determining valid Cardano Network values.
 
 #### Defined in
 
-@types/utilities.ts:20
+[@types/utilities.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/ef3cd12/packages/core/src/@types/utilities.ts#L20)
 
 ___
 
@@ -50,4 +50,4 @@ A type constant used for determining valid CIP-30 compliant Web3 Wallets for Car
 
 #### Defined in
 
-@types/utilities.ts:27
+[@types/utilities.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/ef3cd12/packages/core/src/@types/utilities.ts#L27)

@@ -18,7 +18,7 @@ POLICY_ID_HEX.ASSET_NAME_HEX
 
 #### Defined in
 
-@types/provider.ts:57
+[@types/provider.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/ef3cd12/packages/core/src/@types/provider.ts#L57)
 
 ___
 
@@ -30,4 +30,4 @@ The registered decimal places of the asset.
 
 #### Defined in
 
-@types/provider.ts:59
+[@types/provider.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/ef3cd12/packages/core/src/@types/provider.ts#L59)

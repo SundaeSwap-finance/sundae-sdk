@@ -41,8 +41,8 @@ favicon_logo: "/assets/logo.png"
 
 defaults:
   - scope:
-      path: "typescript/**/*"
+      path: "/typescript/core/*/*"
     values:
-      parent: "API Documentation"
+      parent: "Core: Exports"
 
 gh_edit_repository: "https://github.com/SundaeSwap-finance/sundae-sdk"
