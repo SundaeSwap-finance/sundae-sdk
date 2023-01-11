@@ -1,11 +1,8 @@
-import { providerBaseUrls } from "../../../lib/params";
-import {
-  TSupportedNetworks,
-  IPoolData,
-  IPoolQuery,
-  IProviderClass,
-} from "../../../types";
+import { providerBaseUrls } from "../../lib/params";
 
+/**
+ * @category Classes
+ */
 export class ProviderSundaeSwap implements IProviderClass {
   protected baseUrl: string;
 

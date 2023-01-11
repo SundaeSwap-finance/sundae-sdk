@@ -1,10 +1,4 @@
-import {
-  IParams,
-  IPoolDataAsset,
-  IProtocolParams,
-  TSupportedNetworks,
-  TSwapAsset,
-} from "../types";
+import { TSwapAsset } from "../classes/SwapConfig.class";
 
 export const sortSwapAssets = (assets: [IPoolDataAsset, IPoolDataAsset]) => {
   return assets.sort((a, b) => a.assetId.localeCompare(b.assetId));
@@ -22,7 +16,7 @@ export const getAssetSwapDirection = (
   return 0;
 };
 
-export const getParams = (network: TSupportedNetworks): IParams => {
+export const getParams = (network: TSupportedNetworks): IProtocolParams => {
   const params: Record<TSupportedNetworks, IProtocolParams> = {
     mainnet: {
       ESCROW_ADDRESS: "",

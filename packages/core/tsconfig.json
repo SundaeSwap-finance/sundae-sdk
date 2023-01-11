@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "./dist/"
+    "outDir": "./dist/",
+    "moduleResolution": "node",
+    "isolatedModules": false,
   },
   "extends": "../../tsconfig.json",
   "include": ["./src/**/*"],

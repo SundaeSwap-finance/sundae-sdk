@@ -1,4 +1,20 @@
-import type { IBuildSwapArgs, TSwapAsset, IPoolData } from "../../types";
+import { AssetAmount } from "./AssetAmount.class";
+
+/**
+ * The raw swap arguments used by {@link TxBuilder}.
+ */
+export interface IBuildSwapArgs {
+  pool: IPoolData;
+  suppliedAsset: TSwapAsset;
+  receiverAddress: string;
+  additionalCanceler?: string;
+  minReceivable?: AssetAmount;
+}
+
+export type TSwapAsset = {
+  assetID: string;
+  amount: AssetAmount;
+};
 
 export class SwapConfig {
   private pool?: IPoolData;

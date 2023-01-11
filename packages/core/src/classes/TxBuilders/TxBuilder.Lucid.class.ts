@@ -6,21 +6,14 @@ import type {
   Network as NetworkType,
   Data as DataType,
 } from "lucid-cardano";
-import { getAssetSwapDirection, getParams } from "src/lib/utils";
 
-import {
-  IBuildSwapArgs,
-  ITxBuilderLucidOptions,
-  TSupportedNetworks,
-  TTxBuilderComplete,
-  TSwapAsset,
-  IPoolDataAsset,
-  IProviderClass,
-  ITxBuilderClass,
-} from "../../../types";
-import { AssetAmount } from "../../utilities/AssetAmount.class";
-import { ProviderSundaeSwap } from "../Providers/Provider.SundaeSwap";
+import { IBuildSwapArgs, TSwapAsset } from "../SwapConfig.class";
+import { getAssetSwapDirection, getParams } from "../../lib/utils";
+import { AssetAmount } from "../AssetAmount.class";
 
+/**
+ * A TxBuilder instance that uses the Lucid library for building and submitting transactions.
+ */
 export class TxBuilderLucid
   implements
     ITxBuilderClass<ITxBuilderLucidOptions, LucidType, DataType, TxType>
@@ -29,6 +22,26 @@ export class TxBuilderLucid
   currentTx?: TxType;
   currentDatum?: DataType;
 
+  /**
+   * Building a TxBuilder is fairly simple, but depends on the library that the underlying tooling uses. In this case,
+   * you would build this TxBuilder like this:
+   *
+   * ```ts
+   * const builder = new TxBuilderLucid(
+   *  {
+   *    provider: "blockfrost";
+   *    blockfrost: {
+   *      url: <base_api_url>,
+   *      apiKey: <base_api_key>,
+   *    }
+   *  },
+   *  new ProviderSundaeSwap("preview")
+   * );
+   *
+   * @see {@link ProviderSundaeSwap}
+   * @param options The main option for instantiating the class.
+   * @param provider An instance of a Provider class.
+   */
   constructor(
     public options: ITxBuilderLucidOptions,
     public provider: IProviderClass
@@ -43,8 +56,7 @@ export class TxBuilderLucid
     }
 
     this.options = options;
-    this.provider =
-      provider ?? new ProviderSundaeSwap(this.options?.network ?? "preview");
+    this.provider = provider;
   }
 
   async asyncGetLib() {

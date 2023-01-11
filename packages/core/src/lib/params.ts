@@ -1,6 +1,4 @@
-import { IParams, TSupportedNetworks } from "../types";
-
-export const protocolParams: Record<TSupportedNetworks, IParams> = {
+export const protocolParams: Record<TSupportedNetworks, IProtocolParams> = {
   mainnet: {
     ESCROW_ADDRESS: "",
     SCOOPER_FEE: 2500000n,

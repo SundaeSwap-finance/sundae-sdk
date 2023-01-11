@@ -1,6 +1,4 @@
-import { IAssetAmountClass } from "../../types";
-
-export class AssetAmount implements IAssetAmountClass {
+export class AssetAmount {
   public amount: bigint;
   public decimals: number;
 

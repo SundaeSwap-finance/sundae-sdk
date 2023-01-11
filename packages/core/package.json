@@ -27,7 +27,7 @@
     "compile": "yarn compile:cjs && yarn compile:esm && yarn compile:types",
     "build": "yarn clean && yarn compile",
     "watch": "yarn compile:cjs && yarn compile:types && yarn compile:esm --watch",
-    "docs:generate": "api-extractor run --local && api-documenter --input-folder './docs/config' --output-folder './docs/markdown'"
+    "docs": "docgen generate --typedoc-options ./typedoc.json"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -40,6 +40,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^14.3.0",
     "@types/jest": "^28.1.3",
+    "@types/node": "^18.11.18",
     "@types/react": "^18.0.8",
     "buffer": "^6.0.3",
     "husky": "^7.0.0",

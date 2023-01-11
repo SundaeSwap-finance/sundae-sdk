@@ -1,5 +1,5 @@
-import { AssetAmount } from "../AssetAmount.class";
-import { SwapConfig } from "../SwapConfig.class";
+import { AssetAmount } from "../../AssetAmount.class";
+import { SwapConfig } from "../../SwapConfig.class";
 
 const mockPool = {
   assetA: {

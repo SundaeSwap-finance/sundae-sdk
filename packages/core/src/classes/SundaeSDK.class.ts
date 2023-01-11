@@ -1,14 +1,23 @@
-import type {
-  IBuildSwapArgs,
-  IPoolQuery,
-  IProviderClass,
-  ISwapArgs,
-  ITxBuilderClass,
-  SundaeSDKClass,
-} from "../types";
-import { SwapConfig } from "./utilities/SwapConfig.class";
+import { SwapConfig } from "./SwapConfig.class";
 
-export class SundaeSDK implements SundaeSDKClass {
+/**
+ * A description for the SundaeSDK class.
+ *
+ * ```ts
+ * const sdk = new SundaeSDK(
+ *  new ProviderSundaeSwap()
+ * );
+ * ```
+ *
+ * @category SDK
+ * @module SundaeSDK
+ */
+export class SundaeSDK {
+  /**
+   * You'll need to provide a TxBuilder class to the main SDK, which is used to build Transactions and submit them.
+   *
+   * @param builder - An instance of TxBuilder.
+   */
   constructor(private builder: ITxBuilderClass) {
     this.builder = builder;
   }
