@@ -2,13 +2,10 @@
     "$schema": "https://typedoc.org/schema.json",
     "out": "../../docs/typescript/core",
     "entryPoints": [
-        "./src"
+        "./src/index.ts"
     ],
-    "entryPointStrategy": "expand",
-    "hideBreadcrumbs": false,
+    "hideBreadcrumbs": true,
     "hideInPageTOC": true,
     "excludeNotDocumented": true,
-    "navigationLinks": {
-        "GitHub": "https://github.com/SundaeSwap-Finance"
-    }
+    "githubPages": false
 }

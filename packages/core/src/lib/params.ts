@@ -1,3 +1,5 @@
+import { IProtocolParams, TSupportedNetworks } from "../@types";
+
 export const protocolParams: Record<TSupportedNetworks, IProtocolParams> = {
   mainnet: {
     ESCROW_ADDRESS: "",

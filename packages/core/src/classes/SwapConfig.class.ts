@@ -1,24 +1,8 @@
-import { AssetAmount } from "./AssetAmount.class";
-
-/**
- * The raw swap arguments used by {@link TxBuilder}.
- */
-export interface IBuildSwapArgs {
-  pool: IPoolData;
-  suppliedAsset: TSwapAsset;
-  receiverAddress: string;
-  additionalCanceler?: string;
-  minReceivable?: AssetAmount;
-}
-
-export type TSwapAsset = {
-  assetID: string;
-  amount: AssetAmount;
-};
+import { IBuildSwapArgs, IPoolData, IAsset } from "../@types";
 
 export class SwapConfig {
   private pool?: IPoolData;
-  private funding?: TSwapAsset;
+  private funding?: IAsset;
   private receiverAddress?: string;
 
   static minAssetLength = 56;
@@ -33,7 +17,7 @@ export class SwapConfig {
    */
   constructor() {}
 
-  setFunding(asset: TSwapAsset) {
+  setFunding(asset: IAsset) {
     this.funding = asset;
     return this;
   }
@@ -60,7 +44,7 @@ export class SwapConfig {
     return this.receiverAddress;
   }
 
-  build(): IBuildSwapArgs {
+  buildArgs(): IBuildSwapArgs {
     return {
       pool: this.validateAndGetPool(),
       suppliedAsset: this.validateAndGetFunding(),
@@ -99,7 +83,7 @@ export class SwapConfig {
     return this.pool;
   }
 
-  private validateAndGetFunding(): TSwapAsset {
+  private validateAndGetFunding(): IAsset {
     if (!this.funding) {
       throw this.getPropertyDoesNotExistError("funding");
     }

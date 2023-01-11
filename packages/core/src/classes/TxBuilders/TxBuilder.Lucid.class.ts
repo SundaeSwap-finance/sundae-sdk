@@ -7,12 +7,53 @@ import type {
   Data as DataType,
 } from "lucid-cardano";
 
-import { IBuildSwapArgs, TSwapAsset } from "../SwapConfig.class";
 import { getAssetSwapDirection, getParams } from "../../lib/utils";
 import { AssetAmount } from "../AssetAmount.class";
+import {
+  IPoolDataAsset,
+  IProviderClass,
+  ITxBuilderClass,
+  TSupportedNetworks,
+  ITxBuilderComplete,
+  IBuildSwapArgs,
+  IAsset,
+  ITxBuilderOptions,
+} from "../../@types";
 
 /**
- * A TxBuilder instance that uses the Lucid library for building and submitting transactions.
+ * Options interface for the {@link TxBuilderLucid} class.
+ *
+ * @group Extensions
+ */
+export interface ITxBuilderLucidOptions extends ITxBuilderOptions {
+  /** The provider type used by Lucid. Currently only supports Blockfrost. */
+  provider: "blockfrost";
+  /** The chosen provider options object to pass to Lucid. */
+  blockfrost?: {
+    url: string;
+    apiKey: string;
+  };
+}
+
+/**
+ * Building a TxBuilder is fairly simple, but depends on the library that the underlying tooling uses. In this case,
+ * you would build this TxBuilder like this:
+ *
+ * @example
+ * ```ts
+ * const builder = new TxBuilderLucid(
+ *  {
+ *    provider: "blockfrost";
+ *    blockfrost: {
+ *      url: <base_api_url>,
+ *      apiKey: <base_api_key>,
+ *    }
+ *  },
+ *  new ProviderSundaeSwap("preview")
+ * );
+ * ```
+ *
+ * @group Extensions
  */
 export class TxBuilderLucid
   implements
@@ -23,24 +64,8 @@ export class TxBuilderLucid
   currentDatum?: DataType;
 
   /**
-   * Building a TxBuilder is fairly simple, but depends on the library that the underlying tooling uses. In this case,
-   * you would build this TxBuilder like this:
-   *
-   * ```ts
-   * const builder = new TxBuilderLucid(
-   *  {
-   *    provider: "blockfrost";
-   *    blockfrost: {
-   *      url: <base_api_url>,
-   *      apiKey: <base_api_key>,
-   *    }
-   *  },
-   *  new ProviderSundaeSwap("preview")
-   * );
-   *
-   * @see {@link ProviderSundaeSwap}
    * @param options The main option for instantiating the class.
-   * @param provider An instance of a Provider class.
+   * @param provider An instance of a {@link IProviderClass} class.
    */
   constructor(
     public options: ITxBuilderLucidOptions,
@@ -100,7 +125,7 @@ export class TxBuilderLucid
     }
   }
 
-  async complete(): Promise<TTxBuilderComplete> {
+  async complete(): Promise<ITxBuilderComplete> {
     if (!this.currentTx) {
       throw new Error("There is no current Tx to complete!");
     }
@@ -125,7 +150,7 @@ export class TxBuilderLucid
     suppliedAsset,
     minReceivable = new AssetAmount(1n),
     additionalCanceler,
-  }: IBuildSwapArgs): Promise<TTxBuilderComplete> {
+  }: IBuildSwapArgs): Promise<ITxBuilderComplete> {
     const lucid = await this.asyncGetLib();
     this.currentTx = lucid.newTx();
 
@@ -219,7 +244,7 @@ export class TxBuilderLucid
   }
 
   async buildSwapDatum(
-    givenAsset: TSwapAsset,
+    givenAsset: IAsset,
     assetA: IPoolDataAsset,
     assetB: IPoolDataAsset,
     minReceivable: AssetAmount

@@ -9,8 +9,7 @@
     "postinstall": "lerna bootstrap",
     "prepare": "husky install",
     "build": "cd packages/sdk && yarn build",
-    "release": "yarn build && lerna publish from-package -y",
-    "docs": "lerna exec -- yarn docs --unsafe"
+    "release": "yarn build && lerna publish from-package -y"
   },
   "devDependencies": {
     "@meshsdk/core": "^1.3.0",

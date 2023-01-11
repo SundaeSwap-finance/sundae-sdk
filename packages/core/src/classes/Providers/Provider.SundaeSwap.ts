@@ -1,7 +1,27 @@
+import {
+  IPoolData,
+  IPoolQuery,
+  IProviderClass,
+  TSupportedNetworks,
+} from "../../@types";
 import { providerBaseUrls } from "../../lib/params";
 
 /**
- * @category Classes
+ * This class provides a simple set of useful tooling, but primarily is used to
+ * query data about pools on the SundaeSwap protocol.
+ *
+ * @example
+ * ```ts
+ * const provider = new ProviderSundaeSwap("preview");
+ * const ident = await provider.findPoolIdent({
+ *   pair: ["assetIdA", "assetIdB"],
+ *   fee: "0.03"
+ * });
+ *
+ * console.log(ident); // "00"
+ * ```
+ *
+ * @group Extensions
  */
 export class ProviderSundaeSwap implements IProviderClass {
   protected baseUrl: string;

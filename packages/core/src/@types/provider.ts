@@ -1,15 +1,13 @@
 /**
- * @category Extensions
- * @subcategory Providers
+ * @module ProviderTypes
  */
 
 /**
  * The base Provider interface by which you can implement custom Provider classes.
  *
- * @category Classes
- *
+ * @group Extension Builders
  */
-interface IProviderClass {
+export interface IProviderClass {
   /**
    * Finds a matching pool on the SundaeSwap protocol.
    *
@@ -39,7 +37,7 @@ interface IProviderClass {
  *
  * @see {@link IProviderClass}
  */
-interface IPoolQuery {
+export interface IPoolQuery {
   /** The pool pair, as an array of {@link IPoolDataAsset.assetId} */
   pair: [string, string];
   /** The desired pool fee. */
@@ -49,7 +47,7 @@ interface IPoolQuery {
 /**
  * Asset data returned from {@link IProviderClass.findPoolData}.
  */
-interface IPoolDataAsset {
+export interface IPoolDataAsset {
   /**
    * The hex encoded asset ID, separating the Policy ID from the Asset Name.
    *
@@ -64,7 +62,7 @@ interface IPoolDataAsset {
 /**
  * Pool data that is returned from {@link IProviderClass.findPoolData}.
  */
-interface IPoolData {
+export interface IPoolData {
   /** The pool fee as a percentage. */
   fee: string;
   /** The unique identifier of the pool. Also returned directly via {@link  IProviderClass.findPoolIdent} */

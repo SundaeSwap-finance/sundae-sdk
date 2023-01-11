@@ -35,8 +35,15 @@ remote_theme: just-the-docs/just-the-docs
 plugins:
   - jekyll-feed
   - jekyll-optional-front-matter
-# Theme settings
 
+logo: "/assets/logo.png"
+favicon_logo: "/assets/logo.png"
+
+defaults:
+  - scope:
+      path: "typescript/**/*"
+    values:
+      parent: "API Documentation"
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to

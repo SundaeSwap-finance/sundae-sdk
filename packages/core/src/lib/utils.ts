@@ -1,11 +1,16 @@
-import { TSwapAsset } from "../classes/SwapConfig.class";
+import {
+  IPoolDataAsset,
+  IProtocolParams,
+  TSupportedNetworks,
+  IAsset,
+} from "../@types";
 
 export const sortSwapAssets = (assets: [IPoolDataAsset, IPoolDataAsset]) => {
   return assets.sort((a, b) => a.assetId.localeCompare(b.assetId));
 };
 
 export const getAssetSwapDirection = (
-  { assetID }: TSwapAsset,
+  { assetID }: IAsset,
   assets: [IPoolDataAsset, IPoolDataAsset]
 ): 0 | 1 => {
   const sorted = sortSwapAssets(assets);

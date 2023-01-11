@@ -1,3 +1,4 @@
+import { IProviderClass, ISwapArgs, ITxBuilderClass } from "../@types";
 import { SwapConfig } from "./SwapConfig.class";
 
 /**
@@ -8,9 +9,6 @@ import { SwapConfig } from "./SwapConfig.class";
  *  new ProviderSundaeSwap()
  * );
  * ```
- *
- * @category SDK
- * @module SundaeSDK
  */
 export class SundaeSDK {
   /**
@@ -39,7 +37,7 @@ export class SundaeSDK {
       .setPool(pool)
       .setFunding(suppliedAsset)
       .setReceiverAddress(receiverAddress)
-      .build();
+      .buildArgs();
 
     const tx = await this.builder.buildSwap(config);
     return tx;

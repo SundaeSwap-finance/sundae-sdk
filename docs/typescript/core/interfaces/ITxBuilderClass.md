@@ -1,8 +1,4 @@
-[@sundae/sdk-core](../README.md) / [Exports](../modules.md) / [@types/txbuilder](../modules/types_txbuilder.md) / ITxBuilderClass
-
 # Interface: ITxBuilderClass<Options, Lib, Data, Tx\>
-
-[@types/txbuilder](../modules/types_txbuilder.md).ITxBuilderClass
 
 The main interface by which TxBuilder classes are implemented.
 
@@ -17,17 +13,17 @@ The main interface by which TxBuilder classes are implemented.
 
 ## Implemented by
 
-- [`TxBuilderLucid`](../classes/classes_TxBuilders_TxBuilder_Lucid_class.TxBuilderLucid.md)
+- [`TxBuilderLucid`](../classes/TxBuilderLucid.md)
 
 ## Properties
 
 ### buildSwap
 
-• **buildSwap**: (`args`: `IBuildSwapArgs`) => `Promise`<[`TTxBuilderComplete`](../modules/types_txbuilder.md#ttxbuildercomplete)\>
+• **buildSwap**: (`args`: [`IBuildSwapArgs`](IBuildSwapArgs.md)) => `Promise`<[`ITxBuilderComplete`](ITxBuilderComplete.md)\>
 
 #### Type declaration
 
-▸ (`args`): `Promise`<[`TTxBuilderComplete`](../modules/types_txbuilder.md#ttxbuildercomplete)\>
+▸ (`args`): `Promise`<[`ITxBuilderComplete`](ITxBuilderComplete.md)\>
 
 The main function to build a swap Transaction.
 
@@ -35,12 +31,12 @@ The main function to build a swap Transaction.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | `IBuildSwapArgs` | The built SwapArguments from a SwapConfig instance. |
+| `args` | [`IBuildSwapArgs`](IBuildSwapArgs.md) | The built SwapArguments from a SwapConfig instance. |
 
 ##### Returns
 
-`Promise`<[`TTxBuilderComplete`](../modules/types_txbuilder.md#ttxbuildercomplete)\>
+`Promise`<[`ITxBuilderComplete`](ITxBuilderComplete.md)\>
 
 #### Defined in
 
-@types/txbuilder.d.ts:59
+@types/txbuilder.ts:60
