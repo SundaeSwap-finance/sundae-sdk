@@ -11,8 +11,8 @@
     "test": "lerna run test --verbose",
     "prepare": "husky install",
     "build": "lerna run build",
-    "version": "lerna version --conventional-commits --create-release github -y",
-    "publish": "lerna publish from-package -y",
+    "version:ci": "lerna version --conventional-commits --create-release github -y",
+    "publish:ci": "lerna publish from-package -y --ignore-scripts",
     "docs": "lerna run docs:ci"
   },
   "engines": {
@@ -23,6 +23,7 @@
     "@semantic-release/git": "^10.0.1",
     "@sundaeswap/docgen": "^0.1.1",
     "@types/node": "^18.11.18",
+    "eslint": "^8.31.0",
     "glob": "^8.0.3",
     "husky": "^8.0.0",
     "jest": "^29.3.1",
