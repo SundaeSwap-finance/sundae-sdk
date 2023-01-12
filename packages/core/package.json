@@ -29,6 +29,7 @@
     "compile:types": "tsc --outDir dist/types --emitDeclarationOnly --declarationMap --declaration",
     "compile": "yarn compile:cjs && yarn compile:esm && yarn compile:types",
     "build": "yarn clean && yarn compile",
+    "prepare": "yarn build",
     "watch": "yarn compile:cjs && yarn compile:types && yarn compile:esm --watch",
     "docs": "docgen generate --typedoc-options ./typedoc.json",
     "docs:ci": "yarn docs --unsafe"
