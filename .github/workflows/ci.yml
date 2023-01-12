@@ -59,6 +59,7 @@ jobs:
       - name: Create Release
         run: yarn release
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
 
   # Deploy Documentation
