@@ -4,10 +4,9 @@ on:
   push:
     branches: ["main"]
 
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+permissions:
+  id-token: write
+  contents: write
 
 # Allow one concurrent deployment
 concurrency:
@@ -21,6 +20,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: "0"
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
       - name: Setting up Node.js 18.x
         uses: actions/setup-node@v3
@@ -38,12 +40,14 @@ jobs:
       - name: Run Tests
         run: yarn test
 
-      # Identity
+      # Git Identity
       - name: Git Identity
         run: |
           git config --global user.name '🤖github-actions🍦'
           git config --global user.email '🤖github-actions🍦@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$GITHUB_REPOSITORY
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Bump Versions
       - name: Bump versions
@@ -54,6 +58,8 @@ jobs:
       # Create Release
       - name: Publish
         run: yarn publish:ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
 
   # Deploy Documentation
   docs:
