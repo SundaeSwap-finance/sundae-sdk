@@ -31,7 +31,7 @@ jobs:
 
       # Install dependencies
       - name: Install
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-scripts
 
       # Run Tests
       - name: Run Tests
