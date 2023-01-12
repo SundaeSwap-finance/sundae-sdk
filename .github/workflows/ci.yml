@@ -28,6 +28,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Setting up Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: "https://registry.npmjs.org"
+          scope: "@sundaeswap"
+
       # Run Tests
       - name: Run Tests
         run: yarn test
@@ -46,6 +53,8 @@ jobs:
       # Create Release
       - name: Create Release
         run: yarn release
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
 
   # Deploy Documentation
   docs:
