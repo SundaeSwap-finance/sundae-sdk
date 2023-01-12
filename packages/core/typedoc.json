@@ -6,5 +6,6 @@
     ],
     "hideBreadcrumbs": true,
     "hideInPageTOC": true,
-    "excludeNotDocumented": true
+    "excludeNotDocumented": true,
+    "githubPages": false
 }

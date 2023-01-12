@@ -24,7 +24,7 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/f054aa7/packages/core/src/classes/SundaeSDK.class.ts#L19)
+[classes/SundaeSDK.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/5e54550/packages/core/src/classes/SundaeSDK.class.ts#L19)
 
 ## Properties
 
@@ -36,4 +36,4 @@ An instance of TxBuilder.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/f054aa7/packages/core/src/classes/SundaeSDK.class.ts#L19)
+[classes/SundaeSDK.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/5e54550/packages/core/src/classes/SundaeSDK.class.ts#L19)
