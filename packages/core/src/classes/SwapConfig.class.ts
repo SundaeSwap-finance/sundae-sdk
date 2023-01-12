@@ -11,6 +11,22 @@ import {
  *
  *
  * @example
+ *
+ * ```ts
+ * const config = new SwapConfig()
+ *   .setPoolQuery(poolQuery)
+ *   .setFunding({
+ *     assetID: "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
+ *     amount: new AssetAmount(20n, 6),
+ *   })
+ *   .setReceiverAddress(
+ *     "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32"
+ *   );
+ *
+ * const { submit, cbor } = await SDK.swap(config);
+ * ```
+ *
+ * @see {@link SundaeSDK.swap}
  */
 export class SwapConfig {
   private poolQuery?: IPoolQuery;
@@ -21,21 +37,45 @@ export class SwapConfig {
   static minAssetLength = 56;
   constructor() {}
 
+  /**
+   * Set the funding for the swap.
+   *
+   * @param asset The provided asset and amount from a connected wallet.
+   * @returns
+   */
   setFunding(asset: IAsset) {
     this.funding = asset;
     return this;
   }
 
+  /**
+   * Set the pool data directly for the swap you use.
+   *
+   * @param pool
+   * @returns
+   */
   setPool(pool: IPoolData) {
     this.pool = pool;
     return this;
   }
 
+  /**
+   * Set the pool query. Used when passing to {@link SundaeSDK.swap}.
+   *
+   * @param poolQuery
+   * @returns
+   */
   setPoolQuery(poolQuery: IPoolQuery) {
     this.poolQuery = poolQuery;
     return this;
   }
 
+  /**
+   * Set where the pool's other asset should be sent to after a successful scoop.
+   *
+   * @param addr
+   * @returns
+   */
   setReceiverAddress(addr: string) {
     this.receiverAddress = addr;
     return this;
@@ -57,6 +97,13 @@ export class SwapConfig {
     return this.receiverAddress;
   }
 
+  /**
+   * Used for building a swap where you don't know the pool data.
+   *
+   * @see {@link SundaeSDK.swap}
+   *
+   * @returns
+   */
   buildSwap(): ISwapArgs {
     return {
       poolQuery: this.validateAndGetPoolQuery(),
@@ -65,6 +112,14 @@ export class SwapConfig {
     };
   }
 
+  /**
+   * Used for building a swap where you **do** know the pool data.
+   * Useful for when building Transactions directly from the builder instance.
+   *
+   * @see {@link ITxBuilderClass.buildSwap}
+   *
+   * @returns
+   */
   buildRawSwap(): IBuildSwapArgs {
     return {
       pool: this.validateAndGetPool(),

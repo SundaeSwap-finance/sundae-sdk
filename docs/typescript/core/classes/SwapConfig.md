@@ -20,7 +20,7 @@ const { submit, cbor } = await SDK.swap(config);
 
 **`See`**
 
-SundaeSDK.swap
+[swap](SundaeSDK.md#swap)
 
 ## Methods
 
@@ -53,7 +53,7 @@ Used for building a swap where you don't know the pool data.
 
 **`See`**
 
-SundaeSDK.swap
+[swap](SundaeSDK.md#swap)
 
 #### Returns
 
@@ -113,7 +113,7 @@ ___
 
 ▸ **setPoolQuery**(`poolQuery`): [`SwapConfig`](SwapConfig.md)
 
-Set the pool query. Used when passing to SundaeSDK.swap.
+Set the pool query. Used when passing to [swap](SundaeSDK.md#swap).
 
 #### Parameters
 

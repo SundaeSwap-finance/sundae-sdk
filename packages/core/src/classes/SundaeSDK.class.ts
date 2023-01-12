@@ -20,10 +20,32 @@ export class SundaeSDK {
     this.builder = builder;
   }
 
+  /**
+   * Utility method to retrieve the builder instance.
+   *
+   * @returns
+   */
+  build(): ITxBuilderClass {
+    return this.builder;
+  }
+
+  /**
+   * Utility method to retrieve the provider instance.
+   *
+   * @returns
+   */
   query(): IProviderClass {
     return this.builder.provider;
   }
 
+  /**
+   * Easy abstraction for building a swap when you don't know the pool data.
+   * Calls {@link ITxBuilderClass.buildSwap} under the hood after querying a
+   * matching pool.
+   *
+   * @param swapConfig
+   * @returns
+   */
   async swap(swapConfig: SwapConfig) {
     const { poolQuery, suppliedAsset, receiverAddress } =
       swapConfig.buildSwap();
