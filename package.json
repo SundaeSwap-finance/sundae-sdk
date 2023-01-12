@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "postinstall": "lerna bootstrap",
-    "test": "lerna run test",
+    "test": "lerna run test --verbose",
     "prepare": "husky install",
     "build": "lerna run build",
     "release": "yarn build && yarn semantic-release && lerna publish from-package -y --no-private",
@@ -25,10 +25,12 @@
     "@sundaeswap/docgen": "^0.1.1",
     "@types/node": "^18.11.18",
     "glob": "^8.0.3",
+    "jest": "^29.3.1",
+    "jest-dom": "^4.0.0",
     "lerna": "^5.6.2",
     "lucid-cardano": "^0.8.4",
     "semantic-release": "^20.0.2",
-    "ts-jest": "^29.0.3",
+    "ts-jest": "^29.0.4",
     "ts-node": "^10.9.1",
     "typeconv": "^1.8.0",
     "typedoc-plugin-markdown": "^3.14.0"
