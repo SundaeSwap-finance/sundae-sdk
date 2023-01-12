@@ -1,8 +1,10 @@
 branches:
-  - name: main
+  - main
+  - name: beta
     prerelease: true
 ci: true
 dryRun: true
 plugins:
   - "@semantic-release/commit-analyzer"
   - "@semantic-release/release-notes-generator"
+  - "@semantic-release/git"
