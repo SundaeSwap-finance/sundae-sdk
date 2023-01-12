@@ -1,5 +1,8 @@
-{
-  "branches": [
-    "main"
-  ]
-}
+branches:
+  - name: main
+    prerelease: true
+ci: true
+dryRun: true
+plugins:
+  - "@semantic-release/commit-analyzer"
+  - "@semantic-release/release-notes-generator"
