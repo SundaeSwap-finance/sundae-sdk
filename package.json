@@ -11,9 +11,8 @@
     "test": "lerna run test --verbose",
     "prepare": "husky install",
     "build": "lerna run build",
-    "release": "yarn build && yarn semantic-release && lerna publish from-package -y --no-private --access public",
-    "docs": "lerna run docs:ci",
-    "semantic-release": "semantic-release --dry-run"
+    "release": "yarn build && lerna publish from-package -y --no-private",
+    "docs": "lerna run docs:ci"
   },
   "engines": {
     "node": ">=18"
