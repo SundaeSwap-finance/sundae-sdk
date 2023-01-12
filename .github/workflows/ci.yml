@@ -36,6 +36,10 @@ jobs:
           scope: "@sundaeswap"
           cache: yarn
 
+      # Install dependencies
+      - name: Install
+        run: yarn
+
       # Run Tests
       - name: Run Tests
         run: yarn test
