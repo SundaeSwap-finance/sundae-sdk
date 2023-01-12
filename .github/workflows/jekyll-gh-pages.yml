@@ -22,23 +22,19 @@ concurrency:
 
 jobs:
   # Doc generation job
-  #   generate:
-  #     runs-on: ubuntu-latest
-  #     steps:
-  #       - name: Checkout
-  #         uses: actions/checkout@v3
-  #       - name: Setup Node.js 18.x
-  #         uses: actions/setup-node@v3
-  #         with:
-  #           node-version: 18.x
-  #       - name: Install dependencies
-  #         uses: borales/actions-yarn@v4
-  #         with:
-  #           cmd: install
-  #       - name: Generate documentation
-  #         uses: borales/actions-yarn@v4
-  #         with:
-  #           cmd: docs
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - name: Install Dependencies
+        run: yarn
+      - name: Generate Documentation
+        run: yarn docs
 
   # Build job
   build:
@@ -51,8 +47,8 @@ jobs:
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
-          source: ./docs
-          destination: ./docs/_site
+          source: ./
+          destination: ./_site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
 

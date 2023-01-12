@@ -12,7 +12,7 @@ The Bech32 script address of the SundaeSwap Escrow contract.
 
 #### Defined in
 
-[@types/utilities.ts:8](https://github.com/SundaeSwap-finance/sundae-sdk/blob/ef3cd12/packages/core/src/@types/utilities.ts#L8)
+[@types/utilities.ts:8](https://github.com/SundaeSwap-finance/sundae-sdk/blob/f054aa7/packages/core/src/@types/utilities.ts#L8)
 
 ___
 
@@ -24,7 +24,7 @@ The minimum amount of ADA to deliver assets with.
 
 #### Defined in
 
-[@types/utilities.ts:12](https://github.com/SundaeSwap-finance/sundae-sdk/blob/ef3cd12/packages/core/src/@types/utilities.ts#L12)
+[@types/utilities.ts:12](https://github.com/SundaeSwap-finance/sundae-sdk/blob/f054aa7/packages/core/src/@types/utilities.ts#L12)
 
 ___
 
@@ -36,4 +36,4 @@ The fee paid to Scoopers who process transactions.
 
 #### Defined in
 
-[@types/utilities.ts:10](https://github.com/SundaeSwap-finance/sundae-sdk/blob/ef3cd12/packages/core/src/@types/utilities.ts#L10)
+[@types/utilities.ts:10](https://github.com/SundaeSwap-finance/sundae-sdk/blob/f054aa7/packages/core/src/@types/utilities.ts#L10)

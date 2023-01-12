@@ -1,5 +1,5 @@
 {
-  "name": "@sundae/sdk-core",
+  "name": "@sundaeswap/sdk-core",
   "version": "0.1.0",
   "description": "The official SundaeSwap protocol SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
@@ -27,7 +27,8 @@
     "compile": "yarn compile:cjs && yarn compile:esm && yarn compile:types",
     "build": "yarn clean && yarn compile",
     "watch": "yarn compile:cjs && yarn compile:types && yarn compile:esm --watch",
-    "docs": "docgen generate --typedoc-options ./typedoc.json"
+    "docs": "docgen generate --typedoc-options ./typedoc.json",
+    "docs:ci": "yarn docs --unsafe"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

@@ -8,4 +8,4 @@ The Sundae SDK repository handles all SDK packages for interacting directly with
 
 ## TypeScript
 
-- [@sundae/sdk-core](./typescript/core/index.html)
+- [@sundae/sdk-core](./typescript/core/modules.html)

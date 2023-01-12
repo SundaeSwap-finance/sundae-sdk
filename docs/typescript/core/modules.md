@@ -1,4 +1,41 @@
-# @sundae/sdk-core
+# @sundaeswap/sdk-core
+
+# Introduction
+The `@sundae/sdk-core` package serves as the foundation for interacting with the SundaeSwap protocol in a predictable and declarative manner,
+and includes all typings and class interfaces needed to both [Get Started](#get-started) and extending the API.
+
+## Get Started
+To start with [Lucid](https://www.npmjs.com/package/lucid-cardano), install dependencies:
+
+```sh
+yarn add lucid-cardano @sundae/sdk-core
+```
+
+Next, configure the instance in your app:
+
+```ts
+import {
+    SundaeSDK,
+    ITxBuilderClass,
+    TxBuilderLucid,
+    ProviderSundaeSwap
+} from "@sundae/sdk-core";
+
+const txBuilder: ITxBuilderClass = new TxBuilderLucid(
+    {
+        provider: "blockfrost",
+        blockfrost: {
+            url: "https://cardano-preview.blockfrost.io/api/v0",
+            apiKey: "YOUR_API_KEY"
+        }
+    },
+    new ProviderSundaeSwap("preview")
+)
+
+const sdk: SundaeSDK = new SundaeSDK(txBuilder);
+
+const swap = sdk.swap( /** ... */ );
+```
 
 ## Classes
 
@@ -38,7 +75,7 @@ A type constant used for determining valid Cardano Network values.
 
 #### Defined in
 
-[@types/utilities.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/ef3cd12/packages/core/src/@types/utilities.ts#L20)
+[@types/utilities.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/f054aa7/packages/core/src/@types/utilities.ts#L20)
 
 ___
 
@@ -50,4 +87,4 @@ A type constant used for determining valid CIP-30 compliant Web3 Wallets for Car
 
 #### Defined in
 
-[@types/utilities.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/ef3cd12/packages/core/src/@types/utilities.ts#L27)
+[@types/utilities.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/f054aa7/packages/core/src/@types/utilities.ts#L27)

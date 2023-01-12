@@ -19,7 +19,7 @@ A supported Cardano network.
 
 #### Defined in
 
-[@types/txbuilder.ts:29](https://github.com/SundaeSwap-finance/sundae-sdk/blob/ef3cd12/packages/core/src/@types/txbuilder.ts#L29)
+[@types/txbuilder.ts:29](https://github.com/SundaeSwap-finance/sundae-sdk/blob/f054aa7/packages/core/src/@types/txbuilder.ts#L29)
 
 ___
 
@@ -31,4 +31,4 @@ A CIP-30 compatible wallet.
 
 #### Defined in
 
-[@types/txbuilder.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/ef3cd12/packages/core/src/@types/txbuilder.ts#L27)
+[@types/txbuilder.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/f054aa7/packages/core/src/@types/txbuilder.ts#L27)

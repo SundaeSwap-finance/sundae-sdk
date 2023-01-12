@@ -37,12 +37,16 @@ plugins:
   - jekyll-optional-front-matter
 
 logo: "/assets/logo.png"
-favicon_logo: "/assets/logo.png"
+favicon_ico: "/assets/logo.png"
 
 defaults:
   - scope:
       path: "/typescript/core/*/*"
     values:
-      parent: "Core: Exports"
+      parent: "API Documentation"
+  - scope:
+      path: "/typescript/core/*"
+    values:
+      nav_order: 2
 
 gh_edit_repository: "https://github.com/SundaeSwap-finance/sundae-sdk"

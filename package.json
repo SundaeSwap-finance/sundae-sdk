@@ -9,13 +9,15 @@
     "postinstall": "lerna bootstrap",
     "prepare": "husky install",
     "build": "cd packages/sdk && yarn build",
-    "release": "yarn build && lerna publish from-package -y"
+    "release": "yarn build && lerna publish from-package -y",
+    "docs": "lerna exec yarn docs:ci --ignore demo"
   },
   "devDependencies": {
     "@meshsdk/core": "^1.3.0",
     "@microsoft/api-documenter": "^7.19.27",
     "@microsoft/api-extractor": "^7.33.7",
     "@redocly/cli": "^1.0.0-beta.120",
+    "@sundaeswap/docgen": "^0.1.1",
     "@types/node": "^18.11.18",
     "glob": "^8.0.3",
     "lerna": "^5.6.2",
