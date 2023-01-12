@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/sdk-core",
-  "version": "0.1.0",
+  "version": "1.0.0-beta.1",
   "description": "The official SundaeSwap protocol SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {
@@ -14,7 +14,7 @@
   "license": "MIT",
   "private": false,
   "publishConfig": {
-    "access": "public"
+    "access": "restricted"
   },
   "files": [
     "dist",
