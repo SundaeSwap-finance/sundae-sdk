@@ -29,6 +29,7 @@ url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: sundaeswap
 github_username: SundaeSwap-Finance
 permalink: slug:output_ext
+source: "./docs"
 
 # Build settings
 remote_theme: just-the-docs/just-the-docs
