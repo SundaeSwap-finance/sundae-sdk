@@ -33,4 +33,4 @@ Construct a new AssetAmount.
 
 #### Defined in
 
-[classes/AssetAmount.class.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/4629b39/packages/core/src/classes/AssetAmount.class.ts#L28)
+[classes/AssetAmount.class.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/AssetAmount.class.ts#L28)

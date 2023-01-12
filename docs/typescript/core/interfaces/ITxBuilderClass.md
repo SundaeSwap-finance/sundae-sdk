@@ -39,4 +39,4 @@ The main function to build a swap Transaction.
 
 #### Defined in
 
-[@types/txbuilder.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/4629b39/packages/core/src/@types/txbuilder.ts#L60)
+[@types/txbuilder.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L60)

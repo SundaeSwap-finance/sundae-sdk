@@ -37,7 +37,7 @@ const builder = new TxBuilderLucid(
 
 #### Defined in
 
-[classes/TxBuilders/TxBuilder.Lucid.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/4629b39/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L70)
+[classes/TxBuilders/TxBuilder.Lucid.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L70)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ITxBuilderClass.options
 
 #### Defined in
 
-[classes/TxBuilders/TxBuilder.Lucid.class.ts:71](https://github.com/SundaeSwap-finance/sundae-sdk/blob/4629b39/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L71)
+[classes/TxBuilders/TxBuilder.Lucid.class.ts:71](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L71)
 
 ___
 
@@ -69,4 +69,4 @@ ITxBuilderClass.provider
 
 #### Defined in
 
-[classes/TxBuilders/TxBuilder.Lucid.class.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/4629b39/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L72)
+[classes/TxBuilders/TxBuilder.Lucid.class.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L72)

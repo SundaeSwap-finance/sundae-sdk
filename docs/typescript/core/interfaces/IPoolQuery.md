@@ -23,7 +23,7 @@ The desired pool fee.
 
 #### Defined in
 
-[@types/provider.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/4629b39/packages/core/src/@types/provider.ts#L44)
+[@types/provider.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/provider.ts#L44)
 
 ___
 
@@ -35,4 +35,4 @@ The pool pair, as an array of [assetId](IPoolDataAsset.md#assetid)
 
 #### Defined in
 
-[@types/provider.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/4629b39/packages/core/src/@types/provider.ts#L42)
+[@types/provider.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/provider.ts#L42)
