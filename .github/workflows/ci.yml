@@ -1,5 +1,5 @@
 # Sample workflow for building and deploying a Jekyll site to GitHub Pages
-name: Deploy Jekyll with GitHub Pages dependencies preinstalled
+name: CI/CD
 
 on:
   # Runs on pushes targeting the default branch
@@ -30,6 +30,7 @@ jobs:
 
       - name: Setting up Node.js 18.x
         uses: actions/setup-node@v3
+        cache: yarn
         with:
           node-version: 18
           registry-url: "https://registry.npmjs.org"
