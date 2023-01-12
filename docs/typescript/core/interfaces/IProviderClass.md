@@ -30,7 +30,7 @@ Finds a matching pool on the SundaeSwap protocol.
 
 #### Defined in
 
-[@types/provider.ts:17](https://github.com/SundaeSwap-finance/sundae-sdk/blob/5e54550/packages/core/src/@types/provider.ts#L17)
+[@types/provider.ts:17](https://github.com/SundaeSwap-finance/sundae-sdk/blob/d486512/packages/core/src/@types/provider.ts#L17)
 
 ___
 
@@ -56,4 +56,4 @@ Finds a matching pool on the SundaeSwap protocol and returns only the ident.
 
 #### Defined in
 
-[@types/provider.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/5e54550/packages/core/src/@types/provider.ts#L25)
+[@types/provider.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/d486512/packages/core/src/@types/provider.ts#L25)

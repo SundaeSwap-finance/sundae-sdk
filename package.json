@@ -1,5 +1,6 @@
 {
   "name": "@sundaeswap/sdk",
+  "version": "0.1.0",
   "type": "module",
   "private": true,
   "workspaces": [
@@ -11,7 +12,7 @@
     "prepare": "husky install",
     "build": "lerna run build",
     "release": "yarn build && yarn semantic-release && lerna publish from-package -y --no-private",
-    "docs": "lerna run yarn docs:ci",
+    "docs": "lerna run docs:ci",
     "semantic-release": "semantic-release --dry-run"
   },
   "engines": {
@@ -30,7 +31,8 @@
     "semantic-release": "^20.0.2",
     "ts-jest": "^29.0.4",
     "ts-node": "^10.9.1",
-    "typedoc-plugin-markdown": "^3.14.0"
+    "typedoc-plugin-markdown": "^3.14.0",
+    "husky": "^8.0.0"
   },
   "dependencies": {}
 }
