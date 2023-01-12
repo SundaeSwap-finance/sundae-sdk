@@ -1,5 +1,5 @@
-import { AssetAmount } from "../../AssetAmount.class";
-import { SwapConfig } from "../../SwapConfig.class";
+import { AssetAmount } from "../AssetAmount.class";
+import { SwapConfig } from "../SwapConfig.class";
 
 const mockPool = {
   assetA: {
@@ -65,7 +65,7 @@ describe("SwapConfig class", () => {
     });
 
     try {
-      config.build();
+      config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -82,7 +82,7 @@ describe("SwapConfig class", () => {
     });
 
     try {
-      config.build();
+      config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -100,7 +100,7 @@ describe("SwapConfig class", () => {
     });
 
     try {
-      config.build();
+      config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -116,7 +116,7 @@ describe("SwapConfig class", () => {
     });
 
     try {
-      config.build();
+      config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -135,7 +135,7 @@ describe("SwapConfig class", () => {
       });
 
     try {
-      config.build();
+      config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -153,7 +153,7 @@ describe("SwapConfig class", () => {
       });
 
     try {
-      config.build();
+      config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -166,7 +166,7 @@ describe("SwapConfig class", () => {
     config.setPool(mockPool).setFunding(mockFunding);
 
     try {
-      config.build();
+      config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -186,10 +186,10 @@ describe("SwapConfig class", () => {
       .setReceiverAddress(mockAddress)
       .setFunding(validFunding);
 
-    expect(config.build()).toEqual({
-      ...mockPool,
+    expect(config.buildArgs()).toEqual({
+      pool: mockPool,
       receiverAddress: mockAddress,
-      givenAsset: validFunding,
+      suppliedAsset: validFunding,
     });
   });
 });

@@ -21,12 +21,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Build job
+  # Build
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      # Run Tests
+      - name: Run Tests
+        run: yarn test
+
+      # Build Documentation Site
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Build with Jekyll
@@ -37,8 +43,12 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
 
-  # Deployment job
-  deploy:
+      # Create Release
+      - name: Create Release
+        run: yarn release
+
+  # Deploy Documentation
+  docs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
