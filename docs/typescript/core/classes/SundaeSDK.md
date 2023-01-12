@@ -20,7 +20,7 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `builder` | [`ITxBuilderClass`](../interfaces/ITxBuilderClass.md)<`Object`, `unknown`, `unknown`, `unknown`\> | An instance of TxBuilder. |
+| `builder` | [`ITxBuilderClass`](../interfaces/ITxBuilderClass.md)<`any`, `any`, `any`, `any`\> | An instance of TxBuilder. |
 
 #### Defined in
 
@@ -30,7 +30,7 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 ### builder
 
-• `Private` **builder**: [`ITxBuilderClass`](../interfaces/ITxBuilderClass.md)<`Object`, `unknown`, `unknown`, `unknown`\>
+• `Private` **builder**: [`ITxBuilderClass`](../interfaces/ITxBuilderClass.md)<`any`, `any`, `any`, `any`\>
 
 An instance of TxBuilder.
 

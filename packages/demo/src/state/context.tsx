@@ -1,4 +1,4 @@
-import type { SundaeSDK } from "@sundae/sdk-core";
+import type { SundaeSDK } from "@sundaeswap/sdk-core";
 import { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 import { useContext } from "react";

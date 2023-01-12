@@ -6,10 +6,10 @@ The main interface by which TxBuilder classes are implemented.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `Options` | `Object` | The options that your TxBuilder will take upon instantiating. |
-| `Lib` | `unknown` | The type of transaction building library that you plan to use. For example, if using Lucid, this would be of type Lucid. |
-| `Data` | `unknown` | The data type that you will build your Datums with. For example, if using Lucid, this would be of type Data. |
-| `Tx` | `unknown` | The transaction interface type that will be returned from Lib when building a new transaction. For example, in Lucid this is of type Tx. |
+| `Options` | `any` | The options that your TxBuilder will take upon instantiating. |
+| `Lib` | `any` | The type of transaction building library that you plan to use. For example, if using Lucid, this would be of type Lucid. |
+| `Data` | `any` | The data type that you will build your Datums with. For example, if using Lucid, this would be of type Data. |
+| `Tx` | `any` | The transaction interface type that will be returned from Lib when building a new transaction. For example, in Lucid this is of type Tx. |
 
 ## Implemented by
 
@@ -31,7 +31,7 @@ The main function to build a swap Transaction.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | [`IBuildSwapArgs`](IBuildSwapArgs.md) | The built SwapArguments from a SwapConfig instance. |
+| `args` | [`IBuildSwapArgs`](IBuildSwapArgs.md) | The built SwapArguments from a [SwapConfig](../classes/SwapConfig.md) instance. |
 
 ##### Returns
 

@@ -24,20 +24,16 @@ export class SundaeSDK {
     return this.builder.provider;
   }
 
-  async swap({
-    poolQuery,
-    suppliedAsset,
-    receiverAddress,
-    additionalCanceler,
-    minReceivable,
-  }: ISwapArgs) {
+  async swap(swapConfig: SwapConfig) {
+    const { poolQuery, suppliedAsset, receiverAddress } =
+      swapConfig.buildSwap();
     const pool = await this.query().findPoolData(poolQuery);
 
     const config = new SwapConfig()
       .setPool(pool)
       .setFunding(suppliedAsset)
       .setReceiverAddress(receiverAddress)
-      .buildArgs();
+      .buildRawSwap();
 
     const tx = await this.builder.buildSwap(config);
     return tx;

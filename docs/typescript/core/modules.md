@@ -41,6 +41,7 @@ const swap = sdk.swap( /** ... */ );
 
 - [AssetAmount](classes/AssetAmount.md)
 - [SundaeSDK](classes/SundaeSDK.md)
+- [SwapConfig](classes/SwapConfig.md)
 
 ## Extensions
 

@@ -40,10 +40,10 @@ export interface ITxBuilderOptions {
  * @group Extension Builders
  */
 export interface ITxBuilderClass<
-  Options = Object,
-  Lib = unknown,
-  Data = unknown,
-  Tx = unknown
+  Options = any,
+  Lib = any,
+  Data = any,
+  Tx = any
 > {
   provider: IProviderClass;
   options: Options;

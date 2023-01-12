@@ -65,7 +65,7 @@ describe("SwapConfig class", () => {
     });
 
     try {
-      config.buildArgs();
+      config.buildRawSwap();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -82,7 +82,7 @@ describe("SwapConfig class", () => {
     });
 
     try {
-      config.buildArgs();
+      config.buildRawSwap();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -100,7 +100,7 @@ describe("SwapConfig class", () => {
     });
 
     try {
-      config.buildArgs();
+      config.buildRawSwap();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -116,11 +116,27 @@ describe("SwapConfig class", () => {
     });
 
     try {
-      config.buildArgs();
+      config.buildRawSwap();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
         "The parameter does not exist: pool. Use the setPool() method."
+      );
+    }
+  });
+
+  it("should throw an error if running .buildSwap() if a poolQuery isn't set", () => {
+    config.setFunding({
+      amount: new AssetAmount(20n, 6),
+      assetID: "tINDY",
+    });
+
+    try {
+      config.buildSwap();
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+      expect((e as Error).message).toEqual(
+        "The parameter does not exist: poolQuery. Use the setPoolQuery() method."
       );
     }
   });
@@ -135,7 +151,7 @@ describe("SwapConfig class", () => {
       });
 
     try {
-      config.buildArgs();
+      config.buildRawSwap();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -153,7 +169,7 @@ describe("SwapConfig class", () => {
       });
 
     try {
-      config.buildArgs();
+      config.buildRawSwap();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -166,7 +182,7 @@ describe("SwapConfig class", () => {
     config.setPool(mockPool).setFunding(mockFunding);
 
     try {
-      config.buildArgs();
+      config.buildRawSwap();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -175,7 +191,7 @@ describe("SwapConfig class", () => {
     }
   });
 
-  it("should build without errors", () => {
+  it("should run buildRawSwap() without errors", () => {
     const validFunding = {
       amount: new AssetAmount(2n, 6),
       assetID: "",
@@ -186,8 +202,32 @@ describe("SwapConfig class", () => {
       .setReceiverAddress(mockAddress)
       .setFunding(validFunding);
 
-    expect(config.buildArgs()).toEqual({
+    expect(config.buildRawSwap()).toEqual({
       pool: mockPool,
+      receiverAddress: mockAddress,
+      suppliedAsset: validFunding,
+    });
+  });
+
+  it("should run buildSwap() without errors", () => {
+    const validFunding = {
+      amount: new AssetAmount(2n, 6),
+      assetID: "",
+    };
+
+    config
+      .setPoolQuery({
+        pair: ["", "testAsset"],
+        fee: "0.30",
+      })
+      .setReceiverAddress(mockAddress)
+      .setFunding(validFunding);
+
+    expect(config.buildSwap()).toEqual({
+      poolQuery: {
+        pair: ["", "testAsset"],
+        fee: "0.30",
+      },
       receiverAddress: mockAddress,
       suppliedAsset: validFunding,
     });

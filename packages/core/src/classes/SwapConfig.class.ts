@@ -1,20 +1,24 @@
-import { IBuildSwapArgs, IPoolData, IAsset } from "../@types";
+import {
+  IBuildSwapArgs,
+  IPoolData,
+  IAsset,
+  IPoolQuery,
+  ISwapArgs,
+} from "../@types";
 
+/**
+ * The `SwapConfig` class helps to properly format your swap arguments for use within the {@link SundaeSDK}.
+ *
+ *
+ * @example
+ */
 export class SwapConfig {
+  private poolQuery?: IPoolQuery;
   private pool?: IPoolData;
   private funding?: IAsset;
   private receiverAddress?: string;
 
   static minAssetLength = 56;
-
-  /**
-   *
-   * @param funding The asset which you are providing for the swap. The assetID should follow the format: policyID.assetName
-   * @param assetA The concatenated assetID of the pool's.
-   * @param assetB The second human-readable ticker name or concatenated assetID of the pool.
-   * @param fee The desired fee of the pool you want to use.
-   * @param receiverAddress Where you want assetB to be sent to.
-   */
   constructor() {}
 
   setFunding(asset: IAsset) {
@@ -24,6 +28,11 @@ export class SwapConfig {
 
   setPool(pool: IPoolData) {
     this.pool = pool;
+    return this;
+  }
+
+  setPoolQuery(poolQuery: IPoolQuery) {
+    this.poolQuery = poolQuery;
     return this;
   }
 
@@ -40,11 +49,23 @@ export class SwapConfig {
     return this.pool;
   }
 
+  getPoolQuery() {
+    return this.poolQuery;
+  }
+
   getReceiverAddress() {
     return this.receiverAddress;
   }
 
-  buildArgs(): IBuildSwapArgs {
+  buildSwap(): ISwapArgs {
+    return {
+      poolQuery: this.validateAndGetPoolQuery(),
+      suppliedAsset: this.validateAndGetFunding(),
+      receiverAddress: this.validateAndGetReceiverAddr(),
+    };
+  }
+
+  buildRawSwap(): IBuildSwapArgs {
     return {
       pool: this.validateAndGetPool(),
       suppliedAsset: this.validateAndGetFunding(),
@@ -58,6 +79,24 @@ export class SwapConfig {
     }
 
     return this.receiverAddress;
+  }
+
+  private validateAndGetPoolQuery(): IPoolQuery {
+    if (!this.poolQuery) {
+      throw this.getPropertyDoesNotExistError("poolQuery", "setPoolQuery");
+    }
+
+    if (!this.poolQuery.fee) {
+      throw this.getPropertyDoesNotExistError("fee", "setPoolQuery");
+    }
+
+    if (!this.poolQuery.pair || this.poolQuery.pair.length !== 2) {
+      throw new Error(
+        "Malformed query pair. Please ensure that your pair is represented as an 2-index array of AssetID strings."
+      );
+    }
+
+    return this.poolQuery;
   }
 
   private validateAndGetPool(): IPoolData {

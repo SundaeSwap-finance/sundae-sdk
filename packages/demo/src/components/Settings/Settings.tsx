@@ -1,12 +1,12 @@
 import {
-  TSupportedTxBuilders,
-  ESupportedWallets,
+  ProviderSundaeSwap,
   SundaeSDK,
-  TxBuilder,
   TxBuilderLucid,
-} from "@sundae/sdk-core";
+} from "@sundaeswap/sdk-core";
 import { FC, useState, useEffect } from "react";
 import { useAppState } from "../../state/context";
+
+type TSupportedTxBuilders = "lucid" | "mesh";
 
 const SelectBuilderOption: FC<{
   builder: TSupportedTxBuilders;
@@ -34,17 +34,21 @@ const SelectBuilder: FC = () => {
       //   break;
       case "lucid":
         sdk = new SundaeSDK(
-          TxBuilderLucid.new({
-            provider: "blockfrost",
-            blockfrost: {
-              url: "https://cardano-preview.blockfrost.io/api/v0/",
-              // @ts-ignore
-              apiKey: window.__APP_CONFIG.blockfrostAPI,
+          new TxBuilderLucid(
+            {
+              provider: "blockfrost",
+              blockfrost: {
+                url: "https://cardano-preview.blockfrost.io/api/v0/",
+                // @ts-ignore
+                apiKey: window.__APP_CONFIG.blockfrostAPI,
+              },
+              network: "preview",
+              wallet: "eternl",
             },
-            network: "preview",
-            wallet: ESupportedWallets.Eternl,
-          })
+            new ProviderSundaeSwap("preview")
+          )
         );
+
         break;
     }
 

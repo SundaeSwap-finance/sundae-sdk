@@ -1,4 +1,4 @@
-import { AssetAmount, IPoolQuery } from "@sundae/sdk-core";
+import { AssetAmount, IPoolQuery, SwapConfig } from "@sundaeswap/sdk-core";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../state/context";
 import Button from "../Button";
@@ -22,18 +22,25 @@ export const Actions: FC = () => {
     }
 
     setSwapping(true);
-    const txHash = await SDK.swap({
-      poolQuery,
-      suppliedAsset: {
-        assetID:
-          "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-        amount: new AssetAmount(20n, 6),
-      },
-      receiverAddress:
-        "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32",
-    }).then(({ submit }) => submit());
+    try {
+      const config = new SwapConfig();
+      config
+        .setPoolQuery(poolQuery)
+        .setFunding({
+          assetID:
+            "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
+          amount: new AssetAmount(20n, 6),
+        })
+        .setReceiverAddress(
+          "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32"
+        );
+      const txHash = await SDK.swap(config).then(({ submit }) => submit());
 
-    console.log(txHash);
+      console.log(txHash);
+    } catch (e) {
+      console.log(e);
+    }
+
     setSwapping(false);
   }, [SDK]);
 
@@ -43,17 +50,23 @@ export const Actions: FC = () => {
     }
 
     setReverseSwapping(true);
-    const txHash = await SDK.swap({
-      poolQuery,
-      suppliedAsset: {
-        assetID: "",
-        amount: new AssetAmount(25n, 6),
-      },
-      receiverAddress:
-        "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32",
-    }).then(({ submit }) => submit());
+    try {
+      const config = new SwapConfig()
+        .setPoolQuery(poolQuery)
+        .setFunding({
+          assetID: "",
+          amount: new AssetAmount(25n, 6),
+        })
+        .setReceiverAddress(
+          "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32"
+        );
 
-    console.log(txHash);
+      const txHash = await SDK.swap(config).then(({ submit }) => submit());
+      console.log(txHash);
+    } catch (e) {
+      console.log(e);
+    }
+
     setReverseSwapping(false);
   }, [SDK]);
 
