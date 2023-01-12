@@ -7,5 +7,6 @@
     "hideBreadcrumbs": true,
     "hideInPageTOC": true,
     "excludeNotDocumented": true,
-    "githubPages": false
+    "githubPages": false,
+    "gitRevision": "main"
 }
