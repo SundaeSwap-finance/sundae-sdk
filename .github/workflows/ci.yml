@@ -37,9 +37,14 @@ jobs:
       - name: Run Tests
         run: yarn test
 
+      - name: Bump versions
+        run: yarn version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # Create Release
-      - name: Create Release
-        run: yarn release
+      - name: Publish
+        run: yarn publish
 
   # Deploy Documentation
   docs:

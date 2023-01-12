@@ -4,5 +4,17 @@
   "useWorkspaces": true,
   "version": "independent",
   "npmClient": "yarn",
-  "ignore": "demo"
+  "ignore": "demo",
+  "ignoreChanges": [
+    "**/__tests__/**",
+    "**/__fixtures__/**",
+    "**/*.test.js",
+    "**/*.md"
+  ],
+  "command": {
+    "version": {
+      "message": "chore(release): publish %s",
+      "conventionalCommits": true
+    }
+  }
 }
