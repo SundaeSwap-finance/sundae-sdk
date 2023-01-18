@@ -38,11 +38,11 @@
  *
  * @packageDocumentation
  */
-
 export { SundaeSDK } from "./classes/SundaeSDK.class";
 export { AssetAmount } from "./classes/AssetAmount.class";
 export { SwapConfig } from "./classes/SwapConfig.class";
 export { ProviderSundaeSwap } from "./classes/Providers/Provider.SundaeSwap";
+export { TxBuilder } from "./classes/TxBuilders/TxBuilder.abstract.class";
 
 export {
   TxBuilderLucid,

@@ -20,7 +20,7 @@ const builder = new TxBuilderLucid(
 
 ## Hierarchy
 
-- `TxBuilder`<[`ITxBuilderLucidOptions`](../interfaces/ITxBuilderLucidOptions.md), `LucidType`, `DataType`, `TxType`\>
+- [`TxBuilder`](TxBuilder.md)<[`ITxBuilderLucidOptions`](../interfaces/ITxBuilderLucidOptions.md), `LucidType`, `DataType`, `TxType`\>
 
   ↳ **`TxBuilderLucid`**
 

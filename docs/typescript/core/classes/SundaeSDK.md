@@ -20,7 +20,7 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `builder` | `TxBuilder`<`any`, `any`, `any`, `any`\> | An instance of TxBuilder. |
+| `builder` | [`TxBuilder`](TxBuilder.md)<`any`, `any`, `any`, `any`\> | An instance of TxBuilder. |
 
 #### Defined in
 
@@ -30,7 +30,7 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 ### builder
 
-• `Private` **builder**: `TxBuilder`<`any`, `any`, `any`, `any`\>
+• `Private` **builder**: [`TxBuilder`](TxBuilder.md)<`any`, `any`, `any`, `any`\>
 
 An instance of TxBuilder.
 
@@ -42,13 +42,13 @@ An instance of TxBuilder.
 
 ### build
 
-▸ **build**(): `TxBuilder`<`any`, `any`, `any`, `any`\>
+▸ **build**(): [`TxBuilder`](TxBuilder.md)<`any`, `any`, `any`, `any`\>
 
 Utility method to retrieve the builder instance.
 
 #### Returns
 
-`TxBuilder`<`any`, `any`, `any`, `any`\>
+[`TxBuilder`](TxBuilder.md)<`any`, `any`, `any`, `any`\>
 
 #### Defined in
 

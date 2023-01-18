@@ -49,6 +49,11 @@ const swap = sdk.swap( /** ... */ );
 - [TxBuilderLucid](classes/TxBuilderLucid.md)
 - [ITxBuilderLucidOptions](interfaces/ITxBuilderLucidOptions.md)
 
+## Extension Builders
+
+- [TxBuilder](classes/TxBuilder.md)
+- [IProviderClass](interfaces/IProviderClass.md)
+
 ## Interfaces
 
 - [IAsset](interfaces/IAsset.md)
@@ -60,10 +65,6 @@ const swap = sdk.swap( /** ... */ );
 - [ISDKSwapArgs](interfaces/ISDKSwapArgs.md)
 - [ITxBuilderComplete](interfaces/ITxBuilderComplete.md)
 - [ITxBuilderOptions](interfaces/ITxBuilderOptions.md)
-
-## Extension Builders
-
-- [IProviderClass](interfaces/IProviderClass.md)
 
 ## Type Aliases
 
