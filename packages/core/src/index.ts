@@ -15,12 +15,12 @@
  * ```ts
  * import {
  *     SundaeSDK,
- *     ITxBuilderClass,
+ *     TxBuilder,
  *     TxBuilderLucid,
  *     ProviderSundaeSwap
  * } from "@sundae/sdk-core";
  * 
- * const txBuilder: ITxBuilderClass = new TxBuilderLucid(
+ * const txBuilder: TxBuilder = new TxBuilderLucid(
  *     {
  *         provider: "blockfrost",
  *         blockfrost: {
@@ -41,12 +41,13 @@
 export { SundaeSDK } from "./classes/SundaeSDK.class";
 export { AssetAmount } from "./classes/AssetAmount.class";
 export { SwapConfig } from "./classes/SwapConfig.class";
-export { ProviderSundaeSwap } from "./classes/Providers/Provider.SundaeSwap";
-export { TxBuilder } from "./classes/TxBuilders/TxBuilder.abstract.class";
+export { TxBuilder } from "./classes/TxBuilder.abstract.class";
 
 export {
   TxBuilderLucid,
   ITxBuilderLucidOptions,
-} from "./classes/TxBuilders/TxBuilder.Lucid.class";
+} from "./classes/Extensions/TxBuilders/TxBuilder.Lucid.class";
+
+export { ProviderSundaeSwap } from "./classes/Extensions/Providers/Provider.SundaeSwap";
 
 export * from "./@types";

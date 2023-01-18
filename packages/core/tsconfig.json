@@ -7,6 +7,6 @@
     "noFallthroughCasesInSwitch": false
   },
   "extends": "../../tsconfig.json",
-  "include": ["./src/**/*"],
-  "exclude": ["src/classes/__tests__/**/*"]
+  "include": ["./src/**/*", "__tests__", "__mocks__"],
+  "exclude": ["__tests__/**/*"]
 }

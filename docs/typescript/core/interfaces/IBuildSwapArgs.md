@@ -1,6 +1,6 @@
 # Interface: IBuildSwapArgs<Data\>
 
-The raw swap arguments used by ITxBuilderClass.buildSwapTx.
+The raw swap arguments used by [buildSwapTx](../classes/TxBuilder.md#buildswaptx).
 
 ## Type parameters
 

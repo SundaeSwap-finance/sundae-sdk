@@ -58,7 +58,7 @@ ___
 
 ### limitSwap
 
-▸ **limitSwap**(`args`, `limitPrice`): `Promise`<[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)\>
+▸ **limitSwap**(`args`, `limitPrice`): `Promise`<[`TxBuilder`](TxBuilder.md)<`any`, `any`, `any`, `any`\>\>
 
 Creates a swap with a minimum receivable limit price. The price should be the amount
 at which you want the order to execute. For example:
@@ -89,7 +89,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)\>
+`Promise`<[`TxBuilder`](TxBuilder.md)<`any`, `any`, `any`, `any`\>\>
 
 #### Defined in
 
@@ -157,7 +157,7 @@ const { submit, cbor } = await SDK.swap(
 **`See`**
 
  - [IProviderClass.findPoolData](../interfaces/IProviderClass.md#findpooldata)
- - ITxBuilderClass.buildSwapTx | ITxBuilderClass.buildSwap
+ - [TxBuilder.buildSwapTx](TxBuilder.md#buildswaptx)
  - [SwapConfig](SwapConfig.md)
 
 #### Parameters

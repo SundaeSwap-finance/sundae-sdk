@@ -48,7 +48,7 @@ TxBuilder&lt;
 
 #### Defined in
 
-[classes/TxBuilders/TxBuilder.Lucid.class.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L73)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L73)
 
 ## Properties
 
@@ -64,7 +64,7 @@ TxBuilder.options
 
 #### Defined in
 
-[classes/TxBuilders/TxBuilder.Lucid.class.ts:74](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L74)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:74](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L74)
 
 ___
 
@@ -80,7 +80,7 @@ TxBuilder.provider
 
 #### Defined in
 
-[classes/TxBuilders/TxBuilder.Lucid.class.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L75)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L75)
 
 ## Methods
 
@@ -103,11 +103,11 @@ constructor class from the Lucid library.
 
 #### Overrides
 
-TxBuilder.buildEscrowAddressDatum
+[TxBuilder](TxBuilder.md).[buildEscrowAddressDatum](TxBuilder.md#buildescrowaddressdatum)
 
 #### Defined in
 
-[classes/TxBuilders/TxBuilder.Lucid.class.ts:202](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L202)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:197](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L197)
 
 ___
 
@@ -131,11 +131,11 @@ constructor class from the Lucid library.
 
 #### Overrides
 
-TxBuilder.buildEscrowSwapDatum
+[TxBuilder](TxBuilder.md).[buildEscrowSwapDatum](TxBuilder.md#buildescrowswapdatum)
 
 #### Defined in
 
-[classes/TxBuilders/TxBuilder.Lucid.class.ts:242](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L242)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:237](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L237)
 
 ___
 
@@ -161,8 +161,57 @@ can execute their batches in the Escrow script address.
 
 #### Overrides
 
-TxBuilder.buildSwapDatum
+[TxBuilder](TxBuilder.md).[buildSwapDatum](TxBuilder.md#buildswapdatum)
 
 #### Defined in
 
-[classes/TxBuilders/TxBuilder.Lucid.class.ts:261](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilders/TxBuilder.Lucid.class.ts#L261)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:256](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L256)
+
+___
+
+### complete
+
+▸ **complete**(): `Promise`<[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)\>
+
+Completes the transaction building and includes validation of the arguments.
+
+#### Returns
+
+`Promise`<[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)\>
+
+#### Inherited from
+
+[TxBuilder](TxBuilder.md).[complete](TxBuilder.md#complete)
+
+#### Defined in
+
+[classes/TxBuilder.abstract.class.ts:65](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L65)
+
+___
+
+### validateSwapArguments
+
+▸ `Static` **validateSwapArguments**(`args`, `options`, `datumHash?`): `Promise`<`void`\>
+
+Validates the [IBuildSwapArgs](../interfaces/IBuildSwapArgs.md) as having valid values. This **does not** ensure
+that your datum is well structured, only that your config arguments have valid values.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `args` | [`IBuildSwapArgs`](../interfaces/IBuildSwapArgs.md)<`any`\> |
+| `options` | [`ITxBuilderOptions`](../interfaces/ITxBuilderOptions.md) |
+| `datumHash?` | `string` |
+
+#### Returns
+
+`Promise`<`void`\>
+
+#### Inherited from
+
+[TxBuilder](TxBuilder.md).[validateSwapArguments](TxBuilder.md#validateswaparguments)
+
+#### Defined in
+
+[classes/TxBuilder.abstract.class.ts:113](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L113)

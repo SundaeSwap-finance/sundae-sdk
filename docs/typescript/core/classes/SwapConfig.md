@@ -1,19 +1,21 @@
 # Class: SwapConfig
 
-The `SwapConfig` class helps to properly format your swap arguments for use within ITxBuilderClass.buildSwap | ITxBuilderClass.buildSwap.
+The `SwapConfig` class helps to properly format your swap arguments for use within [TxBuilder.buildSwapTx](TxBuilder.md#buildswaptx).
 
 **`Example`**
 
 ```ts
 const config = new SwapConfig()
   .setPool( /** ...pool data... */)
-  .setFunding({
+  .setSuppliedAsset({
     assetID: "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
     amount: new AssetAmount(20n, 6),
   })
-  .setReceiverAddress(
-    "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32"
-  );
+  .setEscrowAddress({
+     DestinationAddress: {
+       address: "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32"
+     }
+  });
 
 const { submit, cbor } = await SDK.swap(config);
 ```
@@ -33,7 +35,7 @@ Useful for when building Transactions directly from the builder instance.
 
 **`See`**
 
-ITxBuilderClass.buildSwap
+[buildSwapTx](TxBuilder.md#buildswaptx)
 
 #### Type parameters
 
@@ -47,7 +49,7 @@ ITxBuilderClass.buildSwap
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:106](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L106)
+[classes/SwapConfig.class.ts:108](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L108)
 
 ___
 
@@ -69,7 +71,7 @@ Builds the [EscrowAddress](../modules.md#escrowaddress) for a swap's required da
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:55](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L55)
+[classes/SwapConfig.class.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L57)
 
 ___
 
@@ -91,7 +93,7 @@ Set a minimum receivable asset amount for the swap. This is akin to setting a li
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:77](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L77)
+[classes/SwapConfig.class.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L79)
 
 ___
 
@@ -113,7 +115,7 @@ Set the pool data directly for the swap you use.
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L66)
+[classes/SwapConfig.class.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L68)
 
 ___
 
@@ -135,4 +137,4 @@ Set the supplied asset for the swap.
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L45)
+[classes/SwapConfig.class.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L47)

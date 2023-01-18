@@ -7,8 +7,8 @@ import type {
   Data as DataType,
 } from "lucid-cardano";
 
-import { getAssetSwapDirection, getParams } from "../../lib/utils";
-import { AssetAmount } from "../AssetAmount.class";
+import { getAssetSwapDirection, getParams } from "../../../lib/utils";
+import { AssetAmount } from "../../AssetAmount.class";
 import {
   IPoolDataAsset,
   IProviderClass,
@@ -18,9 +18,9 @@ import {
   ITxBuilderOptions,
   EscrowAddress,
   Swap,
-} from "../../@types";
-import { ADA_ASSET_ID } from "../../lib/constants";
-import { TxBuilder } from "./TxBuilder.abstract.class";
+} from "../../../@types";
+import { ADA_ASSET_ID } from "../../../lib/constants";
+import { TxBuilder } from "../../TxBuilder.abstract.class";
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -131,7 +131,6 @@ export class TxBuilderLucid extends TxBuilder<
   }
 
   async buildSwapTx(args: IBuildSwapArgs) {
-    const lucid = await this.asyncGetLib();
     const tx = await this.newTx();
     const {
       pool: { ident, assetA, assetB },
@@ -139,13 +138,6 @@ export class TxBuilderLucid extends TxBuilder<
       suppliedAsset,
       minReceivable,
     } = args;
-
-    // Validate arguments.
-    await super.validateSwapArguments(
-      args,
-      DestinationAddress.datum &&
-        lucid.utils.datumToHash(DestinationAddress.datum)
-    );
 
     const { Constr, Data } = await import("lucid-cardano");
     const { SCOOPER_FEE, RIDER_FEE, ESCROW_ADDRESS } = getParams(
@@ -186,10 +178,13 @@ export class TxBuilderLucid extends TxBuilder<
         ? await import("buffer").then(({ Buffer }) => Buffer)
         : Buffer;
 
-    return {
+    this.txArgs = args;
+    this.txComplete = {
       submit: async () => await signedTx.submit(),
       cbor: CtxBuffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
     };
+
+    return this;
   }
 
   /**

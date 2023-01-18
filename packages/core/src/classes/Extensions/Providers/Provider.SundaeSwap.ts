@@ -3,8 +3,8 @@ import {
   IPoolQuery,
   IProviderClass,
   TSupportedNetworks,
-} from "../../@types";
-import { providerBaseUrls } from "../../lib/params";
+} from "../../../@types";
+import { providerBaseUrls } from "../../../lib/params";
 
 /**
  * This class provides a simple set of useful tooling, but primarily is used to

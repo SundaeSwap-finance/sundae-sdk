@@ -7,8 +7,8 @@ import {
   ITxBuilderComplete,
   ITxBuilderOptions,
   Swap,
-} from "../../@types";
-import { AssetAmount } from "../AssetAmount.class";
+} from "../@types";
+import { AssetAmount } from "./AssetAmount.class";
 
 /**
  * The main class by which TxBuilder classes are extended.
@@ -18,7 +18,7 @@ import { AssetAmount } from "../AssetAmount.class";
  * @template Data The data type that you will build your Datums with. For example, if using Lucid, this would be of type Data.
  * @template Tx The transaction interface type that will be returned from Lib when building a new transaction. For example, in Lucid this is of type Tx.
  *
- * @group Extension Builders
+ * @group Exported TxBuilders
  */
 export abstract class TxBuilder<
   Options = any,
@@ -30,6 +30,8 @@ export abstract class TxBuilder<
   options: Options & ITxBuilderOptions;
   lib?: Lib;
   tx?: Tx;
+  txArgs?: IBuildSwapArgs;
+  txComplete?: ITxBuilderComplete;
 
   constructor(provider: IProviderClass, options: Options & ITxBuilderOptions) {
     this.provider = provider;
@@ -39,14 +41,14 @@ export abstract class TxBuilder<
   /**
    * Creates a new Tx type instance from the supplied transaction library.
    */
-  abstract newTx(): Promise<Tx>;
+  protected abstract newTx(): Promise<Tx>;
 
   /**
    * Asynchronously loads the Transaction building Library so-as to avoid loading
    * heavy dependencies in a blocking manner.
    * @returns
    */
-  abstract asyncGetLib(): Promise<Lib>;
+  protected abstract asyncGetLib(): Promise<Lib>;
 
   /**
    * The main function to build a swap Transaction.
@@ -54,23 +56,63 @@ export abstract class TxBuilder<
    * @param args The built SwapArguments from a {@link SwapConfig} instance.
    * @returns {ITxBuilderComplete}
    */
-  abstract buildSwapTx(args: IBuildSwapArgs): Promise<ITxBuilderComplete>;
+  abstract buildSwapTx(args: IBuildSwapArgs): Promise<TxBuilder>;
 
-  abstract buildSwapDatum(
+  /**
+   * Completes the transaction building and includes validation of the arguments.
+   * @returns
+   */
+  async complete() {
+    if (!this.txArgs || !this.txComplete) {
+      throw new Error("You have not built a transaction!");
+    }
+
+    TxBuilder.validateSwapArguments(this.txArgs, this.options);
+    return this.txComplete;
+  }
+
+  /**
+   * Should build the full datum for a Swap transaction.
+   * @param givenAsset
+   * @param assetA
+   * @param assetB
+   * @param minimumReceivable
+   */
+  protected abstract buildSwapDatum(
     givenAsset: IAsset,
     assetA: IPoolDataAsset,
     assetB: IPoolDataAsset,
     minimumReceivable: AssetAmount
   ): Promise<Data>;
 
-  abstract buildEscrowAddressDatum(address: EscrowAddress): Promise<Data>;
-  abstract buildEscrowSwapDatum(
+  /**
+   * Should build the datum for an {@link EscrowAddress}
+   * @param address
+   */
+  protected abstract buildEscrowAddressDatum(
+    address: EscrowAddress
+  ): Promise<Data>;
+
+  /**
+   * Should build the datum for the swap direction of an {@link EscrowAddress}
+   * @param suppliedAsset
+   * @param swap
+   */
+  protected abstract buildEscrowSwapDatum(
     suppliedAsset: AssetAmount,
     swap: Swap
   ): Promise<Data>;
 
-  protected async validateSwapArguments(
+  /**
+   * Validates the {@link IBuildSwapArgs} as having valid values. This **does not** ensure
+   * that your datum is well structured, only that your config arguments have valid values.
+   * @param args
+   * @param options
+   * @param datumHash
+   */
+  static async validateSwapArguments(
     args: IBuildSwapArgs,
+    options: ITxBuilderOptions,
     datumHash?: string
   ) {
     const address = args.escrowAddress.DestinationAddress.address;
@@ -79,15 +121,15 @@ export abstract class TxBuilder<
 
     const { getAddressDetails } = await import("lucid-cardano");
     const { networkId } = getAddressDetails(address);
-    if (networkId === 0 && this.options.network === "mainnet") {
+    if (networkId === 0 && options.network === "mainnet") {
       throw new Error(
-        `Invalid address: ${address}. The given address is a Preview Network address, but the network provided for your SDK is: ${this.options.network}`
+        `Invalid address: ${address}. The given address is a Preview Network address, but the network provided for your SDK is: ${options.network}`
       );
     }
 
-    if (networkId === 1 && this.options.network === "preview") {
+    if (networkId === 1 && options.network === "preview") {
       throw new Error(
-        `Invalid address: ${address}. The given address is a Mainnet Network address, but the network provided for your SDK is: ${this.options.network}`
+        `Invalid address: ${address}. The given address is a Mainnet Network address, but the network provided for your SDK is: ${options.network}`
       );
     }
 

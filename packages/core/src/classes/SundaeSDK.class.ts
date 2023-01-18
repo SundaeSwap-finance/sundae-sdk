@@ -1,7 +1,7 @@
 import { IProviderClass, ISDKSwapArgs } from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
 import { SwapConfig } from "./SwapConfig.class";
-import { TxBuilder } from "./TxBuilders/TxBuilder.abstract.class";
+import { TxBuilder } from "./TxBuilder.abstract.class";
 
 /**
  * A description for the SundaeSDK class.
@@ -79,7 +79,7 @@ export class SundaeSDK {
    * ```
    *
    * @see {@link IProviderClass.findPoolData | IProviderClass.findPoolData}
-   * @see {@link ITxBuilderClass.buildSwapTx | ITxBuilderClass.buildSwap}
+   * @see {@link TxBuilder.buildSwapTx | TxBuilder.buildSwapTx}
    * @see {@link SwapConfig}
    *
    * @param swapConfig
@@ -87,8 +87,8 @@ export class SundaeSDK {
    */
   async swap(args: ISDKSwapArgs) {
     const config = await this.buildBasicSwapConfig(args);
-    const tx = await this.builder.buildSwapTx(config.buildSwapArgs());
-    return tx;
+    await this.builder.buildSwapTx(config.buildSwapArgs());
+    return this.builder.complete();
   }
 
   /**

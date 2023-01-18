@@ -16,12 +16,12 @@ Next, configure the instance in your app:
 ```ts
 import {
     SundaeSDK,
-    ITxBuilderClass,
+    TxBuilder,
     TxBuilderLucid,
     ProviderSundaeSwap
 } from "@sundae/sdk-core";
 
-const txBuilder: ITxBuilderClass = new TxBuilderLucid(
+const txBuilder: TxBuilder = new TxBuilderLucid(
     {
         provider: "blockfrost",
         blockfrost: {
@@ -49,10 +49,9 @@ const swap = sdk.swap( /** ... */ );
 - [TxBuilderLucid](classes/TxBuilderLucid.md)
 - [ITxBuilderLucidOptions](interfaces/ITxBuilderLucidOptions.md)
 
-## Extension Builders
+## Exported TxBuilders
 
 - [TxBuilder](classes/TxBuilder.md)
-- [IProviderClass](interfaces/IProviderClass.md)
 
 ## Interfaces
 
@@ -65,6 +64,10 @@ const swap = sdk.swap( /** ... */ );
 - [ISDKSwapArgs](interfaces/ISDKSwapArgs.md)
 - [ITxBuilderComplete](interfaces/ITxBuilderComplete.md)
 - [ITxBuilderOptions](interfaces/ITxBuilderOptions.md)
+
+## Extension Builders
+
+- [IProviderClass](interfaces/IProviderClass.md)
 
 ## Type Aliases
 

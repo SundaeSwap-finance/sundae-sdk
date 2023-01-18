@@ -108,7 +108,7 @@ export type DepositMixed = {
 };
 
 /**
- * The raw swap arguments used by {@link ITxBuilderClass.buildSwapTx}.
+ * The raw swap arguments used by {@link TxBuilder.buildSwapTx}.
  */
 export interface IBuildSwapArgs<Data = any> {
   pool: IPoolData;

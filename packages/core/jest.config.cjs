@@ -1,5 +1,8 @@
 /** @type {import('jest').Config} */
 module.exports = {
+  roots: [
+    "<rootDir>/src/"
+  ],
   preset: 'ts-jest',
   testEnvironment: 'node',
   transform: {
@@ -10,13 +13,6 @@ module.exports = {
       }
     ],
   },
-  // testEnvironment: "node",
-  // extensionsToTreatAsEsm: [".ts"],
-  // globals: {
-  //   "ts-jest": {
-  //     useESM: true,
-  //   }
-  // },
   testMatch: ["**/__tests__/**/*.test.[jt]s?(x)"],
-  testPathIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/src/__tests__/data/"]
+  testPathIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/__tests__/data/"]
 };

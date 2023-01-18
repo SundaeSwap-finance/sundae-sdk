@@ -1,5 +1,5 @@
-import { AssetAmount } from "../AssetAmount.class";
-import { SwapConfig } from "../SwapConfig.class";
+import { AssetAmount } from "../classes/AssetAmount.class";
+import { SwapConfig } from "../classes/SwapConfig.class";
 
 const mockPool = {
   assetA: {
@@ -49,7 +49,7 @@ describe("SwapConfig class", () => {
     expect(config.getSuppliedAsset()).toMatchObject(asset);
   });
 
-  it("setReceiverAddress and getReceiverAddress", () => {
+  it("setEscrowAddress and getEscrowAddress", () => {
     config.setEscrowAddress({
       DestinationAddress: {
         address: mockAddress,
