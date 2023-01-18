@@ -153,22 +153,16 @@ ___
 
 ### DestinationAddress
 
-Ƭ **DestinationAddress**<`Data`\>: `Object`
+Ƭ **DestinationAddress**: `Object`
 
 Defines the destination address of a swap along with an optional datum hash to attach.
-
-#### Type parameters
-
-| Name | Type |
-| :------ | :------ |
-| `Data` | `any` |
 
 #### Type declaration
 
 | Name | Type |
 | :------ | :------ |
 | `address` | `string` |
-| `datum?` | `Data` |
+| `datumHash?` | `string` |
 
 #### Defined in
 

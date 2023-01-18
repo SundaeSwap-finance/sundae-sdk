@@ -1,7 +1,8 @@
+import { IPoolData } from "src/@types";
 import { AssetAmount } from "../classes/AssetAmount.class";
 import { SwapConfig } from "../classes/SwapConfig.class";
 
-const mockPool = {
+const mockPool: IPoolData = {
   assetA: {
     assetId: "",
     decimals: 6,
@@ -13,6 +14,8 @@ const mockPool = {
   },
   ident: "06",
   fee: "0.30",
+  quantityA: "100",
+  quantityB: "200",
 };
 
 const mockFunding = {

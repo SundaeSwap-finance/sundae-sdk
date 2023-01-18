@@ -71,4 +71,8 @@ export interface IPoolData {
   assetA: IPoolDataAsset;
   /** Asset data for the pool pair, Asset B */
   assetB: IPoolDataAsset;
+  /** The pool quantity of {@link assetA} */
+  quantityA: string;
+  /** The pool quantity of {@link assetB} */
+  quantityB: string;
 }

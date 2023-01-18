@@ -1,4 +1,5 @@
-import { IProviderClass, ISDKSwapArgs } from "../@types";
+import { getMinReceivableFromSlippage } from "../lib/utils";
+import { IPoolData, IProviderClass, ISDKSwapArgs } from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
 import { SwapConfig } from "./SwapConfig.class";
 import { TxBuilder } from "./TxBuilder.abstract.class";
@@ -43,7 +44,7 @@ export class SundaeSDK {
   /**
    * The main entry point for building a swap transaction with the least amount
    * of configuration required. By default, all calls to this method are treated
-   * as market orders and will be executed as soon as a Scooper processes it.
+   * as market orders with a generous 10% slippage tolerance by default.
    *
    * For more control, look at
    *
@@ -86,7 +87,7 @@ export class SundaeSDK {
    * @returns
    */
   async swap(args: ISDKSwapArgs) {
-    const config = await this.buildBasicSwapConfig(args);
+    const config = await this._buildBasicSwapConfig(args);
     await this.builder.buildSwapTx(config.buildSwapArgs());
     return this.builder.complete();
   }
@@ -125,22 +126,29 @@ export class SundaeSDK {
    * @returns
    */
   async limitSwap(args: ISDKSwapArgs, limitPrice: AssetAmount) {
-    const config = await this.buildBasicSwapConfig(args);
+    const config = await this._buildBasicSwapConfig(args, false);
     config.setMinReceivable(limitPrice);
     await this.builder.buildSwapTx(config.buildSwapArgs());
     return this.builder.complete();
   }
 
-  private async buildBasicSwapConfig({
-    pool,
-    poolQuery,
-    escrowAddress,
-    suppliedAsset,
-  }: ISDKSwapArgs) {
+  /**
+   * Builds a basic Swap config from {@link ISDKSwapArgs}.
+   *
+   * @param args
+   * @param slippage Calculate a minimum receivable amount of the opposing asset pair based on the provided value. If set to false, calculation will be ignored.
+   * @returns
+   */
+  private async _buildBasicSwapConfig(
+    args: ISDKSwapArgs,
+    slippage?: number | false
+  ) {
+    const { pool, poolQuery, escrowAddress, suppliedAsset } = args;
     const config = new SwapConfig();
+    let resolvedPool: IPoolData;
 
     if (pool) {
-      config.setPool(pool);
+      resolvedPool = pool;
     } else if (poolQuery) {
       const poolData = await this.query().findPoolData(poolQuery);
       if (!poolData) {
@@ -149,11 +157,22 @@ export class SundaeSDK {
             JSON.stringify(poolQuery)
         );
       }
-
-      config.setPool(poolData);
+      resolvedPool = poolData;
     } else {
       throw new Error(
         "You must provide a valid pool or poolQuery to build a swap transaction against."
+      );
+    }
+
+    config.setPool(resolvedPool);
+
+    if (false !== slippage) {
+      config.setMinReceivable(
+        getMinReceivableFromSlippage(
+          resolvedPool,
+          suppliedAsset,
+          slippage ?? 0.1
+        )
       );
     }
 

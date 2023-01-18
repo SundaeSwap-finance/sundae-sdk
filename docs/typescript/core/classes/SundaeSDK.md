@@ -24,7 +24,7 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:21](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L21)
+[classes/SundaeSDK.class.ts:22](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L22)
 
 ## Properties
 
@@ -36,9 +36,32 @@ An instance of TxBuilder.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:21](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L21)
+[classes/SundaeSDK.class.ts:22](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L22)
 
 ## Methods
+
+### \_buildBasicSwapConfig
+
+▸ `Private` **_buildBasicSwapConfig**(`args`, `slippage?`): `Promise`<[`SwapConfig`](SwapConfig.md)\>
+
+Builds a basic Swap config from [ISDKSwapArgs](../interfaces/ISDKSwapArgs.md).
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `args` | [`ISDKSwapArgs`](../interfaces/ISDKSwapArgs.md) |  |
+| `slippage?` | `number` \| ``false`` | Calculate a minimum receivable amount of the opposing asset pair based on the provided value. If set to false, calculation will be ignored. |
+
+#### Returns
+
+`Promise`<[`SwapConfig`](SwapConfig.md)\>
+
+#### Defined in
+
+[classes/SundaeSDK.class.ts:142](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L142)
+
+___
 
 ### build
 
@@ -52,7 +75,7 @@ Utility method to retrieve the builder instance.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L30)
+[classes/SundaeSDK.class.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L31)
 
 ___
 
@@ -102,7 +125,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:127](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L127)
+[classes/SundaeSDK.class.ts:128](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L128)
 
 ___
 
@@ -118,7 +141,7 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L39)
+[classes/SundaeSDK.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L40)
 
 ___
 
@@ -128,7 +151,7 @@ ___
 
 The main entry point for building a swap transaction with the least amount
 of configuration required. By default, all calls to this method are treated
-as market orders and will be executed as soon as a Scooper processes it.
+as market orders with a generous 10% slippage tolerance by default.
 
 For more control, look at
 
@@ -181,4 +204,4 @@ const { submit, cbor } = await SDK.swap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:88](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L88)
+[classes/SundaeSDK.class.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L89)

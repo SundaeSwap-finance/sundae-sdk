@@ -62,7 +62,7 @@ export abstract class TxBuilder<
    * Completes the transaction building and includes validation of the arguments.
    * @returns
    */
-  async complete() {
+  complete() {
     if (!this.txArgs || !this.txComplete) {
       throw new Error("You have not built a transaction!");
     }
@@ -112,25 +112,34 @@ export abstract class TxBuilder<
    */
   static async validateSwapArguments(
     args: IBuildSwapArgs,
-    options: ITxBuilderOptions,
-    datumHash?: string
+    options: ITxBuilderOptions
   ) {
     const address = args.escrowAddress.DestinationAddress.address;
+    const datumHash = args.escrowAddress.DestinationAddress.datumHash;
     const canceler = args.escrowAddress.AlternateAddress;
-    const datum = args.escrowAddress.DestinationAddress.datum;
 
     const { getAddressDetails } = await import("lucid-cardano");
-    const { networkId } = getAddressDetails(address);
-    if (networkId === 0 && options.network === "mainnet") {
+
+    // Validate destination address.
+    const { networkId: addressNetworkId } = getAddressDetails(address);
+    if (addressNetworkId !== 1 && options.network === "mainnet") {
       throw new Error(
-        `Invalid address: ${address}. The given address is a Preview Network address, but the network provided for your SDK is: ${options.network}`
+        `Invalid address: ${address}. The given address is not a Mainnet Network address.`
       );
+    } else if (addressNetworkId !== 0) {
+      throw new Error(`Invalid address: ${address}.`);
     }
 
-    if (networkId === 1 && options.network === "preview") {
-      throw new Error(
-        `Invalid address: ${address}. The given address is a Mainnet Network address, but the network provided for your SDK is: ${options.network}`
-      );
+    // Validate destination address.
+    if (canceler) {
+      const { networkId: cancelerAddressId } = getAddressDetails(canceler);
+      if (cancelerAddressId !== 1 && options.network === "mainnet") {
+        throw new Error(
+          `Invalid address: ${address}. The given address is not a Mainnet Network address.`
+        );
+      } else if (cancelerAddressId !== 0) {
+        throw new Error(`Invalid address: ${address}.`);
+      }
     }
 
     // Ensure that the address can be serialized.
@@ -138,15 +147,25 @@ export abstract class TxBuilder<
     const realAddress = C.Address.from_bech32(address);
 
     // Ensure the datumHash is valid HEX if the address is a script.
-    const isScript =
-      realAddress.to_bytes()[0] && realAddress.to_bytes()[0] === 0b00010000;
+    const isScript = (realAddress.to_bytes()[0] & 0b00010000) !== 0;
 
     if (isScript) {
       if (datumHash) {
-        C.DataHash.from_hex(datumHash);
+        try {
+          C.DataHash.from_hex(datumHash);
+        } catch (e) {
+          throw new Error(
+            `The datumHash provided was not a valid hex string. Original error: ${JSON.stringify(
+              {
+                datumHash,
+                originalErrorMessage: (e as Error).message,
+              }
+            )}`
+          );
+        }
       } else {
         throw new Error(
-          `The DestinationAddress is a Script Address, but the DatumHash supplied is invalid: ${datumHash}.`
+          `The DestinationAddress is a Script Address, a Datum hash was not supplied. This will brick your funds! Supply a valid DatumHash with your DestinationAddress to proceed.`
         );
       }
     }

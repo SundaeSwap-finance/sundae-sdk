@@ -49,3 +49,27 @@ The unique identifier of the pool. Also returned directly via [findPoolIdent](IP
 #### Defined in
 
 [@types/provider.ts:69](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/provider.ts#L69)
+
+___
+
+### quantityA
+
+• **quantityA**: `string`
+
+The pool quantity of [assetA](IPoolData.md#asseta)
+
+#### Defined in
+
+[@types/provider.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/provider.ts#L75)
+
+___
+
+### quantityB
+
+• **quantityB**: `string`
+
+The pool quantity of [assetB](IPoolData.md#assetb)
+
+#### Defined in
+
+[@types/provider.ts:77](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/provider.ts#L77)

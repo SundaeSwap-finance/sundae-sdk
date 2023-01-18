@@ -36,6 +36,10 @@ export class AssetAmount {
     );
   }
 
+  getNumber() {
+    return Number(this.amount.toString());
+  }
+
   getAmount() {
     return this.amount;
   }

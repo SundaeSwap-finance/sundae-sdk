@@ -36,7 +36,9 @@ export const Actions: FC = () => {
             "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
           amount: new AssetAmount(20000000n, 6),
         },
-      }).then(({ submit }) => submit());
+      }).then(({ cbor, submit }) => {
+        console.log(cbor);
+      });
 
       console.log(txHash);
     } catch (e) {
@@ -67,7 +69,7 @@ export const Actions: FC = () => {
         },
       }).then(({ submit, cbor }) => {
         console.log(cbor);
-        submit();
+        // submit();
       });
       console.log(txHash);
     } catch (e) {

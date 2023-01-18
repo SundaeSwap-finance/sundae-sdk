@@ -86,7 +86,7 @@ TxBuilder.provider
 
 ### buildEscrowAddressDatum
 
-▸ **buildEscrowAddressDatum**(`address`): `Promise`<`Constr`<`Constr`<`string`\> \| `Constr`<`Constr`<`any`\>\>\>\>
+▸ **buildEscrowAddressDatum**(`address`): `Promise`<`Constr`<`Constr`<`string`\> \| `Constr`<`Constr`<`string`\> \| `Constr`<`Constr`<`string`\> \| `Constr`<`Constr`<`Constr`<`string`\>\>\>\>\>\>\>
 
 Builds the datum for the [EscrowAddress](../modules.md#escrowaddress) interface using a data
 constructor class from the Lucid library.
@@ -99,7 +99,7 @@ constructor class from the Lucid library.
 
 #### Returns
 
-`Promise`<`Constr`<`Constr`<`string`\> \| `Constr`<`Constr`<`any`\>\>\>\>
+`Promise`<`Constr`<`Constr`<`string`\> \| `Constr`<`Constr`<`string`\> \| `Constr`<`Constr`<`string`\> \| `Constr`<`Constr`<`Constr`<`string`\>\>\>\>\>\>\>
 
 #### Overrides
 
@@ -135,7 +135,7 @@ constructor class from the Lucid library.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:237](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L237)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:236](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L236)
 
 ___
 
@@ -165,19 +165,19 @@ can execute their batches in the Escrow script address.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:256](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L256)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:255](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L255)
 
 ___
 
 ### complete
 
-▸ **complete**(): `Promise`<[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)\>
+▸ **complete**(): [`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)
 
 Completes the transaction building and includes validation of the arguments.
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)\>
+[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)
 
 #### Inherited from
 
@@ -191,7 +191,7 @@ ___
 
 ### validateSwapArguments
 
-▸ `Static` **validateSwapArguments**(`args`, `options`, `datumHash?`): `Promise`<`void`\>
+▸ `Static` **validateSwapArguments**(`args`, `options`): `Promise`<`void`\>
 
 Validates the [IBuildSwapArgs](../interfaces/IBuildSwapArgs.md) as having valid values. This **does not** ensure
 that your datum is well structured, only that your config arguments have valid values.
@@ -202,7 +202,6 @@ that your datum is well structured, only that your config arguments have valid v
 | :------ | :------ |
 | `args` | [`IBuildSwapArgs`](../interfaces/IBuildSwapArgs.md)<`any`\> |
 | `options` | [`ITxBuilderOptions`](../interfaces/ITxBuilderOptions.md) |
-| `datumHash?` | `string` |
 
 #### Returns
 

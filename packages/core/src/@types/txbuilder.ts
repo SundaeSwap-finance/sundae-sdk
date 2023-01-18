@@ -52,9 +52,9 @@ export type Coin = 0 | 1;
 /**
  * Defines the destination address of a swap along with an optional datum hash to attach.
  */
-export type DestinationAddress<Data = any> = {
+export type DestinationAddress = {
   address: string;
-  datum?: Data | undefined;
+  datumHash?: string;
 };
 
 /**

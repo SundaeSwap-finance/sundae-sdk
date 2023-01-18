@@ -61,6 +61,8 @@ export class ProviderSundaeSwap implements IProviderClass {
                   assetId
                   decimals
                 }
+                quantityA
+                quantityB
               }
           }
         `,

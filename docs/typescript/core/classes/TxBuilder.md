@@ -130,13 +130,13 @@ ___
 
 ### complete
 
-▸ **complete**(): `Promise`<[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)\>
+▸ **complete**(): [`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)
 
 Completes the transaction building and includes validation of the arguments.
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)\>
+[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)
 
 #### Defined in
 
@@ -162,7 +162,7 @@ ___
 
 ### validateSwapArguments
 
-▸ `Static` **validateSwapArguments**(`args`, `options`, `datumHash?`): `Promise`<`void`\>
+▸ `Static` **validateSwapArguments**(`args`, `options`): `Promise`<`void`\>
 
 Validates the [IBuildSwapArgs](../interfaces/IBuildSwapArgs.md) as having valid values. This **does not** ensure
 that your datum is well structured, only that your config arguments have valid values.
@@ -173,7 +173,6 @@ that your datum is well structured, only that your config arguments have valid v
 | :------ | :------ |
 | `args` | [`IBuildSwapArgs`](../interfaces/IBuildSwapArgs.md)<`any`\> |
 | `options` | [`ITxBuilderOptions`](../interfaces/ITxBuilderOptions.md) |
-| `datumHash?` | `string` |
 
 #### Returns
 

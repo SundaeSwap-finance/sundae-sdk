@@ -198,9 +198,6 @@ export class TxBuilderLucid extends TxBuilder<
     const lucid = await this.asyncGetLib();
     const { DestinationAddress, AlternateAddress } = address;
     const { Constr } = await import("lucid-cardano");
-    const datumHash =
-      DestinationAddress?.datum &&
-      lucid.utils.datumToHash(DestinationAddress.datum);
     const destination = await this._getAddressHashes(
       DestinationAddress.address
     );
@@ -214,7 +211,9 @@ export class TxBuilderLucid extends TxBuilder<
             ])
           : new Constr(1, []),
       ]),
-      datumHash ? new Constr(0, [datumHash]) : new Constr(1, []),
+      DestinationAddress?.datumHash
+        ? new Constr(0, [DestinationAddress.datumHash])
+        : new Constr(1, []),
     ]);
 
     const alternate =

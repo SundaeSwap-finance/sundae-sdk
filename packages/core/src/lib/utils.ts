@@ -1,8 +1,10 @@
+import { AssetAmount } from "src/classes/AssetAmount.class";
 import {
   IPoolDataAsset,
   IProtocolParams,
   TSupportedNetworks,
   IAsset,
+  IPoolData,
 } from "../@types";
 
 export const sortSwapAssets = (assets: [IPoolDataAsset, IPoolDataAsset]) => {
@@ -37,4 +39,23 @@ export const getParams = (network: TSupportedNetworks): IProtocolParams => {
   };
 
   return params[network];
+};
+
+export const getMinReceivableFromSlippage = (
+  pool: IPoolData,
+  suppliedAsset: IAsset,
+  slippage: number
+) => {
+  const base = suppliedAsset.amount.getNumber() * (1 - Number(pool.fee));
+  const ratio = Number(pool.quantityA) / Number(pool.quantityB);
+  const amount = BigInt(Math.floor(base * ratio * (1 - slippage)));
+  let decimals: number;
+
+  if (suppliedAsset.assetID === pool.assetA.assetId) {
+    decimals = pool.assetB.decimals;
+  } else {
+    decimals = pool.assetA.decimals;
+  }
+
+  return new AssetAmount(amount, decimals);
 };
