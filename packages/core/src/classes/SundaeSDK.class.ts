@@ -97,8 +97,11 @@ export class SundaeSDK {
    *
    * @example
    * ```ts
+   * // Your desired limit price of the opposing pool asset
    * const limitPrice = new AssetAmount(1500000n, 6);
-   * const { submit, cbor } = await SDK.limitSwap(
+   *
+   * // Normal swap arguments
+   * const swapArgs: ISDKSwapArgs = {
    *  poolQuery: {
    *    pair: ["assetAID", "assetBID"],
    *    fee: "0.03"
@@ -108,6 +111,12 @@ export class SundaeSDK {
    *    amount: new AssetAmount(20n, 6)
    *  },
    *  receiverAddress: "addr1..."
+   * }
+   *
+   * // Build Tx
+   * const { submit, cbor } = await SDK.limitSwap(
+   *  swapArgs,
+   *  limitPrice
    * )
    * ```
    *
@@ -118,8 +127,8 @@ export class SundaeSDK {
   async limitSwap(args: ISDKSwapArgs, limitPrice: AssetAmount) {
     const config = await this.buildBasicSwapConfig(args);
     config.setMinReceivable(limitPrice);
-    const tx = await this.builder.buildSwapTx(config.buildSwapArgs());
-    return tx;
+    await this.builder.buildSwapTx(config.buildSwapArgs());
+    return this.builder.complete();
   }
 
   private async buildBasicSwapConfig({

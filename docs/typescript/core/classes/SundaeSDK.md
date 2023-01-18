@@ -58,7 +58,7 @@ ___
 
 ### limitSwap
 
-▸ **limitSwap**(`args`, `limitPrice`): `Promise`<[`TxBuilder`](TxBuilder.md)<`any`, `any`, `any`, `any`\>\>
+▸ **limitSwap**(`args`, `limitPrice`): `Promise`<[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)\>
 
 Creates a swap with a minimum receivable limit price. The price should be the amount
 at which you want the order to execute. For example:
@@ -66,8 +66,11 @@ at which you want the order to execute. For example:
 **`Example`**
 
 ```ts
+// Your desired limit price of the opposing pool asset
 const limitPrice = new AssetAmount(1500000n, 6);
-const { submit, cbor } = await SDK.limitSwap(
+
+// Normal swap arguments
+const swapArgs: ISDKSwapArgs = {
  poolQuery: {
    pair: ["assetAID", "assetBID"],
    fee: "0.03"
@@ -77,6 +80,12 @@ const { submit, cbor } = await SDK.limitSwap(
    amount: new AssetAmount(20n, 6)
  },
  receiverAddress: "addr1..."
+}
+
+// Build Tx
+const { submit, cbor } = await SDK.limitSwap(
+ swapArgs,
+ limitPrice
 )
 ```
 
@@ -89,11 +98,11 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Returns
 
-`Promise`<[`TxBuilder`](TxBuilder.md)<`any`, `any`, `any`, `any`\>\>
+`Promise`<[`ITxBuilderComplete`](../interfaces/ITxBuilderComplete.md)\>
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:118](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L118)
+[classes/SundaeSDK.class.ts:127](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L127)
 
 ___
 
