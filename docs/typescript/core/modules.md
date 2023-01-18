@@ -43,11 +43,6 @@ const swap = sdk.swap( /** ... */ );
 - [SundaeSDK](classes/SundaeSDK.md)
 - [SwapConfig](classes/SwapConfig.md)
 
-## Extension Builders
-
-- [ITxBuilder](classes/ITxBuilder.md)
-- [IProviderClass](interfaces/IProviderClass.md)
-
 ## Extensions
 
 - [ProviderSundaeSwap](classes/ProviderSundaeSwap.md)
@@ -65,6 +60,10 @@ const swap = sdk.swap( /** ... */ );
 - [ISDKSwapArgs](interfaces/ISDKSwapArgs.md)
 - [ITxBuilderComplete](interfaces/ITxBuilderComplete.md)
 - [ITxBuilderOptions](interfaces/ITxBuilderOptions.md)
+
+## Extension Builders
+
+- [IProviderClass](interfaces/IProviderClass.md)
 
 ## Type Aliases
 

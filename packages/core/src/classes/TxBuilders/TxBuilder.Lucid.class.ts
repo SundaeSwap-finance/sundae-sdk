@@ -12,7 +12,6 @@ import { AssetAmount } from "../AssetAmount.class";
 import {
   IPoolDataAsset,
   IProviderClass,
-  ITxBuilder,
   TSupportedNetworks,
   IBuildSwapArgs,
   IAsset,
@@ -21,6 +20,7 @@ import {
   Swap,
 } from "../../@types";
 import { ADA_ASSET_ID } from "../../lib/constants";
+import { TxBuilder } from "./TxBuilder.abstract.class";
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -57,7 +57,7 @@ export interface ITxBuilderLucidOptions extends ITxBuilderOptions {
  *
  * @group Extensions
  */
-export class TxBuilderLucid extends ITxBuilder<
+export class TxBuilderLucid extends TxBuilder<
   ITxBuilderLucidOptions,
   LucidType,
   DataType,

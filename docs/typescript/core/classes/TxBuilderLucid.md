@@ -20,7 +20,7 @@ const builder = new TxBuilderLucid(
 
 ## Hierarchy
 
-- [`ITxBuilder`](ITxBuilder.md)<[`ITxBuilderLucidOptions`](../interfaces/ITxBuilderLucidOptions.md), `LucidType`, `DataType`, `TxType`\>
+- `TxBuilder`<[`ITxBuilderLucidOptions`](../interfaces/ITxBuilderLucidOptions.md), `LucidType`, `DataType`, `TxType`\>
 
   ↳ **`TxBuilderLucid`**
 
@@ -39,7 +39,7 @@ const builder = new TxBuilderLucid(
 
 #### Overrides
 
-ITxBuilder&lt;
+TxBuilder&lt;
   ITxBuilderLucidOptions,
   LucidType,
   DataType,
@@ -60,7 +60,7 @@ The main option for instantiating the class.
 
 #### Inherited from
 
-ITxBuilder.options
+TxBuilder.options
 
 #### Defined in
 
@@ -76,7 +76,7 @@ An instance of a [IProviderClass](../interfaces/IProviderClass.md) class.
 
 #### Inherited from
 
-ITxBuilder.provider
+TxBuilder.provider
 
 #### Defined in
 
@@ -103,7 +103,7 @@ constructor class from the Lucid library.
 
 #### Overrides
 
-ITxBuilder.buildEscrowAddressDatum
+TxBuilder.buildEscrowAddressDatum
 
 #### Defined in
 
@@ -131,7 +131,7 @@ constructor class from the Lucid library.
 
 #### Overrides
 
-ITxBuilder.buildEscrowSwapDatum
+TxBuilder.buildEscrowSwapDatum
 
 #### Defined in
 
@@ -161,7 +161,7 @@ can execute their batches in the Escrow script address.
 
 #### Overrides
 
-ITxBuilder.buildSwapDatum
+TxBuilder.buildSwapDatum
 
 #### Defined in
 

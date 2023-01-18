@@ -20,39 +20,39 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `builder` | [`ITxBuilder`](ITxBuilder.md)<`any`, `any`, `any`, `any`\> | An instance of TxBuilder. |
+| `builder` | `TxBuilder`<`any`, `any`, `any`, `any`\> | An instance of TxBuilder. |
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L20)
+[classes/SundaeSDK.class.ts:21](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L21)
 
 ## Properties
 
 ### builder
 
-• `Private` **builder**: [`ITxBuilder`](ITxBuilder.md)<`any`, `any`, `any`, `any`\>
+• `Private` **builder**: `TxBuilder`<`any`, `any`, `any`, `any`\>
 
 An instance of TxBuilder.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L20)
+[classes/SundaeSDK.class.ts:21](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L21)
 
 ## Methods
 
 ### build
 
-▸ **build**(): [`ITxBuilder`](ITxBuilder.md)<`any`, `any`, `any`, `any`\>
+▸ **build**(): `TxBuilder`<`any`, `any`, `any`, `any`\>
 
 Utility method to retrieve the builder instance.
 
 #### Returns
 
-[`ITxBuilder`](ITxBuilder.md)<`any`, `any`, `any`, `any`\>
+`TxBuilder`<`any`, `any`, `any`, `any`\>
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:29](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L29)
+[classes/SundaeSDK.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L30)
 
 ___
 
@@ -93,7 +93,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:117](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L117)
+[classes/SundaeSDK.class.ts:118](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L118)
 
 ___
 
@@ -109,7 +109,7 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:38](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L38)
+[classes/SundaeSDK.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L39)
 
 ___
 
@@ -172,4 +172,4 @@ const { submit, cbor } = await SDK.swap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:87](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L87)
+[classes/SundaeSDK.class.ts:88](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L88)

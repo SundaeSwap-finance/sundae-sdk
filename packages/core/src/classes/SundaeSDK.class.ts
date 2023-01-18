@@ -1,6 +1,7 @@
-import { IProviderClass, ISDKSwapArgs, ITxBuilder } from "../@types";
+import { IProviderClass, ISDKSwapArgs } from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
 import { SwapConfig } from "./SwapConfig.class";
+import { TxBuilder } from "./TxBuilders/TxBuilder.abstract.class";
 
 /**
  * A description for the SundaeSDK class.
@@ -17,7 +18,7 @@ export class SundaeSDK {
    *
    * @param builder - An instance of TxBuilder.
    */
-  constructor(private builder: ITxBuilder) {
+  constructor(private builder: TxBuilder) {
     this.builder = builder;
   }
 
@@ -26,7 +27,7 @@ export class SundaeSDK {
    *
    * @returns
    */
-  build(): ITxBuilder {
+  build(): TxBuilder {
     return this.builder;
   }
 
