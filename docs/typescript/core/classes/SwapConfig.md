@@ -1,12 +1,12 @@
 # Class: SwapConfig
 
-The `SwapConfig` class helps to properly format your swap arguments for use within the [SundaeSDK](SundaeSDK.md).
+The `SwapConfig` class helps to properly format your swap arguments for use within ITxBuilderClass.buildSwap | ITxBuilderClass.buildSwap.
 
 **`Example`**
 
 ```ts
 const config = new SwapConfig()
-  .setPoolQuery(poolQuery)
+  .setPool( /** ...pool data... */)
   .setFunding({
     assetID: "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
     amount: new AssetAmount(20n, 6),
@@ -24,58 +24,44 @@ const { submit, cbor } = await SDK.swap(config);
 
 ## Methods
 
-### buildRawSwap
+### buildSwapArgs
 
-▸ **buildRawSwap**(): [`IBuildSwapArgs`](../interfaces/IBuildSwapArgs.md)
+▸ **buildSwapArgs**<`T`\>(): [`IBuildSwapArgs`](../interfaces/IBuildSwapArgs.md)<`T`\>
 
-Used for building a swap where you **do** know the pool data.
+Used for building a swap where you already know the pool data.
 Useful for when building Transactions directly from the builder instance.
 
 **`See`**
 
-[buildSwap](../interfaces/ITxBuilderClass.md#buildswap)
+ITxBuilderClass.buildSwap
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | `any` |
 
 #### Returns
 
-[`IBuildSwapArgs`](../interfaces/IBuildSwapArgs.md)
+[`IBuildSwapArgs`](../interfaces/IBuildSwapArgs.md)<`T`\>
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:123](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L123)
+[classes/SwapConfig.class.ts:106](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L106)
 
 ___
 
-### buildSwap
+### setEscrowAddress
 
-▸ **buildSwap**(): [`ISwapArgs`](../interfaces/ISwapArgs.md)
+▸ **setEscrowAddress**(`escrowAddress`): [`SwapConfig`](SwapConfig.md)
 
-Used for building a swap where you don't know the pool data.
-
-**`See`**
-
-[swap](SundaeSDK.md#swap)
-
-#### Returns
-
-[`ISwapArgs`](../interfaces/ISwapArgs.md)
-
-#### Defined in
-
-[classes/SwapConfig.class.ts:107](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L107)
-
-___
-
-### setFunding
-
-▸ **setFunding**(`asset`): [`SwapConfig`](SwapConfig.md)
-
-Set the funding for the swap.
+Builds the [EscrowAddress](../modules.md#escrowaddress) for a swap's required datum.
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `asset` | [`IAsset`](../interfaces/IAsset.md) | The provided asset and amount from a connected wallet. |
+| Name | Type |
+| :------ | :------ |
+| `escrowAddress` | [`EscrowAddress`](../modules.md#escrowaddress) |
 
 #### Returns
 
@@ -83,7 +69,29 @@ Set the funding for the swap.
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L46)
+[classes/SwapConfig.class.ts:55](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L55)
+
+___
+
+### setMinReceivable
+
+▸ **setMinReceivable**(`amount`): [`SwapConfig`](SwapConfig.md)
+
+Set a minimum receivable asset amount for the swap. This is akin to setting a limit order.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `amount` | [`AssetAmount`](AssetAmount.md) |
+
+#### Returns
+
+[`SwapConfig`](SwapConfig.md)
+
+#### Defined in
+
+[classes/SwapConfig.class.ts:77](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L77)
 
 ___
 
@@ -105,21 +113,21 @@ Set the pool data directly for the swap you use.
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L57)
+[classes/SwapConfig.class.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L66)
 
 ___
 
-### setPoolQuery
+### setSuppliedAsset
 
-▸ **setPoolQuery**(`poolQuery`): [`SwapConfig`](SwapConfig.md)
+▸ **setSuppliedAsset**(`asset`): [`SwapConfig`](SwapConfig.md)
 
-Set the pool query. Used when passing to [swap](SundaeSDK.md#swap).
+Set the supplied asset for the swap.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `poolQuery` | [`IPoolQuery`](../interfaces/IPoolQuery.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `asset` | [`IAsset`](../interfaces/IAsset.md) | The provided asset and amount from a connected wallet. |
 
 #### Returns
 
@@ -127,26 +135,4 @@ Set the pool query. Used when passing to [swap](SundaeSDK.md#swap).
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L68)
-
-___
-
-### setReceiverAddress
-
-▸ **setReceiverAddress**(`addr`): [`SwapConfig`](SwapConfig.md)
-
-Set where the pool's other asset should be sent to after a successful scoop.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `addr` | `string` |
-
-#### Returns
-
-[`SwapConfig`](SwapConfig.md)
-
-#### Defined in
-
-[classes/SwapConfig.class.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L79)
+[classes/SwapConfig.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L45)

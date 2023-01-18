@@ -1,8 +1,10 @@
-import { IBuildSwapArgs, IPoolQuery } from ".";
+import { IBuildSwapArgs, IPoolData, IPoolQuery } from ".";
 
 /**
  * Arguments
  */
-export interface ISwapArgs extends Omit<IBuildSwapArgs, "pool"> {
-  poolQuery: IPoolQuery;
+export interface ISDKSwapArgs
+  extends Pick<IBuildSwapArgs, "escrowAddress" | "suppliedAsset"> {
+  poolQuery?: IPoolQuery;
+  pool?: IPoolData;
 }

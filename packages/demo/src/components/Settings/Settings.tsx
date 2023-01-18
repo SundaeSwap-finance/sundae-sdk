@@ -14,7 +14,7 @@ const SelectBuilderOption: FC<{
 }> = ({ builder, name }) => <option value={builder}>{name}</option>;
 
 const SelectBuilder: FC = () => {
-  const { setSDK } = useAppState();
+  const { SDK, setSDK } = useAppState();
   const [builderLib, setBuilderLib] = useState<TSupportedTxBuilders>();
 
   const handleTxBuilderLoaderSelect = (key: TSupportedTxBuilders) => {

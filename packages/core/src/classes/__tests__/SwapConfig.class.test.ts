@@ -39,137 +39,78 @@ describe("SwapConfig class", () => {
     expect(config.getPool()).toMatchObject(mockPool);
   });
 
-  it("setFunding and getFunding", () => {
+  it("setSuppliedAsset and getFunding", () => {
     const asset = {
       amount: new AssetAmount(20n, 6),
       assetID: "",
     };
 
-    config.setFunding(asset);
-    expect(config.getFunding()).toMatchObject(asset);
+    config.setSuppliedAsset(asset);
+    expect(config.getSuppliedAsset()).toMatchObject(asset);
   });
 
   it("setReceiverAddress and getReceiverAddress", () => {
-    const address = "test address";
-    config.setReceiverAddress(address);
-    expect(config.getReceiverAddress()).toEqual(address);
-  });
-
-  it("should throw when providing invalid assetIDs to setPool()", () => {
-    config.setPool({
-      ...mockPool,
-      assetA: {
-        ...mockPool.assetA,
-        assetId: "ADA",
+    config.setEscrowAddress({
+      DestinationAddress: {
+        address: mockAddress,
       },
     });
-
-    try {
-      config.buildRawSwap();
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
-        "The parameter should have a minimum length of 56: assetID. Received (3) ADA"
-      );
-    }
-
-    config.setPool({
-      ...mockPool,
-      assetB: {
-        ...mockPool.assetB,
-        assetId: "tINDY",
+    expect(config.getEscrowAddress()).toEqual({
+      DestinationAddress: {
+        address: mockAddress,
       },
     });
-
-    try {
-      config.buildRawSwap();
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
-        "The parameter should have a minimum length of 56: assetID. Received (5) tINDY"
-      );
-    }
-
-    config.setPool({
-      ...mockPool,
-      assetB: {
-        ...mockPool.assetB,
-        assetId:
-          "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459",
-      },
-    });
-
-    try {
-      config.buildRawSwap();
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
-        "Invalid assetID: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459. You likely forgot to concatenate with a period, like so: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459"
-      );
-    }
   });
 
   it("should throw an error if a pool isn't set", () => {
-    config.setFunding({
+    config.setSuppliedAsset({
       amount: new AssetAmount(20n, 6),
       assetID: "tINDY",
     });
 
     try {
-      config.buildRawSwap();
+      config.buildSwapArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
-        "The parameter does not exist: pool. Use the setPool() method."
-      );
+      expect((e as Error).message).toEqual("The pool is not defined.");
     }
   });
 
-  it("should throw an error if running .buildSwap() if a poolQuery isn't set", () => {
-    config.setFunding({
-      amount: new AssetAmount(20n, 6),
-      assetID: "tINDY",
-    });
-
-    try {
-      config.buildSwap();
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
-        "The parameter does not exist: poolQuery. Use the setPoolQuery() method."
-      );
-    }
-  });
-
-  it("should throw when providing invalid assetIDs to setFunding()", () => {
+  it("should throw when providing invalid assetIDs to setSuppliedAsset()", () => {
     config
-      .setReceiverAddress(mockAddress)
+      .setEscrowAddress({
+        DestinationAddress: {
+          address: mockAddress,
+        },
+      })
       .setPool(mockPool)
-      .setFunding({
+      .setSuppliedAsset({
         amount: new AssetAmount(20n, 6),
         assetID: "tINDY",
       });
 
     try {
-      config.buildRawSwap();
+      config.buildSwapArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
-        "The parameter should have a minimum length of 56: assetID. Received (5) tINDY"
-      );
+      expect((e as Error).message).toEqual("The escrowAddress is not defined.");
     }
 
     config
-      .setReceiverAddress(mockAddress)
+      .setEscrowAddress({
+        DestinationAddress: {
+          address: mockAddress,
+        },
+      })
       .setPool(mockPool)
-      .setFunding({
+      .setSuppliedAsset({
         amount: new AssetAmount(20n, 6),
         assetID:
           "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459",
       });
 
     try {
-      config.buildRawSwap();
+      config.buildSwapArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -179,19 +120,17 @@ describe("SwapConfig class", () => {
   });
 
   it("should throw when not providing a receiving address", () => {
-    config.setPool(mockPool).setFunding(mockFunding);
+    config.setPool(mockPool).setSuppliedAsset(mockFunding);
 
     try {
-      config.buildRawSwap();
+      config.buildSwapArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
-        "The parameter does not exist: receiverAddress. Use the setreceiverAddress() method."
-      );
+      expect((e as Error).message).toEqual("The escrowAddress is not defined.");
     }
   });
 
-  it("should run buildRawSwap() without errors", () => {
+  it("should run buildSwapArgs() without errors", () => {
     const validFunding = {
       amount: new AssetAmount(2n, 6),
       assetID: "",
@@ -199,36 +138,21 @@ describe("SwapConfig class", () => {
 
     config
       .setPool(mockPool)
-      .setReceiverAddress(mockAddress)
-      .setFunding(validFunding);
-
-    expect(config.buildRawSwap()).toEqual({
-      pool: mockPool,
-      receiverAddress: mockAddress,
-      suppliedAsset: validFunding,
-    });
-  });
-
-  it("should run buildSwap() without errors", () => {
-    const validFunding = {
-      amount: new AssetAmount(2n, 6),
-      assetID: "",
-    };
-
-    config
-      .setPoolQuery({
-        pair: ["", "testAsset"],
-        fee: "0.30",
+      .setEscrowAddress({
+        DestinationAddress: {
+          address: mockAddress,
+        },
       })
-      .setReceiverAddress(mockAddress)
-      .setFunding(validFunding);
+      .setSuppliedAsset(validFunding);
 
-    expect(config.buildSwap()).toEqual({
-      poolQuery: {
-        pair: ["", "testAsset"],
-        fee: "0.30",
+    expect(config.buildSwapArgs()).toEqual({
+      pool: mockPool,
+      escrowAddress: {
+        DestinationAddress: {
+          address: mockAddress,
+        },
       },
-      receiverAddress: mockAddress,
+      minReceivable: new AssetAmount(1n, 0),
       suppliedAsset: validFunding,
     });
   });

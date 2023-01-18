@@ -12,13 +12,15 @@ import { AssetAmount } from "../AssetAmount.class";
 import {
   IPoolDataAsset,
   IProviderClass,
-  ITxBuilderClass,
+  ITxBuilder,
   TSupportedNetworks,
-  ITxBuilderComplete,
   IBuildSwapArgs,
   IAsset,
   ITxBuilderOptions,
+  EscrowAddress,
+  Swap,
 } from "../../@types";
+import { ADA_ASSET_ID } from "../../lib/constants";
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -55,13 +57,14 @@ export interface ITxBuilderLucidOptions extends ITxBuilderOptions {
  *
  * @group Extensions
  */
-export class TxBuilderLucid
-  implements
-    ITxBuilderClass<ITxBuilderLucidOptions, LucidType, DataType, TxType>
-{
+export class TxBuilderLucid extends ITxBuilder<
+  ITxBuilderLucidOptions,
+  LucidType,
+  DataType,
+  TxType
+> {
   lib?: LucidType;
-  currentTx?: TxType;
-  currentDatum?: DataType;
+  tx?: TxType;
 
   /**
    * @param options The main option for instantiating the class.
@@ -71,6 +74,7 @@ export class TxBuilderLucid
     public options: ITxBuilderLucidOptions,
     public provider: IProviderClass
   ) {
+    super(provider, options);
     switch (this.options?.provider) {
       case "blockfrost":
         if (!this.options?.blockfrost) {
@@ -80,13 +84,17 @@ export class TxBuilderLucid
         }
     }
 
-    this.options = options;
-    this.provider = provider;
+    // Lazy load library.
+    this.asyncGetLib();
   }
 
   async asyncGetLib() {
     if (!this.lib) {
-      const { Blockfrost, Lucid } = await import("lucid-cardano");
+      const { Blockfrost, Lucid } = await import(
+        /* webpackPrefetch: true */
+        /* webpackMode: "lazy" */
+        "lucid-cardano"
+      );
       const { provider, blockfrost } = this.options;
       let ThisProvider: ProviderType;
       switch (provider) {
@@ -107,7 +115,7 @@ export class TxBuilderLucid
 
       const instance = await Lucid.new(
         ThisProvider,
-        this.conformNetwork(this.options.network)
+        this._conformNetwork(this.options.network)
       );
       const instanceWithWallet = instance.selectWallet(walletApi);
       this.lib = instanceWithWallet;
@@ -116,21 +124,61 @@ export class TxBuilderLucid
     return this.lib;
   }
 
-  private conformNetwork(network: TSupportedNetworks): NetworkType {
-    switch (network) {
-      case "mainnet":
-        return "Mainnet";
-      case "preview":
-        return "Preview";
-    }
+  async newTx(): Promise<TxType> {
+    const lucid = await this.asyncGetLib();
+    const tx = lucid.newTx();
+    return tx;
   }
 
-  async complete(): Promise<ITxBuilderComplete> {
-    if (!this.currentTx) {
-      throw new Error("There is no current Tx to complete!");
+  async buildSwapTx(args: IBuildSwapArgs) {
+    const lucid = await this.asyncGetLib();
+    const tx = await this.newTx();
+    const {
+      pool: { ident, assetA, assetB },
+      escrowAddress: { DestinationAddress, AlternateAddress },
+      suppliedAsset,
+      minReceivable,
+    } = args;
+
+    // Validate arguments.
+    await super.validateSwapArguments(
+      args,
+      DestinationAddress.datum &&
+        lucid.utils.datumToHash(DestinationAddress.datum)
+    );
+
+    const { Constr, Data } = await import("lucid-cardano");
+    const { SCOOPER_FEE, RIDER_FEE, ESCROW_ADDRESS } = getParams(
+      this.options.network
+    );
+
+    const escrowAddress = await this.buildEscrowAddressDatum({
+      DestinationAddress,
+      AlternateAddress,
+    });
+
+    const swap = await this.buildSwapDatum(
+      suppliedAsset,
+      assetA,
+      assetB,
+      minReceivable
+    );
+
+    const data = new Constr(0, [ident, escrowAddress, SCOOPER_FEE, swap]);
+
+    const payment: Record<string, bigint> = {};
+
+    if (suppliedAsset.assetID === ADA_ASSET_ID) {
+      payment.lovelace =
+        SCOOPER_FEE + RIDER_FEE + suppliedAsset.amount.getRawAmount(0);
+    } else {
+      payment.lovelace = SCOOPER_FEE + RIDER_FEE;
+      payment[suppliedAsset.assetID.replace(".", "")] =
+        suppliedAsset.amount.getRawAmount(0);
     }
 
-    const finishedTx = await this.currentTx.complete();
+    tx.payToContract(ESCROW_ADDRESS, Data.to(data), payment);
+    const finishedTx = await tx.complete();
     const signedTx = await finishedTx.sign().complete();
 
     const CtxBuffer =
@@ -144,105 +192,72 @@ export class TxBuilderLucid
     };
   }
 
-  async buildSwap({
-    pool: { ident, assetA, assetB },
-    receiverAddress,
-    suppliedAsset,
-    minReceivable = new AssetAmount(1n),
-    additionalCanceler,
-  }: IBuildSwapArgs): Promise<ITxBuilderComplete> {
+  /**
+   * Builds the datum for the {@link EscrowAddress} interface using a data
+   * constructor class from the Lucid library.
+   *
+   * @param address
+   * @returns
+   */
+  async buildEscrowAddressDatum(address: EscrowAddress) {
     const lucid = await this.asyncGetLib();
-    this.currentTx = lucid.newTx();
-
-    const { paymentCredential, stakeCredential } =
-      lucid.utils.getAddressDetails(receiverAddress);
-
-    if (!paymentCredential) {
-      throw new Error("Invalid receiver address provided.");
-    }
-
-    const { Constr, Data } = await import("lucid-cardano");
-    const { SCOOPER_FEE, RIDER_FEE, ESCROW_ADDRESS } = getParams(
-      this.options.network
+    const { DestinationAddress, AlternateAddress } = address;
+    const { Constr } = await import("lucid-cardano");
+    const datumHash =
+      DestinationAddress?.datum &&
+      lucid.utils.datumToHash(DestinationAddress.datum);
+    const destination = await this._getAddressHashes(
+      DestinationAddress.address
     );
 
-    const canceler = await this.buildDatumCancelSignatory(additionalCanceler);
-    const swap = await this.buildSwapDatum(
-      suppliedAsset,
-      assetA,
-      assetB,
-      minReceivable
-    );
-    const destination = await this.buildDatumDestination(
-      paymentCredential.hash,
-      stakeCredential?.hash
-    );
-
-    const data = new Constr(0, [
-      ident,
-      new Constr(0, [destination, canceler]),
-      SCOOPER_FEE,
-      swap,
-    ]);
-
-    const payment: Record<string, bigint> = {};
-
-    if (suppliedAsset.assetID === "") {
-      payment.lovelace =
-        SCOOPER_FEE +
-        RIDER_FEE +
-        suppliedAsset.amount.getRawAmount(assetA.decimals);
-    } else {
-      payment.lovelace = SCOOPER_FEE + RIDER_FEE;
-      payment[suppliedAsset.assetID.replace(".", "")] =
-        suppliedAsset.amount.getRawAmount(assetA.decimals);
-    }
-
-    this.currentDatum = data;
-    this.currentTx = this.currentTx.payToContract(
-      ESCROW_ADDRESS,
-      Data.to(data),
-      payment
-    );
-
-    return await this.complete();
-  }
-
-  async buildDatumDestination(
-    paymentCred: string,
-    stakeCred?: string,
-    datum?: DataType
-  ): Promise<DataType> {
-    const { Constr, Data } = await import("lucid-cardano");
-    const hash = datum && Data.to(datum);
-    return new Constr(0, [
+    const destinationDatum = new Constr(0, [
       new Constr(0, [
-        new Constr(0, [paymentCred]),
-        stakeCred
-          ? new Constr(0, [new Constr(0, [new Constr(0, [stakeCred])])])
+        new Constr(0, [destination.paymentCredentials]),
+        destination?.stakeCredentials
+          ? new Constr(0, [
+              new Constr(0, [new Constr(0, [destination?.stakeCredentials])]),
+            ])
           : new Constr(1, []),
       ]),
-      hash ? new Constr(0, [hash]) : new Constr(1, []),
+      datumHash ? new Constr(0, [datumHash]) : new Constr(1, []),
+    ]);
+
+    const alternate =
+      AlternateAddress && (await this._getAddressHashes(AlternateAddress));
+    const alternateDatum = new Constr(
+      alternate ? 0 : 1,
+      alternate ? [alternate.paymentCredentials] : []
+    );
+
+    return new Constr(0, [destinationDatum, alternateDatum]);
+  }
+
+  /**
+   * Builds the datum for the Swap action using a data
+   * constructor class from the Lucid library.
+   *
+   * @param address
+   * @returns
+   */
+  async buildEscrowSwapDatum(suppliedAsset: AssetAmount, swap: Swap) {
+    const { Constr } = await import("lucid-cardano");
+
+    return new Constr(0, [
+      new Constr(swap.CoinDirection, []),
+      suppliedAsset.getRawAmount(0),
+      swap.MinimumReceivable
+        ? new Constr(0, [swap.MinimumReceivable.getRawAmount(0)])
+        : new Constr(1, []),
     ]);
   }
 
-  async buildDatumCancelSignatory(address?: string): Promise<DataType> {
-    const { Constr } = await import("lucid-cardano");
-    if (!address) {
-      return new Constr(1, []);
-    }
-
-    const lucid = await this.asyncGetLib();
-    const addrDetails = lucid.utils.getAddressDetails(address);
-    const hash = addrDetails?.paymentCredential ?? addrDetails?.stakeCredential;
-
-    if (typeof hash !== "string") {
-      throw new Error("Invalid address.");
-    }
-
-    return new Constr(0, [hash]);
-  }
-
+  /**
+   * Builds the main datum for a Swap transaction so that scoopers
+   * can execute their batches in the Escrow script address.
+   *
+   * @param address
+   * @returns
+   */
   async buildSwapDatum(
     givenAsset: IAsset,
     assetA: IPoolDataAsset,
@@ -252,16 +267,38 @@ export class TxBuilderLucid
     const { Constr } = await import("lucid-cardano");
     return new Constr(0, [
       new Constr(getAssetSwapDirection(givenAsset, [assetA, assetB]), []),
-      givenAsset.amount.getRawAmount(assetA.decimals),
+      givenAsset.amount.getRawAmount(0),
       minReceivable
-        ? new Constr(0, [minReceivable.getRawAmount(assetB.decimals)])
+        ? new Constr(0, [minReceivable.getRawAmount(0)])
         : new Constr(1, []),
     ]);
   }
 
-  async createCurrentTx(): Promise<TxType> {
+  private async _getAddressHashes(address: string): Promise<{
+    paymentCredentials: string;
+    stakeCredentials?: string;
+  }> {
     const lucid = await this.asyncGetLib();
-    this.currentTx = lucid.newTx();
-    return this.currentTx;
+    const details = lucid.utils.getAddressDetails(address);
+
+    if (!details.paymentCredential) {
+      throw new Error(
+        "Invalid address. Make sure you are using a Bech32 encoded address."
+      );
+    }
+
+    return {
+      paymentCredentials: details.paymentCredential.hash,
+      stakeCredentials: details.stakeCredential?.hash,
+    };
+  }
+
+  private _conformNetwork(network: TSupportedNetworks): NetworkType {
+    switch (network) {
+      case "mainnet":
+        return "Mainnet";
+      case "preview":
+        return "Preview";
+    }
   }
 }

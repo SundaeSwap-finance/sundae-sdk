@@ -3,7 +3,8 @@
     "baseUrl": ".",
     "outDir": "./dist/",
     "moduleResolution": "node",
-    "isolatedModules": false
+    "isolatedModules": false,
+    "noFallthroughCasesInSwitch": false
   },
   "extends": "../../tsconfig.json",
   "include": ["./src/**/*"],
