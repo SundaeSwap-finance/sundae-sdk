@@ -42,13 +42,25 @@ export class Utils {
     return 0;
   }
 
+  static convertPoolFeeToPercent(fee: string): number {
+    return Number(fee) / 100;
+  }
+
+  static subtractPoolFeeFromAmount(amount: AssetAmount, fee: string): number {
+    const feePercent = Utils.convertPoolFeeToPercent(fee);
+    return Number(amount.getAmount()) * (1 - feePercent);
+  }
+
   static getMinReceivableFromSlippage(
     pool: IPoolData,
     suppliedAsset: IAsset,
     slippage: number
   ): AssetAmount {
-    const base =
-      Number(suppliedAsset.amount.getAmount()) * (1 - Number(pool.fee));
+    const base = Utils.subtractPoolFeeFromAmount(
+      suppliedAsset.amount,
+      pool.fee
+    );
+
     let ratio: number;
     let decimals: number;
 

@@ -82,7 +82,7 @@ a consistently authorized alternate to cancel the Escrow.
 
 #### Defined in
 
-[@types/txbuilder.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L66)
+[@types/txbuilder.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L59)
 
 ___
 
@@ -94,7 +94,7 @@ The boolean type of a pool's coin, where 0 = CoinA and 1 = CoinB.
 
 #### Defined in
 
-[@types/txbuilder.ts:50](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L50)
+[@types/txbuilder.ts:43](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L43)
 
 ___
 
@@ -106,7 +106,7 @@ The hash string of a Datum.
 
 #### Defined in
 
-[@types/txbuilder.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L40)
+[@types/txbuilder.ts:33](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L33)
 
 ___
 
@@ -127,7 +127,7 @@ the remaining asset gets sent to the [DestinationAddress](modules.md#destination
 
 #### Defined in
 
-[@types/txbuilder.ts:105](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L105)
+[@types/txbuilder.ts:98](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L98)
 
 ___
 
@@ -147,7 +147,7 @@ receivable amount to satisfy a pool's CoinA/CoinB requirements.
 
 #### Defined in
 
-[@types/txbuilder.ts:95](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L95)
+[@types/txbuilder.ts:88](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L88)
 
 ___
 
@@ -166,7 +166,7 @@ Defines the destination address of a swap along with an optional datum hash to a
 
 #### Defined in
 
-[@types/txbuilder.ts:55](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L55)
+[@types/txbuilder.ts:48](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L48)
 
 ___
 
@@ -185,7 +185,7 @@ An Escrow address defines the destination address and an optional PubKeyHash
 
 #### Defined in
 
-[@types/txbuilder.ts:71](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L71)
+[@types/txbuilder.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L64)
 
 ___
 
@@ -197,7 +197,7 @@ The unique identifier of a pool, defined as a string.
 
 #### Defined in
 
-[@types/txbuilder.ts:35](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L35)
+[@types/txbuilder.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L28)
 
 ___
 
@@ -209,7 +209,7 @@ A hex-encoded public key hash of an address.
 
 #### Defined in
 
-[@types/txbuilder.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L45)
+[@types/txbuilder.ts:38](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L38)
 
 ___
 
@@ -229,7 +229,7 @@ which acts as the limit price of a swap.
 
 #### Defined in
 
-[@types/txbuilder.ts:80](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L80)
+[@types/txbuilder.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L73)
 
 ___
 
@@ -242,7 +242,7 @@ for their provided assets.
 
 #### Defined in
 
-[@types/txbuilder.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L89)
+[@types/txbuilder.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L82)
 
 ## Utility Types
 

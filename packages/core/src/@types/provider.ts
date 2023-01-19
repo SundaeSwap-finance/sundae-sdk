@@ -40,7 +40,7 @@ export interface IProviderClass {
 export interface IPoolQuery {
   /** The pool pair, as an array of {@link IPoolDataAsset.assetId} */
   pair: [string, string];
-  /** The desired pool fee. */
+  /** The desired pool fee as a percentage string. */
   fee: string;
 }
 
@@ -63,7 +63,7 @@ export interface IPoolDataAsset {
  * Pool data that is returned from {@link IProviderClass.findPoolData}.
  */
 export interface IPoolData {
-  /** The pool fee as a percentage. */
+  /** The pool fee represented as a string. i.e. 1% === "1" and .03% === "0.03" */
   fee: string;
   /** The unique identifier of the pool. Also returned directly via {@link  IProviderClass.findPoolIdent} */
   ident: string;

@@ -32,7 +32,7 @@ ___
 
 • **fee**: `string`
 
-The pool fee as a percentage.
+The pool fee represented as a string. i.e. 1% === "1" and .03% === "0.03"
 
 #### Defined in
 

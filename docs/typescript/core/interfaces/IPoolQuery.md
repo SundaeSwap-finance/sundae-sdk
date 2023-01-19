@@ -19,7 +19,7 @@ const query: IPoolQuery = {
 
 • **fee**: `string`
 
-The desired pool fee.
+The desired pool fee as a percentage string.
 
 #### Defined in
 

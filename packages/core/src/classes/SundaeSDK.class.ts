@@ -46,13 +46,11 @@ export class SundaeSDK {
    * of configuration required. By default, all calls to this method are treated
    * as market orders with a generous 10% slippage tolerance by default.
    *
-   * For more control, look at
-   *
    * @example
    *
    * ### Building a Swap
    * ```ts
-   * const { submit, cbor } = await SDK.swap(
+   * const args: ISDKSwapArgs = {
    *  pool: {
    *    /** ...pool data... *\/
    *  },
@@ -61,12 +59,14 @@ export class SundaeSDK {
    *    amount: new AssetAmount(20n, 6)
    *  },
    *  receiverAddress: "addr1..."
-   * )
+   * };
+   *
+   * const { submit, cbor } = await SDK.swap(args);
    * ```
    *
    * ### Building a Swap With a Pool Query
    * ```ts
-   * const { submit, cbor } = await SDK.swap(
+   * const args: ISDKSwapArgs = {
    *  poolQuery: {
    *    pair: ["assetAID", "assetBID"],
    *    fee: "0.03"
@@ -76,25 +76,31 @@ export class SundaeSDK {
    *    amount: new AssetAmount(20n, 6)
    *  },
    *  receiverAddress: "addr1..."
-   * )
+   * };
+   *
+   * const { submit, cbor } = await SDK.swap(
+   *  args,
+   *  0.03 // Tighter slippage of 3%
+   * );
    * ```
    *
    * @see {@link IProviderClass.findPoolData | IProviderClass.findPoolData}
    * @see {@link TxBuilder.buildSwapTx | TxBuilder.buildSwapTx}
    * @see {@link SwapConfig}
    *
-   * @param swapConfig
+   * @param args
+   * @param slippage Set your slippage tolerance. Defaults to 10%.
    * @returns
    */
-  async swap(args: ISDKSwapArgs) {
-    const config = await this._buildBasicSwapConfig(args);
+  async swap(args: ISDKSwapArgs, slippage?: number) {
+    const config = await this._buildBasicSwapConfig(args, slippage);
     await this.builder.buildSwapTx(config.buildSwapArgs());
     return this.builder.complete();
   }
 
   /**
-   * Creates a swap with a minimum receivable limit price. The price should be the amount
-   * at which you want the order to execute. For example:
+   * Creates a swap with a minimum receivable limit price. The price should be the minimum
+   * amount at which you want the order to execute. For example:
    *
    * @example
    * ```ts

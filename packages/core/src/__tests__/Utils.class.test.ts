@@ -4,7 +4,7 @@ import { Utils } from "../classes/Utils.class";
 
 const mockPoolData: IPoolData = {
   ident: "06",
-  fee: "0.05",
+  fee: "1",
   assetA: {
     assetId: "",
     decimals: 6,
@@ -14,8 +14,8 @@ const mockPoolData: IPoolData = {
       "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
     decimals: 0,
   },
-  quantityA: "4973066102",
-  quantityB: "377632219",
+  quantityA: "500000000",
+  quantityB: "250000000",
 };
 
 const mockSuppliedADA: IAsset = {
@@ -39,7 +39,7 @@ describe("Utils class", () => {
 
     expect(resultA).toBeInstanceOf(AssetAmount);
     expect(resultA).toMatchObject({
-      amount: 1298496n,
+      amount: 8910000n,
       decimals: 0,
     });
 
@@ -51,7 +51,7 @@ describe("Utils class", () => {
 
     expect(resultB).toBeInstanceOf(AssetAmount);
     expect(resultB).toMatchObject({
-      amount: 225191141n,
+      amount: 35640000n,
       decimals: 6,
     });
   });

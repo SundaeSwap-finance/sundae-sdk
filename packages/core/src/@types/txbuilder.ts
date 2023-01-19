@@ -1,11 +1,4 @@
-import {
-  TSupportedNetworks,
-  TSupportedWallets,
-  IPoolDataAsset,
-  IProviderClass,
-  IPoolData,
-  IAsset,
-} from ".";
+import { TSupportedNetworks, TSupportedWallets, IPoolData, IAsset } from ".";
 import { AssetAmount } from "../classes/AssetAmount.class";
 
 /**
