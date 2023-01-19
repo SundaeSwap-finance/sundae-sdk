@@ -7,7 +7,6 @@ import type {
   Data as DataType,
 } from "lucid-cardano";
 
-import { getAssetSwapDirection, getParams } from "../../../lib/utils";
 import { AssetAmount } from "../../AssetAmount.class";
 import {
   IPoolDataAsset,
@@ -21,6 +20,7 @@ import {
 } from "../../../@types";
 import { ADA_ASSET_ID } from "../../../lib/constants";
 import { TxBuilder } from "../../TxBuilder.abstract.class";
+import { Utils } from "../../Utils.class";
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -140,7 +140,7 @@ export class TxBuilderLucid extends TxBuilder<
     } = args;
 
     const { Constr, Data } = await import("lucid-cardano");
-    const { SCOOPER_FEE, RIDER_FEE, ESCROW_ADDRESS } = getParams(
+    const { SCOOPER_FEE, RIDER_FEE, ESCROW_ADDRESS } = Utils.getParams(
       this.options.network
     );
 
@@ -162,11 +162,11 @@ export class TxBuilderLucid extends TxBuilder<
 
     if (suppliedAsset.assetID === ADA_ASSET_ID) {
       payment.lovelace =
-        SCOOPER_FEE + RIDER_FEE + suppliedAsset.amount.getRawAmount(0);
+        SCOOPER_FEE + RIDER_FEE + suppliedAsset.amount.getAmount();
     } else {
       payment.lovelace = SCOOPER_FEE + RIDER_FEE;
       payment[suppliedAsset.assetID.replace(".", "")] =
-        suppliedAsset.amount.getRawAmount(0);
+        suppliedAsset.amount.getAmount();
     }
 
     tx.payToContract(ESCROW_ADDRESS, Data.to(data), payment);
@@ -238,9 +238,9 @@ export class TxBuilderLucid extends TxBuilder<
 
     return new Constr(0, [
       new Constr(swap.CoinDirection, []),
-      suppliedAsset.getRawAmount(0),
+      suppliedAsset.getAmount(),
       swap.MinimumReceivable
-        ? new Constr(0, [swap.MinimumReceivable.getRawAmount(0)])
+        ? new Constr(0, [swap.MinimumReceivable.getAmount()])
         : new Constr(1, []),
     ]);
   }
@@ -260,10 +260,10 @@ export class TxBuilderLucid extends TxBuilder<
   ): Promise<DataType> {
     const { Constr } = await import("lucid-cardano");
     return new Constr(0, [
-      new Constr(getAssetSwapDirection(givenAsset, [assetA, assetB]), []),
-      givenAsset.amount.getRawAmount(0),
+      new Constr(Utils.getAssetSwapDirection(givenAsset, [assetA, assetB]), []),
+      givenAsset.amount.getAmount(),
       minReceivable
-        ? new Constr(0, [minReceivable.getRawAmount(0)])
+        ? new Constr(0, [minReceivable.getAmount()])
         : new Constr(1, []),
     ]);
   }

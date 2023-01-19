@@ -14,5 +14,6 @@ module.exports = {
     ],
   },
   testMatch: ["**/__tests__/**/*.test.[jt]s?(x)"],
-  testPathIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/__tests__/data/"]
+  testPathIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/__tests__/data/"],
+  maxWorkers: 1
 };

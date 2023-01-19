@@ -1,8 +1,8 @@
-import { getMinReceivableFromSlippage } from "../lib/utils";
 import { IPoolData, IProviderClass, ISDKSwapArgs } from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
 import { SwapConfig } from "./SwapConfig.class";
 import { TxBuilder } from "./TxBuilder.abstract.class";
+import { Utils } from "./Utils.class";
 
 /**
  * A description for the SundaeSDK class.
@@ -168,7 +168,7 @@ export class SundaeSDK {
 
     if (false !== slippage) {
       config.setMinReceivable(
-        getMinReceivableFromSlippage(
+        Utils.getMinReceivableFromSlippage(
           resolvedPool,
           suppliedAsset,
           slippage ?? 0.1

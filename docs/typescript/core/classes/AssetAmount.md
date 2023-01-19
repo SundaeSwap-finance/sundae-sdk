@@ -5,15 +5,15 @@ Each asset is registered with a decimal place for it's token.
 
 **`Example`**
 
-To create a class for 10 ADA, you would enter the lovelace amount `10000000`
-as well as the decimal place that is registered, which is `6`.
+To create a class for 2.005 ADA, you would enter the lovelace amount as a `BigInt`,
+as well as the decimal place as a number, which is `6`.
 
 ```ts
-const myAsset = new AssetAmount(2000000n, 6);
+const myAsset = new AssetAmount(2005000n, 6);
 
-myAsset.getAmount() // 2
-myAsset.getRawAmount() // 2000000
+myAsset.getAmount() // 2005000n
 myAsset.getDecimals() // 6
+myAsset.getDenominatedAmount() // 2.005000
 ```
 
 ## Constructors
@@ -34,3 +34,51 @@ Construct a new AssetAmount.
 #### Defined in
 
 [classes/AssetAmount.class.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/AssetAmount.class.ts#L28)
+
+## Methods
+
+### getAmount
+
+▸ **getAmount**(): `bigint`
+
+Returns the provided diminutive amount of the asset, without a decimal place.
+
+#### Returns
+
+`bigint`
+
+#### Defined in
+
+[classes/AssetAmount.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/AssetAmount.class.ts#L46)
+
+___
+
+### getDecimals
+
+▸ **getDecimals**(): `number`
+
+Returns the provided decimal place of the asset amount.
+
+#### Returns
+
+`number`
+
+#### Defined in
+
+[classes/AssetAmount.class.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/AssetAmount.class.ts#L54)
+
+___
+
+### getDenominatedAmount
+
+▸ **getDenominatedAmount**(): `number`
+
+Converts a BigInt to a float based on the provided decimal place.
+
+#### Returns
+
+`number`
+
+#### Defined in
+
+[classes/AssetAmount.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/AssetAmount.class.ts#L37)
