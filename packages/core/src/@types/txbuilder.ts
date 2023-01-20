@@ -1,10 +1,9 @@
 import {
   TSupportedNetworks,
   TSupportedWallets,
-  IPoolDataAsset,
-  IProviderClass,
   IPoolData,
   IAsset,
+  OrderAddresses,
 } from ".";
 import { AssetAmount } from "../classes/AssetAmount.class";
 
@@ -30,60 +29,11 @@ export interface ITxBuilderOptions {
 }
 
 /**
- * The main interface by which TxBuilder classes are implemented.
- *
- * @template Options The options that your TxBuilder will take upon instantiating.
- * @template Lib The type of transaction building library that you plan to use. For example, if using Lucid, this would be of type Lucid.
- * @template Data The data type that you will build your Datums with. For example, if using Lucid, this would be of type Data.
- * @template Tx The transaction interface type that will be returned from Lib when building a new transaction. For example, in Lucid this is of type Tx.
- *
- * @group Extension Builders
- */
-export interface ITxBuilderClass<
-  Options = any,
-  Lib = any,
-  Data = any,
-  Tx = any
-> {
-  provider: IProviderClass;
-  options: Options;
-  lib?: Lib;
-  currentTx?: Tx;
-  currentDatum?: Data;
-
-  /**
-   * The main function to build a swap Transaction.
-   *
-   * @param args The built SwapArguments from a {@link SwapConfig} instance.
-   * @returns {ITxBuilderComplete}
-   */
-  buildSwap: (args: IBuildSwapArgs) => Promise<ITxBuilderComplete>;
-
-  buildDatumDestination: (
-    paymentCred: string,
-    stakeCred?: string,
-    datum?: Data
-  ) => Promise<Data>;
-
-  buildDatumCancelSignatory: (address?: string) => Promise<Data>;
-
-  buildSwapDatum: (
-    givenAsset: IAsset,
-    assetA: IPoolDataAsset,
-    assetB: IPoolDataAsset,
-    minimumReceivable: AssetAmount
-  ) => Promise<Data>;
-
-  asyncGetLib: () => Promise<Lib>;
-}
-
-/**
- * The raw swap arguments used by {@link ITxBuilderClass.buildSwap}.
+ * The raw swap arguments used by {@link TxBuilder.buildSwapTx}.
  */
 export interface IBuildSwapArgs {
   pool: IPoolData;
   suppliedAsset: IAsset;
-  receiverAddress: string;
-  additionalCanceler?: string;
-  minReceivable?: AssetAmount;
+  orderAddresses: OrderAddresses;
+  minReceivable: AssetAmount;
 }

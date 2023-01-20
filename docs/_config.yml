@@ -43,7 +43,7 @@ defaults:
   - scope:
       path: "/typescript/core/*/*"
     values:
-      parent: "API Documentation"
+      parent: "TypeScript"
   - scope:
       path: "/typescript/core/*"
     values:

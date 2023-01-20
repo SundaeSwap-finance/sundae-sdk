@@ -13,14 +13,13 @@
  * Next, configure the instance in your app:
  * 
  * ```ts
+ * import { SundaeSDK } from "@sundae/sdk-core";
  * import {
- *     SundaeSDK,
- *     ITxBuilderClass,
- *     TxBuilderLucid,
- *     ProviderSundaeSwap
- * } from "@sundae/sdk-core";
+ *  TxBuilderLucid,
+ *  ProviderSundaeSwap
+ * } from "@sundae/sdk-core/extensions";
  * 
- * const txBuilder: ITxBuilderClass = new TxBuilderLucid(
+ * const txBuilder = new TxBuilderLucid(
  *     {
  *         provider: "blockfrost",
  *         blockfrost: {
@@ -33,20 +32,16 @@
 
  * const sdk: SundaeSDK = new SundaeSDK(txBuilder);
  * 
- * const swap = sdk.swap( /** ... *\/ );
+ * const swap = await sdk.swap( /** ... *\/ ).then(({ submit }) => submit());
  * ```
  *
+ * @module Core
  * @packageDocumentation
  */
-
 export { SundaeSDK } from "./classes/SundaeSDK.class";
 export { AssetAmount } from "./classes/AssetAmount.class";
 export { SwapConfig } from "./classes/SwapConfig.class";
-export { ProviderSundaeSwap } from "./classes/Providers/Provider.SundaeSwap";
-
-export {
-  TxBuilderLucid,
-  ITxBuilderLucidOptions,
-} from "./classes/TxBuilders/TxBuilder.Lucid.class";
+export { TxBuilder } from "./classes/TxBuilder.abstract.class";
+export { DatumBuilder } from "./classes/DatumBuilder.class";
 
 export * from "./@types";

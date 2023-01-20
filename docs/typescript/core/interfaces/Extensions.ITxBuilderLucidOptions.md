@@ -1,0 +1,74 @@
+# Interface: ITxBuilderLucidOptions
+
+[Extensions](../modules/Extensions.md).ITxBuilderLucidOptions
+
+Options interface for the [TxBuilderLucid](../classes/Extensions.TxBuilderLucid.md) class.
+
+## Hierarchy
+
+- [`ITxBuilderOptions`](Core.ITxBuilderOptions.md)
+
+  ↳ **`ITxBuilderLucidOptions`**
+
+## Properties
+
+### blockfrost
+
+• `Optional` **blockfrost**: `Object`
+
+The chosen provider options object to pass to Lucid.
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `apiKey` | `string` |
+| `url` | `string` |
+
+#### Defined in
+
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L30)
+
+___
+
+### network
+
+• **network**: [`TSupportedNetworks`](../modules/Core.md#tsupportednetworks)
+
+A supported Cardano network.
+
+#### Inherited from
+
+[ITxBuilderOptions](Core.ITxBuilderOptions.md).[network](Core.ITxBuilderOptions.md#network)
+
+#### Defined in
+
+[@types/txbuilder.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L28)
+
+___
+
+### provider
+
+• **provider**: ``"blockfrost"``
+
+The provider type used by Lucid. Currently only supports Blockfrost.
+
+#### Defined in
+
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L28)
+
+___
+
+### wallet
+
+• **wallet**: [`TSupportedWallets`](../modules/Core.md#tsupportedwallets)
+
+A CIP-30 compatible wallet.
+
+#### Inherited from
+
+[ITxBuilderOptions](Core.ITxBuilderOptions.md).[wallet](Core.ITxBuilderOptions.md#wallet)
+
+#### Defined in
+
+[@types/txbuilder.ts:26](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L26)

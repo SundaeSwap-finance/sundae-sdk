@@ -6748,6 +6748,15 @@ lucid-cardano@^0.8.4:
     node-fetch "^3.2.3"
     ws "^8.10.0"
 
+lucid-cardano@^0.8.7:
+  version "0.8.7"
+  resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.8.7.tgz#72eea2c3e906aca0848ff99cd6512aa3b25c95a1"
+  integrity sha512-dTaYm6pKRbZ5UaLdY1uKNRq0c5KpJvBEnR1mD8Jr5Ut9LJraZJFRzfp/VzWkZf60/dqFDUCYvmJb+/kHVSr/ag==
+  dependencies:
+    "@peculiar/webcrypto" "^1.4.0"
+    node-fetch "^3.2.3"
+    ws "^8.10.0"
+
 lunr@^2.3.9:
   version "2.3.9"
   resolved "https://registry.yarnpkg.com/lunr/-/lunr-2.3.9.tgz#18b123142832337dd6e964df1a5a7707b25d35e1"
@@ -10004,7 +10013,7 @@ webpack-sources@^3.2.3:
   resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-3.2.3.tgz#2d4daab8451fd4b240cc27055ff6a0c2ccea0cde"
   integrity sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==
 
-webpack@^5.74.0, webpack@^5.75.0:
+webpack@^5.75.0:
   version "5.75.0"
   resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.75.0.tgz#1e440468647b2505860e94c9ff3e44d5b582c152"
   integrity sha512-piaIaoVJlqMsPtX/+3KTTO6jfvrSYgauFVdt8cr9LTHKmcq/AMd4mhzsiP7ZF/PGRNPGA8336jldh9l2Kt2ogQ==

@@ -4,20 +4,20 @@
  *
  *
  * @example
- * To create a class for 10 ADA, you would enter the lovelace amount `10000000`
- * as well as the decimal place that is registered, which is `6`.
+ * To create a class for 2.005 ADA, you would enter the lovelace amount as a `BigInt`,
+ * as well as the decimal place as a number, which is `6`.
  *
  * ```ts
- * const myAsset = new AssetAmount(2000000n, 6);
+ * const myAsset = new AssetAmount(2005000n, 6);
  *
- * myAsset.getAmount() // 2
- * myAsset.getRawAmount() // 2000000
+ * myAsset.getAmount() // 2005000n
  * myAsset.getDecimals() // 6
+ * myAsset.getDenominatedAmount() // 2.005000
  * ```
  */
 export class AssetAmount {
-  public amount: bigint;
-  public decimals: number;
+  private amount: bigint;
+  private decimals: number;
 
   /**
    * Construct a new AssetAmount.
@@ -30,16 +30,27 @@ export class AssetAmount {
     this.decimals = decimals ?? 0;
   }
 
-  getRawAmount(decimals?: number): bigint {
-    return BigInt(
-      Math.floor(Number(this.amount) * Math.pow(10, decimals ?? this.decimals))
-    );
+  /**
+   * Converts a BigInt to a float based on the provided decimal place.
+   * @returns
+   */
+  getDenominatedAmount(): number {
+    const factor = 10 ** this.decimals;
+    return Number(this.amount) / factor;
   }
 
+  /**
+   * Returns the provided diminutive amount of the asset, without a decimal place.
+   * @returns
+   */
   getAmount() {
     return this.amount;
   }
 
+  /**
+   * Returns the provided decimal place of the asset amount.
+   * @returns
+   */
   getDecimals() {
     return this.decimals;
   }
