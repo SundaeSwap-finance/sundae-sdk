@@ -2,11 +2,13 @@
     "$schema": "https://typedoc.org/schema.json",
     "out": "../../docs/typescript/core",
     "entryPoints": [
-        "./src/index.ts"
+        "./src/index.ts",
+        "./src/extensions.ts"
     ],
     "hideBreadcrumbs": true,
     "hideInPageTOC": true,
     "excludeNotDocumented": true,
     "githubPages": false,
-    "gitRevision": "main"
+    "gitRevision": "main",
+    "treatWarningsAsErrors": true
 }

@@ -1,10 +1,4 @@
-import {
-  IBuildSwapArgs,
-  IPoolData,
-  IAsset,
-  EscrowAddress,
-  TSupportedNetworks,
-} from "../@types";
+import { IBuildSwapArgs, IPoolData, IAsset, OrderAddresses } from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
 
 /**
@@ -19,7 +13,7 @@ import { AssetAmount } from "./AssetAmount.class";
  *     assetID: "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
  *     amount: new AssetAmount(20n, 6),
  *   })
- *   .setEscrowAddress({
+ *   .setOrderAddresses({
  *      DestinationAddress: {
  *        address: "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32"
  *      }
@@ -32,7 +26,7 @@ import { AssetAmount } from "./AssetAmount.class";
  */
 export class SwapConfig {
   private pool?: IPoolData;
-  private escrowAddress?: EscrowAddress;
+  private orderAddresses?: OrderAddresses;
   private suppliedAsset?: IAsset;
   private minReceivable: AssetAmount = new AssetAmount(1n);
 
@@ -50,12 +44,12 @@ export class SwapConfig {
   }
 
   /**
-   * Builds the {@link EscrowAddress} for a swap's required datum.
-   * @param escrowAddress
+   * Builds the {@link OrderAddresses} for a swap's required datum.
+   * @param orderAddresses
    * @returns
    */
-  setEscrowAddress(escrowAddress: EscrowAddress) {
-    this.escrowAddress = escrowAddress;
+  setOrderAddresses(orderAddresses: OrderAddresses) {
+    this.orderAddresses = orderAddresses;
     return this;
   }
 
@@ -93,8 +87,8 @@ export class SwapConfig {
     return this.minReceivable;
   }
 
-  getEscrowAddress() {
-    return this.escrowAddress;
+  getOrderAddresses() {
+    return this.orderAddresses;
   }
 
   /**
@@ -105,23 +99,27 @@ export class SwapConfig {
    *
    * @returns
    */
-  buildSwapArgs<T = any>(): IBuildSwapArgs<T> {
+  buildSwapArgs(): IBuildSwapArgs {
     if (!this.pool) {
-      throw new Error("The pool is not defined.");
+      throw new Error("The pool property is not defined. Set with .setPool()");
     }
 
     if (!this.suppliedAsset) {
-      throw new Error("The suppliedAsset is not defined.");
+      throw new Error(
+        "The suppliedAsset property is not defined. Set with .setSuppliedAsset()"
+      );
     }
 
-    if (!this.escrowAddress) {
-      throw new Error("The escrowAddress is not defined.");
+    if (!this.orderAddresses) {
+      throw new Error(
+        "The orderAddresses property is not defined. Set with .setOrderAddresses()"
+      );
     }
 
     return {
       pool: this.pool,
       suppliedAsset: this.suppliedAsset,
-      escrowAddress: this.escrowAddress,
+      orderAddresses: this.orderAddresses,
       minReceivable: this.minReceivable,
     };
   }

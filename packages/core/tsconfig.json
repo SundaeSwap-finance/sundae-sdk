@@ -2,11 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./dist/",
-    "moduleResolution": "node",
-    "isolatedModules": false,
     "noFallthroughCasesInSwitch": false
   },
   "extends": "../../tsconfig.json",
-  "include": ["./src/**/*", "__tests__", "__mocks__"],
-  "exclude": ["__tests__/**/*"]
+  "include": ["./src/**/*", "__tests__", "__mocks__"]
 }

@@ -25,7 +25,7 @@ export const Actions: FC = () => {
     try {
       const txHash = await SDK.swap({
         poolQuery,
-        escrowAddress: {
+        orderAddresses: {
           DestinationAddress: {
             address:
               "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32",
@@ -38,6 +38,7 @@ export const Actions: FC = () => {
         },
       }).then(({ cbor, submit }) => {
         console.log(cbor);
+        submit();
       });
 
       console.log(txHash);
@@ -57,7 +58,7 @@ export const Actions: FC = () => {
     try {
       const txHash = await SDK.swap({
         poolQuery,
-        escrowAddress: {
+        orderAddresses: {
           DestinationAddress: {
             address:
               "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32",
@@ -69,7 +70,7 @@ export const Actions: FC = () => {
         },
       }).then(({ submit, cbor }) => {
         console.log(cbor);
-        // submit();
+        submit();
       });
       console.log(txHash);
     } catch (e) {

@@ -1,4 +1,5 @@
 import {
+  PoolCoin,
   IAsset,
   IPoolData,
   IPoolDataAsset,
@@ -33,7 +34,7 @@ export class Utils {
   static getAssetSwapDirection(
     { assetID }: IAsset,
     assets: [IPoolDataAsset, IPoolDataAsset]
-  ): 0 | 1 {
+  ): PoolCoin {
     const sorted = Utils.sortSwapAssets(assets);
     if (Object.values(sorted[1]).includes(assetID)) {
       return 1;

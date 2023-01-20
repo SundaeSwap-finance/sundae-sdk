@@ -1,40 +1,33 @@
 import {
-  EscrowAddress,
-  IAsset,
   IBuildSwapArgs,
-  IPoolDataAsset,
-  IProviderClass,
+  IQueryProviderClass,
   ITxBuilderComplete,
   ITxBuilderOptions,
-  Swap,
 } from "../@types";
-import { AssetAmount } from "./AssetAmount.class";
+import { Utils } from "./Utils.class";
 
 /**
  * The main class by which TxBuilder classes are extended.
  *
  * @template Options The options that your TxBuilder will take upon instantiating.
- * @template Lib The type of transaction building library that you plan to use. For example, if using Lucid, this would be of type Lucid.
- * @template Data The data type that you will build your Datums with. For example, if using Lucid, this would be of type Data.
+ * @template Wallet The type of transaction building library that you plan to use. For example, if using Lucid, this would be of type Lucid and initialized at some point within the class.
  * @template Tx The transaction interface type that will be returned from Lib when building a new transaction. For example, in Lucid this is of type Tx.
  *
  * @group Exported TxBuilders
  */
-export abstract class TxBuilder<
-  Options = any,
-  Lib = any,
-  Data = any,
-  Tx = any
-> {
-  provider: IProviderClass;
+export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
+  query: IQueryProviderClass;
   options: Options & ITxBuilderOptions;
-  lib?: Lib;
+  wallet?: Wallet;
   tx?: Tx;
   txArgs?: IBuildSwapArgs;
   txComplete?: ITxBuilderComplete;
 
-  constructor(provider: IProviderClass, options: Options & ITxBuilderOptions) {
-    this.provider = provider;
+  constructor(
+    queryProvider: IQueryProviderClass,
+    options: Options & ITxBuilderOptions
+  ) {
+    this.query = queryProvider;
     this.options = options;
   }
 
@@ -42,13 +35,6 @@ export abstract class TxBuilder<
    * Creates a new Tx type instance from the supplied transaction library.
    */
   protected abstract newTx(): Promise<Tx>;
-
-  /**
-   * Asynchronously loads the Transaction building Library so-as to avoid loading
-   * heavy dependencies in a blocking manner.
-   * @returns
-   */
-  protected abstract asyncGetLib(): Promise<Lib>;
 
   /**
    * The main function to build a swap Transaction.
@@ -72,39 +58,15 @@ export abstract class TxBuilder<
   }
 
   /**
-   * Should build the full datum for a Swap transaction.
-   * @param givenAsset
-   * @param assetA
-   * @param assetB
-   * @param minimumReceivable
+   * Helper function for child classes to easily grab the appropriate protocol parameters for SundaeSwap.
+   * @returns
    */
-  protected abstract buildSwapDatum(
-    givenAsset: IAsset,
-    assetA: IPoolDataAsset,
-    assetB: IPoolDataAsset,
-    minimumReceivable: AssetAmount
-  ): Promise<Data>;
+  protected getParams() {
+    return Utils.getParams(this.options.network);
+  }
 
   /**
-   * Should build the datum for an {@link EscrowAddress}
-   * @param address
-   */
-  protected abstract buildEscrowAddressDatum(
-    address: EscrowAddress
-  ): Promise<Data>;
-
-  /**
-   * Should build the datum for the swap direction of an {@link EscrowAddress}
-   * @param suppliedAsset
-   * @param swap
-   */
-  protected abstract buildEscrowSwapDatum(
-    suppliedAsset: AssetAmount,
-    swap: Swap
-  ): Promise<Data>;
-
-  /**
-   * Validates the {@link IBuildSwapArgs} as having valid values. This **does not** ensure
+   * Validates a swap as having valid values. This **does not** ensure
    * that your datum is well structured, only that your config arguments have valid values.
    * @param args
    * @param options
@@ -114,9 +76,9 @@ export abstract class TxBuilder<
     args: IBuildSwapArgs,
     options: ITxBuilderOptions
   ) {
-    const address = args.escrowAddress.DestinationAddress.address;
-    const datumHash = args.escrowAddress.DestinationAddress.datumHash;
-    const canceler = args.escrowAddress.AlternateAddress;
+    const address = args.orderAddresses.DestinationAddress.address;
+    const datumHash = args.orderAddresses.DestinationAddress.datumHash;
+    const canceler = args.orderAddresses.AlternateAddress;
 
     const { getAddressDetails } = await import("lucid-cardano");
 

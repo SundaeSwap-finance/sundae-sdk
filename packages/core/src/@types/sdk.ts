@@ -4,7 +4,7 @@ import { IBuildSwapArgs, IPoolData, IPoolQuery } from ".";
  * Arguments
  */
 export interface ISDKSwapArgs
-  extends Pick<IBuildSwapArgs, "escrowAddress" | "suppliedAsset"> {
+  extends Pick<IBuildSwapArgs, "orderAddresses" | "suppliedAsset"> {
   poolQuery?: IPoolQuery;
   pool?: IPoolData;
 }

@@ -1,7 +1,7 @@
-import { IPoolData, IProviderClass, ISDKSwapArgs } from "../@types";
+import type { IPoolData, IQueryProviderClass, ISDKSwapArgs } from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
 import { SwapConfig } from "./SwapConfig.class";
-import { TxBuilder } from "./TxBuilder.abstract.class";
+import type { TxBuilder } from "./TxBuilder.abstract.class";
 import { Utils } from "./Utils.class";
 
 /**
@@ -37,8 +37,8 @@ export class SundaeSDK {
    *
    * @returns
    */
-  query(): IProviderClass {
-    return this.builder.provider;
+  query(): IQueryProviderClass {
+    return this.builder.query;
   }
 
   /**
@@ -84,7 +84,7 @@ export class SundaeSDK {
    * );
    * ```
    *
-   * @see {@link IProviderClass.findPoolData | IProviderClass.findPoolData}
+   * @see {@link IQueryProviderClass.findPoolData | IProviderClass.findPoolData}
    * @see {@link TxBuilder.buildSwapTx | TxBuilder.buildSwapTx}
    * @see {@link SwapConfig}
    *
@@ -149,7 +149,7 @@ export class SundaeSDK {
     args: ISDKSwapArgs,
     slippage?: number | false
   ) {
-    const { pool, poolQuery, escrowAddress, suppliedAsset } = args;
+    const { pool, poolQuery, orderAddresses, suppliedAsset } = args;
     const config = new SwapConfig();
     let resolvedPool: IPoolData;
 
@@ -182,8 +182,8 @@ export class SundaeSDK {
       );
     }
 
-    if (escrowAddress) {
-      config.setEscrowAddress(escrowAddress);
+    if (orderAddresses) {
+      config.setOrderAddresses(orderAddresses);
     }
 
     if (suppliedAsset) {

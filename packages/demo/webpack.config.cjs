@@ -55,6 +55,9 @@ const config = {
         {
           test: /\.m?js$/,
           exclude: /(node_modules)/,
+          resolve: {
+            fullySpecified: false
+          },
           use: {
             loader: "swc-loader",
             options: {

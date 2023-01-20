@@ -1,26 +1,22 @@
-import type {
-  Lucid as LucidType,
-  Tx as TxType,
-  WalletApi as WalletApiType,
-  Provider as ProviderType,
-  Network as NetworkType,
-  Data as DataType,
+import {
+  Lucid,
+  Tx,
+  WalletApi,
+  Blockfrost,
+  Provider as BlockfrostProvider,
+  Network,
 } from "lucid-cardano";
 
-import { AssetAmount } from "../../AssetAmount.class";
 import {
-  IPoolDataAsset,
-  IProviderClass,
+  IQueryProviderClass,
   TSupportedNetworks,
   IBuildSwapArgs,
-  IAsset,
   ITxBuilderOptions,
-  EscrowAddress,
-  Swap,
 } from "../../../@types";
 import { ADA_ASSET_ID } from "../../../lib/constants";
 import { TxBuilder } from "../../TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
+import { LucidDatumBuilder } from "../DatumBuilders/DatumBuilder.Lucid.class";
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -59,22 +55,21 @@ export interface ITxBuilderLucidOptions extends ITxBuilderOptions {
  */
 export class TxBuilderLucid extends TxBuilder<
   ITxBuilderLucidOptions,
-  LucidType,
-  DataType,
-  TxType
+  Lucid,
+  Tx
 > {
-  lib?: LucidType;
-  tx?: TxType;
+  lib?: Lucid;
+  tx?: Tx;
 
   /**
    * @param options The main option for instantiating the class.
-   * @param provider An instance of a {@link IProviderClass} class.
+   * @param query A valid Query Provider class that will do the lookups.
    */
   constructor(
     public options: ITxBuilderLucidOptions,
-    public provider: IProviderClass
+    public query: IQueryProviderClass
   ) {
-    super(provider, options);
+    super(query, options);
     switch (this.options?.provider) {
       case "blockfrost":
         if (!this.options?.blockfrost) {
@@ -84,79 +79,78 @@ export class TxBuilderLucid extends TxBuilder<
         }
     }
 
-    // Lazy load library.
-    this.asyncGetLib();
+    // Connect the wallet.
+    this.initWallet();
   }
 
-  async asyncGetLib() {
-    if (!this.lib) {
-      const { Blockfrost, Lucid } = await import(
-        /* webpackPrefetch: true */
-        /* webpackMode: "lazy" */
-        "lucid-cardano"
-      );
-      const { provider, blockfrost } = this.options;
-      let ThisProvider: ProviderType;
-      switch (provider) {
-        default:
-        case "blockfrost":
-          if (!blockfrost) {
-            throw new Error(
-              "Must provide a Blockfrost object when choosing it as a Provider for Lucid."
-            );
-          }
+  /**
+   * Initializes a Lucid instance with the
+   */
+  private async initWallet() {
+    const { provider, blockfrost } = this.options;
+    let ThisProvider: BlockfrostProvider;
+    switch (provider) {
+      default:
+      case "blockfrost":
+        if (!blockfrost) {
+          throw new Error(
+            "Must provide a Blockfrost object when choosing it as a Provider for Lucid."
+          );
+        }
 
-          ThisProvider = new Blockfrost(blockfrost.url, blockfrost.apiKey);
-      }
-
-      const walletApi: WalletApiType = (await window.cardano[
-        this.options.wallet
-      ].enable()) as WalletApiType;
-
-      const instance = await Lucid.new(
-        ThisProvider,
-        this._conformNetwork(this.options.network)
-      );
-      const instanceWithWallet = instance.selectWallet(walletApi);
-      this.lib = instanceWithWallet;
+        ThisProvider = new Blockfrost(blockfrost.url, blockfrost.apiKey);
     }
 
-    return this.lib;
+    const walletApi: WalletApi = (await window.cardano[
+      this.options.wallet
+    ].enable()) as WalletApi;
+
+    const instance = await Lucid.new(
+      ThisProvider,
+      this._conformNetwork(this.options.network)
+    );
+    const instanceWithWallet = instance.selectWallet(walletApi);
+    this.wallet = instanceWithWallet;
   }
 
-  async newTx(): Promise<TxType> {
-    const lucid = await this.asyncGetLib();
-    const tx = lucid.newTx();
-    return tx;
+  /**
+   * Returns a new Tx instance from Lucid. Throws an error if not ready.
+   * @returns
+   */
+  async newTx(): Promise<Tx> {
+    if (!this.wallet) {
+      this._throwWalletNotConnected();
+    }
+
+    return this.wallet.newTx();
   }
 
   async buildSwapTx(args: IBuildSwapArgs) {
     const tx = await this.newTx();
     const {
       pool: { ident, assetA, assetB },
-      escrowAddress: { DestinationAddress, AlternateAddress },
+      orderAddresses: escrowAddress,
       suppliedAsset,
       minReceivable,
     } = args;
 
-    const { Constr, Data } = await import("lucid-cardano");
-    const { SCOOPER_FEE, RIDER_FEE, ESCROW_ADDRESS } = Utils.getParams(
-      this.options.network
+    const { SCOOPER_FEE, RIDER_FEE, ESCROW_ADDRESS } = this.getParams();
+
+    const datumBuilder = new LucidDatumBuilder(this.options.network);
+    const { cbor } = datumBuilder.buildSwapDatum(
+      {
+        ident,
+        swap: {
+          SuppliedCoin: Utils.getAssetSwapDirection(suppliedAsset, [
+            assetA,
+            assetB,
+          ]),
+          MinimumReceivable: minReceivable,
+        },
+        orderAddresses: escrowAddress,
+      },
+      suppliedAsset
     );
-
-    const escrowAddress = await this.buildEscrowAddressDatum({
-      DestinationAddress,
-      AlternateAddress,
-    });
-
-    const swap = await this.buildSwapDatum(
-      suppliedAsset,
-      assetA,
-      assetB,
-      minReceivable
-    );
-
-    const data = new Constr(0, [ident, escrowAddress, SCOOPER_FEE, swap]);
 
     const payment: Record<string, bigint> = {};
 
@@ -169,7 +163,7 @@ export class TxBuilderLucid extends TxBuilder<
         suppliedAsset.amount.getAmount();
     }
 
-    tx.payToContract(ESCROW_ADDRESS, Data.to(data), payment);
+    tx.payToContract(ESCROW_ADDRESS, cbor, payment);
     const finishedTx = await tx.complete();
     const signedTx = await finishedTx.sign().complete();
 
@@ -187,112 +181,16 @@ export class TxBuilderLucid extends TxBuilder<
     return this;
   }
 
-  /**
-   * Builds the datum for the {@link EscrowAddress} interface using a data
-   * constructor class from the Lucid library.
-   *
-   * @param address
-   * @returns
-   */
-  async buildEscrowAddressDatum(address: EscrowAddress) {
-    const lucid = await this.asyncGetLib();
-    const { DestinationAddress, AlternateAddress } = address;
-    const { Constr } = await import("lucid-cardano");
-    const destination = await this._getAddressHashes(
-      DestinationAddress.address
-    );
-
-    const destinationDatum = new Constr(0, [
-      new Constr(0, [
-        new Constr(0, [destination.paymentCredentials]),
-        destination?.stakeCredentials
-          ? new Constr(0, [
-              new Constr(0, [new Constr(0, [destination?.stakeCredentials])]),
-            ])
-          : new Constr(1, []),
-      ]),
-      DestinationAddress?.datumHash
-        ? new Constr(0, [DestinationAddress.datumHash])
-        : new Constr(1, []),
-    ]);
-
-    const alternate =
-      AlternateAddress && (await this._getAddressHashes(AlternateAddress));
-    const alternateDatum = new Constr(
-      alternate ? 0 : 1,
-      alternate ? [alternate.paymentCredentials] : []
-    );
-
-    return new Constr(0, [destinationDatum, alternateDatum]);
-  }
-
-  /**
-   * Builds the datum for the Swap action using a data
-   * constructor class from the Lucid library.
-   *
-   * @param address
-   * @returns
-   */
-  async buildEscrowSwapDatum(suppliedAsset: AssetAmount, swap: Swap) {
-    const { Constr } = await import("lucid-cardano");
-
-    return new Constr(0, [
-      new Constr(swap.CoinDirection, []),
-      suppliedAsset.getAmount(),
-      swap.MinimumReceivable
-        ? new Constr(0, [swap.MinimumReceivable.getAmount()])
-        : new Constr(1, []),
-    ]);
-  }
-
-  /**
-   * Builds the main datum for a Swap transaction so that scoopers
-   * can execute their batches in the Escrow script address.
-   *
-   * @param address
-   * @returns
-   */
-  async buildSwapDatum(
-    givenAsset: IAsset,
-    assetA: IPoolDataAsset,
-    assetB: IPoolDataAsset,
-    minReceivable: AssetAmount
-  ): Promise<DataType> {
-    const { Constr } = await import("lucid-cardano");
-    return new Constr(0, [
-      new Constr(Utils.getAssetSwapDirection(givenAsset, [assetA, assetB]), []),
-      givenAsset.amount.getAmount(),
-      minReceivable
-        ? new Constr(0, [minReceivable.getAmount()])
-        : new Constr(1, []),
-    ]);
-  }
-
-  private async _getAddressHashes(address: string): Promise<{
-    paymentCredentials: string;
-    stakeCredentials?: string;
-  }> {
-    const lucid = await this.asyncGetLib();
-    const details = lucid.utils.getAddressDetails(address);
-
-    if (!details.paymentCredential) {
-      throw new Error(
-        "Invalid address. Make sure you are using a Bech32 encoded address."
-      );
-    }
-
-    return {
-      paymentCredentials: details.paymentCredential.hash,
-      stakeCredentials: details.stakeCredential?.hash,
-    };
-  }
-
-  private _conformNetwork(network: TSupportedNetworks): NetworkType {
+  private _conformNetwork(network: TSupportedNetworks): Network {
     switch (network) {
       case "mainnet":
         return "Mainnet";
       case "preview":
         return "Preview";
     }
+  }
+
+  private _throwWalletNotConnected(): never {
+    throw new Error("The wallet has not yet been initialized!");
   }
 }

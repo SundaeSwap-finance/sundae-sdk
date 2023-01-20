@@ -1,8 +1,4 @@
-import {
-  ProviderSundaeSwap,
-  SundaeSDK,
-  TxBuilderLucid,
-} from "@sundaeswap/sdk-core";
+import { SundaeSDK } from "@sundaeswap/sdk-core";
 import { FC, useState, useEffect } from "react";
 import { useAppState } from "../../state/context";
 
@@ -22,37 +18,42 @@ const SelectBuilder: FC = () => {
   };
 
   useEffect(() => {
-    let sdk: SundaeSDK | undefined = undefined;
-    switch (builderLib) {
-      // case "mesh":
-      //   sdk = new SundaeSDK(
-      //     TxBuilderMesh.new({
-      //       wallet: ESupportedWallets.Eternl,
-      //       network: "preview",
-      //     })
-      //   );
-      //   break;
-      case "lucid":
-        sdk = new SundaeSDK(
-          new TxBuilderLucid(
-            {
-              provider: "blockfrost",
-              blockfrost: {
-                url: "https://cardano-preview.blockfrost.io/api/v0/",
-                // @ts-ignore
-                apiKey: window.__APP_CONFIG.blockfrostAPI,
+    (async () => {
+      let sdk: SundaeSDK | undefined = undefined;
+      switch (builderLib) {
+        // case "mesh":
+        //   sdk = new SundaeSDK(
+        //     TxBuilderMesh.new({
+        //       wallet: ESupportedWallets.Eternl,
+        //       network: "preview",
+        //     })
+        //   );
+        //   break;
+        case "lucid":
+          const { TxBuilderLucid, ProviderSundaeSwap } = await import(
+            "@sundaeswap/sdk-core/extensions"
+          );
+          sdk = new SundaeSDK(
+            new TxBuilderLucid(
+              {
+                provider: "blockfrost",
+                blockfrost: {
+                  url: "https://cardano-preview.blockfrost.io/api/v0/",
+                  // @ts-ignore
+                  apiKey: window.__APP_CONFIG.blockfrostAPI,
+                },
+                network: "preview",
+                wallet: "eternl",
               },
-              network: "preview",
-              wallet: "eternl",
-            },
-            new ProviderSundaeSwap("preview")
-          )
-        );
+              new ProviderSundaeSwap("preview")
+            )
+          );
 
-        break;
-    }
+          break;
+      }
 
-    setSDK(sdk);
+      setSDK(sdk);
+    })();
   }, [builderLib, setSDK]);
 
   return (
