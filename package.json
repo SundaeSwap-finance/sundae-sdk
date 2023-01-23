@@ -12,7 +12,7 @@
     "prepare": "husky install",
     "build": "lerna run build",
     "version:ci": "lerna version -y --ignore-scripts",
-    "publish:ci": "lerna publish from-package -y --ignore-scripts",
+    "publish:ci": "lerna publish from-package -y",
     "docs": "lerna run docs:ci"
   },
   "engines": {

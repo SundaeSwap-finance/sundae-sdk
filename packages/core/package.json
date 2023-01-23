@@ -13,6 +13,7 @@
   "homepage": "https://github.com/SundaeSwap-finance/sundae-sdk#readme",
   "license": "MIT",
   "private": false,
+  "sideEffects": false,
   "publishConfig": {
     "access": "restricted"
   },
