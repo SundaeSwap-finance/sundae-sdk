@@ -1866,11 +1866,6 @@
     typedoc "^0.23.24"
     typedoc-plugin-markdown "^3.14.0"
 
-"@sundaeswap/sdk-core@^0.1":
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/@sundaeswap/sdk-core/-/sdk-core-0.1.6.tgz#668a88f352965987702dd884e4e1eef937933e19"
-  integrity sha512-Mvku0qieOs25q3+kUKyLpzwPC6WttHVMIv+UY8EdbGijR9YIeb/wkDSyrPu7KOXg7doKrBf/eGQsKMBgKBhxOQ==
-
 "@swc/core-darwin-arm64@1.3.24":
   version "1.3.24"
   resolved "https://registry.yarnpkg.com/@swc/core-darwin-arm64/-/core-darwin-arm64-1.3.24.tgz#d41fc574cb5049def9001903680fdd924f065052"
