@@ -11,8 +11,8 @@
     "test": "lerna run test --verbose",
     "prepare": "husky install",
     "build": "lerna run build",
-    "version:ci": "lerna version --conventional-commits --create-release github -y --no-private",
-    "publish:ci": "lerna publish from-package -y --ignore-scripts",
+    "version:ci": "lerna version -y --ignore-scripts",
+    "publish:ci": "lerna publish from-package -y",
     "docs": "lerna run docs:ci"
   },
   "engines": {
