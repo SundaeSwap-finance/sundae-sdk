@@ -2,7 +2,7 @@
   "$schema": "node_modules/lerna/schemas/lerna-schema.json",
   "useNx": true,
   "useWorkspaces": true,
-  "version": "independent",
+  "version": "0.1.6",
   "npmClient": "yarn",
   "ignore": "demo",
   "ignoreChanges": [
@@ -14,7 +14,10 @@
   "command": {
     "version": {
       "message": "chore(release): publish %s",
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "conventionalPrerelease": true,
+      "createRelease": "github",
+      "private": false
     }
   }
 }
