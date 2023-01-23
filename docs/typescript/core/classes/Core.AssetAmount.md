@@ -39,6 +39,28 @@ Construct a new AssetAmount.
 
 ## Methods
 
+### add
+
+▸ **add**(`amt`): `void`
+
+Helper method to increment the asset amount.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `amt` | `bigint` |
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[classes/AssetAmount.class.ts:62](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/AssetAmount.class.ts#L62)
+
+___
+
 ### getAmount
 
 ▸ **getAmount**(): `bigint`
@@ -84,3 +106,25 @@ Converts a BigInt to a float based on the provided decimal place.
 #### Defined in
 
 [classes/AssetAmount.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/AssetAmount.class.ts#L37)
+
+___
+
+### subtract
+
+▸ **subtract**(`amt`): `void`
+
+Helper method to subtract the asset amount.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `amt` | `bigint` |
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[classes/AssetAmount.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/AssetAmount.class.ts#L70)

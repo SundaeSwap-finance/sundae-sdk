@@ -1,4 +1,9 @@
-import type { IPoolData, IQueryProviderClass, ISDKSwapArgs } from "../@types";
+import type {
+  DepositArguments,
+  IPoolData,
+  IQueryProviderClass,
+  ISDKSwapArgs,
+} from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
 import { SwapConfig } from "./SwapConfig.class";
 import type { TxBuilder } from "./TxBuilder.abstract.class";
@@ -136,6 +141,10 @@ export class SundaeSDK {
     config.setMinReceivable(limitPrice);
     await this.builder.buildSwapTx(config.buildSwapArgs());
     return this.builder.complete();
+  }
+
+  async deposit(args: DepositArguments) {
+    // const config = new
   }
 
   /**

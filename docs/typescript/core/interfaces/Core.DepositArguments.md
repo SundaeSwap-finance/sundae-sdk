@@ -1,28 +1,16 @@
-# Interface: SwapArguments
+# Interface: DepositArguments
 
-[Core](../modules/Core.md).SwapArguments
+[Core](../modules/Core.md).DepositArguments
 
-Arguments for a swap.
+Arguments for depositing a pair of assets into a pool.
 
 ## Hierarchy
 
 - [`Arguments`](Core.Arguments.md)
 
-  ↳ **`SwapArguments`**
+  ↳ **`DepositArguments`**
 
 ## Properties
-
-### fundedAsset
-
-• **fundedAsset**: [`IAsset`](Core.IAsset.md)
-
-The asset supplied (this is required to accurately determine the swap direction).
-
-#### Defined in
-
-[@types/datumbuilder.ts:103](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L103)
-
-___
 
 ### ident
 

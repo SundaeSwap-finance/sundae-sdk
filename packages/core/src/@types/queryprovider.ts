@@ -38,7 +38,7 @@ export interface IQueryProviderClass {
  * @see {@link IQueryProviderClass}
  */
 export interface IPoolQuery {
-  /** The pool pair, as an array of {@link IPoolDataAsset.assetId} */
+  /** The pool pair, as an array of {@link IPoolDataAsset.assetID} */
   pair: [string, string];
   /** The desired pool fee as a percentage string. */
   fee: string;
@@ -54,7 +54,7 @@ export interface IPoolDataAsset {
    * @example
    * POLICY_ID_HEX.ASSET_NAME_HEX
    */
-  assetId: string;
+  assetID: string;
   /** The registered decimal places of the asset. */
   decimals: number;
 }

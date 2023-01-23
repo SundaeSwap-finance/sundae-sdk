@@ -54,4 +54,20 @@ export class AssetAmount {
   getDecimals() {
     return this.decimals;
   }
+
+  /**
+   * Helper method to increment the asset amount.
+   * @returns
+   */
+  add(amt: bigint) {
+    this.amount += amt;
+  }
+
+  /**
+   * Helper method to subtract the asset amount.
+   * @returns
+   */
+  subtract(amt: bigint) {
+    this.amount -= amt;
+  }
 }

@@ -26,6 +26,12 @@ const { submit, cbor } = await SDK.swap(config);
 
 [swap](Core.SundaeSDK.md#swap)
 
+## Hierarchy
+
+- `OrderConfig`
+
+  ↳ **`SwapConfig`**
+
 ## Methods
 
 ### buildSwapArgs
@@ -45,7 +51,7 @@ Useful for when building Transactions directly from the builder instance.
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:102](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L102)
+[classes/SwapConfig.class.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L66)
 
 ___
 
@@ -67,7 +73,7 @@ Set a minimum receivable asset amount for the swap. This is akin to setting a li
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L73)
+[classes/SwapConfig.class.ts:53](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L53)
 
 ___
 
@@ -87,9 +93,13 @@ Builds the [OrderAddresses](../modules/Core.md#orderaddresses) for a swap's requ
 
 [`SwapConfig`](Core.SwapConfig.md)
 
+#### Inherited from
+
+OrderConfig.setOrderAddresses
+
 #### Defined in
 
-[classes/SwapConfig.class.ts:51](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L51)
+[classes/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/OrderConfig.abstract.class.ts#L14)
 
 ___
 
@@ -109,9 +119,13 @@ Set the pool data directly for the swap you use.
 
 [`SwapConfig`](Core.SwapConfig.md)
 
+#### Inherited from
+
+OrderConfig.setPool
+
 #### Defined in
 
-[classes/SwapConfig.class.ts:62](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L62)
+[classes/OrderConfig.abstract.class.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/OrderConfig.abstract.class.ts#L25)
 
 ___
 
@@ -133,4 +147,4 @@ Set the supplied asset for the swap.
 
 #### Defined in
 
-[classes/SwapConfig.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L41)
+[classes/SwapConfig.class.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SwapConfig.class.ts#L42)

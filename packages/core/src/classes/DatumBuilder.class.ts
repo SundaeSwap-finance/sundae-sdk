@@ -1,6 +1,7 @@
 import {
   DatumResult,
-  IAsset,
+  DepositArguments,
+  DepositMixed,
   OrderAddresses,
   Swap,
   SwapArguments,
@@ -23,11 +24,20 @@ import { Utils } from "./Utils.class";
 export abstract class DatumBuilder<Data = any> {
   abstract network: TSupportedNetworks;
 
-  abstract buildSwapDatum(
-    args: SwapArguments,
-    fundedAsset: IAsset,
-    scooperFee?: bigint
-  ): DatumResult<Data>;
+  /**
+   * Should build a Datum for Swap transaction.
+   * @param args The Swap arguments.
+   */
+  abstract buildSwapDatum(args: SwapArguments): DatumResult<Data>;
+
+  /**
+   * Should build a Datum for a Deposit transaction.
+   * @param args The Deposit arguments.
+   */
+  abstract buildDepositDatum(args: DepositArguments): DatumResult<Data>;
+
+  abstract buildScooperFee(fee: bigint): bigint;
+  abstract buildDepositPair(deposit: DepositMixed): DatumResult<Data>;
   abstract buildOrderAddresses(addresses: OrderAddresses): DatumResult<Data>;
   abstract buildSwapDirection(
     swap: Swap,
@@ -37,4 +47,6 @@ export abstract class DatumBuilder<Data = any> {
   getParams() {
     return Utils.getParams(this.network);
   }
+
+  protected validateScooperFee() {}
 }

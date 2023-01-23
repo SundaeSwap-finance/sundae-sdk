@@ -20,6 +20,28 @@ The main class by which TxBuilder classes are extended.
 
 ## Methods
 
+### buildDepositTx
+
+▸ `Abstract` **buildDepositTx**(`args`): `Promise`<[`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>\>
+
+The main function to build a deposit Transaction.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `args` | [`IBuildDepositArgs`](../interfaces/Core.IBuildDepositArgs.md) | The built DepositArguments from a [DepositConfig](Core.DepositConfig.md) instance. |
+
+#### Returns
+
+`Promise`<[`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>\>
+
+#### Defined in
+
+[classes/TxBuilder.abstract.class.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L54)
+
+___
+
 ### buildSwapTx
 
 ▸ `Abstract` **buildSwapTx**(`args`): `Promise`<[`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>\>
@@ -38,7 +60,7 @@ The main function to build a swap Transaction.
 
 #### Defined in
 
-[classes/TxBuilder.abstract.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L45)
+[classes/TxBuilder.abstract.class.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L47)
 
 ___
 
@@ -54,7 +76,7 @@ Completes the transaction building and includes validation of the arguments.
 
 #### Defined in
 
-[classes/TxBuilder.abstract.class.ts:51](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L51)
+[classes/TxBuilder.abstract.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L60)
 
 ___
 
@@ -70,7 +92,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/TxBuilder.abstract.class.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L64)
+[classes/TxBuilder.abstract.class.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L73)
 
 ___
 
@@ -86,7 +108,7 @@ Creates a new Tx type instance from the supplied transaction library.
 
 #### Defined in
 
-[classes/TxBuilder.abstract.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L37)
+[classes/TxBuilder.abstract.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L39)
 
 ___
 
@@ -110,4 +132,4 @@ that your datum is well structured, only that your config arguments have valid v
 
 #### Defined in
 
-[classes/TxBuilder.abstract.class.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L75)
+[classes/TxBuilder.abstract.class.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L84)

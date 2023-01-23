@@ -12,11 +12,21 @@ import {
   TSupportedNetworks,
   IBuildSwapArgs,
   ITxBuilderOptions,
+  IBuildDepositArgs,
+  IAsset,
 } from "../../../@types";
 import { ADA_ASSET_ID } from "../../../lib/constants";
 import { TxBuilder } from "../../TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
 import { LucidDatumBuilder } from "../DatumBuilders/DatumBuilder.Lucid.class";
+
+const getBuffer = async () => {
+  const CtxBuffer =
+    typeof window !== "undefined"
+      ? await import("buffer").then(({ Buffer }) => Buffer)
+      : Buffer;
+  return CtxBuffer;
+};
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -137,48 +147,83 @@ export class TxBuilderLucid extends TxBuilder<
     const { SCOOPER_FEE, RIDER_FEE, ESCROW_ADDRESS } = this.getParams();
 
     const datumBuilder = new LucidDatumBuilder(this.options.network);
-    const { cbor } = datumBuilder.buildSwapDatum(
-      {
-        ident,
-        swap: {
-          SuppliedCoin: Utils.getAssetSwapDirection(suppliedAsset, [
-            assetA,
-            assetB,
-          ]),
-          MinimumReceivable: minReceivable,
-        },
-        orderAddresses: escrowAddress,
+    const { cbor } = datumBuilder.buildSwapDatum({
+      ident,
+      swap: {
+        SuppliedCoin: Utils.getAssetSwapDirection(suppliedAsset, [
+          assetA,
+          assetB,
+        ]),
+        MinimumReceivable: minReceivable,
       },
-      suppliedAsset
-    );
+      orderAddresses: escrowAddress,
+      fundedAsset: suppliedAsset,
+    });
 
-    const payment: Record<string, bigint> = {};
-
-    if (suppliedAsset.assetID === ADA_ASSET_ID) {
-      payment.lovelace =
-        SCOOPER_FEE + RIDER_FEE + suppliedAsset.amount.getAmount();
-    } else {
-      payment.lovelace = SCOOPER_FEE + RIDER_FEE;
-      payment[suppliedAsset.assetID.replace(".", "")] =
-        suppliedAsset.amount.getAmount();
-    }
+    const payment = this._buildPayment([suppliedAsset]);
 
     tx.payToContract(ESCROW_ADDRESS, cbor, payment);
     const finishedTx = await tx.complete();
     const signedTx = await finishedTx.sign().complete();
 
-    const CtxBuffer =
-      typeof window !== "undefined"
-        ? await import("buffer").then(({ Buffer }) => Buffer)
-        : Buffer;
-
     this.txArgs = args;
     this.txComplete = {
       submit: async () => await signedTx.submit(),
-      cbor: CtxBuffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
+      cbor: (await getBuffer())
+        .from(signedTx.txSigned.to_bytes())
+        .toString("hex"),
     };
 
     return this;
+  }
+
+  async buildDepositTx(args: IBuildDepositArgs) {
+    const tx = await this.newTx();
+    const payment = this._buildPayment(args.suppliedAssets);
+    const datumBuilder = new LucidDatumBuilder(this.options.network);
+    const [coinA, coinB] = Utils.sortSwapAssets([
+      args.pool.assetA,
+      args.pool.assetB,
+    ]);
+
+    // const { cbor } = datumBuilder.buildDepositDatum({
+    //   ident: args.pool.ident,
+    //   orderAddresses: args.orderAddresses,
+    //   deposit: {
+    //     CoinAAmount: args.suppliedAssets.find(({ assetID }) => coinA.assetID)?.amount,
+    //     CoinBAmount: coinB.amount,
+    //   },
+    // });
+
+    // tx.payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
+    return this;
+  }
+
+  private _buildPayment(suppliedAssets: IAsset[]): Record<string, bigint> {
+    const payment: Record<string, bigint> = {};
+    const { SCOOPER_FEE, RIDER_FEE } = this.getParams();
+
+    const aggregatedAssets = suppliedAssets.reduce((acc, curr) => {
+      const existingAsset = acc.find(({ assetID }) => curr.assetID === assetID);
+      if (existingAsset) {
+        existingAsset.amount.add(curr.amount.getAmount());
+      }
+
+      return [...acc, curr];
+    }, [] as IAsset[]);
+
+    aggregatedAssets.forEach((suppliedAsset) => {
+      if (suppliedAsset.assetID === ADA_ASSET_ID) {
+        payment.lovelace =
+          SCOOPER_FEE + RIDER_FEE + suppliedAsset.amount.getAmount();
+      } else {
+        payment.lovelace = SCOOPER_FEE + RIDER_FEE;
+        payment[suppliedAsset.assetID.replace(".", "")] =
+          suppliedAsset.amount.getAmount();
+      }
+    });
+
+    return payment;
   }
 
   private _conformNetwork(network: TSupportedNetworks): Network {

@@ -4,11 +4,11 @@ import { SwapConfig } from "../SwapConfig.class";
 
 const mockPool: IPoolData = {
   assetA: {
-    assetId: "",
+    assetID: "",
     decimals: 6,
   },
   assetB: {
-    assetId:
+    assetID:
       "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
     decimals: 0,
   },
@@ -39,7 +39,7 @@ describe("SwapConfig class", () => {
 
   it("setPool and getPool", () => {
     config.setPool(mockPool);
-    expect(config.getPool()).toMatchObject(mockPool);
+    expect(config.pool).toMatchObject(mockPool);
   });
 
   it("setSuppliedAsset and getFunding", () => {
@@ -49,7 +49,7 @@ describe("SwapConfig class", () => {
     };
 
     config.setSuppliedAsset(asset);
-    expect(config.getSuppliedAsset()).toMatchObject(asset);
+    expect(config.suppliedAsset).toMatchObject(asset);
   });
 
   it("setEscrowAddress and getEscrowAddress", () => {
@@ -58,7 +58,7 @@ describe("SwapConfig class", () => {
         address: mockAddress,
       },
     });
-    expect(config.getOrderAddresses()).toEqual({
+    expect(config.orderAddresses).toEqual({
       DestinationAddress: {
         address: mockAddress,
       },

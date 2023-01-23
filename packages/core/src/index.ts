@@ -41,6 +41,7 @@
 export { SundaeSDK } from "./classes/SundaeSDK.class";
 export { AssetAmount } from "./classes/AssetAmount.class";
 export { SwapConfig } from "./classes/SwapConfig.class";
+export { DepositConfig } from "./classes/DepositConfig.class";
 export { TxBuilder } from "./classes/TxBuilder.abstract.class";
 export { DatumBuilder } from "./classes/DatumBuilder.class";
 

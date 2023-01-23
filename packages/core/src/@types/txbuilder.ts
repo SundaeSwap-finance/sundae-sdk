@@ -37,3 +37,12 @@ export interface IBuildSwapArgs {
   orderAddresses: OrderAddresses;
   minReceivable: AssetAmount;
 }
+
+/**
+ * The arguments structure for a Deposit order.
+ */
+export interface IBuildDepositArgs {
+  pool: IPoolData;
+  orderAddresses: OrderAddresses;
+  suppliedAssets: [IAsset, IAsset];
+}

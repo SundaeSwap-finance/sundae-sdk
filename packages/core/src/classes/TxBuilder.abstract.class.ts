@@ -1,4 +1,6 @@
 import {
+  IAsset,
+  IBuildDepositArgs,
   IBuildSwapArgs,
   IQueryProviderClass,
   ITxBuilderComplete,
@@ -43,6 +45,13 @@ export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
    * @returns {ITxBuilderComplete}
    */
   abstract buildSwapTx(args: IBuildSwapArgs): Promise<TxBuilder>;
+
+  /**
+   * The main function to build a deposit Transaction.
+   *
+   * @param args The built DepositArguments from a {@link DepositConfig} instance.
+   */
+  abstract buildDepositTx(args: IBuildDepositArgs): Promise<TxBuilder>;
 
   /**
    * Completes the transaction building and includes validation of the arguments.

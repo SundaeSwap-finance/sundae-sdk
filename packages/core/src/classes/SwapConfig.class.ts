@@ -1,5 +1,6 @@
 import { IBuildSwapArgs, IPoolData, IAsset, OrderAddresses } from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
+import { OrderConfig } from "./OrderConfig.abstract.class";
 
 /**
  * The `SwapConfig` class helps to properly format your swap arguments for use within {@link TxBuilder.buildSwapTx | TxBuilder.buildSwapTx}.
@@ -24,13 +25,13 @@ import { AssetAmount } from "./AssetAmount.class";
  *
  * @see {@link SundaeSDK.swap}
  */
-export class SwapConfig {
-  private pool?: IPoolData;
-  private orderAddresses?: OrderAddresses;
-  private suppliedAsset?: IAsset;
-  private minReceivable: AssetAmount = new AssetAmount(1n);
+export class SwapConfig extends OrderConfig {
+  suppliedAsset?: IAsset;
+  minReceivable: AssetAmount = new AssetAmount(1n);
 
-  constructor() {}
+  constructor() {
+    super();
+  }
 
   /**
    * Set the supplied asset for the swap.
@@ -44,27 +45,6 @@ export class SwapConfig {
   }
 
   /**
-   * Builds the {@link OrderAddresses} for a swap's required datum.
-   * @param orderAddresses
-   * @returns
-   */
-  setOrderAddresses(orderAddresses: OrderAddresses) {
-    this.orderAddresses = orderAddresses;
-    return this;
-  }
-
-  /**
-   * Set the pool data directly for the swap you use.
-   *
-   * @param pool
-   * @returns
-   */
-  setPool(pool: IPoolData) {
-    this.pool = pool;
-    return this;
-  }
-
-  /**
    * Set a minimum receivable asset amount for the swap. This is akin to setting a limit order.
    *
    * @param amount
@@ -73,22 +53,6 @@ export class SwapConfig {
   setMinReceivable(amount: AssetAmount) {
     this.minReceivable = amount;
     return this;
-  }
-
-  getSuppliedAsset() {
-    return this.suppliedAsset;
-  }
-
-  getPool() {
-    return this.pool;
-  }
-
-  getMinReceivable() {
-    return this.minReceivable;
-  }
-
-  getOrderAddresses() {
-    return this.orderAddresses;
   }
 
   /**
