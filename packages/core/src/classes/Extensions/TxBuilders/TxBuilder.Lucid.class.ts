@@ -21,7 +21,7 @@ import {
 import { ADA_ASSET_ID } from "../../../lib/constants";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
-import { LucidDatumBuilder } from "../DatumBuilders/DatumBuilder.Lucid.class";
+import { DatumBuilderLucid } from "../DatumBuilders/DatumBuilder.Lucid.class";
 
 const getBuffer = async () => {
   const CtxBuffer =
@@ -151,7 +151,7 @@ export class TxBuilderLucid extends TxBuilder<
 
     const { ESCROW_ADDRESS } = this.getParams();
 
-    const datumBuilder = new LucidDatumBuilder(this.options.network);
+    const datumBuilder = new DatumBuilderLucid(this.options.network);
     const { cbor } = datumBuilder.buildSwapDatum({
       ident,
       swap: {
@@ -188,7 +188,7 @@ export class TxBuilderLucid extends TxBuilder<
       args.suppliedAssets,
       this.options.network
     );
-    const datumBuilder = new LucidDatumBuilder(this.options.network);
+    const datumBuilder = new DatumBuilderLucid(this.options.network);
     const [coinA, coinB] = Utils.sortSwapAssets(args.suppliedAssets);
 
     const { cbor } = datumBuilder.buildDepositDatum({

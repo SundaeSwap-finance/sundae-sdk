@@ -12,7 +12,7 @@ import {
 } from "../../../@types";
 import { DatumBuilder } from "../../Abstracts/DatumBuilder.abstract.class";
 
-export class LucidDatumBuilder extends DatumBuilder<Data> {
+export class DatumBuilderLucid extends DatumBuilder<Data> {
   constructor(public network: TSupportedNetworks) {
     super();
   }

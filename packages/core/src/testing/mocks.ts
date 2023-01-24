@@ -9,7 +9,7 @@
 import { jest } from "@jest/globals";
 import { AssetAmount } from "../classes/AssetAmount.class";
 
-const MockedLucidDatumBuilder = jest.fn().mockImplementation(() => {
+const MockedDatumBuilderLucid = jest.fn().mockImplementation(() => {
   return {};
 });
 const MockedProviderSundaeSwap = jest.fn().mockImplementation(() => {
@@ -36,7 +36,7 @@ const MockedSundaeSDK = jest.fn().mockImplementation(() => ({
 
 const MockExports = async () => {
   beforeEach(() => {
-    MockedLucidDatumBuilder.mockClear();
+    MockedDatumBuilderLucid.mockClear();
     MockedProviderSundaeSwap.mockClear();
     MockedTxBuilderLucid.mockClear();
     MockedSundaeSDK.mockClear();
@@ -48,7 +48,7 @@ const MockExports = async () => {
     AssetAmount,
   }));
   jest.mock("@sundaeswap/sdk-core/extensions", () => ({
-    LucidDatumBuilder: MockedLucidDatumBuilder,
+    DatumBuilderLucid: MockedDatumBuilderLucid,
     ProviderSundaeSwap: MockedProviderSundaeSwap,
     TxBuilderLucid: MockedTxBuilderLucid,
   }));
