@@ -12,7 +12,7 @@
  * @packageDescription
  */
 
-import { DatumBuilder } from "src/classes/Abstracts/DatumBuilder.abstract.class";
+import { DatumBuilder } from "../classes/Abstracts/DatumBuilder.abstract.class";
 import {
   DepositArguments,
   OrderAddresses,

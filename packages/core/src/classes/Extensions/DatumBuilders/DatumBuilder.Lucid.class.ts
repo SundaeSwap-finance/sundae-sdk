@@ -1,5 +1,5 @@
 import { Data, Constr, getAddressDetails } from "lucid-cardano";
-import { AssetAmount } from "src/classes/AssetAmount.class";
+import { AssetAmount } from "../../../classes/AssetAmount.class";
 
 import {
   DatumResult,
