@@ -6,6 +6,7 @@ import {
   ITxBuilderComplete,
   ITxBuilderBaseOptions,
 } from "../../@types";
+import { Transaction } from "../Transaction.class";
 import { Utils } from "../Utils.class";
 
 /**
@@ -21,9 +22,6 @@ export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
   query: IQueryProviderClass;
   options: Options & ITxBuilderBaseOptions;
   wallet?: Wallet;
-  tx?: Tx;
-  txArgs?: ISwapArgs;
-  txComplete?: ITxBuilderComplete;
 
   constructor(
     queryProvider: IQueryProviderClass,
@@ -34,9 +32,9 @@ export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
   }
 
   /**
-   * Creates a new Tx type instance from the supplied transaction library.
+   * Should create a new {@link Transaction} instance from the supplied transaction library.
    */
-  protected abstract newTx(): Promise<Tx>;
+  protected abstract newTxInstance(): Promise<Transaction<Tx>>;
 
   /**
    * The main function to build a swap Transaction.
@@ -44,27 +42,14 @@ export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
    * @param args The built SwapArguments from a {@link SwapConfig} instance.
    * @returns {ITxBuilderComplete}
    */
-  abstract buildSwapTx(args: ISwapArgs): Promise<TxBuilder>;
+  abstract buildSwapTx(args: ISwapArgs): Promise<ITxBuilderComplete>;
 
   /**
    * The main function to build a deposit Transaction.
    *
    * @param args The built DepositArguments from a {@link DepositConfig} instance.
    */
-  abstract buildDepositTx(args: IDepositArgs): Promise<TxBuilder>;
-
-  /**
-   * Completes the transaction building and includes validation of the arguments.
-   * @returns
-   */
-  complete() {
-    if (!this.txArgs || !this.txComplete) {
-      throw new Error("You have not built a transaction!");
-    }
-
-    TxBuilder.validateSwapArguments(this.txArgs, this.options);
-    return this.txComplete;
-  }
+  abstract buildDepositTx(args: IDepositArgs): Promise<ITxBuilderComplete>;
 
   /**
    * Helper function for child classes to easily grab the appropriate protocol parameters for SundaeSwap.

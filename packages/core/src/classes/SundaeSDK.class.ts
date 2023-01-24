@@ -110,8 +110,7 @@ export class SundaeSDK {
       )
     );
     this._validateConfig(swap);
-    await this.builder.buildSwapTx(swap.buildArgs());
-    return this.builder.complete();
+    return await this.builder.buildSwapTx(swap.buildArgs());
   }
 
   /**
@@ -150,8 +149,7 @@ export class SundaeSDK {
     swap.setMinReceivable(limitPrice);
 
     this._validateConfig(swap);
-    await this.builder.buildSwapTx(swap.buildArgs());
-    return this.builder.complete();
+    return await this.builder.buildSwapTx(swap.buildArgs());
   }
 
   /**
@@ -163,8 +161,7 @@ export class SundaeSDK {
     const deposit = new DepositConfig(config);
 
     this._validateConfig(deposit);
-    await this.builder.buildDepositTx(deposit.buildArgs());
-    return this.builder.complete();
+    return await this.builder.buildDepositTx(deposit.buildArgs());
   }
 
   private _validateConfig(config: Config): void | never {

@@ -27,12 +27,14 @@ export class Utils {
     return params[network];
   }
 
-  static sortSwapAssets(assets: [IPoolDataAsset, IPoolDataAsset]) {
+  static sortSwapAssets(
+    assets: [IPoolDataAsset | IAsset, IPoolDataAsset | IAsset]
+  ) {
     return assets.sort((a, b) => a.assetId.localeCompare(b.assetId));
   }
 
   static getAssetSwapDirection(
-    { assetID }: IAsset,
+    { assetId: assetID }: IAsset,
     assets: [IPoolDataAsset, IPoolDataAsset]
   ): PoolCoin {
     const sorted = Utils.sortSwapAssets(assets);
@@ -65,17 +67,17 @@ export class Utils {
     let ratio: number;
     let decimals: number;
 
-    if (suppliedAsset.assetID === pool.assetA.assetId) {
+    if (suppliedAsset.assetId === pool.assetA.assetId) {
       decimals = pool.assetB.decimals;
       ratio = Number(pool.quantityB) / Number(pool.quantityA);
-    } else if (suppliedAsset.assetID === pool.assetB.assetId) {
+    } else if (suppliedAsset.assetId === pool.assetB.assetId) {
       decimals = pool.assetA.decimals;
       ratio = Number(pool.quantityA) / Number(pool.quantityB);
     } else {
       throw new Error(
         `The supplied asset ID does not match either assets within the supplied pool data. ${JSON.stringify(
           {
-            suppliedAssetID: suppliedAsset.assetID,
+            suppliedAssetID: suppliedAsset.assetId,
             poolAssetIDs: [pool.assetA.assetId, pool.assetB.assetId],
           }
         )}`

@@ -17,8 +17,8 @@ const defaultState: IAppState = {
 const AppState = createContext(defaultState);
 
 export const AppStateProvider: FC<
-  PropsWithChildren<{ defaultValue: Partial<IAppState> }>
-> = ({ children, defaultValue }) => {
+  PropsWithChildren<{ defaultValue?: Partial<IAppState> }>
+> = ({ children, defaultValue = {} }) => {
   const [SDK, setSDK] = useState<SundaeSDK>();
 
   return (

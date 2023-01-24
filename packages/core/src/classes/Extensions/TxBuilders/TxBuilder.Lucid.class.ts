@@ -5,7 +5,9 @@ import {
   Blockfrost,
   Provider as BlockfrostProvider,
   Network,
+  TxSigned,
 } from "lucid-cardano";
+import { Transaction } from "../../../classes/Transaction.class";
 
 import {
   IQueryProviderClass,
@@ -14,6 +16,7 @@ import {
   ITxBuilderBaseOptions,
   IDepositArgs,
   IAsset,
+  ITxBuilderComplete,
 } from "../../../@types";
 import { ADA_ASSET_ID } from "../../../lib/constants";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
@@ -127,16 +130,18 @@ export class TxBuilderLucid extends TxBuilder<
    * Returns a new Tx instance from Lucid. Throws an error if not ready.
    * @returns
    */
-  async newTx(): Promise<Tx> {
+  async newTxInstance(): Promise<Transaction<Tx>> {
     if (!this.wallet) {
       this._throwWalletNotConnected();
     }
 
-    return this.wallet.newTx();
+    return new Transaction<Tx>(this, this.wallet.newTx());
   }
 
   async buildSwapTx(args: ISwapArgs) {
-    const tx = await this.newTx();
+    TxBuilder.validateSwapArguments(args, this.options);
+
+    const txInstance = await this.newTxInstance();
     const {
       pool: { ident, assetA, assetB },
       orderAddresses: escrowAddress,
@@ -144,7 +149,7 @@ export class TxBuilderLucid extends TxBuilder<
       minReceivable,
     } = args;
 
-    const { SCOOPER_FEE, RIDER_FEE, ESCROW_ADDRESS } = this.getParams();
+    const { ESCROW_ADDRESS } = this.getParams();
 
     const datumBuilder = new LucidDatumBuilder(this.options.network);
     const { cbor } = datumBuilder.buildSwapDatum({
@@ -162,41 +167,37 @@ export class TxBuilderLucid extends TxBuilder<
 
     const payment = this._buildPayment([suppliedAsset]);
 
-    tx.payToContract(ESCROW_ADDRESS, cbor, payment);
-    const finishedTx = await tx.complete();
+    txInstance.get().payToContract(ESCROW_ADDRESS, cbor, payment);
+    const finishedTx = await txInstance.get().complete();
     const signedTx = await finishedTx.sign().complete();
 
-    this.txArgs = args;
-    this.txComplete = {
+    return {
       submit: async () => await signedTx.submit(),
       cbor: (await getBuffer())
         .from(signedTx.txSigned.to_bytes())
         .toString("hex"),
     };
-
-    return this;
   }
 
   async buildDepositTx(args: IDepositArgs) {
-    const tx = await this.newTx();
+    const tx = await this.newTxInstance();
     const payment = this._buildPayment(args.suppliedAssets);
     const datumBuilder = new LucidDatumBuilder(this.options.network);
-    const [coinA, coinB] = Utils.sortSwapAssets([
-      args.pool.assetA,
-      args.pool.assetB,
-    ]);
+    const [coinA, coinB] = Utils.sortSwapAssets(args.suppliedAssets);
 
-    // const { cbor } = datumBuilder.buildDepositDatum({
-    //   ident: args.pool.ident,
-    //   orderAddresses: args.orderAddresses,
-    //   deposit: {
-    //     CoinAAmount: args.suppliedAssets.find(({ assetID }) => coinA.assetID)?.amount,
-    //     CoinBAmount: coinB.amount,
-    //   },
-    // });
+    const { cbor } = datumBuilder.buildDepositDatum({
+      ident: args.pool.ident,
+      orderAddresses: args.orderAddresses,
+      deposit: {
+        CoinAAmount: (coinA as IAsset).amount,
+        CoinBAmount: (coinB as IAsset).amount,
+      },
+    });
 
-    // tx.payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
-    return this;
+    tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
+    const finishedTx = await tx.get().complete();
+    const signedTx = await finishedTx.sign().complete();
+    return this._buildTxComplete(signedTx);
   }
 
   private _buildPayment(suppliedAssets: IAsset[]): Record<string, bigint> {
@@ -204,7 +205,9 @@ export class TxBuilderLucid extends TxBuilder<
     const { SCOOPER_FEE, RIDER_FEE } = this.getParams();
 
     const aggregatedAssets = suppliedAssets.reduce((acc, curr) => {
-      const existingAsset = acc.find(({ assetID }) => curr.assetID === assetID);
+      const existingAsset = acc.find(
+        ({ assetId: assetID }) => curr.assetId === assetID
+      );
       if (existingAsset) {
         existingAsset.amount.add(curr.amount.getAmount());
       }
@@ -213,12 +216,12 @@ export class TxBuilderLucid extends TxBuilder<
     }, [] as IAsset[]);
 
     aggregatedAssets.forEach((suppliedAsset) => {
-      if (suppliedAsset.assetID === ADA_ASSET_ID) {
+      if (suppliedAsset.assetId === ADA_ASSET_ID) {
         payment.lovelace =
           SCOOPER_FEE + RIDER_FEE + suppliedAsset.amount.getAmount();
       } else {
         payment.lovelace = SCOOPER_FEE + RIDER_FEE;
-        payment[suppliedAsset.assetID.replace(".", "")] =
+        payment[suppliedAsset.assetId.replace(".", "")] =
           suppliedAsset.amount.getAmount();
       }
     });
@@ -233,6 +236,17 @@ export class TxBuilderLucid extends TxBuilder<
       case "preview":
         return "Preview";
     }
+  }
+
+  private async _buildTxComplete(
+    signedTx: TxSigned
+  ): Promise<ITxBuilderComplete> {
+    return {
+      submit: async () => await signedTx.submit(),
+      cbor: (await getBuffer())
+        .from(signedTx.txSigned.to_bytes())
+        .toString("hex"),
+    };
   }
 
   private _throwWalletNotConnected(): never {

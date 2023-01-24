@@ -39,6 +39,7 @@
  * @packageDocumentation
  */
 export { SundaeSDK } from "./classes/SundaeSDK.class";
+export { Transaction } from "./classes/Transaction.class";
 export { AssetAmount } from "./classes/AssetAmount.class";
 export { SwapConfig } from "./classes/Configs/SwapConfig.class";
 export { DepositConfig } from "./classes/Configs/DepositConfig.class";

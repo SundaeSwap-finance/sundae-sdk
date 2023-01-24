@@ -61,7 +61,7 @@ const TESTING_PARAMETERS: TestingParameters = {
             },
             fundedAsset: {
               amount: new AssetAmount(5000000n, 6),
-              assetID: "",
+              assetId: "",
             },
           },
         ],
@@ -79,7 +79,7 @@ const TESTING_PARAMETERS: TestingParameters = {
             },
             fundedAsset: {
               amount: new AssetAmount(5000000n, 6),
-              assetID: "",
+              assetId: "",
             },
           },
         ],

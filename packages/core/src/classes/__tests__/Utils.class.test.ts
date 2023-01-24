@@ -20,12 +20,12 @@ const mockPoolData: IPoolData = {
 
 const mockSuppliedADA: IAsset = {
   amount: new AssetAmount(20000000n, 6),
-  assetID: "",
+  assetId: "",
 };
 
 const mockSuppliedIndy: IAsset = {
   amount: new AssetAmount(20000000n, 0),
-  assetID:
+  assetId:
     "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
 };
 

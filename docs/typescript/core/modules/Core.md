@@ -47,6 +47,7 @@ const swap = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [DepositConfig](../classes/Core.DepositConfig.md)
 - [SundaeSDK](../classes/Core.SundaeSDK.md)
 - [SwapConfig](../classes/Core.SwapConfig.md)
+- [Transaction](../classes/Core.Transaction.md)
 
 ## Exported TxBuilders
 

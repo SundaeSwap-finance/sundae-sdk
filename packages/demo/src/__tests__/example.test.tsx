@@ -41,8 +41,8 @@ describe("Example testing", () => {
 
     fireEvent.click(swapButton);
     await waitFor(() => {
-      expect(Mocks.mockQuery).toHaveBeenCalledTimes(1);
-      expect(Mocks.mockSwap).toHaveBeenCalledTimes(1);
+      expect(Mocks.SundaeSDK.mockQuery).toHaveBeenCalledTimes(1);
+      expect(Mocks.SundaeSDK.mockSwap).toHaveBeenCalledTimes(1);
       expect(console.log).toHaveBeenCalledTimes(2);
     });
 

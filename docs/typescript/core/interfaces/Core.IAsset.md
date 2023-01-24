@@ -18,9 +18,9 @@ An instance of the asset amount including the decimal place.
 
 ___
 
-### assetID
+### assetId
 
-• **assetID**: `string`
+• **assetId**: `string`
 
 The hex encoded asset string, separating the Policy ID from the Asset Name with a period.
 

@@ -1,4 +1,4 @@
-import { IPoolData } from "../../@types";
+import { IAsset, IPoolData } from "../../@types";
 import { AssetAmount } from "../AssetAmount.class";
 import { SwapConfig } from "../Configs/SwapConfig.class";
 
@@ -18,9 +18,9 @@ const mockPool: IPoolData = {
   quantityB: "200",
 };
 
-const mockFunding = {
+const mockFunding: IAsset = {
   amount: new AssetAmount(20n, 6),
-  assetID:
+  assetId:
     "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
 };
 
@@ -67,9 +67,9 @@ describe("SwapConfig class", () => {
   });
 
   it("should set the suppliedAsset correctly", () => {
-    const asset = {
+    const asset: IAsset = {
       amount: new AssetAmount(20n, 6),
-      assetID: "",
+      assetId: "",
     };
 
     config.setSuppliedAsset(asset);
@@ -92,7 +92,7 @@ describe("SwapConfig class", () => {
   it("should throw an error if a pool isn't set", () => {
     config.setSuppliedAsset({
       amount: new AssetAmount(20n, 6),
-      assetID: "tINDY",
+      assetId: "tINDY",
     });
 
     try {
@@ -115,7 +115,7 @@ describe("SwapConfig class", () => {
       .setPool(mockPool)
       .setSuppliedAsset({
         amount: new AssetAmount(20n, 6),
-        assetID: "tINDY",
+        assetId: "tINDY",
       });
 
     try {
@@ -136,7 +136,7 @@ describe("SwapConfig class", () => {
       .setPool(mockPool)
       .setSuppliedAsset({
         amount: new AssetAmount(20n, 6),
-        assetID:
+        assetId:
           "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459",
       });
 
@@ -164,9 +164,9 @@ describe("SwapConfig class", () => {
   });
 
   it("should run buildArgs() without errors", () => {
-    const validFunding = {
+    const validFunding: IAsset = {
       amount: new AssetAmount(2n, 6),
-      assetID: "",
+      assetId: "",
     };
 
     config

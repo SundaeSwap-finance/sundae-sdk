@@ -22,7 +22,7 @@ The main class by which TxBuilder classes are extended.
 
 ### buildDepositTx
 
-▸ `Abstract` **buildDepositTx**(`args`): `Promise`<[`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>\>
+▸ `Abstract` **buildDepositTx**(`args`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
 
 The main function to build a deposit Transaction.
 
@@ -34,17 +34,17 @@ The main function to build a deposit Transaction.
 
 #### Returns
 
-`Promise`<[`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>\>
+`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L54)
+[classes/Abstracts/TxBuilder.abstract.class.ts:52](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L52)
 
 ___
 
 ### buildSwapTx
 
-▸ `Abstract` **buildSwapTx**(`args`): `Promise`<[`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>\>
+▸ `Abstract` **buildSwapTx**(`args`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
 
 The main function to build a swap Transaction.
 
@@ -56,27 +56,11 @@ The main function to build a swap Transaction.
 
 #### Returns
 
-`Promise`<[`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>\>
+`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L47)
-
-___
-
-### complete
-
-▸ **complete**(): [`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)
-
-Completes the transaction building and includes validation of the arguments.
-
-#### Returns
-
-[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)
-
-#### Defined in
-
-[classes/Abstracts/TxBuilder.abstract.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L60)
+[classes/Abstracts/TxBuilder.abstract.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L45)
 
 ___
 
@@ -92,23 +76,23 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L73)
+[classes/Abstracts/TxBuilder.abstract.class.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L58)
 
 ___
 
-### newTx
+### newTxInstance
 
-▸ `Protected` `Abstract` **newTx**(): `Promise`<`Tx`\>
+▸ `Protected` `Abstract` **newTxInstance**(): `Promise`<[`Transaction`](Core.Transaction.md)<`Tx`\>\>
 
-Creates a new Tx type instance from the supplied transaction library.
+Should create a new [Transaction](Core.Transaction.md) instance from the supplied transaction library.
 
 #### Returns
 
-`Promise`<`Tx`\>
+`Promise`<[`Transaction`](Core.Transaction.md)<`Tx`\>\>
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L39)
+[classes/Abstracts/TxBuilder.abstract.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L37)
 
 ___
 
@@ -132,4 +116,4 @@ that your datum is well structured, only that your config arguments have valid v
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L84)
+[classes/Abstracts/TxBuilder.abstract.class.ts:69](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L69)

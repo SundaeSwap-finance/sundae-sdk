@@ -76,7 +76,7 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:162](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L162)
+[classes/SundaeSDK.class.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L160)
 
 ___
 
@@ -124,7 +124,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L148)
+[classes/SundaeSDK.class.ts:147](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L147)
 
 ___
 
