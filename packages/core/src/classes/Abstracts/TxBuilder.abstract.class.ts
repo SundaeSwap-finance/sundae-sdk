@@ -1,12 +1,12 @@
 import {
   IAsset,
-  IBuildDepositArgs,
-  IBuildSwapArgs,
+  IDepositArgs,
+  ISwapArgs,
   IQueryProviderClass,
   ITxBuilderComplete,
-  ITxBuilderOptions,
-} from "../@types";
-import { Utils } from "./Utils.class";
+  ITxBuilderBaseOptions,
+} from "../../@types";
+import { Utils } from "../Utils.class";
 
 /**
  * The main class by which TxBuilder classes are extended.
@@ -19,15 +19,15 @@ import { Utils } from "./Utils.class";
  */
 export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
   query: IQueryProviderClass;
-  options: Options & ITxBuilderOptions;
+  options: Options & ITxBuilderBaseOptions;
   wallet?: Wallet;
   tx?: Tx;
-  txArgs?: IBuildSwapArgs;
+  txArgs?: ISwapArgs;
   txComplete?: ITxBuilderComplete;
 
   constructor(
     queryProvider: IQueryProviderClass,
-    options: Options & ITxBuilderOptions
+    options: Options & ITxBuilderBaseOptions
   ) {
     this.query = queryProvider;
     this.options = options;
@@ -44,14 +44,14 @@ export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
    * @param args The built SwapArguments from a {@link SwapConfig} instance.
    * @returns {ITxBuilderComplete}
    */
-  abstract buildSwapTx(args: IBuildSwapArgs): Promise<TxBuilder>;
+  abstract buildSwapTx(args: ISwapArgs): Promise<TxBuilder>;
 
   /**
    * The main function to build a deposit Transaction.
    *
    * @param args The built DepositArguments from a {@link DepositConfig} instance.
    */
-  abstract buildDepositTx(args: IBuildDepositArgs): Promise<TxBuilder>;
+  abstract buildDepositTx(args: IDepositArgs): Promise<TxBuilder>;
 
   /**
    * Completes the transaction building and includes validation of the arguments.
@@ -82,8 +82,8 @@ export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
    * @param datumHash
    */
   static async validateSwapArguments(
-    args: IBuildSwapArgs,
-    options: ITxBuilderOptions
+    args: ISwapArgs,
+    options: ITxBuilderBaseOptions
   ) {
     const address = args.orderAddresses.DestinationAddress.address;
     const datumHash = args.orderAddresses.DestinationAddress.datumHash;

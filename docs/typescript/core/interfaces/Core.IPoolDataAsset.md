@@ -6,9 +6,9 @@ Asset data returned from [findPoolData](Core.IQueryProviderClass.md#findpooldata
 
 ## Properties
 
-### assetID
+### assetId
 
-• **assetID**: `string`
+• **assetId**: `string`
 
 The hex encoded asset ID, separating the Policy ID from the Asset Name.
 

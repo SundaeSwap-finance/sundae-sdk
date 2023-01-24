@@ -10,13 +10,13 @@ import {
 import {
   IQueryProviderClass,
   TSupportedNetworks,
-  IBuildSwapArgs,
-  ITxBuilderOptions,
-  IBuildDepositArgs,
+  ISwapArgs,
+  ITxBuilderBaseOptions,
+  IDepositArgs,
   IAsset,
 } from "../../../@types";
 import { ADA_ASSET_ID } from "../../../lib/constants";
-import { TxBuilder } from "../../TxBuilder.abstract.class";
+import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
 import { LucidDatumBuilder } from "../DatumBuilders/DatumBuilder.Lucid.class";
 
@@ -33,7 +33,7 @@ const getBuffer = async () => {
  *
  * @group Extensions
  */
-export interface ITxBuilderLucidOptions extends ITxBuilderOptions {
+export interface ITxBuilderLucidOptions extends ITxBuilderBaseOptions {
   /** The provider type used by Lucid. Currently only supports Blockfrost. */
   provider: "blockfrost";
   /** The chosen provider options object to pass to Lucid. */
@@ -135,7 +135,7 @@ export class TxBuilderLucid extends TxBuilder<
     return this.wallet.newTx();
   }
 
-  async buildSwapTx(args: IBuildSwapArgs) {
+  async buildSwapTx(args: ISwapArgs) {
     const tx = await this.newTx();
     const {
       pool: { ident, assetA, assetB },
@@ -177,7 +177,7 @@ export class TxBuilderLucid extends TxBuilder<
     return this;
   }
 
-  async buildDepositTx(args: IBuildDepositArgs) {
+  async buildDepositTx(args: IDepositArgs) {
     const tx = await this.newTx();
     const payment = this._buildPayment(args.suppliedAssets);
     const datumBuilder = new LucidDatumBuilder(this.options.network);

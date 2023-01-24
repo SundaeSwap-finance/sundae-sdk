@@ -6,9 +6,9 @@ import {
   Swap,
   SwapArguments,
   TSupportedNetworks,
-} from "../@types";
-import { AssetAmount } from "./AssetAmount.class";
-import { Utils } from "./Utils.class";
+} from "../../@types";
+import { AssetAmount } from "../AssetAmount.class";
+import { Utils } from "../Utils.class";
 
 /**
  * The main builder interface for constructing valid Datums

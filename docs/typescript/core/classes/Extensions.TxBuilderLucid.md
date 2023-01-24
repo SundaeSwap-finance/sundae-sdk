@@ -101,7 +101,7 @@ Completes the transaction building and includes validation of the arguments.
 
 #### Defined in
 
-[classes/TxBuilder.abstract.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L60)
+[classes/Abstracts/TxBuilder.abstract.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L60)
 
 ___
 
@@ -121,7 +121,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/TxBuilder.abstract.class.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L73)
+[classes/Abstracts/TxBuilder.abstract.class.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L73)
 
 ___
 
@@ -172,8 +172,8 @@ that your datum is well structured, only that your config arguments have valid v
 
 | Name | Type |
 | :------ | :------ |
-| `args` | [`IBuildSwapArgs`](../interfaces/Core.IBuildSwapArgs.md) |
-| `options` | [`ITxBuilderOptions`](../interfaces/Core.ITxBuilderOptions.md) |
+| `args` | [`ISwapArgs`](../interfaces/Core.ISwapArgs.md) |
+| `options` | [`ITxBuilderBaseOptions`](../interfaces/Core.ITxBuilderBaseOptions.md) |
 
 #### Returns
 
@@ -185,4 +185,4 @@ that your datum is well structured, only that your config arguments have valid v
 
 #### Defined in
 
-[classes/TxBuilder.abstract.class.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/TxBuilder.abstract.class.ts#L84)
+[classes/Abstracts/TxBuilder.abstract.class.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L84)

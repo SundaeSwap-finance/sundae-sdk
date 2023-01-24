@@ -11,7 +11,7 @@
  * @group Testing
  */
 
-import { DatumBuilder } from "src/classes/DatumBuilder.class";
+import { DatumBuilder } from "src/classes/Abstracts/DatumBuilder.abstract.class";
 import {
   DepositArguments,
   OrderAddresses,

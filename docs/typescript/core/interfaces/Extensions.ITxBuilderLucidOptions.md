@@ -6,7 +6,7 @@ Options interface for the [TxBuilderLucid](../classes/Extensions.TxBuilderLucid.
 
 ## Hierarchy
 
-- [`ITxBuilderOptions`](Core.ITxBuilderOptions.md)
+- [`ITxBuilderBaseOptions`](Core.ITxBuilderBaseOptions.md)
 
   ↳ **`ITxBuilderLucidOptions`**
 
@@ -39,7 +39,7 @@ A supported Cardano network.
 
 #### Inherited from
 
-[ITxBuilderOptions](Core.ITxBuilderOptions.md).[network](Core.ITxBuilderOptions.md#network)
+[ITxBuilderBaseOptions](Core.ITxBuilderBaseOptions.md).[network](Core.ITxBuilderBaseOptions.md#network)
 
 #### Defined in
 
@@ -67,7 +67,7 @@ A CIP-30 compatible wallet.
 
 #### Inherited from
 
-[ITxBuilderOptions](Core.ITxBuilderOptions.md).[wallet](Core.ITxBuilderOptions.md#wallet)
+[ITxBuilderBaseOptions](Core.ITxBuilderBaseOptions.md).[wallet](Core.ITxBuilderBaseOptions.md#wallet)
 
 #### Defined in
 

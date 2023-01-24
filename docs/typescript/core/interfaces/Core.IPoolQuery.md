@@ -33,7 +33,7 @@ ___
 
 • **pair**: [`string`, `string`]
 
-The pool pair, as an array of [assetID](Core.IPoolDataAsset.md#assetid)
+The pool pair, as an array of [assetId](Core.IPoolDataAsset.md#assetid)
 
 #### Defined in
 

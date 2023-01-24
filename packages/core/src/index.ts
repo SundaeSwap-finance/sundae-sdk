@@ -40,9 +40,9 @@
  */
 export { SundaeSDK } from "./classes/SundaeSDK.class";
 export { AssetAmount } from "./classes/AssetAmount.class";
-export { SwapConfig } from "./classes/SwapConfig.class";
-export { DepositConfig } from "./classes/DepositConfig.class";
-export { TxBuilder } from "./classes/TxBuilder.abstract.class";
-export { DatumBuilder } from "./classes/DatumBuilder.class";
+export { SwapConfig } from "./classes/Configs/SwapConfig.class";
+export { DepositConfig } from "./classes/Configs/DepositConfig.class";
+export { TxBuilder } from "./classes/Abstracts/TxBuilder.abstract.class";
+export { DatumBuilder } from "./classes/Abstracts/DatumBuilder.abstract.class";
 
 export * from "./@types";

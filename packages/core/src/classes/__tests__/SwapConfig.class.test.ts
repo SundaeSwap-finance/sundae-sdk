@@ -1,14 +1,14 @@
 import { IPoolData } from "../../@types";
 import { AssetAmount } from "../AssetAmount.class";
-import { SwapConfig } from "../SwapConfig.class";
+import { SwapConfig } from "../Configs/SwapConfig.class";
 
 const mockPool: IPoolData = {
   assetA: {
-    assetID: "",
+    assetId: "",
     decimals: 6,
   },
   assetB: {
-    assetID:
+    assetId:
       "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
     decimals: 0,
   },
@@ -37,12 +37,36 @@ describe("SwapConfig class", () => {
     expect(config).toBeInstanceOf(SwapConfig);
   });
 
-  it("setPool and getPool", () => {
+  it("should construct with a config", () => {
+    const myConfig = new SwapConfig({
+      pool: mockPool,
+      orderAddresses: {
+        DestinationAddress: {
+          address: mockAddress,
+        },
+      },
+      suppliedAsset: mockFunding,
+    });
+
+    expect(myConfig.buildArgs()).toEqual({
+      pool: mockPool,
+      orderAddresses: {
+        DestinationAddress: {
+          address: mockAddress,
+        },
+      },
+      suppliedAsset: mockFunding,
+      // 10% minus the pool fee
+      minReceivable: new AssetAmount(8n, 6),
+    });
+  });
+
+  it("it should set the pool correctly", () => {
     config.setPool(mockPool);
     expect(config.pool).toMatchObject(mockPool);
   });
 
-  it("setSuppliedAsset and getFunding", () => {
+  it("should set the suppliedAsset correctly", () => {
     const asset = {
       amount: new AssetAmount(20n, 6),
       assetID: "",
@@ -72,11 +96,11 @@ describe("SwapConfig class", () => {
     });
 
     try {
-      config.buildSwapArgs();
+      config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
-        "The pool property is not defined. Set with .setPool()"
+        "You haven't set a pool in your SwapConfig. Set a pool with .setPool()"
       );
     }
   });
@@ -95,11 +119,11 @@ describe("SwapConfig class", () => {
       });
 
     try {
-      config.buildSwapArgs();
+      config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
-        "The orderAddresses property is not defined. Set with .setOrderAddresses()"
+        "You haven't defined the OrderAddresses in your SwapConfig. Set with .setOrderAddresses()"
       );
     }
 
@@ -117,7 +141,7 @@ describe("SwapConfig class", () => {
       });
 
     try {
-      config.buildSwapArgs();
+      config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
@@ -130,16 +154,16 @@ describe("SwapConfig class", () => {
     config.setPool(mockPool).setSuppliedAsset(mockFunding);
 
     try {
-      config.buildSwapArgs();
+      config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
-        "The orderAddresses property is not defined. Set with .setOrderAddresses()"
+        "You haven't defined the OrderAddresses in your SwapConfig. Set with .setOrderAddresses()"
       );
     }
   });
 
-  it("should run buildSwapArgs() without errors", () => {
+  it("should run buildArgs() without errors", () => {
     const validFunding = {
       amount: new AssetAmount(2n, 6),
       assetID: "",
@@ -154,7 +178,7 @@ describe("SwapConfig class", () => {
       })
       .setSuppliedAsset(validFunding);
 
-    expect(config.buildSwapArgs()).toEqual({
+    expect(config.buildArgs()).toEqual({
       pool: mockPool,
       orderAddresses: {
         DestinationAddress: {

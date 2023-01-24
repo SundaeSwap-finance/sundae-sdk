@@ -55,18 +55,20 @@ const swap = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 ## Interfaces
 
 - [Arguments](../interfaces/Core.Arguments.md)
+- [BuildDepositConfigArgs](../interfaces/Core.BuildDepositConfigArgs.md)
+- [BuildSwapConfigArgs](../interfaces/Core.BuildSwapConfigArgs.md)
 - [DatumResult](../interfaces/Core.DatumResult.md)
 - [DepositArguments](../interfaces/Core.DepositArguments.md)
 - [IAsset](../interfaces/Core.IAsset.md)
-- [IBuildDepositArgs](../interfaces/Core.IBuildDepositArgs.md)
-- [IBuildSwapArgs](../interfaces/Core.IBuildSwapArgs.md)
+- [IDepositArgs](../interfaces/Core.IDepositArgs.md)
+- [IOrderArgs](../interfaces/Core.IOrderArgs.md)
 - [IPoolData](../interfaces/Core.IPoolData.md)
 - [IPoolDataAsset](../interfaces/Core.IPoolDataAsset.md)
 - [IPoolQuery](../interfaces/Core.IPoolQuery.md)
 - [IProtocolParams](../interfaces/Core.IProtocolParams.md)
-- [ISDKSwapArgs](../interfaces/Core.ISDKSwapArgs.md)
+- [ISwapArgs](../interfaces/Core.ISwapArgs.md)
+- [ITxBuilderBaseOptions](../interfaces/Core.ITxBuilderBaseOptions.md)
 - [ITxBuilderComplete](../interfaces/Core.ITxBuilderComplete.md)
-- [ITxBuilderOptions](../interfaces/Core.ITxBuilderOptions.md)
 - [SwapArguments](../interfaces/Core.SwapArguments.md)
 
 ## Extension Builders

@@ -6,7 +6,7 @@ The main config class for building valid arguments for a Deposit.
 
 ## Hierarchy
 
-- `OrderConfig`
+- `Config`<[`IDepositArgs`](../interfaces/Core.IDepositArgs.md)\>
 
   ↳ **`DepositConfig`**
 
@@ -30,11 +30,11 @@ Builds the [OrderAddresses](../modules/Core.md#orderaddresses) for a swap's requ
 
 #### Inherited from
 
-OrderConfig.setOrderAddresses
+Config.setOrderAddresses
 
 #### Defined in
 
-[classes/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/OrderConfig.abstract.class.ts#L14)
+[classes/Abstracts/Config.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L14)
 
 ___
 
@@ -56,8 +56,8 @@ Set the pool data directly for the swap you use.
 
 #### Inherited from
 
-OrderConfig.setPool
+Config.setPool
 
 #### Defined in
 
-[classes/OrderConfig.abstract.class.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/OrderConfig.abstract.class.ts#L25)
+[classes/Abstracts/Config.abstract.class.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L25)

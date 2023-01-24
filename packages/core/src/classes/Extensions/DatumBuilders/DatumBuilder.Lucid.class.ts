@@ -11,7 +11,7 @@ import {
   SwapArguments,
   TSupportedNetworks,
 } from "../../../@types";
-import { DatumBuilder } from "../../../classes/DatumBuilder.class";
+import { DatumBuilder } from "../../Abstracts/DatumBuilder.abstract.class";
 
 export class LucidDatumBuilder extends DatumBuilder<Data> {
   constructor(public network: TSupportedNetworks) {

@@ -6,11 +6,11 @@ const mockPoolData: IPoolData = {
   ident: "06",
   fee: "1",
   assetA: {
-    assetID: "",
+    assetId: "",
     decimals: 6,
   },
   assetB: {
-    assetID:
+    assetId:
       "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
     decimals: 0,
   },
