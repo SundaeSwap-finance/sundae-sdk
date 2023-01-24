@@ -1,4 +1,4 @@
-import { AssetAmount, IPoolQuery, SwapConfig } from "@sundaeswap/sdk-core";
+import { AssetAmount, IPoolQuery } from "@sundaeswap/sdk-core";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../state/context";
 import Button from "../Button";
@@ -24,7 +24,6 @@ export const Actions: FC = () => {
     setSwapping(true);
     try {
       const pool = await SDK.query().findPoolData(poolQuery);
-      console.log(pool);
       const txHash = await SDK.swap({
         pool,
         orderAddresses: {

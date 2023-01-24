@@ -27,20 +27,26 @@
       "extensions": [
         "./dist/types/extensions.d.ts"
       ],
-      "*": [
-        "./dist/types/index.d.ts",
-        "./dist/types/*"
+      "testing": [
+        "./dist/types/testing/index.d.ts"
       ]
     }
   },
   "exports": {
     ".": {
-      "import": "./dist/esm/index",
-      "require": "./dist/cjs/index"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
     },
     "./extensions": {
       "import": "./dist/esm/extensions.js",
-      "require": "./dist/cjs/extensions.js"
+      "require": "./dist/cjs/extensions.js",
+      "types": "./dist/types/extensions.d.ts"
+    },
+    "./testing": {
+      "import": "./dist/esm/testing/index.js",
+      "require": "./dist/cjs/testing/index.js",
+      "types": "./dist/types/testing/index.d.ts"
     }
   },
   "scripts": {

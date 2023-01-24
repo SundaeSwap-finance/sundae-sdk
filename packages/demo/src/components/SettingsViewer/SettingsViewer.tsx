@@ -22,7 +22,9 @@ const SettingsViewer: FC = () => {
           borderRadius: 8,
           border: "1px solid #555",
         }}
-        src={{}}
+        src={{
+          builderOptions: SDK.build().options,
+        }}
       />
     </div>
   );

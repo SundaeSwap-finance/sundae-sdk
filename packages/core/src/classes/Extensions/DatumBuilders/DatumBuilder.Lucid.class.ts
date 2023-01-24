@@ -5,7 +5,6 @@ import {
   DatumResult,
   DepositArguments,
   DepositMixed,
-  IAsset,
   OrderAddresses,
   Swap,
   SwapArguments,

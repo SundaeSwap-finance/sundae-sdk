@@ -8,7 +8,7 @@ import type {
 } from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
 import { SwapConfig } from "./Configs/SwapConfig.class";
-import type { TxBuilder } from "./Abstracts/TxBuilder.abstract.class";
+import { TxBuilder } from "./Abstracts/TxBuilder.abstract.class";
 import { Utils } from "./Utils.class";
 import { Config } from "./Abstracts/Config.abstract.class";
 import { DepositConfig } from "./Configs/DepositConfig.class";
