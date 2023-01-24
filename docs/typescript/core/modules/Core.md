@@ -21,19 +21,21 @@ import {
 } from "@sundae/sdk-core/extensions";
 
 const txBuilder = new TxBuilderLucid(
-    {
-        provider: "blockfrost",
-        blockfrost: {
-            url: "https://cardano-preview.blockfrost.io/api/v0",
-            apiKey: "YOUR_API_KEY"
-        }
-    },
-    new ProviderSundaeSwap("preview")
-)
+ {
+     wallet: "eternl",
+     network: "preview",        
+     provider: "blockfrost",
+     blockfrost: {
+         url: "https://cardano-preview.blockfrost.io/api/v0",
+         apiKey: "YOUR_API_KEY"
+     }
+ },
+ new ProviderSundaeSwap("preview")
+);
 
 const sdk: SundaeSDK = new SundaeSDK(txBuilder);
 
-const swap = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
+const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 ```
 
 ## Enumerations

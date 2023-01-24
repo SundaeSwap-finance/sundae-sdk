@@ -3,7 +3,8 @@
     "out": "../../docs/typescript/core",
     "entryPoints": [
         "./src/index.ts",
-        "./src/extensions.ts"
+        "./src/extensions.ts",
+        "./src/testing/index.ts"
     ],
     "hideBreadcrumbs": true,
     "hideInPageTOC": true,

@@ -1,10 +1,7 @@
 import type {
   BuildDepositConfigArgs,
   BuildSwapConfigArgs,
-  DepositArguments,
-  IPoolData,
   IQueryProviderClass,
-  ISwapArgs,
 } from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
 import { SwapConfig } from "./Configs/SwapConfig.class";
@@ -59,10 +56,9 @@ export class SundaeSDK {
    *
    * ### Building a Swap
    * ```ts
-   *  const pool = await SDK.query().findPoolData(poolQuery);
    *  const config: BuildSwapConfigArgs = {
    *  pool: {
-   *    /** ...pool data... *\/
+   *    /** Pool data you got from somewhere else. *\/
    *  },
    *  suppliedAsset: {
    *    assetID: "POLICY_ID.ASSET_NAME",

@@ -9,6 +9,14 @@ const SettingsViewer: FC = () => {
     return null;
   }
 
+  const options = {
+    ...SDK.build().options,
+    blockfrost: {
+      ...SDK.build().options.blockfrost,
+      apiKey: "HIDDEN",
+    },
+  };
+
   return (
     <div className="rounded-md p-4">
       <h4 className="mb-4 text-lg font-bold text-white">
@@ -23,7 +31,7 @@ const SettingsViewer: FC = () => {
           border: "1px solid #555",
         }}
         src={{
-          builderOptions: SDK.build().options,
+          builderOptions: options,
         }}
       />
     </div>

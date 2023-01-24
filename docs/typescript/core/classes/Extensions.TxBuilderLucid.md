@@ -101,7 +101,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L58)
+[classes/Abstracts/TxBuilder.abstract.class.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L63)
 
 ___
 
@@ -165,4 +165,4 @@ that your datum is well structured, only that your config arguments have valid v
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:69](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L69)
+[classes/Abstracts/TxBuilder.abstract.class.ts:74](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L74)

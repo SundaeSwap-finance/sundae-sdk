@@ -2,13 +2,14 @@
  * ## DatumBuilder Tests
  *
  * This file exports testing functions to run against your builder.
- * Most tests are automated but ensure that the {@link DatumBuilder}
+ * Most tests are automated but ensure that the {@link Core.DatumBuilder}
  * instance you pass in is run against real test data and outputs
  * valid CBOR hex strings to attach to your transactions!
  *
- * For an example, see: /src/classes/DatumBuilders/__tests__/LucidDatumBuilder.test.ts
+ * For an example, see:
  *
- * @group Testing
+ * @module DatumBuilder
+ * @packageDescription
  */
 
 import { DatumBuilder } from "src/classes/Abstracts/DatumBuilder.abstract.class";

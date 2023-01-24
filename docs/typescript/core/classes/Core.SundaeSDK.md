@@ -22,39 +22,39 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `builder` | [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\> | An instance of TxBuilder. |
+| `builder` | [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`, [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)\> | An instance of TxBuilder. |
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L31)
+[classes/SundaeSDK.class.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L28)
 
 ## Properties
 
 ### builder
 
-• `Private` **builder**: [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>
+• `Private` **builder**: [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`, [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)\>
 
 An instance of TxBuilder.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L31)
+[classes/SundaeSDK.class.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L28)
 
 ## Methods
 
 ### build
 
-▸ **build**(): [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>
+▸ **build**(): [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`, [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)\>
 
 Utility method to retrieve the builder instance.
 
 #### Returns
 
-[`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>
+[`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`, [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)\>
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L40)
+[classes/SundaeSDK.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L37)
 
 ___
 
@@ -76,7 +76,7 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L160)
+[classes/SundaeSDK.class.ts:156](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L156)
 
 ___
 
@@ -124,7 +124,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:147](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L147)
+[classes/SundaeSDK.class.ts:143](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L143)
 
 ___
 
@@ -140,7 +140,7 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:49](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L49)
+[classes/SundaeSDK.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L46)
 
 ___
 
@@ -156,10 +156,9 @@ as market orders with a generous 10% slippage tolerance by default.
 
 ### Building a Swap
 ```ts
- const pool = await SDK.query().findPoolData(poolQuery);
  const config: BuildSwapConfigArgs = {
  pool: {
-   /** ...pool data... */
+   /** Pool data you got from somewhere else. */
  },
  suppliedAsset: {
    assetID: "POLICY_ID.ASSET_NAME",
@@ -208,4 +207,4 @@ const { submit, cbor } = await SDK.swap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:103](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L103)
+[classes/SundaeSDK.class.ts:99](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L99)

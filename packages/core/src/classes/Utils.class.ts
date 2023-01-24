@@ -6,6 +6,7 @@ import {
   IProtocolParams,
   TSupportedNetworks,
 } from "../@types";
+import { ADA_ASSET_ID } from "../lib/constants";
 import { AssetAmount } from "./AssetAmount.class";
 
 export class Utils {
@@ -86,5 +87,51 @@ export class Utils {
 
     const amount = BigInt(Math.floor(base * ratio * (1 - slippage)));
     return new AssetAmount(amount, decimals);
+  }
+
+  /**
+   * Takes an array of {@link IAsset} and aggregates them into an object of amounts.
+   * This is useful for when you are supplying an asset that is both for the payment and
+   * the Order.
+   *
+   * @param suppliedAssets
+   */
+  static accumulateSuppliedAssets(
+    suppliedAssets: IAsset[],
+    network: TSupportedNetworks
+  ): Record<
+    /** The PolicyID and the AssetName concatenated together with no period. */
+    string | "lovelace",
+    /** The amount as a bigint (no decimals) */
+    bigint
+  > {
+    const assets: Record<string, bigint> = {};
+    const { SCOOPER_FEE, RIDER_FEE } = Utils.getParams(network);
+
+    const aggregatedAssets = suppliedAssets.reduce((acc, curr) => {
+      const existingAsset = acc.find(
+        ({ assetId: assetID }) => curr.assetId === assetID
+      );
+      if (existingAsset) {
+        existingAsset.amount.add(curr.amount.getAmount());
+        return acc;
+      }
+
+      return [...acc, curr];
+    }, [] as IAsset[]);
+
+    // Set the minimum ADA amount.
+    assets.lovelace = SCOOPER_FEE + RIDER_FEE;
+
+    aggregatedAssets.forEach((suppliedAsset) => {
+      if (suppliedAsset.assetId === ADA_ASSET_ID) {
+        assets.lovelace += suppliedAsset.amount.getAmount();
+      } else {
+        assets[suppliedAsset.assetId.replace(".", "")] =
+          suppliedAsset.amount.getAmount();
+      }
+    });
+
+    return assets;
   }
 }

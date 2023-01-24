@@ -1,3 +1,11 @@
+/**
+ * ## Mocks
+ * Some example descriptions for using exported mocks in your application.
+ *
+ * @module Mocks
+ * @packageDescription
+ */
+
 import { jest } from "@jest/globals";
 import { AssetAmount } from "../classes/AssetAmount.class";
 

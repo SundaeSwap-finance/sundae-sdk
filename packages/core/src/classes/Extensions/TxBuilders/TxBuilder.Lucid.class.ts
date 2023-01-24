@@ -165,7 +165,10 @@ export class TxBuilderLucid extends TxBuilder<
       fundedAsset: suppliedAsset,
     });
 
-    const payment = this._buildPayment([suppliedAsset]);
+    const payment = Utils.accumulateSuppliedAssets(
+      [suppliedAsset],
+      this.options.network
+    );
 
     txInstance.get().payToContract(ESCROW_ADDRESS, cbor, payment);
     const finishedTx = await txInstance.get().complete();
@@ -181,7 +184,10 @@ export class TxBuilderLucid extends TxBuilder<
 
   async buildDepositTx(args: IDepositArgs) {
     const tx = await this.newTxInstance();
-    const payment = this._buildPayment(args.suppliedAssets);
+    const payment = Utils.accumulateSuppliedAssets(
+      args.suppliedAssets,
+      this.options.network
+    );
     const datumBuilder = new LucidDatumBuilder(this.options.network);
     const [coinA, coinB] = Utils.sortSwapAssets(args.suppliedAssets);
 
@@ -198,35 +204,6 @@ export class TxBuilderLucid extends TxBuilder<
     const finishedTx = await tx.get().complete();
     const signedTx = await finishedTx.sign().complete();
     return this._buildTxComplete(signedTx);
-  }
-
-  private _buildPayment(suppliedAssets: IAsset[]): Record<string, bigint> {
-    const payment: Record<string, bigint> = {};
-    const { SCOOPER_FEE, RIDER_FEE } = this.getParams();
-
-    const aggregatedAssets = suppliedAssets.reduce((acc, curr) => {
-      const existingAsset = acc.find(
-        ({ assetId: assetID }) => curr.assetId === assetID
-      );
-      if (existingAsset) {
-        existingAsset.amount.add(curr.amount.getAmount());
-      }
-
-      return [...acc, curr];
-    }, [] as IAsset[]);
-
-    aggregatedAssets.forEach((suppliedAsset) => {
-      if (suppliedAsset.assetId === ADA_ASSET_ID) {
-        payment.lovelace =
-          SCOOPER_FEE + RIDER_FEE + suppliedAsset.amount.getAmount();
-      } else {
-        payment.lovelace = SCOOPER_FEE + RIDER_FEE;
-        payment[suppliedAsset.assetId.replace(".", "")] =
-          suppliedAsset.amount.getAmount();
-      }
-    });
-
-    return payment;
   }
 
   private _conformNetwork(network: TSupportedNetworks): Network {

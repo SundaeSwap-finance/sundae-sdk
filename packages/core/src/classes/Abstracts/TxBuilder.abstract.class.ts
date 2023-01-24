@@ -18,13 +18,18 @@ import { Utils } from "../Utils.class";
  *
  * @group Exported TxBuilders
  */
-export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
-  query: IQueryProviderClass;
+export abstract class TxBuilder<
+  Options = any,
+  Wallet = any,
+  Tx = any,
+  QueryProvider = IQueryProviderClass
+> {
+  query: QueryProvider;
   options: Options & ITxBuilderBaseOptions;
   wallet?: Wallet;
 
   constructor(
-    queryProvider: IQueryProviderClass,
+    queryProvider: QueryProvider,
     options: Options & ITxBuilderBaseOptions
   ) {
     this.query = queryProvider;
