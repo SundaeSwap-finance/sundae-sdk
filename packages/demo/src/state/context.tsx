@@ -1,4 +1,4 @@
-import type { SundaeSDK } from "@sundaeswap/sdk-core";
+import { SundaeSDK } from "@sundaeswap/sdk-core";
 import { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 import { useContext } from "react";
@@ -16,7 +16,9 @@ const defaultState: IAppState = {
 
 const AppState = createContext(defaultState);
 
-export const AppStateProvider: FC<PropsWithChildren> = ({ children }) => {
+export const AppStateProvider: FC<
+  PropsWithChildren<{ defaultValue?: Partial<IAppState> }>
+> = ({ children, defaultValue = {} }) => {
   const [SDK, setSDK] = useState<SundaeSDK>();
 
   return (
@@ -24,6 +26,7 @@ export const AppStateProvider: FC<PropsWithChildren> = ({ children }) => {
       value={{
         SDK,
         setSDK,
+        ...defaultValue,
       }}
     >
       {children}

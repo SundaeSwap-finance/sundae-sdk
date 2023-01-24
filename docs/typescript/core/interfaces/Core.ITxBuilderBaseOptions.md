@@ -1,13 +1,13 @@
-# Interface: ITxBuilderOptions
+# Interface: ITxBuilderBaseOptions
 
-[Core](../modules/Core.md).ITxBuilderOptions
+[Core](../modules/Core.md).ITxBuilderBaseOptions
 
 The most minimal requirements for a TxBuilder options interface. When building a custom TxBuilder, you **must**
 extend from this interface to ensure the wallet and network are compatible.
 
 ## Hierarchy
 
-- **`ITxBuilderOptions`**
+- **`ITxBuilderBaseOptions`**
 
   ↳ [`ITxBuilderLucidOptions`](Extensions.ITxBuilderLucidOptions.md)
 

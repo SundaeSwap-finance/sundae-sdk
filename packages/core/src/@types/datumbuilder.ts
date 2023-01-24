@@ -1,4 +1,5 @@
 import { AssetAmount } from "../classes/AssetAmount.class";
+import { IAsset } from "./utilities";
 
 /**
  * The unique identifier of a pool, defined as a string.
@@ -85,7 +86,11 @@ export type DepositMixed = {
  * Base arguments for every datum constructor.
  */
 export interface Arguments {
+  /** The unique pool identifier. */
   ident: string;
+  /** The fee paid to scoopers. Defaults to 2.5 ADA which is the minimum. */
+  scooperFee?: bigint;
+  /** The addresses that are allowed to cancel the Order. */
   orderAddresses: OrderAddresses;
 }
 
@@ -94,6 +99,15 @@ export interface Arguments {
  */
 export interface SwapArguments extends Arguments {
   swap: Swap;
+  /** The asset supplied (this is required to accurately determine the swap direction). */
+  fundedAsset: IAsset;
+}
+
+/**
+ * Arguments for depositing a pair of assets into a pool.
+ */
+export interface DepositArguments extends Arguments {
+  deposit: DepositMixed;
 }
 
 /**

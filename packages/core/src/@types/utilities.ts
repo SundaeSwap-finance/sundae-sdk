@@ -42,7 +42,7 @@ export type TSupportedWallets =
  */
 export interface IAsset {
   /** The hex encoded asset string, separating the Policy ID from the Asset Name with a period. @example POLICY_ID.ASSET_NAME */
-  assetID: string;
+  assetId: string;
   /** An instance of the asset amount including the decimal place. */
   amount: AssetAmount;
 }

@@ -1,5 +1,13 @@
-import { IBuildSwapArgs, IPoolData, IAsset, OrderAddresses } from "../@types";
-import { AssetAmount } from "./AssetAmount.class";
+import {
+  ISwapArgs,
+  IAsset,
+  BuildSwapConfigArgs,
+  IPoolData,
+  OrderAddresses,
+} from "../../@types";
+import { AssetAmount } from "../AssetAmount.class";
+import { Config } from "../Abstracts/Config.abstract.class";
+import { Utils } from "../Utils.class";
 
 /**
  * The `SwapConfig` class helps to properly format your swap arguments for use within {@link TxBuilder.buildSwapTx | TxBuilder.buildSwapTx}.
@@ -24,13 +32,15 @@ import { AssetAmount } from "./AssetAmount.class";
  *
  * @see {@link SundaeSDK.swap}
  */
-export class SwapConfig {
-  private pool?: IPoolData;
-  private orderAddresses?: OrderAddresses;
-  private suppliedAsset?: IAsset;
-  private minReceivable: AssetAmount = new AssetAmount(1n);
+export class SwapConfig extends Config<ISwapArgs> {
+  suppliedAsset?: IAsset;
+  minReceivable: AssetAmount = new AssetAmount(1n);
 
-  constructor() {}
+  constructor(args?: BuildSwapConfigArgs) {
+    super();
+
+    args && this.setFromObject(args);
+  }
 
   /**
    * Set the supplied asset for the swap.
@@ -40,27 +50,6 @@ export class SwapConfig {
    */
   setSuppliedAsset(asset: IAsset) {
     this.suppliedAsset = asset;
-    return this;
-  }
-
-  /**
-   * Builds the {@link OrderAddresses} for a swap's required datum.
-   * @param orderAddresses
-   * @returns
-   */
-  setOrderAddresses(orderAddresses: OrderAddresses) {
-    this.orderAddresses = orderAddresses;
-    return this;
-  }
-
-  /**
-   * Set the pool data directly for the swap you use.
-   *
-   * @param pool
-   * @returns
-   */
-  setPool(pool: IPoolData) {
-    this.pool = pool;
     return this;
   }
 
@@ -75,22 +64,6 @@ export class SwapConfig {
     return this;
   }
 
-  getSuppliedAsset() {
-    return this.suppliedAsset;
-  }
-
-  getPool() {
-    return this.pool;
-  }
-
-  getMinReceivable() {
-    return this.minReceivable;
-  }
-
-  getOrderAddresses() {
-    return this.orderAddresses;
-  }
-
   /**
    * Used for building a swap where you already know the pool data.
    * Useful for when building Transactions directly from the builder instance.
@@ -99,28 +72,50 @@ export class SwapConfig {
    *
    * @returns
    */
-  buildSwapArgs(): IBuildSwapArgs {
-    if (!this.pool) {
-      throw new Error("The pool property is not defined. Set with .setPool()");
+  buildArgs(): ISwapArgs {
+    this.validate();
+
+    return {
+      pool: this.pool as IPoolData,
+      suppliedAsset: this.suppliedAsset as IAsset,
+      orderAddresses: this.orderAddresses as OrderAddresses,
+      minReceivable: this.minReceivable,
+    };
+  }
+
+  /**
+   * Helper function to build valid swap arguments from a JSON object.
+   */
+  setFromObject({
+    pool,
+    orderAddresses,
+    suppliedAsset,
+    slippage,
+  }: BuildSwapConfigArgs) {
+    this.setPool(pool);
+    this.setOrderAddresses(orderAddresses);
+    this.setSuppliedAsset(suppliedAsset);
+
+    if (false !== slippage) {
+      this.setMinReceivable(
+        Utils.getMinReceivableFromSlippage(pool, suppliedAsset, slippage ?? 0.1)
+      );
     }
+  }
+
+  validate(): void {
+    super.validate();
 
     if (!this.suppliedAsset) {
       throw new Error(
-        "The suppliedAsset property is not defined. Set with .setSuppliedAsset()"
+        "You haven't funded this swap on your SwapConfig! Fund the swap with .setSuppliedAsset()"
       );
     }
 
-    if (!this.orderAddresses) {
+    if (!this.minReceivable) {
       throw new Error(
-        "The orderAddresses property is not defined. Set with .setOrderAddresses()"
+        "You haven't set a minimum receivable amount on your SwapConfig!"
       );
     }
-
-    return {
-      pool: this.pool,
-      suppliedAsset: this.suppliedAsset,
-      orderAddresses: this.orderAddresses,
-      minReceivable: this.minReceivable,
-    };
   }
 }

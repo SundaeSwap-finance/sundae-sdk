@@ -1,10 +1,13 @@
 import {
-  IBuildSwapArgs,
+  IAsset,
+  IDepositArgs,
+  ISwapArgs,
   IQueryProviderClass,
   ITxBuilderComplete,
-  ITxBuilderOptions,
-} from "../@types";
-import { Utils } from "./Utils.class";
+  ITxBuilderBaseOptions,
+} from "../../@types";
+import { Transaction } from "../Transaction.class";
+import { Utils } from "../Utils.class";
 
 /**
  * The main class by which TxBuilder classes are extended.
@@ -15,26 +18,28 @@ import { Utils } from "./Utils.class";
  *
  * @group Exported TxBuilders
  */
-export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
-  query: IQueryProviderClass;
-  options: Options & ITxBuilderOptions;
+export abstract class TxBuilder<
+  Options = any,
+  Wallet = any,
+  Tx = any,
+  QueryProvider = IQueryProviderClass
+> {
+  query: QueryProvider;
+  options: Options & ITxBuilderBaseOptions;
   wallet?: Wallet;
-  tx?: Tx;
-  txArgs?: IBuildSwapArgs;
-  txComplete?: ITxBuilderComplete;
 
   constructor(
-    queryProvider: IQueryProviderClass,
-    options: Options & ITxBuilderOptions
+    queryProvider: QueryProvider,
+    options: Options & ITxBuilderBaseOptions
   ) {
     this.query = queryProvider;
     this.options = options;
   }
 
   /**
-   * Creates a new Tx type instance from the supplied transaction library.
+   * Should create a new {@link Transaction} instance from the supplied transaction library.
    */
-  protected abstract newTx(): Promise<Tx>;
+  protected abstract newTxInstance(): Promise<Transaction<Tx>>;
 
   /**
    * The main function to build a swap Transaction.
@@ -42,20 +47,14 @@ export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
    * @param args The built SwapArguments from a {@link SwapConfig} instance.
    * @returns {ITxBuilderComplete}
    */
-  abstract buildSwapTx(args: IBuildSwapArgs): Promise<TxBuilder>;
+  abstract buildSwapTx(args: ISwapArgs): Promise<ITxBuilderComplete>;
 
   /**
-   * Completes the transaction building and includes validation of the arguments.
-   * @returns
+   * The main function to build a deposit Transaction.
+   *
+   * @param args The built DepositArguments from a {@link DepositConfig} instance.
    */
-  complete() {
-    if (!this.txArgs || !this.txComplete) {
-      throw new Error("You have not built a transaction!");
-    }
-
-    TxBuilder.validateSwapArguments(this.txArgs, this.options);
-    return this.txComplete;
-  }
+  abstract buildDepositTx(args: IDepositArgs): Promise<ITxBuilderComplete>;
 
   /**
    * Helper function for child classes to easily grab the appropriate protocol parameters for SundaeSwap.
@@ -73,8 +72,8 @@ export abstract class TxBuilder<Options = any, Wallet = any, Tx = any> {
    * @param datumHash
    */
   static async validateSwapArguments(
-    args: IBuildSwapArgs,
-    options: ITxBuilderOptions
+    args: ISwapArgs,
+    options: ITxBuilderBaseOptions
   ) {
     const address = args.orderAddresses.DestinationAddress.address;
     const datumHash = args.orderAddresses.DestinationAddress.datumHash;

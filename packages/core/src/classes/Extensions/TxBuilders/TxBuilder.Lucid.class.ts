@@ -5,25 +5,38 @@ import {
   Blockfrost,
   Provider as BlockfrostProvider,
   Network,
+  TxSigned,
 } from "lucid-cardano";
+import { Transaction } from "../../../classes/Transaction.class";
 
 import {
   IQueryProviderClass,
   TSupportedNetworks,
-  IBuildSwapArgs,
-  ITxBuilderOptions,
+  ISwapArgs,
+  ITxBuilderBaseOptions,
+  IDepositArgs,
+  IAsset,
+  ITxBuilderComplete,
 } from "../../../@types";
 import { ADA_ASSET_ID } from "../../../lib/constants";
-import { TxBuilder } from "../../TxBuilder.abstract.class";
+import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
-import { LucidDatumBuilder } from "../DatumBuilders/DatumBuilder.Lucid.class";
+import { DatumBuilderLucid } from "../DatumBuilders/DatumBuilder.Lucid.class";
+
+const getBuffer = async () => {
+  const CtxBuffer =
+    typeof window !== "undefined"
+      ? await import("buffer").then(({ Buffer }) => Buffer)
+      : Buffer;
+  return CtxBuffer;
+};
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
  *
  * @group Extensions
  */
-export interface ITxBuilderLucidOptions extends ITxBuilderOptions {
+export interface ITxBuilderLucidOptions extends ITxBuilderBaseOptions {
   /** The provider type used by Lucid. Currently only supports Blockfrost. */
   provider: "blockfrost";
   /** The chosen provider options object to pass to Lucid. */
@@ -117,16 +130,18 @@ export class TxBuilderLucid extends TxBuilder<
    * Returns a new Tx instance from Lucid. Throws an error if not ready.
    * @returns
    */
-  async newTx(): Promise<Tx> {
+  async newTxInstance(): Promise<Transaction<Tx>> {
     if (!this.wallet) {
       this._throwWalletNotConnected();
     }
 
-    return this.wallet.newTx();
+    return new Transaction<Tx>(this, this.wallet.newTx());
   }
 
-  async buildSwapTx(args: IBuildSwapArgs) {
-    const tx = await this.newTx();
+  async buildSwapTx(args: ISwapArgs) {
+    TxBuilder.validateSwapArguments(args, this.options);
+
+    const txInstance = await this.newTxInstance();
     const {
       pool: { ident, assetA, assetB },
       orderAddresses: escrowAddress,
@@ -134,51 +149,61 @@ export class TxBuilderLucid extends TxBuilder<
       minReceivable,
     } = args;
 
-    const { SCOOPER_FEE, RIDER_FEE, ESCROW_ADDRESS } = this.getParams();
+    const { ESCROW_ADDRESS } = this.getParams();
 
-    const datumBuilder = new LucidDatumBuilder(this.options.network);
-    const { cbor } = datumBuilder.buildSwapDatum(
-      {
-        ident,
-        swap: {
-          SuppliedCoin: Utils.getAssetSwapDirection(suppliedAsset, [
-            assetA,
-            assetB,
-          ]),
-          MinimumReceivable: minReceivable,
-        },
-        orderAddresses: escrowAddress,
+    const datumBuilder = new DatumBuilderLucid(this.options.network);
+    const { cbor } = datumBuilder.buildSwapDatum({
+      ident,
+      swap: {
+        SuppliedCoin: Utils.getAssetSwapDirection(suppliedAsset, [
+          assetA,
+          assetB,
+        ]),
+        MinimumReceivable: minReceivable,
       },
-      suppliedAsset
+      orderAddresses: escrowAddress,
+      fundedAsset: suppliedAsset,
+    });
+
+    const payment = Utils.accumulateSuppliedAssets(
+      [suppliedAsset],
+      this.options.network
     );
 
-    const payment: Record<string, bigint> = {};
-
-    if (suppliedAsset.assetID === ADA_ASSET_ID) {
-      payment.lovelace =
-        SCOOPER_FEE + RIDER_FEE + suppliedAsset.amount.getAmount();
-    } else {
-      payment.lovelace = SCOOPER_FEE + RIDER_FEE;
-      payment[suppliedAsset.assetID.replace(".", "")] =
-        suppliedAsset.amount.getAmount();
-    }
-
-    tx.payToContract(ESCROW_ADDRESS, cbor, payment);
-    const finishedTx = await tx.complete();
+    txInstance.get().payToContract(ESCROW_ADDRESS, cbor, payment);
+    const finishedTx = await txInstance.get().complete();
     const signedTx = await finishedTx.sign().complete();
 
-    const CtxBuffer =
-      typeof window !== "undefined"
-        ? await import("buffer").then(({ Buffer }) => Buffer)
-        : Buffer;
-
-    this.txArgs = args;
-    this.txComplete = {
+    return {
       submit: async () => await signedTx.submit(),
-      cbor: CtxBuffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
+      cbor: (await getBuffer())
+        .from(signedTx.txSigned.to_bytes())
+        .toString("hex"),
     };
+  }
 
-    return this;
+  async buildDepositTx(args: IDepositArgs) {
+    const tx = await this.newTxInstance();
+    const payment = Utils.accumulateSuppliedAssets(
+      args.suppliedAssets,
+      this.options.network
+    );
+    const datumBuilder = new DatumBuilderLucid(this.options.network);
+    const [coinA, coinB] = Utils.sortSwapAssets(args.suppliedAssets);
+
+    const { cbor } = datumBuilder.buildDepositDatum({
+      ident: args.pool.ident,
+      orderAddresses: args.orderAddresses,
+      deposit: {
+        CoinAAmount: (coinA as IAsset).amount,
+        CoinBAmount: (coinB as IAsset).amount,
+      },
+    });
+
+    tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
+    const finishedTx = await tx.get().complete();
+    const signedTx = await finishedTx.sign().complete();
+    return this._buildTxComplete(signedTx);
   }
 
   private _conformNetwork(network: TSupportedNetworks): Network {
@@ -188,6 +213,17 @@ export class TxBuilderLucid extends TxBuilder<
       case "preview":
         return "Preview";
     }
+  }
+
+  private async _buildTxComplete(
+    signedTx: TxSigned
+  ): Promise<ITxBuilderComplete> {
+    return {
+      submit: async () => await signedTx.submit(),
+      cbor: (await getBuffer())
+        .from(signedTx.txSigned.to_bytes())
+        .toString("hex"),
+    };
   }
 
   private _throwWalletNotConnected(): never {

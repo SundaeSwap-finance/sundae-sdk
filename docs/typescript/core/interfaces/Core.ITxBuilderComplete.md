@@ -10,7 +10,7 @@ The returned interface once a transaction is successfully built.
 
 • **cbor**: `string`
 
-The CBOR encoded hex string of the transcation. Useful if you want to do something with it instead of submitting to the wallet.
+The CBOR encoded hex string of the transaction. Useful if you want to do something with it instead of submitting to the wallet.
 
 #### Defined in
 

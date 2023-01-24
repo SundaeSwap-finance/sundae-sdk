@@ -1,16 +1,23 @@
 "use strict";
 
-import { TEST_buildSwapDatum } from "../../../../testing/DatumBuilder";
-import { LucidDatumBuilder } from "../DatumBuilder.Lucid.class";
+import {
+  TEST_buildDepositDatum,
+  TEST_buildSwapDatum,
+} from "../../../../testing/DatumBuilder";
+import { DatumBuilderLucid } from "../DatumBuilder.Lucid.class";
 
-let datumBuilder: LucidDatumBuilder;
+let datumBuilder: DatumBuilderLucid;
 
 beforeEach(() => {
-  datumBuilder = new LucidDatumBuilder("preview");
+  datumBuilder = new DatumBuilderLucid("preview");
 });
 
-describe("LucidDatumBuilder", () => {
+describe("DatumBuilderLucid", () => {
   it("should properly construct a CBOR string when running buildSwapDatum", () => {
     TEST_buildSwapDatum(datumBuilder);
+  });
+
+  it("should properly construct a CBOR string when running buildDepositDatum", () => {
+    TEST_buildDepositDatum(datumBuilder);
   });
 });

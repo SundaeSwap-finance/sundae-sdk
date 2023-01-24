@@ -1,8 +1,14 @@
-import type { IPoolData, IQueryProviderClass, ISDKSwapArgs } from "../@types";
+import type {
+  BuildDepositConfigArgs,
+  BuildSwapConfigArgs,
+  IQueryProviderClass,
+} from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
-import { SwapConfig } from "./SwapConfig.class";
-import type { TxBuilder } from "./TxBuilder.abstract.class";
+import { SwapConfig } from "./Configs/SwapConfig.class";
+import { TxBuilder } from "./Abstracts/TxBuilder.abstract.class";
 import { Utils } from "./Utils.class";
+import { Config } from "./Abstracts/Config.abstract.class";
+import { DepositConfig } from "./Configs/DepositConfig.class";
 
 /**
  * A description for the SundaeSDK class.
@@ -50,9 +56,9 @@ export class SundaeSDK {
    *
    * ### Building a Swap
    * ```ts
-   * const args: ISDKSwapArgs = {
+   *  const config: BuildSwapConfigArgs = {
    *  pool: {
-   *    /** ...pool data... *\/
+   *    /** Pool data you got from somewhere else. *\/
    *  },
    *  suppliedAsset: {
    *    assetID: "POLICY_ID.ASSET_NAME",
@@ -61,16 +67,14 @@ export class SundaeSDK {
    *  receiverAddress: "addr1..."
    * };
    *
-   * const { submit, cbor } = await SDK.swap(args);
+   * const { submit, cbor } = await SDK.swap(config);
    * ```
    *
    * ### Building a Swap With a Pool Query
    * ```ts
-   * const args: ISDKSwapArgs = {
-   *  poolQuery: {
-   *    pair: ["assetAID", "assetBID"],
-   *    fee: "0.03"
-   *  },
+   * const pool = await SDK.query().findPoolData(poolQuery);
+   * const config: BuildSwapConfigArgs = {
+   *  pool,
    *  suppliedAsset: {
    *    assetID: "POLICY_ID.ASSET_NAME",
    *    amount: new AssetAmount(20n, 6)
@@ -79,7 +83,7 @@ export class SundaeSDK {
    * };
    *
    * const { submit, cbor } = await SDK.swap(
-   *  args,
+   *  config,
    *  0.03 // Tighter slippage of 3%
    * );
    * ```
@@ -92,10 +96,17 @@ export class SundaeSDK {
    * @param slippage Set your slippage tolerance. Defaults to 10%.
    * @returns
    */
-  async swap(args: ISDKSwapArgs, slippage?: number) {
-    const config = await this._buildBasicSwapConfig(args, slippage);
-    await this.builder.buildSwapTx(config.buildSwapArgs());
-    return this.builder.complete();
+  async swap(config: BuildSwapConfigArgs, slippage?: number) {
+    const swap = new SwapConfig(config);
+    swap.setMinReceivable(
+      Utils.getMinReceivableFromSlippage(
+        config.pool,
+        config.suppliedAsset,
+        slippage ?? 0.1
+      )
+    );
+    this._validateConfig(swap);
+    return await this.builder.buildSwapTx(swap.buildArgs());
   }
 
   /**
@@ -108,11 +119,9 @@ export class SundaeSDK {
    * const limitPrice = new AssetAmount(1500000n, 6);
    *
    * // Normal swap arguments
-   * const swapArgs: ISDKSwapArgs = {
-   *  poolQuery: {
-   *    pair: ["assetAID", "assetBID"],
-   *    fee: "0.03"
-   *  },
+   * const pool = await SDK.query().findPoolData(poolQuery);
+   * const config: BuildSwapConfigArgs = {
+   *  pool,
    *  suppliedAsset: {
    *    assetID: "POLICY_ID.ASSET_NAME",
    *    amount: new AssetAmount(20n, 6)
@@ -127,69 +136,31 @@ export class SundaeSDK {
    * )
    * ```
    *
-   * @param args
+   * @param swap A built {@link SwapConfig} instance.
    * @param limitPrice
    * @returns
    */
-  async limitSwap(args: ISDKSwapArgs, limitPrice: AssetAmount) {
-    const config = await this._buildBasicSwapConfig(args, false);
-    config.setMinReceivable(limitPrice);
-    await this.builder.buildSwapTx(config.buildSwapArgs());
-    return this.builder.complete();
+  async limitSwap(config: BuildSwapConfigArgs, limitPrice: AssetAmount) {
+    const swap = new SwapConfig(config);
+    swap.setMinReceivable(limitPrice);
+
+    this._validateConfig(swap);
+    return await this.builder.buildSwapTx(swap.buildArgs());
   }
 
   /**
-   * Builds a basic Swap config from {@link ISDKSwapArgs}.
-   *
-   * @param args
-   * @param slippage Calculate a minimum receivable amount of the opposing asset pair based on the provided value. If set to false, calculation will be ignored.
+   * Create a Deposit transaction for a pool by supplying two assets.
+   * @param config
    * @returns
    */
-  private async _buildBasicSwapConfig(
-    args: ISDKSwapArgs,
-    slippage?: number | false
-  ) {
-    const { pool, poolQuery, orderAddresses, suppliedAsset } = args;
-    const config = new SwapConfig();
-    let resolvedPool: IPoolData;
+  async deposit(config: BuildDepositConfigArgs) {
+    const deposit = new DepositConfig(config);
 
-    if (pool) {
-      resolvedPool = pool;
-    } else if (poolQuery) {
-      const poolData = await this.query().findPoolData(poolQuery);
-      if (!poolData) {
-        throw new Error(
-          "Could not find a matching pool with the query: " +
-            JSON.stringify(poolQuery)
-        );
-      }
-      resolvedPool = poolData;
-    } else {
-      throw new Error(
-        "You must provide a valid pool or poolQuery to build a swap transaction against."
-      );
-    }
+    this._validateConfig(deposit);
+    return await this.builder.buildDepositTx(deposit.buildArgs());
+  }
 
-    config.setPool(resolvedPool);
-
-    if (false !== slippage) {
-      config.setMinReceivable(
-        Utils.getMinReceivableFromSlippage(
-          resolvedPool,
-          suppliedAsset,
-          slippage ?? 0.1
-        )
-      );
-    }
-
-    if (orderAddresses) {
-      config.setOrderAddresses(orderAddresses);
-    }
-
-    if (suppliedAsset) {
-      config.setSuppliedAsset(suppliedAsset);
-    }
-
-    return config;
+  private _validateConfig(config: Config): void | never {
+    config.validate();
   }
 }

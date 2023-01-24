@@ -7,3 +7,7 @@
 ## Extensions
 
 - [Extensions](modules/Extensions.md)
+
+## Testing
+
+- [Testing](modules/Testing.md)

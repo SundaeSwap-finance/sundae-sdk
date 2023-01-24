@@ -2,15 +2,17 @@ import { Data, Constr, getAddressDetails } from "lucid-cardano";
 import { AssetAmount } from "src/classes/AssetAmount.class";
 
 import {
-  IAsset,
+  DatumResult,
+  DepositArguments,
+  DepositMixed,
   OrderAddresses,
   Swap,
   SwapArguments,
   TSupportedNetworks,
 } from "../../../@types";
-import { DatumBuilder } from "../../../classes/DatumBuilder.class";
+import { DatumBuilder } from "../../Abstracts/DatumBuilder.abstract.class";
 
-export class LucidDatumBuilder extends DatumBuilder<Data> {
+export class DatumBuilderLucid extends DatumBuilder<Data> {
   constructor(public network: TSupportedNetworks) {
     super();
   }
@@ -20,17 +22,61 @@ export class LucidDatumBuilder extends DatumBuilder<Data> {
    * @param args
    * @returns
    */
-  buildSwapDatum(args: SwapArguments, fundedAsset: IAsset) {
+  buildSwapDatum({
+    ident,
+    orderAddresses,
+    fundedAsset,
+    swap,
+    scooperFee,
+  }: SwapArguments) {
     const datum = new Constr(0, [
-      args.ident,
-      this.buildOrderAddresses(args.orderAddresses).datum,
-      this.getParams().SCOOPER_FEE,
-      this.buildSwapDirection(args.swap, fundedAsset.amount).datum,
+      ident,
+      this.buildOrderAddresses(orderAddresses).datum,
+      this.buildScooperFee(scooperFee),
+      this.buildSwapDirection(swap, fundedAsset.amount).datum,
     ]);
 
     return {
       datum,
       cbor: Data.to(datum),
+    };
+  }
+
+  buildDepositDatum({
+    ident,
+    orderAddresses,
+    deposit,
+    scooperFee,
+  }: DepositArguments) {
+    const datum = new Constr(0, [
+      ident,
+      this.buildOrderAddresses(orderAddresses).datum,
+      this.buildScooperFee(scooperFee),
+      this.buildDepositPair(deposit).datum,
+    ]);
+
+    return {
+      cbor: Data.to(datum),
+      datum,
+    };
+  }
+
+  buildScooperFee(fee?: bigint): bigint {
+    return fee ?? this.getParams().SCOOPER_FEE;
+  }
+
+  buildDepositPair(deposit: DepositMixed): DatumResult<Data> {
+    const datum = new Constr(2, [
+      new Constr(1, [
+        new Constr(0, [
+          deposit.CoinAAmount.getAmount(),
+          deposit.CoinBAmount.getAmount(),
+        ]),
+      ]),
+    ]);
+    return {
+      cbor: Data.to(datum),
+      datum,
     };
   }
 

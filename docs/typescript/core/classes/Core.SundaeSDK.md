@@ -22,68 +22,67 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `builder` | [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\> | An instance of TxBuilder. |
+| `builder` | [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`, [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)\> | An instance of TxBuilder. |
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:22](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L22)
+[classes/SundaeSDK.class.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L28)
 
 ## Properties
 
 ### builder
 
-• `Private` **builder**: [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>
+• `Private` **builder**: [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`, [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)\>
 
 An instance of TxBuilder.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:22](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L22)
+[classes/SundaeSDK.class.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L28)
 
 ## Methods
 
-### \_buildBasicSwapConfig
-
-▸ `Private` **_buildBasicSwapConfig**(`args`, `slippage?`): `Promise`<[`SwapConfig`](Core.SwapConfig.md)\>
-
-Builds a basic Swap config from [ISDKSwapArgs](../interfaces/Core.ISDKSwapArgs.md).
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `args` | [`ISDKSwapArgs`](../interfaces/Core.ISDKSwapArgs.md) |  |
-| `slippage?` | `number` \| ``false`` | Calculate a minimum receivable amount of the opposing asset pair based on the provided value. If set to false, calculation will be ignored. |
-
-#### Returns
-
-`Promise`<[`SwapConfig`](Core.SwapConfig.md)\>
-
-#### Defined in
-
-[classes/SundaeSDK.class.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L148)
-
-___
-
 ### build
 
-▸ **build**(): [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>
+▸ **build**(): [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`, [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)\>
 
 Utility method to retrieve the builder instance.
 
 #### Returns
 
-[`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`\>
+[`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`, [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)\>
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L31)
+[classes/SundaeSDK.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L37)
+
+___
+
+### deposit
+
+▸ **deposit**(`config`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+
+Create a Deposit transaction for a pool by supplying two assets.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `config` | [`BuildDepositConfigArgs`](../interfaces/Core.BuildDepositConfigArgs.md) |
+
+#### Returns
+
+`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+
+#### Defined in
+
+[classes/SundaeSDK.class.ts:156](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L156)
 
 ___
 
 ### limitSwap
 
-▸ **limitSwap**(`args`, `limitPrice`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ **limitSwap**(`config`, `limitPrice`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
 
 Creates a swap with a minimum receivable limit price. The price should be the minimum
 amount at which you want the order to execute. For example:
@@ -95,11 +94,9 @@ amount at which you want the order to execute. For example:
 const limitPrice = new AssetAmount(1500000n, 6);
 
 // Normal swap arguments
-const swapArgs: ISDKSwapArgs = {
- poolQuery: {
-   pair: ["assetAID", "assetBID"],
-   fee: "0.03"
- },
+const pool = await SDK.query().findPoolData(poolQuery);
+const config: BuildSwapConfigArgs = {
+ pool,
  suppliedAsset: {
    assetID: "POLICY_ID.ASSET_NAME",
    amount: new AssetAmount(20n, 6)
@@ -118,7 +115,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 | Name | Type |
 | :------ | :------ |
-| `args` | [`ISDKSwapArgs`](../interfaces/Core.ISDKSwapArgs.md) |
+| `config` | [`BuildSwapConfigArgs`](../interfaces/Core.BuildSwapConfigArgs.md) |
 | `limitPrice` | [`AssetAmount`](Core.AssetAmount.md) |
 
 #### Returns
@@ -127,7 +124,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:134](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L134)
+[classes/SundaeSDK.class.ts:143](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L143)
 
 ___
 
@@ -143,13 +140,13 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L40)
+[classes/SundaeSDK.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L46)
 
 ___
 
 ### swap
 
-▸ **swap**(`args`, `slippage?`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ **swap**(`config`, `slippage?`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
 
 The main entry point for building a swap transaction with the least amount
 of configuration required. By default, all calls to this method are treated
@@ -159,9 +156,9 @@ as market orders with a generous 10% slippage tolerance by default.
 
 ### Building a Swap
 ```ts
-const args: ISDKSwapArgs = {
+ const config: BuildSwapConfigArgs = {
  pool: {
-   /** ...pool data... */
+   /** Pool data you got from somewhere else. */
  },
  suppliedAsset: {
    assetID: "POLICY_ID.ASSET_NAME",
@@ -170,16 +167,14 @@ const args: ISDKSwapArgs = {
  receiverAddress: "addr1..."
 };
 
-const { submit, cbor } = await SDK.swap(args);
+const { submit, cbor } = await SDK.swap(config);
 ```
 
 ### Building a Swap With a Pool Query
 ```ts
-const args: ISDKSwapArgs = {
- poolQuery: {
-   pair: ["assetAID", "assetBID"],
-   fee: "0.03"
- },
+const pool = await SDK.query().findPoolData(poolQuery);
+const config: BuildSwapConfigArgs = {
+ pool,
  suppliedAsset: {
    assetID: "POLICY_ID.ASSET_NAME",
    amount: new AssetAmount(20n, 6)
@@ -188,7 +183,7 @@ const args: ISDKSwapArgs = {
 };
 
 const { submit, cbor } = await SDK.swap(
- args,
+ config,
  0.03 // Tighter slippage of 3%
 );
 ```
@@ -203,7 +198,7 @@ const { submit, cbor } = await SDK.swap(
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | [`ISDKSwapArgs`](../interfaces/Core.ISDKSwapArgs.md) |  |
+| `config` | [`BuildSwapConfigArgs`](../interfaces/Core.BuildSwapConfigArgs.md) | - |
 | `slippage?` | `number` | Set your slippage tolerance. Defaults to 10%. |
 
 #### Returns
@@ -212,4 +207,4 @@ const { submit, cbor } = await SDK.swap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:95](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L95)
+[classes/SundaeSDK.class.ts:99](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L99)

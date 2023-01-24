@@ -20,28 +20,32 @@
  * } from "@sundae/sdk-core/extensions";
  * 
  * const txBuilder = new TxBuilderLucid(
- *     {
- *         provider: "blockfrost",
- *         blockfrost: {
- *             url: "https://cardano-preview.blockfrost.io/api/v0",
- *             apiKey: "YOUR_API_KEY"
- *         }
- *     },
- *     new ProviderSundaeSwap("preview")
- * )
+ *  {
+ *      wallet: "eternl",
+ *      network: "preview",        
+ *      provider: "blockfrost",
+ *      blockfrost: {
+ *          url: "https://cardano-preview.blockfrost.io/api/v0",
+ *          apiKey: "YOUR_API_KEY"
+ *      }
+ *  },
+ *  new ProviderSundaeSwap("preview")
+ * );
 
  * const sdk: SundaeSDK = new SundaeSDK(txBuilder);
  * 
- * const swap = await sdk.swap( /** ... *\/ ).then(({ submit }) => submit());
+ * const txHash = await sdk.swap( /** ... *\/ ).then(({ submit }) => submit());
  * ```
  *
  * @module Core
  * @packageDocumentation
  */
 export { SundaeSDK } from "./classes/SundaeSDK.class";
+export { Transaction } from "./classes/Transaction.class";
 export { AssetAmount } from "./classes/AssetAmount.class";
-export { SwapConfig } from "./classes/SwapConfig.class";
-export { TxBuilder } from "./classes/TxBuilder.abstract.class";
-export { DatumBuilder } from "./classes/DatumBuilder.class";
+export { SwapConfig } from "./classes/Configs/SwapConfig.class";
+export { DepositConfig } from "./classes/Configs/DepositConfig.class";
+export { TxBuilder } from "./classes/Abstracts/TxBuilder.abstract.class";
+export { DatumBuilder } from "./classes/Abstracts/DatumBuilder.abstract.class";
 
 export * from "./@types";
