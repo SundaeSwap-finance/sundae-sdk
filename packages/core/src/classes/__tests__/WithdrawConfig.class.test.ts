@@ -1,6 +1,6 @@
 import { IAsset, IPoolData } from "../../@types";
 import { AssetAmount } from "../AssetAmount.class";
-import { SwapConfig } from "../Configs/SwapConfig.class";
+import { WithdrawConfig } from "../Configs/WithdrawConfig.class";
 
 const mockPool: IPoolData = {
   assetA: {
@@ -27,25 +27,25 @@ const mockFunding: IAsset = {
 const mockAddress =
   "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32";
 
-let config: SwapConfig;
+let config: WithdrawConfig;
 beforeEach(() => {
-  config = new SwapConfig();
+  config = new WithdrawConfig();
 });
 
-describe("SwapConfig class", () => {
+describe("WithdrawConfig class", () => {
   it("should construct with no parameters", () => {
-    expect(config).toBeInstanceOf(SwapConfig);
+    expect(config).toBeInstanceOf(WithdrawConfig);
   });
 
   it("should construct with a config", () => {
-    const myConfig = new SwapConfig({
+    const myConfig = new WithdrawConfig({
       pool: mockPool,
       orderAddresses: {
         DestinationAddress: {
           address: mockAddress,
         },
       },
-      suppliedAsset: mockFunding,
+      suppliedLPAsset: mockFunding,
     });
 
     expect(myConfig.buildArgs()).toEqual({
@@ -55,9 +55,7 @@ describe("SwapConfig class", () => {
           address: mockAddress,
         },
       },
-      suppliedAsset: mockFunding,
-      // 10% minus the pool fee
-      minReceivable: new AssetAmount(8n, 6),
+      suppliedLPAsset: mockFunding,
     });
   });
 
@@ -72,8 +70,8 @@ describe("SwapConfig class", () => {
       assetId: "",
     };
 
-    config.setSuppliedAsset(asset);
-    expect(config.suppliedAsset).toMatchObject(asset);
+    config.setSuppliedLPAsset(asset);
+    expect(config.suppliedLPAsset).toMatchObject(asset);
   });
 
   it("setEscrowAddress and getEscrowAddress", () => {
@@ -90,7 +88,7 @@ describe("SwapConfig class", () => {
   });
 
   it("should throw an error if a pool isn't set", () => {
-    config.setSuppliedAsset({
+    config.setSuppliedLPAsset({
       amount: new AssetAmount(20n, 6),
       assetId: "tINDY",
     });
@@ -105,7 +103,7 @@ describe("SwapConfig class", () => {
     }
   });
 
-  it("should throw when providing invalid assetIDs to setSuppliedAsset()", () => {
+  it("should throw when providing invalid assetIDs to setSuppliedLPAsset()", () => {
     config
       .setOrderAddresses({
         DestinationAddress: {
@@ -113,7 +111,7 @@ describe("SwapConfig class", () => {
         },
       })
       .setPool(mockPool)
-      .setSuppliedAsset({
+      .setSuppliedLPAsset({
         amount: new AssetAmount(20n, 6),
         assetId: "tINDY",
       });
@@ -134,7 +132,7 @@ describe("SwapConfig class", () => {
         },
       })
       .setPool(mockPool)
-      .setSuppliedAsset({
+      .setSuppliedLPAsset({
         amount: new AssetAmount(20n, 6),
         assetId:
           "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459",
@@ -151,7 +149,7 @@ describe("SwapConfig class", () => {
   });
 
   it("should throw when not providing a receiving address", () => {
-    config.setPool(mockPool).setSuppliedAsset(mockFunding);
+    config.setPool(mockPool).setSuppliedLPAsset(mockFunding);
 
     try {
       config.buildArgs();
@@ -176,7 +174,7 @@ describe("SwapConfig class", () => {
           address: mockAddress,
         },
       })
-      .setSuppliedAsset(validFunding);
+      .setSuppliedLPAsset(validFunding);
 
     expect(config.buildArgs()).toEqual({
       pool: mockPool,
@@ -185,8 +183,7 @@ describe("SwapConfig class", () => {
           address: mockAddress,
         },
       },
-      minReceivable: new AssetAmount(1n, 0),
-      suppliedAsset: validFunding,
+      suppliedLPAsset: validFunding,
     });
   });
 });

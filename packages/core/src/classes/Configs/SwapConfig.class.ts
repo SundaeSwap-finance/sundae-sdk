@@ -18,7 +18,7 @@ import { Utils } from "../Utils.class";
  * const config = new SwapConfig()
  *   .setPool( /** ...pool data... *\/)
  *   .setSuppliedAsset({
- *     assetID: "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
+ *     assetId: "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
  *     amount: new AssetAmount(20n, 6),
  *   })
  *   .setOrderAddresses({

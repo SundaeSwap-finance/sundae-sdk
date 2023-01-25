@@ -51,3 +51,11 @@ export interface IDepositArgs extends IOrderArgs {
   orderAddresses: OrderAddresses;
   suppliedAssets: [IAsset, IAsset];
 }
+
+/**
+ * The minimum requirements for a WithdrawOrder
+ */
+export interface IWithdrawArgs extends IOrderArgs {
+  orderAddresses: OrderAddresses;
+  suppliedLPAsset: IAsset;
+}

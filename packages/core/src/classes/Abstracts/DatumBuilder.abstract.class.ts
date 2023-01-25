@@ -2,10 +2,12 @@ import {
   DatumResult,
   DepositArguments,
   DepositMixed,
+  IAsset,
   OrderAddresses,
   Swap,
   SwapArguments,
   TSupportedNetworks,
+  WithdrawArguments,
 } from "../../@types";
 import { AssetAmount } from "../AssetAmount.class";
 import { Utils } from "../Utils.class";
@@ -36,7 +38,14 @@ export abstract class DatumBuilder<Data = any> {
    */
   abstract buildDepositDatum(args: DepositArguments): DatumResult<Data>;
 
+  /**
+   * Should build a Datum for a Withdraw transaction.
+   * @param args The Withdraw arguments.
+   */
+  abstract buildWithdrawDatum(args: WithdrawArguments): DatumResult<Data>;
+
   abstract buildScooperFee(fee: bigint): bigint;
+  abstract buildWithdrawAsset(fundedLPAsset: IAsset): DatumResult<Data>;
   abstract buildDepositPair(deposit: DepositMixed): DatumResult<Data>;
   abstract buildOrderAddresses(addresses: OrderAddresses): DatumResult<Data>;
   abstract buildSwapDirection(

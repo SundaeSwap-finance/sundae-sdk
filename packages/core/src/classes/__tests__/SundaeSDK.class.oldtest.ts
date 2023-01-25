@@ -116,7 +116,7 @@ describe("SundaeSDK class methods", () => {
         asset: {
           amount: 20n,
           metadata: {
-            assetID:
+            assetId:
               "cf9722966a212e61baa3a1a61a40f5c42a639b5a9272a8d85d1d6998.6c702004",
             decimals: 6,
           },

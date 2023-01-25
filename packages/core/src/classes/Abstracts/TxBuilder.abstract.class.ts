@@ -5,6 +5,7 @@ import {
   IQueryProviderClass,
   ITxBuilderComplete,
   ITxBuilderBaseOptions,
+  IWithdrawArgs,
 } from "../../@types";
 import { Transaction } from "../Transaction.class";
 import { Utils } from "../Utils.class";
@@ -55,6 +56,13 @@ export abstract class TxBuilder<
    * @param args The built DepositArguments from a {@link DepositConfig} instance.
    */
   abstract buildDepositTx(args: IDepositArgs): Promise<ITxBuilderComplete>;
+
+  /**
+   * The main function to build a withdraw Transaction.
+   *
+   * @param args The build WithdrawArguments from a {@link WithdrawConfig} instance.
+   */
+  abstract buildWithdrawTx(args: IWithdrawArgs): Promise<ITxBuilderComplete>;
 
   /**
    * Helper function for child classes to easily grab the appropriate protocol parameters for SundaeSwap.

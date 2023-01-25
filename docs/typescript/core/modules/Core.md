@@ -50,6 +50,7 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [SundaeSDK](../classes/Core.SundaeSDK.md)
 - [SwapConfig](../classes/Core.SwapConfig.md)
 - [Transaction](../classes/Core.Transaction.md)
+- [WithdrawConfig](../classes/Core.WithdrawConfig.md)
 
 ## Exported TxBuilders
 
@@ -60,6 +61,7 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [Arguments](../interfaces/Core.Arguments.md)
 - [BuildDepositConfigArgs](../interfaces/Core.BuildDepositConfigArgs.md)
 - [BuildSwapConfigArgs](../interfaces/Core.BuildSwapConfigArgs.md)
+- [BuildWithdrawConfigArgs](../interfaces/Core.BuildWithdrawConfigArgs.md)
 - [DatumResult](../interfaces/Core.DatumResult.md)
 - [DepositArguments](../interfaces/Core.DepositArguments.md)
 - [IAsset](../interfaces/Core.IAsset.md)
@@ -72,7 +74,9 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [ISwapArgs](../interfaces/Core.ISwapArgs.md)
 - [ITxBuilderBaseOptions](../interfaces/Core.ITxBuilderBaseOptions.md)
 - [ITxBuilderComplete](../interfaces/Core.ITxBuilderComplete.md)
+- [IWithdrawArgs](../interfaces/Core.IWithdrawArgs.md)
 - [SwapArguments](../interfaces/Core.SwapArguments.md)
+- [WithdrawArguments](../interfaces/Core.WithdrawArguments.md)
 
 ## Extension Builders
 

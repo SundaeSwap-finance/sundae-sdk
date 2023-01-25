@@ -26,7 +26,7 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L28)
+[classes/SundaeSDK.class.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L31)
 
 ## Properties
 
@@ -38,7 +38,7 @@ An instance of TxBuilder.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L28)
+[classes/SundaeSDK.class.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L31)
 
 ## Methods
 
@@ -54,7 +54,7 @@ Utility method to retrieve the builder instance.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L37)
+[classes/SundaeSDK.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L40)
 
 ___
 
@@ -76,7 +76,7 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:156](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L156)
+[classes/SundaeSDK.class.ts:169](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L169)
 
 ___
 
@@ -98,7 +98,7 @@ const pool = await SDK.query().findPoolData(poolQuery);
 const config: BuildSwapConfigArgs = {
  pool,
  suppliedAsset: {
-   assetID: "POLICY_ID.ASSET_NAME",
+   assetId: "POLICY_ID.ASSET_NAME",
    amount: new AssetAmount(20n, 6)
  },
  receiverAddress: "addr1..."
@@ -124,7 +124,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:143](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L143)
+[classes/SundaeSDK.class.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L146)
 
 ___
 
@@ -140,7 +140,7 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L46)
+[classes/SundaeSDK.class.ts:49](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L49)
 
 ___
 
@@ -161,7 +161,7 @@ as market orders with a generous 10% slippage tolerance by default.
    /** Pool data you got from somewhere else. */
  },
  suppliedAsset: {
-   assetID: "POLICY_ID.ASSET_NAME",
+   assetId: "POLICY_ID.ASSET_NAME",
    amount: new AssetAmount(20n, 6)
  },
  receiverAddress: "addr1..."
@@ -176,7 +176,7 @@ const pool = await SDK.query().findPoolData(poolQuery);
 const config: BuildSwapConfigArgs = {
  pool,
  suppliedAsset: {
-   assetID: "POLICY_ID.ASSET_NAME",
+   assetId: "POLICY_ID.ASSET_NAME",
    amount: new AssetAmount(20n, 6)
  },
  receiverAddress: "addr1..."
@@ -207,4 +207,26 @@ const { submit, cbor } = await SDK.swap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:99](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L99)
+[classes/SundaeSDK.class.ts:102](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L102)
+
+___
+
+### withdraw
+
+▸ **withdraw**(`config`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+
+Create a Withdraw transaction for a pool by supplying the LP tokens.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `config` | [`BuildWithdrawConfigArgs`](../interfaces/Core.BuildWithdrawConfigArgs.md) |
+
+#### Returns
+
+`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+
+#### Defined in
+
+[classes/SundaeSDK.class.ts:158](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L158)

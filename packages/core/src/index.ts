@@ -45,6 +45,7 @@ export { Transaction } from "./classes/Transaction.class";
 export { AssetAmount } from "./classes/AssetAmount.class";
 export { SwapConfig } from "./classes/Configs/SwapConfig.class";
 export { DepositConfig } from "./classes/Configs/DepositConfig.class";
+export { WithdrawConfig } from "./classes/Configs/WithdrawConfig.class";
 export { TxBuilder } from "./classes/Abstracts/TxBuilder.abstract.class";
 export { DatumBuilder } from "./classes/Abstracts/DatumBuilder.abstract.class";
 

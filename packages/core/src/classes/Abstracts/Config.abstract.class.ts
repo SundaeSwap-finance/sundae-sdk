@@ -1,4 +1,4 @@
-import { IPoolData, OrderAddresses } from "src/@types";
+import { IPoolData, OrderAddresses } from "../../@types";
 
 export abstract class Config<Args = {}> {
   pool?: IPoolData;
@@ -32,13 +32,13 @@ export abstract class Config<Args = {}> {
   validate(): void | never {
     if (!this.pool) {
       throw new Error(
-        "You haven't set a pool in your SwapConfig. Set a pool with .setPool()"
+        "You haven't set a pool in your Config. Set a pool with .setPool()"
       );
     }
 
     if (!this.orderAddresses) {
       throw new Error(
-        "You haven't defined the OrderAddresses in your SwapConfig. Set with .setOrderAddresses()"
+        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
       );
     }
   }

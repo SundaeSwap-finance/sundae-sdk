@@ -5,10 +5,12 @@ import {
   DatumResult,
   DepositArguments,
   DepositMixed,
+  IAsset,
   OrderAddresses,
   Swap,
   SwapArguments,
   TSupportedNetworks,
+  WithdrawArguments,
 } from "../../../@types";
 import { DatumBuilder } from "../../Abstracts/DatumBuilder.abstract.class";
 
@@ -18,9 +20,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   }
 
   /**
-   * Build the main datum for a swap transaction.
-   * @param args
-   * @returns
+   * Builds the Swap datum.
    */
   buildSwapDatum({
     ident,
@@ -37,11 +37,14 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
     ]);
 
     return {
-      datum,
       cbor: Data.to(datum),
+      datum,
     };
   }
 
+  /**
+   * Builds the Deposit datum.
+   */
   buildDepositDatum({
     ident,
     orderAddresses,
@@ -61,10 +64,42 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
     };
   }
 
+  /**
+   * Builds the Withdraw datum.
+   */
+  buildWithdrawDatum({
+    ident,
+    orderAddresses,
+    suppliedLPAsset,
+    scooperFee,
+  }: WithdrawArguments) {
+    const datum = new Constr(0, [
+      ident,
+      this.buildOrderAddresses(orderAddresses).datum,
+      this.buildScooperFee(scooperFee),
+      this.buildWithdrawAsset(suppliedLPAsset).datum,
+    ]);
+
+    return {
+      cbor: Data.to(datum),
+      datum,
+    };
+  }
+
+  /**
+   * Builds the fee for the Scoopers. Defaults to {@link IProtocolParams.SCOOPER_FEE}
+   * @param fee The custom fee if provided.
+   * @returns
+   */
   buildScooperFee(fee?: bigint): bigint {
     return fee ?? this.getParams().SCOOPER_FEE;
   }
 
+  /**
+   * Builds the pair of assets for depositing in the pool.
+   * @param deposit A pair of assets that match CoinA and CoinB of the pool.
+   * @returns
+   */
   buildDepositPair(deposit: DepositMixed): DatumResult<Data> {
     const datum = new Constr(2, [
       new Constr(1, [
@@ -74,6 +109,19 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
         ]),
       ]),
     ]);
+    return {
+      cbor: Data.to(datum),
+      datum,
+    };
+  }
+
+  /**
+   * Builds the LP tokens to send to the pool.
+   * @param fundedLPAsset The LP tokens to send to the pool.
+   */
+  buildWithdrawAsset(fundedLPAsset: IAsset): DatumResult<Data> {
+    const datum = new Constr(1, [fundedLPAsset.amount.getAmount()]);
+
     return {
       cbor: Data.to(datum),
       datum,
