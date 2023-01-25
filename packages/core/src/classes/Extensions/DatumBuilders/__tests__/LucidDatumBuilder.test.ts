@@ -3,6 +3,7 @@
 import {
   TEST_buildDepositDatum,
   TEST_buildSwapDatum,
+  TEST_buildWithdrawDatum,
 } from "../../../../testing/DatumBuilder";
 import { DatumBuilderLucid } from "../DatumBuilder.Lucid.class";
 
@@ -19,5 +20,9 @@ describe("DatumBuilderLucid", () => {
 
   it("should properly construct a CBOR string when running buildDepositDatum", () => {
     TEST_buildDepositDatum(datumBuilder);
+  });
+
+  it("should properly construct a CBOR string when running buildWithdrawDatum", () => {
+    TEST_buildWithdrawDatum(datumBuilder);
   });
 });
