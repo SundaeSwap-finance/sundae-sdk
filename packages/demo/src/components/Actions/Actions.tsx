@@ -64,10 +64,15 @@ export const Actions: FC = () => {
         <Deposit setCBOR={setCBOR} submit={submit} />
         <Withdraw setCBOR={setCBOR} submit={submit} />
       </div>
-      <h2 className="mb-4 text-lg font-bold text-white">CBOR</h2>
       {cbor.hash && (
-        <div className="p-8 rounded-lg bg-gray-800 border-gray-700 whitespace-pre-wrap break-all"></div>
+        <>
+          <h2 className="mb-4 text-lg font-bold text-white">Tx Hash</h2>
+          <div className="p-8 rounded-lg bg-gray-800 border-gray-700 whitespace-pre-wrap break-all">
+            {cbor.hash}
+          </div>
+        </>
       )}
+      <h2 className="mb-4 text-lg font-bold text-white">CBOR</h2>
       <div className="p-8 rounded-lg bg-gray-800 border-gray-700 whitespace-pre-wrap break-all">
         {cbor.cbor}
       </div>

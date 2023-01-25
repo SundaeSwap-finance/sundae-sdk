@@ -42,7 +42,7 @@ export const SwapBA: FC<ActionArgs> = ({ setCBOR, submit }) => {
     }
 
     setSwapping(false);
-  }, [SDK]);
+  }, [SDK, submit]);
 
   if (!SDK) {
     return null;

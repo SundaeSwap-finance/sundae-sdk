@@ -16,18 +16,21 @@ export const Deposit: FC<ActionArgs> = ({ setCBOR, submit }) => {
     setDepositing(true);
     try {
       const pool = await SDK.query().findPoolData(poolQuery);
+      const ratio = BigInt(pool.quantityA) / BigInt(pool.quantityB);
+      const baseAmount = 25000000n;
+
       await SDK.deposit({
         orderAddresses: defaultOrderAddresses,
         pool,
         suppliedAssets: [
           {
             assetId: "",
-            amount: new AssetAmount(25000000n, 6),
+            amount: new AssetAmount(baseAmount, 6),
           },
           {
             assetId:
               "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-            amount: new AssetAmount(20000000n, 6),
+            amount: new AssetAmount(baseAmount * ratio, 6),
           },
         ],
       }).then(async (res) => {
@@ -48,7 +51,7 @@ export const Deposit: FC<ActionArgs> = ({ setCBOR, submit }) => {
     }
 
     setDepositing(false);
-  }, [SDK]);
+  }, [SDK, submit]);
 
   if (!SDK) {
     return null;

@@ -1,8 +1,10 @@
 import { AssetAmount } from "@sundaeswap/sdk-core";
 import { FC, useCallback, useState } from "react";
+
 import { useAppState } from "../../../state/context";
 import { ActionArgs, defaultOrderAddresses, poolQuery } from "../Actions";
 import Button from "../../Button";
+import type { Lucid } from "lucid-cardano";
 
 export const Withdraw: FC<ActionArgs> = ({ setCBOR, submit }) => {
   const { SDK } = useAppState();
@@ -15,14 +17,29 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, submit }) => {
 
     setWithdrawing(true);
     try {
+      const LPAssetId =
+        "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702002";
+      const balance = await SDK.build<Lucid>().wallet?.wallet.getUtxos();
+      let lpBalance: bigint = 0n;
+      balance?.forEach((bal) => {
+        const matchingAsset = bal.assets[LPAssetId.replace(".", "")];
+        if (matchingAsset) {
+          lpBalance += matchingAsset;
+        }
+      });
+
+      if (lpBalance === 0n) {
+        throw new Error("You don't have any LP tokens! Deposit some to start.");
+      }
+
       const pool = await SDK.query().findPoolData(poolQuery);
       await SDK.withdraw({
         orderAddresses: defaultOrderAddresses,
         pool,
         suppliedLPAsset: {
           assetId:
-            "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-          amount: new AssetAmount(20000000n, 6),
+            "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702002",
+          amount: new AssetAmount(lpBalance, 6),
         },
       }).then(async (res) => {
         if (submit) {
@@ -42,7 +59,7 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, submit }) => {
     }
 
     setWithdrawing(false);
-  }, [SDK]);
+  }, [SDK, submit]);
 
   if (!SDK) {
     return null;

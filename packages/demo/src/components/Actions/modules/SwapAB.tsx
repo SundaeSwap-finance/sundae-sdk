@@ -41,7 +41,7 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, submit }) => {
     }
 
     setReverseSwapping(false);
-  }, [SDK]);
+  }, [SDK, submit]);
 
   if (!SDK) {
     return null;
