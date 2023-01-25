@@ -61,6 +61,7 @@ export class AssetAmount {
    */
   add(amt: bigint) {
     this.amount += amt;
+    return this;
   }
 
   /**
@@ -69,5 +70,6 @@ export class AssetAmount {
    */
   subtract(amt: bigint) {
     this.amount -= amt;
+    return this;
   }
 }

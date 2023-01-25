@@ -41,7 +41,7 @@ Construct a new AssetAmount.
 
 ### add
 
-▸ **add**(`amt`): `void`
+▸ **add**(`amt`): [`AssetAmount`](Core.AssetAmount.md)
 
 Helper method to increment the asset amount.
 
@@ -53,7 +53,7 @@ Helper method to increment the asset amount.
 
 #### Returns
 
-`void`
+[`AssetAmount`](Core.AssetAmount.md)
 
 #### Defined in
 
@@ -111,7 +111,7 @@ ___
 
 ### subtract
 
-▸ **subtract**(`amt`): `void`
+▸ **subtract**(`amt`): [`AssetAmount`](Core.AssetAmount.md)
 
 Helper method to subtract the asset amount.
 
@@ -123,8 +123,8 @@ Helper method to subtract the asset amount.
 
 #### Returns
 
-`void`
+[`AssetAmount`](Core.AssetAmount.md)
 
 #### Defined in
 
-[classes/AssetAmount.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/AssetAmount.class.ts#L70)
+[classes/AssetAmount.class.ts:71](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/AssetAmount.class.ts#L71)

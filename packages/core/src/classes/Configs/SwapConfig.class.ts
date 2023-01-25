@@ -34,7 +34,7 @@ import { Utils } from "../Utils.class";
  */
 export class SwapConfig extends Config<ISwapArgs> {
   suppliedAsset?: IAsset;
-  minReceivable: AssetAmount = new AssetAmount(1n);
+  minReceivable?: AssetAmount;
 
   constructor(args?: BuildSwapConfigArgs) {
     super();
@@ -79,7 +79,7 @@ export class SwapConfig extends Config<ISwapArgs> {
       pool: this.pool as IPoolData,
       suppliedAsset: this.suppliedAsset as IAsset,
       orderAddresses: this.orderAddresses as OrderAddresses,
-      minReceivable: this.minReceivable,
+      minReceivable: this.minReceivable as AssetAmount,
     };
   }
 

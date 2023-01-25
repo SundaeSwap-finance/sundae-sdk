@@ -186,4 +186,20 @@ describe("WithdrawConfig class", () => {
       suppliedLPAsset: validFunding,
     });
   });
+
+  it("should throw an error when validating with no suppliedLPAsset defined", () => {
+    config.setPool(mockPool).setOrderAddresses({
+      DestinationAddress: {
+        address: mockAddress,
+      },
+    });
+
+    try {
+      config.validate();
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        "There was no LP asset set! Set the LP token with .setSuppliedLPAsset()"
+      );
+    }
+  });
 });

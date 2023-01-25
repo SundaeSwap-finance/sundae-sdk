@@ -112,6 +112,7 @@ describe("SwapConfig class", () => {
           address: mockAddress,
         },
       })
+      .setMinReceivable(new AssetAmount(20n))
       .setPool(mockPool)
       .setSuppliedAsset({
         amount: new AssetAmount(20n, 6),
@@ -133,6 +134,7 @@ describe("SwapConfig class", () => {
           address: mockAddress,
         },
       })
+      .setMinReceivable(new AssetAmount(20n))
       .setPool(mockPool)
       .setSuppliedAsset({
         amount: new AssetAmount(20n, 6),
@@ -151,7 +153,10 @@ describe("SwapConfig class", () => {
   });
 
   it("should throw when not providing a receiving address", () => {
-    config.setPool(mockPool).setSuppliedAsset(mockFunding);
+    config
+      .setPool(mockPool)
+      .setMinReceivable(new AssetAmount(10n))
+      .setSuppliedAsset(mockFunding);
 
     try {
       config.buildArgs();
@@ -171,6 +176,7 @@ describe("SwapConfig class", () => {
 
     config
       .setPool(mockPool)
+      .setMinReceivable(new AssetAmount(20n))
       .setOrderAddresses({
         DestinationAddress: {
           address: mockAddress,
@@ -185,8 +191,43 @@ describe("SwapConfig class", () => {
           address: mockAddress,
         },
       },
-      minReceivable: new AssetAmount(1n, 0),
+      minReceivable: new AssetAmount(20n, 0),
       suppliedAsset: validFunding,
     });
+  });
+
+  it("should validate correctly when no suppliedAsset is set", () => {
+    config.setPool(mockPool).setOrderAddresses({
+      DestinationAddress: {
+        address: mockAddress,
+      },
+    });
+
+    try {
+      config.validate();
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        "You haven't funded this swap on your SwapConfig! Fund the swap with .setSuppliedAsset()"
+      );
+    }
+  });
+
+  it("should validate correctly when no minReceivable is set", () => {
+    config
+      .setOrderAddresses({
+        DestinationAddress: {
+          address: mockAddress,
+        },
+      })
+      .setPool(mockPool)
+      .setSuppliedAsset(mockFunding);
+
+    try {
+      config.validate();
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        "You haven't set a minimum receivable amount on your SwapConfig!"
+      );
+    }
   });
 });
