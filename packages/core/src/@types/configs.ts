@@ -20,3 +20,12 @@ export interface BuildDepositConfigArgs {
   orderAddresses: OrderAddresses;
   suppliedAssets: [IAsset, IAsset];
 }
+
+/**
+ * The arguments configuration for building a valid Withdraw.
+ */
+export interface BuildWithdrawConfigArgs {
+  pool: IPoolData;
+  orderAddresses: OrderAddresses;
+  suppliedLPAsset: IAsset;
+}

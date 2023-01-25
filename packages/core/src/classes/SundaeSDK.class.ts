@@ -1,6 +1,7 @@
 import type {
   BuildDepositConfigArgs,
   BuildSwapConfigArgs,
+  BuildWithdrawConfigArgs,
   IQueryProviderClass,
 } from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
@@ -9,6 +10,8 @@ import { TxBuilder } from "./Abstracts/TxBuilder.abstract.class";
 import { Utils } from "./Utils.class";
 import { Config } from "./Abstracts/Config.abstract.class";
 import { DepositConfig } from "./Configs/DepositConfig.class";
+import { Withdrawals } from "lucid-cardano/types/src/core/wasm_modules/cardano_multiplatform_lib_web/cardano_multiplatform_lib";
+import { WithdrawConfig } from "./Configs/WithdrawConfig.class";
 
 /**
  * A description for the SundaeSDK class.
@@ -34,7 +37,7 @@ export class SundaeSDK {
    *
    * @returns
    */
-  build(): TxBuilder {
+  build<T = any>(): TxBuilder<any, T, any, IQueryProviderClass> {
     return this.builder;
   }
 
@@ -61,7 +64,7 @@ export class SundaeSDK {
    *    /** Pool data you got from somewhere else. *\/
    *  },
    *  suppliedAsset: {
-   *    assetID: "POLICY_ID.ASSET_NAME",
+   *    assetId: "POLICY_ID.ASSET_NAME",
    *    amount: new AssetAmount(20n, 6)
    *  },
    *  receiverAddress: "addr1..."
@@ -76,7 +79,7 @@ export class SundaeSDK {
    * const config: BuildSwapConfigArgs = {
    *  pool,
    *  suppliedAsset: {
-   *    assetID: "POLICY_ID.ASSET_NAME",
+   *    assetId: "POLICY_ID.ASSET_NAME",
    *    amount: new AssetAmount(20n, 6)
    *  },
    *  receiverAddress: "addr1..."
@@ -105,7 +108,7 @@ export class SundaeSDK {
         slippage ?? 0.1
       )
     );
-    this._validateConfig(swap);
+    swap.validate();
     return await this.builder.buildSwapTx(swap.buildArgs());
   }
 
@@ -123,7 +126,7 @@ export class SundaeSDK {
    * const config: BuildSwapConfigArgs = {
    *  pool,
    *  suppliedAsset: {
-   *    assetID: "POLICY_ID.ASSET_NAME",
+   *    assetId: "POLICY_ID.ASSET_NAME",
    *    amount: new AssetAmount(20n, 6)
    *  },
    *  receiverAddress: "addr1..."
@@ -143,9 +146,19 @@ export class SundaeSDK {
   async limitSwap(config: BuildSwapConfigArgs, limitPrice: AssetAmount) {
     const swap = new SwapConfig(config);
     swap.setMinReceivable(limitPrice);
-
-    this._validateConfig(swap);
+    swap.validate();
     return await this.builder.buildSwapTx(swap.buildArgs());
+  }
+
+  /**
+   * Create a Withdraw transaction for a pool by supplying the LP tokens.
+   * @param config
+   * @returns
+   */
+  async withdraw(config: BuildWithdrawConfigArgs) {
+    const withdraw = new WithdrawConfig(config);
+    withdraw.validate();
+    return await this.builder.buildWithdrawTx(withdraw.buildArgs());
   }
 
   /**
@@ -155,12 +168,7 @@ export class SundaeSDK {
    */
   async deposit(config: BuildDepositConfigArgs) {
     const deposit = new DepositConfig(config);
-
-    this._validateConfig(deposit);
+    deposit.validate();
     return await this.builder.buildDepositTx(deposit.buildArgs());
-  }
-
-  private _validateConfig(config: Config): void | never {
-    config.validate();
   }
 }

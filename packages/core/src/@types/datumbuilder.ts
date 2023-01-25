@@ -104,6 +104,14 @@ export interface SwapArguments extends Arguments {
 }
 
 /**
+ * Arguments for a withdraw.
+ */
+export interface WithdrawArguments extends Arguments {
+  /** The LP tokens to send to the pool. */
+  suppliedLPAsset: IAsset;
+}
+
+/**
  * Arguments for depositing a pair of assets into a pool.
  */
 export interface DepositArguments extends Arguments {

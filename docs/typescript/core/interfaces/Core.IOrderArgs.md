@@ -11,3 +11,5 @@ The minimum requirements for an order.
   ↳ [`ISwapArgs`](Core.ISwapArgs.md)
 
   ↳ [`IDepositArgs`](Core.IDepositArgs.md)
+
+  ↳ [`IWithdrawArgs`](Core.IWithdrawArgs.md)

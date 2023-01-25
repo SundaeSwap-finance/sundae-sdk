@@ -1,18 +1,14 @@
-# Interface: Arguments
+# Interface: WithdrawArguments
 
-[Core](../modules/Core.md).Arguments
+[Core](../modules/Core.md).WithdrawArguments
 
-Base arguments for every datum constructor.
+Arguments for a withdraw.
 
 ## Hierarchy
 
-- **`Arguments`**
+- [`Arguments`](Core.Arguments.md)
 
-  ↳ [`SwapArguments`](Core.SwapArguments.md)
-
-  ↳ [`WithdrawArguments`](Core.WithdrawArguments.md)
-
-  ↳ [`DepositArguments`](Core.DepositArguments.md)
+  ↳ **`WithdrawArguments`**
 
 ## Properties
 
@@ -21,6 +17,10 @@ Base arguments for every datum constructor.
 • **ident**: `string`
 
 The unique pool identifier.
+
+#### Inherited from
+
+[Arguments](Core.Arguments.md).[ident](Core.Arguments.md#ident)
 
 #### Defined in
 
@@ -34,6 +34,10 @@ ___
 
 The addresses that are allowed to cancel the Order.
 
+#### Inherited from
+
+[Arguments](Core.Arguments.md).[orderAddresses](Core.Arguments.md#orderaddresses)
+
 #### Defined in
 
 [@types/datumbuilder.ts:94](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L94)
@@ -46,6 +50,22 @@ ___
 
 The fee paid to scoopers. Defaults to 2.5 ADA which is the minimum.
 
+#### Inherited from
+
+[Arguments](Core.Arguments.md).[scooperFee](Core.Arguments.md#scooperfee)
+
 #### Defined in
 
 [@types/datumbuilder.ts:92](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L92)
+
+___
+
+### suppliedLPAsset
+
+• **suppliedLPAsset**: [`IAsset`](Core.IAsset.md)
+
+The LP tokens to send to the pool.
+
+#### Defined in
+
+[@types/datumbuilder.ts:111](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L111)

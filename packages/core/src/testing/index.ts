@@ -9,13 +9,17 @@
  *
  * In addition, for those who build custom {@link Core.TxBuilder} and {@link Core.DatumBuilder} classes, we've added
  * base tests that you can run on these classes to ensure that your Order builds output the expected
- * hex-encoded CBOR when writing your own unit tests on them. See {@link Testing.DatumBuilderTests}
+ * hex-encoded CBOR when writing your own unit tests on them.
  *
  * @group Testing
  * @module Testing
  * @packageDescription
  */
-import * as DatumBuilderTests from "./DatumBuilder";
+import { TEST_DatumBuilder } from "./DatumBuilder";
 import * as Mocks from "./mocks";
 
-export { DatumBuilderTests, Mocks };
+const Extensions = {
+  TEST_DatumBuilder,
+};
+
+export { Extensions, Mocks };

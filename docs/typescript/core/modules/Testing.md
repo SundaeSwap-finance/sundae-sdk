@@ -10,11 +10,10 @@ from the SDK was actually called within your app. See [Mocks](Testing.Mocks.md)
 
 In addition, for those who build custom [TxBuilder](../classes/Core.TxBuilder.md) and [DatumBuilder](../classes/Core.DatumBuilder.md) classes, we've added
 base tests that you can run on these classes to ensure that your Order builds output the expected
-hex-encoded CBOR when writing your own unit tests on them. See [DatumBuilderTests](Testing.DatumBuilderTests.md)
+hex-encoded CBOR when writing your own unit tests on them.
 
 **`Package Description`**
 
 ## Namespaces
 
-- [DatumBuilderTests](Testing.DatumBuilderTests.md)
 - [Mocks](Testing.Mocks.md)

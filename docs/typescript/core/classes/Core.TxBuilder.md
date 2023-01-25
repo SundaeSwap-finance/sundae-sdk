@@ -65,6 +65,28 @@ The main function to build a swap Transaction.
 
 ___
 
+### buildWithdrawTx
+
+▸ `Abstract` **buildWithdrawTx**(`args`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+
+The main function to build a withdraw Transaction.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `args` | [`IWithdrawArgs`](../interfaces/Core.IWithdrawArgs.md) | The build WithdrawArguments from a [WithdrawConfig](Core.WithdrawConfig.md) instance. |
+
+#### Returns
+
+`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+
+#### Defined in
+
+[classes/Abstracts/TxBuilder.abstract.class.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L64)
+
+___
+
 ### getParams
 
 ▸ `Protected` **getParams**(): [`IProtocolParams`](../interfaces/Core.IProtocolParams.md)
@@ -77,7 +99,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L63)
+[classes/Abstracts/TxBuilder.abstract.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L70)
 
 ___
 
@@ -94,27 +116,3 @@ Should create a new [Transaction](Core.Transaction.md) instance from the supplie
 #### Defined in
 
 [classes/Abstracts/TxBuilder.abstract.class.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L42)
-
-___
-
-### validateSwapArguments
-
-▸ `Static` **validateSwapArguments**(`args`, `options`): `Promise`<`void`\>
-
-Validates a swap as having valid values. This **does not** ensure
-that your datum is well structured, only that your config arguments have valid values.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `args` | [`ISwapArgs`](../interfaces/Core.ISwapArgs.md) |
-| `options` | [`ITxBuilderBaseOptions`](../interfaces/Core.ITxBuilderBaseOptions.md) |
-
-#### Returns
-
-`Promise`<`void`\>
-
-#### Defined in
-
-[classes/Abstracts/TxBuilder.abstract.class.ts:74](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L74)

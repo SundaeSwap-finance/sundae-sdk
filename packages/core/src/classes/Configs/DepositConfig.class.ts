@@ -4,7 +4,7 @@ import {
   IDepositArgs,
   IPoolData,
   OrderAddresses,
-} from "src/@types";
+} from "../../@types";
 import { Config } from "../Abstracts/Config.abstract.class";
 
 /**
@@ -44,7 +44,7 @@ export class DepositConfig extends Config<IDepositArgs> {
     this.setSuppliedAssets(suppliedAssets);
   }
 
-  validate(): void {
+  validate(): never | void {
     super.validate();
 
     if (!this.suppliedAssets) {

@@ -17,8 +17,8 @@ import {
   IDepositArgs,
   IAsset,
   ITxBuilderComplete,
+  IWithdrawArgs,
 } from "../../../@types";
-import { ADA_ASSET_ID } from "../../../lib/constants";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
 import { DatumBuilderLucid } from "../DatumBuilders/DatumBuilder.Lucid.class";
@@ -139,12 +139,10 @@ export class TxBuilderLucid extends TxBuilder<
   }
 
   async buildSwapTx(args: ISwapArgs) {
-    TxBuilder.validateSwapArguments(args, this.options);
-
     const txInstance = await this.newTxInstance();
     const {
       pool: { ident, assetA, assetB },
-      orderAddresses: escrowAddress,
+      orderAddresses,
       suppliedAsset,
       minReceivable,
     } = args;
@@ -161,7 +159,7 @@ export class TxBuilderLucid extends TxBuilder<
         ]),
         MinimumReceivable: minReceivable,
       },
-      orderAddresses: escrowAddress,
+      orderAddresses,
       fundedAsset: suppliedAsset,
     });
 
@@ -198,6 +196,26 @@ export class TxBuilderLucid extends TxBuilder<
         CoinAAmount: (coinA as IAsset).amount,
         CoinBAmount: (coinB as IAsset).amount,
       },
+    });
+
+    tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
+    const finishedTx = await tx.get().complete();
+    const signedTx = await finishedTx.sign().complete();
+    return this._buildTxComplete(signedTx);
+  }
+
+  async buildWithdrawTx(args: IWithdrawArgs): Promise<ITxBuilderComplete> {
+    const tx = await this.newTxInstance();
+    const payment = Utils.accumulateSuppliedAssets(
+      [args.suppliedLPAsset],
+      this.options.network
+    );
+    const datumBuilder = new DatumBuilderLucid(this.options.network);
+
+    const { cbor } = datumBuilder.buildWithdrawDatum({
+      ident: args.pool.ident,
+      orderAddresses: args.orderAddresses,
+      suppliedLPAsset: args.suppliedLPAsset,
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);

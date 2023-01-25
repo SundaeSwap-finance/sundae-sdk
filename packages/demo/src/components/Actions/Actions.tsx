@@ -1,10 +1,12 @@
-import { AssetAmount, IPoolQuery, OrderAddresses } from "@sundaeswap/sdk-core";
-import { FC, useCallback, useState } from "react";
-import ReactJson from "react-json-view";
+import { IPoolQuery, OrderAddresses } from "@sundaeswap/sdk-core";
+import { Dispatch, FC, SetStateAction, useState } from "react";
 import { useAppState } from "../../state/context";
-import Button from "../Button";
+import { Deposit } from "./modules/Deposit";
+import { SwapAB } from "./modules/SwapAB";
+import { SwapBA } from "./modules/SwapBA";
+import { Withdraw } from "./modules/Withdraw";
 
-const poolQuery: IPoolQuery = {
+export const poolQuery: IPoolQuery = {
   pair: [
     "",
     "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
@@ -12,102 +14,29 @@ const poolQuery: IPoolQuery = {
   fee: "0.30",
 };
 
-const defaultOrderAddresses: OrderAddresses = {
+export const defaultOrderAddresses: OrderAddresses = {
   DestinationAddress: {
     address:
       "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32",
   },
 };
 
+interface CBOR {
+  cbor: string;
+  hash?: string;
+}
+
+export interface ActionArgs {
+  submit?: boolean;
+  setCBOR: Dispatch<SetStateAction<CBOR>>;
+}
+
 export const Actions: FC = () => {
   const { SDK } = useAppState();
-  const [swapping, setSwapping] = useState(false);
-  const [reverseSwapping, setReverseSwapping] = useState(false);
-  const [depositing, setDepositing] = useState(false);
-  const [cbor, setCBOR] = useState("");
-
-  const handleSwap = useCallback(async () => {
-    if (!SDK) {
-      return;
-    }
-
-    setSwapping(true);
-    try {
-      const pool = await SDK.query().findPoolData(poolQuery);
-      await SDK.swap({
-        pool,
-        orderAddresses: defaultOrderAddresses,
-        suppliedAsset: {
-          assetId:
-            "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-          amount: new AssetAmount(20000000n, 6),
-        },
-      }).then(({ cbor }) => {
-        setCBOR(cbor);
-      });
-    } catch (e) {
-      console.log(e);
-    }
-
-    setSwapping(false);
-  }, [SDK]);
-
-  const handleReverseSwap = useCallback(async () => {
-    if (!SDK) {
-      return;
-    }
-
-    setReverseSwapping(true);
-    try {
-      const pool = await SDK.query().findPoolData(poolQuery);
-      await SDK.swap({
-        pool,
-        orderAddresses: defaultOrderAddresses,
-        suppliedAsset: {
-          assetId: "",
-          amount: new AssetAmount(25000000n, 6),
-        },
-      }).then(({ cbor }) => {
-        setCBOR(cbor);
-      });
-    } catch (e) {
-      console.log(e);
-    }
-
-    setReverseSwapping(false);
-  }, [SDK]);
-
-  const handleDeposit = useCallback(async () => {
-    if (!SDK) {
-      return;
-    }
-
-    setDepositing(true);
-    try {
-      const pool = await SDK.query().findPoolData(poolQuery);
-      await SDK.deposit({
-        orderAddresses: defaultOrderAddresses,
-        pool,
-        suppliedAssets: [
-          {
-            assetId: "",
-            amount: new AssetAmount(25000000n, 6),
-          },
-          {
-            assetId:
-              "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-            amount: new AssetAmount(20000000n, 6),
-          },
-        ],
-      }).then(({ cbor }) => {
-        setCBOR(cbor);
-      });
-    } catch (e) {
-      console.log(e);
-    }
-
-    setDepositing(false);
-  }, [SDK]);
+  const [cbor, setCBOR] = useState<CBOR>({
+    cbor: "",
+  });
+  const [submit, setSubmit] = useState(false);
 
   if (!SDK) {
     return null;
@@ -115,23 +44,37 @@ export const Actions: FC = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="mb-4 text-lg font-bold text-white">
+      <h2 className="mb-4 text-lg font-bold text-white flex items-center justify-between">
         SundaeSwap Protocol Actions
+        <div className="flex items-center justify-center gap-2">
+          <label htmlFor="submitTx">Submit to Wallet?</label>
+          <input
+            id="submitTx"
+            type="checkbox"
+            checked={submit}
+            onChange={(e) => setSubmit(e.target.checked)}
+          />
+        </div>
       </h2>
-      <div className="grid grid-cols-3 gap-4">
-        <Button onClick={handleSwap} loading={swapping}>
-          Swap tINDY for tADA
-        </Button>
-        <Button onClick={handleReverseSwap} loading={reverseSwapping}>
-          Swap tADA for tINDY
-        </Button>
-        <Button onClick={handleDeposit} loading={depositing}>
-          Deposit tADA/tINDY
-        </Button>
+      <div className="grid grid-cols-2 gap-4">
+        <SwapAB setCBOR={setCBOR} submit={submit} />
+        <SwapBA setCBOR={setCBOR} submit={submit} />
       </div>
+      <div className="grid grid-cols-2 gap-4">
+        <Deposit setCBOR={setCBOR} submit={submit} />
+        <Withdraw setCBOR={setCBOR} submit={submit} />
+      </div>
+      {cbor.hash && (
+        <>
+          <h2 className="mb-4 text-lg font-bold text-white">Tx Hash</h2>
+          <div className="p-8 rounded-lg bg-gray-800 border-gray-700 whitespace-pre-wrap break-all">
+            {cbor.hash}
+          </div>
+        </>
+      )}
       <h2 className="mb-4 text-lg font-bold text-white">CBOR</h2>
       <div className="p-8 rounded-lg bg-gray-800 border-gray-700 whitespace-pre-wrap break-all">
-        {cbor}
+        {cbor.cbor}
       </div>
     </div>
   );

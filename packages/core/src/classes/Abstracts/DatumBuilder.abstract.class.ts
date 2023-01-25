@@ -2,10 +2,12 @@ import {
   DatumResult,
   DepositArguments,
   DepositMixed,
+  IAsset,
   OrderAddresses,
   Swap,
   SwapArguments,
   TSupportedNetworks,
+  WithdrawArguments,
 } from "../../@types";
 import { AssetAmount } from "../AssetAmount.class";
 import { Utils } from "../Utils.class";
@@ -36,7 +38,14 @@ export abstract class DatumBuilder<Data = any> {
    */
   abstract buildDepositDatum(args: DepositArguments): DatumResult<Data>;
 
+  /**
+   * Should build a Datum for a Withdraw transaction.
+   * @param args The Withdraw arguments.
+   */
+  abstract buildWithdrawDatum(args: WithdrawArguments): DatumResult<Data>;
+
   abstract buildScooperFee(fee: bigint): bigint;
+  abstract buildWithdrawAsset(fundedLPAsset: IAsset): DatumResult<Data>;
   abstract buildDepositPair(deposit: DepositMixed): DatumResult<Data>;
   abstract buildOrderAddresses(addresses: OrderAddresses): DatumResult<Data>;
   abstract buildSwapDirection(
@@ -48,5 +57,23 @@ export abstract class DatumBuilder<Data = any> {
     return Utils.getParams(this.network);
   }
 
-  protected validateScooperFee() {}
+  /**
+   * This must be called when an invalid address is supplied to the buildOrderAddresses method.
+   * While there is no way to enforce this from being called, it will fail tests unless invalid addresses cause the error
+   * to be thrown.
+   *
+   * @see {@link Testing}
+   * @param orderAddresses
+   * @param errorMessage
+   */
+  static throwInvalidOrderAddressesError(
+    orderAddresses: OrderAddresses,
+    errorMessage: string
+  ): never {
+    throw new Error(
+      `You supplied invalid OrderAddresses: ${JSON.stringify(
+        orderAddresses
+      )}. Please check your arguments and try again. Error message from DatumBuilder: ${errorMessage}`
+    );
+  }
 }

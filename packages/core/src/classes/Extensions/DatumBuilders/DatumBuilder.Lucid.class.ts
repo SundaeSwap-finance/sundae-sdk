@@ -1,14 +1,22 @@
-import { Data, Constr, getAddressDetails } from "lucid-cardano";
+import {
+  Data,
+  Constr,
+  getAddressDetails,
+  C,
+  AddressDetails,
+} from "lucid-cardano";
 import { AssetAmount } from "../../../classes/AssetAmount.class";
 
 import {
   DatumResult,
   DepositArguments,
   DepositMixed,
+  IAsset,
   OrderAddresses,
   Swap,
   SwapArguments,
   TSupportedNetworks,
+  WithdrawArguments,
 } from "../../../@types";
 import { DatumBuilder } from "../../Abstracts/DatumBuilder.abstract.class";
 
@@ -18,9 +26,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   }
 
   /**
-   * Build the main datum for a swap transaction.
-   * @param args
-   * @returns
+   * Builds the Swap datum.
    */
   buildSwapDatum({
     ident,
@@ -37,11 +43,14 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
     ]);
 
     return {
-      datum,
       cbor: Data.to(datum),
+      datum,
     };
   }
 
+  /**
+   * Builds the Deposit datum.
+   */
   buildDepositDatum({
     ident,
     orderAddresses,
@@ -61,10 +70,42 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
     };
   }
 
+  /**
+   * Builds the Withdraw datum.
+   */
+  buildWithdrawDatum({
+    ident,
+    orderAddresses,
+    suppliedLPAsset,
+    scooperFee,
+  }: WithdrawArguments) {
+    const datum = new Constr(0, [
+      ident,
+      this.buildOrderAddresses(orderAddresses).datum,
+      this.buildScooperFee(scooperFee),
+      this.buildWithdrawAsset(suppliedLPAsset).datum,
+    ]);
+
+    return {
+      cbor: Data.to(datum),
+      datum,
+    };
+  }
+
+  /**
+   * Builds the fee for the Scoopers. Defaults to {@link IProtocolParams.SCOOPER_FEE}
+   * @param fee The custom fee if provided.
+   * @returns
+   */
   buildScooperFee(fee?: bigint): bigint {
     return fee ?? this.getParams().SCOOPER_FEE;
   }
 
+  /**
+   * Builds the pair of assets for depositing in the pool.
+   * @param deposit A pair of assets that match CoinA and CoinB of the pool.
+   * @returns
+   */
   buildDepositPair(deposit: DepositMixed): DatumResult<Data> {
     const datum = new Constr(2, [
       new Constr(1, [
@@ -74,6 +115,19 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
         ]),
       ]),
     ]);
+    return {
+      cbor: Data.to(datum),
+      datum,
+    };
+  }
+
+  /**
+   * Builds the LP tokens to send to the pool.
+   * @param fundedLPAsset The LP tokens to send to the pool.
+   */
+  buildWithdrawAsset(fundedLPAsset: IAsset): DatumResult<Data> {
+    const datum = new Constr(1, [fundedLPAsset.amount.getAmount()]);
+
     return {
       cbor: Data.to(datum),
       datum,
@@ -111,6 +165,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
    * @returns
    */
   buildOrderAddresses(addresses: OrderAddresses) {
+    this.orderAddressesAreValid(addresses);
     const { DestinationAddress, AlternateAddress } = addresses;
     const destination = this._getAddressHashes(DestinationAddress.address);
 
@@ -164,5 +219,88 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
       paymentCredentials: details.paymentCredential.hash,
       stakeCredentials: details.stakeCredential?.hash,
     };
+  }
+
+  /**
+   * Validates the {@link OrderAddresses} arguments as being valid Cardano address strings.
+   */
+  private orderAddressesAreValid(orderAddresses: OrderAddresses) {
+    const address = orderAddresses.DestinationAddress.address;
+    const datumHash = orderAddresses.DestinationAddress.datumHash;
+    const canceler = orderAddresses.AlternateAddress;
+
+    // Validate destination address.
+    let addressDetails: AddressDetails;
+    let cancelerAddressDetails: AddressDetails | undefined;
+    try {
+      addressDetails = getAddressDetails(address);
+      if (canceler) {
+        cancelerAddressDetails = getAddressDetails(canceler);
+      }
+    } catch (e) {
+      DatumBuilder.throwInvalidOrderAddressesError(
+        orderAddresses,
+        (e as Error).message
+      );
+    }
+
+    const { networkId: addressNetworkId } = addressDetails;
+    if (addressNetworkId !== 1 && this.network === "mainnet") {
+      DatumBuilder.throwInvalidOrderAddressesError(
+        orderAddresses,
+        `Invalid address: ${address}. The given address is not a Mainnet Network address.`
+      );
+    } else if (addressNetworkId !== 0) {
+      DatumBuilder.throwInvalidOrderAddressesError(
+        orderAddresses,
+        `Invalid address: ${address}.`
+      );
+    }
+
+    // Validate destination address.
+    if (cancelerAddressDetails) {
+      if (
+        cancelerAddressDetails.networkId !== 1 &&
+        this.network === "mainnet"
+      ) {
+        DatumBuilder.throwInvalidOrderAddressesError(
+          orderAddresses,
+          `Invalid address: ${address}. The given address is not a Mainnet Network address.`
+        );
+      } else if (cancelerAddressDetails.networkId !== 0) {
+        DatumBuilder.throwInvalidOrderAddressesError(
+          orderAddresses,
+          `Invalid address: ${address}.`
+        );
+      }
+    }
+
+    // Ensure that the address can be serialized.
+    const realAddress = C.Address.from_bech32(address);
+
+    // Ensure the datumHash is valid HEX if the address is a script.
+    const isScript = (realAddress.to_bytes()[0] & 0b00010000) !== 0;
+    if (isScript) {
+      if (datumHash) {
+        try {
+          C.DataHash.from_hex(datumHash);
+        } catch (e) {
+          DatumBuilder.throwInvalidOrderAddressesError(
+            orderAddresses,
+            `The datumHash provided was not a valid hex string. Original error: ${JSON.stringify(
+              {
+                datumHash,
+                originalErrorMessage: (e as Error).message,
+              }
+            )}`
+          );
+        }
+      } else {
+        DatumBuilder.throwInvalidOrderAddressesError(
+          orderAddresses,
+          `The DestinationAddress is a Script Address, a Datum hash was not supplied. This will brick your funds! Supply a valid DatumHash with your DestinationAddress to proceed.`
+        );
+      }
+    }
   }
 }

@@ -55,6 +55,21 @@ describe("Utils class", () => {
       amount: 35640000n,
       decimals: 6,
     });
+
+    try {
+      Utils.getMinReceivableFromSlippage(
+        mockPoolData,
+        {
+          assetId: "not in the pool",
+          amount: new AssetAmount(10n),
+        },
+        0.1
+      );
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        `The supplied asset ID does not match either assets within the supplied pool data. {"suppliedAssetID":"not in the pool","poolAssetIDs":["","fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459"]}`
+      );
+    }
   });
 
   it("should accurately accumulate suppliedAssets", () => {
@@ -77,5 +92,38 @@ describe("Utils class", () => {
       fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459:
         20000000n,
     });
+  });
+
+  it("should accurately sort a pair of assets", () => {
+    const result = Utils.sortSwapAssets([mockSuppliedIndy, mockSuppliedADA]);
+    expect(result[0]).toEqual(mockSuppliedADA);
+    expect(result[1]).toEqual(mockSuppliedIndy);
+
+    const result2 = Utils.sortSwapAssets([
+      mockSuppliedIndy,
+      {
+        ...mockSuppliedIndy,
+        assetId: "abcd",
+      },
+    ]);
+    expect(result2[0]).toEqual({
+      ...mockSuppliedIndy,
+      assetId: "abcd",
+    });
+    expect(result2[1]).toEqual(mockSuppliedIndy);
+  });
+
+  it("should accurately get the swap direction", () => {
+    const result = Utils.getAssetSwapDirection(
+      { assetId: "", amount: new AssetAmount(10n) },
+      [mockPoolData.assetA, mockPoolData.assetB]
+    );
+    expect(result).toEqual(0);
+
+    const result2 = Utils.getAssetSwapDirection(mockSuppliedIndy, [
+      mockPoolData.assetA,
+      mockPoolData.assetB,
+    ]);
+    expect(result2).toEqual(1);
   });
 });
