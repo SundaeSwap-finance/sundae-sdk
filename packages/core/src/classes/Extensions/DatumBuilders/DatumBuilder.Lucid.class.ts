@@ -1,4 +1,10 @@
-import { Data, Constr, getAddressDetails } from "lucid-cardano";
+import {
+  Data,
+  Constr,
+  getAddressDetails,
+  C,
+  AddressDetails,
+} from "lucid-cardano";
 import { AssetAmount } from "../../../classes/AssetAmount.class";
 
 import {
@@ -159,6 +165,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
    * @returns
    */
   buildOrderAddresses(addresses: OrderAddresses) {
+    this.orderAddressesAreValid(addresses);
     const { DestinationAddress, AlternateAddress } = addresses;
     const destination = this._getAddressHashes(DestinationAddress.address);
 
@@ -212,5 +219,88 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
       paymentCredentials: details.paymentCredential.hash,
       stakeCredentials: details.stakeCredential?.hash,
     };
+  }
+
+  /**
+   * Validates the {@link OrderAddresses} arguments as being valid Cardano address strings.
+   */
+  private orderAddressesAreValid(orderAddresses: OrderAddresses) {
+    const address = orderAddresses.DestinationAddress.address;
+    const datumHash = orderAddresses.DestinationAddress.datumHash;
+    const canceler = orderAddresses.AlternateAddress;
+
+    // Validate destination address.
+    let addressDetails: AddressDetails;
+    let cancelerAddressDetails: AddressDetails | undefined;
+    try {
+      addressDetails = getAddressDetails(address);
+      if (canceler) {
+        cancelerAddressDetails = getAddressDetails(canceler);
+      }
+    } catch (e) {
+      DatumBuilder.throwInvalidOrderAddressesError(
+        orderAddresses,
+        (e as Error).message
+      );
+    }
+
+    const { networkId: addressNetworkId } = addressDetails;
+    if (addressNetworkId !== 1 && this.network === "mainnet") {
+      DatumBuilder.throwInvalidOrderAddressesError(
+        orderAddresses,
+        `Invalid address: ${address}. The given address is not a Mainnet Network address.`
+      );
+    } else if (addressNetworkId !== 0) {
+      DatumBuilder.throwInvalidOrderAddressesError(
+        orderAddresses,
+        `Invalid address: ${address}.`
+      );
+    }
+
+    // Validate destination address.
+    if (cancelerAddressDetails) {
+      if (
+        cancelerAddressDetails.networkId !== 1 &&
+        this.network === "mainnet"
+      ) {
+        DatumBuilder.throwInvalidOrderAddressesError(
+          orderAddresses,
+          `Invalid address: ${address}. The given address is not a Mainnet Network address.`
+        );
+      } else if (cancelerAddressDetails.networkId !== 0) {
+        DatumBuilder.throwInvalidOrderAddressesError(
+          orderAddresses,
+          `Invalid address: ${address}.`
+        );
+      }
+    }
+
+    // Ensure that the address can be serialized.
+    const realAddress = C.Address.from_bech32(address);
+
+    // Ensure the datumHash is valid HEX if the address is a script.
+    const isScript = (realAddress.to_bytes()[0] & 0b00010000) !== 0;
+    if (isScript) {
+      if (datumHash) {
+        try {
+          C.DataHash.from_hex(datumHash);
+        } catch (e) {
+          DatumBuilder.throwInvalidOrderAddressesError(
+            orderAddresses,
+            `The datumHash provided was not a valid hex string. Original error: ${JSON.stringify(
+              {
+                datumHash,
+                originalErrorMessage: (e as Error).message,
+              }
+            )}`
+          );
+        }
+      } else {
+        DatumBuilder.throwInvalidOrderAddressesError(
+          orderAddresses,
+          `The DestinationAddress is a Script Address, a Datum hash was not supplied. This will brick your funds! Supply a valid DatumHash with your DestinationAddress to proceed.`
+        );
+      }
+    }
   }
 }

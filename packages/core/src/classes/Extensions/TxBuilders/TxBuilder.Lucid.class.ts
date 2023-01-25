@@ -19,7 +19,6 @@ import {
   ITxBuilderComplete,
   IWithdrawArgs,
 } from "../../../@types";
-import { ADA_ASSET_ID } from "../../../lib/constants";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
 import { DatumBuilderLucid } from "../DatumBuilders/DatumBuilder.Lucid.class";
@@ -140,12 +139,10 @@ export class TxBuilderLucid extends TxBuilder<
   }
 
   async buildSwapTx(args: ISwapArgs) {
-    TxBuilder.validateSwapArguments(args, this.options);
-
     const txInstance = await this.newTxInstance();
     const {
       pool: { ident, assetA, assetB },
-      orderAddresses: escrowAddress,
+      orderAddresses,
       suppliedAsset,
       minReceivable,
     } = args;
@@ -162,7 +159,7 @@ export class TxBuilderLucid extends TxBuilder<
         ]),
         MinimumReceivable: minReceivable,
       },
-      orderAddresses: escrowAddress,
+      orderAddresses,
       fundedAsset: suppliedAsset,
     });
 

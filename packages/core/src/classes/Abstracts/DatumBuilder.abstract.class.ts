@@ -57,5 +57,23 @@ export abstract class DatumBuilder<Data = any> {
     return Utils.getParams(this.network);
   }
 
-  protected validateScooperFee() {}
+  /**
+   * This must be called when an invalid address is supplied to the buildOrderAddresses method.
+   * While there is no way to enforce this from being called, it will fail tests unless invalid addresses cause the error
+   * to be thrown.
+   *
+   * @see {@link Testing}
+   * @param orderAddresses
+   * @param errorMessage
+   */
+  static throwInvalidOrderAddressesError(
+    orderAddresses: OrderAddresses,
+    errorMessage: string
+  ): never {
+    throw new Error(
+      `You supplied invalid OrderAddresses: ${JSON.stringify(
+        orderAddresses
+      )}. Please check your arguments and try again. Error message from DatumBuilder: ${errorMessage}`
+    );
+  }
 }

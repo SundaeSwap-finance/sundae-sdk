@@ -1,5 +1,4 @@
 import {
-  IAsset,
   IDepositArgs,
   ISwapArgs,
   IQueryProviderClass,
@@ -70,73 +69,5 @@ export abstract class TxBuilder<
    */
   protected getParams() {
     return Utils.getParams(this.options.network);
-  }
-
-  /**
-   * Validates a swap as having valid values. This **does not** ensure
-   * that your datum is well structured, only that your config arguments have valid values.
-   * @param args
-   * @param options
-   * @param datumHash
-   */
-  static async validateSwapArguments(
-    args: ISwapArgs,
-    options: ITxBuilderBaseOptions
-  ) {
-    const address = args.orderAddresses.DestinationAddress.address;
-    const datumHash = args.orderAddresses.DestinationAddress.datumHash;
-    const canceler = args.orderAddresses.AlternateAddress;
-
-    const { getAddressDetails } = await import("lucid-cardano");
-
-    // Validate destination address.
-    const { networkId: addressNetworkId } = getAddressDetails(address);
-    if (addressNetworkId !== 1 && options.network === "mainnet") {
-      throw new Error(
-        `Invalid address: ${address}. The given address is not a Mainnet Network address.`
-      );
-    } else if (addressNetworkId !== 0) {
-      throw new Error(`Invalid address: ${address}.`);
-    }
-
-    // Validate destination address.
-    if (canceler) {
-      const { networkId: cancelerAddressId } = getAddressDetails(canceler);
-      if (cancelerAddressId !== 1 && options.network === "mainnet") {
-        throw new Error(
-          `Invalid address: ${address}. The given address is not a Mainnet Network address.`
-        );
-      } else if (cancelerAddressId !== 0) {
-        throw new Error(`Invalid address: ${address}.`);
-      }
-    }
-
-    // Ensure that the address can be serialized.
-    const { C } = await import("lucid-cardano");
-    const realAddress = C.Address.from_bech32(address);
-
-    // Ensure the datumHash is valid HEX if the address is a script.
-    const isScript = (realAddress.to_bytes()[0] & 0b00010000) !== 0;
-
-    if (isScript) {
-      if (datumHash) {
-        try {
-          C.DataHash.from_hex(datumHash);
-        } catch (e) {
-          throw new Error(
-            `The datumHash provided was not a valid hex string. Original error: ${JSON.stringify(
-              {
-                datumHash,
-                originalErrorMessage: (e as Error).message,
-              }
-            )}`
-          );
-        }
-      } else {
-        throw new Error(
-          `The DestinationAddress is a Script Address, a Datum hash was not supplied. This will brick your funds! Supply a valid DatumHash with your DestinationAddress to proceed.`
-        );
-      }
-    }
   }
 }

@@ -39,7 +39,7 @@ The main function to build a deposit Transaction.
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L58)
+[classes/Abstracts/TxBuilder.abstract.class.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L57)
 
 ___
 
@@ -61,7 +61,7 @@ The main function to build a swap Transaction.
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:51](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L51)
+[classes/Abstracts/TxBuilder.abstract.class.ts:50](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L50)
 
 ___
 
@@ -83,7 +83,7 @@ The main function to build a withdraw Transaction.
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:65](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L65)
+[classes/Abstracts/TxBuilder.abstract.class.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L64)
 
 ___
 
@@ -99,7 +99,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:71](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L71)
+[classes/Abstracts/TxBuilder.abstract.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L70)
 
 ___
 
@@ -115,28 +115,4 @@ Should create a new [Transaction](Core.Transaction.md) instance from the supplie
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:43](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L43)
-
-___
-
-### validateSwapArguments
-
-▸ `Static` **validateSwapArguments**(`args`, `options`): `Promise`<`void`\>
-
-Validates a swap as having valid values. This **does not** ensure
-that your datum is well structured, only that your config arguments have valid values.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `args` | [`ISwapArgs`](../interfaces/Core.ISwapArgs.md) |
-| `options` | [`ITxBuilderBaseOptions`](../interfaces/Core.ITxBuilderBaseOptions.md) |
-
-#### Returns
-
-`Promise`<`void`\>
-
-#### Defined in
-
-[classes/Abstracts/TxBuilder.abstract.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L82)
+[classes/Abstracts/TxBuilder.abstract.class.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L42)

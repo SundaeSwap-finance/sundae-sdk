@@ -49,7 +49,7 @@ TxBuilder&lt;
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L82)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:81](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L81)
 
 ## Properties
 
@@ -65,7 +65,7 @@ TxBuilder.options
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:83](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L83)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L82)
 
 ___
 
@@ -81,7 +81,7 @@ TxBuilder.query
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L84)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:83](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L83)
 
 ## Methods
 
@@ -101,7 +101,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:71](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L71)
+[classes/Abstracts/TxBuilder.abstract.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L70)
 
 ___
 
@@ -117,7 +117,7 @@ Initializes a Lucid instance with the
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:103](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L103)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:102](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L102)
 
 ___
 
@@ -137,32 +137,4 @@ Returns a new Tx instance from Lucid. Throws an error if not ready.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:134](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L134)
-
-___
-
-### validateSwapArguments
-
-▸ `Static` **validateSwapArguments**(`args`, `options`): `Promise`<`void`\>
-
-Validates a swap as having valid values. This **does not** ensure
-that your datum is well structured, only that your config arguments have valid values.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `args` | [`ISwapArgs`](../interfaces/Core.ISwapArgs.md) |
-| `options` | [`ITxBuilderBaseOptions`](../interfaces/Core.ITxBuilderBaseOptions.md) |
-
-#### Returns
-
-`Promise`<`void`\>
-
-#### Inherited from
-
-[TxBuilder](Core.TxBuilder.md).[validateSwapArguments](Core.TxBuilder.md#validateswaparguments)
-
-#### Defined in
-
-[classes/Abstracts/TxBuilder.abstract.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L82)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:133](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L133)

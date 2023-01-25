@@ -83,3 +83,32 @@ Should build a Datum for a Withdraw transaction.
 #### Defined in
 
 [classes/Abstracts/DatumBuilder.abstract.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L45)
+
+___
+
+### throwInvalidOrderAddressesError
+
+▸ `Static` **throwInvalidOrderAddressesError**(`orderAddresses`, `errorMessage`): `never`
+
+This must be called when an invalid address is supplied to the buildOrderAddresses method.
+While there is no way to enforce this from being called, it will fail tests unless invalid addresses cause the error
+to be thrown.
+
+**`See`**
+
+[Testing](../modules/Testing.md)
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `orderAddresses` | [`OrderAddresses`](../modules/Core.md#orderaddresses) |
+| `errorMessage` | `string` |
+
+#### Returns
+
+`never`
+
+#### Defined in
+
+[classes/Abstracts/DatumBuilder.abstract.class.ts:69](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L69)
