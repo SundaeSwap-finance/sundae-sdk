@@ -81,7 +81,7 @@ Config.setFromObject
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L89)
+[classes/Configs/SwapConfig.class.ts:88](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L88)
 
 ___
 

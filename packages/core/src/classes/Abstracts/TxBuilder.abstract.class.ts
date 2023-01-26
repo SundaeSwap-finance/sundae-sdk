@@ -5,6 +5,7 @@ import {
   ITxBuilderComplete,
   ITxBuilderBaseOptions,
   IWithdrawArgs,
+  IZapArgs,
 } from "../../@types";
 import { Transaction } from "../Transaction.class";
 import { Utils } from "../Utils.class";
@@ -52,16 +53,23 @@ export abstract class TxBuilder<
   /**
    * The main function to build a deposit Transaction.
    *
-   * @param args The built DepositArguments from a {@link DepositConfig} instance.
+   * @param args The built {@link DepositArguments} from a {@link DepositConfig} instance.
    */
   abstract buildDepositTx(args: IDepositArgs): Promise<ITxBuilderComplete>;
 
   /**
    * The main function to build a withdraw Transaction.
    *
-   * @param args The build WithdrawArguments from a {@link WithdrawConfig} instance.
+   * @param args The build {@link WithdrawArguments} from a {@link WithdrawConfig} instance.
    */
   abstract buildWithdrawTx(args: IWithdrawArgs): Promise<ITxBuilderComplete>;
+
+  /**
+   * The main function to build a zap Transaction.
+   *
+   * @param args The build {@link ZapArguments} from a {@link ZapConfig} instance.
+   */
+  abstract buildZapTx(args: IZapArgs): Promise<ITxBuilderComplete>;
 
   /**
    * Helper function for child classes to easily grab the appropriate protocol parameters for SundaeSwap.

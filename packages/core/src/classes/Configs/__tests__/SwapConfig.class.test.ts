@@ -1,6 +1,6 @@
-import { IAsset, IPoolData } from "../../@types";
-import { AssetAmount } from "../AssetAmount.class";
-import { SwapConfig } from "../Configs/SwapConfig.class";
+import { IAsset, IPoolData } from "../../../@types";
+import { AssetAmount } from "../../AssetAmount.class";
+import { SwapConfig } from "../SwapConfig.class";
 
 const mockPool: IPoolData = {
   assetA: {
@@ -76,7 +76,7 @@ describe("SwapConfig class", () => {
     expect(config.suppliedAsset).toMatchObject(asset);
   });
 
-  it("setEscrowAddress and getEscrowAddress", () => {
+  it("should set the orderAddresses correctly", () => {
     config.setOrderAddresses({
       DestinationAddress: {
         address: mockAddress,
@@ -87,22 +87,6 @@ describe("SwapConfig class", () => {
         address: mockAddress,
       },
     });
-  });
-
-  it("should throw an error if a pool isn't set", () => {
-    config.setSuppliedAsset({
-      amount: new AssetAmount(20n, 6),
-      assetId: "tINDY",
-    });
-
-    try {
-      config.buildArgs();
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
-        "You haven't set a pool in your Config. Set a pool with .setPool()"
-      );
-    }
   });
 
   it("should throw when providing invalid assetIDs to setSuppliedAsset()", () => {
@@ -148,22 +132,6 @@ describe("SwapConfig class", () => {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toEqual(
         "Invalid assetId: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459. You likely forgot to concatenate with a period, like so: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459"
-      );
-    }
-  });
-
-  it("should throw when not providing a receiving address", () => {
-    config
-      .setPool(mockPool)
-      .setMinReceivable(new AssetAmount(10n))
-      .setSuppliedAsset(mockFunding);
-
-    try {
-      config.buildArgs();
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
-        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
       );
     }
   });

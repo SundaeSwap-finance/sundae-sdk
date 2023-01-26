@@ -139,45 +139,132 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
       expect(result2.cbor).toEqual(
         "d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd87a80ff"
       );
+
+      const result3 = builderInstance.buildOrderAddresses({
+        DestinationAddress: {
+          address:
+            "addr_test1vz5ykwgmrejk3mdw0u3cewqx375qkjwnv5n4mhgjwap4n4qrymjhv",
+        },
+      });
+
+      expect(result3.cbor).toEqual(
+        "d8799fd8799fd8799fd8799f581ca84b391b1e6568edae7f238cb8068fa80b49d365275ddd12774359d4ffd87a80ffd87a80ffd87a80ff"
+      );
+
+      const testDatum = builderInstance.buildOrderAddresses(
+        DEFAULT_ORDER_ADDRESSES
+      );
+      const result4 = builderInstance.buildOrderAddresses({
+        DestinationAddress: {
+          address: DEFAULT_ORDER_ADDRESSES.DestinationAddress.address,
+          datumHash: testDatum.cbor,
+        },
+      });
+
+      expect(result4.cbor).toEqual(
+        "d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd8799f5f5840d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc98583d82457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd8799f581c02659dc406e1d51c2695bc23962b30487d3ceb995beb13b698509c6fffffffffffd87a80ff"
+      );
     });
 
-    it("should fail when passing an invalid DestinationAddress or AlternateAddress", () => {
+    it("should fail when passing just a staking key as the DestinationAddress", () => {
       try {
         builderInstance.buildOrderAddresses({
           DestinationAddress: {
-            address: "invalidAddress",
+            address:
+              "stake_test1uqxn89tuq7kdmhkvnzpy2ldz9uz7p5vf7l7ftvvh9ek4zpghgvr36",
           },
         });
       } catch (e) {
-        expect(
-          DatumBuilder.throwInvalidOrderAddressesError
-        ).toHaveBeenCalledWith(
-          {
-            DestinationAddress: {
-              address: "invalidAddress",
-            },
+        expect((e as Error).message).toEqual(
+          "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key."
+        );
+      }
+    });
+
+    it("should fail with non-serializable address strings", () => {
+      try {
+        builderInstance.buildOrderAddresses({
+          DestinationAddress: {
+            address: "invalid",
           },
-          "No address type matched for: invalidAddress"
+        });
+      } catch (e) {
+        expect((e as Error).message).toEqual(
+          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"invalid"}}. Please check your arguments and try again. Error message from DatumBuilder: No address type matched for: invalid'
         );
       }
 
       try {
         builderInstance.buildOrderAddresses({
-          DestinationAddress: DEFAULT_ORDER_ADDRESSES.DestinationAddress,
-          AlternateAddress: "invalidAlternate",
+          ...DEFAULT_ORDER_ADDRESSES,
+          AlternateAddress: "invalid",
         });
       } catch (e) {
-        expect(
-          DatumBuilder.throwInvalidOrderAddressesError
-        ).toHaveBeenCalledWith(
-          {
-            DestinationAddress: {
-              address:
-                "addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294",
-            },
-            AlternateAddress: "invalidAlternate",
+        expect((e as Error).message).toEqual(
+          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"},"AlternateAddress":"invalid"}. Please check your arguments and try again. Error message from DatumBuilder: No address type matched for: invalid'
+        );
+      }
+    });
+
+    it("should fail when passing a Preview Network DestinationAddress to an Mainnet instance", () => {
+      try {
+        builderInstance.network = "mainnet";
+        builderInstance.buildOrderAddresses({
+          DestinationAddress: {
+            address: DEFAULT_ORDER_ADDRESSES.DestinationAddress.address,
           },
-          "No address type matched for: invalidAlternate"
+        });
+      } catch (e) {
+        expect((e as Error).message).toEqual(
+          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"}}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a Mainnet Network address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294.'
+        );
+      }
+    });
+
+    it("should fail when passing a Mainnet DestinationAddress to a Preview instance", () => {
+      try {
+        builderInstance.buildOrderAddresses({
+          DestinationAddress: {
+            // Taken randomly from Cardanoscan
+            address:
+              "addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk",
+          },
+        });
+      } catch (e) {
+        expect((e as Error).message).toEqual(
+          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk"}}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a (Preview/Testnet/PreProd) Network address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk.'
+        );
+      }
+    });
+
+    it("should fail when passing a Preview Network AlternateAddress to an Mainnet instance", () => {
+      try {
+        builderInstance.network = "mainnet";
+        builderInstance.buildOrderAddresses({
+          DestinationAddress: {
+            address:
+              "addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk",
+          },
+          AlternateAddress:
+            "addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294",
+        });
+      } catch (e) {
+        expect((e as Error).message).toEqual(
+          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk"},"AlternateAddress":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a (Preview/Testnet/PreProd) Network address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk.'
+        );
+      }
+    });
+
+    it("should fail when passing a Mainnet Network AlternateAddress to an Preview instance", () => {
+      try {
+        builderInstance.buildOrderAddresses({
+          ...DEFAULT_ORDER_ADDRESSES,
+          AlternateAddress:
+            "addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk",
+        });
+      } catch (e) {
+        expect((e as Error).message).toEqual(
+          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"},"AlternateAddress":"addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk"}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a (Preview/Testnet/PreProd) Network address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk.'
         );
       }
     });

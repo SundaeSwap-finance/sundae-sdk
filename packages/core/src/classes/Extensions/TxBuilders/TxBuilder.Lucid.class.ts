@@ -18,6 +18,7 @@ import {
   IAsset,
   ITxBuilderComplete,
   IWithdrawArgs,
+  IZapArgs,
 } from "../../../@types";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
@@ -169,15 +170,7 @@ export class TxBuilderLucid extends TxBuilder<
     );
 
     txInstance.get().payToContract(ESCROW_ADDRESS, cbor, payment);
-    const finishedTx = await txInstance.get().complete();
-    const signedTx = await finishedTx.sign().complete();
-
-    return {
-      submit: async () => await signedTx.submit(),
-      cbor: (await getBuffer())
-        .from(signedTx.txSigned.to_bytes())
-        .toString("hex"),
-    };
+    return this.completeTx(txInstance);
   }
 
   async buildDepositTx(args: IDepositArgs) {
@@ -199,9 +192,7 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
-    const finishedTx = await tx.get().complete();
-    const signedTx = await finishedTx.sign().complete();
-    return this._buildTxComplete(signedTx);
+    return this.completeTx(tx);
   }
 
   async buildWithdrawTx(args: IWithdrawArgs): Promise<ITxBuilderComplete> {
@@ -219,6 +210,31 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
+    return this.completeTx(tx);
+  }
+
+  async buildZapTx(args: IZapArgs): Promise<ITxBuilderComplete> {
+    const tx = await this.newTxInstance();
+    const payment = Utils.accumulateSuppliedAssets(
+      [args.suppliedAsset],
+      this.options.network
+    );
+    const datumBuilder = new DatumBuilderLucid(this.options.network);
+
+    const { cbor } = datumBuilder.buildZapDatum({
+      ident: args.pool.ident,
+      orderAddresses: args.orderAddresses,
+      zap: {
+        CoinAmount: args.suppliedAsset.amount,
+        ZapDirection: args.zapDirection,
+      },
+    });
+
+    tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
+    return this.completeTx(tx);
+  }
+
+  private async completeTx(tx: Transaction<Tx>): Promise<ITxBuilderComplete> {
     const finishedTx = await tx.get().complete();
     const signedTx = await finishedTx.sign().complete();
     return this._buildTxComplete(signedTx);

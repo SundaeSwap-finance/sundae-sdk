@@ -1,6 +1,6 @@
-import { IAsset, IPoolData } from "../../@types";
-import { AssetAmount } from "../AssetAmount.class";
-import { WithdrawConfig } from "../Configs/WithdrawConfig.class";
+import { IAsset, IPoolData } from "../../../@types";
+import { AssetAmount } from "../../AssetAmount.class";
+import { WithdrawConfig } from "../WithdrawConfig.class";
 
 const mockPool: IPoolData = {
   assetA: {
@@ -74,7 +74,7 @@ describe("WithdrawConfig class", () => {
     expect(config.suppliedLPAsset).toMatchObject(asset);
   });
 
-  it("setEscrowAddress and getEscrowAddress", () => {
+  it("should set the orderAddresses correctly", () => {
     config.setOrderAddresses({
       DestinationAddress: {
         address: mockAddress,

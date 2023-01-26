@@ -68,13 +68,12 @@ export class SwapConfig extends Config<ISwapArgs> {
    * Used for building a swap where you already know the pool data.
    * Useful for when building Transactions directly from the builder instance.
    *
-   * @see {@link TxBuilder.buildSwapTx}
+   * @see {@link Core.TxBuilder.buildSwapTx}
    *
    * @returns
    */
   buildArgs(): ISwapArgs {
     this.validate();
-
     return {
       pool: this.pool as IPoolData,
       suppliedAsset: this.suppliedAsset as IAsset,

@@ -69,7 +69,7 @@ export type Withdraw = AssetAmount;
  */
 export type DepositSingle = {
   ZapDirection: PoolCoin;
-  MinimumReceivable: AssetAmount;
+  CoinAmount: AssetAmount;
 };
 
 /**
@@ -116,6 +116,13 @@ export interface WithdrawArguments extends Arguments {
  */
 export interface DepositArguments extends Arguments {
   deposit: DepositMixed;
+}
+
+/**
+ * Arguments for zapping an asset into a pool.
+ */
+export interface ZapArguments extends Arguments {
+  zap: DepositSingle;
 }
 
 /**

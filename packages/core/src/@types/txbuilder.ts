@@ -4,6 +4,7 @@ import {
   IPoolData,
   IAsset,
   OrderAddresses,
+  PoolCoin,
 } from ".";
 import { AssetAmount } from "../classes/AssetAmount.class";
 
@@ -50,6 +51,15 @@ export interface ISwapArgs extends IOrderArgs {
 export interface IDepositArgs extends IOrderArgs {
   orderAddresses: OrderAddresses;
   suppliedAssets: [IAsset, IAsset];
+}
+
+/**
+ * The minimum requirements for a Deposit order.
+ */
+export interface IZapArgs extends IOrderArgs {
+  orderAddresses: OrderAddresses;
+  zapDirection: PoolCoin;
+  suppliedAsset: IAsset;
 }
 
 /**

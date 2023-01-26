@@ -11,18 +11,32 @@ import {
   DatumResult,
   DepositArguments,
   DepositMixed,
+  DepositSingle,
   IAsset,
   OrderAddresses,
   Swap,
   SwapArguments,
   TSupportedNetworks,
   WithdrawArguments,
+  ZapArguments,
 } from "../../../@types";
 import { DatumBuilder } from "../../Abstracts/DatumBuilder.abstract.class";
 
+/**
+ * The Lucid implementation of a {@link Core.DatumBuilder}. This is useful
+ * if you would rather just build valid CBOR strings for just the datum
+ * portion of a valid SundaeSwap transaction.
+ */
 export class DatumBuilderLucid extends DatumBuilder<Data> {
   constructor(public network: TSupportedNetworks) {
     super();
+  }
+
+  /**
+   * Builds a hash from a Data object.
+   */
+  datumToHash(datum: Data): string {
+    return Data.to(datum);
   }
 
   /**
@@ -71,6 +85,23 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   }
 
   /**
+   * Builds the Zap datum.
+   */
+  buildZapDatum({ ident, orderAddresses, zap, scooperFee }: ZapArguments) {
+    const datum = new Constr(0, [
+      ident,
+      this.buildOrderAddresses(orderAddresses).datum,
+      this.buildScooperFee(scooperFee),
+      this.buildDepositZap(zap).datum,
+    ]);
+
+    return {
+      cbor: Data.to(datum),
+      datum,
+    };
+  }
+
+  /**
    * Builds the Withdraw datum.
    */
   buildWithdrawDatum({
@@ -93,7 +124,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   }
 
   /**
-   * Builds the fee for the Scoopers. Defaults to {@link IProtocolParams.SCOOPER_FEE}
+   * Builds the fee for the Scoopers. Defaults to {@link Core.IProtocolParams.SCOOPER_FEE}
    * @param fee The custom fee if provided.
    * @returns
    */
@@ -114,6 +145,21 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
           deposit.CoinBAmount.getAmount(),
         ]),
       ]),
+    ]);
+    return {
+      cbor: Data.to(datum),
+      datum,
+    };
+  }
+
+  /**
+   * Builds the pair of assets for depositing in the pool.
+   * @param deposit A pair of assets that match CoinA and CoinB of the pool.
+   * @returns
+   */
+  buildDepositZap(zap: DepositSingle): DatumResult<Data> {
+    const datum = new Constr(2, [
+      new Constr(zap.ZapDirection, [zap.CoinAmount.getAmount()]),
     ]);
     return {
       cbor: Data.to(datum),
@@ -158,14 +204,14 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   }
 
   /**
-   * Builds the datum for the {@link OrderAddresses} interface using a data
+   * Builds the datum for the {@link Core.OrderAddresses} interface using a data
    * constructor class from the Lucid library.
    *
    * @param address
    * @returns
    */
   buildOrderAddresses(addresses: OrderAddresses) {
-    this.orderAddressesAreValid(addresses);
+    this._validateAddressesAreValid(addresses);
     const { DestinationAddress, AlternateAddress } = addresses;
     const destination = this._getAddressHashes(DestinationAddress.address);
 
@@ -211,7 +257,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
 
     if (!details.paymentCredential) {
       throw new Error(
-        "Invalid address. Make sure you are using a Bech32 encoded address."
+        "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key."
       );
     }
 
@@ -222,58 +268,14 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   }
 
   /**
-   * Validates the {@link OrderAddresses} arguments as being valid Cardano address strings.
+   * Validates the {@link Core.OrderAddresses} arguments as being valid Cardano address strings
+   * and that they are on the correct network.
    */
-  private orderAddressesAreValid(orderAddresses: OrderAddresses) {
+  private _validateAddressesAreValid(orderAddresses: OrderAddresses) {
+    this._validateAddressNetwork(orderAddresses);
+
     const address = orderAddresses.DestinationAddress.address;
     const datumHash = orderAddresses.DestinationAddress.datumHash;
-    const canceler = orderAddresses.AlternateAddress;
-
-    // Validate destination address.
-    let addressDetails: AddressDetails;
-    let cancelerAddressDetails: AddressDetails | undefined;
-    try {
-      addressDetails = getAddressDetails(address);
-      if (canceler) {
-        cancelerAddressDetails = getAddressDetails(canceler);
-      }
-    } catch (e) {
-      DatumBuilder.throwInvalidOrderAddressesError(
-        orderAddresses,
-        (e as Error).message
-      );
-    }
-
-    const { networkId: addressNetworkId } = addressDetails;
-    if (addressNetworkId !== 1 && this.network === "mainnet") {
-      DatumBuilder.throwInvalidOrderAddressesError(
-        orderAddresses,
-        `Invalid address: ${address}. The given address is not a Mainnet Network address.`
-      );
-    } else if (addressNetworkId !== 0) {
-      DatumBuilder.throwInvalidOrderAddressesError(
-        orderAddresses,
-        `Invalid address: ${address}.`
-      );
-    }
-
-    // Validate destination address.
-    if (cancelerAddressDetails) {
-      if (
-        cancelerAddressDetails.networkId !== 1 &&
-        this.network === "mainnet"
-      ) {
-        DatumBuilder.throwInvalidOrderAddressesError(
-          orderAddresses,
-          `Invalid address: ${address}. The given address is not a Mainnet Network address.`
-        );
-      } else if (cancelerAddressDetails.networkId !== 0) {
-        DatumBuilder.throwInvalidOrderAddressesError(
-          orderAddresses,
-          `Invalid address: ${address}.`
-        );
-      }
-    }
 
     // Ensure that the address can be serialized.
     const realAddress = C.Address.from_bech32(address);
@@ -301,6 +303,70 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
           `The DestinationAddress is a Script Address, a Datum hash was not supplied. This will brick your funds! Supply a valid DatumHash with your DestinationAddress to proceed.`
         );
       }
+    }
+  }
+
+  /**
+   * Validates that the {@link Core.OrderAddresses} provided match the instance's network.
+   */
+  private _validateAddressNetwork(
+    orderAddresses: OrderAddresses
+  ): void | never {
+    const destination = orderAddresses.DestinationAddress.address;
+    const alternate = orderAddresses.AlternateAddress;
+
+    let destinationDetails: AddressDetails;
+    let alternateDetails: AddressDetails | undefined;
+    try {
+      destinationDetails = getAddressDetails(destination);
+      if (alternate) {
+        alternateDetails = getAddressDetails(alternate);
+      }
+    } catch (e) {
+      DatumBuilder.throwInvalidOrderAddressesError(
+        orderAddresses,
+        (e as Error).message
+      );
+    }
+
+    // Validate DestinationAddress
+    this._maybeThrowDestinationNetworkError(
+      destinationDetails.networkId,
+      destination,
+      orderAddresses
+    );
+
+    // Validate AlternateAddress
+    if (alternate && alternateDetails) {
+      this._maybeThrowDestinationNetworkError(
+        alternateDetails.networkId,
+        alternate,
+        orderAddresses
+      );
+    }
+  }
+
+  /**
+   * Throws an error if either of the OrderAddresses are on the wrong network.
+   * @param addressNetwork
+   * @param address
+   * @param orderAddresses
+   */
+  private _maybeThrowDestinationNetworkError(
+    addressNetwork: number,
+    address: string,
+    orderAddresses: OrderAddresses
+  ): never | void {
+    if (addressNetwork !== 1 && this.network === "mainnet") {
+      DatumBuilder.throwInvalidOrderAddressesError(
+        orderAddresses,
+        `The given address is not a Mainnet Network address: ${address}.`
+      );
+    } else if (addressNetwork !== 0) {
+      DatumBuilder.throwInvalidOrderAddressesError(
+        orderAddresses,
+        `The given address is not a (Preview/Testnet/PreProd) Network address: ${address}.`
+      );
     }
   }
 }
