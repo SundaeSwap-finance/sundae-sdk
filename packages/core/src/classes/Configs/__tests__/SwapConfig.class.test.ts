@@ -1,31 +1,7 @@
-import { IAsset, IPoolData } from "../../../@types";
+import { PREVIEW_DATA } from "../../../testing/mockData";
+import { IAsset } from "../../../@types";
 import { AssetAmount } from "../../AssetAmount.class";
 import { SwapConfig } from "../SwapConfig.class";
-
-const mockPool: IPoolData = {
-  assetA: {
-    assetId: "",
-    decimals: 6,
-  },
-  assetB: {
-    assetId:
-      "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-    decimals: 0,
-  },
-  ident: "06",
-  fee: "0.30",
-  quantityA: "100",
-  quantityB: "200",
-};
-
-const mockFunding: IAsset = {
-  amount: new AssetAmount(20n, 6),
-  assetId:
-    "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-};
-
-const mockAddress =
-  "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32";
 
 let config: SwapConfig;
 beforeEach(() => {
@@ -39,31 +15,31 @@ describe("SwapConfig class", () => {
 
   it("should construct with a config", () => {
     const myConfig = new SwapConfig({
-      pool: mockPool,
+      pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       },
-      suppliedAsset: mockFunding,
+      suppliedAsset: PREVIEW_DATA.assets.tada,
     });
 
     expect(myConfig.buildArgs()).toEqual({
-      pool: mockPool,
+      pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       },
-      suppliedAsset: mockFunding,
+      suppliedAsset: PREVIEW_DATA.assets.tada,
       // 10% minus the pool fee
-      minReceivable: new AssetAmount(8n, 6),
+      minReceivable: new AssetAmount(8910000n, 0),
     });
   });
 
   it("it should set the pool correctly", () => {
-    config.setPool(mockPool);
-    expect(config.pool).toMatchObject(mockPool);
+    config.setPool(PREVIEW_DATA.pool);
+    expect(config.pool).toMatchObject(PREVIEW_DATA.pool);
   });
 
   it("should set the suppliedAsset correctly", () => {
@@ -79,12 +55,12 @@ describe("SwapConfig class", () => {
   it("should set the orderAddresses correctly", () => {
     config.setOrderAddresses({
       DestinationAddress: {
-        address: mockAddress,
+        address: PREVIEW_DATA.address,
       },
     });
     expect(config.orderAddresses).toEqual({
       DestinationAddress: {
-        address: mockAddress,
+        address: PREVIEW_DATA.address,
       },
     });
   });
@@ -93,11 +69,11 @@ describe("SwapConfig class", () => {
     config
       .setOrderAddresses({
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       })
       .setMinReceivable(new AssetAmount(20n))
-      .setPool(mockPool)
+      .setPool(PREVIEW_DATA.pool)
       .setSuppliedAsset({
         amount: new AssetAmount(20n, 6),
         assetId: "tINDY",
@@ -115,11 +91,11 @@ describe("SwapConfig class", () => {
     config
       .setOrderAddresses({
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       })
       .setMinReceivable(new AssetAmount(20n))
-      .setPool(mockPool)
+      .setPool(PREVIEW_DATA.pool)
       .setSuppliedAsset({
         amount: new AssetAmount(20n, 6),
         assetId:
@@ -143,20 +119,20 @@ describe("SwapConfig class", () => {
     };
 
     config
-      .setPool(mockPool)
+      .setPool(PREVIEW_DATA.pool)
       .setMinReceivable(new AssetAmount(20n))
       .setOrderAddresses({
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       })
       .setSuppliedAsset(validFunding);
 
     expect(config.buildArgs()).toEqual({
-      pool: mockPool,
+      pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       },
       minReceivable: new AssetAmount(20n, 0),
@@ -165,9 +141,9 @@ describe("SwapConfig class", () => {
   });
 
   it("should validate correctly when no suppliedAsset is set", () => {
-    config.setPool(mockPool).setOrderAddresses({
+    config.setPool(PREVIEW_DATA.pool).setOrderAddresses({
       DestinationAddress: {
-        address: mockAddress,
+        address: PREVIEW_DATA.address,
       },
     });
 
@@ -184,11 +160,11 @@ describe("SwapConfig class", () => {
     config
       .setOrderAddresses({
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       })
-      .setPool(mockPool)
-      .setSuppliedAsset(mockFunding);
+      .setPool(PREVIEW_DATA.pool)
+      .setSuppliedAsset(PREVIEW_DATA.assets.tindy);
 
     try {
       config.validate();

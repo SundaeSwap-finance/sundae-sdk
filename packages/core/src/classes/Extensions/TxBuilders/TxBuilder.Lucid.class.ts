@@ -3,7 +3,7 @@ import {
   Tx,
   WalletApi,
   Blockfrost,
-  Provider as BlockfrostProvider,
+  Provider,
   Network,
   TxSigned,
 } from "lucid-cardano";
@@ -39,7 +39,7 @@ const getBuffer = async () => {
  */
 export interface ITxBuilderLucidOptions extends ITxBuilderBaseOptions {
   /** The provider type used by Lucid. Currently only supports Blockfrost. */
-  provider: "blockfrost";
+  providerType: "blockfrost";
   /** The chosen provider options object to pass to Lucid. */
   blockfrost?: {
     url: string;
@@ -84,7 +84,7 @@ export class TxBuilderLucid extends TxBuilder<
     public query: IQueryProviderClass
   ) {
     super(query, options);
-    switch (this.options?.provider) {
+    switch (this.options?.providerType) {
       case "blockfrost":
         if (!this.options?.blockfrost) {
           throw new Error(
@@ -101,9 +101,9 @@ export class TxBuilderLucid extends TxBuilder<
    * Initializes a Lucid instance with the
    */
   private async initWallet() {
-    const { provider, blockfrost } = this.options;
-    let ThisProvider: BlockfrostProvider;
-    switch (provider) {
+    const { providerType, blockfrost } = this.options;
+    let ThisProvider: Provider;
+    switch (providerType) {
       default:
       case "blockfrost":
         if (!blockfrost) {

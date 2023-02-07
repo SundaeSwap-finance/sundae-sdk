@@ -40,12 +40,12 @@ export abstract class TxBuilder<
   /**
    * Should create a new {@link Transaction} instance from the supplied transaction library.
    */
-  protected abstract newTxInstance(): Promise<Transaction<Tx>>;
+  abstract newTxInstance(): Promise<Transaction<Tx>>;
 
   /**
    * The main function to build a swap Transaction.
    *
-   * @param args The built SwapArguments from a {@link SwapConfig} instance.
+   * @param args The built SwapArguments from a {@link Core.SwapConfig} instance.
    * @returns {ITxBuilderComplete}
    */
   abstract buildSwapTx(args: ISwapArgs): Promise<ITxBuilderComplete>;
@@ -53,21 +53,21 @@ export abstract class TxBuilder<
   /**
    * The main function to build a deposit Transaction.
    *
-   * @param args The built {@link DepositArguments} from a {@link DepositConfig} instance.
+   * @param args The built DepositArguments from a {@link Core.DepositConfig} instance.
    */
   abstract buildDepositTx(args: IDepositArgs): Promise<ITxBuilderComplete>;
 
   /**
    * The main function to build a withdraw Transaction.
    *
-   * @param args The build {@link WithdrawArguments} from a {@link WithdrawConfig} instance.
+   * @param args The built WithdrawArguments from a {@link Core.WithdrawConfig} instance.
    */
   abstract buildWithdrawTx(args: IWithdrawArgs): Promise<ITxBuilderComplete>;
 
   /**
    * The main function to build a zap Transaction.
    *
-   * @param args The build {@link ZapArguments} from a {@link ZapConfig} instance.
+   * @param args The built ZapArguments from a {@link Core.ZapConfig} instance.
    */
   abstract buildZapTx(args: IZapArgs): Promise<ITxBuilderComplete>;
 

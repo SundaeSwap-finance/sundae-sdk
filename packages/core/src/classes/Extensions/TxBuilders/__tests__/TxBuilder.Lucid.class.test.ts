@@ -1,5 +1,20 @@
-import { TxBuilderLucid } from "../TxBuilder.Lucid.class";
+import { Extensions, MockWalletApi } from "../../../../testing";
+MockWalletApi();
 
-describe("TxBuilderLucid", () => {
-  it("should do something", () => {});
-});
+import { ProviderSundaeSwap, TxBuilderLucid } from "../../../../extensions";
+
+Extensions.TEST_TxBuilder(
+  () =>
+    new TxBuilderLucid(
+      {
+        network: "preview",
+        providerType: "blockfrost",
+        wallet: "eternl",
+        blockfrost: {
+          apiKey: "",
+          url: "",
+        },
+      },
+      new ProviderSundaeSwap("preview")
+    )
+);

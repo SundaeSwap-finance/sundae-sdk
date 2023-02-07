@@ -1,31 +1,7 @@
-import { IAsset, IPoolData } from "../../../@types";
+import { PREVIEW_DATA } from "../../../testing/mockData";
+import { IAsset } from "../../../@types";
 import { AssetAmount } from "../../AssetAmount.class";
 import { WithdrawConfig } from "../WithdrawConfig.class";
-
-const mockPool: IPoolData = {
-  assetA: {
-    assetId: "",
-    decimals: 6,
-  },
-  assetB: {
-    assetId:
-      "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-    decimals: 0,
-  },
-  ident: "06",
-  fee: "0.30",
-  quantityA: "100",
-  quantityB: "200",
-};
-
-const mockFunding: IAsset = {
-  amount: new AssetAmount(20n, 6),
-  assetId:
-    "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-};
-
-const mockAddress =
-  "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32";
 
 let config: WithdrawConfig;
 beforeEach(() => {
@@ -39,29 +15,29 @@ describe("WithdrawConfig class", () => {
 
   it("should construct with a config", () => {
     const myConfig = new WithdrawConfig({
-      pool: mockPool,
+      pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       },
-      suppliedLPAsset: mockFunding,
+      suppliedLPAsset: PREVIEW_DATA.assets.tindy,
     });
 
     expect(myConfig.buildArgs()).toEqual({
-      pool: mockPool,
+      pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       },
-      suppliedLPAsset: mockFunding,
+      suppliedLPAsset: PREVIEW_DATA.assets.tindy,
     });
   });
 
   it("it should set the pool correctly", () => {
-    config.setPool(mockPool);
-    expect(config.pool).toMatchObject(mockPool);
+    config.setPool(PREVIEW_DATA.pool);
+    expect(config.pool).toMatchObject(PREVIEW_DATA.pool);
   });
 
   it("should set the suppliedAsset correctly", () => {
@@ -77,12 +53,12 @@ describe("WithdrawConfig class", () => {
   it("should set the orderAddresses correctly", () => {
     config.setOrderAddresses({
       DestinationAddress: {
-        address: mockAddress,
+        address: PREVIEW_DATA.address,
       },
     });
     expect(config.orderAddresses).toEqual({
       DestinationAddress: {
-        address: mockAddress,
+        address: PREVIEW_DATA.address,
       },
     });
   });
@@ -107,10 +83,10 @@ describe("WithdrawConfig class", () => {
     config
       .setOrderAddresses({
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       })
-      .setPool(mockPool)
+      .setPool(PREVIEW_DATA.pool)
       .setSuppliedLPAsset({
         amount: new AssetAmount(20n, 6),
         assetId: "tINDY",
@@ -128,10 +104,10 @@ describe("WithdrawConfig class", () => {
     config
       .setOrderAddresses({
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       })
-      .setPool(mockPool)
+      .setPool(PREVIEW_DATA.pool)
       .setSuppliedLPAsset({
         amount: new AssetAmount(20n, 6),
         assetId:
@@ -149,7 +125,9 @@ describe("WithdrawConfig class", () => {
   });
 
   it("should throw when not providing a receiving address", () => {
-    config.setPool(mockPool).setSuppliedLPAsset(mockFunding);
+    config
+      .setPool(PREVIEW_DATA.pool)
+      .setSuppliedLPAsset(PREVIEW_DATA.assets.tindy);
 
     try {
       config.buildArgs();
@@ -168,19 +146,19 @@ describe("WithdrawConfig class", () => {
     };
 
     config
-      .setPool(mockPool)
+      .setPool(PREVIEW_DATA.pool)
       .setOrderAddresses({
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       })
       .setSuppliedLPAsset(validFunding);
 
     expect(config.buildArgs()).toEqual({
-      pool: mockPool,
+      pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       },
       suppliedLPAsset: validFunding,
@@ -188,9 +166,9 @@ describe("WithdrawConfig class", () => {
   });
 
   it("should throw an error when validating with no suppliedLPAsset defined", () => {
-    config.setPool(mockPool).setOrderAddresses({
+    config.setPool(PREVIEW_DATA.pool).setOrderAddresses({
       DestinationAddress: {
-        address: mockAddress,
+        address: PREVIEW_DATA.address,
       },
     });
 

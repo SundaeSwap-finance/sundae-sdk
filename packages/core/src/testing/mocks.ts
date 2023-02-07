@@ -34,24 +34,47 @@ const MockedSundaeSDK = jest.fn().mockImplementation(() => ({
   query: mockQuery,
 }));
 
-const MockExports = async () => {
+const MockCoreExports = () => {
   beforeEach(() => {
-    MockedDatumBuilderLucid.mockClear();
-    MockedProviderSundaeSwap.mockClear();
-    MockedTxBuilderLucid.mockClear();
     MockedSundaeSDK.mockClear();
     mockSwap.mockClear();
+    mockBuild.mockClear();
+    mockQuery.mockClear();
   });
 
   jest.mock("@sundaeswap/sdk-core", () => ({
     SundaeSDK: MockedSundaeSDK,
     AssetAmount,
   }));
+};
+
+const MockQueryProviderExports = () => {
+  beforeEach(() => {
+    MockedProviderSundaeSwap.mockClear();
+  });
+
+  jest.mock("@sundaeswap/sdk-core/extensions", () => ({
+    ProviderSundaeSwap: MockedProviderSundaeSwap,
+  }));
+};
+
+const MockExtensionExports = () => {
+  beforeEach(() => {
+    MockedDatumBuilderLucid.mockClear();
+    MockedProviderSundaeSwap.mockClear();
+    MockedTxBuilderLucid.mockClear();
+  });
+
   jest.mock("@sundaeswap/sdk-core/extensions", () => ({
     DatumBuilderLucid: MockedDatumBuilderLucid,
     ProviderSundaeSwap: MockedProviderSundaeSwap,
     TxBuilderLucid: MockedTxBuilderLucid,
   }));
+};
+
+const MockAll = async () => {
+  MockCoreExports();
+  MockExtensionExports();
 };
 
 const SundaeSDK = {
@@ -60,4 +83,10 @@ const SundaeSDK = {
   mockQuery,
 };
 
-export { MockExports, SundaeSDK };
+export {
+  MockCoreExports,
+  MockExtensionExports,
+  MockQueryProviderExports,
+  MockAll,
+  SundaeSDK,
+};

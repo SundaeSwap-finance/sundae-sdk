@@ -15,11 +15,14 @@
  * @module Testing
  * @packageDescription
  */
+import { TEST_TxBuilder } from "./TxBuilder";
 import { TEST_DatumBuilder } from "./DatumBuilder";
-import * as Mocks from "./mocks";
+import * as MockedExports from "./mocks";
+export * from "./cardano";
 
 const Extensions = {
   TEST_DatumBuilder,
+  TEST_TxBuilder,
 };
 
-export { Extensions, Mocks };
+export { Extensions, MockedExports };

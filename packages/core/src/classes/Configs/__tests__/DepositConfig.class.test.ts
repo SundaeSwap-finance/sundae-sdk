@@ -1,36 +1,5 @@
-import { IAsset, IPoolData } from "../../../@types";
-import { AssetAmount } from "../../AssetAmount.class";
 import { DepositConfig } from "../DepositConfig.class";
-
-const mockPool: IPoolData = {
-  assetA: {
-    assetId: "",
-    decimals: 6,
-  },
-  assetB: {
-    assetId:
-      "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-    decimals: 0,
-  },
-  ident: "06",
-  fee: "0.30",
-  quantityA: "100",
-  quantityB: "200",
-};
-
-const mockFundingA: IAsset = {
-  amount: new AssetAmount(20n, 6),
-  assetId: "",
-};
-
-const mockFundingB: IAsset = {
-  amount: new AssetAmount(20n, 6),
-  assetId:
-    "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-};
-
-const mockAddress =
-  "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32";
+import { PREVIEW_DATA } from "../../../testing/mockData";
 
 let config: DepositConfig;
 beforeEach(() => {
@@ -44,53 +13,59 @@ describe("WithdrawConfig class", () => {
 
   it("should construct with a config", () => {
     const myConfig = new DepositConfig({
-      pool: mockPool,
+      pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       },
-      suppliedAssets: [mockFundingA, mockFundingB],
+      suppliedAssets: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
     });
 
     expect(myConfig.buildArgs()).toEqual({
-      pool: mockPool,
+      pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
-          address: mockAddress,
+          address: PREVIEW_DATA.address,
         },
       },
-      suppliedAssets: [mockFundingA, mockFundingB],
+      suppliedAssets: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
     });
   });
 
   it("it should set the pool correctly", () => {
-    config.setPool(mockPool);
-    expect(config.pool).toMatchObject(mockPool);
+    config.setPool(PREVIEW_DATA.pool);
+    expect(config.pool).toMatchObject(PREVIEW_DATA.pool);
   });
 
   it("should set the suppliedAsset correctly", () => {
-    config.setSuppliedAssets([mockFundingA, mockFundingB]);
-    expect(config.suppliedAssets).toMatchObject([mockFundingA, mockFundingB]);
+    config.setSuppliedAssets([
+      PREVIEW_DATA.assets.tada,
+      PREVIEW_DATA.assets.tindy,
+    ]);
+    expect(config.suppliedAssets).toMatchObject([
+      PREVIEW_DATA.assets.tada,
+      PREVIEW_DATA.assets.tindy,
+    ]);
   });
 
   it("should set the orderAddresses correctly", () => {
     config.setOrderAddresses({
       DestinationAddress: {
-        address: mockAddress,
+        address: PREVIEW_DATA.address,
       },
     });
     expect(config.orderAddresses).toEqual({
       DestinationAddress: {
-        address: mockAddress,
+        address: PREVIEW_DATA.address,
       },
     });
   });
 
   it("should throw an error when validating with no suppliedLPAsset defined", () => {
-    config.setPool(mockPool).setOrderAddresses({
+    config.setPool(PREVIEW_DATA.pool).setOrderAddresses({
       DestinationAddress: {
-        address: mockAddress,
+        address: PREVIEW_DATA.address,
       },
     });
 
