@@ -1,20 +1,14 @@
-# Interface: Arguments
+# Interface: ZapArguments
 
-[Core](../modules/Core.md).Arguments
+[Core](../modules/Core.md).ZapArguments
 
-Base arguments for every datum constructor.
+Arguments for zapping an asset into a pool.
 
 ## Hierarchy
 
-- **`Arguments`**
+- [`Arguments`](Core.Arguments.md)
 
-  ↳ [`SwapArguments`](Core.SwapArguments.md)
-
-  ↳ [`WithdrawArguments`](Core.WithdrawArguments.md)
-
-  ↳ [`DepositArguments`](Core.DepositArguments.md)
-
-  ↳ [`ZapArguments`](Core.ZapArguments.md)
+  ↳ **`ZapArguments`**
 
 ## Properties
 
@@ -23,6 +17,10 @@ Base arguments for every datum constructor.
 • **ident**: `string`
 
 The unique pool identifier.
+
+#### Inherited from
+
+[Arguments](Core.Arguments.md).[ident](Core.Arguments.md#ident)
 
 #### Defined in
 
@@ -36,6 +34,10 @@ ___
 
 The addresses that are allowed to cancel the Order.
 
+#### Inherited from
+
+[Arguments](Core.Arguments.md).[orderAddresses](Core.Arguments.md#orderaddresses)
+
 #### Defined in
 
 [@types/datumbuilder.ts:94](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L94)
@@ -47,6 +49,10 @@ ___
 • `Optional` **scooperFee**: `bigint`
 
 The fee paid to scoopers. Defaults to 2.5 ADA which is the minimum.
+
+#### Inherited from
+
+[Arguments](Core.Arguments.md).[scooperFee](Core.Arguments.md#scooperfee)
 
 #### Defined in
 

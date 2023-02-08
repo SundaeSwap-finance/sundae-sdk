@@ -3,7 +3,7 @@ import {
   Tx,
   WalletApi,
   Blockfrost,
-  Provider as BlockfrostProvider,
+  Provider,
   Network,
   TxSigned,
 } from "lucid-cardano";
@@ -18,6 +18,7 @@ import {
   IAsset,
   ITxBuilderComplete,
   IWithdrawArgs,
+  IZapArgs,
 } from "../../../@types";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
@@ -38,7 +39,7 @@ const getBuffer = async () => {
  */
 export interface ITxBuilderLucidOptions extends ITxBuilderBaseOptions {
   /** The provider type used by Lucid. Currently only supports Blockfrost. */
-  provider: "blockfrost";
+  providerType: "blockfrost";
   /** The chosen provider options object to pass to Lucid. */
   blockfrost?: {
     url: string;
@@ -83,7 +84,7 @@ export class TxBuilderLucid extends TxBuilder<
     public query: IQueryProviderClass
   ) {
     super(query, options);
-    switch (this.options?.provider) {
+    switch (this.options?.providerType) {
       case "blockfrost":
         if (!this.options?.blockfrost) {
           throw new Error(
@@ -100,9 +101,9 @@ export class TxBuilderLucid extends TxBuilder<
    * Initializes a Lucid instance with the
    */
   private async initWallet() {
-    const { provider, blockfrost } = this.options;
-    let ThisProvider: BlockfrostProvider;
-    switch (provider) {
+    const { providerType, blockfrost } = this.options;
+    let ThisProvider: Provider;
+    switch (providerType) {
       default:
       case "blockfrost":
         if (!blockfrost) {
@@ -169,15 +170,7 @@ export class TxBuilderLucid extends TxBuilder<
     );
 
     txInstance.get().payToContract(ESCROW_ADDRESS, cbor, payment);
-    const finishedTx = await txInstance.get().complete();
-    const signedTx = await finishedTx.sign().complete();
-
-    return {
-      submit: async () => await signedTx.submit(),
-      cbor: (await getBuffer())
-        .from(signedTx.txSigned.to_bytes())
-        .toString("hex"),
-    };
+    return this.completeTx(txInstance);
   }
 
   async buildDepositTx(args: IDepositArgs) {
@@ -199,9 +192,7 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
-    const finishedTx = await tx.get().complete();
-    const signedTx = await finishedTx.sign().complete();
-    return this._buildTxComplete(signedTx);
+    return this.completeTx(tx);
   }
 
   async buildWithdrawTx(args: IWithdrawArgs): Promise<ITxBuilderComplete> {
@@ -219,6 +210,31 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
+    return this.completeTx(tx);
+  }
+
+  async buildZapTx(args: IZapArgs): Promise<ITxBuilderComplete> {
+    const tx = await this.newTxInstance();
+    const payment = Utils.accumulateSuppliedAssets(
+      [args.suppliedAsset],
+      this.options.network
+    );
+    const datumBuilder = new DatumBuilderLucid(this.options.network);
+
+    const { cbor } = datumBuilder.buildZapDatum({
+      ident: args.pool.ident,
+      orderAddresses: args.orderAddresses,
+      zap: {
+        CoinAmount: args.suppliedAsset.amount,
+        ZapDirection: args.zapDirection,
+      },
+    });
+
+    tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
+    return this.completeTx(tx);
+  }
+
+  private async completeTx(tx: Transaction<Tx>): Promise<ITxBuilderComplete> {
     const finishedTx = await tx.get().complete();
     const signedTx = await finishedTx.sign().complete();
     return this._buildTxComplete(signedTx);

@@ -28,7 +28,9 @@ export abstract class Config<Args = {}> {
   }
 
   abstract setFromObject(obj: {}): void;
-  abstract buildArgs(): Args;
+
+  abstract buildArgs(args: Args): Args;
+
   validate(): void | never {
     if (!this.pool) {
       throw new Error(

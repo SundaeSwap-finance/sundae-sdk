@@ -1,40 +1,13 @@
 import { AssetAmount } from "../AssetAmount.class";
-import { IAsset, IPoolData } from "../../@types";
 import { Utils } from "../Utils.class";
 import { ADA_ASSET_ID } from "../../lib/constants";
-
-const mockPoolData: IPoolData = {
-  ident: "06",
-  fee: "1",
-  assetA: {
-    assetId: "",
-    decimals: 6,
-  },
-  assetB: {
-    assetId:
-      "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-    decimals: 0,
-  },
-  quantityA: "500000000",
-  quantityB: "250000000",
-};
-
-const mockSuppliedADA: IAsset = {
-  amount: new AssetAmount(20000000n, 6),
-  assetId: "",
-};
-
-const mockSuppliedIndy: IAsset = {
-  amount: new AssetAmount(20000000n, 0),
-  assetId:
-    "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-};
+import { PREVIEW_DATA } from "../../testing/mockData";
 
 describe("Utils class", () => {
   it("getMinReceivableFromSlippage", () => {
     const resultA = Utils.getMinReceivableFromSlippage(
-      mockPoolData,
-      mockSuppliedADA,
+      PREVIEW_DATA.pool,
+      PREVIEW_DATA.assets.tada,
       0.1
     );
 
@@ -45,8 +18,8 @@ describe("Utils class", () => {
     });
 
     const resultB = Utils.getMinReceivableFromSlippage(
-      mockPoolData,
-      mockSuppliedIndy,
+      PREVIEW_DATA.pool,
+      PREVIEW_DATA.assets.tindy,
       0.1
     );
 
@@ -58,7 +31,7 @@ describe("Utils class", () => {
 
     try {
       Utils.getMinReceivableFromSlippage(
-        mockPoolData,
+        PREVIEW_DATA.pool,
         {
           assetId: "not in the pool",
           amount: new AssetAmount(10n),
@@ -75,12 +48,12 @@ describe("Utils class", () => {
   it("should accurately accumulate suppliedAssets", () => {
     const aggregate = Utils.accumulateSuppliedAssets(
       [
-        mockSuppliedADA,
+        PREVIEW_DATA.assets.tada,
         {
           assetId: ADA_ASSET_ID,
           amount: new AssetAmount(25000000n, 6),
         },
-        mockSuppliedIndy,
+        PREVIEW_DATA.assets.tindy,
       ],
       "preview"
     );
@@ -95,34 +68,37 @@ describe("Utils class", () => {
   });
 
   it("should accurately sort a pair of assets", () => {
-    const result = Utils.sortSwapAssets([mockSuppliedIndy, mockSuppliedADA]);
-    expect(result[0]).toEqual(mockSuppliedADA);
-    expect(result[1]).toEqual(mockSuppliedIndy);
+    const result = Utils.sortSwapAssets([
+      PREVIEW_DATA.assets.tindy,
+      PREVIEW_DATA.assets.tada,
+    ]);
+    expect(result[0]).toEqual(PREVIEW_DATA.assets.tada);
+    expect(result[1]).toEqual(PREVIEW_DATA.assets.tindy);
 
     const result2 = Utils.sortSwapAssets([
-      mockSuppliedIndy,
+      PREVIEW_DATA.assets.tindy,
       {
-        ...mockSuppliedIndy,
+        ...PREVIEW_DATA.assets.tindy,
         assetId: "abcd",
       },
     ]);
     expect(result2[0]).toEqual({
-      ...mockSuppliedIndy,
+      ...PREVIEW_DATA.assets.tindy,
       assetId: "abcd",
     });
-    expect(result2[1]).toEqual(mockSuppliedIndy);
+    expect(result2[1]).toEqual(PREVIEW_DATA.assets.tindy);
   });
 
   it("should accurately get the swap direction", () => {
     const result = Utils.getAssetSwapDirection(
       { assetId: "", amount: new AssetAmount(10n) },
-      [mockPoolData.assetA, mockPoolData.assetB]
+      [PREVIEW_DATA.pool.assetA, PREVIEW_DATA.pool.assetB]
     );
     expect(result).toEqual(0);
 
-    const result2 = Utils.getAssetSwapDirection(mockSuppliedIndy, [
-      mockPoolData.assetA,
-      mockPoolData.assetB,
+    const result2 = Utils.getAssetSwapDirection(PREVIEW_DATA.assets.tindy, [
+      PREVIEW_DATA.pool.assetA,
+      PREVIEW_DATA.pool.assetB,
     ]);
     expect(result2).toEqual(1);
   });

@@ -67,8 +67,6 @@ export class WithdrawConfig extends Config {
    * @returns
    */
   buildArgs(): IWithdrawArgs {
-    this.validate();
-
     return {
       pool: this.pool as IPoolData,
       orderAddresses: this.orderAddresses as OrderAddresses,

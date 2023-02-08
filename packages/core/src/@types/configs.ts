@@ -1,4 +1,4 @@
-import { OrderAddresses } from "./datumbuilder";
+import { OrderAddresses, PoolCoin } from "./datumbuilder";
 import { IPoolData } from "./queryprovider";
 import { IAsset } from "./utilities";
 
@@ -19,6 +19,16 @@ export interface BuildDepositConfigArgs {
   pool: IPoolData;
   orderAddresses: OrderAddresses;
   suppliedAssets: [IAsset, IAsset];
+}
+
+/**
+ * The arguments configuration for building a valid Deposit.
+ */
+export interface BuildZapConfigArgs {
+  pool: IPoolData;
+  orderAddresses: OrderAddresses;
+  suppliedAsset: IAsset;
+  zapDirection: PoolCoin;
 }
 
 /**

@@ -4,25 +4,25 @@ import { useAppState } from "../../../state/context";
 import { ActionArgs, defaultOrderAddresses, poolQuery } from "../Actions";
 import Button from "../../Button";
 
-export const SwapBA: FC<ActionArgs> = ({ setCBOR, submit }) => {
+export const Zap: FC<ActionArgs> = ({ setCBOR, submit }) => {
   const { SDK } = useAppState();
-  const [swapping, setSwapping] = useState(false);
+  const [zapping, setZapping] = useState(false);
 
-  const handleSwap = useCallback(async () => {
+  const handleZap = useCallback(async () => {
     if (!SDK) {
       return;
     }
 
-    setSwapping(true);
+    setZapping(true);
     try {
       const pool = await SDK.query().findPoolData(poolQuery);
-      await SDK.swap({
-        pool,
+
+      await SDK.zap({
         orderAddresses: defaultOrderAddresses,
+        pool,
         suppliedAsset: {
-          assetId:
-            "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-          amount: new AssetAmount(20000000n, 6),
+          assetId: "",
+          amount: new AssetAmount(10000000n, 6),
         },
       }).then(async (res) => {
         if (submit) {
@@ -41,7 +41,7 @@ export const SwapBA: FC<ActionArgs> = ({ setCBOR, submit }) => {
       console.log(e);
     }
 
-    setSwapping(false);
+    setZapping(false);
   }, [SDK, submit]);
 
   if (!SDK) {
@@ -49,8 +49,8 @@ export const SwapBA: FC<ActionArgs> = ({ setCBOR, submit }) => {
   }
 
   return (
-    <Button onClick={handleSwap} loading={swapping}>
-      Swap tINDY for tADA
+    <Button onClick={handleZap} loading={zapping}>
+      Zap tADA to tADA/tINDY
     </Button>
   );
 };

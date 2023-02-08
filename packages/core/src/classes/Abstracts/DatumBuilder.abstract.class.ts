@@ -2,12 +2,14 @@ import {
   DatumResult,
   DepositArguments,
   DepositMixed,
+  DepositSingle,
   IAsset,
   OrderAddresses,
   Swap,
   SwapArguments,
   TSupportedNetworks,
   WithdrawArguments,
+  ZapArguments,
 } from "../../@types";
 import { AssetAmount } from "../AssetAmount.class";
 import { Utils } from "../Utils.class";
@@ -27,6 +29,12 @@ export abstract class DatumBuilder<Data = any> {
   abstract network: TSupportedNetworks;
 
   /**
+   * Should take a valid Datum structure and convert it to a hash.
+   * This is primarily used for testing but is a useful utility.
+   */
+  abstract datumToHash(datum: Data): string;
+
+  /**
    * Should build a Datum for Swap transaction.
    * @param args The Swap arguments.
    */
@@ -39,6 +47,12 @@ export abstract class DatumBuilder<Data = any> {
   abstract buildDepositDatum(args: DepositArguments): DatumResult<Data>;
 
   /**
+   * Should build a Datum for a Zap transaction.
+   * @param args
+   */
+  abstract buildZapDatum(args: ZapArguments): DatumResult<Data>;
+
+  /**
    * Should build a Datum for a Withdraw transaction.
    * @param args The Withdraw arguments.
    */
@@ -47,6 +61,7 @@ export abstract class DatumBuilder<Data = any> {
   abstract buildScooperFee(fee: bigint): bigint;
   abstract buildWithdrawAsset(fundedLPAsset: IAsset): DatumResult<Data>;
   abstract buildDepositPair(deposit: DepositMixed): DatumResult<Data>;
+  abstract buildDepositZap(deposit: DepositSingle): DatumResult<Data>;
   abstract buildOrderAddresses(addresses: OrderAddresses): DatumResult<Data>;
   abstract buildSwapDirection(
     swap: Swap,

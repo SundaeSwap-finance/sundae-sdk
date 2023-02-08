@@ -2,7 +2,9 @@ import type {
   BuildDepositConfigArgs,
   BuildSwapConfigArgs,
   BuildWithdrawConfigArgs,
+  BuildZapConfigArgs,
   IQueryProviderClass,
+  SDKZapArgs,
 } from "../@types";
 import { AssetAmount } from "./AssetAmount.class";
 import { SwapConfig } from "./Configs/SwapConfig.class";
@@ -12,6 +14,7 @@ import { Config } from "./Abstracts/Config.abstract.class";
 import { DepositConfig } from "./Configs/DepositConfig.class";
 import { Withdrawals } from "lucid-cardano/types/src/core/wasm_modules/cardano_multiplatform_lib_web/cardano_multiplatform_lib";
 import { WithdrawConfig } from "./Configs/WithdrawConfig.class";
+import { ZapConfig } from "./Configs/ZapConfig.class";
 
 /**
  * A description for the SundaeSDK class.
@@ -146,7 +149,6 @@ export class SundaeSDK {
   async limitSwap(config: BuildSwapConfigArgs, limitPrice: AssetAmount) {
     const swap = new SwapConfig(config);
     swap.setMinReceivable(limitPrice);
-    swap.validate();
     return await this.builder.buildSwapTx(swap.buildArgs());
   }
 
@@ -157,7 +159,6 @@ export class SundaeSDK {
    */
   async withdraw(config: BuildWithdrawConfigArgs) {
     const withdraw = new WithdrawConfig(config);
-    withdraw.validate();
     return await this.builder.buildWithdrawTx(withdraw.buildArgs());
   }
 
@@ -168,7 +169,24 @@ export class SundaeSDK {
    */
   async deposit(config: BuildDepositConfigArgs) {
     const deposit = new DepositConfig(config);
-    deposit.validate();
     return await this.builder.buildDepositTx(deposit.buildArgs());
+  }
+
+  /**
+   * Create a Deposit transaction for a pool by supplying two assets.
+   * @param config
+   * @returns
+   */
+  async unstable_zap(config: SDKZapArgs) {
+    const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
+      config.pool.assetA,
+      config.pool.assetB,
+    ]);
+    console.log(zapDirection);
+    const zap = new ZapConfig({
+      ...config,
+      zapDirection,
+    });
+    return await this.builder.buildZapTx(zap.buildArgs());
   }
 }

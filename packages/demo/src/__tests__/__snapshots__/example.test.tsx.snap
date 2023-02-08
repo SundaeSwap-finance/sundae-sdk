@@ -6,23 +6,60 @@ exports[`Example testing should use the mocked SundaeSDK 1`] = `
     class="flex flex-col gap-4"
   >
     <h2
-      class="mb-4 text-lg font-bold text-white"
+      class="mb-4 text-lg font-bold text-white flex items-center justify-between"
     >
       SundaeSwap Protocol Actions
+      <div
+        class="flex items-center justify-center gap-2"
+      >
+        <label
+          for="submitTx"
+        >
+          Submit to Wallet?
+        </label>
+        <input
+          id="submitTx"
+          type="checkbox"
+        />
+      </div>
     </h2>
     <div
-      class="grid grid-cols-3 gap-4"
+      class="grid grid-cols-2 gap-4"
     >
-      <button
-        class="flex items-center justify-center gap-4 rounded-md bg-blue-500 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-800"
-      >
-        Swap tINDY for tADA
-      </button>
       <button
         class="flex items-center justify-center gap-4 rounded-md bg-blue-500 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-800"
       >
         Swap tADA for tINDY
       </button>
+      <button
+        class="flex items-center justify-center gap-4 rounded-md bg-blue-500 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-800"
+      >
+        Swap tINDY for tADA
+      </button>
+    </div>
+    <div
+      class="grid grid-cols-2 gap-4"
+    >
+      <button
+        class="flex items-center justify-center gap-4 rounded-md bg-blue-500 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-800"
+      >
+        Deposit tADA/tINDY
+      </button>
+      <button
+        class="flex items-center justify-center gap-4 rounded-md bg-blue-500 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-800"
+      >
+        Withdraw tADA/tINDY
+      </button>
+    </div>
+    <h2
+      class="mb-4 text-lg font-bold text-white"
+    >
+      CBOR
+    </h2>
+    <div
+      class="p-8 rounded-lg bg-gray-800 border-gray-700 whitespace-pre-wrap break-all"
+    >
+      cbor
     </div>
   </div>
 </div>

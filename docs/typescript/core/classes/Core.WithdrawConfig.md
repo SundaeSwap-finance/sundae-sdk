@@ -170,4 +170,4 @@ Config.validate
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L82)
+[classes/Configs/WithdrawConfig.class.ts:80](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L80)

@@ -36,7 +36,7 @@ const SelectBuilder: FC = () => {
           sdk = new SundaeSDK(
             new TxBuilderLucid(
               {
-                provider: "blockfrost",
+                providerType: "blockfrost",
                 blockfrost: {
                   url: "https://cardano-preview.blockfrost.io/api/v0/",
                   // @ts-ignore

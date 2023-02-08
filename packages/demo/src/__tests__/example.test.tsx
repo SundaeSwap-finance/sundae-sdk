@@ -1,5 +1,5 @@
 import { Mocks } from "@sundaeswap/sdk-core/testing";
-Mocks.MockExports();
+Mocks.MockAll();
 
 import "@testing-library/jest-dom";
 import { render, fireEvent, waitFor } from "@testing-library/react";
@@ -11,8 +11,6 @@ import {
   TxBuilderLucid,
 } from "@sundaeswap/sdk-core/extensions";
 
-console.log = jest.fn();
-
 describe("Example testing", () => {
   it("should use the mocked SundaeSDK", async () => {
     const MockedSDK = new SundaeSDK(
@@ -20,7 +18,7 @@ describe("Example testing", () => {
         {
           network: "preview",
           wallet: "eternl",
-          provider: "blockfrost",
+          providerType: "blockfrost",
           blockfrost: {
             apiKey: "",
             url: "",
@@ -43,7 +41,6 @@ describe("Example testing", () => {
     await waitFor(() => {
       expect(Mocks.SundaeSDK.mockQuery).toHaveBeenCalledTimes(1);
       expect(Mocks.SundaeSDK.mockSwap).toHaveBeenCalledTimes(1);
-      expect(console.log).toHaveBeenCalledTimes(2);
     });
 
     expect(container).toMatchSnapshot();

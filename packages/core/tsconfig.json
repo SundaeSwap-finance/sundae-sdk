@@ -2,8 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./dist/",
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
   },
   "extends": "../../tsconfig.json",
-  "include": ["./src/**/*", "__tests__", "__mocks__"]
+  "include": ["./src/**/*", "__tests__", "__mocks__", "__mocks__"]
 }

@@ -51,6 +51,7 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [SwapConfig](../classes/Core.SwapConfig.md)
 - [Transaction](../classes/Core.Transaction.md)
 - [WithdrawConfig](../classes/Core.WithdrawConfig.md)
+- [ZapConfig](../classes/Core.ZapConfig.md)
 
 ## Exported TxBuilders
 
@@ -62,6 +63,7 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [BuildDepositConfigArgs](../interfaces/Core.BuildDepositConfigArgs.md)
 - [BuildSwapConfigArgs](../interfaces/Core.BuildSwapConfigArgs.md)
 - [BuildWithdrawConfigArgs](../interfaces/Core.BuildWithdrawConfigArgs.md)
+- [BuildZapConfigArgs](../interfaces/Core.BuildZapConfigArgs.md)
 - [DatumResult](../interfaces/Core.DatumResult.md)
 - [DepositArguments](../interfaces/Core.DepositArguments.md)
 - [IAsset](../interfaces/Core.IAsset.md)
@@ -75,8 +77,11 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [ITxBuilderBaseOptions](../interfaces/Core.ITxBuilderBaseOptions.md)
 - [ITxBuilderComplete](../interfaces/Core.ITxBuilderComplete.md)
 - [IWithdrawArgs](../interfaces/Core.IWithdrawArgs.md)
+- [IZapArgs](../interfaces/Core.IZapArgs.md)
+- [SDKZapArgs](../interfaces/Core.SDKZapArgs.md)
 - [SwapArguments](../interfaces/Core.SwapArguments.md)
 - [WithdrawArguments](../interfaces/Core.WithdrawArguments.md)
+- [ZapArguments](../interfaces/Core.ZapArguments.md)
 
 ## Extension Builders
 
@@ -143,7 +148,7 @@ receivable amount to satisfy a pool's CoinA/CoinB requirements.
 
 | Name | Type |
 | :------ | :------ |
-| `MinimumReceivable` | [`AssetAmount`](../classes/Core.AssetAmount.md) |
+| `CoinAmount` | [`AssetAmount`](../classes/Core.AssetAmount.md) |
 | `ZapDirection` | [`PoolCoin`](../enums/Core.PoolCoin.md) |
 
 #### Defined in
