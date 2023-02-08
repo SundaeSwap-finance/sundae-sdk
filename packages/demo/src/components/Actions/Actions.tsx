@@ -1,6 +1,7 @@
 import { IPoolQuery, OrderAddresses } from "@sundaeswap/sdk-core";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { useAppState } from "../../state/context";
+import Loader from "../Loader";
 import { Deposit } from "./modules/Deposit";
 import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
@@ -43,6 +44,25 @@ export const Actions: FC = () => {
     return null;
   }
 
+  const tempCancelOrder = async () => {
+    const utxo = {
+      hash: "c1caaacbeea8658f36e3d48122465688cc2043d9bcf8610dc1213d6228bc42ec",
+      index: 0,
+    };
+
+    const { datum, datumHash } = await SDK.query().findOpenOrderDatum(utxo);
+
+    if (datum) {
+      const hash = await SDK.cancel({
+        datum,
+        datumHash,
+        utxo,
+      });
+
+      console.log(hash);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <h2 className="mb-4 text-lg font-bold text-white flex items-center justify-between">
@@ -62,6 +82,7 @@ export const Actions: FC = () => {
         <SwapBA setCBOR={setCBOR} submit={submit} />
         <Deposit setCBOR={setCBOR} submit={submit} />
         <Withdraw setCBOR={setCBOR} submit={submit} />
+        <button onClick={tempCancelOrder}>Cancel Order</button>
         {/* <Zap setCBOR={setCBOR} submit={submit} /> */}
       </div>
       {cbor.hash && (

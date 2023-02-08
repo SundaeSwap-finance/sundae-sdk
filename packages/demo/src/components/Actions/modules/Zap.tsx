@@ -17,7 +17,7 @@ export const Zap: FC<ActionArgs> = ({ setCBOR, submit }) => {
     try {
       const pool = await SDK.query().findPoolData(poolQuery);
 
-      await SDK.zap({
+      await SDK.unstable_zap({
         orderAddresses: defaultOrderAddresses,
         pool,
         suppliedAsset: {

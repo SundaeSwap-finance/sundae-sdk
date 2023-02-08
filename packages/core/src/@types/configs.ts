@@ -1,32 +1,45 @@
-import { OrderAddresses, PoolCoin } from "./datumbuilder";
+import { AssetAmount } from "src/classes/AssetAmount.class";
+import { OrderAddresses, PoolCoin, UTXO } from "./datumbuilder";
 import { IPoolData } from "./queryprovider";
 import { IAsset } from "./utilities";
 
 /**
- * The arguments configuration for building a valid Swap.
+ * The common arguments for any valid order.
  */
-export interface BuildSwapConfigArgs {
+export interface OrderConfigArgs {
   pool: IPoolData;
   orderAddresses: OrderAddresses;
+}
+
+/**
+ * The arguments configuration for building a valid Swap.
+ */
+export interface SwapConfigArgs extends OrderConfigArgs {
   suppliedAsset: IAsset;
+  minReceivable?: AssetAmount;
   slippage?: number | false;
 }
 
 /**
  * The arguments configuration for building a valid Deposit.
  */
-export interface BuildDepositConfigArgs {
-  pool: IPoolData;
-  orderAddresses: OrderAddresses;
+export interface DepositConfigArgs extends OrderConfigArgs {
   suppliedAssets: [IAsset, IAsset];
+}
+
+/**
+ * The arguments configuration for building a valid cancellation transaction.
+ */
+export interface CancelConfigArgs {
+  utxo: UTXO;
+  datum: string;
+  datumHash: string;
 }
 
 /**
  * The arguments configuration for building a valid Deposit.
  */
-export interface BuildZapConfigArgs {
-  pool: IPoolData;
-  orderAddresses: OrderAddresses;
+export interface ZapConfigArgs extends OrderConfigArgs {
   suppliedAsset: IAsset;
   zapDirection: PoolCoin;
 }
@@ -34,8 +47,6 @@ export interface BuildZapConfigArgs {
 /**
  * The arguments configuration for building a valid Withdraw.
  */
-export interface BuildWithdrawConfigArgs {
-  pool: IPoolData;
-  orderAddresses: OrderAddresses;
+export interface WithdrawConfigArgs extends OrderConfigArgs {
   suppliedLPAsset: IAsset;
 }

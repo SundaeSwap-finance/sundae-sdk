@@ -7,6 +7,14 @@ import { IAsset } from "./utilities";
 export type Ident = string;
 
 /**
+ * The structure for a UTXO.
+ */
+export type UTXO = {
+  hash: string;
+  index: number;
+};
+
+/**
  * The hash string of a Datum.
  */
 export type DatumHash = string;

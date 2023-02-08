@@ -1,5 +1,5 @@
 import {
-  BuildWithdrawConfigArgs,
+  WithdrawConfigArgs,
   IAsset,
   IPoolData,
   IWithdrawArgs,
@@ -33,7 +33,7 @@ import { Config } from "../Abstracts/Config.abstract.class";
 export class WithdrawConfig extends Config {
   suppliedLPAsset?: IAsset;
 
-  constructor(args?: BuildWithdrawConfigArgs) {
+  constructor(args?: WithdrawConfigArgs) {
     super();
 
     args && this.setFromObject(args);
@@ -46,7 +46,7 @@ export class WithdrawConfig extends Config {
     suppliedLPAsset,
     orderAddresses,
     pool,
-  }: BuildWithdrawConfigArgs): void {
+  }: WithdrawConfigArgs): void {
     this.setPool(pool);
     this.setOrderAddresses(orderAddresses);
     this.setSuppliedLPAsset(suppliedLPAsset);

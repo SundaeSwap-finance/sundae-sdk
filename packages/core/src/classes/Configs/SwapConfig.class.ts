@@ -1,7 +1,6 @@
 import {
-  ISwapArgs,
   IAsset,
-  BuildSwapConfigArgs,
+  SwapConfigArgs,
   IPoolData,
   OrderAddresses,
 } from "../../@types";
@@ -32,11 +31,11 @@ import { Utils } from "../Utils.class";
  *
  * @see {@link SundaeSDK.swap}
  */
-export class SwapConfig extends Config<ISwapArgs> {
+export class SwapConfig extends Config<SwapConfigArgs> {
   suppliedAsset?: IAsset;
   minReceivable?: AssetAmount;
 
-  constructor(args?: BuildSwapConfigArgs) {
+  constructor(args?: SwapConfigArgs) {
     super();
 
     args && this.setFromObject(args);
@@ -72,7 +71,7 @@ export class SwapConfig extends Config<ISwapArgs> {
    *
    * @returns
    */
-  buildArgs(): ISwapArgs {
+  buildArgs(): SwapConfigArgs {
     this.validate();
     return {
       pool: this.pool as IPoolData,
@@ -90,7 +89,7 @@ export class SwapConfig extends Config<ISwapArgs> {
     orderAddresses,
     suppliedAsset,
     slippage,
-  }: BuildSwapConfigArgs) {
+  }: SwapConfigArgs) {
     this.setPool(pool);
     this.setOrderAddresses(orderAddresses);
     this.setSuppliedAsset(suppliedAsset);

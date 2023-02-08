@@ -29,10 +29,17 @@ export abstract class DatumBuilder<Data = any> {
   abstract network: TSupportedNetworks;
 
   /**
-   * Should take a valid Datum structure and convert it to a hash.
+   * Should take a valid Datum structure or hex-encoded CBOR string of a valid Datum and convert it to a hash.
    * This is primarily used for testing but is a useful utility.
+   * @param datum The Data representation or hex-encoded CBOR string of the datum.
    */
-  abstract datumToHash(datum: Data): string;
+  abstract datumToHash(datum: Data | string): string;
+
+  /**
+   * Should parse the given datum cbor and extract the {@link DestinationAddress} from it.
+   * @param datum The hex-encoded CBOR string of the datum.
+   */
+  abstract getDestinationAddressFromCBOR(datum: string): string;
 
   /**
    * Should build a Datum for Swap transaction.

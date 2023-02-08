@@ -1,5 +1,5 @@
 import {
-  BuildZapConfigArgs,
+  ZapConfigArgs,
   IAsset,
   IPoolData,
   IZapArgs,
@@ -15,7 +15,7 @@ export class ZapConfig extends Config<IZapArgs> {
   suppliedAsset?: IAsset;
   zapDirection?: PoolCoin;
 
-  constructor(args?: BuildZapConfigArgs) {
+  constructor(args?: ZapConfigArgs) {
     super();
 
     args && this.setFromObject(args);
@@ -47,7 +47,7 @@ export class ZapConfig extends Config<IZapArgs> {
     pool,
     suppliedAsset,
     zapDirection,
-  }: BuildZapConfigArgs): void {
+  }: ZapConfigArgs): void {
     this.setOrderAddresses(orderAddresses);
     this.setPool(pool);
     this.setSuppliedAsset(suppliedAsset);

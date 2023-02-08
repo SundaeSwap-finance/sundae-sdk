@@ -1,5 +1,5 @@
-import { Mocks } from "@sundaeswap/sdk-core/testing";
-Mocks.MockAll();
+import { MockedExports } from "@sundaeswap/sdk-core/testing";
+MockedExports.MockAll();
 
 import "@testing-library/jest-dom";
 import { render, fireEvent, waitFor } from "@testing-library/react";
@@ -39,8 +39,8 @@ describe("Example testing", () => {
 
     fireEvent.click(swapButton);
     await waitFor(() => {
-      expect(Mocks.SundaeSDK.mockQuery).toHaveBeenCalledTimes(1);
-      expect(Mocks.SundaeSDK.mockSwap).toHaveBeenCalledTimes(1);
+      expect(MockedExports.SundaeSDK.mockQuery).toHaveBeenCalledTimes(1);
+      expect(MockedExports.SundaeSDK.mockSwap).toHaveBeenCalledTimes(1);
     });
 
     expect(container).toMatchSnapshot();

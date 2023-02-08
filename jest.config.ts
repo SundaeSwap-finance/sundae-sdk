@@ -4,7 +4,7 @@ const config: JestConfigWithTsJest = {
   projects: [
     {
       displayName: "@sundaeswap/sdk-core",
-      preset: "ts-jest/presets/default-esm",
+      // preset: "ts-jest/presets/default-esm",
       testMatch: ["<rootDir>/packages/core/**/__tests__/**/*.test.*?(x)"],
       testPathIgnorePatterns: ["/dist/", "/node_modules/", "__tests__/data"],
       extensionsToTreatAsEsm: [".ts"],

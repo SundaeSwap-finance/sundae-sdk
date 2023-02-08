@@ -15,6 +15,7 @@ describe("SwapConfig class", () => {
 
   it("should construct with a config", () => {
     const myConfig = new SwapConfig({
+      minReceivable: new AssetAmount(10n),
       pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {

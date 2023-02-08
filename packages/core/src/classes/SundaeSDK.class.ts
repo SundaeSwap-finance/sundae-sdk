@@ -1,8 +1,9 @@
 import type {
-  BuildDepositConfigArgs,
-  BuildSwapConfigArgs,
-  BuildWithdrawConfigArgs,
-  BuildZapConfigArgs,
+  CancelConfigArgs,
+  DepositConfigArgs,
+  SwapConfigArgs,
+  WithdrawConfigArgs,
+  ZapConfigArgs,
   IQueryProviderClass,
   SDKZapArgs,
 } from "../@types";
@@ -15,6 +16,7 @@ import { DepositConfig } from "./Configs/DepositConfig.class";
 import { Withdrawals } from "lucid-cardano/types/src/core/wasm_modules/cardano_multiplatform_lib_web/cardano_multiplatform_lib";
 import { WithdrawConfig } from "./Configs/WithdrawConfig.class";
 import { ZapConfig } from "./Configs/ZapConfig.class";
+import { CancelConfig } from "./Configs/CancelConfig.class";
 
 /**
  * A description for the SundaeSDK class.
@@ -31,12 +33,12 @@ export class SundaeSDK {
    *
    * @param builder - An instance of TxBuilder.
    */
-  constructor(private builder: TxBuilder) {
+  constructor(public builder: TxBuilder) {
     this.builder = builder;
   }
 
   /**
-   * Utility method to retrieve the builder instance.
+   * Utility method to retrieve the builder instance with types.
    *
    * @returns
    */
@@ -102,7 +104,7 @@ export class SundaeSDK {
    * @param slippage Set your slippage tolerance. Defaults to 10%.
    * @returns
    */
-  async swap(config: BuildSwapConfigArgs, slippage?: number) {
+  async swap(config: Omit<SwapConfigArgs, "minReceivable">, slippage?: number) {
     const swap = new SwapConfig(config);
     swap.setMinReceivable(
       Utils.getMinReceivableFromSlippage(
@@ -146,7 +148,7 @@ export class SundaeSDK {
    * @param limitPrice
    * @returns
    */
-  async limitSwap(config: BuildSwapConfigArgs, limitPrice: AssetAmount) {
+  async limitSwap(config: SwapConfigArgs, limitPrice: AssetAmount) {
     const swap = new SwapConfig(config);
     swap.setMinReceivable(limitPrice);
     return await this.builder.buildSwapTx(swap.buildArgs());
@@ -157,7 +159,7 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async withdraw(config: BuildWithdrawConfigArgs) {
+  async withdraw(config: WithdrawConfigArgs) {
     const withdraw = new WithdrawConfig(config);
     return await this.builder.buildWithdrawTx(withdraw.buildArgs());
   }
@@ -167,9 +169,14 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async deposit(config: BuildDepositConfigArgs) {
+  async deposit(config: DepositConfigArgs) {
     const deposit = new DepositConfig(config);
     return await this.builder.buildDepositTx(deposit.buildArgs());
+  }
+
+  async cancel(config: CancelConfigArgs) {
+    const cancellation = new CancelConfig(config);
+    return await this.builder.buildCancelTx(cancellation.buildArgs());
   }
 
   /**

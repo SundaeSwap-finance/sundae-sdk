@@ -6,6 +6,10 @@ import {
   ITxBuilderBaseOptions,
   IWithdrawArgs,
   IZapArgs,
+  SwapConfigArgs,
+  DepositConfigArgs,
+  WithdrawConfigArgs,
+  CancelConfigArgs,
 } from "../../@types";
 import { Transaction } from "../Transaction.class";
 import { Utils } from "../Utils.class";
@@ -48,21 +52,30 @@ export abstract class TxBuilder<
    * @param args The built SwapArguments from a {@link Core.SwapConfig} instance.
    * @returns {ITxBuilderComplete}
    */
-  abstract buildSwapTx(args: ISwapArgs): Promise<ITxBuilderComplete>;
+  abstract buildSwapTx(args: SwapConfigArgs): Promise<ITxBuilderComplete>;
 
   /**
    * The main function to build a deposit Transaction.
    *
    * @param args The built DepositArguments from a {@link Core.DepositConfig} instance.
    */
-  abstract buildDepositTx(args: IDepositArgs): Promise<ITxBuilderComplete>;
+  abstract buildDepositTx(args: DepositConfigArgs): Promise<ITxBuilderComplete>;
 
   /**
    * The main function to build a withdraw Transaction.
    *
    * @param args The built WithdrawArguments from a {@link Core.WithdrawConfig} instance.
    */
-  abstract buildWithdrawTx(args: IWithdrawArgs): Promise<ITxBuilderComplete>;
+  abstract buildWithdrawTx(
+    args: WithdrawConfigArgs
+  ): Promise<ITxBuilderComplete>;
+
+  /**
+   * The main function to build a cancellation Transaction.
+   *
+   * @param args The built CancelArguments from a {@link Core.CancelConfig} instance.
+   */
+  abstract buildCancelTx(args: CancelConfigArgs): Promise<ITxBuilderComplete>;
 
   /**
    * The main function to build a zap Transaction.
