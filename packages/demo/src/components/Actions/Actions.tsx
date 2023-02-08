@@ -5,7 +5,7 @@ import { Deposit } from "./modules/Deposit";
 import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
 import { Withdraw } from "./modules/Withdraw";
-import { Zap } from "./modules/Zap";
+// import { Zap } from "./modules/Zap";
 
 export const poolQuery: IPoolQuery = {
   pair: [
@@ -62,7 +62,7 @@ export const Actions: FC = () => {
         <SwapBA setCBOR={setCBOR} submit={submit} />
         <Deposit setCBOR={setCBOR} submit={submit} />
         <Withdraw setCBOR={setCBOR} submit={submit} />
-        <Zap setCBOR={setCBOR} submit={submit} />
+        {/* <Zap setCBOR={setCBOR} submit={submit} /> */}
       </div>
       {cbor.hash && (
         <>

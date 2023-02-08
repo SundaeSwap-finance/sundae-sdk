@@ -217,6 +217,28 @@ const { submit, cbor } = await SDK.swap(
 
 ___
 
+### unstable\_zap
+
+▸ **unstable_zap**(`config`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+
+Create a Deposit transaction for a pool by supplying two assets.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `config` | [`SDKZapArgs`](../interfaces/Core.SDKZapArgs.md) |
+
+#### Returns
+
+`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+
+#### Defined in
+
+[classes/SundaeSDK.class.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L180)
+
+___
+
 ### withdraw
 
 ▸ **withdraw**(`config`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
@@ -236,25 +258,3 @@ Create a Withdraw transaction for a pool by supplying the LP tokens.
 #### Defined in
 
 [classes/SundaeSDK.class.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L160)
-
-___
-
-### zap
-
-▸ **zap**(`config`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
-
-Create a Deposit transaction for a pool by supplying two assets.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `config` | [`SDKZapArgs`](../interfaces/Core.SDKZapArgs.md) |
-
-#### Returns
-
-`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
-
-#### Defined in
-
-[classes/SundaeSDK.class.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L180)

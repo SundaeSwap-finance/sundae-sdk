@@ -31,7 +31,7 @@ The main function to build a deposit Transaction.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | [`IDepositArgs`](../interfaces/Core.IDepositArgs.md) | The built [DepositArguments](../interfaces/Core.DepositArguments.md) from a [DepositConfig](Core.DepositConfig.md) instance. |
+| `args` | [`IDepositArgs`](../interfaces/Core.IDepositArgs.md) | The built DepositArguments from a [DepositConfig](Core.DepositConfig.md) instance. |
 
 #### Returns
 
@@ -75,7 +75,7 @@ The main function to build a withdraw Transaction.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | [`IWithdrawArgs`](../interfaces/Core.IWithdrawArgs.md) | The build [WithdrawArguments](../interfaces/Core.WithdrawArguments.md) from a [WithdrawConfig](Core.WithdrawConfig.md) instance. |
+| `args` | [`IWithdrawArgs`](../interfaces/Core.IWithdrawArgs.md) | The built WithdrawArguments from a [WithdrawConfig](Core.WithdrawConfig.md) instance. |
 
 #### Returns
 
@@ -97,7 +97,7 @@ The main function to build a zap Transaction.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | [`IZapArgs`](../interfaces/Core.IZapArgs.md) | The build [ZapArguments](../interfaces/Core.ZapArguments.md) from a [ZapConfig](Core.ZapConfig.md) instance. |
+| `args` | [`IZapArgs`](../interfaces/Core.IZapArgs.md) | The built ZapArguments from a [ZapConfig](Core.ZapConfig.md) instance. |
 
 #### Returns
 
@@ -127,7 +127,7 @@ ___
 
 ### newTxInstance
 
-▸ `Protected` `Abstract` **newTxInstance**(): `Promise`<[`Transaction`](Core.Transaction.md)<`Tx`\>\>
+▸ `Abstract` **newTxInstance**(): `Promise`<[`Transaction`](Core.Transaction.md)<`Tx`\>\>
 
 Should create a new [Transaction](Core.Transaction.md) instance from the supplied transaction library.
 

@@ -177,7 +177,7 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async zap(config: SDKZapArgs) {
+  async unstable_zap(config: SDKZapArgs) {
     const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
       config.pool.assetA,
       config.pool.assetB,

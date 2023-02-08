@@ -47,9 +47,9 @@ A supported Cardano network.
 
 ___
 
-### provider
+### providerType
 
-• **provider**: ``"blockfrost"``
+• **providerType**: ``"blockfrost"``
 
 The provider type used by Lucid. Currently only supports Blockfrost.
 
