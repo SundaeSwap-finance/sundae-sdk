@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-alpha.2](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.1...v0.2.0-alpha.2) (2023-02-08)
+
+### Features
+
+- add support for zaps ([10e017b](https://github.com/SundaeSwap-finance/sundae-sdk/commit/10e017bffcdb867fe859a562938cc5ee7616b00e))
+
 # [0.2.0-alpha.1](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.0...v0.2.0-alpha.1) (2023-01-25)
 
 ### Bug Fixes
