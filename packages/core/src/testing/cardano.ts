@@ -95,7 +95,7 @@ const MockWalletApi = () => {
         async isEnabled() {
           return true;
         },
-        version: "test",
+        apiVersion: "test",
       },
     },
   };

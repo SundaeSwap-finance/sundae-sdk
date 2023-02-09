@@ -7,6 +7,7 @@ import {
   Network,
   TxSigned,
   C,
+  Utils as LU,
 } from "lucid-cardano";
 import { Transaction } from "../../../classes/Transaction.class";
 
@@ -246,9 +247,8 @@ export class TxBuilderLucid extends TxBuilder<
       );
     }
 
-    const signerKey = this.wallet?.utils.getAddressDetails(
-      utxoToSpend?.[0]?.address
-    )?.paymentCredential?.hash;
+    // TODO: parse from datum
+    const signerKey = 'a84b391b1e6568edae7f238cb8068fa80b49d365275ddd12774359d4';
     if (!signerKey) {
       throw new Error(
         "Could not get payment keyhash from fetched UTXO details: " +
@@ -296,6 +296,7 @@ export class TxBuilderLucid extends TxBuilder<
 
   private async completeTx(tx: Transaction<Tx>): Promise<ITxBuilderComplete> {
     const finishedTx = await tx.get().complete();
+    console.log(finishedTx.toString());
     const signedTx = await finishedTx.sign().complete();
     return this._buildTxComplete(signedTx);
   }
