@@ -8,6 +8,7 @@ export class CancelConfig extends Config<CancelConfigArgs> {
   datum?: string;
   datumHash?: string;
   utxo?: UTXO;
+  address?: string;
 
   constructor(args?: CancelConfigArgs) {
     super();
@@ -30,6 +31,11 @@ export class CancelConfig extends Config<CancelConfigArgs> {
     return this;
   }
 
+  setAddress(address: string) {
+    this.address = address;
+    return this;
+  }
+
   buildArgs(): CancelConfigArgs {
     this.validate();
 
@@ -37,13 +43,15 @@ export class CancelConfig extends Config<CancelConfigArgs> {
       datumHash: this.datumHash as string,
       datum: this.datum as string,
       utxo: this.utxo as UTXO,
+      address: this.address as string,
     };
   }
 
-  setFromObject({ datum, datumHash, utxo }: CancelConfigArgs): void {
+  setFromObject({ datum, datumHash, utxo, address }: CancelConfigArgs): void {
     this.setDatum(datum);
     this.setDatumHash(datumHash);
     this.setUTXO(utxo);
+    this.setAddress(address);
   }
 
   validate(): never | void {
@@ -62,6 +70,12 @@ export class CancelConfig extends Config<CancelConfigArgs> {
     if (!this.datum) {
       throw new Error(
         "You did not add a datum for this cancellation. Set a valid datum with .setDatum()"
+      );
+    }
+
+    if (!this.address) {
+      throw new Error(
+        "You did not add a required signer for this cancellation. Set a valid address with .setAddress()"
       );
     }
   }

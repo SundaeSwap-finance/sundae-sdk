@@ -45,6 +45,7 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 ## Classes
 
 - [AssetAmount](../classes/Core.AssetAmount.md)
+- [CancelConfig](../classes/Core.CancelConfig.md)
 - [DatumBuilder](../classes/Core.DatumBuilder.md)
 - [DepositConfig](../classes/Core.DepositConfig.md)
 - [SundaeSDK](../classes/Core.SundaeSDK.md)
@@ -60,12 +61,10 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 ## Interfaces
 
 - [Arguments](../interfaces/Core.Arguments.md)
-- [BuildDepositConfigArgs](../interfaces/Core.BuildDepositConfigArgs.md)
-- [BuildSwapConfigArgs](../interfaces/Core.BuildSwapConfigArgs.md)
-- [BuildWithdrawConfigArgs](../interfaces/Core.BuildWithdrawConfigArgs.md)
-- [BuildZapConfigArgs](../interfaces/Core.BuildZapConfigArgs.md)
+- [CancelConfigArgs](../interfaces/Core.CancelConfigArgs.md)
 - [DatumResult](../interfaces/Core.DatumResult.md)
 - [DepositArguments](../interfaces/Core.DepositArguments.md)
+- [DepositConfigArgs](../interfaces/Core.DepositConfigArgs.md)
 - [IAsset](../interfaces/Core.IAsset.md)
 - [IDepositArgs](../interfaces/Core.IDepositArgs.md)
 - [IOrderArgs](../interfaces/Core.IOrderArgs.md)
@@ -78,10 +77,14 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [ITxBuilderComplete](../interfaces/Core.ITxBuilderComplete.md)
 - [IWithdrawArgs](../interfaces/Core.IWithdrawArgs.md)
 - [IZapArgs](../interfaces/Core.IZapArgs.md)
+- [OrderConfigArgs](../interfaces/Core.OrderConfigArgs.md)
 - [SDKZapArgs](../interfaces/Core.SDKZapArgs.md)
 - [SwapArguments](../interfaces/Core.SwapArguments.md)
+- [SwapConfigArgs](../interfaces/Core.SwapConfigArgs.md)
 - [WithdrawArguments](../interfaces/Core.WithdrawArguments.md)
+- [WithdrawConfigArgs](../interfaces/Core.WithdrawConfigArgs.md)
 - [ZapArguments](../interfaces/Core.ZapArguments.md)
+- [ZapConfigArgs](../interfaces/Core.ZapConfigArgs.md)
 
 ## Extension Builders
 
@@ -100,7 +103,7 @@ a consistently authorized alternate to cancel the Escrow.
 
 #### Defined in
 
-[@types/datumbuilder.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L41)
+[@types/datumbuilder.ts:49](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L49)
 
 ___
 
@@ -112,7 +115,7 @@ The hash string of a Datum.
 
 #### Defined in
 
-[@types/datumbuilder.ts:12](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L12)
+[@types/datumbuilder.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L20)
 
 ___
 
@@ -133,7 +136,7 @@ the remaining asset gets sent to the [DestinationAddress](Core.md#destinationadd
 
 #### Defined in
 
-[@types/datumbuilder.ts:80](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L80)
+[@types/datumbuilder.ts:88](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L88)
 
 ___
 
@@ -153,7 +156,7 @@ receivable amount to satisfy a pool's CoinA/CoinB requirements.
 
 #### Defined in
 
-[@types/datumbuilder.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L70)
+[@types/datumbuilder.ts:78](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L78)
 
 ___
 
@@ -172,7 +175,7 @@ Defines the destination address of a swap along with an optional datum hash to a
 
 #### Defined in
 
-[@types/datumbuilder.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L30)
+[@types/datumbuilder.ts:38](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L38)
 
 ___
 
@@ -203,7 +206,7 @@ An Escrow address defines the destination address and an optional PubKeyHash
 
 #### Defined in
 
-[@types/datumbuilder.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L46)
+[@types/datumbuilder.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L54)
 
 ___
 
@@ -215,7 +218,7 @@ A hex-encoded public key hash of an address.
 
 #### Defined in
 
-[@types/datumbuilder.ts:17](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L17)
+[@types/datumbuilder.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L25)
 
 ___
 
@@ -235,7 +238,26 @@ which acts as the limit price of a swap.
 
 #### Defined in
 
-[@types/datumbuilder.ts:55](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L55)
+[@types/datumbuilder.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L63)
+
+___
+
+### UTXO
+
+Ƭ **UTXO**: `Object`
+
+The structure for a UTXO.
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `hash` | `string` |
+| `index` | `number` |
+
+#### Defined in
+
+[@types/datumbuilder.ts:12](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L12)
 
 ___
 
@@ -248,7 +270,7 @@ for their provided assets.
 
 #### Defined in
 
-[@types/datumbuilder.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L64)
+[@types/datumbuilder.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L72)
 
 ## Utility Types
 
@@ -260,7 +282,7 @@ A type constant used for determining valid Cardano Network values.
 
 #### Defined in
 
-[@types/utilities.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L20)
+[@types/utilities.ts:24](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L24)
 
 ___
 
@@ -272,4 +294,4 @@ A type constant used for determining valid CIP-30 compliant Web3 Wallets for Car
 
 #### Defined in
 
-[@types/utilities.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L27)
+[@types/utilities.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L31)

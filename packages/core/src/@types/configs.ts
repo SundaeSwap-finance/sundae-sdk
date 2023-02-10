@@ -1,4 +1,4 @@
-import { AssetAmount } from "src/classes/AssetAmount.class";
+import { AssetAmount } from "../classes/AssetAmount.class";
 import { OrderAddresses, PoolCoin, UTXO } from "./datumbuilder";
 import { IPoolData } from "./queryprovider";
 import { IAsset } from "./utilities";
@@ -34,6 +34,7 @@ export interface CancelConfigArgs {
   utxo: UTXO;
   datum: string;
   datumHash: string;
+  address: string;
 }
 
 /**

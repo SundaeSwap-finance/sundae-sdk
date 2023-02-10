@@ -14,7 +14,7 @@ An instance of the asset amount including the decimal place.
 
 #### Defined in
 
-[@types/utilities.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L47)
+[@types/utilities.ts:51](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L51)
 
 ___
 
@@ -32,4 +32,4 @@ POLICY_ID.ASSET_NAME
 
 #### Defined in
 
-[@types/utilities.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L45)
+[@types/utilities.ts:49](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L49)

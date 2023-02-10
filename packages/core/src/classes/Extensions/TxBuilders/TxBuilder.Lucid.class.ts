@@ -8,6 +8,7 @@ import {
   TxSigned,
   C,
   Utils as LU,
+  getAddressDetails,
 } from "lucid-cardano";
 import { Transaction } from "../../../classes/Transaction.class";
 
@@ -219,6 +220,7 @@ export class TxBuilderLucid extends TxBuilder<
     datum,
     datumHash,
     utxo,
+    address,
   }: CancelConfigArgs): Promise<ITxBuilderComplete> {
     const tx = await this.newTxInstance();
 
@@ -230,16 +232,10 @@ export class TxBuilderLucid extends TxBuilder<
       );
     }
 
-    // Provide the UTXO being spent.
-    // Add the redeemer (always the cbor): d87a80
-    // Provide collateral
-    // Add required signer from the payment keyhash in the datum.
-    // Add the script
-
     const utxoToSpend = await this.wallet?.provider.getUtxosByOutRef([
       { outputIndex: utxo.index, txHash: utxo.hash },
     ]);
-    console.log(utxoToSpend);
+
     if (!utxoToSpend) {
       throw new Error(
         "UTXO data was not found with the following parameters: " +
@@ -247,8 +243,9 @@ export class TxBuilderLucid extends TxBuilder<
       );
     }
 
-    // TODO: parse from datum
-    const signerKey = 'a84b391b1e6568edae7f238cb8068fa80b49d365275ddd12774359d4';
+    // TODO: parse from datum instead
+    const details = getAddressDetails(address);
+    const signerKey = details.paymentCredential?.hash;
     if (!signerKey) {
       throw new Error(
         "Could not get payment keyhash from fetched UTXO details: " +

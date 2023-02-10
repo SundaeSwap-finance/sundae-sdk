@@ -44,7 +44,7 @@ Should build a Datum for a Deposit transaction.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L47)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L54)
 
 ___
 
@@ -66,7 +66,7 @@ Should build a Datum for Swap transaction.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L41)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:48](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L48)
 
 ___
 
@@ -88,7 +88,7 @@ Should build a Datum for a Withdraw transaction.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L59)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L66)
 
 ___
 
@@ -110,7 +110,7 @@ Should build a Datum for a Zap transaction.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:53](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L53)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L60)
 
 ___
 
@@ -118,14 +118,14 @@ ___
 
 ▸ `Abstract` **datumToHash**(`datum`): `string`
 
-Should take a valid Datum structure and convert it to a hash.
+Should take a valid Datum structure or hex-encoded CBOR string of a valid Datum and convert it to a hash.
 This is primarily used for testing but is a useful utility.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `datum` | `Data` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `datum` | `string` \| `Data` | The Data representation or hex-encoded CBOR string of the datum. |
 
 #### Returns
 
@@ -133,7 +133,29 @@ This is primarily used for testing but is a useful utility.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:35](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L35)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:36](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L36)
+
+___
+
+### getDestinationAddressFromCBOR
+
+▸ `Abstract` **getDestinationAddressFromCBOR**(`datum`): `string`
+
+Should parse the given datum cbor and extract the [DestinationAddress](../modules/Core.md#destinationaddress) from it.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `datum` | `string` | The hex-encoded CBOR string of the datum. |
+
+#### Returns
+
+`string`
+
+#### Defined in
+
+[classes/Abstracts/DatumBuilder.abstract.class.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L42)
 
 ___
 
@@ -162,4 +184,4 @@ to be thrown.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L84)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L91)

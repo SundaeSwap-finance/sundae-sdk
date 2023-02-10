@@ -1,7 +1,6 @@
-import { Extensions, MockWalletApi } from "../../../../testing";
-MockWalletApi();
+import { Extensions } from "../../../../testing";
 
-import { ProviderSundaeSwap, TxBuilderLucid } from "../../../../extensions";
+// import { ProviderSundaeSwap, TxBuilderLucid } from "../../../../extensions";
 
 describe("placeholder", () => {
   it("should pass", () => {});
