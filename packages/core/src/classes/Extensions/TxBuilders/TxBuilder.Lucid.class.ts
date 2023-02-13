@@ -43,7 +43,7 @@ const getBuffer = async () => {
  */
 export interface ITxBuilderLucidOptions extends ITxBuilderBaseOptions {
   /** The provider type used by Lucid. Currently only supports Blockfrost. */
-  providerType: "blockfrost";
+  providerType?: "blockfrost";
   /** The chosen provider options object to pass to Lucid. */
   blockfrost?: {
     url: string;
@@ -105,9 +105,8 @@ export class TxBuilderLucid extends TxBuilder<
    */
   private async initWallet() {
     const { providerType, blockfrost } = this.options;
-    let ThisProvider: Provider;
+    let ThisProvider: Provider | undefined;
     switch (providerType) {
-      default:
       case "blockfrost":
         if (!blockfrost) {
           throw new Error(

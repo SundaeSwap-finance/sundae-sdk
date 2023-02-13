@@ -1,7 +1,6 @@
 import { IPoolQuery, OrderAddresses } from "@sundaeswap/sdk-core";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import { useAppState } from "../../state/context";
-import Loader from "../Loader";
 import { Deposit } from "./modules/Deposit";
 import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";

@@ -49,7 +49,7 @@ ___
 
 ### providerType
 
-• **providerType**: ``"blockfrost"``
+• `Optional` **providerType**: ``"blockfrost"``
 
 The provider type used by Lucid. Currently only supports Blockfrost.
 

@@ -1,10 +1,7 @@
 import {
-  IDepositArgs,
-  ISwapArgs,
   IQueryProviderClass,
   ITxBuilderComplete,
   ITxBuilderBaseOptions,
-  IWithdrawArgs,
   IZapArgs,
   SwapConfigArgs,
   DepositConfigArgs,

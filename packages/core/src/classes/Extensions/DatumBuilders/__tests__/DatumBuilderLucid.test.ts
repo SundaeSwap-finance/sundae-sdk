@@ -1,6 +1,8 @@
-"use strict";
+/**
+ * @jest-environment node
+ **/
 
-import { Extensions } from "../../../../testing";
+import { TEST_DatumBuilder } from "../../../../testing/DatumBuilder";
 import { DatumBuilderLucid } from "../DatumBuilder.Lucid.class";
 
-Extensions.TEST_DatumBuilder(() => new DatumBuilderLucid("preview"));
+TEST_DatumBuilder(() => new DatumBuilderLucid("preview"));

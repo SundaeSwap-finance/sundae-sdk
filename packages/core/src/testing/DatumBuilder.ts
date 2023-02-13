@@ -13,7 +13,7 @@
  */
 import { jest } from "@jest/globals";
 import { DatumBuilder } from "../classes/Abstracts/DatumBuilder.abstract.class";
-import { OrderAddresses, PoolCoin } from "../@types";
+import { OrderAddresses, PoolCoin } from "../@types/datumbuilder";
 import { AssetAmount } from "../classes/AssetAmount.class";
 
 const DEFAULT_IDENT = "03";
@@ -30,7 +30,6 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
   let builderInstance: DatumBuilder;
   beforeEach(() => {
     builderInstance = initializer();
-    jest.spyOn(DatumBuilder, "throwInvalidOrderAddressesError");
   });
 
   afterEach(() => {
@@ -270,6 +269,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
     });
 
     it("should fail when passing a script address to DestinationAddress without a datumHash attached", () => {
+      jest.spyOn(DatumBuilder, "throwInvalidOrderAddressesError");
       try {
         builderInstance.buildOrderAddresses({
           DestinationAddress: {
@@ -293,6 +293,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
     });
 
     it("should fail when passing an invalid datumHash along with a script DestinationAddress", () => {
+      jest.spyOn(DatumBuilder, "throwInvalidOrderAddressesError");
       try {
         builderInstance.buildOrderAddresses({
           DestinationAddress: {
