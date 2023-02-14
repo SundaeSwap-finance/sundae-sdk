@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-alpha.3](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.2...v0.2.0-alpha.3) (2023-02-14)
+
+### Features
+
+- **cancel:** adds cancellation ([7b68059](https://github.com/SundaeSwap-finance/sundae-sdk/commit/7b680594e3270241074e384fbbd3c189b4a08916))
+
 # [0.2.0-alpha.2](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.1...v0.2.0-alpha.2) (2023-02-08)
 
 ### Features
