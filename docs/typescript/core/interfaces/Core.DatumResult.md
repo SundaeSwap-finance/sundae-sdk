@@ -20,7 +20,7 @@ The hex-encoded CBOR string of the datum
 
 #### Defined in
 
-[@types/datumbuilder.ts:133](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L133)
+[@types/datumbuilder.ts:141](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L141)
 
 ___
 
@@ -32,4 +32,4 @@ The datum type of the library used to build it.
 
 #### Defined in
 
-[@types/datumbuilder.ts:135](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L135)
+[@types/datumbuilder.ts:143](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L143)

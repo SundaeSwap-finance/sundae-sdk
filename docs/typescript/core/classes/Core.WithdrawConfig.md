@@ -64,7 +64,7 @@ Set the default arguments from a JSON object as opposed to individually.
 
 | Name | Type |
 | :------ | :------ |
-| `«destructured»` | [`BuildWithdrawConfigArgs`](../interfaces/Core.BuildWithdrawConfigArgs.md) |
+| `«destructured»` | [`WithdrawConfigArgs`](../interfaces/Core.WithdrawConfigArgs.md) |
 
 #### Returns
 

@@ -1,25 +1,21 @@
-import { Extensions, MockWalletApi } from "../../../../testing";
-MockWalletApi();
+/**
+ * @jest-environment node
+ **/
 
-import { ProviderSundaeSwap, TxBuilderLucid } from "../../../../extensions";
+import { TEST_TxBuilder } from "../../../../testing/TxBuilder";
+import { setupGlobalCardano } from "../../../../testing/cardano";
+import { TxBuilderLucid } from "../TxBuilder.Lucid.class";
+import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProvider.SundaeSwap";
 
-describe("placeholder", () => {
-  it("should pass", () => {});
-});
+setupGlobalCardano();
 
-// TODO: debug mocking Lucid
-// Extensions.TEST_TxBuilder(
-//   () =>
-//     new TxBuilderLucid(
-//       {
-//         network: "preview",
-//         providerType: "blockfrost",
-//         wallet: "eternl",
-//         blockfrost: {
-//           apiKey: "",
-//           url: "",
-//         },
-//       },
-//       new ProviderSundaeSwap("preview")
-//     )
-// );
+TEST_TxBuilder(
+  () =>
+    new TxBuilderLucid(
+      {
+        network: "preview",
+        wallet: "eternl",
+      },
+      new QueryProviderSundaeSwap("preview")
+    )
+);

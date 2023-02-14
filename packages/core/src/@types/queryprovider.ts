@@ -2,6 +2,8 @@
  * @module ProviderTypes
  */
 
+import { UTXO } from "./datumbuilder";
+
 /**
  * The base Provider interface by which you can implement custom Provider classes.
  *
@@ -23,6 +25,15 @@ export interface IQueryProviderClass {
    * @param fee A string representation of the pool fee, as a float (i.e. "0.03").
    */
   findPoolIdent: (query: IPoolQuery) => Promise<string>;
+
+  /**
+   * Finds the associated UTXO data of an open order.
+   *
+   * @param utxo The transaction hash and index of the open order in the escrow contract.
+   */
+  findOpenOrderDatum: (
+    utxo: UTXO
+  ) => Promise<{ datum: string; datumHash: string }>;
 }
 
 /**

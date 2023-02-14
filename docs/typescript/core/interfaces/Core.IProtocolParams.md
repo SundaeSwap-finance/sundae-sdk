@@ -18,6 +18,30 @@ The Bech32 script address of the SundaeSwap Escrow contract.
 
 ___
 
+### ESCROW\_CANCEL\_REDEEMER
+
+• **ESCROW\_CANCEL\_REDEEMER**: `string`
+
+The hex-encoded redeemer value for cancelling Escrow Orders
+
+#### Defined in
+
+[@types/utilities.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L14)
+
+___
+
+### ESCROW\_SCRIPT\_VALIDATOR
+
+• **ESCROW\_SCRIPT\_VALIDATOR**: `string`
+
+The hex-encoded script value of the Escrow Order contract
+
+#### Defined in
+
+[@types/utilities.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L16)
+
+___
+
 ### RIDER\_FEE
 
 • **RIDER\_FEE**: `bigint`

@@ -10,6 +10,32 @@ The base Provider interface by which you can implement custom Provider classes.
 
 ## Properties
 
+### findOpenOrderDatum
+
+• **findOpenOrderDatum**: (`utxo`: [`UTXO`](../modules/Core.md#utxo)) => `Promise`<{ `datum`: `string` ; `datumHash`: `string`  }\>
+
+#### Type declaration
+
+▸ (`utxo`): `Promise`<{ `datum`: `string` ; `datumHash`: `string`  }\>
+
+Finds the associated UTXO data of an open order.
+
+##### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `utxo` | [`UTXO`](../modules/Core.md#utxo) | The transaction hash and index of the open order in the escrow contract. |
+
+##### Returns
+
+`Promise`<{ `datum`: `string` ; `datumHash`: `string`  }\>
+
+#### Defined in
+
+[@types/queryprovider.ts:34](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L34)
+
+___
+
 ### findPoolData
 
 • **findPoolData**: (`query`: [`IPoolQuery`](Core.IPoolQuery.md)) => `Promise`<[`IPoolData`](Core.IPoolData.md)\>
@@ -32,7 +58,7 @@ Finds a matching pool on the SundaeSwap protocol.
 
 #### Defined in
 
-[@types/queryprovider.ts:17](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L17)
+[@types/queryprovider.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L19)
 
 ___
 
@@ -58,4 +84,4 @@ Finds a matching pool on the SundaeSwap protocol and returns only the ident.
 
 #### Defined in
 
-[@types/queryprovider.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L25)
+[@types/queryprovider.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L27)

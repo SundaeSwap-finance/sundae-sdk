@@ -13,8 +13,6 @@
  */
 import { jest } from "@jest/globals";
 import { TxBuilder } from "../classes/Abstracts/TxBuilder.abstract.class";
-import { AssetAmount } from "../classes/AssetAmount.class";
-import { PREVIEW_DATA } from "./mockData";
 
 export const TEST_TxBuilder = (
   initializer: () => TxBuilder,

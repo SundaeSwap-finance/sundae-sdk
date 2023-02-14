@@ -43,6 +43,27 @@ export const Actions: FC = () => {
     return null;
   }
 
+  const tempCancelOrder = async () => {
+    const utxo = {
+      hash: "3f8ffa9fe490b43bd286e73a7c62e951c3b1c6729a65751d87fce9faba4f8cd6",
+      index: 0,
+    };
+
+    const { datum, datumHash } = await SDK.query().findOpenOrderDatum(utxo);
+
+    if (datum) {
+      const hash = await SDK.cancel({
+        datum,
+        datumHash,
+        utxo,
+        address:
+          "addr_test1qz5ykwgmrejk3mdw0u3cewqx375qkjwnv5n4mhgjwap4n4qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsemxyd6",
+      });
+
+      console.log(hash);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <h2 className="mb-4 text-lg font-bold text-white flex items-center justify-between">
@@ -62,6 +83,7 @@ export const Actions: FC = () => {
         <SwapBA setCBOR={setCBOR} submit={submit} />
         <Deposit setCBOR={setCBOR} submit={submit} />
         <Withdraw setCBOR={setCBOR} submit={submit} />
+        {/* <button onClick={tempCancelOrder}>Cancel Order</button> */}
         {/* <Zap setCBOR={setCBOR} submit={submit} /> */}
       </div>
       {cbor.hash && (

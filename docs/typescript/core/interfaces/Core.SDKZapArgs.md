@@ -6,6 +6,6 @@ The arguments for a Zap when calling from the top-level [SundaeSDK](../classes/C
 
 ## Hierarchy
 
-- `Omit`<[`BuildZapConfigArgs`](Core.BuildZapConfigArgs.md), ``"zapDirection"``\>
+- `Omit`<[`ZapConfigArgs`](Core.ZapConfigArgs.md), ``"zapDirection"``\>
 
   ↳ **`SDKZapArgs`**

@@ -1,5 +1,5 @@
 import {
-  BuildDepositConfigArgs,
+  DepositConfigArgs,
   IAsset,
   IDepositArgs,
   IPoolData,
@@ -13,7 +13,7 @@ import { Config } from "../Abstracts/Config.abstract.class";
 export class DepositConfig extends Config<IDepositArgs> {
   suppliedAssets?: [IAsset, IAsset];
 
-  constructor(args?: BuildDepositConfigArgs) {
+  constructor(args?: DepositConfigArgs) {
     super();
 
     args && this.setFromObject(args);
@@ -38,7 +38,7 @@ export class DepositConfig extends Config<IDepositArgs> {
     orderAddresses,
     pool,
     suppliedAssets,
-  }: BuildDepositConfigArgs): void {
+  }: DepositConfigArgs): void {
     this.setOrderAddresses(orderAddresses);
     this.setPool(pool);
     this.setSuppliedAssets(suppliedAssets);

@@ -7518,19 +7518,19 @@ lucid-cardano@^0.8.4:
     node-fetch "^3.2.3"
     ws "^8.10.0"
 
-lucid-cardano@^0.8.7:
-  version "0.8.7"
-  resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.8.7.tgz#72eea2c3e906aca0848ff99cd6512aa3b25c95a1"
-  integrity sha512-dTaYm6pKRbZ5UaLdY1uKNRq0c5KpJvBEnR1mD8Jr5Ut9LJraZJFRzfp/VzWkZf60/dqFDUCYvmJb+/kHVSr/ag==
+lucid-cardano@^0.8.8:
+  version "0.8.8"
+  resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.8.8.tgz#c09771ee5abb0f5c7160391738baa3a180ed13f5"
+  integrity sha512-6kV54MHXye3FwB9MoSPgJ8npzKDFaUpHo9QlR9VZTFCWXdFuKIUvmPMdBllk/fv/vSf4H3SOYrsbRN+Px3rItg==
   dependencies:
     "@peculiar/webcrypto" "^1.4.0"
     node-fetch "^3.2.3"
     ws "^8.10.0"
 
-lucid-cardano@^0.8.8:
-  version "0.8.8"
-  resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.8.8.tgz#c09771ee5abb0f5c7160391738baa3a180ed13f5"
-  integrity sha512-6kV54MHXye3FwB9MoSPgJ8npzKDFaUpHo9QlR9VZTFCWXdFuKIUvmPMdBllk/fv/vSf4H3SOYrsbRN+Px3rItg==
+lucid-cardano@^0.9.0:
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.9.1.tgz#8c35ed51fad115e66103c46868f92bae373b6dd9"
+  integrity sha512-DQadg4AqW6VjIcIMIIfeAnwNjx8Tk6sG9soavjJECZdlDbvVkgDK4AgCRT6c0eEv3/2cgcvSHC3HkB+aKcFBXw==
   dependencies:
     "@peculiar/webcrypto" "^1.4.0"
     node-fetch "^3.2.3"

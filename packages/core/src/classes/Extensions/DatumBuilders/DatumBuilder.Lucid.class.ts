@@ -35,8 +35,21 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   /**
    * Builds a hash from a Data object.
    */
-  datumToHash(datum: Data): string {
+  datumToHash(datum: Data | string): string {
+    if (typeof datum === "string") {
+      const data = Data.from(datum);
+      return Data.to(data);
+    }
+
     return Data.to(datum);
+  }
+
+  /**
+   * Parses out the DesintationAddress from a datum.
+   * @TODO Ensure that we can reliably parse the DesinationAddress from the datum string.
+   */
+  getDestinationAddressFromCBOR(datum: string) {
+    return "";
   }
 
   /**

@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "postinstall": "lerna bootstrap",
-    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
+    "test": "yarn node --no-warnings --experimental-vm-modules $(yarn bin jest)",
     "prepare": "husky install",
     "build": "lerna run build",
     "version:ci": "lerna version -y --ignore-scripts",

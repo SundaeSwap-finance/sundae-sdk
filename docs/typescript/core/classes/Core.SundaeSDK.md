@@ -26,19 +26,19 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:34](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L34)
+[classes/SundaeSDK.class.ts:36](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L36)
 
 ## Properties
 
 ### builder
 
-• `Private` **builder**: [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`, [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)\>
+• **builder**: [`TxBuilder`](Core.TxBuilder.md)<`any`, `any`, `any`, [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)\>
 
 An instance of TxBuilder.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:34](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L34)
+[classes/SundaeSDK.class.ts:36](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L36)
 
 ## Methods
 
@@ -46,7 +46,7 @@ An instance of TxBuilder.
 
 ▸ **build**<`T`\>(): [`TxBuilder`](Core.TxBuilder.md)<`any`, `T`, `any`, [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)\>
 
-Utility method to retrieve the builder instance.
+Utility method to retrieve the builder instance with types.
 
 #### Type parameters
 
@@ -60,7 +60,7 @@ Utility method to retrieve the builder instance.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:43](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L43)
+[classes/SundaeSDK.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L45)
 
 ___
 
@@ -74,7 +74,7 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 | Name | Type |
 | :------ | :------ |
-| `config` | [`BuildDepositConfigArgs`](../interfaces/Core.BuildDepositConfigArgs.md) |
+| `config` | [`DepositConfigArgs`](../interfaces/Core.DepositConfigArgs.md) |
 
 #### Returns
 
@@ -82,7 +82,7 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:170](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L170)
+[classes/SundaeSDK.class.ts:172](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L172)
 
 ___
 
@@ -121,7 +121,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 | Name | Type |
 | :------ | :------ |
-| `config` | [`BuildSwapConfigArgs`](../interfaces/Core.BuildSwapConfigArgs.md) |
+| `config` | [`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md) |
 | `limitPrice` | [`AssetAmount`](Core.AssetAmount.md) |
 
 #### Returns
@@ -130,7 +130,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:149](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L149)
+[classes/SundaeSDK.class.ts:151](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L151)
 
 ___
 
@@ -146,7 +146,7 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:52](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L52)
+[classes/SundaeSDK.class.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L54)
 
 ___
 
@@ -204,7 +204,7 @@ const { submit, cbor } = await SDK.swap(
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `config` | [`BuildSwapConfigArgs`](../interfaces/Core.BuildSwapConfigArgs.md) | - |
+| `config` | `Omit`<[`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md), ``"minReceivable"``\> | - |
 | `slippage?` | `number` | Set your slippage tolerance. Defaults to 10%. |
 
 #### Returns
@@ -213,7 +213,7 @@ const { submit, cbor } = await SDK.swap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:105](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L105)
+[classes/SundaeSDK.class.ts:107](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L107)
 
 ___
 
@@ -235,7 +235,7 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L180)
+[classes/SundaeSDK.class.ts:187](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L187)
 
 ___
 
@@ -249,7 +249,7 @@ Create a Withdraw transaction for a pool by supplying the LP tokens.
 
 | Name | Type |
 | :------ | :------ |
-| `config` | [`BuildWithdrawConfigArgs`](../interfaces/Core.BuildWithdrawConfigArgs.md) |
+| `config` | [`WithdrawConfigArgs`](../interfaces/Core.WithdrawConfigArgs.md) |
 
 #### Returns
 
@@ -257,4 +257,4 @@ Create a Withdraw transaction for a pool by supplying the LP tokens.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L160)
+[classes/SundaeSDK.class.ts:162](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L162)

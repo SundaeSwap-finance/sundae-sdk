@@ -6,19 +6,23 @@ import {
   Provider,
   Network,
   TxSigned,
+  C,
+  Utils as LU,
+  getAddressDetails,
 } from "lucid-cardano";
 import { Transaction } from "../../../classes/Transaction.class";
 
 import {
   IQueryProviderClass,
   TSupportedNetworks,
-  ISwapArgs,
   ITxBuilderBaseOptions,
-  IDepositArgs,
   IAsset,
   ITxBuilderComplete,
-  IWithdrawArgs,
   IZapArgs,
+  SwapConfigArgs,
+  DepositConfigArgs,
+  WithdrawConfigArgs,
+  CancelConfigArgs,
 } from "../../../@types";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
@@ -39,7 +43,7 @@ const getBuffer = async () => {
  */
 export interface ITxBuilderLucidOptions extends ITxBuilderBaseOptions {
   /** The provider type used by Lucid. Currently only supports Blockfrost. */
-  providerType: "blockfrost";
+  providerType?: "blockfrost";
   /** The chosen provider options object to pass to Lucid. */
   blockfrost?: {
     url: string;
@@ -72,7 +76,6 @@ export class TxBuilderLucid extends TxBuilder<
   Lucid,
   Tx
 > {
-  lib?: Lucid;
   tx?: Tx;
 
   /**
@@ -102,9 +105,8 @@ export class TxBuilderLucid extends TxBuilder<
    */
   private async initWallet() {
     const { providerType, blockfrost } = this.options;
-    let ThisProvider: Provider;
+    let ThisProvider: Provider | undefined;
     switch (providerType) {
-      default:
       case "blockfrost":
         if (!blockfrost) {
           throw new Error(
@@ -139,7 +141,7 @@ export class TxBuilderLucid extends TxBuilder<
     return new Transaction<Tx>(this, this.wallet.newTx());
   }
 
-  async buildSwapTx(args: ISwapArgs) {
+  async buildSwapTx(args: SwapConfigArgs) {
     const txInstance = await this.newTxInstance();
     const {
       pool: { ident, assetA, assetB },
@@ -173,7 +175,7 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx(txInstance);
   }
 
-  async buildDepositTx(args: IDepositArgs) {
+  async buildDepositTx(args: DepositConfigArgs) {
     const tx = await this.newTxInstance();
     const payment = Utils.accumulateSuppliedAssets(
       args.suppliedAssets,
@@ -195,7 +197,7 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx(tx);
   }
 
-  async buildWithdrawTx(args: IWithdrawArgs): Promise<ITxBuilderComplete> {
+  async buildWithdrawTx(args: WithdrawConfigArgs): Promise<ITxBuilderComplete> {
     const tx = await this.newTxInstance();
     const payment = Utils.accumulateSuppliedAssets(
       [args.suppliedLPAsset],
@@ -210,6 +212,60 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
+    return this.completeTx(tx);
+  }
+
+  async buildCancelTx({
+    datum,
+    datumHash,
+    utxo,
+    address,
+  }: CancelConfigArgs): Promise<ITxBuilderComplete> {
+    const tx = await this.newTxInstance();
+
+    const plutusData = C.PlutusData.from_bytes(Buffer.from(datum, "hex"));
+    const calculatedDatumHash = C.hash_plutus_data(plutusData).to_hex();
+    if (calculatedDatumHash !== datumHash) {
+      throw new Error(
+        "The provided datum and datumHash do not match! Confirm your datum is correct."
+      );
+    }
+
+    const utxoToSpend = await this.wallet?.provider.getUtxosByOutRef([
+      { outputIndex: utxo.index, txHash: utxo.hash },
+    ]);
+
+    if (!utxoToSpend) {
+      throw new Error(
+        "UTXO data was not found with the following parameters: " +
+          JSON.stringify(utxo)
+      );
+    }
+
+    // TODO: parse from datum instead
+    const details = getAddressDetails(address);
+    const signerKey = details.paymentCredential?.hash;
+    if (!signerKey) {
+      throw new Error(
+        "Could not get payment keyhash from fetched UTXO details: " +
+          JSON.stringify(utxo)
+      );
+    }
+
+    const { ESCROW_CANCEL_REDEEMER, ESCROW_SCRIPT_VALIDATOR } =
+      this.getParams();
+
+    try {
+      tx.get()
+        .collectFrom(utxoToSpend, ESCROW_CANCEL_REDEEMER)
+        .addSignerKey(signerKey)
+        .attachSpendingValidator({
+          type: "PlutusV1",
+          script: ESCROW_SCRIPT_VALIDATOR,
+        });
+    } catch (e) {
+      throw e;
+    }
     return this.completeTx(tx);
   }
 
@@ -236,6 +292,7 @@ export class TxBuilderLucid extends TxBuilder<
 
   private async completeTx(tx: Transaction<Tx>): Promise<ITxBuilderComplete> {
     const finishedTx = await tx.get().complete();
+    console.log(finishedTx.toString());
     const signedTx = await finishedTx.sign().complete();
     return this._buildTxComplete(signedTx);
   }

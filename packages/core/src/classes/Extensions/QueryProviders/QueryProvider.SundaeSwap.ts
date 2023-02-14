@@ -3,6 +3,7 @@ import {
   IPoolQuery,
   IQueryProviderClass,
   TSupportedNetworks,
+  UTXO,
 } from "../../../@types";
 import { providerBaseUrls } from "../../../lib/params";
 
@@ -89,5 +90,49 @@ export class QueryProviderSundaeSwap implements IQueryProviderClass {
     }
 
     return pool;
+  }
+
+  async findOpenOrderDatum(utxo: UTXO) {
+    const res: {
+      data?: {
+        utxo: {
+          datum: string;
+          datumHash: string;
+        };
+      };
+    } = await fetch(this.baseUrl, {
+      method: "POST",
+      body: JSON.stringify({
+        query: `
+        query UTXO($txHash: String!, $index: Int!) {
+          utxo(txHash: $txHash, index: $index) {
+            datum
+            datumHash
+          }
+        }
+        `,
+        variables: {
+          txHash: utxo.hash,
+          index: utxo.index,
+        },
+      }),
+    }).then((res) => res.json());
+
+    if (!res?.data) {
+      throw new Error(
+        "Something went wrong when trying to fetch that transaction's datum. Full response: " +
+          JSON.stringify(res)
+      );
+    }
+
+    const ThisBuffer =
+      typeof Buffer !== undefined
+        ? Buffer
+        : await import("buffer").then(({ Buffer }) => Buffer);
+
+    return {
+      datum: ThisBuffer.from(res.data.utxo.datum, "base64").toString("hex"),
+      datumHash: res.data.utxo.datumHash,
+    };
   }
 }

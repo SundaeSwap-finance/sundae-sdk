@@ -10,6 +10,10 @@ export interface IProtocolParams {
   SCOOPER_FEE: bigint;
   /** The minimum amount of ADA to deliver assets with. */
   RIDER_FEE: bigint;
+  /** The hex-encoded redeemer value for cancelling Escrow Orders  */
+  ESCROW_CANCEL_REDEEMER: string;
+  /** The hex-encoded script value of the Escrow Order contract */
+  ESCROW_SCRIPT_VALIDATOR: string;
 }
 
 /**
