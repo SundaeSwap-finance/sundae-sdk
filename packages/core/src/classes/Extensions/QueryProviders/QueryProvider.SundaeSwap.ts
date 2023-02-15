@@ -126,7 +126,7 @@ export class QueryProviderSundaeSwap implements IQueryProviderClass {
     }
 
     const ThisBuffer =
-      typeof Buffer !== undefined
+      typeof Buffer !== "undefined"
         ? Buffer
         : await import("buffer").then(({ Buffer }) => Buffer);
 
