@@ -125,13 +125,8 @@ export class QueryProviderSundaeSwap implements IQueryProviderClass {
       );
     }
 
-    const ThisBuffer =
-      typeof Buffer !== "undefined"
-        ? Buffer
-        : await import("buffer").then(({ Buffer }) => Buffer);
-
     return {
-      datum: ThisBuffer.from(res.data.utxo.datum, "base64").toString("hex"),
+      datum: Buffer.from(res.data.utxo.datum, "base64").toString("hex"),
       datumHash: res.data.utxo.datumHash,
     };
   }

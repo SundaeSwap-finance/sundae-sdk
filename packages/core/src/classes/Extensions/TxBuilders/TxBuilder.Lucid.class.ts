@@ -7,7 +7,6 @@ import {
   Network,
   TxSigned,
   C,
-  Utils as LU,
   getAddressDetails,
 } from "lucid-cardano";
 import { Transaction } from "../../../classes/Transaction.class";
@@ -27,14 +26,6 @@ import {
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
 import { DatumBuilderLucid } from "../DatumBuilders/DatumBuilder.Lucid.class";
-
-const getBuffer = async () => {
-  const CtxBuffer =
-    typeof window !== "undefined"
-      ? await import("buffer").then(({ Buffer }) => Buffer)
-      : Buffer;
-  return CtxBuffer;
-};
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -311,9 +302,7 @@ export class TxBuilderLucid extends TxBuilder<
   ): Promise<ITxBuilderComplete> {
     return {
       submit: async () => await signedTx.submit(),
-      cbor: (await getBuffer())
-        .from(signedTx.txSigned.to_bytes())
-        .toString("hex"),
+      cbor: Buffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
     };
   }
 

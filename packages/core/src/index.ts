@@ -10,6 +10,17 @@
  * yarn add lucid-cardano @sundae/sdk-core
  * ```
  * 
+ * If you plan to use this package in the browser along with Webpack 5, you'll need to add
+ * polyfill support for Buffer. You can do this like so:
+ * 
+ * ```ts
+ * plugins: {
+ *   new webpack.ProvidePlugin({
+ *     Buffer: ["buffer", "Buffer"]
+ *   })
+ * }
+ * ```
+ * 
  * Next, configure the instance in your app:
  * 
  * ```ts
