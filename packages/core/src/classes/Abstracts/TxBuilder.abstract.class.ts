@@ -1,6 +1,6 @@
 import {
   IQueryProviderClass,
-  ITxBuilderComplete,
+  ITxBuilderTx,
   ITxBuilderBaseOptions,
   IZapArgs,
   SwapConfigArgs,
@@ -47,39 +47,37 @@ export abstract class TxBuilder<
    * The main function to build a swap Transaction.
    *
    * @param args The built SwapArguments from a {@link Core.SwapConfig} instance.
-   * @returns {ITxBuilderComplete}
+   * @returns {ITxBuilderTx}
    */
-  abstract buildSwapTx(args: SwapConfigArgs): Promise<ITxBuilderComplete>;
+  abstract buildSwapTx(args: SwapConfigArgs): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build a deposit Transaction.
    *
    * @param args The built DepositArguments from a {@link Core.DepositConfig} instance.
    */
-  abstract buildDepositTx(args: DepositConfigArgs): Promise<ITxBuilderComplete>;
+  abstract buildDepositTx(args: DepositConfigArgs): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build a withdraw Transaction.
    *
    * @param args The built WithdrawArguments from a {@link Core.WithdrawConfig} instance.
    */
-  abstract buildWithdrawTx(
-    args: WithdrawConfigArgs
-  ): Promise<ITxBuilderComplete>;
+  abstract buildWithdrawTx(args: WithdrawConfigArgs): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build a cancellation Transaction.
    *
    * @param args The built CancelArguments from a {@link Core.CancelConfig} instance.
    */
-  abstract buildCancelTx(args: CancelConfigArgs): Promise<ITxBuilderComplete>;
+  abstract buildCancelTx(args: CancelConfigArgs): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build a zap Transaction.
    *
    * @param args The built ZapArguments from a {@link Core.ZapConfig} instance.
    */
-  abstract buildZapTx(args: IZapArgs): Promise<ITxBuilderComplete>;
+  abstract buildZapTx(args: IZapArgs): Promise<ITxBuilderTx>;
 
   /**
    * Helper function for child classes to easily grab the appropriate protocol parameters for SundaeSwap.

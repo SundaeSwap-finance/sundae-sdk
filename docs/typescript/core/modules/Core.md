@@ -86,6 +86,8 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [ISwapArgs](../interfaces/Core.ISwapArgs.md)
 - [ITxBuilderBaseOptions](../interfaces/Core.ITxBuilderBaseOptions.md)
 - [ITxBuilderComplete](../interfaces/Core.ITxBuilderComplete.md)
+- [ITxBuilderFees](../interfaces/Core.ITxBuilderFees.md)
+- [ITxBuilderTx](../interfaces/Core.ITxBuilderTx.md)
 - [IWithdrawArgs](../interfaces/Core.IWithdrawArgs.md)
 - [IZapArgs](../interfaces/Core.IZapArgs.md)
 - [OrderConfigArgs](../interfaces/Core.OrderConfigArgs.md)

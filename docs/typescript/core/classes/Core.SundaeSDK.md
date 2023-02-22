@@ -66,7 +66,7 @@ ___
 
 ### deposit
 
-▸ **deposit**(`config`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ **deposit**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 Create a Deposit transaction for a pool by supplying two assets.
 
@@ -78,7 +78,7 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 #### Defined in
 
@@ -88,7 +88,7 @@ ___
 
 ### limitSwap
 
-▸ **limitSwap**(`config`, `limitPrice`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ **limitSwap**(`config`, `limitPrice`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 Creates a swap with a minimum receivable limit price. The price should be the minimum
 amount at which you want the order to execute. For example:
@@ -126,7 +126,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 #### Defined in
 
@@ -152,7 +152,7 @@ ___
 
 ### swap
 
-▸ **swap**(`config`, `slippage?`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ **swap**(`config`, `slippage?`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 The main entry point for building a swap transaction with the least amount
 of configuration required. By default, all calls to this method are treated
@@ -209,7 +209,7 @@ const { submit, cbor } = await SDK.swap(
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 #### Defined in
 
@@ -219,7 +219,7 @@ ___
 
 ### unstable\_zap
 
-▸ **unstable_zap**(`config`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ **unstable_zap**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 Create a Deposit transaction for a pool by supplying two assets.
 
@@ -231,7 +231,7 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 #### Defined in
 
@@ -241,7 +241,7 @@ ___
 
 ### withdraw
 
-▸ **withdraw**(`config`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ **withdraw**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 Create a Withdraw transaction for a pool by supplying the LP tokens.
 
@@ -253,7 +253,7 @@ Create a Withdraw transaction for a pool by supplying the LP tokens.
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 #### Defined in
 
