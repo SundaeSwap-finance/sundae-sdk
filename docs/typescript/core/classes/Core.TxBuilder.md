@@ -23,7 +23,7 @@ The main class by which TxBuilder classes are extended.
 
 ### buildCancelTx
 
-▸ `Abstract` **buildCancelTx**(`args`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ `Abstract` **buildCancelTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 The main function to build a cancellation Transaction.
 
@@ -35,17 +35,17 @@ The main function to build a cancellation Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L75)
+[classes/Abstracts/TxBuilder.abstract.class.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L73)
 
 ___
 
 ### buildDepositTx
 
-▸ `Abstract` **buildDepositTx**(`args`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ `Abstract` **buildDepositTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 The main function to build a deposit Transaction.
 
@@ -57,7 +57,7 @@ The main function to build a deposit Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 #### Defined in
 
@@ -67,7 +67,7 @@ ___
 
 ### buildSwapTx
 
-▸ `Abstract` **buildSwapTx**(`args`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ `Abstract` **buildSwapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 The main function to build a swap Transaction.
 
@@ -79,7 +79,7 @@ The main function to build a swap Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 #### Defined in
 
@@ -89,7 +89,7 @@ ___
 
 ### buildWithdrawTx
 
-▸ `Abstract` **buildWithdrawTx**(`args`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ `Abstract` **buildWithdrawTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 The main function to build a withdraw Transaction.
 
@@ -101,7 +101,7 @@ The main function to build a withdraw Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 #### Defined in
 
@@ -111,7 +111,7 @@ ___
 
 ### buildZapTx
 
-▸ `Abstract` **buildZapTx**(`args`): `Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+▸ `Abstract` **buildZapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 The main function to build a zap Transaction.
 
@@ -123,11 +123,11 @@ The main function to build a zap Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilderComplete`](../interfaces/Core.ITxBuilderComplete.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L82)
+[classes/Abstracts/TxBuilder.abstract.class.ts:80](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L80)
 
 ___
 
@@ -143,7 +143,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:88](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L88)
+[classes/Abstracts/TxBuilder.abstract.class.ts:86](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L86)
 
 ___
 

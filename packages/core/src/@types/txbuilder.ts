@@ -9,13 +9,34 @@ import {
 import { AssetAmount } from "../classes/AssetAmount.class";
 
 /**
+ * The primary top-level API surface for dealing with built TxBuilder transactions.
+ */
+export interface ITxBuilderTx {
+  sign: () => ITxBuilderTx;
+  complete: () => Promise<ITxBuilderComplete>;
+}
+
+/**
  * The returned interface once a transaction is successfully built.
  */
 export interface ITxBuilderComplete {
   /** The CBOR encoded hex string of the transaction. Useful if you want to do something with it instead of submitting to the wallet. */
   cbor: string;
+  /** The calculated fees of the transaction. */
+  fees: ITxBuilderFees;
   /** Submits the CBOR encoded transaction to the connected wallet returns a hex encoded transaction hash. */
   submit: () => Promise<string>;
+}
+
+/**
+ * The full list of calculated fees for a transaction built by a TxBuilder instance.
+ */
+export interface ITxBuilderFees {
+  cardanoTxFee: AssetAmount;
+  deposit: AssetAmount;
+  scooperFee: AssetAmount;
+  liquidity?: AssetAmount;
+  referral?: AssetAmount;
 }
 
 /**

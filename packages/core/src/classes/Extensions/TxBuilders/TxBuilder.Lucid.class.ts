@@ -8,24 +8,29 @@ import {
   TxSigned,
   C,
   getAddressDetails,
+  TxComplete,
 } from "lucid-cardano";
 import { Transaction } from "../../../classes/Transaction.class";
+import { AssetAmount } from "../../../classes/AssetAmount.class";
 
 import {
   IQueryProviderClass,
   TSupportedNetworks,
   ITxBuilderBaseOptions,
   IAsset,
-  ITxBuilderComplete,
+  ITxBuilderTx,
   IZapArgs,
   SwapConfigArgs,
   DepositConfigArgs,
   WithdrawConfigArgs,
   CancelConfigArgs,
+  ITxBuilderComplete,
+  ITxBuilderFees,
 } from "../../../@types";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
 import { DatumBuilderLucid } from "../DatumBuilders/DatumBuilder.Lucid.class";
+import { ADA_ASSET_DECIMAL } from "../../../lib/constants";
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -188,7 +193,7 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx(tx);
   }
 
-  async buildWithdrawTx(args: WithdrawConfigArgs): Promise<ITxBuilderComplete> {
+  async buildWithdrawTx(args: WithdrawConfigArgs): Promise<ITxBuilderTx> {
     const tx = await this.newTxInstance();
     const payment = Utils.accumulateSuppliedAssets(
       [args.suppliedLPAsset],
@@ -211,7 +216,7 @@ export class TxBuilderLucid extends TxBuilder<
     datumHash,
     utxo,
     address,
-  }: CancelConfigArgs): Promise<ITxBuilderComplete> {
+  }: CancelConfigArgs): Promise<ITxBuilderTx> {
     const tx = await this.newTxInstance();
 
     const plutusData = C.PlutusData.from_bytes(Buffer.from(datum, "hex"));
@@ -260,7 +265,7 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx(tx);
   }
 
-  async buildZapTx(args: IZapArgs): Promise<ITxBuilderComplete> {
+  async buildZapTx(args: IZapArgs): Promise<ITxBuilderTx> {
     const tx = await this.newTxInstance();
     const payment = Utils.accumulateSuppliedAssets(
       [args.suppliedAsset],
@@ -281,11 +286,57 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx(tx);
   }
 
-  private async completeTx(tx: Transaction<Tx>): Promise<ITxBuilderComplete> {
+  private async completeTx(tx: Transaction<Tx>): Promise<ITxBuilderTx> {
+    let sign: boolean = false;
     const finishedTx = await tx.get().complete();
-    console.log(finishedTx.toString());
-    const signedTx = await finishedTx.sign().complete();
-    return this._buildTxComplete(signedTx);
+    const baseFees: Pick<ITxBuilderFees, "scooperFee" | "deposit"> = {
+      deposit: new AssetAmount(this.getParams().RIDER_FEE, ADA_ASSET_DECIMAL),
+      scooperFee: new AssetAmount(
+        this.getParams().SCOOPER_FEE,
+        ADA_ASSET_DECIMAL
+      ),
+    };
+
+    const thisTx = {
+      complete: async () => {
+        if (sign) {
+          const signedTx = await finishedTx.sign().complete();
+          return {
+            submit: async () => await signedTx.submit(),
+            cbor: Buffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
+            fees: {
+              ...baseFees,
+              cardanoTxFee: new AssetAmount(
+                BigInt(signedTx.txSigned.body().fee().to_str()),
+                ADA_ASSET_DECIMAL
+              ),
+            },
+          };
+        }
+
+        return {
+          submit: async () => {
+            throw new Error(
+              "You must sign your transaction before submitting to a wallet!"
+            );
+          },
+          cbor: Buffer.from(finishedTx.txComplete.to_bytes()).toString("hex"),
+          fees: {
+            ...baseFees,
+            cardanoTxFee: new AssetAmount(
+              BigInt(finishedTx.txComplete.body().fee().to_str()),
+              ADA_ASSET_DECIMAL
+            ),
+          },
+        };
+      },
+      sign: function () {
+        sign = true;
+        return this;
+      },
+    };
+
+    return thisTx;
   }
 
   private _conformNetwork(network: TSupportedNetworks): Network {
@@ -295,15 +346,6 @@ export class TxBuilderLucid extends TxBuilder<
       case "preview":
         return "Preview";
     }
-  }
-
-  private async _buildTxComplete(
-    signedTx: TxSigned
-  ): Promise<ITxBuilderComplete> {
-    return {
-      submit: async () => await signedTx.submit(),
-      cbor: Buffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
-    };
   }
 
   private _throwWalletNotConnected(): never {

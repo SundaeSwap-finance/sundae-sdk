@@ -14,7 +14,19 @@ The CBOR encoded hex string of the transaction. Useful if you want to do somethi
 
 #### Defined in
 
-[@types/txbuilder.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L16)
+[@types/txbuilder.ts:24](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L24)
+
+___
+
+### fees
+
+• **fees**: [`ITxBuilderFees`](Core.ITxBuilderFees.md)
+
+The calculated fees of the transaction.
+
+#### Defined in
+
+[@types/txbuilder.ts:26](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L26)
 
 ___
 
@@ -34,4 +46,4 @@ Submits the CBOR encoded transaction to the connected wallet returns a hex encod
 
 #### Defined in
 
-[@types/txbuilder.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L18)
+[@types/txbuilder.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L28)

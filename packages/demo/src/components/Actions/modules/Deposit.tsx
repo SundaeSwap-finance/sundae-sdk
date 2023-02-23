@@ -4,7 +4,7 @@ import { useAppState } from "../../../state/context";
 import { ActionArgs, defaultOrderAddresses, poolQuery } from "../Actions";
 import Button from "../../Button";
 
-export const Deposit: FC<ActionArgs> = ({ setCBOR, submit }) => {
+export const Deposit: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
   const { SDK } = useAppState();
   const [depositing, setDepositing] = useState(false);
 
@@ -35,14 +35,17 @@ export const Deposit: FC<ActionArgs> = ({ setCBOR, submit }) => {
         ],
       }).then(async (res) => {
         if (submit) {
-          const hash = await res.submit();
+          const { cbor, submit, fees } = await res.sign().complete();
+          setFees(fees);
           setCBOR({
-            cbor: res.cbor,
-            hash,
+            cbor,
+            hash: await submit(),
           });
         } else {
+          const { cbor, fees } = await res.complete();
+          setFees(fees);
           setCBOR({
-            cbor: res.cbor,
+            cbor,
           });
         }
       });
