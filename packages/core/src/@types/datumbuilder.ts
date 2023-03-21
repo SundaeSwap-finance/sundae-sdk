@@ -139,6 +139,8 @@ export interface ZapArguments extends Arguments {
 export interface DatumResult<T = any> {
   /** The hex-encoded CBOR string of the datum */
   cbor: string;
+  /** The hex-encoded hash of the CBOR string */
+  hash?: string;
   /** The datum type of the library used to build it. */
   datum: T;
 }

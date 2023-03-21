@@ -5,10 +5,8 @@ import {
   Blockfrost,
   Provider,
   Network,
-  TxSigned,
   C,
   getAddressDetails,
-  TxComplete,
 } from "lucid-cardano";
 import { Transaction } from "../../../classes/Transaction.class";
 import { AssetAmount } from "../../../classes/AssetAmount.class";
@@ -24,7 +22,6 @@ import {
   DepositConfigArgs,
   WithdrawConfigArgs,
   CancelConfigArgs,
-  ITxBuilderComplete,
   ITxBuilderFees,
 } from "../../../@types";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
@@ -265,7 +262,65 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx(tx);
   }
 
-  async buildZapTx(args: IZapArgs): Promise<ITxBuilderTx> {
+  async buildChainedZapTx(args: IZapArgs): Promise<ITxBuilderTx> {
+    const tx = await this.newTxInstance();
+    const payment = Utils.accumulateSuppliedAssets(
+      [args.suppliedAsset],
+      this.options.network
+    );
+
+    const { ESCROW_ADDRESS } = this.getParams();
+    const datumBuilder = new DatumBuilderLucid(this.options.network);
+
+    const sortedSwapAssets = Utils.sortSwapAssets([
+      args.pool.assetA,
+      args.pool.assetB,
+    ]);
+
+    console.log(sortedSwapAssets, args, payment);
+
+    const depositData = datumBuilder.buildDepositPair({
+      CoinAAmount: args.suppliedAsset.amount,
+      CoinBAmount: args.suppliedAsset.amount,
+    });
+
+    const swapData = datumBuilder.buildSwapDatum({
+      ident: args.pool.ident,
+      fundedAsset: args.suppliedAsset,
+      orderAddresses: {
+        DestinationAddress: {
+          address: ESCROW_ADDRESS,
+          datumHash: depositData.hash,
+        },
+        AlternateAddress: args.orderAddresses.DestinationAddress.address,
+      },
+      swap: {
+        SuppliedCoin: Utils.getAssetSwapDirection(args.suppliedAsset, [
+          args.pool.assetA,
+          args.pool.assetB,
+        ]),
+      },
+    });
+
+    if (!depositData?.hash) {
+      throw new Error(
+        "A datum hash for a deposit transaction is required to build a chained Zap operation."
+      );
+    }
+    tx.tx.attachMetadata(103251, {
+      [depositData.hash]: depositData.cbor,
+    });
+
+    console.log({
+      depositData,
+      swapData,
+    });
+
+    tx.get().payToContract(ESCROW_ADDRESS, swapData.cbor, payment);
+    return this.completeTx(tx);
+  }
+
+  async buildAtomicZapTx(args: IZapArgs): Promise<ITxBuilderTx> {
     const tx = await this.newTxInstance();
     const payment = Utils.accumulateSuppliedAssets(
       [args.suppliedAsset],

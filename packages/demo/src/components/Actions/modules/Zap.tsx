@@ -17,13 +17,13 @@ export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     try {
       const pool = await SDK.query().findPoolData(poolQuery);
 
-      await SDK.unstable_zap({
-        orderAddresses: defaultOrderAddresses,
+      await SDK.zap({
         pool,
         suppliedAsset: {
           assetId: "",
           amount: new AssetAmount(10000000n, 6),
         },
+        orderAddresses: defaultOrderAddresses,
       }).then(async (res) => {
         if (submit) {
           const { cbor, submit, fees } = await res.sign().complete();

@@ -71,6 +71,9 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
 
     return {
       cbor: Data.to(datum),
+      hash: C.hash_plutus_data(
+        C.PlutusData.from_bytes(Buffer.from(Data.to(datum), "hex"))
+      )?.to_hex(),
       datum,
     };
   }
@@ -93,6 +96,9 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
 
     return {
       cbor: Data.to(datum),
+      hash: C.hash_plutus_data(
+        C.PlutusData.from_bytes(Buffer.from(Data.to(datum), "hex"))
+      )?.to_hex(),
       datum,
     };
   }
@@ -110,6 +116,9 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
 
     return {
       cbor: Data.to(datum),
+      hash: C.hash_plutus_data(
+        C.PlutusData.from_bytes(Buffer.from(Data.to(datum), "hex"))
+      )?.to_hex(),
       datum,
     };
   }
@@ -132,6 +141,9 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
 
     return {
       cbor: Data.to(datum),
+      hash: C.hash_plutus_data(
+        C.PlutusData.from_bytes(Buffer.from(Data.to(datum), "hex"))
+      )?.to_hex(),
       datum,
     };
   }
@@ -161,13 +173,16 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
     ]);
     return {
       cbor: Data.to(datum),
+      hash: C.hash_plutus_data(
+        C.PlutusData.from_bytes(Buffer.from(Data.to(datum), "hex"))
+      )?.to_hex(),
       datum,
     };
   }
 
   /**
-   * Builds the pair of assets for depositing in the pool.
-   * @param deposit A pair of assets that match CoinA and CoinB of the pool.
+   * Builds the atomic zap deposit of a single-sided pool deposit.
+   * @param deposit A single deposit config of one side of a pool pair.
    * @returns
    */
   buildDepositZap(zap: DepositSingle): DatumResult<Data> {
@@ -189,6 +204,9 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
 
     return {
       cbor: Data.to(datum),
+      hash: C.hash_plutus_data(
+        C.PlutusData.from_bytes(Buffer.from(Data.to(datum), "hex"))
+      )?.to_hex(),
       datum,
     };
   }
@@ -212,6 +230,9 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
 
     return {
       cbor: Data.to(datum),
+      hash: C.hash_plutus_data(
+        C.PlutusData.from_bytes(Buffer.from(Data.to(datum), "hex"))
+      )?.to_hex(),
       datum,
     };
   }
@@ -253,6 +274,9 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
 
     return {
       cbor: Data.to(datum),
+      hash: C.hash_plutus_data(
+        C.PlutusData.from_bytes(Buffer.from(Data.to(datum), "hex"))
+      )?.to_hex(),
       datum,
     };
   }

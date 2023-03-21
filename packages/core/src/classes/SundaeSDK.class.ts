@@ -179,6 +179,20 @@ export class SundaeSDK {
     return await this.builder.buildCancelTx(cancellation.buildArgs());
   }
 
+  async zap(config: Omit<ZapConfigArgs, "zapDirection">) {
+    const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
+      config.pool.assetA,
+      config.pool.assetB,
+    ]);
+
+    const zap = new ZapConfig({
+      ...config,
+      zapDirection,
+    });
+
+    return await this.builder.buildChainedZapTx(zap.buildArgs());
+  }
+
   /**
    * Create a Deposit transaction for a pool by supplying two assets.
    * @param config
@@ -194,6 +208,6 @@ export class SundaeSDK {
       ...config,
       zapDirection,
     });
-    return await this.builder.buildZapTx(zap.buildArgs());
+    return await this.builder.buildAtomicZapTx(zap.buildArgs());
   }
 }
