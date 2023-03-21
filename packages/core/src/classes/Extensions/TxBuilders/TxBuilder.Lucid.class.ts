@@ -23,6 +23,7 @@ import {
   WithdrawConfigArgs,
   CancelConfigArgs,
   ITxBuilderFees,
+  DepositMixed,
 } from "../../../@types";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
@@ -277,7 +278,14 @@ export class TxBuilderLucid extends TxBuilder<
       args.pool.assetB,
     ]);
 
-    console.log(sortedSwapAssets, args, payment);
+    let depositPair: DepositMixed;
+    if (sortedSwapAssets[0].assetId === args.suppliedAsset.assetId) {
+      depositPair = {
+        CoinAAmount: 
+      }
+    } else {
+      
+    }
 
     const depositData = datumBuilder.buildDepositPair({
       CoinAAmount: args.suppliedAsset.amount,

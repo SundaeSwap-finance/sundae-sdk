@@ -51,6 +51,21 @@ export class Utils {
     return 0;
   }
 
+  static simulateSwapResult(
+    pool: IPoolData,
+    assetA: IAsset,
+    scooperFee: bigint
+  ): AssetAmount {
+    const assetRatio = BigInt(pool.quantityA) / BigInt(pool.quantityB);
+
+    if (assetA.assetId === pool.assetA.assetId) {
+      const takes =
+        ((BigInt(pool.quantityB) * assetA.amount.getAmount()) /
+          (BigInt(pool.quantityA) + assetA.amount.getAmount())) *
+        BigInt(pool.fee);
+    }
+  }
+
   static convertPoolFeeToPercent(fee: string): number {
     return Number(fee) / 100;
   }
