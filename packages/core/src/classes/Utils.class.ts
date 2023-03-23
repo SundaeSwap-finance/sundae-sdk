@@ -51,21 +51,6 @@ export class Utils {
     return 0;
   }
 
-  static simulateSwapResult(
-    pool: IPoolData,
-    assetA: IAsset,
-    scooperFee: bigint
-  ): AssetAmount {
-    const assetRatio = BigInt(pool.quantityA) / BigInt(pool.quantityB);
-
-    if (assetA.assetId === pool.assetA.assetId) {
-      const takes =
-        ((BigInt(pool.quantityB) * assetA.amount.getAmount()) /
-          (BigInt(pool.quantityA) + assetA.amount.getAmount())) *
-        BigInt(pool.fee);
-    }
-  }
-
   static convertPoolFeeToPercent(fee: string): number {
     return Number(fee) / 100;
   }
@@ -118,7 +103,8 @@ export class Utils {
    */
   static accumulateSuppliedAssets(
     suppliedAssets: IAsset[],
-    network: TSupportedNetworks
+    network: TSupportedNetworks,
+    additionalADA?: bigint
   ): Record<
     /** The PolicyID and the AssetName concatenated together with no period. */
     string | "lovelace",
@@ -141,7 +127,7 @@ export class Utils {
     }, [] as IAsset[]);
 
     // Set the minimum ADA amount.
-    assets.lovelace = SCOOPER_FEE + RIDER_FEE;
+    assets.lovelace = SCOOPER_FEE + RIDER_FEE + (additionalADA ?? 0n);
 
     aggregatedAssets.forEach((suppliedAsset) => {
       if (suppliedAsset.assetId === ADA_ASSET_ID) {
@@ -153,5 +139,13 @@ export class Utils {
     });
 
     return assets;
+  }
+
+  static splitMetadataString(str: string): string[] {
+    const result: string[] = [];
+    for (let i = 0; i < str.length; i += 64) {
+      result.push(str.slice(i, i + 64));
+    }
+    return result;
   }
 }

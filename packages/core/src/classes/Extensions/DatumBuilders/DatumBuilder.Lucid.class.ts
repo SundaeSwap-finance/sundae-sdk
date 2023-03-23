@@ -251,10 +251,17 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
 
     const destinationDatum = new Constr(0, [
       new Constr(0, [
-        new Constr(0, [destination.paymentCredentials]),
+        new Constr(this._isScriptAddress(DestinationAddress.address) ? 1 : 0, [
+          destination.paymentCredentials,
+        ]),
         destination?.stakeCredentials
           ? new Constr(0, [
-              new Constr(0, [new Constr(0, [destination?.stakeCredentials])]),
+              new Constr(0, [
+                new Constr(
+                  this._isScriptAddress(DestinationAddress.address) ? 1 : 0,
+                  [destination?.stakeCredentials]
+                ),
+              ]),
             ])
           : new Constr(1, []),
       ]),
@@ -314,11 +321,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
     const address = orderAddresses.DestinationAddress.address;
     const datumHash = orderAddresses.DestinationAddress.datumHash;
 
-    // Ensure that the address can be serialized.
-    const realAddress = C.Address.from_bech32(address);
-
-    // Ensure the datumHash is valid HEX if the address is a script.
-    const isScript = (realAddress.to_bytes()[0] & 0b00010000) !== 0;
+    const isScript = this._isScriptAddress(address);
     if (isScript) {
       if (datumHash) {
         try {
@@ -341,6 +344,21 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
         );
       }
     }
+  }
+
+  /**
+   * Helper function to check if an address is a string.
+   * @param address The Bech32 encoded address.
+   * @returns
+   */
+  private _isScriptAddress(address: string): boolean {
+    // Ensure that the address can be serialized.
+    const realAddress = C.Address.from_bech32(address);
+
+    // Ensure the datumHash is valid HEX if the address is a script.
+    const isScript = (realAddress.to_bytes()[0] & 0b00010000) !== 0;
+
+    return isScript;
   }
 
   /**

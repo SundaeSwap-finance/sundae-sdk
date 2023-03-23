@@ -263,49 +263,82 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx(tx);
   }
 
-  async buildChainedZapTx(args: IZapArgs): Promise<ITxBuilderTx> {
+  async buildChainedZapTx({
+    pool,
+    suppliedAsset,
+    orderAddresses,
+  }: IZapArgs): Promise<ITxBuilderTx> {
     const tx = await this.newTxInstance();
+    const { ESCROW_ADDRESS, SCOOPER_FEE } = this.getParams();
     const payment = Utils.accumulateSuppliedAssets(
-      [args.suppliedAsset],
-      this.options.network
+      [suppliedAsset],
+      this.options.network,
+      // Add another scooper fee requirement since we are executing two orders.
+      SCOOPER_FEE
     );
 
-    const { ESCROW_ADDRESS } = this.getParams();
     const datumBuilder = new DatumBuilderLucid(this.options.network);
 
-    const sortedSwapAssets = Utils.sortSwapAssets([
-      args.pool.assetA,
-      args.pool.assetB,
-    ]);
+    /**
+     * To accurately determine the altReceivable, we need to swap only half the supplied asset.
+     */
+    const halfSuppliedAmount = suppliedAsset.amount.subtract(
+      BigInt(Math.floor(Number(suppliedAsset.amount.getAmount()) / 2))
+    );
+    const altReceivable = Utils.getMinReceivableFromSlippage(
+      pool,
+      {
+        amount: halfSuppliedAmount,
+        assetId: suppliedAsset.assetId,
+      },
+      0
+    );
 
     let depositPair: DepositMixed;
-    if (sortedSwapAssets[0].assetId === args.suppliedAsset.assetId) {
+    if (pool.assetA.assetId === suppliedAsset.assetId) {
       depositPair = {
-        CoinAAmount: 
-      }
+        CoinAAmount: halfSuppliedAmount,
+        CoinBAmount: altReceivable,
+      };
     } else {
-      
+      depositPair = {
+        CoinAAmount: altReceivable,
+        CoinBAmount: halfSuppliedAmount,
+      };
     }
 
-    const depositData = datumBuilder.buildDepositPair({
-      CoinAAmount: args.suppliedAsset.amount,
-      CoinBAmount: args.suppliedAsset.amount,
+    /**
+     * We first build the deposit datum based on an estimated 50% swap result.
+     * This is because we need to attach this datum to the initial swap transaction.
+     */
+    const depositData = datumBuilder.buildDepositDatum({
+      ident: pool.ident,
+      orderAddresses,
+      deposit: depositPair,
     });
 
+    /**
+     * We then build the swap datum based using 50% of the supplied asset. A few things
+     * to note here:
+     *
+     * 1. We spend the full supplied amount to fund both the swap and the deposit order.
+     * 2. We set the alternate address to the receiver address so that they can cancel
+     * the chain at any time during the process.
+     */
     const swapData = datumBuilder.buildSwapDatum({
-      ident: args.pool.ident,
-      fundedAsset: args.suppliedAsset,
+      ident: pool.ident,
+      fundedAsset: suppliedAsset,
       orderAddresses: {
         DestinationAddress: {
           address: ESCROW_ADDRESS,
           datumHash: depositData.hash,
         },
-        AlternateAddress: args.orderAddresses.DestinationAddress.address,
+        AlternateAddress: orderAddresses.DestinationAddress.address,
       },
       swap: {
-        SuppliedCoin: Utils.getAssetSwapDirection(args.suppliedAsset, [
-          args.pool.assetA,
-          args.pool.assetB,
+        SuppliedCoin: Utils.getAssetSwapDirection(suppliedAsset, [
+          pool.assetA,
+          pool.assetB,
         ]),
       },
     });
@@ -315,13 +348,9 @@ export class TxBuilderLucid extends TxBuilder<
         "A datum hash for a deposit transaction is required to build a chained Zap operation."
       );
     }
-    tx.tx.attachMetadata(103251, {
-      [depositData.hash]: depositData.cbor,
-    });
 
-    console.log({
-      depositData,
-      swapData,
+    tx.tx.attachMetadata(103251, {
+      [depositData.hash]: Utils.splitMetadataString(depositData.cbor),
     });
 
     tx.get().payToContract(ESCROW_ADDRESS, swapData.cbor, payment);
