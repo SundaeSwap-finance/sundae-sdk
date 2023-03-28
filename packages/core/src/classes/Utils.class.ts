@@ -1,3 +1,6 @@
+// @ts-ignore
+import * as cbor from "cbor-web";
+
 import {
   PoolCoin,
   IAsset,
@@ -141,10 +144,18 @@ export class Utils {
     return assets;
   }
 
-  static splitMetadataString(str: string): string[] {
+  /**
+   * Split a long string into an array of chunks for metadata.
+   *
+   * @param str Full string that you wish to split by chunks of 64.
+   * @param prefix Optional prefix to add to each chunk. This is useful if your transaction builder has helper functions to convert strings to CBOR bytestrings (i.e. Lucid will convert strings with a `0x` prefix).
+   */
+  static splitMetadataString(str: string, prefix?: string): string[] {
     const result: string[] = [];
-    for (let i = 0; i < str.length; i += 64) {
-      result.push(str.slice(i, i + 64));
+    const chunk = prefix ? 64 - prefix.length : 64;
+    for (let i = 0; i < str.length; i += chunk) {
+      const slicedStr = str.slice(i, i + chunk);
+      result.push(`${prefix ?? ""}${slicedStr}`);
     }
     return result;
   }

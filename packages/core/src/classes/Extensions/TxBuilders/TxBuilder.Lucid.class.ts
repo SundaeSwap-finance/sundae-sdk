@@ -291,7 +291,8 @@ export class TxBuilderLucid extends TxBuilder<
         amount: halfSuppliedAmount,
         assetId: suppliedAsset.assetId,
       },
-      0
+      // We set a minimal slippage to ensure we receive a little bit more than we deposit.
+      0.03
     );
 
     let depositPair: DepositMixed;
@@ -323,7 +324,7 @@ export class TxBuilderLucid extends TxBuilder<
      *
      * 1. We spend the full supplied amount to fund both the swap and the deposit order.
      * 2. We set the alternate address to the receiver address so that they can cancel
-     * the chain at any time during the process.
+     * the chained order at any time during the process.
      */
     const swapData = datumBuilder.buildSwapDatum({
       ident: pool.ident,
@@ -340,6 +341,7 @@ export class TxBuilderLucid extends TxBuilder<
           pool.assetA,
           pool.assetB,
         ]),
+        MinimumReceivable: altReceivable,
       },
     });
 
@@ -349,8 +351,11 @@ export class TxBuilderLucid extends TxBuilder<
       );
     }
 
-    tx.tx.attachMetadata(103251, {
-      [depositData.hash]: Utils.splitMetadataString(depositData.cbor),
+    tx.tx.attachMetadataWithConversion(103251, {
+      [`0x${depositData.hash}`]: Utils.splitMetadataString(
+        depositData.cbor,
+        "0x"
+      ),
     });
 
     tx.get().payToContract(ESCROW_ADDRESS, swapData.cbor, payment);

@@ -14,4 +14,6 @@ The minimum requirements for an order.
 
   ↳ [`IZapArgs`](Core.IZapArgs.md)
 
+  ↳ [`IChainedZapArgs`](Core.IChainedZapArgs.md)
+
   ↳ [`IWithdrawArgs`](Core.IWithdrawArgs.md)
