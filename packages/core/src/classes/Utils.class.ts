@@ -1,6 +1,3 @@
-// @ts-ignore
-import * as cbor from "cbor-web";
-
 import {
   PoolCoin,
   IAsset,
