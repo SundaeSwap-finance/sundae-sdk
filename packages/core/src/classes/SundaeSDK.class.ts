@@ -174,11 +174,21 @@ export class SundaeSDK {
     return await this.builder.buildDepositTx(deposit.buildArgs());
   }
 
+  /**
+   * Create a cancel transaction for an open escrow order.
+   * @param config
+   * @returns
+   */
   async cancel(config: CancelConfigArgs) {
     const cancellation = new CancelConfig(config);
     return await this.builder.buildCancelTx(cancellation.buildArgs());
   }
 
+  /**
+   * Builds a custom zap utilizing a chained order (first a swap, then a deposit).
+   * @param config
+   * @returns
+   */
   async zap(config: Omit<ZapConfigArgs, "zapDirection">) {
     const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
       config.pool.assetA,
@@ -194,7 +204,7 @@ export class SundaeSDK {
   }
 
   /**
-   * Create a Deposit transaction for a pool by supplying two assets.
+   * Create a Deposit transaction for a pool by supplying a single asset.
    * @param config
    * @returns
    */
