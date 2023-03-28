@@ -73,11 +73,18 @@ export abstract class TxBuilder<
   abstract buildCancelTx(args: CancelConfigArgs): Promise<ITxBuilderTx>;
 
   /**
-   * The main function to build a zap Transaction.
+   * The currently functioning way to process a chained Zap Transaction.
    *
    * @param args The built ZapArguments from a {@link Core.ZapConfig} instance.
    */
-  abstract buildZapTx(args: IZapArgs): Promise<ITxBuilderTx>;
+  abstract buildChainedZapTx(args: IZapArgs): Promise<ITxBuilderTx>;
+
+  /**
+   * The main function to build an atomic zap Transaction.
+   *
+   * @param args The built ZapArguments from a {@link Core.ZapConfig} instance.
+   */
+  abstract buildAtomicZapTx(args: IZapArgs): Promise<ITxBuilderTx>;
 
   /**
    * Helper function for child classes to easily grab the appropriate protocol parameters for SundaeSwap.

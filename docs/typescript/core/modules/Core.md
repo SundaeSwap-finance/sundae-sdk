@@ -77,6 +77,7 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [DepositArguments](../interfaces/Core.DepositArguments.md)
 - [DepositConfigArgs](../interfaces/Core.DepositConfigArgs.md)
 - [IAsset](../interfaces/Core.IAsset.md)
+- [IChainedZapArgs](../interfaces/Core.IChainedZapArgs.md)
 - [IDepositArgs](../interfaces/Core.IDepositArgs.md)
 - [IOrderArgs](../interfaces/Core.IOrderArgs.md)
 - [IPoolData](../interfaces/Core.IPoolData.md)

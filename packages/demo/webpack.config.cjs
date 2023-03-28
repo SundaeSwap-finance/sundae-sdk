@@ -105,14 +105,17 @@ const config = {
         }
       ),
       new webpack.ProvidePlugin({
-        Buffer: ['buffer', 'Buffer']
+        process: ['process', 'browser'],
+        stream: 'stream-browserify',
+        Buffer: ['buffer', 'Buffer'],
       })
     ],
     resolve: {
       extensions: [".tsx", ".js", ".jsx", ".ts", ".css"],
       fallback: {
+        process: require.resolve('process/browser'),
         stream: require.resolve('stream-browserify'),
-        buffer: require.resolve('buffer/')
+        buffer: require.resolve('buffer/'),
       },
     },
     experiments: {

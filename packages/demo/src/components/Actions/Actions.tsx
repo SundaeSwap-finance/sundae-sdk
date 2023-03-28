@@ -1,8 +1,4 @@
-import {
-  IPoolQuery,
-  ITxBuilderFees,
-  OrderAddresses,
-} from "@sundaeswap/sdk-core";
+import { IPoolQuery, ITxBuilderFees } from "@sundaeswap/sdk-core";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import ReactJson from "react-json-view";
 import { useAppState } from "../../state/context";
@@ -10,7 +6,7 @@ import { Deposit } from "./modules/Deposit";
 import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
 import { Withdraw } from "./modules/Withdraw";
-// import { Zap } from "./modules/Zap";
+import { Zap } from "./modules/Zap";
 
 export const poolQuery: IPoolQuery = {
   pair: [
@@ -18,13 +14,6 @@ export const poolQuery: IPoolQuery = {
     "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
   ],
   fee: "0.30",
-};
-
-export const defaultOrderAddresses: OrderAddresses = {
-  DestinationAddress: {
-    address:
-      "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32",
-  },
 };
 
 interface CBOR {
@@ -91,7 +80,7 @@ export const Actions: FC = () => {
         <Deposit setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Withdraw setFees={setFees} setCBOR={setCBOR} submit={submit} />
         {/* <button onClick={tempCancelOrder}>Cancel Order</button> */}
-        {/* <Zap setCBOR={setCBOR} submit={submit} /> */}
+        <Zap setCBOR={setCBOR} setFees={setFees} submit={submit} />
       </div>
       {cbor.hash && (
         <>

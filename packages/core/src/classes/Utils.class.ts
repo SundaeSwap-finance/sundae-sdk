@@ -103,7 +103,8 @@ export class Utils {
    */
   static accumulateSuppliedAssets(
     suppliedAssets: IAsset[],
-    network: TSupportedNetworks
+    network: TSupportedNetworks,
+    additionalADA?: bigint
   ): Record<
     /** The PolicyID and the AssetName concatenated together with no period. */
     string | "lovelace",
@@ -126,7 +127,7 @@ export class Utils {
     }, [] as IAsset[]);
 
     // Set the minimum ADA amount.
-    assets.lovelace = SCOOPER_FEE + RIDER_FEE;
+    assets.lovelace = SCOOPER_FEE + RIDER_FEE + (additionalADA ?? 0n);
 
     aggregatedAssets.forEach((suppliedAsset) => {
       if (suppliedAsset.assetId === ADA_ASSET_ID) {
@@ -138,5 +139,21 @@ export class Utils {
     });
 
     return assets;
+  }
+
+  /**
+   * Split a long string into an array of chunks for metadata.
+   *
+   * @param str Full string that you wish to split by chunks of 64.
+   * @param prefix Optional prefix to add to each chunk. This is useful if your transaction builder has helper functions to convert strings to CBOR bytestrings (i.e. Lucid will convert strings with a `0x` prefix).
+   */
+  static splitMetadataString(str: string, prefix?: string): string[] {
+    const result: string[] = [];
+    const chunk = prefix ? 64 - prefix.length : 64;
+    for (let i = 0; i < str.length; i += chunk) {
+      const slicedStr = str.slice(i, i + chunk);
+      result.push(`${prefix ?? ""}${slicedStr}`);
+    }
+    return result;
   }
 }

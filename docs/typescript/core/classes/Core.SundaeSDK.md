@@ -64,6 +64,28 @@ Utility method to retrieve the builder instance with types.
 
 ___
 
+### cancel
+
+▸ **cancel**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+
+Create a cancel transaction for an open escrow order.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `config` | [`CancelConfigArgs`](../interfaces/Core.CancelConfigArgs.md) |
+
+#### Returns
+
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+
+#### Defined in
+
+[classes/SundaeSDK.class.ts:182](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L182)
+
+___
+
 ### deposit
 
 ▸ **deposit**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
@@ -221,7 +243,7 @@ ___
 
 ▸ **unstable_zap**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
 
-Create a Deposit transaction for a pool by supplying two assets.
+Create a Deposit transaction for a pool by supplying a single asset.
 
 #### Parameters
 
@@ -235,7 +257,7 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:187](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L187)
+[classes/SundaeSDK.class.ts:211](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L211)
 
 ___
 
@@ -258,3 +280,25 @@ Create a Withdraw transaction for a pool by supplying the LP tokens.
 #### Defined in
 
 [classes/SundaeSDK.class.ts:162](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L162)
+
+___
+
+### zap
+
+▸ **zap**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+
+Builds a custom zap utilizing a chained order (first a swap, then a deposit).
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `config` | `Omit`<[`ZapConfigArgs`](../interfaces/Core.ZapConfigArgs.md), ``"zapDirection"``\> |
+
+#### Returns
+
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+
+#### Defined in
+
+[classes/SundaeSDK.class.ts:192](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L192)

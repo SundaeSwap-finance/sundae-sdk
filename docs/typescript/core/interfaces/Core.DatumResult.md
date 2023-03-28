@@ -32,4 +32,16 @@ The datum type of the library used to build it.
 
 #### Defined in
 
+[@types/datumbuilder.ts:145](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L145)
+
+___
+
+### hash
+
+• `Optional` **hash**: `string`
+
+The hex-encoded hash of the CBOR string
+
+#### Defined in
+
 [@types/datumbuilder.ts:143](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L143)

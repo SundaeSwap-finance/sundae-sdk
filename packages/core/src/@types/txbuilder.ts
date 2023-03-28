@@ -84,6 +84,14 @@ export interface IZapArgs extends IOrderArgs {
 }
 
 /**
+ * The minimum requirements for a Deposit order.
+ */
+export interface IChainedZapArgs extends IOrderArgs {
+  zapDirection: PoolCoin;
+  suppliedAsset: IAsset;
+}
+
+/**
  * The minimum requirements for a WithdrawOrder
  */
 export interface IWithdrawArgs extends IOrderArgs {
