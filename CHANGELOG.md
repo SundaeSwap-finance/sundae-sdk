@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-alpha.10](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.9...v0.2.0-alpha.10) (2023-03-28)
+
+### Bug Fixes
+
+- use dynamic wallet address for demo ([7012b0b](https://github.com/SundaeSwap-finance/sundae-sdk/commit/7012b0b20ba179adab2e9ecc8bdef90b9a285225))
+
 # [0.2.0-alpha.9](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.8...v0.2.0-alpha.9) (2023-02-28)
 
 **Note:** Version bump only for package @sundaeswap/sdk
