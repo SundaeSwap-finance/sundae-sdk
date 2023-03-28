@@ -1,11 +1,11 @@
 import { AssetAmount } from "@sundaeswap/sdk-core";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
-import { ActionArgs, defaultOrderAddresses, poolQuery } from "../Actions";
+import { ActionArgs, poolQuery } from "../Actions";
 import Button from "../../Button";
 
 export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK } = useAppState();
+  const { SDK, walletAddress } = useAppState();
   const [reverseSwapping, setReverseSwapping] = useState(false);
 
   const handleSwap = useCallback(async () => {
@@ -18,7 +18,11 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
       const pool = await SDK.query().findPoolData(poolQuery);
       await SDK.swap({
         pool,
-        orderAddresses: defaultOrderAddresses,
+        orderAddresses: {
+          DestinationAddress: {
+            address: walletAddress,
+          },
+        },
         suppliedAsset: {
           assetId: "",
           amount: new AssetAmount(25000000n, 6),
@@ -44,7 +48,7 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setReverseSwapping(false);
-  }, [SDK, submit]);
+  }, [SDK, submit, walletAddress]);
 
   if (!SDK) {
     return null;

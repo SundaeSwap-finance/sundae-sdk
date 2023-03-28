@@ -2,12 +2,12 @@ import { AssetAmount } from "@sundaeswap/sdk-core";
 import { FC, useCallback, useState } from "react";
 
 import { useAppState } from "../../../state/context";
-import { ActionArgs, defaultOrderAddresses, poolQuery } from "../Actions";
+import { ActionArgs, poolQuery } from "../Actions";
 import Button from "../../Button";
 import type { Lucid } from "lucid-cardano";
 
 export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK } = useAppState();
+  const { SDK, walletAddress } = useAppState();
   const [withdrawing, setWithdrawing] = useState(false);
 
   const handleWithdraw = useCallback(async () => {
@@ -34,7 +34,11 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
       const pool = await SDK.query().findPoolData(poolQuery);
       await SDK.withdraw({
-        orderAddresses: defaultOrderAddresses,
+        orderAddresses: {
+          DestinationAddress: {
+            address: walletAddress,
+          },
+        },
         pool,
         suppliedLPAsset: {
           assetId:
@@ -62,7 +66,7 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setWithdrawing(false);
-  }, [SDK, submit]);
+  }, [SDK, submit, walletAddress]);
 
   if (!SDK) {
     return null;

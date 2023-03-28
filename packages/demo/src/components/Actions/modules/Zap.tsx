@@ -1,11 +1,11 @@
 import { AssetAmount } from "@sundaeswap/sdk-core";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
-import { ActionArgs, defaultOrderAddresses, poolQuery } from "../Actions";
+import { ActionArgs, poolQuery } from "../Actions";
 import Button from "../../Button";
 
 export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK } = useAppState();
+  const { SDK, walletAddress } = useAppState();
   const [zapping, setZapping] = useState(false);
 
   const handleZap = useCallback(async () => {
@@ -23,7 +23,11 @@ export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           assetId: "",
           amount: new AssetAmount(10000000n, 6),
         },
-        orderAddresses: defaultOrderAddresses,
+        orderAddresses: {
+          DestinationAddress: {
+            address: walletAddress,
+          },
+        },
       }).then(async (res) => {
         if (submit) {
           const { cbor, submit, fees } = await res.sign().complete();
@@ -45,7 +49,7 @@ export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setZapping(false);
-  }, [SDK, submit]);
+  }, [SDK, submit, walletAddress]);
 
   if (!SDK) {
     return null;

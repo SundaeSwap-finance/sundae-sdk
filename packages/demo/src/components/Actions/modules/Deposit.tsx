@@ -1,11 +1,11 @@
 import { AssetAmount } from "@sundaeswap/sdk-core";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
-import { ActionArgs, defaultOrderAddresses, poolQuery } from "../Actions";
+import { ActionArgs, poolQuery } from "../Actions";
 import Button from "../../Button";
 
 export const Deposit: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK } = useAppState();
+  const { SDK, walletAddress } = useAppState();
   const [depositing, setDepositing] = useState(false);
 
   const handleDeposit = useCallback(async () => {
@@ -20,7 +20,11 @@ export const Deposit: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
       const baseAmount = 25000000n;
 
       await SDK.deposit({
-        orderAddresses: defaultOrderAddresses,
+        orderAddresses: {
+          DestinationAddress: {
+            address: walletAddress,
+          },
+        },
         pool,
         suppliedAssets: [
           {
@@ -54,7 +58,7 @@ export const Deposit: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setDepositing(false);
-  }, [SDK, submit]);
+  }, [SDK, submit, walletAddress]);
 
   if (!SDK) {
     return null;
