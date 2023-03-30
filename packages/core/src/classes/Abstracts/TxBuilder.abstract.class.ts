@@ -46,7 +46,7 @@ export abstract class TxBuilder<
   /**
    * The main function to build a swap Transaction.
    *
-   * @param args The built SwapArguments from a {@link Core.SwapConfig} instance.
+   * @param args The built SwapArguments from a {@link SwapConfig} instance.
    * @returns {ITxBuilderTx}
    */
   abstract buildSwapTx(args: SwapConfigArgs): Promise<ITxBuilderTx>;
@@ -54,35 +54,35 @@ export abstract class TxBuilder<
   /**
    * The main function to build a deposit Transaction.
    *
-   * @param args The built DepositArguments from a {@link Core.DepositConfig} instance.
+   * @param args The built DepositArguments from a {@link DepositConfig} instance.
    */
   abstract buildDepositTx(args: DepositConfigArgs): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build a withdraw Transaction.
    *
-   * @param args The built WithdrawArguments from a {@link Core.WithdrawConfig} instance.
+   * @param args The built WithdrawArguments from a {@link WithdrawConfig} instance.
    */
   abstract buildWithdrawTx(args: WithdrawConfigArgs): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build a cancellation Transaction.
    *
-   * @param args The built CancelArguments from a {@link Core.CancelConfig} instance.
+   * @param args The built CancelArguments from a {@link CancelConfig} instance.
    */
   abstract buildCancelTx(args: CancelConfigArgs): Promise<ITxBuilderTx>;
 
   /**
    * The currently functioning way to process a chained Zap Transaction.
    *
-   * @param args The built ZapArguments from a {@link Core.ZapConfig} instance.
+   * @param args The built ZapArguments from a {@link ZapConfig} instance.
    */
   abstract buildChainedZapTx(args: IZapArgs): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build an atomic zap Transaction.
    *
-   * @param args The built ZapArguments from a {@link Core.ZapConfig} instance.
+   * @param args The built ZapArguments from a {@link ZapConfig} instance.
    */
   abstract buildAtomicZapTx(args: IZapArgs): Promise<ITxBuilderTx>;
 

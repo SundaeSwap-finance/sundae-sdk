@@ -28,7 +28,7 @@ export interface ActionArgs {
 }
 
 export const Actions: FC = () => {
-  const { SDK } = useAppState();
+  const { SDK, walletAddress } = useAppState();
   const [cbor, setCBOR] = useState<CBOR>({
     cbor: "",
   });
@@ -39,26 +39,23 @@ export const Actions: FC = () => {
     return null;
   }
 
-  // const tempCancelOrder = async () => {
-  //   const utxo = {
-  //     hash: "3f8ffa9fe490b43bd286e73a7c62e951c3b1c6729a65751d87fce9faba4f8cd6",
-  //     index: 0,
-  //   };
+  const tempCancelOrder = async () => {
+    const utxo = {
+      hash: "b41f839c8940c9434ec7f2be3722b5b40fe0f3cf01266d276a782a937a62e196",
+      index: 1,
+    };
 
-  //   const { datum, datumHash } = await SDK.query().findOpenOrderDatum(utxo);
+    const { datum, datumHash } = await SDK.query().findOpenOrderDatum(utxo);
 
-  //   if (datum) {
-  //     const hash = await SDK.cancel({
-  //       datum,
-  //       datumHash,
-  //       utxo,
-  //       address:
-  //         "addr_test1qz5ykwgmrejk3mdw0u3cewqx375qkjwnv5n4mhgjwap4n4qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsemxyd6",
-  //     });
+    const hash = await SDK.cancel({
+      datum,
+      datumHash,
+      utxo,
+      address: walletAddress,
+    });
 
-  //     console.log(hash);
-  //   }
-  // };
+    console.log(await hash.complete());
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -79,7 +76,7 @@ export const Actions: FC = () => {
         <SwapBA setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Deposit setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Withdraw setFees={setFees} setCBOR={setCBOR} submit={submit} />
-        {/* <button onClick={tempCancelOrder}>Cancel Order</button> */}
+        <button onClick={tempCancelOrder}>Cancel Order</button>
         <Zap setCBOR={setCBOR} setFees={setFees} submit={submit} />
       </div>
       {cbor.hash && (

@@ -23,7 +23,7 @@ import {
 import { DatumBuilder } from "../../Abstracts/DatumBuilder.abstract.class";
 
 /**
- * The Lucid implementation of a {@link Core.DatumBuilder}. This is useful
+ * The Lucid implementation of a {@link DatumBuilder}. This is useful
  * if you would rather just build valid CBOR strings for just the datum
  * portion of a valid SundaeSwap transaction.
  */
@@ -149,7 +149,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   }
 
   /**
-   * Builds the fee for the Scoopers. Defaults to {@link Core.IProtocolParams.SCOOPER_FEE}
+   * Builds the fee for the Scoopers. Defaults to {@link IProtocolParams.SCOOPER_FEE}
    * @param fee The custom fee if provided.
    * @returns
    */
@@ -238,7 +238,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   }
 
   /**
-   * Builds the datum for the {@link Core.OrderAddresses} interface using a data
+   * Builds the datum for the {@link OrderAddresses} interface using a data
    * constructor class from the Lucid library.
    *
    * @param address
@@ -312,7 +312,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   }
 
   /**
-   * Validates the {@link Core.OrderAddresses} arguments as being valid Cardano address strings
+   * Validates the {@link OrderAddresses} arguments as being valid Cardano address strings
    * and that they are on the correct network.
    */
   private _validateAddressesAreValid(orderAddresses: OrderAddresses) {
@@ -362,7 +362,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   }
 
   /**
-   * Validates that the {@link Core.OrderAddresses} provided match the instance's network.
+   * Validates that the {@link OrderAddresses} provided match the instance's network.
    */
   private _validateAddressNetwork(
     orderAddresses: OrderAddresses

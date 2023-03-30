@@ -1,5 +1,5 @@
 /**
- * # Introduction
+ * ## Introduction
  * The `@sundae/sdk-core` package serves as the foundation for interacting with the SundaeSwap protocol in a predictable and declarative manner,
  * and includes all typings and class interfaces needed to both [Get Started](#get-started) and extending the API.
  * 
@@ -47,9 +47,11 @@
  * 
  * const txHash = await sdk.swap( /** ... *\/ ).then(({ submit }) => submit());
  * ```
- *
- * @module Core
- * @packageDocumentation
+ * 
+ * @module
+ * 
+ * @title Core
+ * @nav_order 1
  */
 export { SundaeSDK } from "./classes/SundaeSDK.class";
 export { Utils } from "./classes/Utils.class";

@@ -84,7 +84,6 @@ export abstract class DatumBuilder<Data = any> {
    * While there is no way to enforce this from being called, it will fail tests unless invalid addresses cause the error
    * to be thrown.
    *
-   * @see {@link Testing}
    * @param orderAddresses
    * @param errorMessage
    */

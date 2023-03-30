@@ -67,7 +67,7 @@ export class SwapConfig extends Config<SwapConfigArgs> {
    * Used for building a swap where you already know the pool data.
    * Useful for when building Transactions directly from the builder instance.
    *
-   * @see {@link Core.TxBuilder.buildSwapTx}
+   * @see {@link TxBuilder.buildSwapTx}
    *
    * @returns
    */

@@ -1,13 +1,19 @@
+---
+title: "@sundaeswap/sdk-core"
+---
+
 # @sundaeswap/sdk-core
 
-## Modules
+## Index
 
-- [Core](modules/Core.md)
+### Modules
 
-## Extensions
+- [Core](Core/md)
 
-- [Extensions](modules/Extensions.md)
+### Extensions
 
-## Testing
+- [Extensions](Extensions/Extensions.md)
 
-- [Testing](modules/Testing.md)
+### Testing
+
+- [Testing](Testing/Testing.md)

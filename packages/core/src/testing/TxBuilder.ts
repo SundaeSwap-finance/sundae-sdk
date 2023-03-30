@@ -2,7 +2,7 @@
  * ## TxBuilder Tests
  *
  * This file exports testing functions to run against your TxBuilder instance.
- * Most tests are automated but ensures that the {@link Core.TxBuilder}
+ * Most tests are automated but ensures that the {@link TxBuilder}
  * instance you pass in is run against real test data and outputs
  * valid CBOR hex strings for your transactions!
  *
