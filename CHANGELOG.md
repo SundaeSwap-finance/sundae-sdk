@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-alpha.11](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.10...v0.2.0-alpha.11) (2023-04-11)
+
+### Bug Fixes
+
+- narrow logic condition for swap direction ([dbd5962](https://github.com/SundaeSwap-finance/sundae-sdk/commit/dbd59622b295cad96e0609e94960e57bf29099c8))
+
 # [0.2.0-alpha.10](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.9...v0.2.0-alpha.10) (2023-03-28)
 
 ### Bug Fixes
