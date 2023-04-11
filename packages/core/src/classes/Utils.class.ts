@@ -44,7 +44,7 @@ export class Utils {
     assets: [IPoolDataAsset, IPoolDataAsset]
   ): PoolCoin {
     const sorted = Utils.sortSwapAssets(assets);
-    if (Object.values(sorted[1]).includes(assetID)) {
+    if (sorted[1]?.assetId === assetID) {
       return 1;
     }
 

@@ -5,8 +5,8 @@ interface NetworkData {
   pool: IPoolData;
   address: string;
   assets: {
-    tada: IAsset;
-    tindy: IAsset;
+    tada: IAsset & Record<string, unknown>;
+    tindy: IAsset & Record<string, unknown>;
   };
   orderAddresses: OrderAddresses;
 }
@@ -33,11 +33,13 @@ const PREVIEW_DATA: NetworkData = {
     tada: {
       amount: new AssetAmount(20000000n, 6),
       assetId: "",
+      poolId: "",
     },
     tindy: {
       amount: new AssetAmount(20000000n, 0),
       assetId:
         "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
+      poolId: "",
     },
   },
   orderAddresses: {
