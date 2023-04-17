@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-alpha.12](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.11...v0.2.0-alpha.12) (2023-04-17)
+
+### Bug Fixes
+
+- allow mainnet addresses ([0ccb9ac](https://github.com/SundaeSwap-finance/sundae-sdk/commit/0ccb9ac8c21a5132762258b60c4f4fbac50ee286))
+
 # [0.2.0-alpha.11](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.10...v0.2.0-alpha.11) (2023-04-11)
 
 ### Bug Fixes
