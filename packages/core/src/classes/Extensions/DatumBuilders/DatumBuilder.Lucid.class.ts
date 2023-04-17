@@ -417,7 +417,9 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
         orderAddresses,
         `The given address is not a Mainnet Network address: ${address}.`
       );
-    } else if (addressNetwork !== 0) {
+    }
+
+    if (addressNetwork !== 0 && this.network === "preview") {
       DatumBuilder.throwInvalidOrderAddressesError(
         orderAddresses,
         `The given address is not a (Preview/Testnet/PreProd) Network address: ${address}.`
