@@ -47,4 +47,4 @@ Documentation is available at [https://sundaeswap-finance.github.io/sundae-sdk/]
 
 # Contributing
 
-Want to contribute? See CONTRIBUTING.md to know how.
+Want to contribute? See [CONTRIBUTING.md](CONTRIBUTING.md) to know how.
