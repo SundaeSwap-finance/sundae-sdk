@@ -2,6 +2,8 @@
 title: "@sundaeswap/sdk-core"
 ---
 
+[Readme](index.md)
+
 # @sundaeswap/sdk-core
 
 ## Index

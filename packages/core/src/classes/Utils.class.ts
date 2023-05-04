@@ -92,7 +92,7 @@ export class Utils {
       );
     }
 
-    const amount = BigInt(Math.floor(base * ratio * (1 - slippage)));
+    const amount = BigInt(Math.ceil(base * ratio * (1 - slippage)));
     return new AssetAmount(amount, decimals);
   }
 
