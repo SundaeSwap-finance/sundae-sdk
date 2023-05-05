@@ -16,7 +16,6 @@
       "message": "chore(release): publish %s",
       "conventionalCommits": true,
       "conventionalPrerelease": true,
-      "createRelease": "github",
       "private": false
     }
   }
