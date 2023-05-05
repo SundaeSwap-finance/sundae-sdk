@@ -13,19 +13,19 @@ describe("Utils class", () => {
 
     expect(resultA).toBeInstanceOf(AssetAmount);
     expect(resultA).toMatchObject({
-      amount: 8910000n,
+      amount: 8570604n,
       decimals: 0,
     });
 
     const resultB = Utils.getMinReceivableFromSlippage(
       PREVIEW_DATA.pool,
       PREVIEW_DATA.assets.tindy,
-      0.1
+      0.01
     );
 
     expect(resultB).toBeInstanceOf(AssetAmount);
     expect(resultB).toMatchObject({
-      amount: 35640000n,
+      amount: 36326909n,
       decimals: 6,
     });
 
@@ -43,6 +43,50 @@ describe("Utils class", () => {
         `The supplied asset ID does not match either assets within the supplied pool data. {"suppliedAssetID":"not in the pool","poolAssetIDs":["","fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459"]}`
       );
     }
+
+    /**
+     * We set a high spread between ratios to ensure that a very low bid
+     * will result in at least a single token from the opposing side, especially
+     * if it's a 0 decimal place asset.
+     */
+    const mockPoolData = {
+      ...PREVIEW_DATA.pool,
+      quantityA: "10000000000",
+      quantityB: "209",
+      assetB: {
+        ...PREVIEW_DATA.pool.assetB,
+        decimals: 0,
+      },
+    };
+
+    const mockSuppliedAsset = {
+      assetId: PREVIEW_DATA.assets.tada.assetId,
+      amount: new AssetAmount(80000000n, 6),
+    };
+
+    // Default 3% slippage.
+    expect(
+      Utils.getMinReceivableFromSlippage(mockPoolData, mockSuppliedAsset, 0.3)
+    ).toMatchObject({
+      amount: 1n,
+      decimals: 0,
+    });
+
+    // Even a 99% slippage should be at least a single token.
+    expect(
+      Utils.getMinReceivableFromSlippage(mockPoolData, mockSuppliedAsset, 0.99)
+    ).toMatchObject({
+      amount: 1n,
+      decimals: 0,
+    });
+
+    // Only a 100% slippage will be okay with 0 assets received.
+    expect(
+      Utils.getMinReceivableFromSlippage(mockPoolData, mockSuppliedAsset, 1)
+    ).toMatchObject({
+      amount: 0n,
+      decimals: 0,
+    });
   });
 
   it("should accurately accumulate suppliedAssets", () => {

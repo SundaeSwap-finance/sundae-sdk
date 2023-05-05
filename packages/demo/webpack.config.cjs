@@ -92,8 +92,8 @@ const config = {
             appConfig: {
               "envName": "local",
               "apiUrls": {},
-              // TODO: discard and retrieve from external server
-              "blockfrostAPI": "previewAPAXSjJaFkfvLu7NxHg4f3N9XqNlNmuM"
+              // TODO: use env
+              "blockfrostAPI": ""
             },
           },
         }

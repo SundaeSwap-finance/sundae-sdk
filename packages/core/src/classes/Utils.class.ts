@@ -1,3 +1,5 @@
+import { getSwapOutput } from "@sundae/cpp";
+
 import {
   PoolCoin,
   IAsset,
@@ -67,21 +69,20 @@ export class Utils {
     suppliedAsset: IAsset,
     slippage: number
   ): AssetAmount {
-    const base = Utils.subtractPoolFeeFromAmount(
-      suppliedAsset.amount,
-      pool.fee
+    const supplyingPoolAssetA = pool.assetA.assetId === suppliedAsset.assetId;
+    const output = getSwapOutput(
+      suppliedAsset.amount.getAmount(),
+      BigInt(supplyingPoolAssetA ? pool.quantityA : pool.quantityB),
+      BigInt(supplyingPoolAssetA ? pool.quantityB : pool.quantityA),
+      Utils.convertPoolFeeToPercent(pool.fee),
+      false
     );
 
-    let ratio: number;
-    let decimals: number;
-
-    if (suppliedAsset.assetId === pool.assetA.assetId) {
-      decimals = pool.assetB.decimals;
-      ratio = Number(pool.quantityB) / Number(pool.quantityA);
-    } else if (suppliedAsset.assetId === pool.assetB.assetId) {
-      decimals = pool.assetA.decimals;
-      ratio = Number(pool.quantityA) / Number(pool.quantityB);
-    } else {
+    if (
+      ![pool.assetA.assetId, pool.assetB.assetId].includes(
+        suppliedAsset.assetId
+      )
+    ) {
       throw new Error(
         `The supplied asset ID does not match either assets within the supplied pool data. ${JSON.stringify(
           {
@@ -92,8 +93,14 @@ export class Utils {
       );
     }
 
-    const amount = BigInt(Math.floor(base * ratio * (1 - slippage)));
-    return new AssetAmount(amount, decimals);
+    const receivableAssetDecimals = supplyingPoolAssetA
+      ? pool.assetB.decimals
+      : pool.assetA.decimals;
+
+    return new AssetAmount(
+      BigInt(Math.ceil(Number(output.output) * (1 - slippage))),
+      receivableAssetDecimals
+    );
   }
 
   /**

@@ -20,7 +20,7 @@ const config: JestConfigWithTsJest = {
           },
         ],
       },
-      transformIgnorePatterns: ["node_modules/(?!lucid-cardano)"],
+      transformIgnorePatterns: ["node_modules/(?!lucid-cardano|@sundae/cpp)"],
       moduleNameMapper: {
         "^(\\.{1,2}/.*)\\.js$": "$1",
       },
