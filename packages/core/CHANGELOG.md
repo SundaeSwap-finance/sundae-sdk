@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-alpha.14](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.13...v0.2.0-alpha.14) (2023-05-05)
+
+### Bug Fixes
+
+- calculation of output and minReceived ([9e9780a](https://github.com/SundaeSwap-finance/sundae-sdk/commit/9e9780aff9e9bc265129932f8f57c1de754e0d6f))
+
 # [0.2.0-alpha.13](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.12...v0.2.0-alpha.13) (2023-04-18)
 
 ### Bug Fixes
