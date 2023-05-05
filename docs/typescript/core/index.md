@@ -1,7 +1,3 @@
----
-title: "@sundaeswap/sdk-core"
----
-
 # Sundae-SDK
 
 [![Licence](https://img.shields.io/github/license/SundaeSwap-finance/sundae-sdk)](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/LICENSE)

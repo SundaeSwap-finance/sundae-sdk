@@ -34,7 +34,7 @@ describe("SwapConfig class", () => {
       },
       suppliedAsset: PREVIEW_DATA.assets.tada,
       // 10% minus the pool fee
-      minReceivable: new AssetAmount(8910000n, 0),
+      minReceivable: new AssetAmount(8570604n, 0),
     });
   });
 

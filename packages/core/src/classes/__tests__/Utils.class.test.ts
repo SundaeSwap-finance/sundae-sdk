@@ -13,19 +13,19 @@ describe("Utils class", () => {
 
     expect(resultA).toBeInstanceOf(AssetAmount);
     expect(resultA).toMatchObject({
-      amount: 8910000n,
+      amount: 8570604n,
       decimals: 0,
     });
 
     const resultB = Utils.getMinReceivableFromSlippage(
       PREVIEW_DATA.pool,
       PREVIEW_DATA.assets.tindy,
-      0.1
+      0.01
     );
 
     expect(resultB).toBeInstanceOf(AssetAmount);
     expect(resultB).toMatchObject({
-      amount: 35640000n,
+      amount: 36326909n,
       decimals: 6,
     });
 
@@ -51,7 +51,8 @@ describe("Utils class", () => {
      */
     const mockPoolData = {
       ...PREVIEW_DATA.pool,
-      quantityB: "100",
+      quantityA: "10000000000",
+      quantityB: "209",
       assetB: {
         ...PREVIEW_DATA.pool.assetB,
         decimals: 0,
@@ -60,7 +61,7 @@ describe("Utils class", () => {
 
     const mockSuppliedAsset = {
       assetId: PREVIEW_DATA.assets.tada.assetId,
-      amount: new AssetAmount(1000000n, 6),
+      amount: new AssetAmount(80000000n, 6),
     };
 
     // Default 3% slippage.
