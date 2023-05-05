@@ -32,6 +32,16 @@ jobs:
           scope: "@sundaeswap"
           cache: yarn
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::320450105600:role/GitHubActionRole
+          role-duration-seconds: 900 # the ttl of the session, in seconds.
+          aws-region: us-east-2 # use your region here.
+
+      - name: CodeArtifact login
+        run: aws codeartifact login --tool npm --repository ui --domain sundae --domain-owner 320450105600
+
       # Install dependencies
       - name: Install
         run: yarn install --frozen-lockfile --ignore-scripts
