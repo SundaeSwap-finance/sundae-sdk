@@ -1,4 +1,4 @@
-import { getSwapOutput } from "@sundae/cpp";
+import { getSwapOutput } from "@sundaeswap/cpp";
 
 import {
   PoolCoin,
