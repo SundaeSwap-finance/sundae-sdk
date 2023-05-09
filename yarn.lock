@@ -2061,10 +2061,10 @@
   resolved "https://sundae-320450105600.d.codeartifact.us-east-2.amazonaws.com/npm/ui/@sundae/bigint-math/-/bigint-math-0.5.0.tgz#5b9bbb3e2221ea1b383f748dae156e21ea6c36f3"
   integrity sha512-FoR59BBTDSvUGbHKPV8DZSsXua/CsBpZ9jn1FKvoqz+8mcLLEmnOntj7vOBYYTTRmUUR/Zkm2w6/BzYFwpDydw==
 
-"@sundae/cpp@^0.5.4":
-  version "0.5.4"
-  resolved "https://sundae-320450105600.d.codeartifact.us-east-2.amazonaws.com/npm/ui/@sundae/cpp/-/cpp-0.5.4.tgz#aa0022f6792c0f2c8aa35574f407b31197d66240"
-  integrity sha512-syaYLYJJ2PN9GbIK0EjUVYNw7wLLs7Xe82tqMx+IeLRE7aWv5Qk94DeSpWOO0BjMTB9dJo/fQD4ZNuHRWb29SA==
+"@sundae/cpp@^0.5.6":
+  version "0.5.6"
+  resolved "https://sundae-320450105600.d.codeartifact.us-east-2.amazonaws.com/npm/ui/@sundae/cpp/-/cpp-0.5.6.tgz#cc7c625407d757954489f6c8a0495811278ccf5f"
+  integrity sha512-5Ih+zbeDyz7J8fYTivc0Q1BtPnzxwQHpClhSd+8lgLwOaBSEmS1ZHWte78mnJwmgRPbKPKPDyHlYfYWqsCIZxg==
   dependencies:
     "@sundae/bigint-math" "^0.5.0"
     "@sundae/fraction" "^0.5.4"
