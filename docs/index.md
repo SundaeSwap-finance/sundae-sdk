@@ -9,4 +9,4 @@ packages will follow, but we plan to support popular libraries like [TypeScript]
 
 ## TypeScript
 
-- [@sundae/sdk-core](./typescript/core/modules.html)
+- [@sundaeswap/sdk-core](./typescript/core/modules.html)
