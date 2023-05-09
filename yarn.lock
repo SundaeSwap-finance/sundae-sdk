@@ -2109,10 +2109,33 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
+"@sundae/bigint-math@^0.5.0":
+  version "0.5.0"
+  resolved "https://sundae-320450105600.d.codeartifact.us-east-2.amazonaws.com/npm/ui/@sundae/bigint-math/-/bigint-math-0.5.0.tgz#5b9bbb3e2221ea1b383f748dae156e21ea6c36f3"
+  integrity sha512-FoR59BBTDSvUGbHKPV8DZSsXua/CsBpZ9jn1FKvoqz+8mcLLEmnOntj7vOBYYTTRmUUR/Zkm2w6/BzYFwpDydw==
+
+"@sundae/cpp@^0.5.6":
+  version "0.5.6"
+  resolved "https://sundae-320450105600.d.codeartifact.us-east-2.amazonaws.com/npm/ui/@sundae/cpp/-/cpp-0.5.6.tgz#cc7c625407d757954489f6c8a0495811278ccf5f"
+  integrity sha512-5Ih+zbeDyz7J8fYTivc0Q1BtPnzxwQHpClhSd+8lgLwOaBSEmS1ZHWte78mnJwmgRPbKPKPDyHlYfYWqsCIZxg==
+  dependencies:
+    "@sundae/bigint-math" "^0.5.0"
+    "@sundae/fraction" "^0.5.4"
+
+"@sundae/fraction@^0.5.4":
+  version "0.5.4"
+  resolved "https://sundae-320450105600.d.codeartifact.us-east-2.amazonaws.com/npm/ui/@sundae/fraction/-/fraction-0.5.4.tgz#a0b883775e6a65d6db32428d907ca5298b6958b9"
+  integrity sha512-Tk87Xjp3jla00T3D/YKbgudgfScx4ndvcOouGm1E0Wk9Kr/8ehErpSSzjaQhAECBo0Aq5a2ikIPt7UEi+03FeQ==
+
 "@sundaeswap/bigint-math@^0.5.7":
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/@sundaeswap/bigint-math/-/bigint-math-0.5.7.tgz#739a95e4ad9af944ff17554c4bee5f8509271369"
   integrity sha512-GqKhnPktqj6JoAtwQNzhaWxt2L1hxFpxWw1a+2CkI+UStWenwUTtqs83J2TZaaYjelrMv3sPbNKodoi2ADaiyg==
+
+"@sundaeswap/bigint-math@^0.5.8":
+  version "0.5.8"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/bigint-math/-/bigint-math-0.5.8.tgz#d43c93b7e59bab400250f2c7885d78c5f278b542"
+  integrity sha512-5r112+ifZtRYDTuNYgVKUklKzTA+laJU5wCFNpDKBcbs5yCR92DEJnXjSBSt8P2k7a+3iY0TxaruqyqimQTU1w==
 
 "@sundaeswap/cpp@^0.5.7":
   version "0.5.7"
@@ -2121,6 +2144,14 @@
   dependencies:
     "@sundaeswap/bigint-math" "^0.5.7"
     "@sundaeswap/fraction" "^0.5.7"
+
+"@sundaeswap/cpp@^0.5.8":
+  version "0.5.8"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/cpp/-/cpp-0.5.8.tgz#2c8819e58c32c2632a01db8d48f315405463253c"
+  integrity sha512-Ffm1uN7+h5MIuNZZt1xfFWI4bD4JaFxv9sa4oj4S3u+y2/acJ7ZmtlMTlYRNBxWAS0AI1Fyza7eDffbGKEQR2Q==
+  dependencies:
+    "@sundaeswap/bigint-math" "^0.5.8"
+    "@sundaeswap/fraction" "^0.5.8"
 
 "@sundaeswap/docgen@^0.1.1":
   version "0.1.1"
@@ -2138,6 +2169,11 @@
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/@sundaeswap/fraction/-/fraction-0.5.7.tgz#61c37a1768f7c401cd8d3c2cd49fd3570ae229cf"
   integrity sha512-wqToKgMPRLSdBzfufPvaTJ2z3j4hIC3yCu/c6feQG26Mr8cXktDjSB7f18PW2p49KRGmmooUebWLyg0p7jKRIQ==
+
+"@sundaeswap/fraction@^0.5.8":
+  version "0.5.8"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/fraction/-/fraction-0.5.8.tgz#484aa91de8215033eac52f1799a0019ecefdd91d"
+  integrity sha512-riI4oBPzzVq4u6hSaTo6gPKCSAi6upqHgUCYjMmerk7sgqnKIl/vo4IqER0g19uPOSCLfZ2FMcR37ZHla69VLw==
 
 "@swc/core-darwin-arm64@1.3.24":
   version "1.3.24"
