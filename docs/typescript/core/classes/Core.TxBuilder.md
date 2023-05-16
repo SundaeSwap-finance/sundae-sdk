@@ -23,7 +23,7 @@ The main class by which TxBuilder classes are extended.
 
 ### buildAtomicZapTx
 
-▸ `Abstract` **buildAtomicZapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ `Abstract` **buildAtomicZapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main function to build an atomic zap Transaction.
 
@@ -35,17 +35,17 @@ The main function to build an atomic zap Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:87](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L87)
+[classes/Abstracts/TxBuilder.abstract.class.ts:99](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L99)
 
 ___
 
 ### buildCancelTx
 
-▸ `Abstract` **buildCancelTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ `Abstract` **buildCancelTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main function to build a cancellation Transaction.
 
@@ -57,17 +57,17 @@ The main function to build a cancellation Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L73)
+[classes/Abstracts/TxBuilder.abstract.class.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L75)
 
 ___
 
 ### buildChainedZapTx
 
-▸ `Abstract` **buildChainedZapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ `Abstract` **buildChainedZapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The currently functioning way to process a chained Zap Transaction.
 
@@ -79,17 +79,17 @@ The currently functioning way to process a chained Zap Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:80](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L80)
+[classes/Abstracts/TxBuilder.abstract.class.ts:92](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L92)
 
 ___
 
 ### buildDepositTx
 
-▸ `Abstract` **buildDepositTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ `Abstract` **buildDepositTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main function to build a deposit Transaction.
 
@@ -101,17 +101,17 @@ The main function to build a deposit Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L59)
+[classes/Abstracts/TxBuilder.abstract.class.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L61)
 
 ___
 
 ### buildSwapTx
 
-▸ `Abstract` **buildSwapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ `Abstract` **buildSwapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main function to build a swap Transaction.
 
@@ -123,17 +123,41 @@ The main function to build a swap Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:52](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L52)
+[classes/Abstracts/TxBuilder.abstract.class.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L54)
+
+___
+
+### buildUpdateSwapTx
+
+▸ `Abstract` **buildUpdateSwapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+
+The main function to update an open swap.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `args` | `Object` | The built CancelArguments and SwapArguments from both [CancelConfig](Core.CancelConfig.md) and [SwapConfig](Core.SwapConfig.md) instances. |
+| `args.cancelConfigArgs` | [`CancelConfigArgs`](../interfaces/Core.CancelConfigArgs.md) | - |
+| `args.swapConfigArgs` | [`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md) | - |
+
+#### Returns
+
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+
+#### Defined in
+
+[classes/Abstracts/TxBuilder.abstract.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L82)
 
 ___
 
 ### buildWithdrawTx
 
-▸ `Abstract` **buildWithdrawTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ `Abstract` **buildWithdrawTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main function to build a withdraw Transaction.
 
@@ -145,11 +169,11 @@ The main function to build a withdraw Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L66)
+[classes/Abstracts/TxBuilder.abstract.class.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L68)
 
 ___
 
@@ -165,7 +189,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:93](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L93)
+[classes/Abstracts/TxBuilder.abstract.class.ts:105](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L105)
 
 ___
 
@@ -181,4 +205,4 @@ Should create a new [Transaction](Core.Transaction.md) instance from the supplie
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L44)
+[classes/Abstracts/TxBuilder.abstract.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L46)

@@ -7,6 +7,8 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const util = require("util");
 const path = require("path");
 
+require("dotenv").config();
+
 const config = {
     entry: path.resolve(__dirname, "./src/index.tsx"),
     devtool: "source-map",
@@ -92,8 +94,7 @@ const config = {
             appConfig: {
               "envName": "local",
               "apiUrls": {},
-              // TODO: use env
-              "blockfrostAPI": ""
+              "blockfrostAPI": process.env.BLOCKFROST_API_KEY
             },
           },
         }

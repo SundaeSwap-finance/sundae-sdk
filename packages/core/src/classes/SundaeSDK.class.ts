@@ -149,7 +149,37 @@ export class SundaeSDK {
   async limitSwap(config: SwapConfigArgs, limitPrice: AssetAmount) {
     const swap = new SwapConfig(config);
     swap.setMinReceivable(limitPrice);
-    return await this.builder.buildSwapTx(swap.buildArgs());
+    return await this.builder.buildSwapTx(config);
+  }
+
+  /**
+   * Create a new transaction that cancels and spends the assets with a new swap config.
+   * @param cancelConfigArgs
+   * @param swapConfigArgs
+   * @returns
+   */
+  async updateSwap(
+    cancelConfigArgs: CancelConfigArgs,
+    swapConfigArgs: SwapConfigArgs
+  ) {
+    if (swapConfigArgs?.slippage) {
+      swapConfigArgs.minReceivable = Utils.getMinReceivableFromSlippage(
+        swapConfigArgs.pool,
+        swapConfigArgs.suppliedAsset,
+        swapConfigArgs.slippage
+      );
+    }
+
+    if (!swapConfigArgs?.minReceivable) {
+      throw new Error(
+        "A swap order update requires either a slippage or a minReceivable to be set in the new config."
+      );
+    }
+
+    return await this.builder.buildUpdateSwapTx({
+      cancelConfigArgs,
+      swapConfigArgs,
+    });
   }
 
   /**

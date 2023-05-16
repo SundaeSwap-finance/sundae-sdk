@@ -66,7 +66,7 @@ ___
 
 ### cancel
 
-▸ **cancel**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ **cancel**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 Create a cancel transaction for an open escrow order.
 
@@ -78,17 +78,17 @@ Create a cancel transaction for an open escrow order.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L180)
+[classes/SundaeSDK.class.ts:210](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L210)
 
 ___
 
 ### deposit
 
-▸ **deposit**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ **deposit**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 Create a Deposit transaction for a pool by supplying two assets.
 
@@ -100,17 +100,17 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:170](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L170)
+[classes/SundaeSDK.class.ts:200](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L200)
 
 ___
 
 ### limitSwap
 
-▸ **limitSwap**(`config`, `limitPrice`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ **limitSwap**(`config`, `limitPrice`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 Creates a swap with a minimum receivable limit price. The price should be the minimum
 amount at which you want the order to execute. For example:
@@ -148,7 +148,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
@@ -174,7 +174,7 @@ ___
 
 ### swap
 
-▸ **swap**(`config`, `slippage?`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ **swap**(`config`, `slippage?`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main entry point for building a swap transaction with the least amount
 of configuration required. By default, all calls to this method are treated
@@ -231,7 +231,7 @@ const { submit, cbor } = await SDK.swap(
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
@@ -241,7 +241,7 @@ ___
 
 ### unstable\_zap
 
-▸ **unstable_zap**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ **unstable_zap**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 Create a Deposit transaction for a pool by supplying a single asset.
 
@@ -253,17 +253,40 @@ Create a Deposit transaction for a pool by supplying a single asset.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:209](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L209)
+[classes/SundaeSDK.class.ts:239](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L239)
+
+___
+
+### updateSwap
+
+▸ **updateSwap**(`cancelConfigArgs`, `swapConfigArgs`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+
+Create a new transaction that cancels and spends the assets with a new swap config.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `cancelConfigArgs` | [`CancelConfigArgs`](../interfaces/Core.CancelConfigArgs.md) |
+| `swapConfigArgs` | [`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md) |
+
+#### Returns
+
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+
+#### Defined in
+
+[classes/SundaeSDK.class.ts:161](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L161)
 
 ___
 
 ### withdraw
 
-▸ **withdraw**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ **withdraw**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 Create a Withdraw transaction for a pool by supplying the LP tokens.
 
@@ -275,17 +298,17 @@ Create a Withdraw transaction for a pool by supplying the LP tokens.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L160)
+[classes/SundaeSDK.class.ts:190](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L190)
 
 ___
 
 ### zap
 
-▸ **zap**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+▸ **zap**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 Builds a custom zap utilizing a chained order (first a swap, then a deposit).
 
@@ -297,8 +320,8 @@ Builds a custom zap utilizing a chained order (first a swap, then a deposit).
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)\>
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:190](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L190)
+[classes/SundaeSDK.class.ts:220](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L220)

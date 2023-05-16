@@ -11,7 +11,9 @@ import { AssetAmount } from "../classes/AssetAmount.class";
 /**
  * The primary top-level API surface for dealing with built TxBuilder transactions.
  */
-export interface ITxBuilderTx {
+export interface ITxBuilderTx<T = unknown, K = unknown> {
+  tx: T;
+  datum: K;
   sign: () => ITxBuilderTx;
   complete: () => Promise<ITxBuilderComplete>;
 }

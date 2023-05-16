@@ -4599,6 +4599,11 @@ dot-prop@^6.0.1:
   dependencies:
     is-obj "^2.0.0"
 
+dotenv@^16.0.3:
+  version "16.0.3"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.0.3.tgz#115aec42bac5053db3c456db30cc243a5a836a07"
+  integrity sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==
+
 dotenv@~10.0.0:
   version "10.0.0"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
@@ -7605,28 +7610,10 @@ lru-cache@^7.4.4, lru-cache@^7.5.1, lru-cache@^7.7.1:
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.18.3.tgz#f793896e0fd0e954a59dfdd82f0773808df6aa89"
   integrity sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==
 
-lucid-cardano@^0.8.4:
-  version "0.8.4"
-  resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.8.4.tgz#288bff685504d9e022b117db359c164cb3327d26"
-  integrity sha512-j6g3Sy/ykiQ3APcCMC/6PfweDtGNINQzcE+9IC+qPUxQL1uyubvQq9ZlK2mV7OcaUbhPWdt7Xa0+AjYYBjRRxQ==
-  dependencies:
-    "@peculiar/webcrypto" "^1.4.0"
-    node-fetch "^3.2.3"
-    ws "^8.10.0"
-
-lucid-cardano@^0.8.8:
-  version "0.8.8"
-  resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.8.8.tgz#c09771ee5abb0f5c7160391738baa3a180ed13f5"
-  integrity sha512-6kV54MHXye3FwB9MoSPgJ8npzKDFaUpHo9QlR9VZTFCWXdFuKIUvmPMdBllk/fv/vSf4H3SOYrsbRN+Px3rItg==
-  dependencies:
-    "@peculiar/webcrypto" "^1.4.0"
-    node-fetch "^3.2.3"
-    ws "^8.10.0"
-
-lucid-cardano@^0.9.0:
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.9.1.tgz#8c35ed51fad115e66103c46868f92bae373b6dd9"
-  integrity sha512-DQadg4AqW6VjIcIMIIfeAnwNjx8Tk6sG9soavjJECZdlDbvVkgDK4AgCRT6c0eEv3/2cgcvSHC3HkB+aKcFBXw==
+lucid-cardano@^0.10.4:
+  version "0.10.4"
+  resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.10.4.tgz#ec21c710082d42df54ed27645d7eb51a019c5369"
+  integrity sha512-QuEzch1lC4G2RIh/OoYAPJl32yFd3jFZbjIvHDwMjfykO7nPCBg5Si0AjuMMrpZZUZkxfL07jxxi1057YCrfVQ==
   dependencies:
     "@peculiar/webcrypto" "^1.4.0"
     node-fetch "^3.2.3"
