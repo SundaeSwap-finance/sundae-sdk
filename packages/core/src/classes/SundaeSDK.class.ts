@@ -170,6 +170,12 @@ export class SundaeSDK {
       );
     }
 
+    if (!swapConfigArgs?.minReceivable) {
+      throw new Error(
+        "A swap order update requires either a slippage or a minReceivable to be set in the new config."
+      );
+    }
+
     return await this.builder.buildUpdateSwapTx({
       cancelConfigArgs,
       swapConfigArgs,
