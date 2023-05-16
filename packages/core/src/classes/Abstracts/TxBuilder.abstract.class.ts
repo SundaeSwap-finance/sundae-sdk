@@ -8,6 +8,8 @@ import {
   WithdrawConfigArgs,
   CancelConfigArgs,
 } from "../../@types";
+import { CancelConfig } from "../Configs/CancelConfig.class";
+import { SwapConfig } from "../Configs/SwapConfig.class";
 import { Transaction } from "../Transaction.class";
 import { Utils } from "../Utils.class";
 
@@ -71,6 +73,16 @@ export abstract class TxBuilder<
    * @param args The built CancelArguments from a {@link Core.CancelConfig} instance.
    */
   abstract buildCancelTx(args: CancelConfigArgs): Promise<ITxBuilderTx>;
+
+  /**
+   * The main function to update an open swap.
+   *
+   * @param args The built CancelArguments and SwapArguments from both {@link Core.CancelConfig} and {@link Core.SwapConfig} instances.
+   */
+  abstract buildUpdateSwapTx(args: {
+    cancelConfigArgs: CancelConfigArgs;
+    swapConfigArgs: SwapConfigArgs;
+  }): Promise<ITxBuilderTx>;
 
   /**
    * The currently functioning way to process a chained Zap Transaction.

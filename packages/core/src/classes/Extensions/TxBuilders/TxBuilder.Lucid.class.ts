@@ -7,6 +7,10 @@ import {
   Network,
   C,
   getAddressDetails,
+  Data,
+  Utils as LucidUtils,
+  Assets,
+  Datum,
 } from "lucid-cardano";
 import { Transaction } from "../../../classes/Transaction.class";
 import { AssetAmount } from "../../../classes/AssetAmount.class";
@@ -166,7 +170,35 @@ export class TxBuilderLucid extends TxBuilder<
     );
 
     txInstance.get().payToContract(ESCROW_ADDRESS, cbor, payment);
-    return this.completeTx(txInstance);
+    return this.completeTx(txInstance, cbor);
+  }
+
+  /**
+   * Updates an open order by spending the UTXO back into the smart contract
+   * with an updated swap datum.
+   */
+  async buildUpdateSwapTx({
+    cancelConfigArgs,
+    swapConfigArgs,
+  }: {
+    cancelConfigArgs: CancelConfigArgs;
+    swapConfigArgs: SwapConfigArgs;
+  }) {
+    const { tx: cancelTx } = await this.buildCancelTx(cancelConfigArgs);
+    const { datum } = await this.buildSwapTx(swapConfigArgs);
+    const { ESCROW_ADDRESS } = this.getParams();
+
+    const payment = Utils.accumulateSuppliedAssets(
+      [swapConfigArgs.suppliedAsset],
+      this.options.network
+    );
+
+    if (!datum) {
+      throw new Error("Swap datum is required.");
+    }
+
+    cancelTx.get().payToContract(ESCROW_ADDRESS, datum, payment);
+    return this.completeTx(cancelTx, datum);
   }
 
   async buildDepositTx(args: DepositConfigArgs) {
@@ -188,7 +220,7 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
-    return this.completeTx(tx);
+    return this.completeTx(tx, cbor);
   }
 
   async buildWithdrawTx(args: WithdrawConfigArgs): Promise<ITxBuilderTx> {
@@ -206,15 +238,10 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
-    return this.completeTx(tx);
+    return this.completeTx(tx, cbor);
   }
 
-  async buildCancelTx({
-    datum,
-    datumHash,
-    utxo,
-    address,
-  }: CancelConfigArgs): Promise<ITxBuilderTx> {
+  async buildCancelTx({ datum, datumHash, utxo, address }: CancelConfigArgs) {
     const tx = await this.newTxInstance();
 
     const plutusData = C.PlutusData.from_bytes(Buffer.from(datum, "hex"));
@@ -260,7 +287,8 @@ export class TxBuilderLucid extends TxBuilder<
     } catch (e) {
       throw e;
     }
-    return this.completeTx(tx);
+
+    return this.completeTx(tx, utxoToSpend[0]?.datum as string);
   }
 
   async buildChainedZapTx({
@@ -285,7 +313,8 @@ export class TxBuilderLucid extends TxBuilder<
     const halfSuppliedAmount = suppliedAsset.amount.subtract(
       BigInt(Math.floor(Number(suppliedAsset.amount.getAmount()) / 2))
     );
-    const altReceivable = Utils.getMinReceivableFromSlippage(
+
+    const minReceivable = Utils.getMinReceivableFromSlippage(
       pool,
       {
         amount: halfSuppliedAmount,
@@ -299,11 +328,11 @@ export class TxBuilderLucid extends TxBuilder<
     if (pool.assetA.assetId === suppliedAsset.assetId) {
       depositPair = {
         CoinAAmount: halfSuppliedAmount,
-        CoinBAmount: altReceivable,
+        CoinBAmount: minReceivable,
       };
     } else {
       depositPair = {
-        CoinAAmount: altReceivable,
+        CoinAAmount: minReceivable,
         CoinBAmount: halfSuppliedAmount,
       };
     }
@@ -317,6 +346,12 @@ export class TxBuilderLucid extends TxBuilder<
       orderAddresses,
       deposit: depositPair,
     });
+
+    if (!depositData?.hash) {
+      throw new Error(
+        "A datum hash for a deposit transaction is required to build a chained Zap operation."
+      );
+    }
 
     /**
      * We then build the swap datum based using 50% of the supplied asset. A few things
@@ -341,15 +376,9 @@ export class TxBuilderLucid extends TxBuilder<
           pool.assetA,
           pool.assetB,
         ]),
-        MinimumReceivable: altReceivable,
+        MinimumReceivable: minReceivable,
       },
     });
-
-    if (!depositData?.hash) {
-      throw new Error(
-        "A datum hash for a deposit transaction is required to build a chained Zap operation."
-      );
-    }
 
     tx.tx.attachMetadataWithConversion(103251, {
       [`0x${depositData.hash}`]: Utils.splitMetadataString(
@@ -359,7 +388,7 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(ESCROW_ADDRESS, swapData.cbor, payment);
-    return this.completeTx(tx);
+    return this.completeTx(tx, swapData.cbor);
   }
 
   async buildAtomicZapTx(args: IZapArgs): Promise<ITxBuilderTx> {
@@ -380,22 +409,32 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
-    return this.completeTx(tx);
+    return this.completeTx(tx, cbor);
   }
 
-  private async completeTx(tx: Transaction<Tx>): Promise<ITxBuilderTx> {
+  private async completeTx(
+    tx: Transaction<Tx>,
+    datum?: string,
+    coinSelection?: boolean
+  ): Promise<ITxBuilderTx<Transaction<Tx>, Datum | undefined>> {
     let sign: boolean = false;
-    const finishedTx = await tx.get().complete();
-    const baseFees: Pick<ITxBuilderFees, "scooperFee" | "deposit"> = {
-      deposit: new AssetAmount(this.getParams().RIDER_FEE, ADA_ASSET_DECIMAL),
-      scooperFee: new AssetAmount(
-        this.getParams().SCOOPER_FEE,
-        ADA_ASSET_DECIMAL
-      ),
-    };
 
     const thisTx = {
+      tx,
+      datum,
       complete: async () => {
+        const finishedTx = await tx.get().complete({ coinSelection });
+        const baseFees: Pick<ITxBuilderFees, "scooperFee" | "deposit"> = {
+          deposit: new AssetAmount(
+            this.getParams().RIDER_FEE,
+            ADA_ASSET_DECIMAL
+          ),
+          scooperFee: new AssetAmount(
+            this.getParams().SCOOPER_FEE,
+            ADA_ASSET_DECIMAL
+          ),
+        };
+
         if (sign) {
           const signedTx = await finishedTx.sign().complete();
           return {
