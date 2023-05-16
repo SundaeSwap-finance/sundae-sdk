@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/sdk-core",
-  "version": "0.2.0-alpha.15",
+  "version": "0.2.0-alpha.16",
   "description": "The official SundaeSwap protocol SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {
@@ -83,6 +83,5 @@
     "@sundaeswap/fraction": "^0.5.8",
     "lucid-cardano": "^0.10.4"
   },
-  "gitHead": "ddc937102065a5a581fe7affe02474c0e68ad9a0",
-  "dependencies": {}
+  "gitHead": "ddc937102065a5a581fe7affe02474c0e68ad9a0"
 }
