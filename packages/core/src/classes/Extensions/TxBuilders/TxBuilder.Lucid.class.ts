@@ -423,7 +423,6 @@ export class TxBuilderLucid extends TxBuilder<
       tx,
       datum,
       complete: async () => {
-        const finishedTx = await tx.get().complete({ coinSelection });
         const baseFees: Pick<ITxBuilderFees, "scooperFee" | "deposit"> = {
           deposit: new AssetAmount(
             this.getParams().RIDER_FEE,
@@ -436,6 +435,7 @@ export class TxBuilderLucid extends TxBuilder<
         };
 
         if (sign) {
+          const finishedTx = await tx.get().complete({ coinSelection });
           const signedTx = await finishedTx.sign().complete();
           return {
             submit: async () => await signedTx.submit(),
@@ -450,17 +450,18 @@ export class TxBuilderLucid extends TxBuilder<
           };
         }
 
+        const txFee = tx.get().txBuilder.get_fee_if_set();
         return {
           submit: async () => {
             throw new Error(
               "You must sign your transaction before submitting to a wallet!"
             );
           },
-          cbor: Buffer.from(finishedTx.txComplete.to_bytes()).toString("hex"),
+          cbor: "",
           fees: {
             ...baseFees,
             cardanoTxFee: new AssetAmount(
-              BigInt(finishedTx.txComplete.body().fee().to_str()),
+              BigInt(txFee?.to_str() ?? "0"),
               ADA_ASSET_DECIMAL
             ),
           },
