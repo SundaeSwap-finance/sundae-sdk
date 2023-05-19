@@ -320,8 +320,7 @@ export class TxBuilderLucid extends TxBuilder<
         amount: halfSuppliedAmount,
         assetId: suppliedAsset.assetId,
       },
-      // We set a minimal slippage to ensure we receive a little bit more than we deposit.
-      0.03
+      0
     );
 
     let depositPair: DepositMixed;
