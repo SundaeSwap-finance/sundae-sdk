@@ -96,7 +96,15 @@ const mockAPI: WalletApi = {
     .mockImplementation(() => Promise.resolve("test-preview-signedtx")),
 };
 
-export const windowCardano = {
+export const windowCardano: {
+  eternl: {
+    name: string;
+    enable: () => Promise<WalletApi>;
+    icon: string;
+    isEnabled: () => Promise<boolean>;
+    version: string;
+  };
+} = {
   eternl: {
     name: "Eternl",
     enable: jest
