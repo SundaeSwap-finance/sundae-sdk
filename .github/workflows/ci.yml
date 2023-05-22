@@ -40,6 +40,10 @@ jobs:
       - name: Run Tests
         run: yarn test
 
+      # Prebuild to check
+      - name: Run Prebuild
+        run: yarn build
+
       # Git Identity
       - name: Git Identity
         run: |
