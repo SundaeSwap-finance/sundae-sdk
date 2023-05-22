@@ -82,7 +82,7 @@ Create a cancel transaction for an open escrow order.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:210](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L210)
+[classes/SundaeSDK.class.ts:208](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L208)
 
 ___
 
@@ -104,22 +104,21 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:200](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L200)
+[classes/SundaeSDK.class.ts:198](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L198)
 
 ___
 
 ### limitSwap
 
-▸ **limitSwap**(`config`, `limitPrice`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ **limitSwap**(`config`, `minReceivable`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
-Creates a swap with a minimum receivable limit price. The price should be the minimum
-amount at which you want the order to execute. For example:
+Creates a swap with a minimum receivable amount.
 
 **`Example`**
 
 ```ts
-// Your desired limit price of the opposing pool asset
-const limitPrice = new AssetAmount(1500000n, 6);
+// The minimum amount of tokens you would like to receive from your order.
+const minReceivable = new AssetAmount(15000000n, 6);
 
 // Normal swap arguments
 const pool = await SDK.query().findPoolData(poolQuery);
@@ -135,7 +134,7 @@ const config: BuildSwapConfigArgs = {
 // Build Tx
 const { submit, cbor } = await SDK.limitSwap(
  swapArgs,
- limitPrice
+ minReceivable
 )
 ```
 
@@ -144,7 +143,7 @@ const { submit, cbor } = await SDK.limitSwap(
 | Name | Type |
 | :------ | :------ |
 | `config` | [`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md) |
-| `limitPrice` | [`AssetAmount`](Core.AssetAmount.md) |
+| `minReceivable` | [`AssetAmount`](Core.AssetAmount.md) |
 
 #### Returns
 
@@ -152,7 +151,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:149](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L149)
+[classes/SundaeSDK.class.ts:147](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L147)
 
 ___
 
@@ -257,7 +256,7 @@ Create a Deposit transaction for a pool by supplying a single asset.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:239](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L239)
+[classes/SundaeSDK.class.ts:237](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L237)
 
 ___
 
@@ -280,7 +279,7 @@ Create a new transaction that cancels and spends the assets with a new swap conf
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:161](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L161)
+[classes/SundaeSDK.class.ts:159](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L159)
 
 ___
 
@@ -302,7 +301,7 @@ Create a Withdraw transaction for a pool by supplying the LP tokens.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:190](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L190)
+[classes/SundaeSDK.class.ts:188](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L188)
 
 ___
 
@@ -324,4 +323,4 @@ Builds a custom zap utilizing a chained order (first a swap, then a deposit).
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:220](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L220)
+[classes/SundaeSDK.class.ts:218](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L218)

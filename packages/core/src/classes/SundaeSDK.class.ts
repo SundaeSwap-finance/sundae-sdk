@@ -111,18 +111,16 @@ export class SundaeSDK {
         slippage ?? 0.1
       )
     );
-    swap.validate();
     return await this.builder.buildSwapTx(swap.buildArgs());
   }
 
   /**
-   * Creates a swap with a minimum receivable limit price. The price should be the minimum
-   * amount at which you want the order to execute. For example:
+   * Creates a swap with a minimum receivable amount.
    *
    * @example
    * ```ts
-   * // Your desired limit price of the opposing pool asset
-   * const limitPrice = new AssetAmount(1500000n, 6);
+   * // The minimum amount of tokens you would like to receive from your order.
+   * const minReceivable = new AssetAmount(15000000n, 6);
    *
    * // Normal swap arguments
    * const pool = await SDK.query().findPoolData(poolQuery);
@@ -138,18 +136,18 @@ export class SundaeSDK {
    * // Build Tx
    * const { submit, cbor } = await SDK.limitSwap(
    *  swapArgs,
-   *  limitPrice
+   *  minReceivable
    * )
    * ```
    *
    * @param swap A built {@link SwapConfig} instance.
-   * @param limitPrice
+   * @param minReceivable
    * @returns
    */
-  async limitSwap(config: SwapConfigArgs, limitPrice: AssetAmount) {
+  async limitSwap(config: SwapConfigArgs, minReceivable: AssetAmount) {
     const swap = new SwapConfig(config);
-    swap.setMinReceivable(limitPrice);
-    return await this.builder.buildSwapTx(config);
+    swap.setMinReceivable(minReceivable);
+    return await this.builder.buildSwapTx(swap.buildArgs());
   }
 
   /**
