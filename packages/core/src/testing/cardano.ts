@@ -96,7 +96,7 @@ const mockAPI: WalletApi = {
     .mockImplementation(() => Promise.resolve("test-preview-signedtx")),
 };
 
-const cardano = {
+export const windowCardano = {
   eternl: {
     name: "Eternl",
     enable: jest
@@ -113,7 +113,7 @@ const cardano = {
 export const setupGlobalCardano = () => {
   Object.defineProperty(global, "window", {
     value: {
-      cardano,
+      cardano: windowCardano,
     },
   });
 };
