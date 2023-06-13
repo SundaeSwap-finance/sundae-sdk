@@ -417,53 +417,47 @@ export class TxBuilderLucid extends TxBuilder<
     coinSelection?: boolean
   ): Promise<ITxBuilderTx<Transaction<Tx>, Datum | undefined>> {
     let sign: boolean = false;
+    const baseFees: Pick<ITxBuilderFees, "scooperFee" | "deposit"> = {
+      deposit: new AssetAmount(this.getParams().RIDER_FEE, ADA_ASSET_DECIMAL),
+      scooperFee: new AssetAmount(
+        this.getParams().SCOOPER_FEE,
+        ADA_ASSET_DECIMAL
+      ),
+    };
+
+    // If the fee isn't set, we clone the transaction and complete it to get
+    // the estimated fee. We have to do this, or Lucid will discard WASM
+    // references and trying to complete the transaction later will break.
+    const txFee = tx.get().txBuilder.get_fee_if_set();
+    const txClone = await new Transaction(tx.builder, tx).tx.get().complete();
 
     const thisTx = {
       tx,
       datum,
+      fees: {
+        ...baseFees,
+        cardanoTxFee: new AssetAmount(
+          BigInt(txFee?.to_str() ?? txClone?.fee?.toString() ?? "0"),
+          ADA_ASSET_DECIMAL
+        ),
+      },
       complete: async () => {
-        const baseFees: Pick<ITxBuilderFees, "scooperFee" | "deposit"> = {
-          deposit: new AssetAmount(
-            this.getParams().RIDER_FEE,
-            ADA_ASSET_DECIMAL
-          ),
-          scooperFee: new AssetAmount(
-            this.getParams().SCOOPER_FEE,
-            ADA_ASSET_DECIMAL
-          ),
-        };
-
         if (sign) {
           const finishedTx = await tx.get().complete({ coinSelection });
           const signedTx = await finishedTx.sign().complete();
           return {
             submit: async () => await signedTx.submit(),
             cbor: Buffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
-            fees: {
-              ...baseFees,
-              cardanoTxFee: new AssetAmount(
-                BigInt(signedTx.txSigned.body().fee().to_str()),
-                ADA_ASSET_DECIMAL
-              ),
-            },
           };
         }
 
-        const txFee = tx.get().txBuilder.get_fee_if_set();
         return {
           submit: async () => {
             throw new Error(
               "You must sign your transaction before submitting to a wallet!"
             );
           },
-          cbor: "",
-          fees: {
-            ...baseFees,
-            cardanoTxFee: new AssetAmount(
-              BigInt(txFee?.to_str() ?? "0"),
-              ADA_ASSET_DECIMAL
-            ),
-          },
+          cbor: Buffer.from(txClone.txComplete.to_bytes()).toString("hex"),
         };
       },
       sign: function () {

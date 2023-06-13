@@ -13,9 +13,12 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
       return;
     }
 
+    console.log(walletAddress);
+
     setReverseSwapping(true);
     try {
       const pool = await SDK.query().findPoolData(poolQuery);
+      debugger;
       await SDK.swap({
         pool,
         orderAddresses: {
@@ -27,17 +30,16 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           assetId: "",
           amount: new AssetAmount(25000000n, 6),
         },
-      }).then(async (res) => {
+      }).then(async ({ fees, sign, complete }) => {
         if (submit) {
-          const { cbor, submit, fees } = await res.sign().complete();
           setFees(fees);
+          const { cbor, submit } = await sign().complete();
           setCBOR({
             cbor,
             hash: await submit(),
           });
         } else {
-          const { cbor, fees } = await res.complete();
-          setFees(fees);
+          const { cbor } = await complete();
           setCBOR({
             cbor,
           });

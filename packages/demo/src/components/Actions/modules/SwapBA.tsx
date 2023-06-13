@@ -28,17 +28,16 @@ export const SwapBA: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
             "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
           amount: new AssetAmount(20000000n, 6),
         },
-      }).then(async (res) => {
+      }).then(async ({ fees, sign, complete }) => {
         if (submit) {
-          const { cbor, submit, fees } = await res.sign().complete();
           setFees(fees);
+          const { cbor, submit } = await sign().complete();
           setCBOR({
             cbor,
             hash: await submit(),
           });
         } else {
-          const { cbor, fees } = await res.complete();
-          setFees(fees);
+          const { cbor } = await complete();
           setCBOR({
             cbor,
           });

@@ -13,6 +13,7 @@ import { AssetAmount } from "../classes/AssetAmount.class";
  */
 export interface ITxBuilderTx<T = unknown, K = unknown> {
   tx: T;
+  fees: ITxBuilderFees;
   datum: K;
   sign: () => ITxBuilderTx;
   complete: () => Promise<ITxBuilderComplete>;
@@ -24,8 +25,6 @@ export interface ITxBuilderTx<T = unknown, K = unknown> {
 export interface ITxBuilderComplete {
   /** The CBOR encoded hex string of the transaction. Useful if you want to do something with it instead of submitting to the wallet. */
   cbor: string;
-  /** The calculated fees of the transaction. */
-  fees: ITxBuilderFees;
   /** Submits the CBOR encoded transaction to the connected wallet returns a hex encoded transaction hash. */
   submit: () => Promise<string>;
 }

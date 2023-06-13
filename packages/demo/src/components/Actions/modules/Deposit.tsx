@@ -37,17 +37,16 @@ export const Deposit: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
             amount: new AssetAmount(baseAmount * ratio, 6),
           },
         ],
-      }).then(async (res) => {
+      }).then(async ({ sign, fees, complete }) => {
         if (submit) {
-          const { cbor, submit, fees } = await res.sign().complete();
           setFees(fees);
+          const { cbor, submit } = await sign().complete();
           setCBOR({
             cbor,
             hash: await submit(),
           });
         } else {
-          const { cbor, fees } = await res.complete();
-          setFees(fees);
+          const { cbor } = await complete();
           setCBOR({
             cbor,
           });
