@@ -49,7 +49,7 @@ TxBuilder&lt;
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:83](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L83)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:80](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L80)
 
 ## Properties
 
@@ -65,7 +65,7 @@ TxBuilder.options
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L84)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:81](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L81)
 
 ___
 
@@ -81,7 +81,7 @@ TxBuilder.query
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:85](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L85)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L82)
 
 ## Methods
 
@@ -110,7 +110,7 @@ with an updated swap datum.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L180)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:177](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L177)
 
 ___
 
@@ -146,7 +146,7 @@ Initializes a Lucid instance with the
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:104](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L104)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:101](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L101)
 
 ___
 
@@ -166,4 +166,4 @@ Returns a new Tx instance from Lucid. Throws an error if not ready.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:134](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L134)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:131](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L131)

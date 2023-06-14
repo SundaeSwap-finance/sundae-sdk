@@ -7,13 +7,9 @@ import {
   Network,
   C,
   getAddressDetails,
-  Data,
-  Utils as LucidUtils,
-  Assets,
   Datum,
 } from "lucid-cardano";
 import { Transaction } from "../../../classes/Transaction.class";
-import { AssetAmount } from "../../../classes/AssetAmount.class";
 
 import {
   IQueryProviderClass,
@@ -33,6 +29,7 @@ import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
 import { DatumBuilderLucid } from "../DatumBuilders/DatumBuilder.Lucid.class";
 import { ADA_ASSET_DECIMAL } from "../../../lib/constants";
+import { AssetAmount } from "@sundaeswap/asset";
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -311,7 +308,9 @@ export class TxBuilderLucid extends TxBuilder<
      * To accurately determine the altReceivable, we need to swap only half the supplied asset.
      */
     const halfSuppliedAmount = suppliedAsset.amount.subtract(
-      BigInt(Math.floor(Number(suppliedAsset.amount.getAmount()) / 2))
+      new AssetAmount(
+        BigInt(Math.floor(Number(suppliedAsset.amount.amount) / 2))
+      )
     );
 
     const minReceivable = Utils.getMinReceivableFromSlippage(

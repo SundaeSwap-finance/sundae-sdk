@@ -2109,30 +2109,22 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@sundaeswap/asset@^0.5.9":
-  version "0.5.9"
-  resolved "https://registry.yarnpkg.com/@sundaeswap/asset/-/asset-0.5.9.tgz#7fa80ded83cdbbf4505380c38bffc7845145f67c"
-  integrity sha512-Mpq8pOxCCKCrx2tp0zce2aqqxw8GXGOAU834SD2ovHORIojRKrswZKgLgji1jQMujfB9F9xQlY7MKFvtFdD97Q==
+"@sundaeswap/asset@^0.6.8":
+  version "0.6.8"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/asset/-/asset-0.6.8.tgz#abe733db99a97284dcd51584faa1eeef48341b0c"
+  integrity sha512-kchtB3+hofrzFA+LtjoAbJVb99Fa6kemsg/dQ0WHe0UQAiBFkvaf1+S78pvSzjdBAR7kyO4xYiNi0XT2dR526A==
   dependencies:
     "@sundaeswap/fraction" "^0.5.9"
 
-"@sundaeswap/bigint-math@^0.5.8":
-  version "0.5.8"
-  resolved "https://registry.yarnpkg.com/@sundaeswap/bigint-math/-/bigint-math-0.5.8.tgz#d43c93b7e59bab400250f2c7885d78c5f278b542"
-  integrity sha512-5r112+ifZtRYDTuNYgVKUklKzTA+laJU5wCFNpDKBcbs5yCR92DEJnXjSBSt8P2k7a+3iY0TxaruqyqimQTU1w==
+"@sundaeswap/bigint-math@^0.5.9":
+  version "0.5.9"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/bigint-math/-/bigint-math-0.5.9.tgz#b7bec95324f8caa202794f8efd907990b5ac2a84"
+  integrity sha512-TYZwvgpA+aZFAroO0qYQSOn1c1h/IdmCuqS0PZ1mbF8wBdJ7JjDV0wu6onIzXZ3O6SZHlthyN3m6F2PjeYrQfA==
 
-"@sundaeswap/cpp@^0.5.8":
-  version "0.5.8"
-  resolved "https://registry.yarnpkg.com/@sundaeswap/cpp/-/cpp-0.5.8.tgz#2c8819e58c32c2632a01db8d48f315405463253c"
-  integrity sha512-Ffm1uN7+h5MIuNZZt1xfFWI4bD4JaFxv9sa4oj4S3u+y2/acJ7ZmtlMTlYRNBxWAS0AI1Fyza7eDffbGKEQR2Q==
-  dependencies:
-    "@sundaeswap/bigint-math" "^0.5.8"
-    "@sundaeswap/fraction" "^0.5.8"
-
-"@sundaeswap/cpp@^0.6.2":
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/@sundaeswap/cpp/-/cpp-0.6.2.tgz#9f72dacc5f020fb0b0d20747b2067fde8ed281a2"
-  integrity sha512-z8ybIYiR9BPpyC+hxqxVdSCIfNZs8BT+YGVYON1cKv+bZop0e80vAEdzJJ2OUVq/oELTYjtS2mWPQbrFlO/BDg==
+"@sundaeswap/cpp@^0.6.7":
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/cpp/-/cpp-0.6.7.tgz#254223b5141009f600553ef4d0d19a6ac5c34a9c"
+  integrity sha512-IOxsm/xnH0bEs6ANyoxSZgW6V+1B4KJP8jYZO5ROKvq7mHkaCWdteKLphwB6K3PlHzBu64/hU8Si/lXVvCWaUQ==
 
 "@sundaeswap/docgen@^0.1.1":
   version "0.1.1"
@@ -2145,11 +2137,6 @@
     glob "^8.0.3"
     typedoc "^0.23.24"
     typedoc-plugin-markdown "^3.14.0"
-
-"@sundaeswap/fraction@^0.5.8":
-  version "0.5.8"
-  resolved "https://registry.yarnpkg.com/@sundaeswap/fraction/-/fraction-0.5.8.tgz#484aa91de8215033eac52f1799a0019ecefdd91d"
-  integrity sha512-riI4oBPzzVq4u6hSaTo6gPKCSAi6upqHgUCYjMmerk7sgqnKIl/vo4IqER0g19uPOSCLfZ2FMcR37ZHla69VLw==
 
 "@sundaeswap/fraction@^0.5.9":
   version "0.5.9"

@@ -95,7 +95,7 @@ Set a minimum receivable asset amount for the swap. This is akin to setting a li
 
 | Name | Type |
 | :------ | :------ |
-| `amount` | [`AssetAmount`](Core.AssetAmount.md) |
+| `amount` | `AssetAmount`<`any`\> |
 
 #### Returns
 

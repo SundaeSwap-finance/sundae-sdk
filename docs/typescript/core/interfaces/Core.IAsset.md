@@ -8,7 +8,7 @@ Basic asset structure with the amount.
 
 ### amount
 
-• **amount**: [`AssetAmount`](../classes/Core.AssetAmount.md)
+• **amount**: `AssetAmount`<`any`\>
 
 An instance of the asset amount including the decimal place.
 

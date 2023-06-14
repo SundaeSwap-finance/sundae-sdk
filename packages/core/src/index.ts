@@ -54,7 +54,6 @@
 export { SundaeSDK } from "./classes/SundaeSDK.class";
 export { Utils } from "./classes/Utils.class";
 export { Transaction } from "./classes/Transaction.class";
-export { AssetAmount } from "./classes/AssetAmount.class";
 export { SwapConfig } from "./classes/Configs/SwapConfig.class";
 export { ZapConfig } from "./classes/Configs/ZapConfig.class";
 export { DepositConfig } from "./classes/Configs/DepositConfig.class";

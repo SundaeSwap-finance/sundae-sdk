@@ -1,4 +1,4 @@
-import { AssetAmount } from "@sundaeswap/sdk-core";
+import { AssetAmount } from "@sundaeswap/asset";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
 import { ActionArgs, poolQuery } from "../Actions";

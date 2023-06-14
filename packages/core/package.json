@@ -63,8 +63,10 @@
     "docs:ci": "yarn docs --unsafe"
   },
   "devDependencies": {
-    "@sundaeswap/cpp": "^0.6.2",
-    "@sundaeswap/fraction": "^0.5.8",
+    "@sundaeswap/asset": "^0.6.8",
+    "@sundaeswap/bigint-math": "^0.5.9",
+    "@sundaeswap/cpp": "^0.6.7",
+    "@sundaeswap/fraction": "^0.5.9",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^14.3.0",
     "@types/jest": "^28.1.3",
@@ -79,8 +81,10 @@
   },
   "peerDependencies": {
     "@meshsdk/core": "^1.3.0",
-    "@sundaeswap/cpp": "^0.6.2",
-    "@sundaeswap/fraction": "^0.5.8",
+    "@sundaeswap/asset": "^0.6.8",
+    "@sundaeswap/bigint-math": "^0.5.9",
+    "@sundaeswap/cpp": "^0.6.7",
+    "@sundaeswap/fraction": "^0.5.9",
     "lucid-cardano": "^0.10.4"
   },
   "gitHead": "ddc937102065a5a581fe7affe02474c0e68ad9a0"

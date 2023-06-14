@@ -21,7 +21,7 @@ const config: JestConfigWithTsJest = {
         ],
       },
       transformIgnorePatterns: [
-        "node_modules/(?!lucid-cardano|@sundaeswap/cpp)",
+        "node_modules/(?!lucid-cardano|@sundaeswap/cpp|@sundaeswap/asset|@sundaeswap/fraction|@sundaeswap/bigint-math)",
       ],
       moduleNameMapper: {
         "^(\\.{1,2}/.*)\\.js$": "$1",

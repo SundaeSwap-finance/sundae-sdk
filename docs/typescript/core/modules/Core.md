@@ -55,7 +55,6 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 
 ## Classes
 
-- [AssetAmount](../classes/Core.AssetAmount.md)
 - [CancelConfig](../classes/Core.CancelConfig.md)
 - [DatumBuilder](../classes/Core.DatumBuilder.md)
 - [DepositConfig](../classes/Core.DepositConfig.md)
@@ -145,8 +144,8 @@ the remaining asset gets sent to the [DestinationAddress](Core.md#destinationadd
 
 | Name | Type |
 | :------ | :------ |
-| `CoinAAmount` | [`AssetAmount`](../classes/Core.AssetAmount.md) |
-| `CoinBAmount` | [`AssetAmount`](../classes/Core.AssetAmount.md) |
+| `CoinAAmount` | `AssetAmount` |
+| `CoinBAmount` | `AssetAmount` |
 
 #### Defined in
 
@@ -165,7 +164,7 @@ receivable amount to satisfy a pool's CoinA/CoinB requirements.
 
 | Name | Type |
 | :------ | :------ |
-| `CoinAmount` | [`AssetAmount`](../classes/Core.AssetAmount.md) |
+| `CoinAmount` | `AssetAmount` |
 | `ZapDirection` | [`PoolCoin`](../enums/Core.PoolCoin.md) |
 
 #### Defined in
@@ -247,7 +246,7 @@ which acts as the limit price of a swap.
 
 | Name | Type |
 | :------ | :------ |
-| `MinimumReceivable?` | [`AssetAmount`](../classes/Core.AssetAmount.md) |
+| `MinimumReceivable?` | `AssetAmount` |
 | `SuppliedCoin` | [`PoolCoin`](../enums/Core.PoolCoin.md) |
 
 #### Defined in
@@ -277,7 +276,7 @@ ___
 
 ### Withdraw
 
-Ƭ **Withdraw**: [`AssetAmount`](../classes/Core.AssetAmount.md)
+Ƭ **Withdraw**: `AssetAmount`
 
 A withdraw defines the amount of LP tokens a holder wishes to burn in exchange
 for their provided assets.

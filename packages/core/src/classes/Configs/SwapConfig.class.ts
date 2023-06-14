@@ -4,7 +4,7 @@ import {
   IPoolData,
   OrderAddresses,
 } from "../../@types";
-import { AssetAmount } from "../AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 import { Config } from "../Abstracts/Config.abstract.class";
 import { Utils } from "../Utils.class";
 

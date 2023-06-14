@@ -7,7 +7,7 @@
  */
 
 import { jest } from "@jest/globals";
-import { AssetAmount } from "../classes/AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 
 const MockedDatumBuilderLucid = jest.fn().mockImplementation(() => {
   return {};

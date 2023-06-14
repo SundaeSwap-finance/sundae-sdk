@@ -6,7 +6,7 @@ import {
   OrderAddresses,
   PoolCoin,
 } from ".";
-import { AssetAmount } from "../classes/AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 
 /**
  * The primary top-level API surface for dealing with built TxBuilder transactions.

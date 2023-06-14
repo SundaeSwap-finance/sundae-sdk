@@ -14,7 +14,7 @@
 import { jest } from "@jest/globals";
 import { DatumBuilder } from "../classes/Abstracts/DatumBuilder.abstract.class";
 import { OrderAddresses, PoolCoin } from "../@types/datumbuilder";
-import { AssetAmount } from "../classes/AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 
 const DEFAULT_IDENT = "03";
 const DEFAULT_ORDER_ADDRESSES: OrderAddresses = {
@@ -51,7 +51,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         },
       });
 
-      expect(result.cbor).toEqual(
+      expect(result.cbor).toStrictEqual(
         "d8799f4103d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd8799f581c02659dc406e1d51c2695bc23962b30487d3ceb995beb13b698509c6fffff1a002625a0d8799fd879801a004c4b40d8799f1a00989680ffffff"
       );
 
@@ -67,7 +67,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         },
       });
 
-      expect(result2.cbor).toEqual(
+      expect(result2.cbor).toStrictEqual(
         "d8799f4103d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd8799f581c02659dc406e1d51c2695bc23962b30487d3ceb995beb13b698509c6fffff1a002625a0d8799fd87a801a004c4b40d87a80ffff"
       );
     });
@@ -84,7 +84,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         },
       });
 
-      expect(result.cbor).toEqual(
+      expect(result.cbor).toStrictEqual(
         "d8799f4103d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd8799f581c02659dc406e1d51c2695bc23962b30487d3ceb995beb13b698509c6fffff1a002625a0d87b9fd87a9fd8799f1a01312d001a00989680ffffffff"
       );
 
@@ -99,7 +99,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         },
       });
 
-      expect(result2.cbor).toEqual(
+      expect(result2.cbor).toStrictEqual(
         "d8799f4103d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd87a80ff1a002625a0d87b9fd87a9fd8799f1a009896801a01312d00ffffffff"
       );
     });
@@ -116,7 +116,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         },
       });
 
-      expect(result.cbor).toEqual(
+      expect(result.cbor).toStrictEqual(
         "d8799f4103d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd8799f581c02659dc406e1d51c2695bc23962b30487d3ceb995beb13b698509c6fffff1a002625a0d87a9f1a01312d00ffff"
       );
     });
@@ -127,7 +127,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
       const result = builderInstance.buildOrderAddresses(
         DEFAULT_ORDER_ADDRESSES
       );
-      expect(result.cbor).toEqual(
+      expect(result.cbor).toStrictEqual(
         "d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd8799f581c02659dc406e1d51c2695bc23962b30487d3ceb995beb13b698509c6fffff"
       );
 
@@ -135,7 +135,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         DestinationAddress: DEFAULT_ORDER_ADDRESSES.DestinationAddress,
       });
 
-      expect(result2.cbor).toEqual(
+      expect(result2.cbor).toStrictEqual(
         "d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd87a80ff"
       );
 
@@ -146,7 +146,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         },
       });
 
-      expect(result3.cbor).toEqual(
+      expect(result3.cbor).toStrictEqual(
         "d8799fd8799fd8799fd8799f581ca84b391b1e6568edae7f238cb8068fa80b49d365275ddd12774359d4ffd87a80ffd87a80ffd87a80ff"
       );
 
@@ -160,7 +160,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         },
       });
 
-      expect(result4.cbor).toEqual(
+      expect(result4.cbor).toStrictEqual(
         "d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd8799f5f5840d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc98583d82457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd8799f581c02659dc406e1d51c2695bc23962b30487d3ceb995beb13b698509c6fffffffffffd87a80ff"
       );
     });
@@ -174,7 +174,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
           },
         });
       } catch (e) {
-        expect((e as Error).message).toEqual(
+        expect((e as Error).message).toStrictEqual(
           "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key."
         );
       }
@@ -188,7 +188,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
           },
         });
       } catch (e) {
-        expect((e as Error).message).toEqual(
+        expect((e as Error).message).toStrictEqual(
           'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"invalid"}}. Please check your arguments and try again. Error message from DatumBuilder: No address type matched for: invalid'
         );
       }
@@ -199,7 +199,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
           AlternateAddress: "invalid",
         });
       } catch (e) {
-        expect((e as Error).message).toEqual(
+        expect((e as Error).message).toStrictEqual(
           'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"},"AlternateAddress":"invalid"}. Please check your arguments and try again. Error message from DatumBuilder: No address type matched for: invalid'
         );
       }
@@ -214,7 +214,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
           },
         });
       } catch (e) {
-        expect((e as Error).message).toEqual(
+        expect((e as Error).message).toStrictEqual(
           'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"}}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a Mainnet Network address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294.'
         );
       }
@@ -230,7 +230,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
           },
         });
       } catch (e) {
-        expect((e as Error).message).toEqual(
+        expect((e as Error).message).toStrictEqual(
           'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk"}}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a (Preview/Testnet/PreProd) Network address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk.'
         );
       }
@@ -248,7 +248,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
             "addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294",
         });
       } catch (e) {
-        expect((e as Error).message).toEqual(
+        expect((e as Error).message).toStrictEqual(
           'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk"},"AlternateAddress":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a Mainnet Network address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294.'
         );
       }
@@ -262,7 +262,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
             "addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk",
         });
       } catch (e) {
-        expect((e as Error).message).toEqual(
+        expect((e as Error).message).toStrictEqual(
           'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"},"AlternateAddress":"addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk"}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a (Preview/Testnet/PreProd) Network address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk.'
         );
       }

@@ -1,4 +1,4 @@
-import { AssetAmount } from "../classes/AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 import { OrderAddresses, PoolCoin, UTXO } from "./datumbuilder";
 import { IPoolData } from "./queryprovider";
 import { IAsset } from "./utilities";

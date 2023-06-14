@@ -7,7 +7,6 @@ import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
 import { Withdraw } from "./modules/Withdraw";
 import { Zap } from "./modules/Zap";
-import { UpdateSwap } from "./modules/UpdateSwap";
 
 export const poolQuery: IPoolQuery = {
   pair: [
@@ -87,9 +86,9 @@ export const Actions: FC = () => {
               border: "1px solid #555",
             }}
             src={{
-              cardanoTxFee: fees.cardanoTxFee.getAmount().toString(),
-              scooperFee: fees.scooperFee.getAmount().toString(),
-              deposit: fees.deposit.getAmount().toString(),
+              cardanoTxFee: fees.cardanoTxFee.amount.toString(),
+              scooperFee: fees.scooperFee.amount.toString(),
+              deposit: fees.deposit.amount.toString(),
             }}
           />
         )}

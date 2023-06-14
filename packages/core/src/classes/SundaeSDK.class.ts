@@ -7,7 +7,7 @@ import type {
   IQueryProviderClass,
   SDKZapArgs,
 } from "../@types";
-import { AssetAmount } from "./AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 import { SwapConfig } from "./Configs/SwapConfig.class";
 import { TxBuilder } from "./Abstracts/TxBuilder.abstract.class";
 import { Utils } from "./Utils.class";

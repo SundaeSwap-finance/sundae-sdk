@@ -22,7 +22,7 @@ describe("WithdrawConfig class", () => {
       suppliedAssets: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
     });
 
-    expect(myConfig.buildArgs()).toEqual({
+    expect(myConfig.buildArgs()).toStrictEqual({
       pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
@@ -55,7 +55,7 @@ describe("WithdrawConfig class", () => {
         address: PREVIEW_DATA.address,
       },
     });
-    expect(config.orderAddresses).toEqual({
+    expect(config.orderAddresses).toStrictEqual({
       DestinationAddress: {
         address: PREVIEW_DATA.address,
       },
@@ -72,7 +72,7 @@ describe("WithdrawConfig class", () => {
     try {
       config.validate();
     } catch (e) {
-      expect((e as Error).message).toEqual(
+      expect((e as Error).message).toStrictEqual(
         "You did not provided funding for this deposit! Make sure you supply both sides of the pool with .setSuppliedAssets()"
       );
     }

@@ -1,6 +1,6 @@
 import { PREVIEW_DATA } from "../../../testing/mockData";
 import { IAsset } from "../../../@types";
-import { AssetAmount } from "../../AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 import { SwapConfig } from "../SwapConfig.class";
 
 let config: SwapConfig;
@@ -25,16 +25,25 @@ describe("SwapConfig class", () => {
       suppliedAsset: PREVIEW_DATA.assets.tada,
     });
 
-    expect(myConfig.buildArgs()).toEqual({
+    expect(myConfig.buildArgs()).toMatchObject({
       pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
           address: PREVIEW_DATA.address,
         },
       },
-      suppliedAsset: PREVIEW_DATA.assets.tada,
+      suppliedAsset: {
+        assetId: PREVIEW_DATA.assets.tada.assetId,
+        amount: expect.objectContaining({
+          amount: PREVIEW_DATA.assets.tada.amount.amount,
+          decimals: PREVIEW_DATA.assets.tada.amount.decimals,
+        }),
+      },
       // 10% minus the pool fee
-      minReceivable: new AssetAmount(8570604n, 0),
+      minReceivable: expect.objectContaining({
+        amount: 8570604n,
+        decimals: 0,
+      }),
     });
   });
 
@@ -50,7 +59,13 @@ describe("SwapConfig class", () => {
     };
 
     config.setSuppliedAsset(asset);
-    expect(config.suppliedAsset).toMatchObject(asset);
+    expect(config.suppliedAsset).toMatchObject({
+      amount: expect.objectContaining({
+        amount: 20n,
+        decimals: 6,
+      }),
+      assetId: "",
+    });
   });
 
   it("should set the orderAddresses correctly", () => {
@@ -59,7 +74,7 @@ describe("SwapConfig class", () => {
         address: PREVIEW_DATA.address,
       },
     });
-    expect(config.orderAddresses).toEqual({
+    expect(config.orderAddresses).toMatchObject({
       DestinationAddress: {
         address: PREVIEW_DATA.address,
       },
@@ -84,7 +99,7 @@ describe("SwapConfig class", () => {
       config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
+      expect((e as Error).message).toStrictEqual(
         "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
       );
     }
@@ -107,7 +122,7 @@ describe("SwapConfig class", () => {
       config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
+      expect((e as Error).message).toStrictEqual(
         "Invalid assetId: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459. You likely forgot to concatenate with a period, like so: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459"
       );
     }
@@ -129,15 +144,24 @@ describe("SwapConfig class", () => {
       })
       .setSuppliedAsset(validFunding);
 
-    expect(config.buildArgs()).toEqual({
+    expect(config.buildArgs()).toMatchObject({
       pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
           address: PREVIEW_DATA.address,
         },
       },
-      minReceivable: new AssetAmount(20n, 0),
-      suppliedAsset: validFunding,
+      minReceivable: expect.objectContaining({
+        amount: 20n,
+        decimals: 0,
+      }),
+      suppliedAsset: {
+        assetId: validFunding.assetId,
+        amount: expect.objectContaining({
+          amount: validFunding.amount.amount,
+          decimals: validFunding.amount.decimals,
+        }),
+      },
     });
   });
 
@@ -151,7 +175,7 @@ describe("SwapConfig class", () => {
     try {
       config.validate();
     } catch (e) {
-      expect((e as Error).message).toEqual(
+      expect((e as Error).message).toStrictEqual(
         "You haven't funded this swap on your SwapConfig! Fund the swap with .setSuppliedAsset()"
       );
     }
@@ -170,7 +194,7 @@ describe("SwapConfig class", () => {
     try {
       config.validate();
     } catch (e) {
-      expect((e as Error).message).toEqual(
+      expect((e as Error).message).toStrictEqual(
         "You haven't set a minimum receivable amount on your SwapConfig!"
       );
     }

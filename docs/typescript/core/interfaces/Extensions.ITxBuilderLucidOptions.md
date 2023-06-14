@@ -27,7 +27,7 @@ The chosen provider options object to pass to Lucid.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L46)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:43](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L43)
 
 ___
 
@@ -55,7 +55,7 @@ The provider type used by Lucid. Currently only supports Blockfrost.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L44)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L41)
 
 ___
 

@@ -1,12 +1,9 @@
-import {
-  AssetAmount,
-  CancelConfigArgs,
-  SwapConfigArgs,
-} from "@sundaeswap/sdk-core";
+import { CancelConfigArgs, SwapConfigArgs } from "@sundaeswap/sdk-core";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
 import { ActionArgs, poolQuery } from "../Actions";
 import Button from "../../Button";
+import { AssetAmount } from "@sundaeswap/asset";
 
 export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
   const { SDK, walletAddress } = useAppState();

@@ -11,7 +11,7 @@ import {
   WithdrawArguments,
   ZapArguments,
 } from "../../@types";
-import { AssetAmount } from "../AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 import { Utils } from "../Utils.class";
 
 /**

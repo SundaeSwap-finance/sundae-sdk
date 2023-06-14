@@ -5,7 +5,7 @@ import {
   C,
   AddressDetails,
 } from "lucid-cardano";
-import { AssetAmount } from "../../../classes/AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 
 import {
   DatumResult,
@@ -165,10 +165,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   buildDepositPair(deposit: DepositMixed): DatumResult<Data> {
     const datum = new Constr(2, [
       new Constr(1, [
-        new Constr(0, [
-          deposit.CoinAAmount.getAmount(),
-          deposit.CoinBAmount.getAmount(),
-        ]),
+        new Constr(0, [deposit.CoinAAmount.amount, deposit.CoinBAmount.amount]),
       ]),
     ]);
     return {
@@ -187,7 +184,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
    */
   buildDepositZap(zap: DepositSingle): DatumResult<Data> {
     const datum = new Constr(2, [
-      new Constr(zap.ZapDirection, [zap.CoinAmount.getAmount()]),
+      new Constr(zap.ZapDirection, [zap.CoinAmount.amount]),
     ]);
     return {
       cbor: Data.to(datum),
@@ -200,7 +197,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
    * @param fundedLPAsset The LP tokens to send to the pool.
    */
   buildWithdrawAsset(fundedLPAsset: IAsset): DatumResult<Data> {
-    const datum = new Constr(1, [fundedLPAsset.amount.getAmount()]);
+    const datum = new Constr(1, [fundedLPAsset.amount.amount]);
 
     return {
       cbor: Data.to(datum),
@@ -222,9 +219,9 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
   buildSwapDirection(swap: Swap, amount: AssetAmount) {
     const datum = new Constr(0, [
       new Constr(swap.SuppliedCoin, []),
-      amount.getAmount(),
+      amount.amount,
       swap.MinimumReceivable
-        ? new Constr(0, [swap.MinimumReceivable.getAmount()])
+        ? new Constr(0, [swap.MinimumReceivable.amount])
         : new Constr(1, []),
     ]);
 

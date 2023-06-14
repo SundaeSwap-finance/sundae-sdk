@@ -1,6 +1,6 @@
 import { PREVIEW_DATA } from "../../../testing/mockData";
 import { IAsset } from "../../../@types";
-import { AssetAmount } from "../../AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 import { WithdrawConfig } from "../WithdrawConfig.class";
 
 let config: WithdrawConfig;
@@ -24,7 +24,7 @@ describe("WithdrawConfig class", () => {
       suppliedLPAsset: PREVIEW_DATA.assets.tindy,
     });
 
-    expect(myConfig.buildArgs()).toEqual({
+    expect(myConfig.buildArgs()).toStrictEqual({
       pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
@@ -56,7 +56,7 @@ describe("WithdrawConfig class", () => {
         address: PREVIEW_DATA.address,
       },
     });
-    expect(config.orderAddresses).toEqual({
+    expect(config.orderAddresses).toStrictEqual({
       DestinationAddress: {
         address: PREVIEW_DATA.address,
       },
@@ -73,7 +73,7 @@ describe("WithdrawConfig class", () => {
       config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
+      expect((e as Error).message).toStrictEqual(
         "You haven't set a pool in your Config. Set a pool with .setPool()"
       );
     }
@@ -96,7 +96,7 @@ describe("WithdrawConfig class", () => {
       config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
+      expect((e as Error).message).toStrictEqual(
         "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
       );
     }
@@ -118,7 +118,7 @@ describe("WithdrawConfig class", () => {
       config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
+      expect((e as Error).message).toStrictEqual(
         "Invalid assetId: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459. You likely forgot to concatenate with a period, like so: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459"
       );
     }
@@ -133,7 +133,7 @@ describe("WithdrawConfig class", () => {
       config.buildArgs();
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toEqual(
+      expect((e as Error).message).toStrictEqual(
         "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
       );
     }
@@ -154,7 +154,7 @@ describe("WithdrawConfig class", () => {
       })
       .setSuppliedLPAsset(validFunding);
 
-    expect(config.buildArgs()).toEqual({
+    expect(config.buildArgs()).toStrictEqual({
       pool: PREVIEW_DATA.pool,
       orderAddresses: {
         DestinationAddress: {
@@ -175,7 +175,7 @@ describe("WithdrawConfig class", () => {
     try {
       config.validate();
     } catch (e) {
-      expect((e as Error).message).toEqual(
+      expect((e as Error).message).toStrictEqual(
         "There was no LP asset set! Set the LP token with .setSuppliedLPAsset()"
       );
     }

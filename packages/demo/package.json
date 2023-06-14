@@ -63,7 +63,10 @@
   },
   "dependencies": {
     "@meshsdk/core": "^1.3.0",
-    "@sundaeswap/cpp": "^0.5.8",
+    "@sundaeswap/asset": "^0.6.8",
+    "@sundaeswap/bigint-math": "^0.5.9",
+    "@sundaeswap/cpp": "^0.6.7",
+    "@sundaeswap/fraction": "^0.5.9",
     "@sundaeswap/sdk-core": "^0.2.0-alpha",
     "@tailwindcss/forms": "^0.5.2",
     "autoprefixer": "^9",

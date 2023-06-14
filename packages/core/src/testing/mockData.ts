@@ -1,5 +1,5 @@
 import { IAsset, IPoolData, OrderAddresses } from "../@types";
-import { AssetAmount } from "../classes/AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 
 interface NetworkData {
   pool: IPoolData;

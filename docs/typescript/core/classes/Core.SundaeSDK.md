@@ -143,7 +143,7 @@ const { submit, cbor } = await SDK.limitSwap(
 | Name | Type |
 | :------ | :------ |
 | `config` | [`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md) |
-| `minReceivable` | [`AssetAmount`](Core.AssetAmount.md) |
+| `minReceivable` | `AssetAmount`<`any`\> |
 
 #### Returns
 

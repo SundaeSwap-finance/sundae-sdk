@@ -1,4 +1,4 @@
-import { AssetAmount } from "@sundaeswap/sdk-core";
+import { AssetAmount } from "@sundaeswap/asset";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
 import { ActionArgs, poolQuery } from "../Actions";
@@ -13,12 +13,10 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
       return;
     }
 
-    console.log(walletAddress);
-
     setReverseSwapping(true);
     try {
       const pool = await SDK.query().findPoolData(poolQuery);
-      debugger;
+
       await SDK.swap({
         pool,
         orderAddresses: {

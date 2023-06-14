@@ -9,7 +9,7 @@ import {
   TSupportedNetworks,
 } from "../@types";
 import { ADA_ASSET_ID } from "../lib/constants";
-import { AssetAmount } from "./AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 
 export class Utils {
   static getParams(network: TSupportedNetworks): IProtocolParams {
@@ -61,7 +61,7 @@ export class Utils {
 
   static subtractPoolFeeFromAmount(amount: AssetAmount, fee: string): number {
     const feePercent = Utils.convertPoolFeeToPercent(fee);
-    return Number(amount.getAmount()) * (1 - feePercent);
+    return Number(amount.amount) * (1 - feePercent);
   }
 
   static getMinReceivableFromSlippage(
@@ -71,7 +71,7 @@ export class Utils {
   ): AssetAmount {
     const supplyingPoolAssetA = pool.assetA.assetId === suppliedAsset.assetId;
     const output = getSwapOutput(
-      suppliedAsset.amount.getAmount(),
+      suppliedAsset.amount.amount,
       BigInt(supplyingPoolAssetA ? pool.quantityA : pool.quantityB),
       BigInt(supplyingPoolAssetA ? pool.quantityB : pool.quantityA),
       Utils.convertPoolFeeToPercent(pool.fee),
@@ -124,11 +124,15 @@ export class Utils {
     const { SCOOPER_FEE, RIDER_FEE } = Utils.getParams(network);
 
     const aggregatedAssets = suppliedAssets.reduce((acc, curr) => {
-      const existingAsset = acc.find(
+      const existingAssetIndex = acc.findIndex(
         ({ assetId: assetID }) => curr.assetId === assetID
       );
-      if (existingAsset) {
-        existingAsset.amount.add(curr.amount.getAmount());
+      if (existingAssetIndex !== -1) {
+        acc[existingAssetIndex] = {
+          assetId: acc[existingAssetIndex].assetId,
+          amount: acc[existingAssetIndex].amount.add(curr.amount),
+        };
+
         return acc;
       }
 
@@ -140,10 +144,10 @@ export class Utils {
 
     aggregatedAssets.forEach((suppliedAsset) => {
       if (suppliedAsset.assetId === ADA_ASSET_ID) {
-        assets.lovelace += suppliedAsset.amount.getAmount();
+        assets.lovelace += suppliedAsset.amount.amount;
       } else {
         assets[suppliedAsset.assetId.replace(".", "")] =
-          suppliedAsset.amount.getAmount();
+          suppliedAsset.amount.amount;
       }
     });
 

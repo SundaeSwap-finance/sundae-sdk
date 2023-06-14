@@ -1,4 +1,4 @@
-import { AssetAmount } from "../classes/AssetAmount.class";
+import { AssetAmount } from "@sundaeswap/asset";
 import { IAsset } from "./utilities";
 
 /**
