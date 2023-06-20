@@ -44,7 +44,7 @@ Should build a Datum for a Deposit transaction.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L54)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:55](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L55)
 
 ___
 
@@ -66,7 +66,7 @@ Should build a Datum for Swap transaction.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:48](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L48)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:49](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L49)
 
 ___
 
@@ -88,7 +88,7 @@ Should build a Datum for a Withdraw transaction.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L66)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:67](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L67)
 
 ___
 
@@ -110,7 +110,7 @@ Should build a Datum for a Zap transaction.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L60)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L61)
 
 ___
 
@@ -133,7 +133,7 @@ This is primarily used for testing but is a useful utility.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:36](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L36)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L37)
 
 ___
 
@@ -155,7 +155,7 @@ Should parse the given datum cbor and extract the [DestinationAddress](../module
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L42)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:43](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L43)
 
 ___
 
@@ -184,4 +184,4 @@ to be thrown.
 
 #### Defined in
 
-[classes/Abstracts/DatumBuilder.abstract.class.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L91)
+[classes/Abstracts/DatumBuilder.abstract.class.ts:94](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/DatumBuilder.abstract.class.ts#L94)

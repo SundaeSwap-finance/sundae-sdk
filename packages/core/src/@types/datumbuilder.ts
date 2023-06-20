@@ -134,6 +134,14 @@ export interface ZapArguments extends Arguments {
 }
 
 /**
+ * Arguments for locking assets into the YF v2 contract.
+ */
+export interface LockArguments {
+  address: string;
+  delegations: Map<string, Map<string, number>>;
+}
+
+/**
  * The returned results of a {@link "DatumBuilder"} method.
  */
 export interface DatumResult<T = any> {

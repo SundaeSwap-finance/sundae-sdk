@@ -21,7 +21,10 @@ export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
         pool,
         suppliedAsset: {
           assetId: "",
-          amount: new AssetAmount(10000000n, 6),
+          amount: new AssetAmount(10000000n, {
+            assetId: "",
+            decimals: 6,
+          }),
         },
         orderAddresses: {
           DestinationAddress: {

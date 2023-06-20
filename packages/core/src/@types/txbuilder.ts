@@ -5,6 +5,7 @@ import {
   IAsset,
   OrderAddresses,
   PoolCoin,
+  UTXO,
 } from ".";
 import { AssetAmount } from "@sundaeswap/asset";
 
@@ -49,6 +50,13 @@ export interface ITxBuilderBaseOptions {
   wallet: TSupportedWallets;
   /** A supported Cardano network. */
   network: TSupportedNetworks;
+}
+
+export interface LockArgs {
+  inputs: UTXO[];
+  existingUtxos?: UTXO[];
+  lockedValues: AssetAmount[];
+  delegation: Record<string, Record<string, number>>;
 }
 
 /**

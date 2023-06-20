@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "NODE_ENV=production webpack --env production --config ./webpack.config.cjs",
-    "start": "NODE_ENV=development webpack serve --env local --open --config ./webpack.config.cjs",
+    "start": "cd ../core && yarn build && cd ../demo && NODE_ENV=development webpack serve --env local --open --config ./webpack.config.cjs",
     "test": "jest",
     "test:watch": "jest --watch"
   },

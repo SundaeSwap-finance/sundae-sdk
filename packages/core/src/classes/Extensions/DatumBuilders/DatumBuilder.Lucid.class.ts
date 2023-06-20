@@ -13,6 +13,7 @@ import {
   DepositMixed,
   DepositSingle,
   IAsset,
+  LockArguments,
   OrderAddresses,
   Swap,
   SwapArguments,
@@ -50,6 +51,42 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
    */
   getDestinationAddressFromCBOR(datum: string) {
     return "";
+  }
+
+  /**
+   * Builds the datum for asset locking, including LP tokens and other
+   * native Cardano assets.
+   */
+  buildLockDatum({ address, delegations }: LockArguments): DatumResult<Data> {
+    const addressDetails = this._getAddressHashes(address);
+    const delegationsData: Data = [];
+    delegations.forEach((programMap, program) => {
+      programMap.forEach((weight, pool) => {
+        delegationsData.push(
+          new Constr(1, [
+            Buffer.from(pool).toString("hex"),
+            program,
+            BigInt(weight),
+          ])
+        );
+      });
+    });
+
+    const owner = new Constr(0, [
+      addressDetails?.stakeCredentials ?? addressDetails?.paymentCredentials,
+    ]);
+
+    const datum = new Constr(0, [
+      owner,
+      delegationsData?.length > 0 ? delegationsData : new Constr(0, []),
+    ]);
+    return {
+      cbor: Data.to(datum),
+      hash: C.hash_plutus_data(
+        C.PlutusData.from_bytes(Buffer.from(Data.to(datum), "hex"))
+      )?.to_hex(),
+      datum,
+    };
   }
 
   /**
