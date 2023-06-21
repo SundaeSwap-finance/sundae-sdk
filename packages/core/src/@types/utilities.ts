@@ -14,8 +14,12 @@ export interface IProtocolParams {
   ESCROW_CANCEL_REDEEMER: string;
   /** The hex-encoded script value of the Escrow Order contract */
   ESCROW_SCRIPT_VALIDATOR: string;
-  /** The hex-encoded script value of the V2 Yield Farming contract */
-  YF_SCRIPT_VALIDATOR: string;
+  /** The hex-encoded staking key for the Yield Farming lockups. */
+  FREEZER_STAKE_KEYHASH: string;
+  /** The hex-encoded keyhash for the Yield Farming contract. */
+  FREEZER_PAYMENT_SCRIPTHASH: string;
+  /** The hex-enc */
+  FREEZER_REFERENCE_INPUT: string;
 }
 
 /**

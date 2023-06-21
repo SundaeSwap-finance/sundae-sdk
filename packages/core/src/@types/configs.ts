@@ -52,12 +52,13 @@ export interface WithdrawConfigArgs extends OrderConfigArgs {
   suppliedLPAsset: IAsset;
 }
 
-export type DelegationMap = Map<string, Map<string, number>>;
+export type DelegationProgramPools = Map<string, bigint>;
+export type DelegationPrograms = Map<string, DelegationProgramPools>;
 
 export interface LockConfigArgs {
   inputs: UTXO[];
   existingPositions?: UTXO[];
-  lockedValues: AssetAmount<IAsset & { decimals: number }>[];
-  delegation: DelegationMap;
+  lockedValues: AssetAmount[];
+  delegation: DelegationPrograms;
   ownerAddress: string;
 }

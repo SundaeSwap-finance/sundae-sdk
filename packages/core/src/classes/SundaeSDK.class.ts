@@ -161,7 +161,7 @@ export class SundaeSDK {
    * @param swapConfigArgs
    * @returns
    */
-  async updateSwap(cancelConfig: CancelConfig, swapConfig: SwapConfig) {
+  async updateSwap(cancelConfig: CancelConfigArgs, swapConfig: SwapConfigArgs) {
     if (swapConfig?.minReceivable === undefined) {
       throw new Error(
         "A swap order update requires either a slippage or a minReceivable to be set in the new config."
@@ -169,8 +169,8 @@ export class SundaeSDK {
     }
 
     return await this.builder.buildUpdateSwapTx({
-      cancelConfig,
-      swapConfig,
+      cancelConfig: new CancelConfig(cancelConfig),
+      swapConfig: new SwapConfig(swapConfig),
     });
   }
 
@@ -179,9 +179,8 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async withdraw(config: WithdrawConfigArgs | WithdrawConfig) {
-    const withdraw =
-      config instanceof WithdrawConfig ? config : new WithdrawConfig(config);
+  async withdraw(config: WithdrawConfigArgs) {
+    const withdraw = new WithdrawConfig(config);
     return await this.builder.buildWithdrawTx(withdraw);
   }
 
@@ -190,9 +189,8 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async deposit(config: DepositConfigArgs | DepositConfig) {
-    const deposit =
-      config instanceof DepositConfig ? config : new DepositConfig(config);
+  async deposit(config: DepositConfigArgs) {
+    const deposit = new DepositConfig(config);
     return await this.builder.buildDepositTx(deposit);
   }
 
@@ -201,9 +199,8 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async cancel(config: CancelConfigArgs | CancelConfig) {
-    const cancellation =
-      config instanceof CancelConfig ? config : new CancelConfig(config);
+  async cancel(config: CancelConfigArgs) {
+    const cancellation = new CancelConfig(config);
     return await this.builder.buildCancelTx(cancellation);
   }
 
@@ -212,27 +209,27 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async zap(config: Omit<ZapConfigArgs, "zapDirection"> | ZapConfig) {
-    let zap: ZapConfig;
-    if (config instanceof ZapConfig) {
-      zap = config;
-    } else {
-      const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
-        config.pool.assetA,
-        config.pool.assetB,
-      ]);
+  async zap(config: Omit<ZapConfigArgs, "zapDirection">) {
+    const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
+      config.pool.assetA,
+      config.pool.assetB,
+    ]);
 
-      zap = new ZapConfig({
-        ...config,
-        zapDirection,
-      });
-    }
+    const zap = new ZapConfig({
+      ...config,
+      zapDirection,
+    });
 
     return await this.builder.buildChainedZapTx(zap);
   }
 
-  async lock(config: LockConfigArgs | LockConfig) {
-    const lock = config instanceof LockConfig ? config : new LockConfig(config);
+  /**
+   * Create a locking transaction for yield farming and pool delegation.
+   * @param config
+   * @returns
+   */
+  async lock(config: LockConfigArgs) {
+    const lock = new LockConfig(config);
     return await this.builder.buildLockTx(lock);
   }
 

@@ -1,5 +1,6 @@
 import { AssetAmount } from "@sundaeswap/asset";
 import { IAsset } from "./utilities";
+import { DelegationPrograms } from "./configs";
 
 /**
  * The unique identifier of a pool, defined as a string.
@@ -138,7 +139,7 @@ export interface ZapArguments extends Arguments {
  */
 export interface LockArguments {
   address: string;
-  delegation: Map<string, Map<string, number>>;
+  delegation: DelegationPrograms;
 }
 
 /**

@@ -4,7 +4,6 @@
   "useWorkspaces": true,
   "version": "0.2.0-alpha.23",
   "npmClient": "yarn",
-  "ignore": "demo",
   "ignoreChanges": [
     "**/__tests__/**",
     "**/__fixtures__/**",
@@ -17,6 +16,9 @@
       "conventionalCommits": true,
       "conventionalPrerelease": true,
       "private": false
+    },
+    "build": {
+      "ignore": "demo"
     }
   }
 }

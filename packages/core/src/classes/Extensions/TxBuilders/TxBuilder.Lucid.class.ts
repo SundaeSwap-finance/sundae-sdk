@@ -10,7 +10,6 @@ import {
   Datum,
   Assets,
 } from "lucid-cardano";
-import { Transaction } from "../../../classes/Transaction.class";
 import { AssetAmount } from "@sundaeswap/asset";
 
 import {
@@ -26,13 +25,13 @@ import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
 import { DatumBuilderLucid } from "../DatumBuilders/DatumBuilder.Lucid.class";
 import { ADA_ASSET_DECIMAL, ADA_ASSET_ID } from "../../../lib/constants";
-import { SwapConfig } from "src/classes/Configs/SwapConfig.class";
-import { CancelConfig } from "src/classes/Configs/CancelConfig.class";
-import { ZapConfig } from "src/classes/Configs/ZapConfig.class";
-import { WithdrawConfig } from "src/classes/Configs/WithdrawConfig.class";
-import { DepositConfig } from "src/classes/Configs/DepositConfig.class";
-import { LockConfig } from "src/classes/Configs/LockConfig.class";
-import { FreezerContract } from "src/@types/contracts";
+import { SwapConfig } from "../../Configs/SwapConfig.class";
+import { CancelConfig } from "../../Configs/CancelConfig.class";
+import { ZapConfig } from "../../Configs/ZapConfig.class";
+import { WithdrawConfig } from "../../Configs/WithdrawConfig.class";
+import { DepositConfig } from "../../Configs/DepositConfig.class";
+import { LockConfig } from "../../Configs/LockConfig.class";
+import { Transaction } from "../../Transaction.class";
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -139,6 +138,12 @@ export class TxBuilderLucid extends TxBuilder<
     return new Transaction<Tx>(this, this.wallet.newTx());
   }
 
+  /**
+   * Builds a valid transaction for the V2 Yield Farming contract
+   * that allows a user to add or update staking positions.
+   * @param lockConfig
+   * @returns
+   */
   async buildLockTx(lockConfig: LockConfig) {
     const txInstance = await this.newTxInstance();
     const {
@@ -149,43 +154,39 @@ export class TxBuilderLucid extends TxBuilder<
       ownerAddress,
     } = lockConfig.buildArgs();
 
+    const {
+      FREEZER_STAKE_KEYHASH,
+      FREEZER_PAYMENT_SCRIPTHASH,
+      FREEZER_REFERENCE_INPUT,
+    } = Utils.getParams(this.options.network);
     const datumBuilder = new DatumBuilderLucid(this.options.network);
-    const script = (
-      (await import(
-        "../../../../dist/contracts/freezer-plutus-generated.json"
-      )) as FreezerContract
-    ).validators?.[0]?.compiledCode;
-
-    if (!script) {
-      throw new Error("Missing validator for the Freezer Contract.");
-    }
-
-    const utxoInputs = await this.wallet?.provider.getUtxosByOutRef(
-      [...inputs, ...(existingPositions ?? [])]?.map(({ hash, index }) => ({
-        outputIndex: index,
-        txHash: hash,
-      }))
-    );
-
-    if (!utxoInputs?.length) {
-      throw new Error(
-        "Could not fetch valid UTXO data from Blockfrost based on new and existing positions."
-      );
-    }
-
-    const contractAddress = this.wallet?.utils.validatorToAddress({
-      type: "PlutusV2",
-      script,
-    });
-
-    if (!contractAddress) {
-      throw new Error("Could not generate a valid contract address.");
-    }
-
     const { cbor } = datumBuilder.buildLockDatum({
       address: ownerAddress,
       delegation,
     });
+
+    const [referenceInput, existingPositionData] = await Promise.all([
+      this.wallet?.provider.getUtxosByOutRef([
+        {
+          txHash: FREEZER_REFERENCE_INPUT.split("#")[0],
+          outputIndex: Number(FREEZER_REFERENCE_INPUT.split("#")[1]),
+        },
+      ]),
+      (() =>
+        existingPositions &&
+        this.wallet?.provider.getUtxosByOutRef(
+          existingPositions.map(({ hash, index }) => ({
+            outputIndex: index,
+            txHash: hash,
+          }))
+        ))(),
+    ]);
+
+    if (!referenceInput?.length) {
+      throw new Error(
+        "Could not fetch valid UTXO from Blockfrost based on the the Freezer's reference input. Please check the Utils class parameters."
+      );
+    }
 
     const payment: Assets = {
       lovelace: 5000000n, // a minimum of 5 ADA to hold assets.
@@ -196,17 +197,36 @@ export class TxBuilderLucid extends TxBuilder<
         payment.lovelace += amount;
       } else {
         if (!payment[metadata?.assetId]) {
-          payment[metadata?.assetId] = amount;
+          payment[metadata?.assetId?.replace(".", "")] = amount;
         } else {
-          payment[metadata?.assetId] += amount;
+          payment[metadata?.assetId?.replace(".", "")] += amount;
         }
       }
     });
 
+    const contractAddress = this.wallet?.utils.credentialToAddress(
+      {
+        hash: FREEZER_PAYMENT_SCRIPTHASH,
+        type: "Script",
+      },
+      {
+        hash: FREEZER_STAKE_KEYHASH,
+        type: "Key",
+      }
+    );
+
+    if (!contractAddress) {
+      throw new Error("Could not generate a valid contract address.");
+    }
+
     txInstance
       .get()
-      .collectFrom(utxoInputs)
+      .readFrom(referenceInput)
       .payToContract(contractAddress, cbor, payment);
+
+    if (existingPositionData) {
+      txInstance.get().collectFrom(existingPositionData);
+    }
 
     return this.completeTx(txInstance, cbor);
   }
@@ -504,11 +524,8 @@ export class TxBuilderLucid extends TxBuilder<
       ),
     };
 
-    // If the fee isn't set, we clone the transaction and complete it to get
-    // the estimated fee. We have to do this, or Lucid will discard WASM
-    // references and trying to complete the transaction later will break.
     const txFee = tx.get().txBuilder.get_fee_if_set();
-    const txClone = await new Transaction(tx.builder, tx).tx.get().complete();
+    const finishedTx = await tx.get().complete({ coinSelection });
 
     const thisTx = {
       tx,
@@ -516,13 +533,13 @@ export class TxBuilderLucid extends TxBuilder<
       fees: {
         ...baseFees,
         cardanoTxFee: new AssetAmount(
-          BigInt(txFee?.to_str() ?? txClone?.fee?.toString() ?? "0"),
+          BigInt(txFee?.to_str() ?? finishedTx?.fee?.toString() ?? "0"),
           ADA_ASSET_DECIMAL
         ),
       },
-      complete: async () => {
+      async complete() {
         if (sign) {
-          const finishedTx = await tx.get().complete({ coinSelection });
+          console.log(thisTx.tx.txComplete, coinSelection);
           const signedTx = await finishedTx.sign().complete();
           return {
             submit: async () => await signedTx.submit(),
@@ -536,12 +553,12 @@ export class TxBuilderLucid extends TxBuilder<
               "You must sign your transaction before submitting to a wallet!"
             );
           },
-          cbor: Buffer.from(txClone.txComplete.to_bytes()).toString("hex"),
+          cbor: Buffer.from(finishedTx.txComplete.to_bytes()).toString("hex"),
         };
       },
-      sign: function () {
+      sign() {
         sign = true;
-        return this;
+        return thisTx;
       },
     };
 

@@ -1,4 +1,9 @@
-import { DelegationMap, LockArguments, LockConfigArgs, UTXO } from "src/@types";
+import {
+  DelegationPrograms,
+  LockArguments,
+  LockConfigArgs,
+  UTXO,
+} from "src/@types";
 import { Config } from "../Abstracts/Config.abstract.class";
 import { AssetAmount } from "@sundaeswap/asset";
 
@@ -20,10 +25,12 @@ export class LockConfig extends Config<LockConfigArgs> {
     existingPositions,
     lockedValues,
     delegation,
+    ownerAddress,
   }: LockConfigArgs): void {
     this.setInputs(inputs);
     this.setLockedValues(lockedValues);
     this.setDelegation(delegation);
+    this.setOwnerAddress(ownerAddress);
     existingPositions && this.setExistingPositions(existingPositions);
   }
 
@@ -65,12 +72,6 @@ export class LockConfig extends Config<LockConfigArgs> {
   }
 
   validate(): void {
-    if (!this.inputs?.length) {
-      throw new Error(
-        "You did not provide any input UTXO's to pull values from. Please set your inputs with .setInputs()"
-      );
-    }
-
     if (!this.lockedValues?.length) {
       throw new Error(
         "You did not provide any values to lock. Please set your locked values with .setLockedValues()"
@@ -78,7 +79,8 @@ export class LockConfig extends Config<LockConfigArgs> {
     }
 
     if (
-      this.lockedValues.filter((val) => val! instanceof AssetAmount)?.length > 0
+      this.lockedValues.filter((val) => !(val instanceof AssetAmount))?.length >
+      0
     ) {
       throw new Error(
         "One or more of your locked values is not of type AssetAmount. Please check your lockedValues and try setting them again with .setLockedValues()"

@@ -1,10 +1,4 @@
-import {
-  Data,
-  Constr,
-  getAddressDetails,
-  C,
-  AddressDetails,
-} from "lucid-cardano";
+import { Data, Constr, C } from "lucid-cardano";
 import { AssetAmount } from "@sundaeswap/asset";
 
 import {
@@ -22,6 +16,7 @@ import {
   ZapArguments,
 } from "../../../@types";
 import { DatumBuilder } from "../../Abstracts/DatumBuilder.abstract.class";
+import { LucidHelper } from "../LucidHelper.class";
 
 /**
  * The Lucid implementation of a {@link Core.DatumBuilder}. This is useful
@@ -58,14 +53,15 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
    * native Cardano assets.
    */
   buildLockDatum({ address, delegation }: LockArguments): DatumResult<Data> {
-    const addressDetails = this._getAddressHashes(address);
+    LucidHelper.validateAddressNetwork(address, this.network);
+    const addressDetails = LucidHelper.getAddressHashes(address);
     const delegationData: Data = [];
     delegation.forEach((programMap, program) => {
       programMap.forEach((weight, pool) => {
         delegationData.push(
           new Constr(1, [
-            program,
-            Buffer.from(pool).toString("hex"),
+            Buffer.from(program).toString("hex"),
+            pool,
             BigInt(weight),
           ])
         );
@@ -279,20 +275,29 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
    * @returns
    */
   buildOrderAddresses(addresses: OrderAddresses) {
-    this._validateAddressesAreValid(addresses);
+    LucidHelper.validateAddressAndDatumAreValid({
+      address: addresses.DestinationAddress.address,
+      datum: addresses.DestinationAddress?.datumHash,
+      network: this.network,
+    });
     const { DestinationAddress, AlternateAddress } = addresses;
-    const destination = this._getAddressHashes(DestinationAddress.address);
+    const destination = LucidHelper.getAddressHashes(
+      DestinationAddress.address
+    );
 
     const destinationDatum = new Constr(0, [
       new Constr(0, [
-        new Constr(this._isScriptAddress(DestinationAddress.address) ? 1 : 0, [
-          destination.paymentCredentials,
-        ]),
+        new Constr(
+          LucidHelper.isScriptAddress(DestinationAddress.address) ? 1 : 0,
+          [destination.paymentCredentials]
+        ),
         destination?.stakeCredentials
           ? new Constr(0, [
               new Constr(0, [
                 new Constr(
-                  this._isScriptAddress(DestinationAddress.address) ? 1 : 0,
+                  LucidHelper.isScriptAddress(DestinationAddress.address)
+                    ? 1
+                    : 0,
                   [destination?.stakeCredentials]
                 ),
               ]),
@@ -305,7 +310,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
     ]);
 
     const alternate =
-      AlternateAddress && this._getAddressHashes(AlternateAddress);
+      AlternateAddress && LucidHelper.getAddressHashes(AlternateAddress);
     const alternateDatum = new Constr(
       alternate ? 0 : 1,
       alternate ? [alternate.paymentCredentials] : []
@@ -320,144 +325,5 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
       )?.to_hex(),
       datum,
     };
-  }
-
-  /**
-   * Helper function to parse addresses hashses from a Bech32 or hex encoded address.
-   * @param address
-   * @returns
-   */
-  private _getAddressHashes(address: string): {
-    paymentCredentials: string;
-    stakeCredentials?: string;
-  } {
-    const details = getAddressDetails(address);
-
-    if (!details.paymentCredential) {
-      throw new Error(
-        "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key."
-      );
-    }
-
-    return {
-      paymentCredentials: details.paymentCredential.hash,
-      stakeCredentials: details.stakeCredential?.hash,
-    };
-  }
-
-  /**
-   * Validates the {@link Core.OrderAddresses} arguments as being valid Cardano address strings
-   * and that they are on the correct network.
-   */
-  private _validateAddressesAreValid(orderAddresses: OrderAddresses) {
-    this._validateAddressNetwork(orderAddresses);
-
-    const address = orderAddresses.DestinationAddress.address;
-    const datumHash = orderAddresses.DestinationAddress.datumHash;
-
-    const isScript = this._isScriptAddress(address);
-    if (isScript) {
-      if (datumHash) {
-        try {
-          C.DataHash.from_hex(datumHash);
-        } catch (e) {
-          DatumBuilder.throwInvalidOrderAddressesError(
-            orderAddresses,
-            `The datumHash provided was not a valid hex string. Original error: ${JSON.stringify(
-              {
-                datumHash,
-                originalErrorMessage: (e as Error).message,
-              }
-            )}`
-          );
-        }
-      } else {
-        DatumBuilder.throwInvalidOrderAddressesError(
-          orderAddresses,
-          `The DestinationAddress is a Script Address, a Datum hash was not supplied. This will brick your funds! Supply a valid DatumHash with your DestinationAddress to proceed.`
-        );
-      }
-    }
-  }
-
-  /**
-   * Helper function to check if an address is a string.
-   * @param address The Bech32 encoded address.
-   * @returns
-   */
-  private _isScriptAddress(address: string): boolean {
-    // Ensure that the address can be serialized.
-    const realAddress = C.Address.from_bech32(address);
-
-    // Ensure the datumHash is valid HEX if the address is a script.
-    const isScript = (realAddress.to_bytes()[0] & 0b00010000) !== 0;
-
-    return isScript;
-  }
-
-  /**
-   * Validates that the {@link Core.OrderAddresses} provided match the instance's network.
-   */
-  private _validateAddressNetwork(
-    orderAddresses: OrderAddresses
-  ): void | never {
-    const destination = orderAddresses.DestinationAddress.address;
-    const alternate = orderAddresses.AlternateAddress;
-
-    let destinationDetails: AddressDetails;
-    let alternateDetails: AddressDetails | undefined;
-    try {
-      destinationDetails = getAddressDetails(destination);
-      if (alternate) {
-        alternateDetails = getAddressDetails(alternate);
-      }
-    } catch (e) {
-      DatumBuilder.throwInvalidOrderAddressesError(
-        orderAddresses,
-        (e as Error).message
-      );
-    }
-
-    // Validate DestinationAddress
-    this._maybeThrowDestinationNetworkError(
-      destinationDetails.networkId,
-      destination,
-      orderAddresses
-    );
-
-    // Validate AlternateAddress
-    if (alternate && alternateDetails) {
-      this._maybeThrowDestinationNetworkError(
-        alternateDetails.networkId,
-        alternate,
-        orderAddresses
-      );
-    }
-  }
-
-  /**
-   * Throws an error if either of the OrderAddresses are on the wrong network.
-   * @param addressNetwork
-   * @param address
-   * @param orderAddresses
-   */
-  private _maybeThrowDestinationNetworkError(
-    addressNetwork: number,
-    address: string,
-    orderAddresses: OrderAddresses
-  ): never | void {
-    if (addressNetwork !== 1 && this.network === "mainnet") {
-      DatumBuilder.throwInvalidOrderAddressesError(
-        orderAddresses,
-        `The given address is not a Mainnet Network address: ${address}.`
-      );
-    }
-
-    if (addressNetwork !== 0 && this.network === "preview") {
-      DatumBuilder.throwInvalidOrderAddressesError(
-        orderAddresses,
-        `The given address is not a (Preview/Testnet/PreProd) Network address: ${address}.`
-      );
-    }
   }
 }
