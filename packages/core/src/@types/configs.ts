@@ -51,3 +51,13 @@ export interface ZapConfigArgs extends OrderConfigArgs {
 export interface WithdrawConfigArgs extends OrderConfigArgs {
   suppliedLPAsset: IAsset;
 }
+
+export type DelegationMap = Map<string, Map<string, number>>;
+
+export interface LockConfigArgs {
+  inputs: UTXO[];
+  existingPositions?: UTXO[];
+  lockedValues: AssetAmount<IAsset & { decimals: number }>[];
+  delegation: DelegationMap;
+  ownerAddress: string;
+}

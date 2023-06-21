@@ -1,16 +1,15 @@
 import {
   DepositConfigArgs,
   IAsset,
-  IDepositArgs,
   IPoolData,
   OrderAddresses,
 } from "../../@types";
-import { Config } from "../Abstracts/Config.abstract.class";
+import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 
 /**
  * The main config class for building valid arguments for a Deposit.
  */
-export class DepositConfig extends Config<IDepositArgs> {
+export class DepositConfig extends OrderConfig<DepositConfigArgs> {
   suppliedAssets?: [IAsset, IAsset];
 
   constructor(args?: DepositConfigArgs) {
@@ -24,7 +23,7 @@ export class DepositConfig extends Config<IDepositArgs> {
     return this;
   }
 
-  buildArgs(): IDepositArgs {
+  buildArgs(): DepositConfigArgs {
     this.validate();
 
     return {

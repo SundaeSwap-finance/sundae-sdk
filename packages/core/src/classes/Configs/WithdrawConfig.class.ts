@@ -2,10 +2,9 @@ import {
   WithdrawConfigArgs,
   IAsset,
   IPoolData,
-  IWithdrawArgs,
   OrderAddresses,
 } from "../../@types";
-import { Config } from "../Abstracts/Config.abstract.class";
+import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 
 /**
  * The `WithdrawConfig` class helps to properly format your withdraw arguments for use within {@link TxBuilder.buildWithdrawTx | TxBuilder.buildWithdrawTx}.
@@ -30,7 +29,7 @@ import { Config } from "../Abstracts/Config.abstract.class";
  *
  * @see {@link SundaeSDK.withdraw}
  */
-export class WithdrawConfig extends Config {
+export class WithdrawConfig extends OrderConfig<WithdrawConfigArgs> {
   suppliedLPAsset?: IAsset;
 
   constructor(args?: WithdrawConfigArgs) {
@@ -66,7 +65,7 @@ export class WithdrawConfig extends Config {
    * Build a valid arguments object for a TxBuilder withdraw method.
    * @returns
    */
-  buildArgs(): IWithdrawArgs {
+  buildArgs(): WithdrawConfigArgs {
     return {
       pool: this.pool as IPoolData,
       orderAddresses: this.orderAddresses as OrderAddresses,

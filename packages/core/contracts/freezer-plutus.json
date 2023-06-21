@@ -1,0 +1,152 @@
+{
+  "preamble": {
+    "title": "SundaeSwap-finance/freezer",
+    "description": "Aiken contracts for Sundae Yield Farming",
+    "version": "0.0.0",
+    "plutusVersion": "v2",
+    "license": "Apache-2.0"
+  },
+  "validators": [
+    {
+      "title": "freezer.stake",
+      "datum": {
+        "title": "datum",
+        "schema": {
+          "$ref": "#/definitions/freezer~1StakeDatum"
+        }
+      },
+      "redeemer": {
+        "title": "_r",
+        "schema": {
+          "$ref": "#/definitions/Void"
+        }
+      },
+      "compiledCode": "5905df0100003232323232323232323232222325333009333323232323232323232300100122223253330163370e900000089919198070028009bae301c0013014004153330163370e90010008991919806000919998040040008030029bac301c0013014004153330163370e90020008991919804000919998040040008030029bac301c0013014004153330163370e900300089919191919b8900333300c00148000894ccc070cccc02c02c0080240204cdc0000a400420026eb0c078004c078008dd6980e000980a0020a99980b19b87480200044c8c8c8c94ccc068cdc3a400400226464a66603866e1d2002301e3754660306034660306034010900124004266e240040144cdc40008029bad3020001301800214a0603000266028602c66028602c0089001240006eb4c070004c0500104c8c8c8c94ccc068cdc3a400400226464a66603866e1d2002301e3754660306034660306034010900024004266e240140044cdc40028009bad3020001301800214a0603000266028602c66028602c0089000240006eb4c070004c050010c05000cc0040048894ccc05800852809919299980a18018010a51133300500500100330190033017002300100122225333015003100213232333300600600133003002004003301800430160033001001222533301200214a226464a6660206006004266600a00a0020062940c05400cc04c008c0040048894ccc04000852809919299980719b8f00200314a2266600a00a00200660260066eb8c044008cc014c01c005200037586600a600e6600a600e0049000240206600a600e6600a600e00490002401c2930b19002199191919119299980719b87480000044c8c8c8c94ccc058c0600084c926300700315330134901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016301600130160023014001300c002153300f4912b436f6e73747220696e64657820646964206e6f74206d6174636820616e7920747970652076617269616e740016300c00130010012232533300d3370e9000000899192999809980a8010a4c2a66020921334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016375c602600260160042a66601a66e1d20020011323253330133015002132498cc0180048c9263300600600115330104901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e20657870656374656400163758602600260160042a66601a66e1d20040011323253330133015002132498cc0180048c9263300600600115330104901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e20657870656374656400163758602600260160042a66601a66e1d200600113232323253330153017002132498cc0200048c9263300800800115330124901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e20657870656374656400163758602a002602a0046eb4c04c004c02c00854ccc034cdc3a401000226464a666026602a0042930a99808249334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016375a602600260160042a66601a66e1d200a0011323253330133015002149854cc0412401334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016375a602600260160042a6601c9212b436f6e73747220696e64657820646964206e6f74206d6174636820616e7920747970652076617269616e740016300b0013001001222533300f00214984c8ccc010010c04800c008c004c04000800ccc0040052000222233330073370e0020060184666600a00a66e000112002300e001002002230063754002460086ea80055cd2b9c5573aaae7955cfaba157441",
+      "hash": "73275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c"
+    }
+  ],
+  "definitions": {
+    "ByteArray": {
+      "dataType": "bytes"
+    },
+    "Data": {
+      "title": "Data",
+      "description": "Any Plutus data."
+    },
+    "Int": {
+      "dataType": "integer"
+    },
+    "List$sundae/multisig/MultisigScript": {
+      "dataType": "list",
+      "items": {
+        "$ref": "#/definitions/sundae~1multisig~1MultisigScript"
+      }
+    },
+    "Void": {
+      "title": "Unit",
+      "description": "The nullary constructor.",
+      "anyOf": [
+        {
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        }
+      ]
+    },
+    "freezer/StakeDatum": {
+      "title": "StakeDatum",
+      "anyOf": [
+        {
+          "title": "StakeDatum",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "owner",
+              "$ref": "#/definitions/sundae~1multisig~1MultisigScript"
+            },
+            {
+              "title": "data",
+              "$ref": "#/definitions/Data"
+            }
+          ]
+        }
+      ]
+    },
+    "sundae/multisig/MultisigScript": {
+      "title": "MultisigScript",
+      "anyOf": [
+        {
+          "title": "Signature",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "key_hash",
+              "$ref": "#/definitions/ByteArray"
+            }
+          ]
+        },
+        {
+          "title": "AllOf",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": [
+            {
+              "title": "scripts",
+              "$ref": "#/definitions/List$sundae~1multisig~1MultisigScript"
+            }
+          ]
+        },
+        {
+          "title": "AnyOf",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": [
+            {
+              "title": "scripts",
+              "$ref": "#/definitions/List$sundae~1multisig~1MultisigScript"
+            }
+          ]
+        },
+        {
+          "title": "AtLeast",
+          "dataType": "constructor",
+          "index": 3,
+          "fields": [
+            {
+              "title": "required",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "scripts",
+              "$ref": "#/definitions/List$sundae~1multisig~1MultisigScript"
+            }
+          ]
+        },
+        {
+          "title": "Before",
+          "dataType": "constructor",
+          "index": 4,
+          "fields": [
+            {
+              "title": "time",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        },
+        {
+          "title": "After",
+          "dataType": "constructor",
+          "index": 5,
+          "fields": [
+            {
+              "title": "time",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -138,7 +138,7 @@ export interface ZapArguments extends Arguments {
  */
 export interface LockArguments {
   address: string;
-  delegations: Map<string, Map<string, number>>;
+  delegation: Map<string, Map<string, number>>;
 }
 
 /**

@@ -6,6 +6,7 @@ import type {
   ZapConfigArgs,
   IQueryProviderClass,
   SDKZapArgs,
+  LockConfigArgs,
 } from "../@types";
 import { AssetAmount } from "@sundaeswap/asset";
 import { SwapConfig } from "./Configs/SwapConfig.class";
@@ -15,6 +16,7 @@ import { DepositConfig } from "./Configs/DepositConfig.class";
 import { WithdrawConfig } from "./Configs/WithdrawConfig.class";
 import { ZapConfig } from "./Configs/ZapConfig.class";
 import { CancelConfig } from "./Configs/CancelConfig.class";
+import { LockConfig } from "./Configs/LockConfig.class";
 
 /**
  * A description for the SundaeSDK class.
@@ -111,7 +113,7 @@ export class SundaeSDK {
         slippage ?? 0.1
       )
     );
-    return await this.builder.buildSwapTx(swap.buildArgs());
+    return await this.builder.buildSwapTx(swap);
   }
 
   /**
@@ -144,10 +146,13 @@ export class SundaeSDK {
    * @param minReceivable
    * @returns
    */
-  async limitSwap(config: SwapConfigArgs, minReceivable: AssetAmount) {
+  async limitSwap(
+    config: Omit<SwapConfigArgs, "minReceivable">,
+    minReceivable: AssetAmount
+  ) {
     const swap = new SwapConfig(config);
     swap.setMinReceivable(minReceivable);
-    return await this.builder.buildSwapTx(swap.buildArgs());
+    return await this.builder.buildSwapTx(swap);
   }
 
   /**
@@ -156,27 +161,16 @@ export class SundaeSDK {
    * @param swapConfigArgs
    * @returns
    */
-  async updateSwap(
-    cancelConfigArgs: CancelConfigArgs,
-    swapConfigArgs: SwapConfigArgs
-  ) {
-    if (swapConfigArgs?.slippage) {
-      swapConfigArgs.minReceivable = Utils.getMinReceivableFromSlippage(
-        swapConfigArgs.pool,
-        swapConfigArgs.suppliedAsset,
-        swapConfigArgs.slippage
-      );
-    }
-
-    if (!swapConfigArgs?.minReceivable) {
+  async updateSwap(cancelConfig: CancelConfig, swapConfig: SwapConfig) {
+    if (swapConfig?.minReceivable === undefined) {
       throw new Error(
         "A swap order update requires either a slippage or a minReceivable to be set in the new config."
       );
     }
 
     return await this.builder.buildUpdateSwapTx({
-      cancelConfigArgs,
-      swapConfigArgs,
+      cancelConfig,
+      swapConfig,
     });
   }
 
@@ -185,9 +179,10 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async withdraw(config: WithdrawConfigArgs) {
-    const withdraw = new WithdrawConfig(config);
-    return await this.builder.buildWithdrawTx(withdraw.buildArgs());
+  async withdraw(config: WithdrawConfigArgs | WithdrawConfig) {
+    const withdraw =
+      config instanceof WithdrawConfig ? config : new WithdrawConfig(config);
+    return await this.builder.buildWithdrawTx(withdraw);
   }
 
   /**
@@ -195,9 +190,10 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async deposit(config: DepositConfigArgs) {
-    const deposit = new DepositConfig(config);
-    return await this.builder.buildDepositTx(deposit.buildArgs());
+  async deposit(config: DepositConfigArgs | DepositConfig) {
+    const deposit =
+      config instanceof DepositConfig ? config : new DepositConfig(config);
+    return await this.builder.buildDepositTx(deposit);
   }
 
   /**
@@ -205,9 +201,10 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async cancel(config: CancelConfigArgs) {
-    const cancellation = new CancelConfig(config);
-    return await this.builder.buildCancelTx(cancellation.buildArgs());
+  async cancel(config: CancelConfigArgs | CancelConfig) {
+    const cancellation =
+      config instanceof CancelConfig ? config : new CancelConfig(config);
+    return await this.builder.buildCancelTx(cancellation);
   }
 
   /**
@@ -215,35 +212,52 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async zap(config: Omit<ZapConfigArgs, "zapDirection">) {
-    const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
-      config.pool.assetA,
-      config.pool.assetB,
-    ]);
+  async zap(config: Omit<ZapConfigArgs, "zapDirection"> | ZapConfig) {
+    let zap: ZapConfig;
+    if (config instanceof ZapConfig) {
+      zap = config;
+    } else {
+      const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
+        config.pool.assetA,
+        config.pool.assetB,
+      ]);
 
-    const zap = new ZapConfig({
-      ...config,
-      zapDirection,
-    });
+      zap = new ZapConfig({
+        ...config,
+        zapDirection,
+      });
+    }
 
-    return await this.builder.buildChainedZapTx(zap.buildArgs());
+    return await this.builder.buildChainedZapTx(zap);
+  }
+
+  async lock(config: LockConfigArgs | LockConfig) {
+    const lock = config instanceof LockConfig ? config : new LockConfig(config);
+    return await this.builder.buildLockTx(lock);
   }
 
   /**
-   * Create a Deposit transaction for a pool by supplying a single asset.
+   * Creates an atomic swap with a single asset and a pool.
+   * This is experimental and currently not supported by Cardano parameter limits.
    * @param config
    * @returns
    */
   async unstable_zap(config: SDKZapArgs) {
-    const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
-      config.pool.assetA,
-      config.pool.assetB,
-    ]);
-    console.log(zapDirection);
-    const zap = new ZapConfig({
-      ...config,
-      zapDirection,
-    });
-    return await this.builder.buildAtomicZapTx(zap.buildArgs());
+    let zap: ZapConfig;
+    if (config instanceof ZapConfig) {
+      zap = config;
+    } else {
+      const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
+        config.pool.assetA,
+        config.pool.assetB,
+      ]);
+
+      zap = new ZapConfig({
+        ...config,
+        zapDirection,
+      });
+    }
+
+    return await this.builder.buildAtomicZapTx(zap);
   }
 }

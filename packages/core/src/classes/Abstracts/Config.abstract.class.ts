@@ -1,47 +1,31 @@
-import { IPoolData, OrderAddresses } from "../../@types";
-
+/**
+ * The Config class represents a base configuration for all SDK methods.
+ * It is meant to be extended by more specific configuration classes.
+ * @template Args The type of the arguments object, defaulting to an empty object.
+ */
 export abstract class Config<Args = {}> {
-  pool?: IPoolData;
-  orderAddresses?: OrderAddresses;
-
-  constructor() {}
-
   /**
-   * Builds the {@link OrderAddresses} for a swap's required datum.
-   * @param orderAddresses
-   * @returns
+   * An abstract method to set the configuration from an object.
+   * Implementations should take an object and use it to set their own properties.
+   * @abstract
+   * @param {Object} obj - The object from which to set the configuration.
    */
-  setOrderAddresses(orderAddresses: OrderAddresses) {
-    this.orderAddresses = orderAddresses;
-    return this;
-  }
-
-  /**
-   * Set the pool data directly for the swap you use.
-   *
-   * @param pool
-   * @returns
-   */
-  setPool(pool: IPoolData) {
-    this.pool = pool;
-    return this;
-  }
-
   abstract setFromObject(obj: {}): void;
 
-  abstract buildArgs(args: Args): Args;
+  /**
+   * An abstract method to build the arguments for the configuration.
+   * Implementations should take an object of arguments and return a potentially modified version of it.
+   * @abstract
+   * @throws {Error} If validation fails.
+   * @returns {Args} The potentially modified arguments.
+   */
+  abstract buildArgs(): Args | never;
 
-  validate(): void | never {
-    if (!this.pool) {
-      throw new Error(
-        "You haven't set a pool in your Config. Set a pool with .setPool()"
-      );
-    }
-
-    if (!this.orderAddresses) {
-      throw new Error(
-        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
-      );
-    }
-  }
+  /**
+   * An abstract method to validate the current configuration.
+   * Implementations should check their properties and throw errors if they are invalid.
+   * @abstract
+   * @throws {Error} If the configuration is invalid.
+   */
+  abstract validate(): void | never;
 }

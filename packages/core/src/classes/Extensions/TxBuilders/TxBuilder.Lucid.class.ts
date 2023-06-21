@@ -8,8 +8,10 @@ import {
   C,
   getAddressDetails,
   Datum,
+  Assets,
 } from "lucid-cardano";
 import { Transaction } from "../../../classes/Transaction.class";
+import { AssetAmount } from "@sundaeswap/asset";
 
 import {
   IQueryProviderClass,
@@ -17,19 +19,20 @@ import {
   ITxBuilderBaseOptions,
   IAsset,
   ITxBuilderTx,
-  IZapArgs,
-  SwapConfigArgs,
-  DepositConfigArgs,
-  WithdrawConfigArgs,
-  CancelConfigArgs,
   ITxBuilderFees,
   DepositMixed,
 } from "../../../@types";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
 import { DatumBuilderLucid } from "../DatumBuilders/DatumBuilder.Lucid.class";
-import { ADA_ASSET_DECIMAL } from "../../../lib/constants";
-import { AssetAmount } from "@sundaeswap/asset";
+import { ADA_ASSET_DECIMAL, ADA_ASSET_ID } from "../../../lib/constants";
+import { SwapConfig } from "src/classes/Configs/SwapConfig.class";
+import { CancelConfig } from "src/classes/Configs/CancelConfig.class";
+import { ZapConfig } from "src/classes/Configs/ZapConfig.class";
+import { WithdrawConfig } from "src/classes/Configs/WithdrawConfig.class";
+import { DepositConfig } from "src/classes/Configs/DepositConfig.class";
+import { LockConfig } from "src/classes/Configs/LockConfig.class";
+import { FreezerContract } from "src/@types/contracts";
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -136,14 +139,86 @@ export class TxBuilderLucid extends TxBuilder<
     return new Transaction<Tx>(this, this.wallet.newTx());
   }
 
-  async buildSwapTx(args: SwapConfigArgs) {
+  async buildLockTx(lockConfig: LockConfig) {
+    const txInstance = await this.newTxInstance();
+    const {
+      inputs,
+      existingPositions,
+      lockedValues,
+      delegation,
+      ownerAddress,
+    } = lockConfig.buildArgs();
+
+    const datumBuilder = new DatumBuilderLucid(this.options.network);
+    const script = (
+      (await import(
+        "../../../../dist/contracts/freezer-plutus-generated.json"
+      )) as FreezerContract
+    ).validators?.[0]?.compiledCode;
+
+    if (!script) {
+      throw new Error("Missing validator for the Freezer Contract.");
+    }
+
+    const utxoInputs = await this.wallet?.provider.getUtxosByOutRef(
+      [...inputs, ...(existingPositions ?? [])]?.map(({ hash, index }) => ({
+        outputIndex: index,
+        txHash: hash,
+      }))
+    );
+
+    if (!utxoInputs?.length) {
+      throw new Error(
+        "Could not fetch valid UTXO data from Blockfrost based on new and existing positions."
+      );
+    }
+
+    const contractAddress = this.wallet?.utils.validatorToAddress({
+      type: "PlutusV2",
+      script,
+    });
+
+    if (!contractAddress) {
+      throw new Error("Could not generate a valid contract address.");
+    }
+
+    const { cbor } = datumBuilder.buildLockDatum({
+      address: ownerAddress,
+      delegation,
+    });
+
+    const payment: Assets = {
+      lovelace: 5000000n, // a minimum of 5 ADA to hold assets.
+    };
+
+    lockedValues.forEach(({ amount, metadata }) => {
+      if (metadata?.assetId === ADA_ASSET_ID) {
+        payment.lovelace += amount;
+      } else {
+        if (!payment[metadata?.assetId]) {
+          payment[metadata?.assetId] = amount;
+        } else {
+          payment[metadata?.assetId] += amount;
+        }
+      }
+    });
+
+    txInstance
+      .get()
+      .collectFrom(utxoInputs)
+      .payToContract(contractAddress, cbor, payment);
+
+    return this.completeTx(txInstance, cbor);
+  }
+
+  async buildSwapTx(swapConfig: SwapConfig) {
     const txInstance = await this.newTxInstance();
     const {
       pool: { ident, assetA, assetB },
       orderAddresses,
       suppliedAsset,
       minReceivable,
-    } = args;
+    } = swapConfig.buildArgs();
 
     const { ESCROW_ADDRESS } = this.getParams();
 
@@ -175,18 +250,20 @@ export class TxBuilderLucid extends TxBuilder<
    * with an updated swap datum.
    */
   async buildUpdateSwapTx({
-    cancelConfigArgs,
-    swapConfigArgs,
+    cancelConfig,
+    swapConfig,
   }: {
-    cancelConfigArgs: CancelConfigArgs;
-    swapConfigArgs: SwapConfigArgs;
+    cancelConfig: CancelConfig;
+    swapConfig: SwapConfig;
   }) {
-    const { tx: cancelTx } = await this.buildCancelTx(cancelConfigArgs);
-    const { datum } = await this.buildSwapTx(swapConfigArgs);
+    const { tx: cancelTx } = await this.buildCancelTx(cancelConfig);
+    const { datum } = await this.buildSwapTx(swapConfig);
     const { ESCROW_ADDRESS } = this.getParams();
 
+    const { suppliedAsset } = swapConfig.buildArgs();
+
     const payment = Utils.accumulateSuppliedAssets(
-      [swapConfigArgs.suppliedAsset],
+      [suppliedAsset],
       this.options.network
     );
 
@@ -198,18 +275,19 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx(cancelTx, datum);
   }
 
-  async buildDepositTx(args: DepositConfigArgs) {
+  async buildDepositTx(depositConfig: DepositConfig) {
     const tx = await this.newTxInstance();
+    const { suppliedAssets, pool, orderAddresses } = depositConfig.buildArgs();
     const payment = Utils.accumulateSuppliedAssets(
-      args.suppliedAssets,
+      suppliedAssets,
       this.options.network
     );
     const datumBuilder = new DatumBuilderLucid(this.options.network);
-    const [coinA, coinB] = Utils.sortSwapAssets(args.suppliedAssets);
+    const [coinA, coinB] = Utils.sortSwapAssets(suppliedAssets);
 
     const { cbor } = datumBuilder.buildDepositDatum({
-      ident: args.pool.ident,
-      orderAddresses: args.orderAddresses,
+      ident: pool.ident,
+      orderAddresses: orderAddresses,
       deposit: {
         CoinAAmount: (coinA as IAsset).amount,
         CoinBAmount: (coinB as IAsset).amount,
@@ -220,26 +298,29 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx(tx, cbor);
   }
 
-  async buildWithdrawTx(args: WithdrawConfigArgs): Promise<ITxBuilderTx> {
+  async buildWithdrawTx(withdrawConfig: WithdrawConfig): Promise<ITxBuilderTx> {
     const tx = await this.newTxInstance();
+    const { suppliedLPAsset, pool, orderAddresses } =
+      withdrawConfig.buildArgs();
     const payment = Utils.accumulateSuppliedAssets(
-      [args.suppliedLPAsset],
+      [suppliedLPAsset],
       this.options.network
     );
     const datumBuilder = new DatumBuilderLucid(this.options.network);
 
     const { cbor } = datumBuilder.buildWithdrawDatum({
-      ident: args.pool.ident,
-      orderAddresses: args.orderAddresses,
-      suppliedLPAsset: args.suppliedLPAsset,
+      ident: pool.ident,
+      orderAddresses: orderAddresses,
+      suppliedLPAsset: suppliedLPAsset,
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
     return this.completeTx(tx, cbor);
   }
 
-  async buildCancelTx({ datum, datumHash, utxo, address }: CancelConfigArgs) {
+  async buildCancelTx(cancelConfig: CancelConfig) {
     const tx = await this.newTxInstance();
+    const { datum, datumHash, utxo, address } = cancelConfig.buildArgs();
 
     const plutusData = C.PlutusData.from_bytes(Buffer.from(datum, "hex"));
     const calculatedDatumHash = C.hash_plutus_data(plutusData).to_hex();
@@ -288,11 +369,8 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx(tx, utxoToSpend[0]?.datum as string);
   }
 
-  async buildChainedZapTx({
-    pool,
-    suppliedAsset,
-    orderAddresses,
-  }: IZapArgs): Promise<ITxBuilderTx> {
+  async buildChainedZapTx(zapConfig: ZapConfig): Promise<ITxBuilderTx> {
+    const { pool, suppliedAsset, orderAddresses } = zapConfig.buildArgs();
     const tx = await this.newTxInstance();
     const { ESCROW_ADDRESS, SCOOPER_FEE } = this.getParams();
     const payment = Utils.accumulateSuppliedAssets(
@@ -389,20 +467,22 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx(tx, swapData.cbor);
   }
 
-  async buildAtomicZapTx(args: IZapArgs): Promise<ITxBuilderTx> {
+  async buildAtomicZapTx(zapConfig: ZapConfig): Promise<ITxBuilderTx> {
     const tx = await this.newTxInstance();
+    const { suppliedAsset, pool, orderAddresses, zapDirection } =
+      zapConfig.buildArgs();
     const payment = Utils.accumulateSuppliedAssets(
-      [args.suppliedAsset],
+      [suppliedAsset],
       this.options.network
     );
     const datumBuilder = new DatumBuilderLucid(this.options.network);
 
     const { cbor } = datumBuilder.buildZapDatum({
-      ident: args.pool.ident,
-      orderAddresses: args.orderAddresses,
+      ident: pool.ident,
+      orderAddresses: orderAddresses,
       zap: {
-        CoinAmount: args.suppliedAsset.amount,
-        ZapDirection: args.zapDirection,
+        CoinAmount: suppliedAsset.amount,
+        ZapDirection: zapDirection,
       },
     });
 

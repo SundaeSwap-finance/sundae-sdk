@@ -5,7 +5,7 @@ import {
   OrderAddresses,
 } from "../../@types";
 import { AssetAmount } from "@sundaeswap/asset";
-import { Config } from "../Abstracts/Config.abstract.class";
+import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 import { Utils } from "../Utils.class";
 
 /**
@@ -31,7 +31,7 @@ import { Utils } from "../Utils.class";
  *
  * @see {@link SundaeSDK.swap}
  */
-export class SwapConfig extends Config<SwapConfigArgs> {
+export class SwapConfig extends OrderConfig<SwapConfigArgs> {
   suppliedAsset?: IAsset;
   minReceivable?: AssetAmount;
 

@@ -57,15 +57,15 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
    * Builds the datum for asset locking, including LP tokens and other
    * native Cardano assets.
    */
-  buildLockDatum({ address, delegations }: LockArguments): DatumResult<Data> {
+  buildLockDatum({ address, delegation }: LockArguments): DatumResult<Data> {
     const addressDetails = this._getAddressHashes(address);
-    const delegationsData: Data = [];
-    delegations.forEach((programMap, program) => {
+    const delegationData: Data = [];
+    delegation.forEach((programMap, program) => {
       programMap.forEach((weight, pool) => {
-        delegationsData.push(
+        delegationData.push(
           new Constr(1, [
-            Buffer.from(pool).toString("hex"),
             program,
+            Buffer.from(pool).toString("hex"),
             BigInt(weight),
           ])
         );
@@ -78,7 +78,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
 
     const datum = new Constr(0, [
       owner,
-      delegationsData?.length > 0 ? delegationsData : new Constr(0, []),
+      delegationData?.length > 0 ? delegationData : new Constr(0, []),
     ]);
     return {
       cbor: Data.to(datum),

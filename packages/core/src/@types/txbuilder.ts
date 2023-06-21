@@ -1,12 +1,4 @@
-import {
-  TSupportedNetworks,
-  TSupportedWallets,
-  IPoolData,
-  IAsset,
-  OrderAddresses,
-  PoolCoin,
-  UTXO,
-} from ".";
+import { TSupportedNetworks, TSupportedWallets } from ".";
 import { AssetAmount } from "@sundaeswap/asset";
 
 /**
@@ -52,58 +44,58 @@ export interface ITxBuilderBaseOptions {
   network: TSupportedNetworks;
 }
 
-export interface LockArgs {
-  inputs: UTXO[];
-  existingUtxos?: UTXO[];
-  lockedValues: AssetAmount[];
-  delegation: Record<string, Record<string, number>>;
-}
+// export interface LockArgs {
+//   inputs: UTXO[];
+//   existingPositions?: UTXO[];
+//   lockedValues: AssetAmount[];
+//   delegation: Record<string, Record<string, number>>;
+// }
 
-/**
- * The minimum requirements for an order.
- */
-export interface IOrderArgs {
-  pool: IPoolData;
-}
+// /**
+//  * The minimum requirements for an order.
+//  */
+// export interface IOrderArgs {
+//   pool: IPoolData;
+// }
 
-/**
- * The minimum requirements for a Swap order.
- */
-export interface ISwapArgs extends IOrderArgs {
-  orderAddresses: OrderAddresses;
-  suppliedAsset: IAsset;
-  minReceivable: AssetAmount;
-}
+// /**
+//  * The minimum requirements for a Swap order.
+//  */
+// export interface ISwapArgs extends IOrderArgs {
+//   orderAddresses: OrderAddresses;
+//   suppliedAsset: IAsset;
+//   minReceivable: AssetAmount;
+// }
 
-/**
- * The minimum requirements for a Deposit order.
- */
-export interface IDepositArgs extends IOrderArgs {
-  orderAddresses: OrderAddresses;
-  suppliedAssets: [IAsset, IAsset];
-}
+// /**
+//  * The minimum requirements for a Deposit order.
+//  */
+// export interface IDepositArgs extends IOrderArgs {
+//   orderAddresses: OrderAddresses;
+//   suppliedAssets: [IAsset, IAsset];
+// }
 
-/**
- * The minimum requirements for a Deposit order.
- */
-export interface IZapArgs extends IOrderArgs {
-  orderAddresses: OrderAddresses;
-  zapDirection: PoolCoin;
-  suppliedAsset: IAsset;
-}
+// /**
+//  * The minimum requirements for a Deposit order.
+//  */
+// export interface IZapArgs extends IOrderArgs {
+//   orderAddresses: OrderAddresses;
+//   zapDirection: PoolCoin;
+//   suppliedAsset: IAsset;
+// }
 
-/**
- * The minimum requirements for a Deposit order.
- */
-export interface IChainedZapArgs extends IOrderArgs {
-  zapDirection: PoolCoin;
-  suppliedAsset: IAsset;
-}
+// /**
+//  * The minimum requirements for a Deposit order.
+//  */
+// export interface IChainedZapArgs extends IOrderArgs {
+//   zapDirection: PoolCoin;
+//   suppliedAsset: IAsset;
+// }
 
-/**
- * The minimum requirements for a WithdrawOrder
- */
-export interface IWithdrawArgs extends IOrderArgs {
-  orderAddresses: OrderAddresses;
-  suppliedLPAsset: IAsset;
-}
+// /**
+//  * The minimum requirements for a WithdrawOrder
+//  */
+// export interface IWithdrawArgs extends IOrderArgs {
+//   orderAddresses: OrderAddresses;
+//   suppliedLPAsset: IAsset;
+// }

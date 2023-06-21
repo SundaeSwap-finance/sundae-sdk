@@ -2,14 +2,13 @@ import {
   IQueryProviderClass,
   ITxBuilderTx,
   ITxBuilderBaseOptions,
-  IZapArgs,
-  SwapConfigArgs,
-  DepositConfigArgs,
-  WithdrawConfigArgs,
-  CancelConfigArgs,
 } from "../../@types";
 import { CancelConfig } from "../Configs/CancelConfig.class";
+import { DepositConfig } from "../Configs/DepositConfig.class";
+import { LockConfig } from "../Configs/LockConfig.class";
 import { SwapConfig } from "../Configs/SwapConfig.class";
+import { WithdrawConfig } from "../Configs/WithdrawConfig.class";
+import { ZapConfig } from "../Configs/ZapConfig.class";
 import { Transaction } from "../Transaction.class";
 import { Utils } from "../Utils.class";
 
@@ -46,57 +45,65 @@ export abstract class TxBuilder<
   abstract newTxInstance(): Promise<Transaction<Tx>>;
 
   /**
-   * The main function to build a swap Transaction.
+   * The main function to build a locking Transaction.
    *
-   * @param args The built SwapArguments from a {@link Core.SwapConfig} instance.
+   * @param config A {@link LockConfig} instance.
    * @returns {ITxBuilderTx}
    */
-  abstract buildSwapTx(args: SwapConfigArgs): Promise<ITxBuilderTx>;
+  abstract buildLockTx(config: LockConfig): Promise<ITxBuilderTx>;
+
+  /**
+   * The main function to build a swap Transaction.
+   *
+   * @param config A {@link SwapConfig} instance.
+   * @returns {ITxBuilderTx}
+   */
+  abstract buildSwapTx(config: SwapConfig): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build a deposit Transaction.
    *
-   * @param args The built DepositArguments from a {@link Core.DepositConfig} instance.
+   * @param config A {@link DepositConfig} instance.
    */
-  abstract buildDepositTx(args: DepositConfigArgs): Promise<ITxBuilderTx>;
+  abstract buildDepositTx(config: DepositConfig): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build a withdraw Transaction.
    *
-   * @param args The built WithdrawArguments from a {@link Core.WithdrawConfig} instance.
+   * @param config A {@link WithdrawConfig} instance.
    */
-  abstract buildWithdrawTx(args: WithdrawConfigArgs): Promise<ITxBuilderTx>;
+  abstract buildWithdrawTx(config: WithdrawConfig): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build a cancellation Transaction.
    *
-   * @param args The built CancelArguments from a {@link Core.CancelConfig} instance.
+   * @param config A {@link CancelConfig} instance.
    */
-  abstract buildCancelTx(args: CancelConfigArgs): Promise<ITxBuilderTx>;
+  abstract buildCancelTx(config: CancelConfig): Promise<ITxBuilderTx>;
 
   /**
    * The main function to update an open swap.
    *
-   * @param args The built CancelArguments and SwapArguments from both {@link Core.CancelConfig} and {@link Core.SwapConfig} instances.
+   * @param config An object of both a {@link CancelConfig} and {@link SwapConfig} instance.
    */
-  abstract buildUpdateSwapTx(args: {
-    cancelConfigArgs: CancelConfigArgs;
-    swapConfigArgs: SwapConfigArgs;
+  abstract buildUpdateSwapTx(config: {
+    cancelConfig: CancelConfig;
+    swapConfig: SwapConfig;
   }): Promise<ITxBuilderTx>;
 
   /**
    * The currently functioning way to process a chained Zap Transaction.
    *
-   * @param args The built ZapArguments from a {@link Core.ZapConfig} instance.
+   * @param config A {@link ZapConfig} instance.
    */
-  abstract buildChainedZapTx(args: IZapArgs): Promise<ITxBuilderTx>;
+  abstract buildChainedZapTx(config: ZapConfig): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build an atomic zap Transaction.
    *
-   * @param args The built ZapArguments from a {@link Core.ZapConfig} instance.
+   * @param config A {@link ZapConfig} instance.
    */
-  abstract buildAtomicZapTx(args: IZapArgs): Promise<ITxBuilderTx>;
+  abstract buildAtomicZapTx(config: ZapConfig): Promise<ITxBuilderTx>;
 
   /**
    * Helper function for child classes to easily grab the appropriate protocol parameters for SundaeSwap.

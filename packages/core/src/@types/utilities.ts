@@ -14,6 +14,8 @@ export interface IProtocolParams {
   ESCROW_CANCEL_REDEEMER: string;
   /** The hex-encoded script value of the Escrow Order contract */
   ESCROW_SCRIPT_VALIDATOR: string;
+  /** The hex-encoded script value of the V2 Yield Farming contract */
+  YF_SCRIPT_VALIDATOR: string;
 }
 
 /**
