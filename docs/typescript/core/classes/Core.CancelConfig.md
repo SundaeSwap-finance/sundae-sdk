@@ -6,9 +6,41 @@ The main config class for building valid arguments for a Cancel.
 
 ## Hierarchy
 
-- `Config`<[`CancelConfigArgs`](../interfaces/Core.CancelConfigArgs.md)\>
+- `OrderConfig`<[`CancelConfigArgs`](../interfaces/Core.CancelConfigArgs.md)\>
 
   ↳ **`CancelConfig`**
+
+## Properties
+
+### orderAddresses
+
+• `Optional` **orderAddresses**: [`OrderAddresses`](../modules/Core.md#orderaddresses)
+
+The addresses for the order.
+
+#### Inherited from
+
+OrderConfig.orderAddresses
+
+#### Defined in
+
+[classes/Abstracts/OrderConfig.abstract.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L19)
+
+___
+
+### pool
+
+• `Optional` **pool**: [`IPoolData`](../interfaces/Core.IPoolData.md)
+
+The data for the pool involved in the order.
+
+#### Inherited from
+
+OrderConfig.pool
+
+#### Defined in
+
+[classes/Abstracts/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L14)
 
 ## Methods
 
@@ -16,25 +48,27 @@ The main config class for building valid arguments for a Cancel.
 
 ▸ **setOrderAddresses**(`orderAddresses`): [`CancelConfig`](Core.CancelConfig.md)
 
-Builds the [OrderAddresses](../modules/Core.md#orderaddresses) for a swap's required datum.
+Set the [OrderAddresses](../modules/Core.md#orderaddresses) for a swap's required datum.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `orderAddresses` | [`OrderAddresses`](../modules/Core.md#orderaddresses) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `orderAddresses` | [`OrderAddresses`](../modules/Core.md#orderaddresses) | The addresses for the order. |
 
 #### Returns
 
 [`CancelConfig`](Core.CancelConfig.md)
 
+The current instance of the class.
+
 #### Inherited from
 
-Config.setOrderAddresses
+OrderConfig.setOrderAddresses
 
 #### Defined in
 
-[classes/Abstracts/Config.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L14)
+[classes/Abstracts/OrderConfig.abstract.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L30)
 
 ___
 
@@ -46,18 +80,20 @@ Set the pool data directly for the swap you use.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `pool` | [`IPoolData`](../interfaces/Core.IPoolData.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `pool` | [`IPoolData`](../interfaces/Core.IPoolData.md) | The data for the pool involved in the order. |
 
 #### Returns
 
 [`CancelConfig`](Core.CancelConfig.md)
 
+The current instance of the class.
+
 #### Inherited from
 
-Config.setPool
+OrderConfig.setPool
 
 #### Defined in
 
-[classes/Abstracts/Config.abstract.class.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L25)
+[classes/Abstracts/OrderConfig.abstract.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L41)

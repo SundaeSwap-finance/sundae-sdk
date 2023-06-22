@@ -58,6 +58,7 @@ export { SwapConfig } from "./classes/Configs/SwapConfig.class";
 export { ZapConfig } from "./classes/Configs/ZapConfig.class";
 export { DepositConfig } from "./classes/Configs/DepositConfig.class";
 export { WithdrawConfig } from "./classes/Configs/WithdrawConfig.class";
+export { FreezerConfig } from "./classes/Configs/FreezerConfig.class";
 export { CancelConfig } from "./classes/Configs/CancelConfig.class";
 export { TxBuilder } from "./classes/Abstracts/TxBuilder.abstract.class";
 export { DatumBuilder } from "./classes/Abstracts/DatumBuilder.abstract.class";

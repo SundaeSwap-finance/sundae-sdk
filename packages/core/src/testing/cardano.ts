@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
 import { TSupportedNetworks } from "../@types/utilities";
-import type { WalletApi } from "lucid-cardano";
+import type { ProtocolParameters, WalletApi } from "lucid-cardano";
 
 export interface WalletAPIResponses {
   balance: string;
@@ -126,35 +126,22 @@ export const setupGlobalCardano = () => {
   });
 };
 
-export const getBlockfrostProtocolParameters = <T = unknown>(
+export const getBlockfrostProtocolParameters = (
   env: TSupportedNetworks
-) => {
+): ProtocolParameters => {
   switch (env) {
     default:
     case "preview":
       return {
-        epoch: 111,
-        min_fee_a: 44,
-        min_fee_b: 155381,
-        max_block_size: 90112,
-        max_tx_size: 16384,
-        max_block_header_size: 1100,
-        key_deposit: "2000000",
-        pool_deposit: "500000000",
-        e_max: 18,
-        n_opt: 500,
-        a0: 0.3,
-        rho: 0.003,
-        tau: 0.2,
-        decentralisation_param: 0,
-        extra_entropy: null,
-        protocol_major_ver: 8,
-        protocol_minor_ver: 0,
-        min_utxo: "4310",
-        min_pool_cost: "340000000",
-        nonce:
-          "cf7b171578610ae8da7c8ea75497e7538f4dc30287da0456920146a82d81e708",
-        cost_models: {
+        minFeeA: 44,
+        minFeeB: 155381,
+        coinsPerUtxoByte: 4310n,
+        collateralPercentage: 150,
+        keyDeposit: 2000000n,
+        poolDeposit: 500000000n,
+        priceStep: 721.1,
+        priceMem: 577.1,
+        costModels: {
           PlutusV1: {
             "addInteger-cpu-arguments-intercept": 205665,
             "addInteger-cpu-arguments-slope": 812,
@@ -501,17 +488,11 @@ export const getBlockfrostProtocolParameters = <T = unknown>(
             "verifySchnorrSecp256k1Signature-memory-arguments": 10,
           },
         },
-        price_mem: 0.0577,
-        price_step: 0.0000721,
-        max_tx_ex_mem: "14000000",
-        max_tx_ex_steps: "10000000000",
-        max_block_ex_mem: "62000000",
-        max_block_ex_steps: "20000000000",
-        max_val_size: "5000",
-        collateral_percent: 150,
-        max_collateral_inputs: 3,
-        coins_per_utxo_size: "4310",
-        coins_per_utxo_word: "4310",
-      } as T;
+        maxTxExSteps: 10000000000n,
+        maxTxExMem: 14000000n,
+        maxCollateralInputs: 3,
+        maxTxSize: 16384,
+        maxValSize: 5000,
+      };
   }
 };

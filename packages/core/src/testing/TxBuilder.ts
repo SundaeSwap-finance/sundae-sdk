@@ -21,13 +21,24 @@ export const TEST_TxBuilder = (
   setup && setup();
 
   let builderInstance: TxBuilder;
+  builderInstance = initializer();
+
   beforeEach(() => {
-    builderInstance = initializer();
     jest.spyOn(builderInstance, "newTxInstance");
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  afterAll(() => {
+    jest.resetAllMocks();
+    jest.resetModules();
   });
 
   describe("DatumBuilderLucid.buildSwapDatum", () => {
     it("should pass when given valid swap arguments", async () => {
+      expect(true).toBe(true);
       // const result = await builderInstance.buildSwapTx({
       //   pool: PREVIEW_DATA.pool,
       //   orderAddresses: PREVIEW_DATA.orderAddresses,

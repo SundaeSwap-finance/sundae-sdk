@@ -16,7 +16,7 @@ import { DepositConfig } from "./Configs/DepositConfig.class";
 import { WithdrawConfig } from "./Configs/WithdrawConfig.class";
 import { ZapConfig } from "./Configs/ZapConfig.class";
 import { CancelConfig } from "./Configs/CancelConfig.class";
-import { FreezerConfig } from "./Configs/LockConfig.class";
+import { FreezerConfig } from "./Configs/FreezerConfig.class";
 
 /**
  * A description for the SundaeSDK class.

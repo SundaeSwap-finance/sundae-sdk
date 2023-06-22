@@ -5,7 +5,7 @@ import {
 } from "../../@types";
 import { CancelConfig } from "../Configs/CancelConfig.class";
 import { DepositConfig } from "../Configs/DepositConfig.class";
-import { FreezerConfig } from "../Configs/LockConfig.class";
+import { FreezerConfig } from "../Configs/FreezerConfig.class";
 import { SwapConfig } from "../Configs/SwapConfig.class";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class";
 import { ZapConfig } from "../Configs/ZapConfig.class";

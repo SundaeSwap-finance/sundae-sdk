@@ -1,5 +1,5 @@
 import { AddressDetails, C, getAddressDetails } from "lucid-cardano";
-import { TSupportedNetworks } from "src/@types";
+import { TSupportedNetworks } from "../../@types";
 
 /**
  * A helper class that provides utility functions for validating and processing
@@ -150,9 +150,7 @@ export class LucidHelper {
     errorMessage: string
   ): never {
     throw new Error(
-      `You supplied an invalid address: ${JSON.stringify(
-        address
-      )}. Please check your arguments and try again. Error message from LucidHelper: ${errorMessage}`
+      `You supplied an invalid address: ${address}. Please check your arguments and try again. Error message from LucidHelper: ${errorMessage}`
     );
   }
 }

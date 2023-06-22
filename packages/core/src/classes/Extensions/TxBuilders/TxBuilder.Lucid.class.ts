@@ -30,7 +30,7 @@ import { CancelConfig } from "../../Configs/CancelConfig.class";
 import { ZapConfig } from "../../Configs/ZapConfig.class";
 import { WithdrawConfig } from "../../Configs/WithdrawConfig.class";
 import { DepositConfig } from "../../Configs/DepositConfig.class";
-import { FreezerConfig } from "../../Configs/LockConfig.class";
+import { FreezerConfig } from "../../Configs/FreezerConfig.class";
 import { Transaction } from "../../Transaction.class";
 import { LucidHelper } from "../LucidHelper.class";
 
@@ -95,7 +95,7 @@ export class TxBuilderLucid extends TxBuilder<
     }
 
     // Connect the wallet.
-    this.initWallet();
+    this.initWallet().catch((e) => console.log(e));
   }
 
   /**
@@ -151,13 +151,17 @@ export class TxBuilderLucid extends TxBuilder<
       lockConfig.buildArgs();
 
     const {
-      FREEZER_STAKE_KEYHASH,
-      FREEZER_PAYMENT_SCRIPTHASH,
       FREEZER_REFERENCE_INPUT,
+      FREEZER_PAYMENT_SCRIPTHASH,
+      FREEZER_STAKE_KEYHASH,
     } = Utils.getParams(this.options.network);
 
+    if (!this.wallet?.provider) {
+      throw new Error("A provider is required to lookup position data!");
+    }
+
     const [referenceInput, existingPositionData] = await Promise.all([
-      this.wallet?.provider.getUtxosByOutRef([
+      this.wallet.provider.getUtxosByOutRef([
         {
           txHash: FREEZER_REFERENCE_INPUT.split("#")[0],
           outputIndex: Number(FREEZER_REFERENCE_INPUT.split("#")[1]),
@@ -165,7 +169,7 @@ export class TxBuilderLucid extends TxBuilder<
       ]),
       (() =>
         existingPositions &&
-        this.wallet?.provider.getUtxosByOutRef(
+        this.wallet.provider.getUtxosByOutRef(
           existingPositions.map(({ hash, index }) => ({
             outputIndex: index,
             txHash: hash,

@@ -4,7 +4,7 @@ const config: JestConfigWithTsJest = {
   projects: [
     {
       displayName: "@sundaeswap/sdk-core",
-      testEnvironment: "jsdom",
+      testEnvironment: "node",
       testMatch: ["<rootDir>/packages/core/**/__tests__/**/*.test.*?(x)"],
       testPathIgnorePatterns: ["/dist/", "/node_modules/", "__tests__/data"],
       extensionsToTreatAsEsm: [".ts"],
@@ -25,11 +25,10 @@ const config: JestConfigWithTsJest = {
       ],
       moduleNameMapper: {
         "^(\\.{1,2}/.*)\\.js$": "$1",
+        "^lucid-cardano$": "<rootDir>/node_modules/lucid-cardano",
       },
     },
   ],
-  // Required or Jest will throw an error about serializing BigInts
-  // maxWorkers: 1,
 };
 
 export default config;

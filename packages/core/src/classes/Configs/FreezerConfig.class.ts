@@ -1,7 +1,10 @@
-import { FreezerConfigArgs } from "src/@types";
+import { FreezerConfigArgs } from "../../@types";
 import { Config } from "../Abstracts/Config.abstract.class";
 import { AssetAmount } from "@sundaeswap/asset";
 
+/**
+ * The main config class for building valid arguments for a Freezer transaction.
+ */
 export class FreezerConfig extends Config<FreezerConfigArgs> {
   ownerAddress?: FreezerConfigArgs["ownerAddress"];
   existingPositions?: FreezerConfigArgs["existingPositions"];
@@ -71,7 +74,8 @@ export class FreezerConfig extends Config<FreezerConfigArgs> {
 
     if (
       this?.delegation &&
-      (!this?.lockedValues?.length || !this?.existingPositions?.length)
+      !this?.lockedValues?.length &&
+      !this?.existingPositions?.length
     ) {
       throw new Error(
         "You provided a delegation map but no assets are assigned to accompany the data."

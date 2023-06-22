@@ -280,6 +280,13 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
       datum: addresses.DestinationAddress?.datumHash,
       network: this.network,
     });
+
+    addresses?.AlternateAddress &&
+      LucidHelper.validateAddressAndDatumAreValid({
+        address: addresses.AlternateAddress,
+        network: this.network,
+      });
+
     const { DestinationAddress, AlternateAddress } = addresses;
     const destination = LucidHelper.getAddressHashes(
       DestinationAddress.address
