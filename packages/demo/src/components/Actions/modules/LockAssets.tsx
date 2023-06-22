@@ -27,19 +27,10 @@ export const Lock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
       sundaeProgram.set("01", 1n);
       djedProgram.set("02", 2n);
       delegations.set("SUNDAE", sundaeProgram);
-      delegations.set("DJED", djedProgram);
 
       await SDK.lock({
-        inputs: [],
         ownerAddress: walletAddress,
-        lockedValues: [
-          new AssetAmount(5000000n, { assetId: "", decimals: 6 }),
-          new AssetAmount(1000000n, {
-            assetId:
-              "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15.524245525259",
-            decimals: 0,
-          }),
-        ],
+        lockedValues: [new AssetAmount(5000000n, { assetId: "", decimals: 6 })],
         delegation: delegations,
       }).then(async ({ sign, fees, complete }) => {
         setFees(fees);
@@ -70,7 +61,7 @@ export const Lock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
   return (
     <Button onClick={handleLock} loading={locking}>
-      Lock 5 tADA
+      Lock 10 tADA
     </Button>
   );
 };

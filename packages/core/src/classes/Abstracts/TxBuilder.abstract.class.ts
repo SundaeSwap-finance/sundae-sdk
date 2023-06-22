@@ -5,7 +5,7 @@ import {
 } from "../../@types";
 import { CancelConfig } from "../Configs/CancelConfig.class";
 import { DepositConfig } from "../Configs/DepositConfig.class";
-import { LockConfig } from "../Configs/LockConfig.class";
+import { FreezerConfig } from "../Configs/LockConfig.class";
 import { SwapConfig } from "../Configs/SwapConfig.class";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class";
 import { ZapConfig } from "../Configs/ZapConfig.class";
@@ -45,12 +45,12 @@ export abstract class TxBuilder<
   abstract newTxInstance(): Promise<Transaction<Tx>>;
 
   /**
-   * The main function to build a locking Transaction.
+   * The main function to build a freezer Transaction.
    *
-   * @param config A {@link LockConfig} instance.
+   * @param config A {@link FreezerConfig} instance.
    * @returns {ITxBuilderTx}
    */
-  abstract buildLockTx(config: LockConfig): Promise<ITxBuilderTx>;
+  abstract buildFreezerTx(config: FreezerConfig): Promise<ITxBuilderTx>;
 
   /**
    * The main function to build a swap Transaction.

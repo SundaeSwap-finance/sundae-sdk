@@ -30,8 +30,9 @@ import { CancelConfig } from "../../Configs/CancelConfig.class";
 import { ZapConfig } from "../../Configs/ZapConfig.class";
 import { WithdrawConfig } from "../../Configs/WithdrawConfig.class";
 import { DepositConfig } from "../../Configs/DepositConfig.class";
-import { LockConfig } from "../../Configs/LockConfig.class";
+import { FreezerConfig } from "../../Configs/LockConfig.class";
 import { Transaction } from "../../Transaction.class";
+import { LucidHelper } from "../LucidHelper.class";
 
 /**
  * Options interface for the {@link TxBuilderLucid} class.
@@ -144,26 +145,16 @@ export class TxBuilderLucid extends TxBuilder<
    * @param lockConfig
    * @returns
    */
-  async buildLockTx(lockConfig: LockConfig) {
+  async buildFreezerTx(lockConfig: FreezerConfig) {
     const txInstance = await this.newTxInstance();
-    const {
-      inputs,
-      existingPositions,
-      lockedValues,
-      delegation,
-      ownerAddress,
-    } = lockConfig.buildArgs();
+    const { existingPositions, lockedValues, delegation, ownerAddress } =
+      lockConfig.buildArgs();
 
     const {
       FREEZER_STAKE_KEYHASH,
       FREEZER_PAYMENT_SCRIPTHASH,
       FREEZER_REFERENCE_INPUT,
     } = Utils.getParams(this.options.network);
-    const datumBuilder = new DatumBuilderLucid(this.options.network);
-    const { cbor } = datumBuilder.buildLockDatum({
-      address: ownerAddress,
-      delegation,
-    });
 
     const [referenceInput, existingPositionData] = await Promise.all([
       this.wallet?.provider.getUtxosByOutRef([
@@ -219,16 +210,33 @@ export class TxBuilderLucid extends TxBuilder<
       throw new Error("Could not generate a valid contract address.");
     }
 
+    const signerKey = LucidHelper.getAddressHashes(ownerAddress);
+
     txInstance
       .get()
       .readFrom(referenceInput)
-      .payToContract(contractAddress, cbor, payment);
+      .addSignerKey(
+        signerKey?.stakeCredentials ?? signerKey?.paymentCredentials
+      );
 
     if (existingPositionData) {
-      txInstance.get().collectFrom(existingPositionData);
+      txInstance
+        .get()
+        .collectFrom(existingPositionData, Utils.getVoidRedeemer());
     }
 
-    return this.completeTx(txInstance, cbor);
+    if (delegation && lockedValues?.length > 0) {
+      const datumBuilder = new DatumBuilderLucid(this.options.network);
+      const { cbor } = datumBuilder.buildLockDatum({
+        address: ownerAddress,
+        delegation,
+      });
+
+      txInstance.get().payToContract(contractAddress, cbor, payment);
+      return this.completeTx(txInstance, cbor);
+    } else {
+      return this.completeTx(txInstance);
+    }
   }
 
   async buildSwapTx(swapConfig: SwapConfig) {

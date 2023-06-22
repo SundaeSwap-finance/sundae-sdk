@@ -1,101 +1,86 @@
-import {
-  DelegationPrograms,
-  LockArguments,
-  LockConfigArgs,
-  UTXO,
-} from "src/@types";
+import { FreezerConfigArgs } from "src/@types";
 import { Config } from "../Abstracts/Config.abstract.class";
 import { AssetAmount } from "@sundaeswap/asset";
 
-export class LockConfig extends Config<LockConfigArgs> {
-  ownerAddress?: LockConfigArgs["ownerAddress"];
-  inputs?: LockConfigArgs["inputs"];
-  existingPositions?: LockConfigArgs["existingPositions"];
-  lockedValues?: LockConfigArgs["lockedValues"];
-  delegation?: LockConfigArgs["delegation"];
+export class FreezerConfig extends Config<FreezerConfigArgs> {
+  ownerAddress?: FreezerConfigArgs["ownerAddress"];
+  existingPositions?: FreezerConfigArgs["existingPositions"];
+  lockedValues?: FreezerConfigArgs["lockedValues"];
+  delegation?: FreezerConfigArgs["delegation"];
 
-  constructor(args?: LockConfigArgs) {
+  constructor(args?: FreezerConfigArgs) {
     super();
 
     args && this.setFromObject(args);
   }
 
   setFromObject({
-    inputs,
     existingPositions,
     lockedValues,
     delegation,
     ownerAddress,
-  }: LockConfigArgs): void {
-    this.setInputs(inputs);
+  }: FreezerConfigArgs): void {
     this.setLockedValues(lockedValues);
     this.setDelegation(delegation);
     this.setOwnerAddress(ownerAddress);
     existingPositions && this.setExistingPositions(existingPositions);
   }
 
-  buildArgs(): LockConfigArgs | never {
+  buildArgs(): FreezerConfigArgs | never {
     this.validate();
 
     return {
-      inputs: this.inputs as LockConfigArgs["inputs"],
-      existingPositions: this.existingPositions as LockConfigArgs["inputs"],
-      lockedValues: this.lockedValues as LockConfigArgs["lockedValues"],
-      delegation: this.delegation as LockConfigArgs["delegation"],
-      ownerAddress: this.ownerAddress as LockConfigArgs["ownerAddress"],
+      existingPositions: this
+        .existingPositions as FreezerConfigArgs["existingPositions"],
+      lockedValues: this.lockedValues as FreezerConfigArgs["lockedValues"],
+      delegation: this.delegation as FreezerConfigArgs["delegation"],
+      ownerAddress: this.ownerAddress as FreezerConfigArgs["ownerAddress"],
     };
   }
 
-  setOwnerAddress(ownerAddress: LockConfigArgs["ownerAddress"]) {
+  setOwnerAddress(ownerAddress: FreezerConfigArgs["ownerAddress"]) {
     this.ownerAddress = ownerAddress;
     return this;
   }
 
-  setInputs(inputs: LockConfigArgs["inputs"]) {
-    this.inputs = inputs;
-    return this;
-  }
-
-  setExistingPositions(positions: LockConfigArgs["existingPositions"]) {
+  setExistingPositions(positions: FreezerConfigArgs["existingPositions"]) {
     this.existingPositions = positions;
     return this;
   }
 
-  setLockedValues(values: LockConfigArgs["lockedValues"]) {
+  setLockedValues(values: FreezerConfigArgs["lockedValues"]) {
     this.lockedValues = values;
     return this;
   }
 
-  setDelegation(delegation: LockConfigArgs["delegation"]) {
+  setDelegation(delegation: FreezerConfigArgs["delegation"]) {
     this.delegation = delegation;
     return this;
   }
 
   validate(): void {
-    if (!this.lockedValues?.length) {
+    if (
+      this?.lockedValues &&
+      this?.lockedValues.filter((val) => !(val instanceof AssetAmount))
+        ?.length > 0
+    ) {
       throw new Error(
-        "You did not provide any values to lock. Please set your locked values with .setLockedValues()"
+        "One or more of your locked values is not of type AssetAmount."
       );
     }
 
     if (
-      this.lockedValues.filter((val) => !(val instanceof AssetAmount))?.length >
-      0
+      this?.delegation &&
+      (!this?.lockedValues?.length || !this?.existingPositions?.length)
     ) {
       throw new Error(
-        "One or more of your locked values is not of type AssetAmount. Please check your lockedValues and try setting them again with .setLockedValues()"
-      );
-    }
-
-    if (!this?.delegation) {
-      throw new Error(
-        "You did not provide any delegation. A delegation map is required to supply as a datum to your locked values. Please set your delegation with .setDelegation()"
+        "You provided a delegation map but no assets are assigned to accompany the data."
       );
     }
 
     if (!this?.ownerAddress) {
       throw new Error(
-        "You did not provide an owner's address. An owner's address is required to update delegations or claim rewards. Please set your owner address with .setOwnerAddress()"
+        "You did not provide an owner's address. An owner's address is required to add, update, or remove locked assets."
       );
     }
   }

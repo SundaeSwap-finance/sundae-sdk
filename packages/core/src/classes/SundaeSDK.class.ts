@@ -6,7 +6,7 @@ import type {
   ZapConfigArgs,
   IQueryProviderClass,
   SDKZapArgs,
-  LockConfigArgs,
+  FreezerConfigArgs,
 } from "../@types";
 import { AssetAmount } from "@sundaeswap/asset";
 import { SwapConfig } from "./Configs/SwapConfig.class";
@@ -16,7 +16,7 @@ import { DepositConfig } from "./Configs/DepositConfig.class";
 import { WithdrawConfig } from "./Configs/WithdrawConfig.class";
 import { ZapConfig } from "./Configs/ZapConfig.class";
 import { CancelConfig } from "./Configs/CancelConfig.class";
-import { LockConfig } from "./Configs/LockConfig.class";
+import { FreezerConfig } from "./Configs/LockConfig.class";
 
 /**
  * A description for the SundaeSDK class.
@@ -228,9 +228,25 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async lock(config: LockConfigArgs) {
-    const lock = new LockConfig(config);
-    return await this.builder.buildLockTx(lock);
+  async lock(config: FreezerConfigArgs) {
+    const lock = new FreezerConfig(config);
+    return await this.builder.buildFreezerTx(lock);
+  }
+
+  /**
+   * Create an unlocking transaction that removes all yield farming positions.
+   * @param config
+   * @returns
+   */
+  async unlock(
+    config: Pick<FreezerConfigArgs, "existingPositions" | "ownerAddress">
+  ) {
+    const lock = new FreezerConfig({
+      ...config,
+      lockedValues: [],
+    });
+
+    return await this.builder.buildFreezerTx(lock);
   }
 
   /**

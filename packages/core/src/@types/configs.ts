@@ -55,10 +55,9 @@ export interface WithdrawConfigArgs extends OrderConfigArgs {
 export type DelegationProgramPools = Map<string, bigint>;
 export type DelegationPrograms = Map<string, DelegationProgramPools>;
 
-export interface LockConfigArgs {
-  inputs: UTXO[];
+export interface FreezerConfigArgs {
+  delegation?: DelegationPrograms;
   existingPositions?: UTXO[];
   lockedValues: AssetAmount[];
-  delegation: DelegationPrograms;
   ownerAddress: string;
 }

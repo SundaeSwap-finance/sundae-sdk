@@ -11,7 +11,7 @@ const SelectBuilderOption: FC<{
 
 const SelectBuilder: FC = () => {
   const { setSDK } = useAppState();
-  const [builderLib, setBuilderLib] = useState<TSupportedTxBuilders>();
+  const [builderLib, setBuilderLib] = useState<TSupportedTxBuilders>("lucid");
 
   const handleTxBuilderLoaderSelect = (key: TSupportedTxBuilders) => {
     setBuilderLib(key);
