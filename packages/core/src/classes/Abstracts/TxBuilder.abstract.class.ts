@@ -27,16 +27,18 @@ export abstract class TxBuilder<
   Tx = any,
   QueryProvider = IQueryProviderClass
 > {
-  query: QueryProvider;
-  options: Options & ITxBuilderBaseOptions;
   wallet?: Wallet;
 
   constructor(
-    queryProvider: QueryProvider,
-    options: Options & ITxBuilderBaseOptions
+    public queryProvider: QueryProvider,
+    public options: Options & ITxBuilderBaseOptions
   ) {
-    this.query = queryProvider;
-    this.options = options;
+    this.queryProvider = queryProvider;
+    this.options = {
+      minLockAda: 5000000n,
+      debug: false,
+      ...options,
+    };
   }
 
   /**

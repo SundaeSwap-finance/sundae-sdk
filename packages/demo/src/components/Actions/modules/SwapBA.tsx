@@ -29,8 +29,8 @@ export const SwapBA: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           amount: new AssetAmount(20000000n, 6),
         },
       }).then(async ({ fees, sign, complete }) => {
+        setFees(fees);
         if (submit) {
-          setFees(fees);
           const { cbor, submit } = await sign().complete();
           setCBOR({
             cbor,
@@ -48,7 +48,7 @@ export const SwapBA: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setSwapping(false);
-  }, [SDK, submit]);
+  }, [SDK, submit, walletAddress]);
 
   if (!SDK) {
     return null;

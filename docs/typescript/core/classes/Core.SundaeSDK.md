@@ -26,7 +26,7 @@ You'll need to provide a TxBuilder class to the main SDK, which is used to build
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:36](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L36)
+[classes/SundaeSDK.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L37)
 
 ## Properties
 
@@ -38,7 +38,7 @@ An instance of TxBuilder.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:36](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L36)
+[classes/SundaeSDK.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L37)
 
 ## Methods
 
@@ -60,7 +60,7 @@ Utility method to retrieve the builder instance with types.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L45)
+[classes/SundaeSDK.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L46)
 
 ___
 
@@ -82,7 +82,7 @@ Create a cancel transaction for an open escrow order.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:202](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L202)
+[classes/SundaeSDK.class.ts:203](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L203)
 
 ___
 
@@ -104,7 +104,7 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:192](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L192)
+[classes/SundaeSDK.class.ts:193](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L193)
 
 ___
 
@@ -151,7 +151,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:149](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L149)
+[classes/SundaeSDK.class.ts:150](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L150)
 
 ___
 
@@ -173,7 +173,7 @@ Create a locking transaction for yield farming and pool delegation.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:231](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L231)
+[classes/SundaeSDK.class.ts:232](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L232)
 
 ___
 
@@ -189,7 +189,7 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L54)
+[classes/SundaeSDK.class.ts:55](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L55)
 
 ___
 
@@ -256,7 +256,7 @@ const { submit, cbor } = await SDK.swap(
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:107](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L107)
+[classes/SundaeSDK.class.ts:108](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L108)
 
 ___
 
@@ -278,7 +278,7 @@ Create an unlocking transaction that removes all yield farming positions.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:241](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L241)
+[classes/SundaeSDK.class.ts:242](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L242)
 
 ___
 
@@ -293,7 +293,7 @@ This is experimental and currently not supported by Cardano parameter limits.
 
 | Name | Type |
 | :------ | :------ |
-| `config` | [`SDKZapArgs`](../interfaces/Core.SDKZapArgs.md) |
+| `config` | `Omit`<[`ZapConfigArgs`](../interfaces/Core.ZapConfigArgs.md), ``"zapDirection"``\> |
 
 #### Returns
 
@@ -301,7 +301,7 @@ This is experimental and currently not supported by Cardano parameter limits.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:258](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L258)
+[classes/SundaeSDK.class.ts:259](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L259)
 
 ___
 
@@ -324,7 +324,7 @@ Create a new transaction that cancels and spends the assets with a new swap conf
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:164](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L164)
+[classes/SundaeSDK.class.ts:165](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L165)
 
 ___
 
@@ -346,7 +346,7 @@ Create a Withdraw transaction for a pool by supplying the LP tokens.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:182](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L182)
+[classes/SundaeSDK.class.ts:183](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L183)
 
 ___
 
@@ -368,4 +368,4 @@ Builds a custom zap utilizing a chained order (first a swap, then a deposit).
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:212](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L212)
+[classes/SundaeSDK.class.ts:213](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L213)

@@ -80,10 +80,7 @@ export class TxBuilderLucid extends TxBuilder<
    * @param options The main option for instantiating the class.
    * @param query A valid Query Provider class that will do the lookups.
    */
-  constructor(
-    public options: ITxBuilderLucidOptions,
-    public query: IQueryProviderClass
-  ) {
+  constructor(options: ITxBuilderLucidOptions, query: IQueryProviderClass) {
     super(query, options);
     switch (this.options?.providerType) {
       case "blockfrost":
@@ -142,13 +139,13 @@ export class TxBuilderLucid extends TxBuilder<
   /**
    * Builds a valid transaction for the V2 Yield Farming contract
    * that allows a user to add or update staking positions.
-   * @param lockConfig
+   * @param freezerConfig
    * @returns
    */
-  async buildFreezerTx(lockConfig: FreezerConfig) {
+  async buildFreezerTx(freezerConfig: FreezerConfig) {
     const txInstance = await this.newTxInstance();
     const { existingPositions, lockedValues, delegation, ownerAddress } =
-      lockConfig.buildArgs();
+      freezerConfig.buildArgs();
 
     const {
       FREEZER_REFERENCE_INPUT,
@@ -183,8 +180,9 @@ export class TxBuilderLucid extends TxBuilder<
       );
     }
 
+    const minAda = this.options.minLockAda as bigint; // It gets set as a default parameter if undefined.
     const payment: Assets = {
-      lovelace: 5000000n, // a minimum of 5 ADA to hold assets.
+      lovelace: minAda,
     };
 
     lockedValues.forEach(({ amount, metadata }) => {
@@ -198,6 +196,11 @@ export class TxBuilderLucid extends TxBuilder<
         }
       }
     });
+
+    // Deduct the minimum amount we started with if we've supplied at least that much.
+    if (payment.lovelace - minAda >= minAda) {
+      payment.lovelace -= minAda;
+    }
 
     const contractAddress = this.wallet?.utils.credentialToAddress(
       {
@@ -237,9 +240,9 @@ export class TxBuilderLucid extends TxBuilder<
       });
 
       txInstance.get().payToContract(contractAddress, cbor, payment);
-      return this.completeTx(txInstance, cbor);
+      return this.completeTx(txInstance, cbor, this.options.minLockAda, 0n);
     } else {
-      return this.completeTx(txInstance);
+      return this.completeTx(txInstance, undefined, 0n, 0n);
     }
   }
 
@@ -347,7 +350,7 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
-    return this.completeTx(tx, cbor);
+    return this.completeTx(tx, cbor, 0n);
   }
 
   async buildCancelTx(cancelConfig: CancelConfig) {
@@ -398,7 +401,7 @@ export class TxBuilderLucid extends TxBuilder<
       throw e;
     }
 
-    return this.completeTx(tx, utxoToSpend[0]?.datum as string);
+    return this.completeTx(tx, utxoToSpend[0]?.datum as string, 0n, 0n);
   }
 
   async buildChainedZapTx(zapConfig: ZapConfig): Promise<ITxBuilderTx> {
@@ -496,7 +499,12 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(ESCROW_ADDRESS, swapData.cbor, payment);
-    return this.completeTx(tx, swapData.cbor);
+    return this.completeTx(
+      tx,
+      swapData.cbor,
+      undefined,
+      this.getParams().SCOOPER_FEE * 2n
+    );
   }
 
   async buildAtomicZapTx(zapConfig: ZapConfig): Promise<ITxBuilderTx> {
@@ -525,13 +533,18 @@ export class TxBuilderLucid extends TxBuilder<
   private async completeTx(
     tx: Transaction<Tx>,
     datum?: string,
+    deposit?: bigint,
+    scooperFee?: bigint,
     coinSelection?: boolean
   ): Promise<ITxBuilderTx<Transaction<Tx>, Datum | undefined>> {
     let sign: boolean = false;
     const baseFees: Pick<ITxBuilderFees, "scooperFee" | "deposit"> = {
-      deposit: new AssetAmount(this.getParams().RIDER_FEE, ADA_ASSET_DECIMAL),
+      deposit: new AssetAmount(
+        deposit ?? this.getParams().RIDER_FEE,
+        ADA_ASSET_DECIMAL
+      ),
       scooperFee: new AssetAmount(
-        this.getParams().SCOOPER_FEE,
+        scooperFee ?? this.getParams().SCOOPER_FEE,
         ADA_ASSET_DECIMAL
       ),
     };

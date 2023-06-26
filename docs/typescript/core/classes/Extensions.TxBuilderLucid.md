@@ -51,43 +51,11 @@ TxBuilder&lt;
 
 [classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:83](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L83)
 
-## Properties
-
-### options
-
-• **options**: [`ITxBuilderLucidOptions`](../interfaces/Extensions.ITxBuilderLucidOptions.md)
-
-The main option for instantiating the class.
-
-#### Inherited from
-
-TxBuilder.options
-
-#### Defined in
-
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L84)
-
-___
-
-### query
-
-• **query**: [`IQueryProviderClass`](../interfaces/Core.IQueryProviderClass.md)
-
-A valid Query Provider class that will do the lookups.
-
-#### Inherited from
-
-TxBuilder.query
-
-#### Defined in
-
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:85](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L85)
-
 ## Methods
 
 ### buildFreezerTx
 
-▸ **buildFreezerTx**(`lockConfig`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<[`Transaction`](Core.Transaction.md)<`Tx`\>, `undefined` \| `string`\>\>
+▸ **buildFreezerTx**(`freezerConfig`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<[`Transaction`](Core.Transaction.md)<`Tx`\>, `undefined` \| `string`\>\>
 
 Builds a valid transaction for the V2 Yield Farming contract
 that allows a user to add or update staking positions.
@@ -96,7 +64,7 @@ that allows a user to add or update staking positions.
 
 | Name | Type |
 | :------ | :------ |
-| `lockConfig` | [`FreezerConfig`](Core.FreezerConfig.md) |
+| `freezerConfig` | [`FreezerConfig`](Core.FreezerConfig.md) |
 
 #### Returns
 
@@ -108,7 +76,7 @@ that allows a user to add or update staking positions.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L148)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:145](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L145)
 
 ___
 
@@ -137,7 +105,7 @@ with an updated swap datum.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:284](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L284)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:287](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L287)
 
 ___
 
@@ -157,7 +125,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:112](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L112)
+[classes/Abstracts/TxBuilder.abstract.class.ts:114](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L114)
 
 ___
 
@@ -173,7 +141,7 @@ Initializes a Lucid instance with the
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:104](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L104)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:101](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L101)
 
 ___
 
@@ -193,4 +161,4 @@ Returns a new Tx instance from Lucid. Throws an error if not ready.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:134](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L134)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:131](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L131)

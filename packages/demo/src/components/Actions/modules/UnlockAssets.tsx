@@ -19,7 +19,7 @@ export const Unlock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
         ownerAddress: walletAddress,
         existingPositions: [
           {
-            hash: "e2d3069ed5060c7ab266ac15f78486b12ddc0051a137c75f6628936b87938952",
+            hash: "d211adc4de0633448eab33aa5292a97d4dc0815ce4d17114c9d850959800d6b3",
             index: 0,
           },
         ],

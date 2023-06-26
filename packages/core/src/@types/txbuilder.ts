@@ -42,60 +42,8 @@ export interface ITxBuilderBaseOptions {
   wallet: TSupportedWallets;
   /** A supported Cardano network. */
   network: TSupportedNetworks;
+  /** The minimum amount of ADA required for a locking position. */
+  minLockAda?: bigint;
+  /** Whether to allow debugging console logs. */
+  debug?: boolean;
 }
-
-// export interface LockArgs {
-//   inputs: UTXO[];
-//   existingPositions?: UTXO[];
-//   lockedValues: AssetAmount[];
-//   delegation: Record<string, Record<string, number>>;
-// }
-
-// /**
-//  * The minimum requirements for an order.
-//  */
-// export interface IOrderArgs {
-//   pool: IPoolData;
-// }
-
-// /**
-//  * The minimum requirements for a Swap order.
-//  */
-// export interface ISwapArgs extends IOrderArgs {
-//   orderAddresses: OrderAddresses;
-//   suppliedAsset: IAsset;
-//   minReceivable: AssetAmount;
-// }
-
-// /**
-//  * The minimum requirements for a Deposit order.
-//  */
-// export interface IDepositArgs extends IOrderArgs {
-//   orderAddresses: OrderAddresses;
-//   suppliedAssets: [IAsset, IAsset];
-// }
-
-// /**
-//  * The minimum requirements for a Deposit order.
-//  */
-// export interface IZapArgs extends IOrderArgs {
-//   orderAddresses: OrderAddresses;
-//   zapDirection: PoolCoin;
-//   suppliedAsset: IAsset;
-// }
-
-// /**
-//  * The minimum requirements for a Deposit order.
-//  */
-// export interface IChainedZapArgs extends IOrderArgs {
-//   zapDirection: PoolCoin;
-//   suppliedAsset: IAsset;
-// }
-
-// /**
-//  * The minimum requirements for a WithdrawOrder
-//  */
-// export interface IWithdrawArgs extends IOrderArgs {
-//   orderAddresses: OrderAddresses;
-//   suppliedLPAsset: IAsset;
-// }

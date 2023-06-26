@@ -1,6 +1,7 @@
 import { FC } from "react";
 import ReactJson from "react-json-view";
 import { useAppState } from "../../state/context";
+import { ITxBuilderBaseOptions } from "@sundaeswap/sdk-core";
 
 const SettingsViewer: FC = () => {
   const { SDK } = useAppState();
@@ -9,12 +10,13 @@ const SettingsViewer: FC = () => {
     return null;
   }
 
-  const options = {
+  const options: ITxBuilderBaseOptions = {
     ...SDK.build().options,
     blockfrost: {
       ...SDK.build().options.blockfrost,
       apiKey: "HIDDEN",
     },
+    minLockAda: SDK.build().options.minLockAda.toString(),
   };
 
   return (

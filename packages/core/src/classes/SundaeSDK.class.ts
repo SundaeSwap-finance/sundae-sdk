@@ -1,3 +1,5 @@
+import { AssetAmount } from "@sundaeswap/asset";
+
 import type {
   CancelConfigArgs,
   DepositConfigArgs,
@@ -5,10 +7,8 @@ import type {
   WithdrawConfigArgs,
   ZapConfigArgs,
   IQueryProviderClass,
-  SDKZapArgs,
   FreezerConfigArgs,
 } from "../@types";
-import { AssetAmount } from "@sundaeswap/asset";
 import { SwapConfig } from "./Configs/SwapConfig.class";
 import { TxBuilder } from "./Abstracts/TxBuilder.abstract.class";
 import { Utils } from "./Utils.class";
@@ -32,6 +32,7 @@ export class SundaeSDK {
    * You'll need to provide a TxBuilder class to the main SDK, which is used to build Transactions and submit them.
    *
    * @param builder - An instance of TxBuilder.
+   * @param options - The options object for this builder.
    */
   constructor(public builder: TxBuilder) {
     this.builder = builder;
@@ -52,7 +53,7 @@ export class SundaeSDK {
    * @returns
    */
   query(): IQueryProviderClass {
-    return this.builder.query;
+    return this.builder.queryProvider;
   }
 
   /**
@@ -255,21 +256,16 @@ export class SundaeSDK {
    * @param config
    * @returns
    */
-  async unstable_zap(config: SDKZapArgs) {
-    let zap: ZapConfig;
-    if (config instanceof ZapConfig) {
-      zap = config;
-    } else {
-      const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
-        config.pool.assetA,
-        config.pool.assetB,
-      ]);
+  async unstable_zap(config: Omit<ZapConfigArgs, "zapDirection">) {
+    const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
+      config.pool.assetA,
+      config.pool.assetB,
+    ]);
 
-      zap = new ZapConfig({
-        ...config,
-        zapDirection,
-      });
-    }
+    const zap = new ZapConfig({
+      ...config,
+      zapDirection,
+    });
 
     return await this.builder.buildAtomicZapTx(zap);
   }

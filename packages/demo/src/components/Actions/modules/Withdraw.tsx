@@ -46,8 +46,8 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           amount: new AssetAmount(lpBalance, 6),
         },
       }).then(async ({ fees, sign, complete }) => {
+        setFees(fees);
         if (submit) {
-          setFees(fees);
           const { cbor, submit } = await sign().complete();
           setCBOR({
             cbor,
