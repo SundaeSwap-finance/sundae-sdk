@@ -61,7 +61,7 @@ export const Lock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
   return (
     <Button onClick={handleLock} loading={locking}>
-      Lock 10 tADA
+      Lock 5 tADA
     </Button>
   );
 };

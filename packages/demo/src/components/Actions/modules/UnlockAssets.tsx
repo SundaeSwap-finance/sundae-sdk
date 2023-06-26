@@ -51,7 +51,7 @@ export const Unlock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
   return (
     <Button onClick={handleUnlock} loading={unlocking}>
-      Unlock 10 tADA
+      Unlock 5 tADA
     </Button>
   );
 };
