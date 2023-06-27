@@ -51,3 +51,18 @@ export interface ZapConfigArgs extends OrderConfigArgs {
 export interface WithdrawConfigArgs extends OrderConfigArgs {
   suppliedLPAsset: IAsset;
 }
+
+/** A map of pools with their associated weight. */
+export type DelegationProgramPools = Map<string, bigint>;
+/** A map of programs with their associated {@link DelegationProgramPools} map. */
+export type DelegationPrograms = Map<string, DelegationProgramPools>;
+
+/**
+ * The configuration object for a FreezerConfig instance.
+ */
+export interface FreezerConfigArgs {
+  delegation?: DelegationPrograms;
+  existingPositions?: UTXO[];
+  lockedValues: AssetAmount[];
+  ownerAddress: string;
+}

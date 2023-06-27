@@ -1,10 +1,10 @@
 import { CancelConfigArgs, UTXO } from "../../@types";
-import { Config } from "../Abstracts/Config.abstract.class";
+import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 
 /**
  * The main config class for building valid arguments for a Cancel.
  */
-export class CancelConfig extends Config<CancelConfigArgs> {
+export class CancelConfig extends OrderConfig<CancelConfigArgs> {
   datum?: string;
   datumHash?: string;
   utxo?: UTXO;

@@ -12,7 +12,7 @@ The boolean type of a pool's coin, where 0 = CoinA and 1 = CoinB.
 
 #### Defined in
 
-[@types/datumbuilder.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L31)
+[@types/datumbuilder.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L32)
 
 ___
 
@@ -22,4 +22,4 @@ ___
 
 #### Defined in
 
-[@types/datumbuilder.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L32)
+[@types/datumbuilder.ts:33](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L33)

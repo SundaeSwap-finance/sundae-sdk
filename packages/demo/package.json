@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "NODE_ENV=production webpack --env production --config ./webpack.config.cjs",
-    "start": "NODE_ENV=development webpack serve --env local --open --config ./webpack.config.cjs",
+    "start": "cd ../core && yarn build && cd ../demo && NODE_ENV=development webpack serve --env local --open --config ./webpack.config.cjs",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -67,7 +67,7 @@
     "@sundaeswap/bigint-math": "^0.5.9",
     "@sundaeswap/cpp": "^0.6.7",
     "@sundaeswap/fraction": "^0.5.9",
-    "@sundaeswap/sdk-core": "^0.2.0-alpha",
+    "@sundaeswap/sdk-core": "^0.2.0-alpha.23",
     "@tailwindcss/forms": "^0.5.2",
     "autoprefixer": "^9",
     "buffer": "^6.0.3",

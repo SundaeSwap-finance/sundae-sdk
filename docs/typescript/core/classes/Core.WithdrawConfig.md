@@ -28,29 +28,61 @@ const { submit, cbor } = await SDK.swap(config);
 
 ## Hierarchy
 
-- `Config`
+- `OrderConfig`<[`WithdrawConfigArgs`](../interfaces/Core.WithdrawConfigArgs.md)\>
 
   ↳ **`WithdrawConfig`**
+
+## Properties
+
+### orderAddresses
+
+• `Optional` **orderAddresses**: [`OrderAddresses`](../modules/Core.md#orderaddresses)
+
+The addresses for the order.
+
+#### Inherited from
+
+OrderConfig.orderAddresses
+
+#### Defined in
+
+[classes/Abstracts/OrderConfig.abstract.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L19)
+
+___
+
+### pool
+
+• `Optional` **pool**: [`IPoolData`](../interfaces/Core.IPoolData.md)
+
+The data for the pool involved in the order.
+
+#### Inherited from
+
+OrderConfig.pool
+
+#### Defined in
+
+[classes/Abstracts/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L14)
 
 ## Methods
 
 ### buildArgs
 
-▸ **buildArgs**(): [`IWithdrawArgs`](../interfaces/Core.IWithdrawArgs.md)
+▸ **buildArgs**(): [`WithdrawConfigArgs`](../interfaces/Core.WithdrawConfigArgs.md)
 
 Build a valid arguments object for a TxBuilder withdraw method.
 
 #### Returns
 
-[`IWithdrawArgs`](../interfaces/Core.IWithdrawArgs.md)
+[`WithdrawConfigArgs`](../interfaces/Core.WithdrawConfigArgs.md)
 
 #### Overrides
 
-Config.buildArgs
+OrderConfig.buildArgs
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:69](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L69)
+[classes/Configs/WithdrawConfig.class.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L68)
 
 ___
 
@@ -72,11 +104,11 @@ Set the default arguments from a JSON object as opposed to individually.
 
 #### Overrides
 
-Config.setFromObject
+OrderConfig.setFromObject
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L45)
+[classes/Configs/WithdrawConfig.class.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L44)
 
 ___
 
@@ -84,25 +116,27 @@ ___
 
 ▸ **setOrderAddresses**(`orderAddresses`): [`WithdrawConfig`](Core.WithdrawConfig.md)
 
-Builds the [OrderAddresses](../modules/Core.md#orderaddresses) for a swap's required datum.
+Set the [OrderAddresses](../modules/Core.md#orderaddresses) for a swap's required datum.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `orderAddresses` | [`OrderAddresses`](../modules/Core.md#orderaddresses) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `orderAddresses` | [`OrderAddresses`](../modules/Core.md#orderaddresses) | The addresses for the order. |
 
 #### Returns
 
 [`WithdrawConfig`](Core.WithdrawConfig.md)
 
+The current instance of the class.
+
 #### Inherited from
 
-Config.setOrderAddresses
+OrderConfig.setOrderAddresses
 
 #### Defined in
 
-[classes/Abstracts/Config.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L14)
+[classes/Abstracts/OrderConfig.abstract.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L30)
 
 ___
 
@@ -114,21 +148,23 @@ Set the pool data directly for the swap you use.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `pool` | [`IPoolData`](../interfaces/Core.IPoolData.md) |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `pool` | [`IPoolData`](../interfaces/Core.IPoolData.md) | The data for the pool involved in the order. |
 
 #### Returns
 
 [`WithdrawConfig`](Core.WithdrawConfig.md)
 
+The current instance of the class.
+
 #### Inherited from
 
-Config.setPool
+OrderConfig.setPool
 
 #### Defined in
 
-[classes/Abstracts/Config.abstract.class.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L25)
+[classes/Abstracts/OrderConfig.abstract.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L41)
 
 ___
 
@@ -150,7 +186,7 @@ Set the funded asset of LP tokens.
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L60)
+[classes/Configs/WithdrawConfig.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L59)
 
 ___
 
@@ -166,8 +202,8 @@ Validates the current config and throws an Error if any required item is not set
 
 #### Overrides
 
-Config.validate
+OrderConfig.validate
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:80](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L80)
+[classes/Configs/WithdrawConfig.class.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L79)

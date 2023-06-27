@@ -1,3 +1,5 @@
+import { AssetAmount } from "@sundaeswap/asset";
+
 import type {
   CancelConfigArgs,
   DepositConfigArgs,
@@ -5,9 +7,8 @@ import type {
   WithdrawConfigArgs,
   ZapConfigArgs,
   IQueryProviderClass,
-  SDKZapArgs,
+  FreezerConfigArgs,
 } from "../@types";
-import { AssetAmount } from "@sundaeswap/asset";
 import { SwapConfig } from "./Configs/SwapConfig.class";
 import { TxBuilder } from "./Abstracts/TxBuilder.abstract.class";
 import { Utils } from "./Utils.class";
@@ -15,6 +16,7 @@ import { DepositConfig } from "./Configs/DepositConfig.class";
 import { WithdrawConfig } from "./Configs/WithdrawConfig.class";
 import { ZapConfig } from "./Configs/ZapConfig.class";
 import { CancelConfig } from "./Configs/CancelConfig.class";
+import { FreezerConfig } from "./Configs/FreezerConfig.class";
 
 /**
  * A description for the SundaeSDK class.
@@ -30,6 +32,7 @@ export class SundaeSDK {
    * You'll need to provide a TxBuilder class to the main SDK, which is used to build Transactions and submit them.
    *
    * @param builder - An instance of TxBuilder.
+   * @param options - The options object for this builder.
    */
   constructor(public builder: TxBuilder) {
     this.builder = builder;
@@ -50,7 +53,7 @@ export class SundaeSDK {
    * @returns
    */
   query(): IQueryProviderClass {
-    return this.builder.query;
+    return this.builder.queryProvider;
   }
 
   /**
@@ -111,7 +114,7 @@ export class SundaeSDK {
         slippage ?? 0.1
       )
     );
-    return await this.builder.buildSwapTx(swap.buildArgs());
+    return await this.builder.buildSwapTx(swap);
   }
 
   /**
@@ -144,10 +147,13 @@ export class SundaeSDK {
    * @param minReceivable
    * @returns
    */
-  async limitSwap(config: SwapConfigArgs, minReceivable: AssetAmount) {
+  async limitSwap(
+    config: Omit<SwapConfigArgs, "minReceivable">,
+    minReceivable: AssetAmount
+  ) {
     const swap = new SwapConfig(config);
     swap.setMinReceivable(minReceivable);
-    return await this.builder.buildSwapTx(swap.buildArgs());
+    return await this.builder.buildSwapTx(swap);
   }
 
   /**
@@ -156,27 +162,16 @@ export class SundaeSDK {
    * @param swapConfigArgs
    * @returns
    */
-  async updateSwap(
-    cancelConfigArgs: CancelConfigArgs,
-    swapConfigArgs: SwapConfigArgs
-  ) {
-    if (swapConfigArgs?.slippage) {
-      swapConfigArgs.minReceivable = Utils.getMinReceivableFromSlippage(
-        swapConfigArgs.pool,
-        swapConfigArgs.suppliedAsset,
-        swapConfigArgs.slippage
-      );
-    }
-
-    if (!swapConfigArgs?.minReceivable) {
+  async updateSwap(cancelConfig: CancelConfigArgs, swapConfig: SwapConfigArgs) {
+    if (swapConfig?.minReceivable === undefined) {
       throw new Error(
         "A swap order update requires either a slippage or a minReceivable to be set in the new config."
       );
     }
 
     return await this.builder.buildUpdateSwapTx({
-      cancelConfigArgs,
-      swapConfigArgs,
+      cancelConfig: new CancelConfig(cancelConfig),
+      swapConfig: new SwapConfig(swapConfig),
     });
   }
 
@@ -187,7 +182,7 @@ export class SundaeSDK {
    */
   async withdraw(config: WithdrawConfigArgs) {
     const withdraw = new WithdrawConfig(config);
-    return await this.builder.buildWithdrawTx(withdraw.buildArgs());
+    return await this.builder.buildWithdrawTx(withdraw);
   }
 
   /**
@@ -197,7 +192,7 @@ export class SundaeSDK {
    */
   async deposit(config: DepositConfigArgs) {
     const deposit = new DepositConfig(config);
-    return await this.builder.buildDepositTx(deposit.buildArgs());
+    return await this.builder.buildDepositTx(deposit);
   }
 
   /**
@@ -207,7 +202,7 @@ export class SundaeSDK {
    */
   async cancel(config: CancelConfigArgs) {
     const cancellation = new CancelConfig(config);
-    return await this.builder.buildCancelTx(cancellation.buildArgs());
+    return await this.builder.buildCancelTx(cancellation);
   }
 
   /**
@@ -226,24 +221,52 @@ export class SundaeSDK {
       zapDirection,
     });
 
-    return await this.builder.buildChainedZapTx(zap.buildArgs());
+    return await this.builder.buildChainedZapTx(zap);
   }
 
   /**
-   * Create a Deposit transaction for a pool by supplying a single asset.
+   * Create a locking transaction for yield farming and pool delegation.
    * @param config
    * @returns
    */
-  async unstable_zap(config: SDKZapArgs) {
+  async lock(config: FreezerConfigArgs) {
+    const lock = new FreezerConfig(config);
+    return await this.builder.buildFreezerTx(lock);
+  }
+
+  /**
+   * Create an unlocking transaction that removes all yield farming positions.
+   * @param config
+   * @returns
+   */
+  async unlock(
+    config: Pick<FreezerConfigArgs, "existingPositions" | "ownerAddress">
+  ) {
+    const lock = new FreezerConfig({
+      ...config,
+      lockedValues: [],
+    });
+
+    return await this.builder.buildFreezerTx(lock);
+  }
+
+  /**
+   * Creates an atomic swap with a single asset and a pool.
+   * This is experimental and currently not supported by Cardano parameter limits.
+   * @param config
+   * @returns
+   */
+  async unstable_zap(config: Omit<ZapConfigArgs, "zapDirection">) {
     const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
       config.pool.assetA,
       config.pool.assetB,
     ]);
-    console.log(zapDirection);
+
     const zap = new ZapConfig({
       ...config,
       zapDirection,
     });
-    return await this.builder.buildAtomicZapTx(zap.buildArgs());
+
+    return await this.builder.buildAtomicZapTx(zap);
   }
 }

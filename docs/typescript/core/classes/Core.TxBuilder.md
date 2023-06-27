@@ -23,7 +23,7 @@ The main class by which TxBuilder classes are extended.
 
 ### buildAtomicZapTx
 
-▸ `Abstract` **buildAtomicZapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildAtomicZapTx**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main function to build an atomic zap Transaction.
 
@@ -31,7 +31,7 @@ The main function to build an atomic zap Transaction.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | [`IZapArgs`](../interfaces/Core.IZapArgs.md) | The built ZapArguments from a [ZapConfig](Core.ZapConfig.md) instance. |
+| `config` | [`ZapConfig`](Core.ZapConfig.md) | A [ZapConfig](Core.ZapConfig.md) instance. |
 
 #### Returns
 
@@ -39,13 +39,13 @@ The main function to build an atomic zap Transaction.
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:99](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L99)
+[classes/Abstracts/TxBuilder.abstract.class.ts:108](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L108)
 
 ___
 
 ### buildCancelTx
 
-▸ `Abstract` **buildCancelTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildCancelTx**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main function to build a cancellation Transaction.
 
@@ -53,7 +53,7 @@ The main function to build a cancellation Transaction.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | [`CancelConfigArgs`](../interfaces/Core.CancelConfigArgs.md) | The built CancelArguments from a [CancelConfig](Core.CancelConfig.md) instance. |
+| `config` | [`CancelConfig`](Core.CancelConfig.md) | A [CancelConfig](Core.CancelConfig.md) instance. |
 
 #### Returns
 
@@ -61,13 +61,13 @@ The main function to build a cancellation Transaction.
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L75)
+[classes/Abstracts/TxBuilder.abstract.class.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L84)
 
 ___
 
 ### buildChainedZapTx
 
-▸ `Abstract` **buildChainedZapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildChainedZapTx**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The currently functioning way to process a chained Zap Transaction.
 
@@ -75,7 +75,7 @@ The currently functioning way to process a chained Zap Transaction.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | [`IZapArgs`](../interfaces/Core.IZapArgs.md) | The built ZapArguments from a [ZapConfig](Core.ZapConfig.md) instance. |
+| `config` | [`ZapConfig`](Core.ZapConfig.md) | A [ZapConfig](Core.ZapConfig.md) instance. |
 
 #### Returns
 
@@ -83,13 +83,13 @@ The currently functioning way to process a chained Zap Transaction.
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:92](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L92)
+[classes/Abstracts/TxBuilder.abstract.class.ts:101](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L101)
 
 ___
 
 ### buildDepositTx
 
-▸ `Abstract` **buildDepositTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildDepositTx**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main function to build a deposit Transaction.
 
@@ -97,7 +97,7 @@ The main function to build a deposit Transaction.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | [`DepositConfigArgs`](../interfaces/Core.DepositConfigArgs.md) | The built DepositArguments from a [DepositConfig](Core.DepositConfig.md) instance. |
+| `config` | [`DepositConfig`](Core.DepositConfig.md) | A [DepositConfig](Core.DepositConfig.md) instance. |
 
 #### Returns
 
@@ -105,13 +105,35 @@ The main function to build a deposit Transaction.
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L61)
+[classes/Abstracts/TxBuilder.abstract.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L70)
+
+___
+
+### buildFreezerTx
+
+▸ `Abstract` **buildFreezerTx**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+
+The main function to build a freezer Transaction.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `config` | [`FreezerConfig`](Core.FreezerConfig.md) | A [FreezerConfig](Core.FreezerConfig.md) instance. |
+
+#### Returns
+
+`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+
+#### Defined in
+
+[classes/Abstracts/TxBuilder.abstract.class.ts:55](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L55)
 
 ___
 
 ### buildSwapTx
 
-▸ `Abstract` **buildSwapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildSwapTx**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main function to build a swap Transaction.
 
@@ -119,7 +141,7 @@ The main function to build a swap Transaction.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | [`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md) | The built SwapArguments from a [SwapConfig](Core.SwapConfig.md) instance. |
+| `config` | [`SwapConfig`](Core.SwapConfig.md) | A [SwapConfig](Core.SwapConfig.md) instance. |
 
 #### Returns
 
@@ -127,13 +149,13 @@ The main function to build a swap Transaction.
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L54)
+[classes/Abstracts/TxBuilder.abstract.class.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L63)
 
 ___
 
 ### buildUpdateSwapTx
 
-▸ `Abstract` **buildUpdateSwapTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildUpdateSwapTx**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main function to update an open swap.
 
@@ -141,9 +163,9 @@ The main function to update an open swap.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | `Object` | The built CancelArguments and SwapArguments from both [CancelConfig](Core.CancelConfig.md) and [SwapConfig](Core.SwapConfig.md) instances. |
-| `args.cancelConfigArgs` | [`CancelConfigArgs`](../interfaces/Core.CancelConfigArgs.md) | - |
-| `args.swapConfigArgs` | [`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md) | - |
+| `config` | `Object` | An object of both a [CancelConfig](Core.CancelConfig.md) and [SwapConfig](Core.SwapConfig.md) instance. |
+| `config.cancelConfig` | [`CancelConfig`](Core.CancelConfig.md) | - |
+| `config.swapConfig` | [`SwapConfig`](Core.SwapConfig.md) | - |
 
 #### Returns
 
@@ -151,13 +173,13 @@ The main function to update an open swap.
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L82)
+[classes/Abstracts/TxBuilder.abstract.class.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L91)
 
 ___
 
 ### buildWithdrawTx
 
-▸ `Abstract` **buildWithdrawTx**(`args`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildWithdrawTx**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
 
 The main function to build a withdraw Transaction.
 
@@ -165,7 +187,7 @@ The main function to build a withdraw Transaction.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `args` | [`WithdrawConfigArgs`](../interfaces/Core.WithdrawConfigArgs.md) | The built WithdrawArguments from a [WithdrawConfig](Core.WithdrawConfig.md) instance. |
+| `config` | [`WithdrawConfig`](Core.WithdrawConfig.md) | A [WithdrawConfig](Core.WithdrawConfig.md) instance. |
 
 #### Returns
 
@@ -173,7 +195,7 @@ The main function to build a withdraw Transaction.
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L68)
+[classes/Abstracts/TxBuilder.abstract.class.ts:77](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L77)
 
 ___
 
@@ -189,7 +211,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:105](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L105)
+[classes/Abstracts/TxBuilder.abstract.class.ts:114](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L114)
 
 ___
 
@@ -205,4 +227,4 @@ Should create a new [Transaction](Core.Transaction.md) instance from the supplie
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L46)
+[classes/Abstracts/TxBuilder.abstract.class.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L47)

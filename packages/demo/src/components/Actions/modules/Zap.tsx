@@ -21,7 +21,10 @@ export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
         pool,
         suppliedAsset: {
           assetId: "",
-          amount: new AssetAmount(10000000n, 6),
+          amount: new AssetAmount(10000000n, {
+            assetId: "",
+            decimals: 6,
+          }),
         },
         orderAddresses: {
           DestinationAddress: {
@@ -29,8 +32,8 @@ export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           },
         },
       }).then(async ({ fees, sign, complete }) => {
+        setFees(fees);
         if (submit) {
-          setFees(fees);
           const { cbor, submit } = await sign().complete();
           setCBOR({
             cbor,

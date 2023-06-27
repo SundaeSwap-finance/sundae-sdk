@@ -1,5 +1,5 @@
 import { IPoolData } from "../../../@types";
-import { Config } from "../Config.abstract.class";
+import { OrderConfig } from "../OrderConfig.abstract.class";
 
 const mockPool: IPoolData = {
   assetA: {
@@ -20,7 +20,7 @@ const mockPool: IPoolData = {
 const mockAddress =
   "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32";
 
-class TestClass extends Config {
+class TestClass extends OrderConfig {
   constructor() {
     super();
   }

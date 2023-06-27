@@ -12,9 +12,11 @@
  * @packageDescription
  */
 import { jest } from "@jest/globals";
+import { AssetAmount } from "@sundaeswap/asset";
+
 import { DatumBuilder } from "../classes/Abstracts/DatumBuilder.abstract.class";
 import { OrderAddresses, PoolCoin } from "../@types/datumbuilder";
-import { AssetAmount } from "@sundaeswap/asset";
+import { LucidHelper } from "../classes/Extensions/LucidHelper.class";
 
 const DEFAULT_IDENT = "03";
 const DEFAULT_ORDER_ADDRESSES: OrderAddresses = {
@@ -175,7 +177,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         });
       } catch (e) {
         expect((e as Error).message).toStrictEqual(
-          "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key."
+          "Invalid address. Make sure you are using a Bech32 or Hex encoded address that includes the payment key."
         );
       }
     });
@@ -189,7 +191,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         });
       } catch (e) {
         expect((e as Error).message).toStrictEqual(
-          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"invalid"}}. Please check your arguments and try again. Error message from DatumBuilder: No address type matched for: invalid'
+          "You supplied an invalid address: invalid. Please check your arguments and try again. Error message from LucidHelper: No address type matched for: invalid"
         );
       }
 
@@ -200,7 +202,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         });
       } catch (e) {
         expect((e as Error).message).toStrictEqual(
-          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"},"AlternateAddress":"invalid"}. Please check your arguments and try again. Error message from DatumBuilder: No address type matched for: invalid'
+          "You supplied an invalid address: invalid. Please check your arguments and try again. Error message from LucidHelper: No address type matched for: invalid"
         );
       }
     });
@@ -215,7 +217,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         });
       } catch (e) {
         expect((e as Error).message).toStrictEqual(
-          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"}}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a Mainnet Network address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294.'
+          "You supplied an invalid address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294. Please check your arguments and try again. Error message from LucidHelper: The given address is not a Mainnet Network address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294."
         );
       }
     });
@@ -231,7 +233,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         });
       } catch (e) {
         expect((e as Error).message).toStrictEqual(
-          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk"}}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a (Preview/Testnet/PreProd) Network address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk.'
+          "You supplied an invalid address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk. Please check your arguments and try again. Error message from LucidHelper: The given address is not a (Preview/Testnet/PreProd) Network address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk."
         );
       }
     });
@@ -249,7 +251,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         });
       } catch (e) {
         expect((e as Error).message).toStrictEqual(
-          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk"},"AlternateAddress":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a Mainnet Network address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294.'
+          "You supplied an invalid address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294. Please check your arguments and try again. Error message from LucidHelper: The given address is not a Mainnet Network address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294."
         );
       }
     });
@@ -263,13 +265,13 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         });
       } catch (e) {
         expect((e as Error).message).toStrictEqual(
-          'You supplied invalid OrderAddresses: {"DestinationAddress":{"address":"addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294"},"AlternateAddress":"addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk"}. Please check your arguments and try again. Error message from DatumBuilder: The given address is not a (Preview/Testnet/PreProd) Network address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk.'
+          "You supplied an invalid address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk. Please check your arguments and try again. Error message from LucidHelper: The given address is not a (Preview/Testnet/PreProd) Network address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk."
         );
       }
     });
 
     it("should fail when passing a script address to DestinationAddress without a datumHash attached", () => {
-      jest.spyOn(DatumBuilder, "throwInvalidOrderAddressesError");
+      jest.spyOn(LucidHelper, "throwInvalidOrderAddressesError");
       try {
         builderInstance.buildOrderAddresses({
           DestinationAddress: {
@@ -279,21 +281,16 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         });
       } catch (e) {
         expect(
-          DatumBuilder.throwInvalidOrderAddressesError
+          LucidHelper.throwInvalidOrderAddressesError
         ).toHaveBeenCalledWith(
-          {
-            DestinationAddress: {
-              address:
-                "addr_test1wpesulg5dtt5y73r4zzay9qmy3wnlrxdg944xg4rzuvewls7nrsf0",
-            },
-          },
-          "The DestinationAddress is a Script Address, a Datum hash was not supplied. This will brick your funds! Supply a valid DatumHash with your DestinationAddress to proceed."
+          "addr_test1wpesulg5dtt5y73r4zzay9qmy3wnlrxdg944xg4rzuvewls7nrsf0",
+          "The address provided is a Script Address, but a datum hash was not supplied. This will brick your funds! Supply a valid datum hash with the address in order to proceed."
         );
       }
     });
 
     it("should fail when passing an invalid datumHash along with a script DestinationAddress", () => {
-      jest.spyOn(DatumBuilder, "throwInvalidOrderAddressesError");
+      jest.spyOn(LucidHelper, "throwInvalidOrderAddressesError");
       try {
         builderInstance.buildOrderAddresses({
           DestinationAddress: {
@@ -304,16 +301,10 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         });
       } catch (e) {
         expect(
-          DatumBuilder.throwInvalidOrderAddressesError
+          LucidHelper.throwInvalidOrderAddressesError
         ).toHaveBeenCalledWith(
-          {
-            DestinationAddress: {
-              address:
-                "addr_test1wpesulg5dtt5y73r4zzay9qmy3wnlrxdg944xg4rzuvewls7nrsf0",
-              datumHash: "invalidDatum",
-            },
-          },
-          'The datumHash provided was not a valid hex string. Original error: {"datumHash":"invalidDatum"}'
+          "addr_test1wpesulg5dtt5y73r4zzay9qmy3wnlrxdg944xg4rzuvewls7nrsf0",
+          'The datumHash provided was not a valid hex string. Original error: {"datum":"invalidDatum"}'
         );
       }
     });

@@ -42,6 +42,42 @@ The hex-encoded script value of the Escrow Order contract
 
 ___
 
+### FREEZER\_PAYMENT\_SCRIPTHASH
+
+• **FREEZER\_PAYMENT\_SCRIPTHASH**: `string`
+
+The hex-encoded keyhash for the Yield Farming contract.
+
+#### Defined in
+
+[@types/utilities.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L20)
+
+___
+
+### FREEZER\_REFERENCE\_INPUT
+
+• **FREEZER\_REFERENCE\_INPUT**: `string`
+
+The hex-enc
+
+#### Defined in
+
+[@types/utilities.ts:22](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L22)
+
+___
+
+### FREEZER\_STAKE\_KEYHASH
+
+• **FREEZER\_STAKE\_KEYHASH**: `string`
+
+The hex-encoded staking key for the Yield Farming lockups.
+
+#### Defined in
+
+[@types/utilities.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L18)
+
+___
+
 ### RIDER\_FEE
 
 • **RIDER\_FEE**: `bigint`

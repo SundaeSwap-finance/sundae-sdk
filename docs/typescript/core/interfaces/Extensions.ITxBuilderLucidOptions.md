@@ -27,7 +27,39 @@ The chosen provider options object to pass to Lucid.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:43](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L43)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L46)
+
+___
+
+### debug
+
+• `Optional` **debug**: `boolean`
+
+Whether to allow debugging console logs.
+
+#### Inherited from
+
+[ITxBuilderBaseOptions](Core.ITxBuilderBaseOptions.md).[debug](Core.ITxBuilderBaseOptions.md#debug)
+
+#### Defined in
+
+[@types/txbuilder.ts:48](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L48)
+
+___
+
+### minLockAda
+
+• `Optional` **minLockAda**: `bigint`
+
+The minimum amount of ADA required for a locking position.
+
+#### Inherited from
+
+[ITxBuilderBaseOptions](Core.ITxBuilderBaseOptions.md).[minLockAda](Core.ITxBuilderBaseOptions.md#minlockada)
+
+#### Defined in
+
+[@types/txbuilder.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L46)
 
 ___
 
@@ -43,7 +75,7 @@ A supported Cardano network.
 
 #### Defined in
 
-[@types/txbuilder.ts:51](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L51)
+[@types/txbuilder.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L44)
 
 ___
 
@@ -55,7 +87,7 @@ The provider type used by Lucid. Currently only supports Blockfrost.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L41)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L44)
 
 ___
 
@@ -71,4 +103,4 @@ A CIP-30 compatible wallet.
 
 #### Defined in
 
-[@types/txbuilder.ts:49](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L49)
+[@types/txbuilder.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L42)

@@ -38,8 +38,8 @@ export const Deposit: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           },
         ],
       }).then(async ({ sign, fees, complete }) => {
+        setFees(fees);
         if (submit) {
-          setFees(fees);
           const { cbor, submit } = await sign().complete();
           setCBOR({
             cbor,

@@ -2,16 +2,15 @@ import {
   ZapConfigArgs,
   IAsset,
   IPoolData,
-  IZapArgs,
   OrderAddresses,
   PoolCoin,
 } from "../../@types";
-import { Config } from "../Abstracts/Config.abstract.class";
+import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 
 /**
  * The main config class for building valid arguments for a Zap.
  */
-export class ZapConfig extends Config<IZapArgs> {
+export class ZapConfig extends OrderConfig<ZapConfigArgs> {
   suppliedAsset?: IAsset;
   zapDirection?: PoolCoin;
 
@@ -31,7 +30,7 @@ export class ZapConfig extends Config<IZapArgs> {
     return this;
   }
 
-  buildArgs(): IZapArgs {
+  buildArgs(): ZapConfigArgs {
     this.validate();
 
     return {

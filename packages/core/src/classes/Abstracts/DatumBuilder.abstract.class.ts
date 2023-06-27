@@ -4,6 +4,7 @@ import {
   DepositMixed,
   DepositSingle,
   IAsset,
+  LockArguments,
   OrderAddresses,
   Swap,
   SwapArguments,
@@ -64,6 +65,8 @@ export abstract class DatumBuilder<Data = any> {
    * @param args The Withdraw arguments.
    */
   abstract buildWithdrawDatum(args: WithdrawArguments): DatumResult<Data>;
+
+  abstract buildLockDatum(args: LockArguments): DatumResult<Data>;
 
   abstract buildScooperFee(fee: bigint): bigint;
   abstract buildWithdrawAsset(fundedLPAsset: IAsset): DatumResult<Data>;

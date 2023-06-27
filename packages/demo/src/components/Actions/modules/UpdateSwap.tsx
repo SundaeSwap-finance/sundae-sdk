@@ -54,8 +54,8 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
       await SDK.updateSwap(cancelConfig, updatedSwapConfig).then(
         async ({ fees, sign, complete }) => {
+          setFees(fees);
           if (submit) {
-            setFees(fees);
             const { cbor, submit } = await sign().complete();
             setCBOR({
               cbor,

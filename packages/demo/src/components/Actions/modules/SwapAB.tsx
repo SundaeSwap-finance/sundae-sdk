@@ -29,8 +29,8 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           amount: new AssetAmount(25000000n, 6),
         },
       }).then(async ({ fees, sign, complete }) => {
+        setFees(fees);
         if (submit) {
-          setFees(fees);
           const { cbor, submit } = await sign().complete();
           setCBOR({
             cbor,

@@ -1,4 +1,4 @@
-import { ISwapArgs, ITxBuilderComplete } from "../@types";
+import { ITxBuilderComplete } from "../@types";
 import { TxBuilder } from "./Abstracts/TxBuilder.abstract.class";
 
 /**
