@@ -63,6 +63,6 @@ export type DelegationPrograms = Map<string, DelegationProgramPools>;
 export interface FreezerConfigArgs {
   delegation?: DelegationPrograms;
   existingPositions?: UTXO[];
-  lockedValues: AssetAmount[];
+  lockedValues: AssetAmount<{ assetId: string; decimals: number }>[];
   ownerAddress: string;
 }

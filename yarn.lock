@@ -2109,10 +2109,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@sundaeswap/asset@^0.6.8":
-  version "0.6.8"
-  resolved "https://registry.yarnpkg.com/@sundaeswap/asset/-/asset-0.6.8.tgz#abe733db99a97284dcd51584faa1eeef48341b0c"
-  integrity sha512-kchtB3+hofrzFA+LtjoAbJVb99Fa6kemsg/dQ0WHe0UQAiBFkvaf1+S78pvSzjdBAR7kyO4xYiNi0XT2dR526A==
+"@sundaeswap/asset@^0.6.9":
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/asset/-/asset-0.6.9.tgz#0d5f956edc14d597c83a1fc48c475b6b771ecf9b"
+  integrity sha512-oYNcYBABjgizGUIjt8sfDEz25Uwt80pEJ7YrpUMgOOdTx42QPzMQVN6ICO8/WXYlxrK0rgGdfY4seif6SXuO9g==
   dependencies:
     "@sundaeswap/fraction" "^0.5.9"
 
