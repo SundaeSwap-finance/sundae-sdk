@@ -222,9 +222,11 @@ export class TxBuilderLucid extends TxBuilder<
     txInstance
       .get()
       .readFrom(referenceInput)
-      .addSignerKey(
-        signerKey?.stakeCredentials ?? signerKey?.paymentCredentials
-      );
+      .addSignerKey(signerKey?.paymentCredentials);
+
+    if (signerKey?.stakeCredentials) {
+      txInstance.get().addSignerKey(signerKey?.stakeCredentials);
+    }
 
     if (existingPositionData) {
       txInstance
