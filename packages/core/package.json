@@ -84,7 +84,7 @@
     "@meshsdk/core": "^1.3.0",
     "@sundaeswap/asset": "^0.6.9",
     "@sundaeswap/bigint-math": "^0.5.9",
-    "@sundaeswap/cpp": "^0.6.7",
+    "@sundaeswap/cpp": "^0.6.9",
     "@sundaeswap/fraction": "^0.5.9",
     "lucid-cardano": "^0.10.4"
   },

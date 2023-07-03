@@ -2126,6 +2126,11 @@
   resolved "https://registry.yarnpkg.com/@sundaeswap/cpp/-/cpp-0.6.7.tgz#254223b5141009f600553ef4d0d19a6ac5c34a9c"
   integrity sha512-IOxsm/xnH0bEs6ANyoxSZgW6V+1B4KJP8jYZO5ROKvq7mHkaCWdteKLphwB6K3PlHzBu64/hU8Si/lXVvCWaUQ==
 
+"@sundaeswap/cpp@^0.6.9":
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/cpp/-/cpp-0.6.9.tgz#f85b8ca9c1649b1c7a5c7690bb0cbee733ca4f16"
+  integrity sha512-lKiTXNR4brSEZR5aHLU6LGdxdhSfK1UhCT2L9aTi9r/mTXVIah+an2YiH914yXS3A89wdUMj1aJfOH7JSBGNnw==
+
 "@sundaeswap/docgen@^0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@sundaeswap/docgen/-/docgen-0.1.1.tgz#29c9f2c0842f25b80872887fa487866483fad92f"

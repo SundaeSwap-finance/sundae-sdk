@@ -36,7 +36,7 @@
     "typedoc-plugin-markdown": "^3.14.0"
   },
   "dependencies": {
-    "@sundaeswap/cpp": "^0.6.7",
+    "@sundaeswap/cpp": "^0.6.9",
     "@sundaeswap/fraction": "^0.5.9"
   }
 }
