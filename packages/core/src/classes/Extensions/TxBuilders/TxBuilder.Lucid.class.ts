@@ -241,7 +241,9 @@ export class TxBuilderLucid extends TxBuilder<
         delegation,
       });
 
-      txInstance.get().payToContract(contractAddress, cbor, payment);
+      txInstance
+        .get()
+        .payToContract(contractAddress, { inline: cbor }, payment);
       return this.completeTx(txInstance, cbor, this.options.minLockAda, 0n);
     } else {
       return this.completeTx(txInstance, undefined, 0n, 0n);
