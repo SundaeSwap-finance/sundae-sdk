@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-alpha.27](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.26...v0.2.0-alpha.27) (2023-07-03)
+
+### Bug Fixes
+
+- ensure datum coverage for legacy inputs ([3045935](https://github.com/SundaeSwap-finance/sundae-sdk/commit/30459359f42c75f0867d62a5a45a9e4cf3db5504))
+
 # [0.2.0-alpha.26](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.25...v0.2.0-alpha.26) (2023-07-03)
 
 **Note:** Version bump only for package @sundaeswap/sdk-core
