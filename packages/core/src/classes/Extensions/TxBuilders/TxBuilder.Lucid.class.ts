@@ -182,24 +182,25 @@ export class TxBuilderLucid extends TxBuilder<
 
     const minAda = this.options.minLockAda as bigint; // It gets set as a default parameter if undefined.
     const payment: Assets = {
-      lovelace: minAda,
+      lovelace: 0n,
     };
 
     lockedValues.forEach(({ amount, metadata }) => {
       if (metadata?.assetId === ADA_ASSET_ID) {
         payment.lovelace += amount;
       } else {
-        if (!payment[metadata?.assetId]) {
-          payment[metadata?.assetId?.replace(".", "")] = amount;
+        const assetIdRef = metadata?.assetId?.replace(".", "");
+        if (!payment[assetIdRef]) {
+          payment[assetIdRef] = amount;
         } else {
-          payment[metadata?.assetId?.replace(".", "")] += amount;
+          payment[assetIdRef] += amount;
         }
       }
     });
 
     // Deduct the minimum amount we started with if we've supplied at least that much.
-    if (payment.lovelace - minAda >= minAda) {
-      payment.lovelace -= minAda;
+    if (payment.lovelace < minAda) {
+      payment.lovelace = minAda;
     }
 
     const contractAddress = this.wallet?.utils.credentialToAddress(
