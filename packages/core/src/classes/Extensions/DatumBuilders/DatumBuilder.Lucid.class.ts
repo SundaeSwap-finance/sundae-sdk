@@ -59,11 +59,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
     delegation.forEach((programMap, program) => {
       programMap.forEach((weight, pool) => {
         delegationData.push(
-          new Constr(1, [
-            Buffer.from(program).toString("hex"),
-            pool,
-            BigInt(weight),
-          ])
+          new Constr(1, [Buffer.from(program).toString("hex"), pool, weight])
         );
       });
     });

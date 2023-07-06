@@ -42,7 +42,7 @@ Builds the Deposit datum.
 
 #### Defined in
 
-[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:117](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L117)
+[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:113](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L113)
 
 ___
 
@@ -68,7 +68,7 @@ DatumBuilder.buildDepositPair
 
 #### Defined in
 
-[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:198](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L198)
+[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:194](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L194)
 
 ___
 
@@ -94,7 +94,7 @@ DatumBuilder.buildDepositZap
 
 #### Defined in
 
-[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:218](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L218)
+[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:214](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L214)
 
 ___
 
@@ -154,7 +154,7 @@ DatumBuilder.buildOrderAddresses
 
 #### Defined in
 
-[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:277](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L277)
+[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:273](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L273)
 
 ___
 
@@ -180,7 +180,7 @@ DatumBuilder.buildScooperFee
 
 #### Defined in
 
-[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:189](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L189)
+[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:185](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L185)
 
 ___
 
@@ -212,7 +212,7 @@ Builds the Swap datum.
 
 #### Defined in
 
-[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L91)
+[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:87](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L87)
 
 ___
 
@@ -245,7 +245,7 @@ DatumBuilder.buildSwapDirection
 
 #### Defined in
 
-[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:252](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L252)
+[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:248](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L248)
 
 ___
 
@@ -271,7 +271,7 @@ DatumBuilder.buildWithdrawAsset
 
 #### Defined in
 
-[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:232](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L232)
+[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:228](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L228)
 
 ___
 
@@ -303,7 +303,7 @@ Builds the Withdraw datum.
 
 #### Defined in
 
-[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:162](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L162)
+[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:158](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L158)
 
 ___
 
@@ -335,7 +335,7 @@ Builds the Zap datum.
 
 #### Defined in
 
-[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:142](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L142)
+[classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts:138](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/DatumBuilders/DatumBuilder.Lucid.class.ts#L138)
 
 ___
 

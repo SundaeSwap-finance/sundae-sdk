@@ -569,7 +569,6 @@ export class TxBuilderLucid extends TxBuilder<
       },
       async complete() {
         if (sign) {
-          console.log(thisTx.tx.txComplete, coinSelection);
           const signedTx = await finishedTx.sign().complete();
           return {
             submit: async () => await signedTx.submit(),
