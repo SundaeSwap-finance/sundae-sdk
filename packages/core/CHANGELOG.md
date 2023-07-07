@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-alpha.32](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.31...v0.2.0-alpha.32) (2023-07-07)
+
+### Bug Fixes
+
+- cancel redeemer was wrong ([f3ad3b9](https://github.com/SundaeSwap-finance/sundae-sdk/commit/f3ad3b9a32f28d7451ec8a08d516ab3e1a150754))
+
 # [0.2.0-alpha.31](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.30...v0.2.0-alpha.31) (2023-07-06)
 
 **Note:** Version bump only for package @sundaeswap/sdk-core
