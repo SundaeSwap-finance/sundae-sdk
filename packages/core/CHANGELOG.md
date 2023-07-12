@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-alpha.33](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.32...v0.2.0-alpha.33) (2023-07-12)
+
+### Bug Fixes
+
+- zap was swapping full supplied amount ([4733ae3](https://github.com/SundaeSwap-finance/sundae-sdk/commit/4733ae3644adfe8a69a5a6b1ff6c5a92a885dd0c))
+
 # [0.2.0-alpha.32](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.31...v0.2.0-alpha.32) (2023-07-07)
 
 ### Bug Fixes
