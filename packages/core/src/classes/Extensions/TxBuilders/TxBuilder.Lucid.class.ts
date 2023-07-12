@@ -479,7 +479,10 @@ export class TxBuilderLucid extends TxBuilder<
      */
     const swapData = datumBuilder.buildSwapDatum({
       ident: pool.ident,
-      fundedAsset: suppliedAsset,
+      fundedAsset: {
+        amount: halfSuppliedAmount,
+        assetId: suppliedAsset.assetId,
+      },
       orderAddresses: {
         DestinationAddress: {
           address: ESCROW_ADDRESS,
