@@ -10,11 +10,15 @@ interface IAppState {
   SDK?: SundaeSDK;
   setSDK: Dispatch<SetStateAction<SundaeSDK | undefined>>;
   walletAddress: string;
+  ready: boolean;
+  setReady: Dispatch<SetStateAction<boolean>>;
 }
 
 const defaultState: IAppState = {
   setSDK: () => {},
   walletAddress: "",
+  ready: false,
+  setReady: () => {},
 };
 
 const AppState = createContext(defaultState);
@@ -26,6 +30,7 @@ export const AppStateProvider: FC<
   PropsWithChildren<{ defaultValue?: Partial<IAppState> }>
 > = ({ children, defaultValue }) => {
   const [SDK, setSDK] = useState<SundaeSDK>();
+  const [ready, setReady] = useState<boolean>(false);
   const [activeWallet, setActiveWallet] = useState("");
 
   useEffect(() => {
@@ -40,6 +45,7 @@ export const AppStateProvider: FC<
         address: { bech32 },
       } = getAddressDetails(address);
       setActiveWallet(bech32);
+      setReady(true);
     })();
   }, []);
 
@@ -49,6 +55,8 @@ export const AppStateProvider: FC<
         walletAddress: activeWallet,
         SDK,
         setSDK,
+        ready,
+        setReady,
         ...defaultValue,
       }}
     >

@@ -7,7 +7,6 @@
  */
 
 import { jest } from "@jest/globals";
-import { AssetAmount } from "@sundaeswap/asset";
 
 const MockedDatumBuilderLucid = jest.fn().mockImplementation(() => {
   return {};
@@ -44,7 +43,6 @@ const MockCoreExports = () => {
 
   jest.mock("@sundaeswap/sdk-core", () => ({
     SundaeSDK: MockedSundaeSDK,
-    AssetAmount,
   }));
 };
 

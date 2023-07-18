@@ -1,7 +1,7 @@
-import { AssetAmount } from "@sundaeswap/asset";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+
 import { OrderAddresses, PoolCoin, UTXO } from "./datumbuilder";
 import { IPoolData } from "./queryprovider";
-import { IAsset } from "./utilities";
 
 /**
  * The common arguments for any valid order.
@@ -15,8 +15,8 @@ export interface OrderConfigArgs {
  * The arguments configuration for building a valid Swap.
  */
 export interface SwapConfigArgs extends OrderConfigArgs {
-  suppliedAsset: IAsset;
-  minReceivable?: AssetAmount;
+  suppliedAsset: AssetAmount<IAssetAmountMetadata>;
+  minReceivable?: AssetAmount<IAssetAmountMetadata>;
   slippage?: number | false;
 }
 
@@ -24,7 +24,10 @@ export interface SwapConfigArgs extends OrderConfigArgs {
  * The arguments configuration for building a valid Deposit.
  */
 export interface DepositConfigArgs extends OrderConfigArgs {
-  suppliedAssets: [IAsset, IAsset];
+  suppliedAssets: [
+    AssetAmount<IAssetAmountMetadata>,
+    AssetAmount<IAssetAmountMetadata>
+  ];
 }
 
 /**
@@ -41,15 +44,16 @@ export interface CancelConfigArgs {
  * The arguments configuration for building a valid Deposit.
  */
 export interface ZapConfigArgs extends OrderConfigArgs {
-  suppliedAsset: IAsset;
+  suppliedAsset: AssetAmount<IAssetAmountMetadata>;
   zapDirection: PoolCoin;
+  swapSlippage?: number;
 }
 
 /**
  * The arguments configuration for building a valid Withdraw.
  */
 export interface WithdrawConfigArgs extends OrderConfigArgs {
-  suppliedLPAsset: IAsset;
+  suppliedLPAsset: AssetAmount<IAssetAmountMetadata>;
 }
 
 /** A map of pools with their associated weight. */

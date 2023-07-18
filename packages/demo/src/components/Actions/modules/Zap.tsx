@@ -5,7 +5,7 @@ import { ActionArgs, poolQuery } from "../Actions";
 import Button from "../../Button";
 
 export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, walletAddress } = useAppState();
+  const { SDK, ready, walletAddress } = useAppState();
   const [zapping, setZapping] = useState(false);
 
   const handleZap = useCallback(async () => {
@@ -19,18 +19,13 @@ export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
       await SDK.zap({
         pool,
-        suppliedAsset: {
-          assetId: "",
-          amount: new AssetAmount(10000000n, {
-            assetId: "",
-            decimals: 6,
-          }),
-        },
+        suppliedAsset: new AssetAmount(9999999n, pool.assetA),
         orderAddresses: {
           DestinationAddress: {
             address: walletAddress,
           },
         },
+        swapSlippage: 0.3,
       }).then(async ({ fees, sign, complete }) => {
         setFees(fees);
         if (submit) {
@@ -58,7 +53,7 @@ export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
   }
 
   return (
-    <Button onClick={handleZap} loading={zapping}>
+    <Button disabled={!ready} onClick={handleZap} loading={zapping}>
       Zap tADA to tADA/tINDY
     </Button>
   );

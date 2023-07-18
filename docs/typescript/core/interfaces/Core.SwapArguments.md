@@ -14,7 +14,7 @@ Arguments for a swap.
 
 ### fundedAsset
 
-• **fundedAsset**: [`IAsset`](Core.IAsset.md)
+• **fundedAsset**: `AssetAmount`<`IAssetAmountMetadata`\>
 
 The asset supplied (this is required to accurately determine the swap direction).
 

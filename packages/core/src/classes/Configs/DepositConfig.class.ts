@@ -1,16 +1,16 @@
-import {
-  DepositConfigArgs,
-  IAsset,
-  IPoolData,
-  OrderAddresses,
-} from "../../@types";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+
+import { DepositConfigArgs, IPoolData, OrderAddresses } from "../../@types";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 
 /**
  * The main config class for building valid arguments for a Deposit.
  */
 export class DepositConfig extends OrderConfig<DepositConfigArgs> {
-  suppliedAssets?: [IAsset, IAsset];
+  suppliedAssets?: [
+    AssetAmount<IAssetAmountMetadata>,
+    AssetAmount<IAssetAmountMetadata>
+  ];
 
   constructor(args?: DepositConfigArgs) {
     super();
@@ -18,7 +18,12 @@ export class DepositConfig extends OrderConfig<DepositConfigArgs> {
     args && this.setFromObject(args);
   }
 
-  setSuppliedAssets(assets: [IAsset, IAsset]) {
+  setSuppliedAssets(
+    assets: [
+      AssetAmount<IAssetAmountMetadata>,
+      AssetAmount<IAssetAmountMetadata>
+    ]
+  ) {
     this.suppliedAssets = assets;
     return this;
   }
@@ -29,7 +34,10 @@ export class DepositConfig extends OrderConfig<DepositConfigArgs> {
     return {
       orderAddresses: this.orderAddresses as OrderAddresses,
       pool: this.pool as IPoolData,
-      suppliedAssets: this.suppliedAssets as [IAsset, IAsset],
+      suppliedAssets: this.suppliedAssets as [
+        AssetAmount<IAssetAmountMetadata>,
+        AssetAmount<IAssetAmountMetadata>
+      ],
     };
   }
 

@@ -1,4 +1,5 @@
 import { AssetAmount } from "@sundaeswap/asset";
+
 import { Utils } from "../Utils.class";
 import { ADA_ASSET_ID } from "../../lib/constants";
 import { PREVIEW_DATA } from "../../testing/mockData";
@@ -36,10 +37,7 @@ describe("Utils class", () => {
     try {
       Utils.getMinReceivableFromSlippage(
         PREVIEW_DATA.pool,
-        {
-          assetId: "not in the pool",
-          amount: new AssetAmount(10n),
-        },
+        new AssetAmount(10n, { assetId: "not in the pool", decimals: 0 }),
         0.1
       );
     } catch (e) {
@@ -63,10 +61,10 @@ describe("Utils class", () => {
       },
     };
 
-    const mockSuppliedAsset = {
-      assetId: PREVIEW_DATA.assets.tada.assetId,
-      amount: new AssetAmount(80000000n, 6),
-    };
+    const mockSuppliedAsset = new AssetAmount(
+      80000000n,
+      PREVIEW_DATA.assets.tada.metadata
+    );
 
     // Default 3% slippage.
     expect(
@@ -103,10 +101,7 @@ describe("Utils class", () => {
     const aggregate = Utils.accumulateSuppliedAssets(
       [
         PREVIEW_DATA.assets.tada,
-        {
-          assetId: ADA_ASSET_ID,
-          amount: new AssetAmount(25000000n, 6),
-        },
+        new AssetAmount(25000000n, { assetId: ADA_ASSET_ID, decimals: 6 }),
         PREVIEW_DATA.assets.tindy,
       ],
       "preview"
@@ -122,53 +117,36 @@ describe("Utils class", () => {
   });
 
   it("should accurately sort a pair of assets", () => {
-    const result = Utils.sortSwapAssets([
+    const result = Utils.sortSwapAssetsWithAmounts([
       PREVIEW_DATA.assets.tindy,
       PREVIEW_DATA.assets.tada,
     ]);
-    expect(result[0]).toMatchObject({
-      assetId: PREVIEW_DATA.assets.tada.assetId,
-      amount: expect.objectContaining({
-        amount: PREVIEW_DATA.assets.tada.amount.amount,
-        decimals: PREVIEW_DATA.assets.tada.amount.decimals,
-      }),
-    });
-    expect(result[1]).toMatchObject({
-      assetId: PREVIEW_DATA.assets.tindy.assetId,
-      amount: expect.objectContaining({
-        amount: PREVIEW_DATA.assets.tindy.amount.amount,
-        decimals: PREVIEW_DATA.assets.tindy.amount.decimals,
-      }),
-    });
+    expect(result[0]).toStrictEqual(PREVIEW_DATA.assets.tada);
+    expect(result[1]).toStrictEqual(PREVIEW_DATA.assets.tindy);
 
-    const result2 = Utils.sortSwapAssets([
-      PREVIEW_DATA.assets.tindy,
-      {
-        ...PREVIEW_DATA.assets.tindy,
-        assetId: "abcd",
-      },
-    ]);
-    expect(result2[0]).toMatchObject({
+    const assetShouldBeFirst = new AssetAmount(20000000n, {
+      decimals: 0,
       assetId: "abcd",
-      amount: expect.objectContaining({
-        amount: PREVIEW_DATA.assets.tindy.amount.amount,
-        decimals: PREVIEW_DATA.assets.tindy.amount.decimals,
-      }),
     });
-    expect(result2[1]).toMatchObject(PREVIEW_DATA.assets.tindy);
+    const result2 = Utils.sortSwapAssetsWithAmounts([
+      PREVIEW_DATA.assets.tindy,
+      assetShouldBeFirst,
+    ]);
+    expect(result2[0]).toStrictEqual(assetShouldBeFirst);
+    expect(result2[1]).toStrictEqual(PREVIEW_DATA.assets.tindy);
   });
 
   it("should accurately get the swap direction", () => {
-    const result = Utils.getAssetSwapDirection(
-      { assetId: "", amount: new AssetAmount(10n) },
-      [PREVIEW_DATA.pool.assetA, PREVIEW_DATA.pool.assetB]
-    );
-    expect(result).toStrictEqual(0);
-
-    const result2 = Utils.getAssetSwapDirection(PREVIEW_DATA.assets.tindy, [
+    const result = Utils.getAssetSwapDirection(PREVIEW_DATA.pool.assetA, [
       PREVIEW_DATA.pool.assetA,
       PREVIEW_DATA.pool.assetB,
     ]);
+    expect(result).toStrictEqual(0);
+
+    const result2 = Utils.getAssetSwapDirection(
+      PREVIEW_DATA.assets.tindy.metadata,
+      [PREVIEW_DATA.pool.assetA, PREVIEW_DATA.pool.assetB]
+    );
     expect(result2).toStrictEqual(1);
   });
 

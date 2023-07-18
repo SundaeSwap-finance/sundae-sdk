@@ -47,10 +47,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
           SuppliedCoin: PoolCoin.A,
           MinimumReceivable: new AssetAmount(10000000n, 6),
         },
-        fundedAsset: {
-          amount: new AssetAmount(5000000n, 6),
-          assetId: "",
-        },
+        fundedAsset: new AssetAmount(5000000n, { assetId: "", decimals: 6 }),
       });
 
       expect(result.cbor).toStrictEqual(
@@ -63,10 +60,7 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
         swap: {
           SuppliedCoin: PoolCoin.B,
         },
-        fundedAsset: {
-          amount: new AssetAmount(5000000n, 6),
-          assetId: "",
-        },
+        fundedAsset: new AssetAmount(5000000n, { assetId: "", decimals: 6 }),
       });
 
       expect(result2.cbor).toStrictEqual(
@@ -112,10 +106,10 @@ export const TEST_DatumBuilder = (initializer: () => DatumBuilder) => {
       const result = builderInstance.buildWithdrawDatum({
         ident: DEFAULT_IDENT,
         orderAddresses: DEFAULT_ORDER_ADDRESSES,
-        suppliedLPAsset: {
-          amount: new AssetAmount(20000000n, 6),
+        suppliedLPAsset: new AssetAmount(20000000n, {
           assetId: "",
-        },
+          decimals: 6,
+        }),
       });
 
       expect(result.cbor).toStrictEqual(

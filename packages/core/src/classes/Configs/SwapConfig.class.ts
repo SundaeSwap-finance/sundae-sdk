@@ -1,10 +1,6 @@
-import {
-  IAsset,
-  SwapConfigArgs,
-  IPoolData,
-  OrderAddresses,
-} from "../../@types";
-import { AssetAmount } from "@sundaeswap/asset";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+
+import { SwapConfigArgs, IPoolData, OrderAddresses } from "../../@types";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 import { Utils } from "../Utils.class";
 
@@ -32,8 +28,8 @@ import { Utils } from "../Utils.class";
  * @see {@link SundaeSDK.swap}
  */
 export class SwapConfig extends OrderConfig<SwapConfigArgs> {
-  suppliedAsset?: IAsset;
-  minReceivable?: AssetAmount;
+  suppliedAsset?: AssetAmount<IAssetAmountMetadata>;
+  minReceivable?: AssetAmount<IAssetAmountMetadata>;
 
   constructor(args?: SwapConfigArgs) {
     super();
@@ -47,7 +43,7 @@ export class SwapConfig extends OrderConfig<SwapConfigArgs> {
    * @param asset The provided asset and amount from a connected wallet.
    * @returns
    */
-  setSuppliedAsset(asset: IAsset) {
+  setSuppliedAsset(asset: AssetAmount<IAssetAmountMetadata>) {
     this.suppliedAsset = asset;
     return this;
   }
@@ -75,9 +71,9 @@ export class SwapConfig extends OrderConfig<SwapConfigArgs> {
     this.validate();
     return {
       pool: this.pool as IPoolData,
-      suppliedAsset: this.suppliedAsset as IAsset,
+      suppliedAsset: this.suppliedAsset as AssetAmount<IAssetAmountMetadata>,
       orderAddresses: this.orderAddresses as OrderAddresses,
-      minReceivable: this.minReceivable as AssetAmount,
+      minReceivable: this.minReceivable as AssetAmount<IAssetAmountMetadata>,
     };
   }
 

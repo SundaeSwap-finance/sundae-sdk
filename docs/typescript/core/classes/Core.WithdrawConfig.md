@@ -82,7 +82,7 @@ OrderConfig.buildArgs
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L68)
+[classes/Configs/WithdrawConfig.class.ts:65](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L65)
 
 ___
 
@@ -108,7 +108,7 @@ OrderConfig.setFromObject
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L44)
+[classes/Configs/WithdrawConfig.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L41)
 
 ___
 
@@ -178,7 +178,7 @@ Set the funded asset of LP tokens.
 
 | Name | Type |
 | :------ | :------ |
-| `asset` | [`IAsset`](../interfaces/Core.IAsset.md) |
+| `asset` | `AssetAmount`<`IAssetAmountMetadata`\> |
 
 #### Returns
 
@@ -186,7 +186,7 @@ Set the funded asset of LP tokens.
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L59)
+[classes/Configs/WithdrawConfig.class.ts:56](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L56)
 
 ___
 
@@ -206,4 +206,4 @@ OrderConfig.validate
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L79)
+[classes/Configs/WithdrawConfig.class.ts:77](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L77)

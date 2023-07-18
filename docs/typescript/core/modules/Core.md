@@ -77,7 +77,6 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [DepositArguments](../interfaces/Core.DepositArguments.md)
 - [DepositConfigArgs](../interfaces/Core.DepositConfigArgs.md)
 - [FreezerConfigArgs](../interfaces/Core.FreezerConfigArgs.md)
-- [IAsset](../interfaces/Core.IAsset.md)
 - [IPoolData](../interfaces/Core.IPoolData.md)
 - [IPoolDataAsset](../interfaces/Core.IPoolDataAsset.md)
 - [IPoolQuery](../interfaces/Core.IPoolQuery.md)
@@ -136,7 +135,7 @@ A map of pools with their associated weight.
 
 #### Defined in
 
-[@types/configs.ts:56](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L56)
+[@types/configs.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L60)
 
 ___
 
@@ -148,7 +147,7 @@ A map of programs with their associated [DelegationProgramPools](Core.md#delegat
 
 #### Defined in
 
-[@types/configs.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L58)
+[@types/configs.ts:62](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L62)
 
 ___
 
@@ -259,7 +258,7 @@ ___
 
 Ƭ **Swap**: `Object`
 
-The swap direction of a [IAsset](../interfaces/Core.IAsset.md) coin pair, and a minimum receivable amount
+The swap direction of a coin pair, and a minimum receivable amount
 which acts as the limit price of a swap.
 
 #### Type declaration

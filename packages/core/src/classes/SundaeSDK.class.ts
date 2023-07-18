@@ -211,10 +211,10 @@ export class SundaeSDK {
    * @returns
    */
   async zap(config: Omit<ZapConfigArgs, "zapDirection">) {
-    const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
-      config.pool.assetA,
-      config.pool.assetB,
-    ]);
+    const zapDirection = Utils.getAssetSwapDirection(
+      config.suppliedAsset.metadata,
+      [config.pool.assetA, config.pool.assetB]
+    );
 
     const zap = new ZapConfig({
       ...config,
@@ -257,10 +257,10 @@ export class SundaeSDK {
    * @returns
    */
   async unstable_zap(config: Omit<ZapConfigArgs, "zapDirection">) {
-    const zapDirection = Utils.getAssetSwapDirection(config.suppliedAsset, [
-      config.pool.assetA,
-      config.pool.assetB,
-    ]);
+    const zapDirection = Utils.getAssetSwapDirection(
+      config.suppliedAsset.metadata,
+      [config.pool.assetA, config.pool.assetB]
+    );
 
     const zap = new ZapConfig({
       ...config,

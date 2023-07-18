@@ -62,7 +62,7 @@ ___
 
 ### suppliedLPAsset
 
-• **suppliedLPAsset**: [`IAsset`](Core.IAsset.md)
+• **suppliedLPAsset**: `AssetAmount`<`IAssetAmountMetadata`\>
 
 The LP tokens to send to the pool.
 

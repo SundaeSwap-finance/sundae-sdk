@@ -1,6 +1,6 @@
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+
 import { PREVIEW_DATA } from "../../../testing/mockData";
-import { IAsset } from "../../../@types";
-import { AssetAmount } from "@sundaeswap/asset";
 import { SwapConfig } from "../SwapConfig.class";
 
 let config: SwapConfig;
@@ -32,13 +32,13 @@ describe("SwapConfig class", () => {
           address: PREVIEW_DATA.address,
         },
       },
-      suppliedAsset: {
-        assetId: PREVIEW_DATA.assets.tada.assetId,
-        amount: expect.objectContaining({
-          amount: PREVIEW_DATA.assets.tada.amount.amount,
-          decimals: PREVIEW_DATA.assets.tada.amount.decimals,
-        }),
-      },
+      suppliedAsset: expect.objectContaining({
+        amount: PREVIEW_DATA.assets.tada.amount,
+        metadata: {
+          decimals: PREVIEW_DATA.assets.tada.decimals,
+          assetId: PREVIEW_DATA.assets.tada.metadata.assetId,
+        },
+      }),
       // 10% minus the pool fee
       minReceivable: expect.objectContaining({
         amount: 8570604n,
@@ -53,18 +53,15 @@ describe("SwapConfig class", () => {
   });
 
   it("should set the suppliedAsset correctly", () => {
-    const asset: IAsset = {
-      amount: new AssetAmount(20n, 6),
-      assetId: "",
-    };
+    const asset = new AssetAmount(20n, { assetId: "", decimals: 6 });
 
     config.setSuppliedAsset(asset);
     expect(config.suppliedAsset).toMatchObject({
-      amount: expect.objectContaining({
-        amount: 20n,
+      amount: 20n,
+      metadata: expect.objectContaining({
         decimals: 6,
+        assetId: "",
       }),
-      assetId: "",
     });
   });
 
@@ -90,10 +87,9 @@ describe("SwapConfig class", () => {
       })
       .setMinReceivable(new AssetAmount(20n))
       .setPool(PREVIEW_DATA.pool)
-      .setSuppliedAsset({
-        amount: new AssetAmount(20n, 6),
-        assetId: "tINDY",
-      });
+      .setSuppliedAsset(
+        new AssetAmount(20n, { assetId: "tINDY", decimals: 0 })
+      );
 
     try {
       config.buildArgs();
@@ -112,11 +108,13 @@ describe("SwapConfig class", () => {
       })
       .setMinReceivable(new AssetAmount(20n))
       .setPool(PREVIEW_DATA.pool)
-      .setSuppliedAsset({
-        amount: new AssetAmount(20n, 6),
-        assetId:
-          "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459",
-      });
+      .setSuppliedAsset(
+        new AssetAmount(20n, {
+          assetId:
+            "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459",
+          decimals: 6,
+        })
+      );
 
     try {
       config.buildArgs();
@@ -129,10 +127,7 @@ describe("SwapConfig class", () => {
   });
 
   it("should run buildArgs() without errors", () => {
-    const validFunding: IAsset = {
-      amount: new AssetAmount(2n, 6),
-      assetId: "",
-    };
+    const validFunding = new AssetAmount(2n, { assetId: "", decimals: 6 });
 
     config
       .setPool(PREVIEW_DATA.pool)
@@ -156,11 +151,11 @@ describe("SwapConfig class", () => {
         decimals: 0,
       }),
       suppliedAsset: {
-        assetId: validFunding.assetId,
-        amount: expect.objectContaining({
-          amount: validFunding.amount.amount,
-          decimals: validFunding.amount.decimals,
-        }),
+        metadata: {
+          assetId: validFunding.metadata.assetId,
+        },
+        amount: validFunding.amount,
+        decimals: validFunding.decimals,
       },
     });
   });

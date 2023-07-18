@@ -5,7 +5,7 @@ import { ActionArgs, poolQuery } from "../Actions";
 import Button from "../../Button";
 
 export const Deposit: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, walletAddress } = useAppState();
+  const { SDK, ready, walletAddress } = useAppState();
   const [depositing, setDepositing] = useState(false);
 
   const handleDeposit = useCallback(async () => {
@@ -27,15 +27,12 @@ export const Deposit: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
         },
         pool,
         suppliedAssets: [
-          {
-            assetId: "",
-            amount: new AssetAmount(baseAmount, 6),
-          },
-          {
+          new AssetAmount(baseAmount, { assetId: "", decimals: 6 }),
+          new AssetAmount(baseAmount * ratio, {
             assetId:
               "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-            amount: new AssetAmount(baseAmount * ratio, 6),
-          },
+            decimals: 6,
+          }),
         ],
       }).then(async ({ sign, fees, complete }) => {
         setFees(fees);
@@ -64,7 +61,7 @@ export const Deposit: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
   }
 
   return (
-    <Button onClick={handleDeposit} loading={depositing}>
+    <Button disabled={!ready} onClick={handleDeposit} loading={depositing}>
       Deposit tADA/tINDY
     </Button>
   );
