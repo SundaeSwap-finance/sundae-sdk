@@ -1,23 +1,11 @@
 import { ZapConfig } from "../ZapConfig.class";
 import { PREVIEW_DATA } from "../../../testing/mockData";
-import {
-  DelegationProgramPools,
-  DelegationPrograms,
-  PoolCoin,
-  ZapConfigArgs,
-} from "../../../@types";
+import { PoolCoin, ZapConfigArgs } from "../../../@types";
 
 let config: ZapConfig;
 beforeEach(() => {
   config = new ZapConfig();
 });
-
-const delegationMap: DelegationPrograms = new Map();
-const sundaeDelegation: DelegationProgramPools = new Map();
-
-sundaeDelegation.set("01", 1n);
-sundaeDelegation.set("02", 5n);
-delegationMap.set("SUNDAE", sundaeDelegation);
 
 describe("ZapConfig class", () => {
   it("should construct with no parameters", () => {
