@@ -46,6 +46,7 @@ export interface CancelConfigArgs {
 export interface ZapConfigArgs extends OrderConfigArgs {
   suppliedAsset: AssetAmount<IAssetAmountMetadata>;
   zapDirection: PoolCoin;
+  swapSlippage?: number;
 }
 
 /**

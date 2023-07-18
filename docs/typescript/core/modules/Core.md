@@ -135,7 +135,7 @@ A map of pools with their associated weight.
 
 #### Defined in
 
-[@types/configs.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L59)
+[@types/configs.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L60)
 
 ___
 
@@ -147,7 +147,7 @@ A map of programs with their associated [DelegationProgramPools](Core.md#delegat
 
 #### Defined in
 
-[@types/configs.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L61)
+[@types/configs.ts:62](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L62)
 
 ___
 

@@ -19,12 +19,13 @@ export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
       await SDK.zap({
         pool,
-        suppliedAsset: new AssetAmount(9999999n, pool.assetB),
+        suppliedAsset: new AssetAmount(9999999n, pool.assetA),
         orderAddresses: {
           DestinationAddress: {
             address: walletAddress,
           },
         },
+        swapSlippage: 0.3,
       }).then(async ({ fees, sign, complete }) => {
         setFees(fees);
         if (submit) {

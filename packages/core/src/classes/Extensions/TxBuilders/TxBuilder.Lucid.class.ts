@@ -414,7 +414,8 @@ export class TxBuilderLucid extends TxBuilder<
   }
 
   async buildChainedZapTx(zapConfig: ZapConfig): Promise<ITxBuilderTx> {
-    const { pool, suppliedAsset, orderAddresses } = zapConfig.buildArgs();
+    const { pool, suppliedAsset, orderAddresses, swapSlippage } =
+      zapConfig.buildArgs();
     const tx = await this.newTxInstance();
     const { ESCROW_ADDRESS, SCOOPER_FEE } = this.getParams();
     const payment = Utils.accumulateSuppliedAssets(
@@ -437,7 +438,7 @@ export class TxBuilderLucid extends TxBuilder<
     const minReceivable = Utils.getMinReceivableFromSlippage(
       pool,
       halfSuppliedAmount,
-      0
+      swapSlippage
     );
 
     let depositPair: DepositMixed;
