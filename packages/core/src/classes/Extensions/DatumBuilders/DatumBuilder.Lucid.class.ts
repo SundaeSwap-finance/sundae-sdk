@@ -1,12 +1,11 @@
 import { Data, Constr, C } from "lucid-cardano";
-import { AssetAmount } from "@sundaeswap/asset";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import {
   DatumResult,
   DepositArguments,
   DepositMixed,
   DepositSingle,
-  IAsset,
   LockArguments,
   OrderAddresses,
   Swap,
@@ -95,7 +94,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
       ident,
       this.buildOrderAddresses(orderAddresses).datum,
       this.buildScooperFee(scooperFee),
-      this.buildSwapDirection(swap, fundedAsset.amount).datum,
+      this.buildSwapDirection(swap, fundedAsset).datum,
     ]);
 
     return {
@@ -225,8 +224,10 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
    * Builds the LP tokens to send to the pool.
    * @param fundedLPAsset The LP tokens to send to the pool.
    */
-  buildWithdrawAsset(fundedLPAsset: IAsset): DatumResult<Data> {
-    const datum = new Constr(1, [fundedLPAsset.amount.amount]);
+  buildWithdrawAsset(
+    fundedLPAsset: AssetAmount<IAssetAmountMetadata>
+  ): DatumResult<Data> {
+    const datum = new Constr(1, [fundedLPAsset.amount]);
 
     return {
       cbor: Data.to(datum),
@@ -245,7 +246,7 @@ export class DatumBuilderLucid extends DatumBuilder<Data> {
    * @param minReceivable The minimum receivable amount we want (a.k.a limit price).
    * @returns
    */
-  buildSwapDirection(swap: Swap, amount: AssetAmount) {
+  buildSwapDirection(swap: Swap, amount: AssetAmount<IAssetAmountMetadata>) {
     const datum = new Constr(0, [
       new Constr(swap.SuppliedCoin, []),
       amount.amount,

@@ -16,7 +16,6 @@ import {
   IQueryProviderClass,
   TSupportedNetworks,
   ITxBuilderBaseOptions,
-  IAsset,
   ITxBuilderTx,
   ITxBuilderFees,
   DepositMixed,
@@ -99,6 +98,10 @@ export class TxBuilderLucid extends TxBuilder<
    * Initializes a Lucid instance with the
    */
   private async initWallet() {
+    if (this.wallet) {
+      return;
+    }
+
     const { providerType, blockfrost } = this.options;
     let ThisProvider: Provider | undefined;
     switch (providerType) {
@@ -129,6 +132,7 @@ export class TxBuilderLucid extends TxBuilder<
    * @returns
    */
   async newTxInstance(): Promise<Transaction<Tx>> {
+    await this.initWallet();
     if (!this.wallet) {
       this._throwWalletNotConnected();
     }
@@ -266,7 +270,7 @@ export class TxBuilderLucid extends TxBuilder<
     const { cbor } = datumBuilder.buildSwapDatum({
       ident,
       swap: {
-        SuppliedCoin: Utils.getAssetSwapDirection(suppliedAsset, [
+        SuppliedCoin: Utils.getAssetSwapDirection(suppliedAsset.metadata, [
           assetA,
           assetB,
         ]),
@@ -323,14 +327,14 @@ export class TxBuilderLucid extends TxBuilder<
       this.options.network
     );
     const datumBuilder = new DatumBuilderLucid(this.options.network);
-    const [coinA, coinB] = Utils.sortSwapAssets(suppliedAssets);
+    const [coinA, coinB] = Utils.sortSwapAssetsWithAmounts(suppliedAssets);
 
     const { cbor } = datumBuilder.buildDepositDatum({
       ident: pool.ident,
       orderAddresses: orderAddresses,
       deposit: {
-        CoinAAmount: (coinA as IAsset).amount,
-        CoinBAmount: (coinB as IAsset).amount,
+        CoinAAmount: coinA,
+        CoinBAmount: coinB,
       },
     });
 
@@ -425,31 +429,27 @@ export class TxBuilderLucid extends TxBuilder<
     /**
      * To accurately determine the altReceivable, we need to swap only half the supplied asset.
      */
-    const halfSuppliedAmount = suppliedAsset.amount.subtract(
-      new AssetAmount(
-        BigInt(Math.floor(Number(suppliedAsset.amount.amount) / 2))
-      )
+    const halfSuppliedAmount = new AssetAmount(
+      Math.ceil(Number(suppliedAsset.amount) / 2),
+      suppliedAsset.metadata
     );
 
     const minReceivable = Utils.getMinReceivableFromSlippage(
       pool,
-      {
-        amount: halfSuppliedAmount,
-        assetId: suppliedAsset.assetId,
-      },
+      halfSuppliedAmount,
       0
     );
 
     let depositPair: DepositMixed;
-    if (pool.assetA.assetId === suppliedAsset.assetId) {
+    if (pool.assetA.assetId === suppliedAsset.metadata.assetId) {
       depositPair = {
-        CoinAAmount: halfSuppliedAmount,
+        CoinAAmount: suppliedAsset.subtract(halfSuppliedAmount),
         CoinBAmount: minReceivable,
       };
     } else {
       depositPair = {
         CoinAAmount: minReceivable,
-        CoinBAmount: halfSuppliedAmount,
+        CoinBAmount: suppliedAsset.subtract(halfSuppliedAmount),
       };
     }
 
@@ -479,10 +479,7 @@ export class TxBuilderLucid extends TxBuilder<
      */
     const swapData = datumBuilder.buildSwapDatum({
       ident: pool.ident,
-      fundedAsset: {
-        amount: halfSuppliedAmount,
-        assetId: suppliedAsset.assetId,
-      },
+      fundedAsset: halfSuppliedAmount,
       orderAddresses: {
         DestinationAddress: {
           address: ESCROW_ADDRESS,
@@ -491,7 +488,7 @@ export class TxBuilderLucid extends TxBuilder<
         AlternateAddress: orderAddresses.DestinationAddress.address,
       },
       swap: {
-        SuppliedCoin: Utils.getAssetSwapDirection(suppliedAsset, [
+        SuppliedCoin: Utils.getAssetSwapDirection(suppliedAsset.metadata, [
           pool.assetA,
           pool.assetB,
         ]),
@@ -529,7 +526,7 @@ export class TxBuilderLucid extends TxBuilder<
       ident: pool.ident,
       orderAddresses: orderAddresses,
       zap: {
-        CoinAmount: suppliedAsset.amount,
+        CoinAmount: suppliedAsset,
         ZapDirection: zapDirection,
       },
     });

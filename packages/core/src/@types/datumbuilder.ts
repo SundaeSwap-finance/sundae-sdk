@@ -1,5 +1,5 @@
-import { AssetAmount } from "@sundaeswap/asset";
-import { IAsset } from "./utilities";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+
 import { DelegationPrograms } from "./configs";
 
 /**
@@ -58,7 +58,7 @@ export type OrderAddresses = {
 };
 
 /**
- * The swap direction of a {@link IAsset} coin pair, and a minimum receivable amount
+ * The swap direction of a coin pair, and a minimum receivable amount
  * which acts as the limit price of a swap.
  */
 export type Swap = {
@@ -109,7 +109,7 @@ export interface Arguments {
 export interface SwapArguments extends Arguments {
   swap: Swap;
   /** The asset supplied (this is required to accurately determine the swap direction). */
-  fundedAsset: IAsset;
+  fundedAsset: AssetAmount<IAssetAmountMetadata>;
 }
 
 /**
@@ -117,7 +117,7 @@ export interface SwapArguments extends Arguments {
  */
 export interface WithdrawArguments extends Arguments {
   /** The LP tokens to send to the pool. */
-  suppliedLPAsset: IAsset;
+  suppliedLPAsset: AssetAmount<IAssetAmountMetadata>;
 }
 
 /**

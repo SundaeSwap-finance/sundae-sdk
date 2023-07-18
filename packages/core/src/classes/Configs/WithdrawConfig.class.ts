@@ -1,9 +1,6 @@
-import {
-  WithdrawConfigArgs,
-  IAsset,
-  IPoolData,
-  OrderAddresses,
-} from "../../@types";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+
+import { WithdrawConfigArgs, IPoolData, OrderAddresses } from "../../@types";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 
 /**
@@ -30,7 +27,7 @@ import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
  * @see {@link SundaeSDK.withdraw}
  */
 export class WithdrawConfig extends OrderConfig<WithdrawConfigArgs> {
-  suppliedLPAsset?: IAsset;
+  suppliedLPAsset?: AssetAmount<IAssetAmountMetadata>;
 
   constructor(args?: WithdrawConfigArgs) {
     super();
@@ -56,7 +53,7 @@ export class WithdrawConfig extends OrderConfig<WithdrawConfigArgs> {
    * @param asset
    * @returns
    */
-  setSuppliedLPAsset(asset: IAsset) {
+  setSuppliedLPAsset(asset: AssetAmount<IAssetAmountMetadata>) {
     this.suppliedLPAsset = asset;
     return this;
   }
@@ -69,7 +66,8 @@ export class WithdrawConfig extends OrderConfig<WithdrawConfigArgs> {
     return {
       pool: this.pool as IPoolData,
       orderAddresses: this.orderAddresses as OrderAddresses,
-      suppliedLPAsset: this.suppliedLPAsset as IAsset,
+      suppliedLPAsset: this
+        .suppliedLPAsset as AssetAmount<IAssetAmountMetadata>,
     };
   }
 

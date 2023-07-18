@@ -87,7 +87,7 @@ OrderConfig.buildArgs
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:74](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L74)
+[classes/Configs/SwapConfig.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L70)
 
 ___
 
@@ -113,7 +113,7 @@ OrderConfig.setFromObject
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:87](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L87)
+[classes/Configs/SwapConfig.class.ts:83](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L83)
 
 ___
 
@@ -135,7 +135,7 @@ Set a minimum receivable asset amount for the swap. This is akin to setting a li
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L61)
+[classes/Configs/SwapConfig.class.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L57)
 
 ___
 
@@ -205,7 +205,7 @@ Set the supplied asset for the swap.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `asset` | [`IAsset`](../interfaces/Core.IAsset.md) | The provided asset and amount from a connected wallet. |
+| `asset` | `AssetAmount`<`IAssetAmountMetadata`\> | The provided asset and amount from a connected wallet. |
 
 #### Returns
 
@@ -213,4 +213,4 @@ Set the supplied asset for the swap.
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:50](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L50)
+[classes/Configs/SwapConfig.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L46)

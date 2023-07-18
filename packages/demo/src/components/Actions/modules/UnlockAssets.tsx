@@ -5,7 +5,7 @@ import { ActionArgs } from "../Actions";
 import Button from "../../Button";
 
 export const Unlock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, walletAddress } = useAppState();
+  const { SDK, ready, walletAddress } = useAppState();
   const [unlocking, setUnlocking] = useState(false);
 
   const handleUnlock = useCallback(async () => {
@@ -50,7 +50,7 @@ export const Unlock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
   }
 
   return (
-    <Button onClick={handleUnlock} loading={unlocking}>
+    <Button disabled={!ready} onClick={handleUnlock} loading={unlocking}>
       Unlock 5 tADA
     </Button>
   );

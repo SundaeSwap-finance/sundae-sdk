@@ -7,7 +7,7 @@ import { ActionArgs, poolQuery } from "../Actions";
 import Button from "../../Button";
 
 export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, walletAddress } = useAppState();
+  const { SDK, ready, walletAddress } = useAppState();
   const [withdrawing, setWithdrawing] = useState(false);
 
   const handleWithdraw = useCallback(async () => {
@@ -40,11 +40,11 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           },
         },
         pool,
-        suppliedLPAsset: {
+        suppliedLPAsset: new AssetAmount(lpBalance, {
           assetId:
             "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702002",
-          amount: new AssetAmount(lpBalance, 6),
-        },
+          decimals: 6,
+        }),
       }).then(async ({ fees, sign, complete }) => {
         setFees(fees);
         if (submit) {
@@ -72,7 +72,7 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
   }
 
   return (
-    <Button onClick={handleWithdraw} loading={withdrawing}>
+    <Button disabled={!ready} onClick={handleWithdraw} loading={withdrawing}>
       Withdraw tADA/tINDY
     </Button>
   );

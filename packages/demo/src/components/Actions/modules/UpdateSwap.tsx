@@ -6,7 +6,7 @@ import Button from "../../Button";
 import { AssetAmount } from "@sundaeswap/asset";
 
 export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, walletAddress } = useAppState();
+  const { SDK, ready, walletAddress } = useAppState();
   const [updating, setUpdating] = useState(false);
 
   const handleUpdateSwap = useCallback(async () => {
@@ -45,11 +45,11 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           },
         },
         slippage: 0.3,
-        suppliedAsset: {
+        suppliedAsset: new AssetAmount(1000000n, {
           assetId:
             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-          amount: new AssetAmount(1000000n, 6),
-        },
+          decimals: 6,
+        }),
       };
 
       await SDK.updateSwap(cancelConfig, updatedSwapConfig).then(
@@ -81,7 +81,7 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
   }
 
   return (
-    <Button onClick={handleUpdateSwap} loading={updating}>
+    <Button disabled={!ready} onClick={handleUpdateSwap} loading={updating}>
       Update Order
     </Button>
   );

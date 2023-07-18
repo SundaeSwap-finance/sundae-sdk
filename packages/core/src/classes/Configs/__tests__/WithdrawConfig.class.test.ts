@@ -1,6 +1,6 @@
-import { PREVIEW_DATA } from "../../../testing/mockData";
-import { IAsset } from "../../../@types";
 import { AssetAmount } from "@sundaeswap/asset";
+
+import { PREVIEW_DATA } from "../../../testing/mockData";
 import { WithdrawConfig } from "../WithdrawConfig.class";
 
 let config: WithdrawConfig;
@@ -41,10 +41,7 @@ describe("WithdrawConfig class", () => {
   });
 
   it("should set the suppliedAsset correctly", () => {
-    const asset: IAsset = {
-      amount: new AssetAmount(20n, 6),
-      assetId: "",
-    };
+    const asset = new AssetAmount(20n, { assetId: "", decimals: 6 });
 
     config.setSuppliedLPAsset(asset);
     expect(config.suppliedLPAsset).toMatchObject(asset);
@@ -64,10 +61,9 @@ describe("WithdrawConfig class", () => {
   });
 
   it("should throw an error if a pool isn't set", () => {
-    config.setSuppliedLPAsset({
-      amount: new AssetAmount(20n, 6),
-      assetId: "tINDY",
-    });
+    config.setSuppliedLPAsset(
+      new AssetAmount(20n, { assetId: "tINDY", decimals: 6 })
+    );
 
     try {
       config.buildArgs();
@@ -87,10 +83,9 @@ describe("WithdrawConfig class", () => {
         },
       })
       .setPool(PREVIEW_DATA.pool)
-      .setSuppliedLPAsset({
-        amount: new AssetAmount(20n, 6),
-        assetId: "tINDY",
-      });
+      .setSuppliedLPAsset(
+        new AssetAmount(20n, { assetId: "tINDY", decimals: 6 })
+      );
 
     try {
       config.buildArgs();
@@ -108,11 +103,13 @@ describe("WithdrawConfig class", () => {
         },
       })
       .setPool(PREVIEW_DATA.pool)
-      .setSuppliedLPAsset({
-        amount: new AssetAmount(20n, 6),
-        assetId:
-          "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459",
-      });
+      .setSuppliedLPAsset(
+        new AssetAmount(20n, {
+          assetId:
+            "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459",
+          decimals: 6,
+        })
+      );
 
     try {
       config.buildArgs();
@@ -140,10 +137,7 @@ describe("WithdrawConfig class", () => {
   });
 
   it("should run buildArgs() without errors", () => {
-    const validFunding: IAsset = {
-      amount: new AssetAmount(2n, 6),
-      assetId: "",
-    };
+    const validFunding = new AssetAmount(2n, { assetId: "", decimals: 6 });
 
     config
       .setPool(PREVIEW_DATA.pool)

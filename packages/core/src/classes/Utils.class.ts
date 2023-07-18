@@ -1,16 +1,14 @@
 import { getSwapOutput } from "@sundaeswap/cpp";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { Data } from "lucid-cardano";
 
 import {
   PoolCoin,
-  IAsset,
   IPoolData,
-  IPoolDataAsset,
   IProtocolParams,
   TSupportedNetworks,
 } from "../@types";
 import { ADA_ASSET_ID } from "../lib/constants";
-import { AssetAmount } from "@sundaeswap/asset";
-import { Data } from "lucid-cardano";
 
 export class Utils {
   static getParams(network: TSupportedNetworks): IProtocolParams {
@@ -54,18 +52,23 @@ export class Utils {
     return Data.void();
   }
 
-  static sortSwapAssets(
-    assets: [IPoolDataAsset | IAsset, IPoolDataAsset | IAsset]
+  static sortSwapAssetsWithAmounts(
+    assets: [
+      AssetAmount<IAssetAmountMetadata>,
+      AssetAmount<IAssetAmountMetadata>
+    ]
   ) {
-    return assets.sort((a, b) => a.assetId.localeCompare(b.assetId));
+    return assets.sort((a, b) =>
+      a.metadata.assetId.localeCompare(b.metadata.assetId)
+    );
   }
 
   static getAssetSwapDirection(
-    { assetId: assetID }: IAsset,
-    assets: [IPoolDataAsset, IPoolDataAsset]
+    asset: IAssetAmountMetadata,
+    assets: [IAssetAmountMetadata, IAssetAmountMetadata]
   ): PoolCoin {
-    const sorted = Utils.sortSwapAssets(assets);
-    if (sorted[1]?.assetId === assetID) {
+    const sorted = assets.sort((a, b) => a.assetId.localeCompare(b.assetId));
+    if (sorted[1]?.assetId === asset.assetId) {
       return 1;
     }
 
@@ -76,19 +79,23 @@ export class Utils {
     return Number(fee) / 100;
   }
 
-  static subtractPoolFeeFromAmount(amount: AssetAmount, fee: string): number {
+  static subtractPoolFeeFromAmount(
+    amount: AssetAmount<IAssetAmountMetadata>,
+    fee: string
+  ): number {
     const feePercent = Utils.convertPoolFeeToPercent(fee);
     return Number(amount.amount) * (1 - feePercent);
   }
 
   static getMinReceivableFromSlippage(
     pool: IPoolData,
-    suppliedAsset: IAsset,
+    suppliedAsset: AssetAmount<IAssetAmountMetadata>,
     slippage: number
-  ): AssetAmount {
-    const supplyingPoolAssetA = pool.assetA.assetId === suppliedAsset.assetId;
+  ): AssetAmount<IAssetAmountMetadata> {
+    const supplyingPoolAssetA =
+      pool.assetA.assetId === suppliedAsset.metadata.assetId;
     const output = getSwapOutput(
-      suppliedAsset.amount.amount,
+      suppliedAsset.amount,
       BigInt(supplyingPoolAssetA ? pool.quantityA : pool.quantityB),
       BigInt(supplyingPoolAssetA ? pool.quantityB : pool.quantityA),
       Utils.convertPoolFeeToPercent(pool.fee),
@@ -97,13 +104,13 @@ export class Utils {
 
     if (
       ![pool.assetA.assetId, pool.assetB.assetId].includes(
-        suppliedAsset.assetId
+        suppliedAsset.metadata.assetId
       )
     ) {
       throw new Error(
         `The supplied asset ID does not match either assets within the supplied pool data. ${JSON.stringify(
           {
-            suppliedAssetID: suppliedAsset.assetId,
+            suppliedAssetID: suppliedAsset.metadata.assetId,
             poolAssetIDs: [pool.assetA.assetId, pool.assetB.assetId],
           }
         )}`
@@ -114,7 +121,7 @@ export class Utils {
       ? pool.assetB.decimals
       : pool.assetA.decimals;
 
-    return new AssetAmount(
+    return new AssetAmount<IAssetAmountMetadata>(
       BigInt(Math.ceil(Number(output.output) * (1 - slippage))),
       receivableAssetDecimals
     );
@@ -128,7 +135,7 @@ export class Utils {
    * @param suppliedAssets
    */
   static accumulateSuppliedAssets(
-    suppliedAssets: IAsset[],
+    suppliedAssets: AssetAmount<IAssetAmountMetadata>[],
     network: TSupportedNetworks,
     additionalADA?: bigint
   ): Record<
@@ -142,29 +149,26 @@ export class Utils {
 
     const aggregatedAssets = suppliedAssets.reduce((acc, curr) => {
       const existingAssetIndex = acc.findIndex(
-        ({ assetId: assetID }) => curr.assetId === assetID
+        ({ metadata }) => curr.metadata.assetId === metadata.assetID
       );
       if (existingAssetIndex !== -1) {
-        acc[existingAssetIndex] = {
-          assetId: acc[existingAssetIndex].assetId,
-          amount: acc[existingAssetIndex].amount.add(curr.amount),
-        };
+        acc[existingAssetIndex] = acc[existingAssetIndex].add(curr);
 
         return acc;
       }
 
       return [...acc, curr];
-    }, [] as IAsset[]);
+    }, [] as AssetAmount<IAssetAmountMetadata>[]);
 
     // Set the minimum ADA amount.
     assets.lovelace = SCOOPER_FEE + RIDER_FEE + (additionalADA ?? 0n);
 
     aggregatedAssets.forEach((suppliedAsset) => {
-      if (suppliedAsset.assetId === ADA_ASSET_ID) {
-        assets.lovelace += suppliedAsset.amount.amount;
+      if (suppliedAsset.metadata.assetId === ADA_ASSET_ID) {
+        assets.lovelace += suppliedAsset.amount;
       } else {
-        assets[suppliedAsset.assetId.replace(".", "")] =
-          suppliedAsset.amount.amount;
+        assets[suppliedAsset.metadata.assetId.replace(".", "")] =
+          suppliedAsset.amount;
       }
     });
 

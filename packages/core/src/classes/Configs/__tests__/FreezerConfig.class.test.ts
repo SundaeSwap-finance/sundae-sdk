@@ -22,10 +22,7 @@ describe("FreezerConfig class", () => {
   it("should construct with a config", () => {
     const myConfig = new FreezerConfig({
       ownerAddress: PREVIEW_DATA.address,
-      lockedValues: [
-        PREVIEW_DATA.assets.tada.amount,
-        PREVIEW_DATA.assets.tindy.amount,
-      ],
+      lockedValues: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
       delegation: delegationMap,
       existingPositions: [],
     });
@@ -33,8 +30,12 @@ describe("FreezerConfig class", () => {
     expect(myConfig.buildArgs()).toStrictEqual({
       ownerAddress: PREVIEW_DATA.address,
       lockedValues: [
-        PREVIEW_DATA.assets.tada.amount,
-        PREVIEW_DATA.assets.tindy.amount,
+        expect.objectContaining({
+          amount: PREVIEW_DATA.assets.tada.amount,
+        }),
+        expect.objectContaining({
+          amount: PREVIEW_DATA.assets.tindy.amount,
+        }),
       ],
       delegation: delegationMap,
       existingPositions: [],
@@ -47,10 +48,7 @@ describe("FreezerConfig class", () => {
 
     const myConfig = {
       ownerAddress: PREVIEW_DATA.address,
-      lockedValues: [
-        PREVIEW_DATA.assets.tada.amount,
-        PREVIEW_DATA.assets.tindy.amount,
-      ],
+      lockedValues: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
       delegation: delegationMap,
       existingPositions: [],
     };
@@ -59,10 +57,7 @@ describe("FreezerConfig class", () => {
 
     expect(freezer.buildArgs()).toStrictEqual({
       ownerAddress: PREVIEW_DATA.address,
-      lockedValues: [
-        PREVIEW_DATA.assets.tada.amount,
-        PREVIEW_DATA.assets.tindy.amount,
-      ],
+      lockedValues: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
       delegation: delegationMap,
       existingPositions: [],
     });
@@ -74,9 +69,11 @@ describe("FreezerConfig class", () => {
   });
 
   it("should set the lockValues correctly", () => {
-    config.setLockedValues([PREVIEW_DATA.assets.tada.amount]);
+    config.setLockedValues([PREVIEW_DATA.assets.tada]);
     expect(config.lockedValues).toMatchObject([
-      PREVIEW_DATA.assets.tada.amount,
+      expect.objectContaining({
+        amount: PREVIEW_DATA.assets.tada.amount,
+      }),
     ]);
   });
 
@@ -87,7 +84,7 @@ describe("FreezerConfig class", () => {
 
   it("should throw an error when validating that lockedValues are of the AssetAmount class", () => {
     config.setLockedValues([
-      PREVIEW_DATA.assets.tada.amount,
+      PREVIEW_DATA.assets.tada,
       // @ts-ignore
       100n,
     ]);
@@ -109,8 +106,8 @@ describe("FreezerConfig class", () => {
 
   it("should throw an error when no owner address is given", () => {
     config.setLockedValues([
-      PREVIEW_DATA.assets.tada.amount,
-      PREVIEW_DATA.assets.tindy.amount,
+      PREVIEW_DATA.assets.tada,
+      PREVIEW_DATA.assets.tindy,
     ]);
     config.setDelegation(delegationMap);
     config.setExistingPositions([]);

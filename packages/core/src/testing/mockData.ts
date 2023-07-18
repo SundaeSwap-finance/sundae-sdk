@@ -1,12 +1,13 @@
-import { IAsset, IPoolData, OrderAddresses } from "../@types";
-import { AssetAmount } from "@sundaeswap/asset";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+
+import { IPoolData, OrderAddresses } from "../@types";
 
 interface NetworkData {
   pool: IPoolData;
   address: string;
   assets: {
-    tada: IAsset & Record<string, unknown>;
-    tindy: IAsset & Record<string, unknown>;
+    tada: AssetAmount<IAssetAmountMetadata>;
+    tindy: AssetAmount<IAssetAmountMetadata>;
   };
   orderAddresses: OrderAddresses;
 }
@@ -30,17 +31,12 @@ const PREVIEW_DATA: NetworkData = {
     quantityB: "250000000",
   },
   assets: {
-    tada: {
-      amount: new AssetAmount(20000000n, 6),
-      assetId: "",
-      poolId: "",
-    },
-    tindy: {
-      amount: new AssetAmount(20000000n, 0),
+    tada: new AssetAmount(20000000n, { assetId: "", decimals: 6 }),
+    tindy: new AssetAmount(20000000n, {
       assetId:
         "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-      poolId: "",
-    },
+      decimals: 0,
+    }),
   },
   orderAddresses: {
     DestinationAddress: {

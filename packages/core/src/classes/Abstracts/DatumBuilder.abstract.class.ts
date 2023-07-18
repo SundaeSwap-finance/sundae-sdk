@@ -3,7 +3,6 @@ import {
   DepositArguments,
   DepositMixed,
   DepositSingle,
-  IAsset,
   LockArguments,
   OrderAddresses,
   Swap,
@@ -12,7 +11,7 @@ import {
   WithdrawArguments,
   ZapArguments,
 } from "../../@types";
-import { AssetAmount } from "@sundaeswap/asset";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { Utils } from "../Utils.class";
 
 /**
@@ -69,7 +68,9 @@ export abstract class DatumBuilder<Data = any> {
   abstract buildLockDatum(args: LockArguments): DatumResult<Data>;
 
   abstract buildScooperFee(fee: bigint): bigint;
-  abstract buildWithdrawAsset(fundedLPAsset: IAsset): DatumResult<Data>;
+  abstract buildWithdrawAsset(
+    fundedLPAsset: AssetAmount<IAssetAmountMetadata>
+  ): DatumResult<Data>;
   abstract buildDepositPair(deposit: DepositMixed): DatumResult<Data>;
   abstract buildDepositZap(deposit: DepositSingle): DatumResult<Data>;
   abstract buildOrderAddresses(addresses: OrderAddresses): DatumResult<Data>;

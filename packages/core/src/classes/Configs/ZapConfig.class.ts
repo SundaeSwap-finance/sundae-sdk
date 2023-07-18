@@ -1,6 +1,6 @@
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   ZapConfigArgs,
-  IAsset,
   IPoolData,
   OrderAddresses,
   PoolCoin,
@@ -11,7 +11,7 @@ import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
  * The main config class for building valid arguments for a Zap.
  */
 export class ZapConfig extends OrderConfig<ZapConfigArgs> {
-  suppliedAsset?: IAsset;
+  suppliedAsset?: AssetAmount<IAssetAmountMetadata>;
   zapDirection?: PoolCoin;
 
   constructor(args?: ZapConfigArgs) {
@@ -20,7 +20,7 @@ export class ZapConfig extends OrderConfig<ZapConfigArgs> {
     args && this.setFromObject(args);
   }
 
-  setSuppliedAsset(asset: IAsset) {
+  setSuppliedAsset(asset: AssetAmount) {
     this.suppliedAsset = asset;
     return this;
   }
@@ -36,7 +36,7 @@ export class ZapConfig extends OrderConfig<ZapConfigArgs> {
     return {
       orderAddresses: this.orderAddresses as OrderAddresses,
       pool: this.pool as IPoolData,
-      suppliedAsset: this.suppliedAsset as IAsset,
+      suppliedAsset: this.suppliedAsset as AssetAmount<IAssetAmountMetadata>,
       zapDirection: this.zapDirection as PoolCoin,
     };
   }

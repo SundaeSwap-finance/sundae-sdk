@@ -5,7 +5,7 @@ import { ActionArgs, poolQuery } from "../Actions";
 import Button from "../../Button";
 
 export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, walletAddress } = useAppState();
+  const { SDK, ready, walletAddress } = useAppState();
   const [reverseSwapping, setReverseSwapping] = useState(false);
 
   const handleSwap = useCallback(async () => {
@@ -24,10 +24,7 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
             address: walletAddress,
           },
         },
-        suppliedAsset: {
-          assetId: "",
-          amount: new AssetAmount(25000000n, 6),
-        },
+        suppliedAsset: new AssetAmount(25000000n, { assetId: "", decimals: 6 }),
       }).then(async ({ fees, sign, complete }) => {
         setFees(fees);
         if (submit) {
@@ -55,7 +52,7 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
   }
 
   return (
-    <Button onClick={handleSwap} loading={reverseSwapping}>
+    <Button disabled={!ready} onClick={handleSwap} loading={reverseSwapping}>
       Swap tADA for tINDY
     </Button>
   );
