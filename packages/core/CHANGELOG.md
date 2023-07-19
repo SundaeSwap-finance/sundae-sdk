@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.0](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.34...v1.0.0-alpha.0) (2023-07-19)
+
+### Bug Fixes
+
+- complete API ([cdd9baf](https://github.com/SundaeSwap-finance/sundae-sdk/commit/cdd9baf43e0358fea4996421e993eb8d32a5f188))
+
 # [0.2.0-alpha.34](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.33...v0.2.0-alpha.34) (2023-07-18)
 
 **Note:** Version bump only for package @sundaeswap/sdk-core
