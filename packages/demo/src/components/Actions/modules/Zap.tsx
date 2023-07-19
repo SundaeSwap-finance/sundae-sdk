@@ -26,16 +26,16 @@ export const Zap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           },
         },
         swapSlippage: 0.3,
-      }).then(async ({ fees, sign, complete }) => {
+      }).then(async ({ sign, build, fees }) => {
         setFees(fees);
         if (submit) {
-          const { cbor, submit } = await sign().complete();
+          const { cbor, submit } = await sign();
           setCBOR({
             cbor,
             hash: await submit(),
           });
         } else {
-          const { cbor } = await complete();
+          const { cbor } = await build();
           setCBOR({
             cbor,
           });

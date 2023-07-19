@@ -45,16 +45,16 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
             "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702002",
           decimals: 6,
         }),
-      }).then(async ({ fees, sign, complete }) => {
+      }).then(async ({ sign, build, fees }) => {
         setFees(fees);
         if (submit) {
-          const { cbor, submit } = await sign().complete();
+          const { cbor, submit } = await sign();
           setCBOR({
             cbor,
             hash: await submit(),
           });
         } else {
-          const { cbor } = await complete();
+          const { cbor } = await build();
           setCBOR({
             cbor,
           });

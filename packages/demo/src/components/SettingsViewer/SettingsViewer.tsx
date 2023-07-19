@@ -1,7 +1,8 @@
 import { FC } from "react";
 import ReactJson from "react-json-view";
-import { useAppState } from "../../state/context";
 import { ITxBuilderBaseOptions } from "@sundaeswap/sdk-core";
+
+import { useAppState } from "../../state/context";
 
 const SettingsViewer: FC = () => {
   const { SDK } = useAppState();
