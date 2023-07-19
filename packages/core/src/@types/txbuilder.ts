@@ -8,8 +8,8 @@ export interface ITxBuilderTx<T = unknown, K = unknown> {
   tx: T;
   fees: ITxBuilderFees;
   datum: K;
-  sign: () => ITxBuilderTx;
-  complete: () => Promise<ITxBuilderComplete>;
+  sign: () => Promise<ITxBuilderComplete>;
+  build: () => Promise<ITxBuilderComplete>;
 }
 
 /**

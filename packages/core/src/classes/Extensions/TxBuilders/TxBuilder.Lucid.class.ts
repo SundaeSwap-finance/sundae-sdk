@@ -568,15 +568,7 @@ export class TxBuilderLucid extends TxBuilder<
           ADA_ASSET_DECIMAL
         ),
       },
-      async complete() {
-        if (sign) {
-          const signedTx = await finishedTx.sign().complete();
-          return {
-            submit: async () => await signedTx.submit(),
-            cbor: Buffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
-          };
-        }
-
+      async build() {
         return {
           submit: async () => {
             throw new Error(
@@ -586,9 +578,12 @@ export class TxBuilderLucid extends TxBuilder<
           cbor: Buffer.from(finishedTx.txComplete.to_bytes()).toString("hex"),
         };
       },
-      sign() {
-        sign = true;
-        return thisTx;
+      async sign() {
+        const signedTx = await finishedTx.sign().complete();
+        return {
+          submit: async () => await signedTx.submit(),
+          cbor: Buffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
+        };
       },
     };
 

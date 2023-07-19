@@ -28,16 +28,16 @@ export const SwapBA: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
             "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
           decimals: 6,
         }),
-      }).then(async ({ fees, sign, complete }) => {
+      }).then(async ({ sign, build, fees }) => {
         setFees(fees);
         if (submit) {
-          const { cbor, submit } = await sign().complete();
+          const { cbor, submit } = await sign();
           setCBOR({
             cbor,
             hash: await submit(),
           });
         } else {
-          const { cbor } = await complete();
+          const { cbor } = await build();
           setCBOR({
             cbor,
           });
