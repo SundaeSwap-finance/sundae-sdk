@@ -1,6 +1,8 @@
 import { SundaeSDK } from "@sundaeswap/sdk-core";
 import { FC, useState, useEffect } from "react";
 import { useAppState } from "../../state/context";
+import { ITxBuilderLucidOptions } from "@sundaeswap/sdk-core/extensions";
+import { AssetAmount } from "@sundaeswap/asset";
 
 type TSupportedTxBuilders = "lucid" | "mesh";
 
@@ -10,7 +12,7 @@ const SelectBuilderOption: FC<{
 }> = ({ builder, name }) => <option value={builder}>{name}</option>;
 
 const SelectBuilder: FC = () => {
-  const { setSDK } = useAppState();
+  const { setSDK, useReferral, walletAddress } = useAppState();
   const [builderLib, setBuilderLib] = useState<TSupportedTxBuilders>("lucid");
 
   const handleTxBuilderLoaderSelect = (key: TSupportedTxBuilders) => {
@@ -33,20 +35,27 @@ const SelectBuilder: FC = () => {
           const { TxBuilderLucid, ProviderSundaeSwap } = await import(
             "@sundaeswap/sdk-core/extensions"
           );
+
+          const options: ITxBuilderLucidOptions = {
+            providerType: "blockfrost",
+            blockfrost: {
+              url: "https://cardano-preview.blockfrost.io/api/v0/",
+              // @ts-ignore
+              apiKey: window.__APP_CONFIG.blockfrostAPI,
+            },
+            network: "preview",
+            wallet: "eternl",
+          };
+
+          if (useReferral) {
+            options.referral = {
+              destination: walletAddress,
+              payment: new AssetAmount(1234567, { assetId: "", decimals: 6 }),
+            };
+          }
+
           sdk = new SundaeSDK(
-            new TxBuilderLucid(
-              {
-                providerType: "blockfrost",
-                blockfrost: {
-                  url: "https://cardano-preview.blockfrost.io/api/v0/",
-                  // @ts-ignore
-                  apiKey: window.__APP_CONFIG.blockfrostAPI,
-                },
-                network: "preview",
-                wallet: "eternl",
-              },
-              new ProviderSundaeSwap("preview")
-            )
+            new TxBuilderLucid(options, new ProviderSundaeSwap("preview"))
           );
 
           break;
@@ -54,7 +63,7 @@ const SelectBuilder: FC = () => {
 
       setSDK(sdk);
     })();
-  }, [builderLib, setSDK]);
+  }, [builderLib, setSDK, useReferral]);
 
   return (
     <div className="container flex gap-10">

@@ -19,7 +19,7 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     try {
       const LPAssetId =
         "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702002";
-      const balance = await SDK.build<Lucid>().wallet?.wallet.getUtxos();
+      const balance = await SDK.build<any, Lucid>().wallet?.wallet.getUtxos();
       let lpBalance: bigint = 0n;
       balance?.forEach((bal) => {
         const matchingAsset = bal.assets[LPAssetId.replace(".", "")];

@@ -12,6 +12,8 @@ interface IAppState {
   walletAddress: string;
   ready: boolean;
   setReady: Dispatch<SetStateAction<boolean>>;
+  useReferral: boolean;
+  setUseReferral: Dispatch<SetStateAction<boolean>>;
 }
 
 const defaultState: IAppState = {
@@ -19,6 +21,8 @@ const defaultState: IAppState = {
   walletAddress: "",
   ready: false,
   setReady: () => {},
+  useReferral: false,
+  setUseReferral: () => {},
 };
 
 const AppState = createContext(defaultState);
@@ -32,6 +36,7 @@ export const AppStateProvider: FC<
   const [SDK, setSDK] = useState<SundaeSDK>();
   const [ready, setReady] = useState<boolean>(false);
   const [activeWallet, setActiveWallet] = useState("");
+  const [useReferral, setUseReferral] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -57,6 +62,8 @@ export const AppStateProvider: FC<
         setSDK,
         ready,
         setReady,
+        useReferral,
+        setUseReferral,
         ...defaultValue,
       }}
     >

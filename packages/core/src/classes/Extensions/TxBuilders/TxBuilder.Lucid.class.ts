@@ -131,13 +131,27 @@ export class TxBuilderLucid extends TxBuilder<
    * Returns a new Tx instance from Lucid. Throws an error if not ready.
    * @returns
    */
-  async newTxInstance(): Promise<Transaction<Tx>> {
+  async newTxInstance(skipReferral?: boolean): Promise<Transaction<Tx>> {
     await this.initWallet();
     if (!this.wallet) {
       this._throwWalletNotConnected();
     }
 
-    return new Transaction<Tx>(this, this.wallet.newTx());
+    const instance = new Transaction<Tx>(this, this.wallet.newTx());
+
+    if (this.options.referral && !skipReferral) {
+      const payment: Assets = {};
+      if (this.options.referral.payment.metadata.assetId === "") {
+        payment.lovelace = this.options.referral.payment.amount;
+      } else {
+        payment[this.options.referral.payment.metadata.assetId] =
+          this.options.referral.payment.amount;
+      }
+
+      instance.tx.payToAddress(this.options.referral.destination, payment);
+    }
+
+    return instance;
   }
 
   /**
@@ -147,7 +161,7 @@ export class TxBuilderLucid extends TxBuilder<
    * @returns
    */
   async buildFreezerTx(freezerConfig: FreezerConfig) {
-    const txInstance = await this.newTxInstance();
+    const txInstance = await this.newTxInstance(freezerConfig.skipReferral);
     const { existingPositions, lockedValues, delegation, ownerAddress } =
       freezerConfig.buildArgs();
 
@@ -256,7 +270,7 @@ export class TxBuilderLucid extends TxBuilder<
   }
 
   async buildSwapTx(swapConfig: SwapConfig) {
-    const txInstance = await this.newTxInstance();
+    const txInstance = await this.newTxInstance(swapConfig.skipReferral);
     const {
       pool: { ident, assetA, assetB },
       orderAddresses,
@@ -320,7 +334,7 @@ export class TxBuilderLucid extends TxBuilder<
   }
 
   async buildDepositTx(depositConfig: DepositConfig) {
-    const tx = await this.newTxInstance();
+    const tx = await this.newTxInstance(depositConfig.skipReferral);
     const { suppliedAssets, pool, orderAddresses } = depositConfig.buildArgs();
     const payment = Utils.accumulateSuppliedAssets(
       suppliedAssets,
@@ -343,7 +357,7 @@ export class TxBuilderLucid extends TxBuilder<
   }
 
   async buildWithdrawTx(withdrawConfig: WithdrawConfig): Promise<ITxBuilderTx> {
-    const tx = await this.newTxInstance();
+    const tx = await this.newTxInstance(withdrawConfig.skipReferral);
     const { suppliedLPAsset, pool, orderAddresses } =
       withdrawConfig.buildArgs();
     const payment = Utils.accumulateSuppliedAssets(
@@ -363,7 +377,7 @@ export class TxBuilderLucid extends TxBuilder<
   }
 
   async buildCancelTx(cancelConfig: CancelConfig) {
-    const tx = await this.newTxInstance();
+    const tx = await this.newTxInstance(cancelConfig.skipReferral);
     const { datum, datumHash, utxo, address } = cancelConfig.buildArgs();
 
     const plutusData = C.PlutusData.from_bytes(Buffer.from(datum, "hex"));
@@ -416,7 +430,7 @@ export class TxBuilderLucid extends TxBuilder<
   async buildChainedZapTx(zapConfig: ZapConfig): Promise<ITxBuilderTx> {
     const { pool, suppliedAsset, orderAddresses, swapSlippage } =
       zapConfig.buildArgs();
-    const tx = await this.newTxInstance();
+    const tx = await this.newTxInstance(zapConfig.skipReferral);
     const { ESCROW_ADDRESS, SCOOPER_FEE } = this.getParams();
     const payment = Utils.accumulateSuppliedAssets(
       [suppliedAsset],
@@ -514,7 +528,7 @@ export class TxBuilderLucid extends TxBuilder<
   }
 
   async buildAtomicZapTx(zapConfig: ZapConfig): Promise<ITxBuilderTx> {
-    const tx = await this.newTxInstance();
+    const tx = await this.newTxInstance(zapConfig.skipReferral);
     const { suppliedAsset, pool, orderAddresses, zapDirection } =
       zapConfig.buildArgs();
     const payment = Utils.accumulateSuppliedAssets(
@@ -543,8 +557,7 @@ export class TxBuilderLucid extends TxBuilder<
     scooperFee?: bigint,
     coinSelection?: boolean
   ): Promise<ITxBuilderTx<Transaction<Tx>, Datum | undefined>> {
-    let sign: boolean = false;
-    const baseFees: Pick<ITxBuilderFees, "scooperFee" | "deposit"> = {
+    const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(
         deposit ?? this.getParams().RIDER_FEE,
         ADA_ASSET_DECIMAL
@@ -554,6 +567,10 @@ export class TxBuilderLucid extends TxBuilder<
         ADA_ASSET_DECIMAL
       ),
     };
+
+    if (this.options.referral) {
+      baseFees.referral = this.options.referral.payment;
+    }
 
     const txFee = tx.get().txBuilder.get_fee_if_set();
     const finishedTx = await tx.get().complete({ coinSelection });

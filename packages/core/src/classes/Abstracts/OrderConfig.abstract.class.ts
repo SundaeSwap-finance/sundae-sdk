@@ -8,6 +8,8 @@ import { Config } from "./Config.abstract.class";
  * @template Args The type of the arguments object, defaulting to an empty object.
  */
 export abstract class OrderConfig<Args = {}> extends Config<Args> {
+  skipReferral?: boolean | undefined;
+
   /**
    * The data for the pool involved in the order.
    */

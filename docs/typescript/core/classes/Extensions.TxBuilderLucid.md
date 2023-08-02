@@ -76,7 +76,7 @@ that allows a user to add or update staking positions.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:149](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L149)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:163](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L163)
 
 ___
 
@@ -105,7 +105,7 @@ with an updated swap datum.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:296](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L296)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:310](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L310)
 
 ___
 
@@ -147,9 +147,15 @@ ___
 
 ### newTxInstance
 
-▸ **newTxInstance**(): `Promise`<[`Transaction`](Core.Transaction.md)<`Tx`\>\>
+▸ **newTxInstance**(`skipReferral?`): `Promise`<[`Transaction`](Core.Transaction.md)<`Tx`\>\>
 
 Returns a new Tx instance from Lucid. Throws an error if not ready.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `skipReferral?` | `boolean` |
 
 #### Returns
 

@@ -6,6 +6,7 @@ import { AssetAmount } from "@sundaeswap/asset";
  * The main config class for building valid arguments for a Freezer transaction.
  */
 export class FreezerConfig extends Config<FreezerConfigArgs> {
+  skipReferral?: boolean | undefined;
   ownerAddress?: FreezerConfigArgs["ownerAddress"];
   existingPositions?: FreezerConfigArgs["existingPositions"];
   lockedValues?: FreezerConfigArgs["lockedValues"];

@@ -21,7 +21,7 @@ Whether to allow debugging console logs.
 
 #### Defined in
 
-[@types/txbuilder.ts:48](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L48)
+[@types/txbuilder.ts:56](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L56)
 
 ___
 
@@ -33,7 +33,7 @@ The minimum amount of ADA required for a locking position.
 
 #### Defined in
 
-[@types/txbuilder.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L46)
+[@types/txbuilder.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L54)
 
 ___
 
@@ -45,7 +45,19 @@ A supported Cardano network.
 
 #### Defined in
 
-[@types/txbuilder.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L44)
+[@types/txbuilder.ts:52](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L52)
+
+___
+
+### referral
+
+• `Optional` **referral**: [`ITxBuilderReferralFee`](Core.ITxBuilderReferralFee.md)
+
+Whether transactions should always include a referral fee.
+
+#### Defined in
+
+[@types/txbuilder.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L58)
 
 ___
 
@@ -57,4 +69,4 @@ A CIP-30 compatible wallet.
 
 #### Defined in
 
-[@types/txbuilder.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L42)
+[@types/txbuilder.ts:50](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L50)

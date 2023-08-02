@@ -1,5 +1,5 @@
 import { TSupportedNetworks, TSupportedWallets } from ".";
-import { AssetAmount } from "@sundaeswap/asset";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 /**
  * The primary top-level API surface for dealing with built TxBuilder transactions.
@@ -23,14 +23,22 @@ export interface ITxBuilderComplete {
 }
 
 /**
+ * The referral fee object if set.
+ */
+export interface ITxBuilderReferralFee {
+  destination: string;
+  payment: AssetAmount<IAssetAmountMetadata>;
+}
+
+/**
  * The full list of calculated fees for a transaction built by a TxBuilder instance.
  */
 export interface ITxBuilderFees {
-  cardanoTxFee: AssetAmount;
-  deposit: AssetAmount;
-  scooperFee: AssetAmount;
-  liquidity?: AssetAmount;
-  referral?: AssetAmount;
+  cardanoTxFee: AssetAmount<IAssetAmountMetadata>;
+  deposit: AssetAmount<IAssetAmountMetadata>;
+  scooperFee: AssetAmount<IAssetAmountMetadata>;
+  liquidity?: AssetAmount<IAssetAmountMetadata>;
+  referral?: AssetAmount<IAssetAmountMetadata>;
 }
 
 /**
@@ -46,4 +54,6 @@ export interface ITxBuilderBaseOptions {
   minLockAda?: bigint;
   /** Whether to allow debugging console logs. */
   debug?: boolean;
+  /** Whether transactions should always include a referral fee. */
+  referral?: ITxBuilderReferralFee;
 }

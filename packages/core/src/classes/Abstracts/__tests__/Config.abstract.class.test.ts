@@ -70,4 +70,10 @@ describe("Config.buildArgs()", () => {
       );
     }
   });
+
+  it("should set the referral fee", () => {
+    const config = new TestClass();
+    config.setSkipReferral(true);
+    expect(config.skipReferral).toBe(true);
+  });
 });

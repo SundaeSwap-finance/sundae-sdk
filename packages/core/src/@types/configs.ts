@@ -4,9 +4,16 @@ import { OrderAddresses, PoolCoin, UTXO } from "./datumbuilder";
 import { IPoolData } from "./queryprovider";
 
 /**
+ * The base config that all configs extend.
+ */
+export interface BaseConfig {
+  skipReferral?: boolean;
+}
+
+/**
  * The common arguments for any valid order.
  */
-export interface OrderConfigArgs {
+export interface OrderConfigArgs extends BaseConfig {
   pool: IPoolData;
   orderAddresses: OrderAddresses;
 }
@@ -64,7 +71,7 @@ export type DelegationPrograms = Map<string, DelegationProgramPools>;
 /**
  * The configuration object for a FreezerConfig instance.
  */
-export interface FreezerConfigArgs {
+export interface FreezerConfigArgs extends BaseConfig {
   delegation?: DelegationPrograms;
   existingPositions?: UTXO[];
   lockedValues: AssetAmount<{ assetId: string; decimals: number }>[];

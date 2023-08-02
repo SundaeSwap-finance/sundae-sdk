@@ -5,6 +5,12 @@
  */
 export abstract class Config<Args = {}> {
   /**
+   * An optional argument for the specific config to opt out of the configured
+   * referral fee defined in the TxBuilder instance.
+   */
+  abstract skipReferral?: boolean;
+
+  /**
    * An abstract method to set the configuration from an object.
    * Implementations should take an object and use it to set their own properties.
    * @abstract
@@ -20,6 +26,15 @@ export abstract class Config<Args = {}> {
    * @returns {Args} The potentially modified arguments.
    */
   abstract buildArgs(): Args | never;
+
+  /**
+   * An inherited method that allows a config to skip the configured referral fee if set.
+   *
+   * @param {Boolean} val Whether to skip the referral fee or not.
+   */
+  setSkipReferral(val?: boolean): void {
+    this.skipReferral = val;
+  }
 
   /**
    * An abstract method to validate the current configuration.

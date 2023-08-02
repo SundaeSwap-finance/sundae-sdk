@@ -30,7 +30,7 @@ export interface ActionArgs {
 }
 
 export const Actions: FC = () => {
-  const { SDK } = useAppState();
+  const { SDK, useReferral, setUseReferral } = useAppState();
   const [cbor, setCBOR] = useState<CBOR>({
     cbor: "",
   });
@@ -46,13 +46,24 @@ export const Actions: FC = () => {
       <h2 className="mb-4 text-lg font-bold text-white flex items-center justify-between">
         SundaeSwap Protocol Actions
         <div className="flex items-center justify-center gap-2">
-          <label htmlFor="submitTx">Submit to Wallet?</label>
-          <input
-            id="submitTx"
-            type="checkbox"
-            checked={submit}
-            onChange={(e) => setSubmit(e.target.checked)}
-          />
+          <div>
+            <label htmlFor="submitTx">Submit to Wallet?</label>
+            <input
+              id="submitTx"
+              type="checkbox"
+              checked={submit}
+              onChange={(e) => setSubmit(e.target.checked)}
+            />
+          </div>
+          <div>
+            <label htmlFor="referralFee">Add Referral Fee?</label>
+            <input
+              id="referralFee"
+              type="checkbox"
+              checked={useReferral}
+              onChange={(e) => setUseReferral(e.target.checked)}
+            />
+          </div>
         </div>
       </h2>
       <div className="grid grid-cols-2 gap-4">
@@ -93,6 +104,10 @@ export const Actions: FC = () => {
               cardanoTxFee: fees.cardanoTxFee.amount.toString(),
               scooperFee: fees.scooperFee.amount.toString(),
               deposit: fees.deposit.amount.toString(),
+              referral: {
+                assetId: fees.referral?.metadata.assetId ?? "",
+                amount: fees.referral?.amount.toString() ?? "0",
+              },
             }}
           />
         )}

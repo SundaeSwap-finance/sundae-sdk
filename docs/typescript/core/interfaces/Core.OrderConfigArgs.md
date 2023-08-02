@@ -6,12 +6,14 @@ The common arguments for any valid order.
 
 ## Hierarchy
 
-- **`OrderConfigArgs`**
+- [`BaseConfig`](Core.BaseConfig.md)
 
-  ↳ [`SwapConfigArgs`](Core.SwapConfigArgs.md)
+  ↳ **`OrderConfigArgs`**
 
-  ↳ [`DepositConfigArgs`](Core.DepositConfigArgs.md)
+  ↳↳ [`SwapConfigArgs`](Core.SwapConfigArgs.md)
 
-  ↳ [`ZapConfigArgs`](Core.ZapConfigArgs.md)
+  ↳↳ [`DepositConfigArgs`](Core.DepositConfigArgs.md)
 
-  ↳ [`WithdrawConfigArgs`](Core.WithdrawConfigArgs.md)
+  ↳↳ [`ZapConfigArgs`](Core.ZapConfigArgs.md)
+
+  ↳↳ [`WithdrawConfigArgs`](Core.WithdrawConfigArgs.md)
