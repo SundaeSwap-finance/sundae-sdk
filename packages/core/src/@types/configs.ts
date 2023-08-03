@@ -2,12 +2,13 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import { OrderAddresses, PoolCoin, UTXO } from "./datumbuilder";
 import { IPoolData } from "./queryprovider";
+import { ITxBuilderReferralFee } from "./txbuilder";
 
 /**
  * The base config that all configs extend.
  */
 export interface BaseConfig {
-  skipReferral?: boolean;
+  referralFee?: ITxBuilderReferralFee;
 }
 
 /**
@@ -40,7 +41,7 @@ export interface DepositConfigArgs extends OrderConfigArgs {
 /**
  * The arguments configuration for building a valid cancellation transaction.
  */
-export interface CancelConfigArgs {
+export interface CancelConfigArgs extends BaseConfig {
   utxo: UTXO;
   datum: string;
   datumHash: string;

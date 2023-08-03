@@ -12,17 +12,17 @@ The main config class for building valid arguments for a Freezer transaction.
 
 ## Methods
 
-### setSkipReferral
+### setReferralFee
 
-▸ **setSkipReferral**(`val?`): `void`
+▸ **setReferralFee**(`fee`): `void`
 
-An inherited method that allows a config to skip the configured referral fee if set.
+An inherited method that allows a config to add an optional referral fee.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `val?` | `boolean` | Whether to skip the referral fee or not. |
+| `fee` | [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md) | The desired fee. |
 
 #### Returns
 
@@ -30,8 +30,8 @@ An inherited method that allows a config to skip the configured referral fee if 
 
 #### Inherited from
 
-Config.setSkipReferral
+Config.setReferralFee
 
 #### Defined in
 
-[classes/Abstracts/Config.abstract.class.ts:35](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L35)
+[classes/Abstracts/Config.abstract.class.ts:38](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L38)

@@ -1,14 +1,17 @@
+import { ITxBuilderReferralFee } from "../../@types";
+
 /**
  * The Config class represents a base configuration for all SDK methods.
  * It is meant to be extended by more specific configuration classes.
  * @template Args The type of the arguments object, defaulting to an empty object.
  */
 export abstract class Config<Args = {}> {
+  static INVALID_FEE_PERCENT_RANGE = `You set a referral fee with a percent that is out of range. Choose a float above 0 and up to a max of 1.`;
+
   /**
-   * An optional argument for the specific config to opt out of the configured
-   * referral fee defined in the TxBuilder instance.
+   * An optional argument that contains referral fee data.
    */
-  abstract skipReferral?: boolean;
+  abstract referralFee?: ITxBuilderReferralFee;
 
   /**
    * An abstract method to set the configuration from an object.
@@ -28,19 +31,29 @@ export abstract class Config<Args = {}> {
   abstract buildArgs(): Args | never;
 
   /**
-   * An inherited method that allows a config to skip the configured referral fee if set.
+   * An inherited method that allows a config to add an optional referral fee.
    *
-   * @param {Boolean} val Whether to skip the referral fee or not.
+   * @param {ITxBuilderReferralFee} fee The desired fee.
    */
-  setSkipReferral(val?: boolean): void {
-    this.skipReferral = val;
+  setReferralFee(fee: ITxBuilderReferralFee): void {
+    this.referralFee = fee;
   }
 
   /**
-   * An abstract method to validate the current configuration.
+   * A method to validate the current configuration.
    * Implementations should check their properties and throw errors if they are invalid.
-   * @abstract
    * @throws {Error} If the configuration is invalid.
    */
-  abstract validate(): void | never;
+  validate() {
+    if (!this.referralFee) {
+      return;
+    }
+
+    if (
+      typeof this.referralFee?.percent !== "undefined" &&
+      (this.referralFee.percent <= 0 || this.referralFee.percent > 1)
+    ) {
+      throw new Error(Config.INVALID_FEE_PERCENT_RANGE);
+    }
+  }
 }

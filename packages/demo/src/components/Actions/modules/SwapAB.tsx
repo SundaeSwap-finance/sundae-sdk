@@ -3,9 +3,10 @@ import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
 import { ActionArgs, poolQuery } from "../Actions";
 import Button from "../../Button";
+import { SwapConfigArgs } from "@sundaeswap/sdk-core";
 
 export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, ready, walletAddress } = useAppState();
+  const { SDK, ready, walletAddress, useReferral } = useAppState();
   const [reverseSwapping, setReverseSwapping] = useState(false);
 
   const handleSwap = useCallback(async () => {
@@ -16,8 +17,7 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     setReverseSwapping(true);
     try {
       const pool = await SDK.query().findPoolData(poolQuery);
-
-      await SDK.swap({
+      const args: SwapConfigArgs = {
         pool,
         orderAddresses: {
           DestinationAddress: {
@@ -25,7 +25,22 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           },
         },
         suppliedAsset: new AssetAmount(25000000n, { assetId: "", decimals: 6 }),
-      }).then(async ({ sign, build, fees }) => {
+      };
+
+      if (useReferral) {
+        args.referralFee = {
+          destination:
+            "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
+          minimumAmount: new AssetAmount(1000000n, {
+            assetId: "",
+            decimals: 6,
+          }),
+          percent: 0.01,
+          feeLabel: "Test Fee",
+        };
+      }
+
+      await SDK.swap(args).then(async ({ sign, build, fees }) => {
         setFees(fees);
         if (submit) {
           const { cbor, submit } = await sign();
@@ -45,7 +60,7 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setReverseSwapping(false);
-  }, [SDK, submit, walletAddress]);
+  }, [SDK, submit, walletAddress, useReferral]);
 
   if (!SDK) {
     return null;

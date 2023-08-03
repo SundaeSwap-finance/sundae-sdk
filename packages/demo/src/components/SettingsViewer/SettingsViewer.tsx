@@ -1,7 +1,6 @@
 import { FC } from "react";
 import ReactJson from "react-json-view";
 import { ITxBuilderBaseOptions } from "@sundaeswap/sdk-core";
-import { ITxBuilderLucidOptions } from "@sundaeswap/sdk-core/extensions";
 
 import { useAppState } from "../../state/context";
 
@@ -19,12 +18,6 @@ const SettingsViewer: FC = () => {
       apiKey: "HIDDEN",
     },
     minLockAda: SDK.build().options.minLockAda.toString(),
-    referral: {
-      destination:
-        SDK.build<ITxBuilderLucidOptions>().options.referral?.destination,
-      payment:
-        SDK.build<ITxBuilderLucidOptions>().options.referral?.payment.amount.toString(),
-    },
   };
 
   return (

@@ -29,6 +29,9 @@ const config: JestConfigWithTsJest = {
       },
     },
   ],
+  // https://github.com/jestjs/jest/issues/11617#issuecomment-1028651059
+  // Uncomment the below line if you ever run into a BigInt serialization error during tests.
+  maxWorkers: 1,
 };
 
 export default config;

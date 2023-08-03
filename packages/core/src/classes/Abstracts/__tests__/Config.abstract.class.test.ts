@@ -1,79 +1,101 @@
-import { IPoolData } from "../../../@types";
-import { OrderConfig } from "../OrderConfig.abstract.class";
+import { AssetAmount } from "@sundaeswap/asset";
 
-const mockPool: IPoolData = {
-  assetA: {
-    assetId: "",
-    decimals: 6,
-  },
-  assetB: {
-    assetId:
-      "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-    decimals: 0,
-  },
-  ident: "06",
-  fee: "0.30",
-  quantityA: "100",
-  quantityB: "200",
-};
+import { ITxBuilderReferralFee } from "../../../@types";
+import { Config } from "../Config.abstract.class";
 
 const mockAddress =
   "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32";
 
-class TestClass extends OrderConfig {
+class TestClass extends Config {
+  referralFee?: ITxBuilderReferralFee | undefined;
+
   constructor() {
     super();
   }
 
   setFromObject(): void {}
-
   buildArgs() {
     this.validate();
-
     return {};
   }
-
   validate(): void {
     super.validate();
   }
 }
 
-describe("Config.buildArgs()", () => {
-  it("should throw an Error when OrderAddresses are not set", () => {
-    const config = new TestClass();
-    config.setPool(mockPool);
+describe("Config", () => {
+  it("should set the referral fee correctly", () => {
+    const configWithAmount = new TestClass();
+    const amountConfig: ITxBuilderReferralFee = {
+      destination: mockAddress,
+      percent: 0,
+      minimumAmount: new AssetAmount(10n, { assetId: "", decimals: 6 }),
+    };
 
-    try {
-      config.buildArgs();
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toStrictEqual(
-        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
-      );
-    }
+    configWithAmount.setReferralFee(amountConfig);
+    expect(configWithAmount.referralFee).toMatchObject(amountConfig);
+
+    const configWithPercent = new TestClass();
+    const percentConfig: ITxBuilderReferralFee = {
+      destination: mockAddress,
+      percent: 0.2,
+      minimumAmount: new AssetAmount(10n, { assetId: "", decimals: 6 }),
+    };
+
+    configWithPercent.setReferralFee(percentConfig);
+    expect(configWithPercent.referralFee).toMatchObject(percentConfig);
+
+    const configWithLabel = new TestClass();
+    const labelConfig: ITxBuilderReferralFee = {
+      destination: mockAddress,
+      percent: 0.2,
+      minimumAmount: new AssetAmount(10n, { assetId: "", decimals: 6 }),
+      feeLabel: "Test Fee",
+    };
+
+    configWithLabel.setReferralFee(labelConfig);
+    expect(configWithLabel.referralFee).toMatchObject(labelConfig);
   });
 
-  it("should throw an error if a pool isn't set", () => {
-    const config = new TestClass();
-    config.setOrderAddresses({
-      DestinationAddress: {
-        address: mockAddress,
-      },
+  it("should validate the referral fee correctly", () => {
+    const configWithAmount = new TestClass();
+    const amountConfig: ITxBuilderReferralFee = {
+      destination: mockAddress,
+      percent: -1,
+      minimumAmount: new AssetAmount(10n, { assetId: "", decimals: 6 }),
+    };
+
+    configWithAmount.setReferralFee(amountConfig);
+    expect(() => configWithAmount.buildArgs()).toThrowError(
+      new Error(Config.INVALID_FEE_PERCENT_RANGE)
+    );
+
+    configWithAmount.setReferralFee({
+      ...amountConfig,
+      percent: 0,
     });
+    expect(() => configWithAmount.buildArgs()).toThrowError(
+      new Error(Config.INVALID_FEE_PERCENT_RANGE)
+    );
 
-    try {
-      config.buildArgs();
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      expect((e as Error).message).toStrictEqual(
-        "You haven't set a pool in your Config. Set a pool with .setPool()"
-      );
-    }
-  });
+    configWithAmount.setReferralFee({
+      ...amountConfig,
+      percent: 0.1,
+    });
+    expect(() => configWithAmount.buildArgs()).not.toThrow();
 
-  it("should set the skipReferral attribute correctly", () => {
-    const config = new TestClass();
-    config.setSkipReferral(true);
-    expect(config.skipReferral).toBe(true);
+    configWithAmount.setReferralFee({
+      ...amountConfig,
+      percent: 1,
+    });
+    expect(() => configWithAmount.buildArgs()).not.toThrow();
+
+    configWithAmount.setReferralFee({
+      ...amountConfig,
+      percent: 1.2,
+    });
+    expect(() => configWithAmount.buildArgs()).toThrowError(
+      new Error(Config.INVALID_FEE_PERCENT_RANGE)
+    );
   });
 });

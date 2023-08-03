@@ -24,7 +24,7 @@ OrderConfig.orderAddresses
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:21](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L21)
+[classes/Abstracts/OrderConfig.abstract.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L19)
 
 ___
 
@@ -40,7 +40,7 @@ OrderConfig.pool
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L16)
+[classes/Abstracts/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L14)
 
 ## Methods
 
@@ -68,7 +68,7 @@ OrderConfig.setOrderAddresses
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L32)
+[classes/Abstracts/OrderConfig.abstract.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L30)
 
 ___
 
@@ -96,21 +96,21 @@ OrderConfig.setPool
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:43](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L43)
+[classes/Abstracts/OrderConfig.abstract.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L41)
 
 ___
 
-### setSkipReferral
+### setReferralFee
 
-▸ **setSkipReferral**(`val?`): `void`
+▸ **setReferralFee**(`fee`): `void`
 
-An inherited method that allows a config to skip the configured referral fee if set.
+An inherited method that allows a config to add an optional referral fee.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `val?` | `boolean` | Whether to skip the referral fee or not. |
+| `fee` | [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md) | The desired fee. |
 
 #### Returns
 
@@ -118,8 +118,8 @@ An inherited method that allows a config to skip the configured referral fee if 
 
 #### Inherited from
 
-OrderConfig.setSkipReferral
+OrderConfig.setReferralFee
 
 #### Defined in
 
-[classes/Abstracts/Config.abstract.class.ts:35](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L35)
+[classes/Abstracts/Config.abstract.class.ts:38](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L38)

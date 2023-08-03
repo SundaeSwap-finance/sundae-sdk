@@ -10,4 +10,6 @@ The base config that all configs extend.
 
   ↳ [`OrderConfigArgs`](Core.OrderConfigArgs.md)
 
+  ↳ [`CancelConfigArgs`](Core.CancelConfigArgs.md)
+
   ↳ [`FreezerConfigArgs`](Core.FreezerConfigArgs.md)

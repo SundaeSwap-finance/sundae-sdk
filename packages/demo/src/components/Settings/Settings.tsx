@@ -1,8 +1,8 @@
 import { SundaeSDK } from "@sundaeswap/sdk-core";
 import { FC, useState, useEffect } from "react";
+
 import { useAppState } from "../../state/context";
 import { ITxBuilderLucidOptions } from "@sundaeswap/sdk-core/extensions";
-import { AssetAmount } from "@sundaeswap/asset";
 
 type TSupportedTxBuilders = "lucid" | "mesh";
 
@@ -12,7 +12,7 @@ const SelectBuilderOption: FC<{
 }> = ({ builder, name }) => <option value={builder}>{name}</option>;
 
 const SelectBuilder: FC = () => {
-  const { setSDK, useReferral, walletAddress } = useAppState();
+  const { setSDK } = useAppState();
   const [builderLib, setBuilderLib] = useState<TSupportedTxBuilders>("lucid");
 
   const handleTxBuilderLoaderSelect = (key: TSupportedTxBuilders) => {
@@ -47,13 +47,6 @@ const SelectBuilder: FC = () => {
             wallet: "eternl",
           };
 
-          if (useReferral) {
-            options.referral = {
-              destination: walletAddress,
-              payment: new AssetAmount(1234567, { assetId: "", decimals: 6 }),
-            };
-          }
-
           sdk = new SundaeSDK(
             new TxBuilderLucid(options, new ProviderSundaeSwap("preview"))
           );
@@ -63,7 +56,7 @@ const SelectBuilder: FC = () => {
 
       setSDK(sdk);
     })();
-  }, [builderLib, setSDK, useReferral]);
+  }, [builderLib, setSDK]);
 
   return (
     <div className="container flex gap-10">

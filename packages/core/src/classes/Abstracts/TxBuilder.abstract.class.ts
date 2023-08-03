@@ -1,7 +1,11 @@
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+
 import {
   IQueryProviderClass,
   ITxBuilderTx,
   ITxBuilderBaseOptions,
+  ITxBuilderReferralFee,
+  ICalculatedReferralFee,
 } from "../../@types";
 import { CancelConfig } from "../Configs/CancelConfig.class";
 import { DepositConfig } from "../Configs/DepositConfig.class";
@@ -45,6 +49,34 @@ export abstract class TxBuilder<
    * Should create a new {@link Transaction} instance from the supplied transaction library.
    */
   abstract newTxInstance(): Promise<Transaction<Tx>>;
+
+  /**
+   * Should calculate the referral fee from a config.
+   *
+   * @param {ITxBuilderReferralFee} referral The referral fee configuration object.
+   * @param {AssetAmount<IAssetAmountMetadata>} suppliedAmount The supplied amount of assets if defined.
+   */
+  static calculateReferralFee(
+    referral: ITxBuilderReferralFee,
+    suppliedAmount?: AssetAmount<IAssetAmountMetadata>
+  ): ICalculatedReferralFee {
+    const percentAmount =
+      referral?.percent &&
+      suppliedAmount?.metadata?.assetId ===
+        referral?.minimumAmount?.metadata?.assetId
+        ? BigInt(Number(suppliedAmount?.amount || 0n) * referral.percent)
+        : 0;
+    const maxAmount =
+      percentAmount > referral.minimumAmount.amount
+        ? percentAmount
+        : referral.minimumAmount.amount;
+
+    return {
+      payment: new AssetAmount(maxAmount, referral.minimumAmount.metadata),
+      destination: referral.destination,
+      label: referral?.feeLabel,
+    };
+  }
 
   /**
    * The main function to build a freezer Transaction.

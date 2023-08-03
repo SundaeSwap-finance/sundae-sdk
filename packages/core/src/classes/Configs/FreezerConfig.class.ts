@@ -1,4 +1,4 @@
-import { FreezerConfigArgs } from "../../@types";
+import { FreezerConfigArgs, ITxBuilderReferralFee } from "../../@types";
 import { Config } from "../Abstracts/Config.abstract.class";
 import { AssetAmount } from "@sundaeswap/asset";
 
@@ -6,7 +6,7 @@ import { AssetAmount } from "@sundaeswap/asset";
  * The main config class for building valid arguments for a Freezer transaction.
  */
 export class FreezerConfig extends Config<FreezerConfigArgs> {
-  skipReferral?: boolean | undefined;
+  referralFee?: ITxBuilderReferralFee | undefined;
   ownerAddress?: FreezerConfigArgs["ownerAddress"];
   existingPositions?: FreezerConfigArgs["existingPositions"];
   lockedValues?: FreezerConfigArgs["lockedValues"];
@@ -23,11 +23,13 @@ export class FreezerConfig extends Config<FreezerConfigArgs> {
     lockedValues,
     delegation,
     ownerAddress,
+    referralFee,
   }: FreezerConfigArgs): void {
     this.setLockedValues(lockedValues);
     this.setDelegation(delegation);
     this.setOwnerAddress(ownerAddress);
     existingPositions && this.setExistingPositions(existingPositions);
+    referralFee && this.setReferralFee(referralFee);
   }
 
   buildArgs(): FreezerConfigArgs | never {
@@ -39,6 +41,7 @@ export class FreezerConfig extends Config<FreezerConfigArgs> {
       lockedValues: this.lockedValues as FreezerConfigArgs["lockedValues"],
       delegation: this.delegation as FreezerConfigArgs["delegation"],
       ownerAddress: this.ownerAddress as FreezerConfigArgs["ownerAddress"],
+      referralFee: this.referralFee,
     };
   }
 

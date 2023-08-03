@@ -27,7 +27,19 @@ export interface ITxBuilderComplete {
  */
 export interface ITxBuilderReferralFee {
   destination: string;
+  percent?: number;
+  minimumAmount: AssetAmount<IAssetAmountMetadata>;
+  /** The label that prefixes the fee amount in the metadata. */
+  feeLabel?: string;
+}
+
+/**
+ * The calculated referral fee object.
+ */
+export interface ICalculatedReferralFee {
   payment: AssetAmount<IAssetAmountMetadata>;
+  destination: string;
+  label?: string;
 }
 
 /**
@@ -54,6 +66,4 @@ export interface ITxBuilderBaseOptions {
   minLockAda?: bigint;
   /** Whether to allow debugging console logs. */
   debug?: boolean;
-  /** Whether transactions should always include a referral fee. */
-  referral?: ITxBuilderReferralFee;
 }

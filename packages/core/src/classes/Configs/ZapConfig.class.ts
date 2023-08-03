@@ -4,6 +4,7 @@ import {
   IPoolData,
   OrderAddresses,
   PoolCoin,
+  ITxBuilderReferralFee,
 } from "../../@types";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 
@@ -11,6 +12,7 @@ import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
  * The main config class for building valid arguments for a Zap.
  */
 export class ZapConfig extends OrderConfig<ZapConfigArgs> {
+  referralFee?: ITxBuilderReferralFee | undefined;
   suppliedAsset?: AssetAmount<IAssetAmountMetadata>;
   zapDirection?: PoolCoin;
   swapSlippage?: number;
@@ -45,6 +47,7 @@ export class ZapConfig extends OrderConfig<ZapConfigArgs> {
       suppliedAsset: this.suppliedAsset as AssetAmount<IAssetAmountMetadata>,
       zapDirection: this.zapDirection as PoolCoin,
       swapSlippage: (this.swapSlippage ?? 0) as number,
+      referralFee: this.referralFee,
     };
   }
 
@@ -54,12 +57,14 @@ export class ZapConfig extends OrderConfig<ZapConfigArgs> {
     suppliedAsset,
     zapDirection,
     swapSlippage,
+    referralFee,
   }: ZapConfigArgs): void {
     this.setOrderAddresses(orderAddresses);
     this.setPool(pool);
     this.setSuppliedAsset(suppliedAsset);
     this.setZapDirection(zapDirection);
     this.setSwapSlippage(swapSlippage ?? 0);
+    referralFee && this.setReferralFee(referralFee);
   }
 
   validate(): never | void {

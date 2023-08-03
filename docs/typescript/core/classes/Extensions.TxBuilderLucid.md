@@ -49,7 +49,7 @@ TxBuilder&lt;
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L82)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:96](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L96)
 
 ## Methods
 
@@ -76,7 +76,7 @@ that allows a user to add or update staking positions.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:163](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L163)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:189](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L189)
 
 ___
 
@@ -105,7 +105,7 @@ with an updated swap datum.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:310](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L310)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:374](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L374)
 
 ___
 
@@ -125,7 +125,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:114](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L114)
+[classes/Abstracts/TxBuilder.abstract.class.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L146)
 
 ___
 
@@ -141,13 +141,13 @@ Initializes a Lucid instance with the
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:100](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L100)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:114](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L114)
 
 ___
 
 ### newTxInstance
 
-▸ **newTxInstance**(`skipReferral?`): `Promise`<[`Transaction`](Core.Transaction.md)<`Tx`\>\>
+▸ **newTxInstance**(`fee?`): `Promise`<[`Transaction`](Core.Transaction.md)<`Tx`\>\>
 
 Returns a new Tx instance from Lucid. Throws an error if not ready.
 
@@ -155,7 +155,7 @@ Returns a new Tx instance from Lucid. Throws an error if not ready.
 
 | Name | Type |
 | :------ | :------ |
-| `skipReferral?` | `boolean` |
+| `fee?` | [`ICalculatedReferralFee`](../interfaces/Core.ICalculatedReferralFee.md) |
 
 #### Returns
 
@@ -167,4 +167,31 @@ Returns a new Tx instance from Lucid. Throws an error if not ready.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:134](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L134)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L148)
+
+___
+
+### calculateReferralFee
+
+▸ `Static` **calculateReferralFee**(`referral`, `suppliedAmount?`): [`ICalculatedReferralFee`](../interfaces/Core.ICalculatedReferralFee.md)
+
+Should calculate the referral fee from a config.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `referral` | [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md) | The referral fee configuration object. |
+| `suppliedAmount?` | `AssetAmount`<`IAssetAmountMetadata`\> | The supplied amount of assets if defined. |
+
+#### Returns
+
+[`ICalculatedReferralFee`](../interfaces/Core.ICalculatedReferralFee.md)
+
+#### Inherited from
+
+[TxBuilder](Core.TxBuilder.md).[calculateReferralFee](Core.TxBuilder.md#calculatereferralfee)
+
+#### Defined in
+
+[classes/Abstracts/TxBuilder.abstract.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L59)

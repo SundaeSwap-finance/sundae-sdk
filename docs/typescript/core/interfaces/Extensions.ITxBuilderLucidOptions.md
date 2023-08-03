@@ -27,7 +27,7 @@ The chosen provider options object to pass to Lucid.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L45)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L47)
 
 ___
 
@@ -43,7 +43,7 @@ Whether to allow debugging console logs.
 
 #### Defined in
 
-[@types/txbuilder.ts:56](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L56)
+[@types/txbuilder.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L68)
 
 ___
 
@@ -59,7 +59,7 @@ The minimum amount of ADA required for a locking position.
 
 #### Defined in
 
-[@types/txbuilder.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L54)
+[@types/txbuilder.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L66)
 
 ___
 
@@ -75,7 +75,7 @@ A supported Cardano network.
 
 #### Defined in
 
-[@types/txbuilder.ts:52](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L52)
+[@types/txbuilder.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L64)
 
 ___
 
@@ -87,23 +87,7 @@ The provider type used by Lucid. Currently only supports Blockfrost.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:43](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L43)
-
-___
-
-### referral
-
-• `Optional` **referral**: [`ITxBuilderReferralFee`](Core.ITxBuilderReferralFee.md)
-
-Whether transactions should always include a referral fee.
-
-#### Inherited from
-
-[ITxBuilderBaseOptions](Core.ITxBuilderBaseOptions.md).[referral](Core.ITxBuilderBaseOptions.md#referral)
-
-#### Defined in
-
-[@types/txbuilder.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L58)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L45)
 
 ___
 
@@ -119,4 +103,4 @@ A CIP-30 compatible wallet.
 
 #### Defined in
 
-[@types/txbuilder.ts:50](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L50)
+[@types/txbuilder.ts:62](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L62)

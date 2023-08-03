@@ -78,6 +78,7 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [DepositArguments](../interfaces/Core.DepositArguments.md)
 - [DepositConfigArgs](../interfaces/Core.DepositConfigArgs.md)
 - [FreezerConfigArgs](../interfaces/Core.FreezerConfigArgs.md)
+- [ICalculatedReferralFee](../interfaces/Core.ICalculatedReferralFee.md)
 - [IPoolData](../interfaces/Core.IPoolData.md)
 - [IPoolDataAsset](../interfaces/Core.IPoolDataAsset.md)
 - [IPoolQuery](../interfaces/Core.IPoolQuery.md)
@@ -137,7 +138,7 @@ A map of pools with their associated weight.
 
 #### Defined in
 
-[@types/configs.ts:67](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L67)
+[@types/configs.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L68)
 
 ___
 
@@ -149,7 +150,7 @@ A map of programs with their associated [DelegationProgramPools](Core.md#delegat
 
 #### Defined in
 
-[@types/configs.ts:69](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L69)
+[@types/configs.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L70)
 
 ___
 

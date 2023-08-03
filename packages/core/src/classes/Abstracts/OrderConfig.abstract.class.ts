@@ -8,8 +8,6 @@ import { Config } from "./Config.abstract.class";
  * @template Args The type of the arguments object, defaulting to an empty object.
  */
 export abstract class OrderConfig<Args = {}> extends Config<Args> {
-  skipReferral?: boolean | undefined;
-
   /**
    * The data for the pool involved in the order.
    */
@@ -51,6 +49,8 @@ export abstract class OrderConfig<Args = {}> extends Config<Args> {
    * @throws {Error} If the pool or the order addresses are not set.
    */
   validate(): void | never {
+    super.validate();
+
     if (!this.pool) {
       throw new Error(
         "You haven't set a pool in your Config. Set a pool with .setPool()"
