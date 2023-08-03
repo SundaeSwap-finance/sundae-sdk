@@ -71,7 +71,7 @@ describe("Config.buildArgs()", () => {
     }
   });
 
-  it("should set the referral fee", () => {
+  it("should set the skipReferral attribute correctly", () => {
     const config = new TestClass();
     config.setSkipReferral(true);
     expect(config.skipReferral).toBe(true);
