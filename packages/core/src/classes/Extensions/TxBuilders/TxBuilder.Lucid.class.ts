@@ -20,7 +20,6 @@ import {
   ITxBuilderFees,
   DepositMixed,
   ITxBuilderReferralFee,
-  ICalculatedReferralFee,
 } from "../../../@types";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";

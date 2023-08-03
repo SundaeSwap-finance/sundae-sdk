@@ -78,7 +78,6 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 - [DepositArguments](../interfaces/Core.DepositArguments.md)
 - [DepositConfigArgs](../interfaces/Core.DepositConfigArgs.md)
 - [FreezerConfigArgs](../interfaces/Core.FreezerConfigArgs.md)
-- [ICalculatedReferralFee](../interfaces/Core.ICalculatedReferralFee.md)
 - [IPoolData](../interfaces/Core.IPoolData.md)
 - [IPoolDataAsset](../interfaces/Core.IPoolDataAsset.md)
 - [IPoolQuery](../interfaces/Core.IPoolQuery.md)

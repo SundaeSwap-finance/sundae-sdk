@@ -33,15 +33,6 @@ export interface ITxBuilderReferralFee {
 }
 
 /**
- * The calculated referral fee object.
- */
-export interface ICalculatedReferralFee {
-  payment: AssetAmount<IAssetAmountMetadata>;
-  destination: string;
-  label?: string;
-}
-
-/**
  * The full list of calculated fees for a transaction built by a TxBuilder instance.
  */
 export interface ITxBuilderFees {
