@@ -28,8 +28,8 @@ describe("Config", () => {
     const configWithAmount = new TestClass();
     const amountConfig: ITxBuilderReferralFee = {
       destination: mockAddress,
-      percent: 0,
-      minimumAmount: new AssetAmount(10n, { assetId: "", decimals: 6 }),
+
+      payment: new AssetAmount(10n, { assetId: "", decimals: 6 }),
     };
 
     configWithAmount.setReferralFee(amountConfig);
@@ -38,8 +38,7 @@ describe("Config", () => {
     const configWithPercent = new TestClass();
     const percentConfig: ITxBuilderReferralFee = {
       destination: mockAddress,
-      percent: 0.2,
-      minimumAmount: new AssetAmount(10n, { assetId: "", decimals: 6 }),
+      payment: new AssetAmount(10n, { assetId: "", decimals: 6 }),
     };
 
     configWithPercent.setReferralFee(percentConfig);
@@ -48,8 +47,7 @@ describe("Config", () => {
     const configWithLabel = new TestClass();
     const labelConfig: ITxBuilderReferralFee = {
       destination: mockAddress,
-      percent: 0.2,
-      minimumAmount: new AssetAmount(10n, { assetId: "", decimals: 6 }),
+      payment: new AssetAmount(10n, { assetId: "", decimals: 6 }),
       feeLabel: "Test Fee",
     };
 
@@ -61,41 +59,13 @@ describe("Config", () => {
     const configWithAmount = new TestClass();
     const amountConfig: ITxBuilderReferralFee = {
       destination: mockAddress,
-      percent: -1,
-      minimumAmount: new AssetAmount(10n, { assetId: "", decimals: 6 }),
+      // @ts-ignore
+      payment: 6,
     };
 
     configWithAmount.setReferralFee(amountConfig);
     expect(() => configWithAmount.buildArgs()).toThrowError(
-      new Error(Config.INVALID_FEE_PERCENT_RANGE)
-    );
-
-    configWithAmount.setReferralFee({
-      ...amountConfig,
-      percent: 0,
-    });
-    expect(() => configWithAmount.buildArgs()).toThrowError(
-      new Error(Config.INVALID_FEE_PERCENT_RANGE)
-    );
-
-    configWithAmount.setReferralFee({
-      ...amountConfig,
-      percent: 0.1,
-    });
-    expect(() => configWithAmount.buildArgs()).not.toThrow();
-
-    configWithAmount.setReferralFee({
-      ...amountConfig,
-      percent: 1,
-    });
-    expect(() => configWithAmount.buildArgs()).not.toThrow();
-
-    configWithAmount.setReferralFee({
-      ...amountConfig,
-      percent: 1.2,
-    });
-    expect(() => configWithAmount.buildArgs()).toThrowError(
-      new Error(Config.INVALID_FEE_PERCENT_RANGE)
+      new Error(Config.INVALID_FEE_AMOUNT)
     );
   });
 });

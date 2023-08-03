@@ -237,7 +237,10 @@ export class SundaeSDK {
    * @returns
    */
   async unlock(
-    config: Pick<FreezerConfigArgs, "existingPositions" | "ownerAddress">
+    config: Pick<
+      FreezerConfigArgs,
+      "existingPositions" | "ownerAddress" | "referralFee"
+    >
   ) {
     const lock = new FreezerConfig({
       ...config,

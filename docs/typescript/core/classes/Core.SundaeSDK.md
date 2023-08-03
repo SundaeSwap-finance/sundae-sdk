@@ -271,7 +271,7 @@ Create an unlocking transaction that removes all yield farming positions.
 
 | Name | Type |
 | :------ | :------ |
-| `config` | `Pick`<[`FreezerConfigArgs`](../interfaces/Core.FreezerConfigArgs.md), ``"existingPositions"`` \| ``"ownerAddress"``\> |
+| `config` | `Pick`<[`FreezerConfigArgs`](../interfaces/Core.FreezerConfigArgs.md), ``"existingPositions"`` \| ``"ownerAddress"`` \| ``"referralFee"``\> |
 
 #### Returns
 
@@ -302,7 +302,7 @@ This is experimental and currently not supported by Cardano parameter limits.
 
 #### Defined in
 
-[classes/SundaeSDK.class.ts:256](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L256)
+[classes/SundaeSDK.class.ts:259](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/SundaeSDK.class.ts#L259)
 
 ___
 

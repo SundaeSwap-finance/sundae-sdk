@@ -33,11 +33,10 @@ export const SwapBA: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
               referralFee: {
                 destination:
                   "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-                minimumAmount: new AssetAmount(1000000n, {
+                payment: new AssetAmount(1000000n, {
                   assetId: "",
                   decimals: 6,
                 }),
-                percent: 0.01,
               },
             }
           : {}),

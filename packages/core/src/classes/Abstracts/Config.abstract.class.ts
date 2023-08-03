@@ -1,3 +1,4 @@
+import { AssetAmount } from "@sundaeswap/asset";
 import { ITxBuilderReferralFee } from "../../@types";
 
 /**
@@ -6,7 +7,7 @@ import { ITxBuilderReferralFee } from "../../@types";
  * @template Args The type of the arguments object, defaulting to an empty object.
  */
 export abstract class Config<Args = {}> {
-  static INVALID_FEE_PERCENT_RANGE = `You set a referral fee with a percent that is out of range. Choose a float above 0 and up to a max of 1.`;
+  static INVALID_FEE_AMOUNT = `The fee amount must be of type AssetAmount.`;
 
   /**
    * An optional argument that contains referral fee data.
@@ -49,11 +50,8 @@ export abstract class Config<Args = {}> {
       return;
     }
 
-    if (
-      typeof this.referralFee?.percent !== "undefined" &&
-      (this.referralFee.percent <= 0 || this.referralFee.percent > 1)
-    ) {
-      throw new Error(Config.INVALID_FEE_PERCENT_RANGE);
+    if (!(this.referralFee.payment instanceof AssetAmount)) {
+      throw new Error(Config.INVALID_FEE_AMOUNT);
     }
   }
 }

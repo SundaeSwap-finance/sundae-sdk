@@ -27,8 +27,7 @@ export interface ITxBuilderComplete {
  */
 export interface ITxBuilderReferralFee {
   destination: string;
-  percent?: number;
-  minimumAmount: AssetAmount<IAssetAmountMetadata>;
+  payment: AssetAmount<IAssetAmountMetadata>;
   /** The label that prefixes the fee amount in the metadata. */
   feeLabel?: string;
 }

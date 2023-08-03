@@ -14,4 +14,4 @@ The label that prefixes the fee amount in the metadata.
 
 #### Defined in
 
-[@types/txbuilder.ts:33](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L33)
+[@types/txbuilder.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L32)

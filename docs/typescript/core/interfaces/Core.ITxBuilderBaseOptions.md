@@ -21,7 +21,7 @@ Whether to allow debugging console logs.
 
 #### Defined in
 
-[@types/txbuilder.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L68)
+[@types/txbuilder.ts:67](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L67)
 
 ___
 
@@ -33,7 +33,7 @@ The minimum amount of ADA required for a locking position.
 
 #### Defined in
 
-[@types/txbuilder.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L66)
+[@types/txbuilder.ts:65](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L65)
 
 ___
 
@@ -45,7 +45,7 @@ A supported Cardano network.
 
 #### Defined in
 
-[@types/txbuilder.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L64)
+[@types/txbuilder.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L63)
 
 ___
 
@@ -57,4 +57,4 @@ A CIP-30 compatible wallet.
 
 #### Defined in
 
-[@types/txbuilder.ts:62](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L62)
+[@types/txbuilder.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilder.ts#L61)

@@ -105,7 +105,7 @@ with an updated swap datum.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:374](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L374)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:360](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L360)
 
 ___
 
@@ -125,7 +125,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L146)
+[classes/Abstracts/TxBuilder.abstract.class.ts:114](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L114)
 
 ___
 
@@ -155,7 +155,7 @@ Returns a new Tx instance from Lucid. Throws an error if not ready.
 
 | Name | Type |
 | :------ | :------ |
-| `fee?` | [`ICalculatedReferralFee`](../interfaces/Core.ICalculatedReferralFee.md) |
+| `fee?` | [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md) |
 
 #### Returns
 
@@ -168,30 +168,3 @@ Returns a new Tx instance from Lucid. Throws an error if not ready.
 #### Defined in
 
 [classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L148)
-
-___
-
-### calculateReferralFee
-
-▸ `Static` **calculateReferralFee**(`referral`, `suppliedAmount?`): [`ICalculatedReferralFee`](../interfaces/Core.ICalculatedReferralFee.md)
-
-Should calculate the referral fee from a config.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `referral` | [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md) | The referral fee configuration object. |
-| `suppliedAmount?` | `AssetAmount`<`IAssetAmountMetadata`\> | The supplied amount of assets if defined. |
-
-#### Returns
-
-[`ICalculatedReferralFee`](../interfaces/Core.ICalculatedReferralFee.md)
-
-#### Inherited from
-
-[TxBuilder](Core.TxBuilder.md).[calculateReferralFee](Core.TxBuilder.md#calculatereferralfee)
-
-#### Defined in
-
-[classes/Abstracts/TxBuilder.abstract.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L59)
