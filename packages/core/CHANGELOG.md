@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.1](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v1.0.0-alpha.0...v1.0.0-alpha.1) (2023-08-03)
+
+### Bug Fixes
+
+- remove percent option ([d1dff1d](https://github.com/SundaeSwap-finance/sundae-sdk/commit/d1dff1dda2c05d631079411246b6f33d5ad78325))
+- review comment ([6acd99a](https://github.com/SundaeSwap-finance/sundae-sdk/commit/6acd99a05b40956cf4034b9dd9e962e30d5af79a))
+
+### Features
+
+- add referral fee ([d31a408](https://github.com/SundaeSwap-finance/sundae-sdk/commit/d31a4086ab341b2331fdf1aa0feed3e55716e9a9))
+
 # [1.0.0-alpha.0](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v0.2.0-alpha.34...v1.0.0-alpha.0) (2023-07-19)
 
 ### Bug Fixes
