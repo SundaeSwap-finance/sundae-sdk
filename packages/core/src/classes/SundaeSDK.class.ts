@@ -32,18 +32,15 @@ export class SundaeSDK {
    * You'll need to provide a TxBuilder class to the main SDK, which is used to build Transactions and submit them.
    *
    * @param builder - An instance of TxBuilder.
-   * @param options - The options object for this builder.
    */
-  constructor(public builder: TxBuilder) {
-    this.builder = builder;
-  }
+  constructor(public builder: TxBuilder) {}
 
   /**
    * Utility method to retrieve the builder instance with types.
    *
    * @returns
    */
-  build<T = any>(): TxBuilder<any, T, any, IQueryProviderClass> {
+  build<O = any, T = any>(): TxBuilder<O, T, any, IQueryProviderClass> {
     return this.builder;
   }
 
@@ -240,7 +237,10 @@ export class SundaeSDK {
    * @returns
    */
   async unlock(
-    config: Pick<FreezerConfigArgs, "existingPositions" | "ownerAddress">
+    config: Pick<
+      FreezerConfigArgs,
+      "existingPositions" | "ownerAddress" | "referralFee"
+    >
   ) {
     const lock = new FreezerConfig({
       ...config,

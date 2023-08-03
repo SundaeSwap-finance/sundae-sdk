@@ -7,7 +7,7 @@ import { ActionArgs, poolQuery } from "../Actions";
 import Button from "../../Button";
 
 export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, ready, walletAddress } = useAppState();
+  const { SDK, ready, walletAddress, useReferral } = useAppState();
   const [withdrawing, setWithdrawing] = useState(false);
 
   const handleWithdraw = useCallback(async () => {
@@ -19,7 +19,7 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     try {
       const LPAssetId =
         "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702002";
-      const balance = await SDK.build<Lucid>().wallet?.wallet.getUtxos();
+      const balance = await SDK.build<any, Lucid>().wallet?.wallet.getUtxos();
       let lpBalance: bigint = 0n;
       balance?.forEach((bal) => {
         const matchingAsset = bal.assets[LPAssetId.replace(".", "")];
@@ -45,6 +45,18 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
             "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702002",
           decimals: 6,
         }),
+        ...(useReferral
+          ? {
+              referralFee: {
+                destination:
+                  "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
+                payment: new AssetAmount(1000000n, {
+                  assetId: "",
+                  decimals: 6,
+                }),
+              },
+            }
+          : {}),
       }).then(async ({ sign, build, fees }) => {
         setFees(fees);
         if (submit) {
@@ -65,7 +77,7 @@ export const Withdraw: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setWithdrawing(false);
-  }, [SDK, submit, walletAddress]);
+  }, [SDK, submit, walletAddress, useReferral]);
 
   if (!SDK) {
     return null;

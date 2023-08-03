@@ -39,6 +39,7 @@ describe("FreezerConfig class", () => {
       ],
       delegation: delegationMap,
       existingPositions: [],
+      referralFee: undefined,
     });
   });
 
@@ -60,6 +61,7 @@ describe("FreezerConfig class", () => {
       lockedValues: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
       delegation: delegationMap,
       existingPositions: [],
+      referralFee: undefined,
     });
   });
 

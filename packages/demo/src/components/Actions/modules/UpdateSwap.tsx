@@ -6,7 +6,7 @@ import Button from "../../Button";
 import { AssetAmount } from "@sundaeswap/asset";
 
 export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, ready, walletAddress } = useAppState();
+  const { SDK, ready, walletAddress, useReferral } = useAppState();
   const [updating, setUpdating] = useState(false);
 
   const handleUpdateSwap = useCallback(async () => {
@@ -50,6 +50,18 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
           decimals: 6,
         }),
+        ...(useReferral
+          ? {
+              referralFee: {
+                destination:
+                  "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
+                payment: new AssetAmount(1000000n, {
+                  assetId: "",
+                  decimals: 6,
+                }),
+              },
+            }
+          : {}),
       };
 
       await SDK.updateSwap(cancelConfig, updatedSwapConfig).then(
@@ -74,7 +86,7 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setUpdating(false);
-  }, [SDK, submit, walletAddress]);
+  }, [SDK, submit, walletAddress, useReferral]);
 
   if (!SDK) {
     return null;

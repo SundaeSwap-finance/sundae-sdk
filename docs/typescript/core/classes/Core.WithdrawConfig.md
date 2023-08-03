@@ -82,7 +82,7 @@ OrderConfig.buildArgs
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:65](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L65)
+[classes/Configs/WithdrawConfig.class.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L73)
 
 ___
 
@@ -108,7 +108,7 @@ OrderConfig.setFromObject
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L41)
+[classes/Configs/WithdrawConfig.class.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L47)
 
 ___
 
@@ -168,6 +168,32 @@ OrderConfig.setPool
 
 ___
 
+### setReferralFee
+
+▸ **setReferralFee**(`fee`): `void`
+
+An inherited method that allows a config to add an optional referral fee.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `fee` | [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md) | The desired fee. |
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+OrderConfig.setReferralFee
+
+#### Defined in
+
+[classes/Abstracts/Config.abstract.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L39)
+
+___
+
 ### setSuppliedLPAsset
 
 ▸ **setSuppliedLPAsset**(`asset`): [`WithdrawConfig`](Core.WithdrawConfig.md)
@@ -186,7 +212,7 @@ Set the funded asset of LP tokens.
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:56](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L56)
+[classes/Configs/WithdrawConfig.class.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L64)
 
 ___
 
@@ -206,4 +232,4 @@ OrderConfig.validate
 
 #### Defined in
 
-[classes/Configs/WithdrawConfig.class.ts:77](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L77)
+[classes/Configs/WithdrawConfig.class.ts:86](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/WithdrawConfig.class.ts#L86)

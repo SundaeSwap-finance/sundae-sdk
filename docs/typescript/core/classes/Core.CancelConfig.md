@@ -97,3 +97,29 @@ OrderConfig.setPool
 #### Defined in
 
 [classes/Abstracts/OrderConfig.abstract.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L41)
+
+___
+
+### setReferralFee
+
+▸ **setReferralFee**(`fee`): `void`
+
+An inherited method that allows a config to add an optional referral fee.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `fee` | [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md) | The desired fee. |
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+OrderConfig.setReferralFee
+
+#### Defined in
+
+[classes/Abstracts/Config.abstract.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L39)

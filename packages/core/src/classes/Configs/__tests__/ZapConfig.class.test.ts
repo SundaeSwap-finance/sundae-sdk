@@ -35,6 +35,7 @@ describe("ZapConfig class", () => {
       suppliedAsset: expect.objectContaining({
         amount: PREVIEW_DATA.assets.tada.amount,
       }),
+      referralFee: undefined,
       zapDirection: PoolCoin.A,
       swapSlippage: 0.3,
     });
@@ -68,6 +69,7 @@ describe("ZapConfig class", () => {
       suppliedAsset: expect.objectContaining({
         amount: PREVIEW_DATA.assets.tada.amount,
       }),
+      referralFee: undefined,
       zapDirection: PoolCoin.A,
       swapSlippage: 0.3,
     });

@@ -1,12 +1,18 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { DepositConfigArgs, IPoolData, OrderAddresses } from "../../@types";
+import {
+  DepositConfigArgs,
+  IPoolData,
+  ITxBuilderReferralFee,
+  OrderAddresses,
+} from "../../@types";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 
 /**
  * The main config class for building valid arguments for a Deposit.
  */
 export class DepositConfig extends OrderConfig<DepositConfigArgs> {
+  referralFee?: ITxBuilderReferralFee | undefined;
   suppliedAssets?: [
     AssetAmount<IAssetAmountMetadata>,
     AssetAmount<IAssetAmountMetadata>
@@ -38,6 +44,7 @@ export class DepositConfig extends OrderConfig<DepositConfigArgs> {
         AssetAmount<IAssetAmountMetadata>,
         AssetAmount<IAssetAmountMetadata>
       ],
+      referralFee: this.referralFee,
     };
   }
 
@@ -45,10 +52,12 @@ export class DepositConfig extends OrderConfig<DepositConfigArgs> {
     orderAddresses,
     pool,
     suppliedAssets,
+    referralFee,
   }: DepositConfigArgs): void {
     this.setOrderAddresses(orderAddresses);
     this.setPool(pool);
     this.setSuppliedAssets(suppliedAssets);
+    referralFee && this.setReferralFee(referralFee);
   }
 
   validate(): never | void {

@@ -28,6 +28,7 @@ const SettingsViewer: FC = () => {
       <ReactJson
         theme="embers"
         enableClipboard={false}
+        collapseStringsAfterLength={20}
         style={{
           padding: 8,
           borderRadius: 8,

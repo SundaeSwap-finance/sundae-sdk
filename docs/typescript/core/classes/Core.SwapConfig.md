@@ -87,7 +87,7 @@ OrderConfig.buildArgs
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L70)
+[classes/Configs/SwapConfig.class.ts:76](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L76)
 
 ___
 
@@ -113,7 +113,7 @@ OrderConfig.setFromObject
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:83](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L83)
+[classes/Configs/SwapConfig.class.ts:90](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L90)
 
 ___
 
@@ -135,7 +135,7 @@ Set a minimum receivable asset amount for the swap. This is akin to setting a li
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L57)
+[classes/Configs/SwapConfig.class.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L63)
 
 ___
 
@@ -195,6 +195,32 @@ OrderConfig.setPool
 
 ___
 
+### setReferralFee
+
+▸ **setReferralFee**(`fee`): `void`
+
+An inherited method that allows a config to add an optional referral fee.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `fee` | [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md) | The desired fee. |
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+OrderConfig.setReferralFee
+
+#### Defined in
+
+[classes/Abstracts/Config.abstract.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L39)
+
+___
+
 ### setSuppliedAsset
 
 ▸ **setSuppliedAsset**(`asset`): [`SwapConfig`](Core.SwapConfig.md)
@@ -213,4 +239,4 @@ Set the supplied asset for the swap.
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L46)
+[classes/Configs/SwapConfig.class.ts:52](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L52)

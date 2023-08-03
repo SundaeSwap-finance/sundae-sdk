@@ -49,6 +49,8 @@ export abstract class OrderConfig<Args = {}> extends Config<Args> {
    * @throws {Error} If the pool or the order addresses are not set.
    */
   validate(): void | never {
+    super.validate();
+
     if (!this.pool) {
       throw new Error(
         "You haven't set a pool in your Config. Set a pool with .setPool()"

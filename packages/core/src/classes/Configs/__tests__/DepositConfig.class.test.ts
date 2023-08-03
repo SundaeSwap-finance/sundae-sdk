@@ -30,6 +30,7 @@ describe("WithdrawConfig class", () => {
         },
       },
       suppliedAssets: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
+      referralFee: undefined,
     });
   });
 

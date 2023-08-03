@@ -32,6 +32,7 @@ describe("WithdrawConfig class", () => {
         },
       },
       suppliedLPAsset: PREVIEW_DATA.assets.tindy,
+      referralFee: undefined,
     });
   });
 
@@ -156,6 +157,7 @@ describe("WithdrawConfig class", () => {
         },
       },
       suppliedLPAsset: validFunding,
+      referralFee: undefined,
     });
   });
 

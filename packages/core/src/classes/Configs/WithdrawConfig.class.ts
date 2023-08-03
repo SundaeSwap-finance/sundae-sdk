@@ -1,6 +1,11 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { WithdrawConfigArgs, IPoolData, OrderAddresses } from "../../@types";
+import {
+  WithdrawConfigArgs,
+  IPoolData,
+  OrderAddresses,
+  ITxBuilderReferralFee,
+} from "../../@types";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 
 /**
@@ -27,6 +32,7 @@ import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
  * @see {@link SundaeSDK.withdraw}
  */
 export class WithdrawConfig extends OrderConfig<WithdrawConfigArgs> {
+  referralFee?: ITxBuilderReferralFee | undefined;
   suppliedLPAsset?: AssetAmount<IAssetAmountMetadata>;
 
   constructor(args?: WithdrawConfigArgs) {
@@ -42,10 +48,12 @@ export class WithdrawConfig extends OrderConfig<WithdrawConfigArgs> {
     suppliedLPAsset,
     orderAddresses,
     pool,
+    referralFee,
   }: WithdrawConfigArgs): void {
     this.setPool(pool);
     this.setOrderAddresses(orderAddresses);
     this.setSuppliedLPAsset(suppliedLPAsset);
+    referralFee && this.setReferralFee(referralFee);
   }
 
   /**
@@ -68,6 +76,7 @@ export class WithdrawConfig extends OrderConfig<WithdrawConfigArgs> {
       orderAddresses: this.orderAddresses as OrderAddresses,
       suppliedLPAsset: this
         .suppliedLPAsset as AssetAmount<IAssetAmountMetadata>,
+      referralFee: this.referralFee,
     };
   }
 

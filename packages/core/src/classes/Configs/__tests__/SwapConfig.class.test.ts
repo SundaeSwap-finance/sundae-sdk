@@ -1,4 +1,4 @@
-import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { AssetAmount } from "@sundaeswap/asset";
 
 import { PREVIEW_DATA } from "../../../testing/mockData";
 import { SwapConfig } from "../SwapConfig.class";

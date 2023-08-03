@@ -10,7 +10,7 @@ import {
   Datum,
   Assets,
 } from "lucid-cardano";
-import { AssetAmount } from "@sundaeswap/asset";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import {
   IQueryProviderClass,
@@ -19,6 +19,7 @@ import {
   ITxBuilderTx,
   ITxBuilderFees,
   DepositMixed,
+  ITxBuilderReferralFee,
 } from "../../../@types";
 import { TxBuilder } from "../../Abstracts/TxBuilder.abstract.class";
 import { Utils } from "../../Utils.class";
@@ -46,6 +47,18 @@ export interface ITxBuilderLucidOptions extends ITxBuilderBaseOptions {
     url: string;
     apiKey: string;
   };
+}
+
+/**
+ * Object arguments for completing a transaction.
+ */
+interface ITxBuilderLucidCompleteTxArgs {
+  tx: Transaction<Tx>;
+  referralFee?: AssetAmount<IAssetAmountMetadata>;
+  datum?: string;
+  deposit?: bigint;
+  scooperFee?: bigint;
+  coinSelection?: boolean;
 }
 
 /**
@@ -131,13 +144,39 @@ export class TxBuilderLucid extends TxBuilder<
    * Returns a new Tx instance from Lucid. Throws an error if not ready.
    * @returns
    */
-  async newTxInstance(): Promise<Transaction<Tx>> {
+  async newTxInstance(fee?: ITxBuilderReferralFee): Promise<Transaction<Tx>> {
     await this.initWallet();
     if (!this.wallet) {
       this._throwWalletNotConnected();
     }
 
-    return new Transaction<Tx>(this, this.wallet.newTx());
+    const instance = new Transaction<Tx>(this, this.wallet.newTx());
+
+    if (fee) {
+      const payment: Assets = {};
+      payment[
+        fee.payment.metadata.assetId === ""
+          ? "lovelace"
+          : fee.payment.metadata.assetId
+      ] = fee.payment.amount;
+      instance.tx.payToAddress(fee.destination, payment);
+
+      if (fee?.feeLabel) {
+        instance.tx.attachMetadataWithConversion(
+          674,
+          `${fee.feeLabel}: ${fee.payment.value.toString()} ${
+            fee.payment.metadata.assetId !== ""
+              ? Buffer.from(
+                  fee.payment.metadata.assetId.split(".")[1],
+                  "hex"
+                ).toString("utf-8")
+              : "ADA"
+          }`
+        );
+      }
+    }
+
+    return instance;
   }
 
   /**
@@ -147,9 +186,15 @@ export class TxBuilderLucid extends TxBuilder<
    * @returns
    */
   async buildFreezerTx(freezerConfig: FreezerConfig) {
-    const txInstance = await this.newTxInstance();
-    const { existingPositions, lockedValues, delegation, ownerAddress } =
-      freezerConfig.buildArgs();
+    const {
+      existingPositions,
+      lockedValues,
+      delegation,
+      ownerAddress,
+      referralFee,
+    } = freezerConfig.buildArgs();
+
+    const txInstance = await this.newTxInstance(referralFee);
 
     const {
       FREEZER_REFERENCE_INPUT,
@@ -249,20 +294,34 @@ export class TxBuilderLucid extends TxBuilder<
       txInstance
         .get()
         .payToContract(contractAddress, { inline: cbor }, payment);
-      return this.completeTx(txInstance, cbor, this.options.minLockAda, 0n);
+      return this.completeTx({
+        tx: txInstance,
+        datum: cbor,
+        deposit: this.options.minLockAda,
+        scooperFee: 0n,
+        referralFee: referralFee?.payment,
+      });
     } else {
-      return this.completeTx(txInstance, undefined, 0n, 0n);
+      return this.completeTx({
+        tx: txInstance,
+        datum: undefined,
+        deposit: 0n,
+        scooperFee: 0n,
+        referralFee: referralFee?.payment,
+      });
     }
   }
 
   async buildSwapTx(swapConfig: SwapConfig) {
-    const txInstance = await this.newTxInstance();
     const {
       pool: { ident, assetA, assetB },
       orderAddresses,
       suppliedAsset,
       minReceivable,
+      referralFee,
     } = swapConfig.buildArgs();
+
+    const txInstance = await this.newTxInstance(referralFee);
 
     const { ESCROW_ADDRESS } = this.getParams();
 
@@ -286,7 +345,11 @@ export class TxBuilderLucid extends TxBuilder<
     );
 
     txInstance.get().payToContract(ESCROW_ADDRESS, cbor, payment);
-    return this.completeTx(txInstance, cbor);
+    return this.completeTx({
+      tx: txInstance,
+      datum: cbor,
+      referralFee: referralFee?.payment,
+    });
   }
 
   /**
@@ -300,8 +363,14 @@ export class TxBuilderLucid extends TxBuilder<
     cancelConfig: CancelConfig;
     swapConfig: SwapConfig;
   }) {
-    const { tx: cancelTx } = await this.buildCancelTx(cancelConfig);
-    const { datum } = await this.buildSwapTx(swapConfig);
+    const {
+      tx: cancelTx,
+      fees: { referral: cancelReferralFee },
+    } = await this.buildCancelTx(cancelConfig);
+    const {
+      datum,
+      fees: { referral: swapReferralFee },
+    } = await this.buildSwapTx(swapConfig);
     const { ESCROW_ADDRESS } = this.getParams();
 
     const { suppliedAsset } = swapConfig.buildArgs();
@@ -315,13 +384,29 @@ export class TxBuilderLucid extends TxBuilder<
       throw new Error("Swap datum is required.");
     }
 
+    const accumulatedFee = new AssetAmount(0n, cancelReferralFee?.metadata);
+    const fees = [cancelReferralFee, swapReferralFee];
+    fees.forEach((fee) => {
+      // Skip the fee if it doesn't match the first fee type.
+      if (fee && fee.metadata.assetId === accumulatedFee.metadata.assetId) {
+        accumulatedFee.add(fee);
+      }
+    });
+
     cancelTx.get().payToContract(ESCROW_ADDRESS, datum, payment);
-    return this.completeTx(cancelTx, datum);
+    return this.completeTx({
+      tx: cancelTx,
+      datum,
+      referralFee: accumulatedFee,
+    });
   }
 
   async buildDepositTx(depositConfig: DepositConfig) {
-    const tx = await this.newTxInstance();
-    const { suppliedAssets, pool, orderAddresses } = depositConfig.buildArgs();
+    const { suppliedAssets, pool, orderAddresses, referralFee } =
+      depositConfig.buildArgs();
+
+    const tx = await this.newTxInstance(referralFee);
+
     const payment = Utils.accumulateSuppliedAssets(
       suppliedAssets,
       this.options.network
@@ -339,13 +424,19 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
-    return this.completeTx(tx, cbor);
+    return this.completeTx({
+      tx,
+      datum: cbor,
+      referralFee: referralFee?.payment,
+    });
   }
 
   async buildWithdrawTx(withdrawConfig: WithdrawConfig): Promise<ITxBuilderTx> {
-    const tx = await this.newTxInstance();
-    const { suppliedLPAsset, pool, orderAddresses } =
+    const { suppliedLPAsset, pool, orderAddresses, referralFee } =
       withdrawConfig.buildArgs();
+
+    const tx = await this.newTxInstance(referralFee);
+
     const payment = Utils.accumulateSuppliedAssets(
       [suppliedLPAsset],
       this.options.network
@@ -359,12 +450,19 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
-    return this.completeTx(tx, cbor, 0n);
+    return this.completeTx({
+      tx,
+      datum: cbor,
+      deposit: 0n,
+      referralFee: referralFee?.payment,
+    });
   }
 
   async buildCancelTx(cancelConfig: CancelConfig) {
-    const tx = await this.newTxInstance();
-    const { datum, datumHash, utxo, address } = cancelConfig.buildArgs();
+    const { datum, datumHash, utxo, address, referralFee } =
+      cancelConfig.buildArgs();
+
+    const tx = await this.newTxInstance(referralFee);
 
     const plutusData = C.PlutusData.from_bytes(Buffer.from(datum, "hex"));
     const calculatedDatumHash = C.hash_plutus_data(plutusData).to_hex();
@@ -410,13 +508,21 @@ export class TxBuilderLucid extends TxBuilder<
       throw e;
     }
 
-    return this.completeTx(tx, utxoToSpend[0]?.datum as string, 0n, 0n);
+    return this.completeTx({
+      tx,
+      datum: utxoToSpend[0]?.datum as string,
+      deposit: 0n,
+      scooperFee: 0n,
+      referralFee: referralFee?.payment,
+    });
   }
 
   async buildChainedZapTx(zapConfig: ZapConfig): Promise<ITxBuilderTx> {
-    const { pool, suppliedAsset, orderAddresses, swapSlippage } =
+    const { pool, suppliedAsset, orderAddresses, swapSlippage, referralFee } =
       zapConfig.buildArgs();
-    const tx = await this.newTxInstance();
+
+    const tx = await this.newTxInstance(referralFee);
+
     const { ESCROW_ADDRESS, SCOOPER_FEE } = this.getParams();
     const payment = Utils.accumulateSuppliedAssets(
       [suppliedAsset],
@@ -505,18 +611,21 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(ESCROW_ADDRESS, swapData.cbor, payment);
-    return this.completeTx(
+    return this.completeTx({
       tx,
-      swapData.cbor,
-      undefined,
-      this.getParams().SCOOPER_FEE * 2n
-    );
+      datum: swapData.cbor,
+      deposit: undefined,
+      scooperFee: this.getParams().SCOOPER_FEE * 2n,
+      referralFee: referralFee?.payment,
+    });
   }
 
   async buildAtomicZapTx(zapConfig: ZapConfig): Promise<ITxBuilderTx> {
-    const tx = await this.newTxInstance();
-    const { suppliedAsset, pool, orderAddresses, zapDirection } =
+    const { suppliedAsset, pool, orderAddresses, zapDirection, referralFee } =
       zapConfig.buildArgs();
+
+    const tx = await this.newTxInstance(referralFee);
+
     const payment = Utils.accumulateSuppliedAssets(
       [suppliedAsset],
       this.options.network
@@ -533,18 +642,24 @@ export class TxBuilderLucid extends TxBuilder<
     });
 
     tx.get().payToContract(this.getParams().ESCROW_ADDRESS, cbor, payment);
-    return this.completeTx(tx, cbor);
+    return this.completeTx({
+      tx,
+      datum: cbor,
+      referralFee: referralFee?.payment,
+    });
   }
 
-  private async completeTx(
-    tx: Transaction<Tx>,
-    datum?: string,
-    deposit?: bigint,
-    scooperFee?: bigint,
-    coinSelection?: boolean
-  ): Promise<ITxBuilderTx<Transaction<Tx>, Datum | undefined>> {
-    let sign: boolean = false;
-    const baseFees: Pick<ITxBuilderFees, "scooperFee" | "deposit"> = {
+  private async completeTx({
+    tx,
+    datum,
+    referralFee,
+    deposit,
+    scooperFee,
+    coinSelection,
+  }: ITxBuilderLucidCompleteTxArgs): Promise<
+    ITxBuilderTx<Transaction<Tx>, Datum | undefined>
+  > {
+    const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(
         deposit ?? this.getParams().RIDER_FEE,
         ADA_ASSET_DECIMAL
@@ -553,6 +668,7 @@ export class TxBuilderLucid extends TxBuilder<
         scooperFee ?? this.getParams().SCOOPER_FEE,
         ADA_ASSET_DECIMAL
       ),
+      referral: referralFee,
     };
 
     const txFee = tx.get().txBuilder.get_fee_if_set();

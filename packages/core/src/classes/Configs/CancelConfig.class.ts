@@ -1,10 +1,11 @@
-import { CancelConfigArgs, UTXO } from "../../@types";
+import { CancelConfigArgs, ITxBuilderReferralFee, UTXO } from "../../@types";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 
 /**
  * The main config class for building valid arguments for a Cancel.
  */
 export class CancelConfig extends OrderConfig<CancelConfigArgs> {
+  referralFee?: ITxBuilderReferralFee | undefined;
   datum?: string;
   datumHash?: string;
   utxo?: UTXO;
@@ -44,14 +45,22 @@ export class CancelConfig extends OrderConfig<CancelConfigArgs> {
       datum: this.datum as string,
       utxo: this.utxo as UTXO,
       address: this.address as string,
+      referralFee: this.referralFee,
     };
   }
 
-  setFromObject({ datum, datumHash, utxo, address }: CancelConfigArgs): void {
+  setFromObject({
+    datum,
+    datumHash,
+    utxo,
+    address,
+    referralFee,
+  }: CancelConfigArgs): void {
     this.setDatum(datum);
     this.setDatumHash(datumHash);
     this.setUTXO(utxo);
     this.setAddress(address);
+    referralFee && this.setReferralFee(referralFee);
   }
 
   validate(): never | void {

@@ -2,11 +2,19 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import { OrderAddresses, PoolCoin, UTXO } from "./datumbuilder";
 import { IPoolData } from "./queryprovider";
+import { ITxBuilderReferralFee } from "./txbuilder";
+
+/**
+ * The base config that all configs extend.
+ */
+export interface BaseConfig {
+  referralFee?: ITxBuilderReferralFee;
+}
 
 /**
  * The common arguments for any valid order.
  */
-export interface OrderConfigArgs {
+export interface OrderConfigArgs extends BaseConfig {
   pool: IPoolData;
   orderAddresses: OrderAddresses;
 }
@@ -33,7 +41,7 @@ export interface DepositConfigArgs extends OrderConfigArgs {
 /**
  * The arguments configuration for building a valid cancellation transaction.
  */
-export interface CancelConfigArgs {
+export interface CancelConfigArgs extends BaseConfig {
   utxo: UTXO;
   datum: string;
   datumHash: string;
@@ -64,7 +72,7 @@ export type DelegationPrograms = Map<string, DelegationProgramPools>;
 /**
  * The configuration object for a FreezerConfig instance.
  */
-export interface FreezerConfigArgs {
+export interface FreezerConfigArgs extends BaseConfig {
   delegation?: DelegationPrograms;
   existingPositions?: UTXO[];
   lockedValues: AssetAmount<{ assetId: string; decimals: number }>[];

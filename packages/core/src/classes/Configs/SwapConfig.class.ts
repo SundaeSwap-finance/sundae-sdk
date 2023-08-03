@@ -1,6 +1,11 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { SwapConfigArgs, IPoolData, OrderAddresses } from "../../@types";
+import {
+  SwapConfigArgs,
+  IPoolData,
+  OrderAddresses,
+  ITxBuilderReferralFee,
+} from "../../@types";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class";
 import { Utils } from "../Utils.class";
 
@@ -28,6 +33,7 @@ import { Utils } from "../Utils.class";
  * @see {@link SundaeSDK.swap}
  */
 export class SwapConfig extends OrderConfig<SwapConfigArgs> {
+  referralFee?: ITxBuilderReferralFee | undefined;
   suppliedAsset?: AssetAmount<IAssetAmountMetadata>;
   minReceivable?: AssetAmount<IAssetAmountMetadata>;
 
@@ -74,6 +80,7 @@ export class SwapConfig extends OrderConfig<SwapConfigArgs> {
       suppliedAsset: this.suppliedAsset as AssetAmount<IAssetAmountMetadata>,
       orderAddresses: this.orderAddresses as OrderAddresses,
       minReceivable: this.minReceivable as AssetAmount<IAssetAmountMetadata>,
+      referralFee: this.referralFee,
     };
   }
 
@@ -85,10 +92,12 @@ export class SwapConfig extends OrderConfig<SwapConfigArgs> {
     orderAddresses,
     suppliedAsset,
     slippage,
+    referralFee,
   }: SwapConfigArgs) {
     this.setPool(pool);
     this.setOrderAddresses(orderAddresses);
     this.setSuppliedAsset(suppliedAsset);
+    referralFee && this.setReferralFee(referralFee);
 
     if (false !== slippage) {
       this.setMinReceivable(

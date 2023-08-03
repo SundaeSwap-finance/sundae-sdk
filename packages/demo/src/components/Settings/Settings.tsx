@@ -1,6 +1,8 @@
 import { SundaeSDK } from "@sundaeswap/sdk-core";
 import { FC, useState, useEffect } from "react";
+
 import { useAppState } from "../../state/context";
+import { ITxBuilderLucidOptions } from "@sundaeswap/sdk-core/extensions";
 
 type TSupportedTxBuilders = "lucid" | "mesh";
 
@@ -33,20 +35,20 @@ const SelectBuilder: FC = () => {
           const { TxBuilderLucid, ProviderSundaeSwap } = await import(
             "@sundaeswap/sdk-core/extensions"
           );
+
+          const options: ITxBuilderLucidOptions = {
+            providerType: "blockfrost",
+            blockfrost: {
+              url: "https://cardano-preview.blockfrost.io/api/v0/",
+              // @ts-ignore
+              apiKey: window.__APP_CONFIG.blockfrostAPI,
+            },
+            network: "preview",
+            wallet: "eternl",
+          };
+
           sdk = new SundaeSDK(
-            new TxBuilderLucid(
-              {
-                providerType: "blockfrost",
-                blockfrost: {
-                  url: "https://cardano-preview.blockfrost.io/api/v0/",
-                  // @ts-ignore
-                  apiKey: window.__APP_CONFIG.blockfrostAPI,
-                },
-                network: "preview",
-                wallet: "eternl",
-              },
-              new ProviderSundaeSwap("preview")
-            )
+            new TxBuilderLucid(options, new ProviderSundaeSwap("preview"))
           );
 
           break;
