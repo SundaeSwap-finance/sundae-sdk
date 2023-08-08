@@ -453,7 +453,6 @@ export class TxBuilderLucid extends TxBuilder<
     return this.completeTx({
       tx,
       datum: cbor,
-      deposit: 0n,
       referralFee: referralFee?.payment,
     });
   }
