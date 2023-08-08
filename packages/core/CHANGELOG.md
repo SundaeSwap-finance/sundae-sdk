@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.2](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2023-08-08)
+
+### Bug Fixes
+
+- deposit amount on withdraw ([bedd47d](https://github.com/SundaeSwap-finance/sundae-sdk/commit/bedd47d30057cc98ec1d6cd6cfe927d93ca36f60))
+
 # [1.0.0-alpha.1](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v1.0.0-alpha.0...v1.0.0-alpha.1) (2023-08-03)
 
 ### Bug Fixes
