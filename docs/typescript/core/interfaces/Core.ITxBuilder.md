@@ -1,6 +1,6 @@
-# Interface: ITxBuilderTx<T, K\>
+# Interface: ITxBuilder<T, K\>
 
-[Core](../modules/Core.md).ITxBuilderTx
+[Core](../modules/Core.md).ITxBuilder
 
 The primary top-level API surface for dealing with built TxBuilder transactions.
 

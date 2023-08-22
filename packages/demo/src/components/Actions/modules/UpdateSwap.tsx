@@ -1,4 +1,4 @@
-import { CancelConfigArgs, SwapConfigArgs } from "@sundaeswap/sdk-core";
+import { CancelConfigArgs, SwapConfigArgs, Utils } from "@sundaeswap/sdk-core";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
 import { ActionArgs, poolQuery } from "../Actions";
@@ -17,7 +17,7 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
     setUpdating(true);
     try {
       const utxo = {
-        hash: "81dab47ba9e15f4a0db63e05f6148304086bbbf1b6577f06936d48d2fe8a30ad",
+        hash: "fb1169adf43a5888b4e15ffef6db839705b2ffab7057fc3ea0a6713479307be0",
         index: 0,
       };
 
@@ -26,7 +26,7 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
         fee: "0.05",
         pair: [
           "",
-          "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15.524245525259",
         ],
       });
 
@@ -37,6 +37,11 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
         address: walletAddress,
       };
 
+      const suppliedAsset = new AssetAmount(100000000n, {
+        assetId: "",
+        decimals: 6,
+      });
+
       const updatedSwapConfig: SwapConfigArgs = {
         pool,
         orderAddresses: {
@@ -45,11 +50,12 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           },
         },
         slippage: 0.3,
-        suppliedAsset: new AssetAmount(1000000n, {
-          assetId:
-            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-          decimals: 6,
-        }),
+        minReceivable: Utils.getMinReceivableFromSlippage(
+          pool,
+          suppliedAsset,
+          0.3
+        ),
+        suppliedAsset,
         ...(useReferral
           ? {
               referralFee: {
@@ -65,18 +71,19 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
       };
 
       await SDK.updateSwap(cancelConfig, updatedSwapConfig).then(
-        async ({ sign, build, fees }) => {
+        async ({ build, fees }) => {
           setFees(fees);
+          const builtTx = await build();
+
           if (submit) {
-            const { cbor, submit } = await sign();
+            const { cbor, submit } = await builtTx.sign();
             setCBOR({
               cbor,
               hash: await submit(),
             });
           } else {
-            const { cbor } = await build();
             setCBOR({
-              cbor,
+              cbor: builtTx.cbor,
             });
           }
         }

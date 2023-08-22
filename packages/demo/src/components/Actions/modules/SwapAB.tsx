@@ -39,18 +39,19 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
         };
       }
 
-      await SDK.swap(args).then(async ({ sign, build, fees }) => {
+      await SDK.swap(args).then(async ({ build, fees }) => {
         setFees(fees);
+        const builtTx = await build();
+
         if (submit) {
-          const { cbor, submit } = await sign();
+          const { cbor, submit } = await builtTx.sign();
           setCBOR({
             cbor,
             hash: await submit(),
           });
         } else {
-          const { cbor } = await build();
           setCBOR({
-            cbor,
+            cbor: builtTx.cbor,
           });
         }
       });

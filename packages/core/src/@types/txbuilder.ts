@@ -4,18 +4,21 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 /**
  * The primary top-level API surface for dealing with built TxBuilder transactions.
  */
-export interface ITxBuilderTx<T = unknown, K = unknown> {
+export interface ITxBuilder<T = unknown, K = unknown> {
   tx: T;
-  fees: ITxBuilderFees;
   datum: K;
-  sign: () => Promise<ITxBuilderComplete>;
-  build: () => Promise<ITxBuilderComplete>;
+  fees: ITxBuilderFees;
+  build: () => Promise<ITxBuilderSign>;
 }
 
-/**
- * The returned interface once a transaction is successfully built.
- */
-export interface ITxBuilderComplete {
+export interface ITxBuilderSign {
+  /** The CBOR encoded hex string of the transaction. Useful if you want to do something with it instead of submitting to the wallet. */
+  cbor: string;
+  /** Requests a signature from the user and rebuilds the transaction with the witness set. */
+  sign: () => Promise<ITxBuilderSubmit>;
+}
+
+export interface ITxBuilderSubmit {
   /** The CBOR encoded hex string of the transaction. Useful if you want to do something with it instead of submitting to the wallet. */
   cbor: string;
   /** Submits the CBOR encoded transaction to the connected wallet returns a hex encoded transaction hash. */
@@ -36,7 +39,7 @@ export interface ITxBuilderReferralFee {
  * The full list of calculated fees for a transaction built by a TxBuilder instance.
  */
 export interface ITxBuilderFees {
-  cardanoTxFee: AssetAmount<IAssetAmountMetadata>;
+  cardanoTxFee?: AssetAmount<IAssetAmountMetadata>;
   deposit: AssetAmount<IAssetAmountMetadata>;
   scooperFee: AssetAmount<IAssetAmountMetadata>;
   liquidity?: AssetAmount<IAssetAmountMetadata>;
