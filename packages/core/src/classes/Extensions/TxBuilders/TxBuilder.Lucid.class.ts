@@ -487,7 +487,6 @@ export class TxBuilderLucid extends TxBuilder<
   }
 
   async buildCancelTx(cancelConfig: CancelConfig) {
-    debugger;
     const { datum, datumHash, utxo, address, referralFee } =
       cancelConfig.buildArgs();
 
