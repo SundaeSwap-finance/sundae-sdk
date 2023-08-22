@@ -117,13 +117,13 @@ export class Utils {
       );
     }
 
-    const receivableAssetDecimals = supplyingPoolAssetA
-      ? pool.assetB.decimals
-      : pool.assetA.decimals;
+    const receivableAssetMetadata = supplyingPoolAssetA
+      ? pool.assetB
+      : pool.assetA;
 
     return new AssetAmount<IAssetAmountMetadata>(
       BigInt(Math.ceil(Number(output.output) * (1 - slippage))),
-      receivableAssetDecimals
+      receivableAssetMetadata
     );
   }
 
