@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0-alpha.5](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v1.1.0-alpha.4...v1.1.0-alpha.5) (2023-08-22)
+
+### Bug Fixes
+
+- debugger statement ([216816d](https://github.com/SundaeSwap-finance/sundae-sdk/commit/216816dbd620b8b4fbd6982646f29d1a4e33a06c))
+- demo version update ([8a3fa54](https://github.com/SundaeSwap-finance/sundae-sdk/commit/8a3fa542850bbddd9e0eef14ebeb8032218aeb02))
+
 # [1.1.0-alpha.4](https://github.com/SundaeSwap-finance/sundae-sdk/compare/v1.0.0-alpha.3...v1.1.0-alpha.4) (2023-08-22)
 
 **Note:** Version bump only for package @sundaeswap/sdk
