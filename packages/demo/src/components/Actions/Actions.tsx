@@ -9,6 +9,7 @@ import { Withdraw } from "./modules/Withdraw";
 import { Zap } from "./modules/Zap";
 import { Lock } from "./modules/LockAssets";
 import { Unlock } from "./modules/UnlockAssets";
+import { UpdateSwap } from "./modules/UpdateSwap";
 
 export const poolQuery: IPoolQuery = {
   pair: [
@@ -73,7 +74,7 @@ export const Actions: FC = () => {
         <Withdraw setFees={setFees} setCBOR={setCBOR} submit={submit} />
         {/* <button onClick={tempCancelOrder}>Cancel Order</button> */}
         <Zap setCBOR={setCBOR} setFees={setFees} submit={submit} />
-        {/* <UpdateSwap setCBOR={setCBOR} setFees={setFees} submit={submit} /> */}
+        <UpdateSwap setCBOR={setCBOR} setFees={setFees} submit={submit} />
         <Lock setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Unlock setFees={setFees} setCBOR={setCBOR} submit={submit} />
       </div>
@@ -101,7 +102,7 @@ export const Actions: FC = () => {
               border: "1px solid #555",
             }}
             src={{
-              cardanoTxFee: fees.cardanoTxFee.amount.toString(),
+              cardanoTxFee: fees.cardanoTxFee?.amount.toString(),
               scooperFee: fees.scooperFee.amount.toString(),
               deposit: fees.deposit.amount.toString(),
               referral: {

@@ -49,13 +49,13 @@ TxBuilder&lt;
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:95](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L95)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:96](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L96)
 
 ## Methods
 
 ### buildFreezerTx
 
-▸ **buildFreezerTx**(`freezerConfig`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<[`Transaction`](Core.Transaction.md)<`Tx`\>, `undefined` \| `string`\>\>
+▸ **buildFreezerTx**(`freezerConfig`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
 
 Builds a valid transaction for the V2 Yield Farming contract
 that allows a user to add or update staking positions.
@@ -68,7 +68,7 @@ that allows a user to add or update staking positions.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<[`Transaction`](Core.Transaction.md)<`Tx`\>, `undefined` \| `string`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
 
 #### Overrides
 
@@ -76,13 +76,13 @@ that allows a user to add or update staking positions.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:188](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L188)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:189](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L189)
 
 ___
 
 ### buildUpdateSwapTx
 
-▸ **buildUpdateSwapTx**(`«destructured»`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<[`Transaction`](Core.Transaction.md)<`Tx`\>, `undefined` \| `string`\>\>
+▸ **buildUpdateSwapTx**(`«destructured»`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
 
 Updates an open order by spending the UTXO back into the smart contract
 with an updated swap datum.
@@ -97,7 +97,7 @@ with an updated swap datum.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<[`Transaction`](Core.Transaction.md)<`Tx`\>, `undefined` \| `string`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
 
 #### Overrides
 
@@ -105,7 +105,7 @@ with an updated swap datum.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:359](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L359)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:355](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L355)
 
 ___
 
@@ -125,7 +125,7 @@ Helper function for child classes to easily grab the appropriate protocol parame
 
 #### Defined in
 
-[classes/Abstracts/TxBuilder.abstract.class.ts:114](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L114)
+[classes/Abstracts/TxBuilder.abstract.class.ts:113](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/TxBuilder.abstract.class.ts#L113)
 
 ___
 
@@ -141,13 +141,13 @@ Initializes a Lucid instance with the
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:113](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L113)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:114](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L114)
 
 ___
 
 ### newTxInstance
 
-▸ **newTxInstance**(`fee?`): `Promise`<[`Transaction`](Core.Transaction.md)<`Tx`\>\>
+▸ **newTxInstance**(`fee?`): `Promise`<`Tx`\>
 
 Returns a new Tx instance from Lucid. Throws an error if not ready.
 
@@ -159,7 +159,7 @@ Returns a new Tx instance from Lucid. Throws an error if not ready.
 
 #### Returns
 
-`Promise`<[`Transaction`](Core.Transaction.md)<`Tx`\>\>
+`Promise`<`Tx`\>
 
 #### Overrides
 
@@ -167,4 +167,4 @@ Returns a new Tx instance from Lucid. Throws an error if not ready.
 
 #### Defined in
 
-[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:147](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L147)
+[classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Extensions/TxBuilders/TxBuilder.Lucid.class.ts#L148)

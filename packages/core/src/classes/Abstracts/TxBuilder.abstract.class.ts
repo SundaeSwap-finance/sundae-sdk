@@ -1,6 +1,6 @@
 import {
   IQueryProviderClass,
-  ITxBuilderTx,
+  ITxBuilder,
   ITxBuilderBaseOptions,
 } from "../../@types";
 import { CancelConfig } from "../Configs/CancelConfig.class";
@@ -9,7 +9,6 @@ import { FreezerConfig } from "../Configs/FreezerConfig.class";
 import { SwapConfig } from "../Configs/SwapConfig.class";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class";
 import { ZapConfig } from "../Configs/ZapConfig.class";
-import { Transaction } from "../Transaction.class";
 import { Utils } from "../Utils.class";
 
 /**
@@ -42,46 +41,46 @@ export abstract class TxBuilder<
   }
 
   /**
-   * Should create a new {@link Transaction} instance from the supplied transaction library.
+   * Should create a new transaction instance from the supplied transaction library.
    */
-  abstract newTxInstance(): Promise<Transaction<Tx>>;
+  abstract newTxInstance(): Promise<Tx>;
 
   /**
    * The main function to build a freezer Transaction.
    *
    * @param config A {@link FreezerConfig} instance.
-   * @returns {ITxBuilderTx}
+   * @returns {ITxBuilder}
    */
-  abstract buildFreezerTx(config: FreezerConfig): Promise<ITxBuilderTx>;
+  abstract buildFreezerTx(config: FreezerConfig): Promise<ITxBuilder>;
 
   /**
    * The main function to build a swap Transaction.
    *
    * @param config A {@link SwapConfig} instance.
-   * @returns {ITxBuilderTx}
+   * @returns {ITxBuilder}
    */
-  abstract buildSwapTx(config: SwapConfig): Promise<ITxBuilderTx>;
+  abstract buildSwapTx(config: SwapConfig): Promise<ITxBuilder>;
 
   /**
    * The main function to build a deposit Transaction.
    *
    * @param config A {@link DepositConfig} instance.
    */
-  abstract buildDepositTx(config: DepositConfig): Promise<ITxBuilderTx>;
+  abstract buildDepositTx(config: DepositConfig): Promise<ITxBuilder>;
 
   /**
    * The main function to build a withdraw Transaction.
    *
    * @param config A {@link WithdrawConfig} instance.
    */
-  abstract buildWithdrawTx(config: WithdrawConfig): Promise<ITxBuilderTx>;
+  abstract buildWithdrawTx(config: WithdrawConfig): Promise<ITxBuilder>;
 
   /**
    * The main function to build a cancellation Transaction.
    *
    * @param config A {@link CancelConfig} instance.
    */
-  abstract buildCancelTx(config: CancelConfig): Promise<ITxBuilderTx>;
+  abstract buildCancelTx(config: CancelConfig): Promise<ITxBuilder>;
 
   /**
    * The main function to update an open swap.
@@ -91,21 +90,21 @@ export abstract class TxBuilder<
   abstract buildUpdateSwapTx(config: {
     cancelConfig: CancelConfig;
     swapConfig: SwapConfig;
-  }): Promise<ITxBuilderTx>;
+  }): Promise<ITxBuilder>;
 
   /**
    * The currently functioning way to process a chained Zap Transaction.
    *
    * @param config A {@link ZapConfig} instance.
    */
-  abstract buildChainedZapTx(config: ZapConfig): Promise<ITxBuilderTx>;
+  abstract buildChainedZapTx(config: ZapConfig): Promise<ITxBuilder>;
 
   /**
    * The main function to build an atomic zap Transaction.
    *
    * @param config A {@link ZapConfig} instance.
    */
-  abstract buildAtomicZapTx(config: ZapConfig): Promise<ITxBuilderTx>;
+  abstract buildAtomicZapTx(config: ZapConfig): Promise<ITxBuilder>;
 
   /**
    * Helper function for child classes to easily grab the appropriate protocol parameters for SundaeSwap.

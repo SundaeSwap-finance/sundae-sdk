@@ -67,7 +67,7 @@ ___
 
 ### cancel
 
-▸ **cancel**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ **cancel**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 Create a cancel transaction for an open escrow order.
 
@@ -79,7 +79,7 @@ Create a cancel transaction for an open escrow order.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
@@ -89,7 +89,7 @@ ___
 
 ### deposit
 
-▸ **deposit**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ **deposit**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 Create a Deposit transaction for a pool by supplying two assets.
 
@@ -101,7 +101,7 @@ Create a Deposit transaction for a pool by supplying two assets.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
@@ -111,7 +111,7 @@ ___
 
 ### limitSwap
 
-▸ **limitSwap**(`config`, `minReceivable`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ **limitSwap**(`config`, `minReceivable`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 Creates a swap with a minimum receivable amount.
 
@@ -148,7 +148,7 @@ const { submit, cbor } = await SDK.limitSwap(
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
@@ -158,7 +158,7 @@ ___
 
 ### lock
 
-▸ **lock**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ **lock**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 Create a locking transaction for yield farming and pool delegation.
 
@@ -170,7 +170,7 @@ Create a locking transaction for yield farming and pool delegation.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
@@ -196,7 +196,7 @@ ___
 
 ### swap
 
-▸ **swap**(`config`, `slippage?`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ **swap**(`config`, `slippage?`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 The main entry point for building a swap transaction with the least amount
 of configuration required. By default, all calls to this method are treated
@@ -253,7 +253,7 @@ const { submit, cbor } = await SDK.swap(
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
@@ -263,7 +263,7 @@ ___
 
 ### unlock
 
-▸ **unlock**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ **unlock**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 Create an unlocking transaction that removes all yield farming positions.
 
@@ -275,7 +275,7 @@ Create an unlocking transaction that removes all yield farming positions.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
@@ -285,7 +285,7 @@ ___
 
 ### unstable\_zap
 
-▸ **unstable_zap**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ **unstable_zap**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 Creates an atomic swap with a single asset and a pool.
 This is experimental and currently not supported by Cardano parameter limits.
@@ -298,7 +298,7 @@ This is experimental and currently not supported by Cardano parameter limits.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
@@ -308,7 +308,7 @@ ___
 
 ### updateSwap
 
-▸ **updateSwap**(`cancelConfig`, `swapConfig`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ **updateSwap**(`cancelConfig`, `swapConfig`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 Create a new transaction that cancels and spends the assets with a new swap config.
 
@@ -321,7 +321,7 @@ Create a new transaction that cancels and spends the assets with a new swap conf
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
@@ -331,7 +331,7 @@ ___
 
 ### withdraw
 
-▸ **withdraw**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ **withdraw**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 Create a Withdraw transaction for a pool by supplying the LP tokens.
 
@@ -343,7 +343,7 @@ Create a Withdraw transaction for a pool by supplying the LP tokens.
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
@@ -353,7 +353,7 @@ ___
 
 ### zap
 
-▸ **zap**(`config`): `Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+▸ **zap**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 Builds a custom zap utilizing a chained order (first a swap, then a deposit).
 
@@ -365,7 +365,7 @@ Builds a custom zap utilizing a chained order (first a swap, then a deposit).
 
 #### Returns
 
-`Promise`<[`ITxBuilderTx`](../interfaces/Core.ITxBuilderTx.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
 
 #### Defined in
 
