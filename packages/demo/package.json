@@ -67,7 +67,7 @@
     "@sundaeswap/bigint-math": "^0.5.9",
     "@sundaeswap/cpp": "^0.6.7",
     "@sundaeswap/fraction": "^0.5.9",
-    "@sundaeswap/sdk-core": "^1.0.0-alpha.0",
+    "@sundaeswap/sdk-core": "^1.1.0-alpha.4",
     "@tailwindcss/forms": "^0.5.2",
     "autoprefixer": "^9",
     "buffer": "^6.0.3",
