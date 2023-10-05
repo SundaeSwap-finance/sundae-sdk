@@ -2148,6 +2148,11 @@
   resolved "https://registry.yarnpkg.com/@sundaeswap/fraction/-/fraction-0.5.9.tgz#cd97f453bee9b9933ec98d1287fdeca28ea6cdb8"
   integrity sha512-3KamPkKlXj6oLY1NNb4QjwKc0p+2MUthEGbFl4S9hf7qdxH5HWE4itcbsMpLOmEHWWy1N3fzUffuVkPWsyddZg==
 
+"@sundaeswap/sdk-core@^1.1.0-alpha.4":
+  version "1.1.0-alpha.5"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/sdk-core/-/sdk-core-1.1.0-alpha.5.tgz#2662c5c3d3190881bf31874884e18d887660597b"
+  integrity sha512-Q2y0Uxd+oQlM4cf3PCUgcinFwRu2T7qjQTsCxALNlPBQOWIqDeSYFY8XlrwrGTw4gg5NyLay+Ss03xbceZeUmQ==
+
 "@swc/core-darwin-arm64@1.3.24":
   version "1.3.24"
   resolved "https://registry.yarnpkg.com/@swc/core-darwin-arm64/-/core-darwin-arm64-1.3.24.tgz#d41fc574cb5049def9001903680fdd924f065052"
@@ -7630,6 +7635,15 @@ lucid-cardano@^0.10.4:
   version "0.10.4"
   resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.10.4.tgz#ec21c710082d42df54ed27645d7eb51a019c5369"
   integrity sha512-QuEzch1lC4G2RIh/OoYAPJl32yFd3jFZbjIvHDwMjfykO7nPCBg5Si0AjuMMrpZZUZkxfL07jxxi1057YCrfVQ==
+  dependencies:
+    "@peculiar/webcrypto" "^1.4.0"
+    node-fetch "^3.2.3"
+    ws "^8.10.0"
+
+lucid-cardano@^0.10.7:
+  version "0.10.7"
+  resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.10.7.tgz#31faf461e9199ae8521e017dd21408b759b43a82"
+  integrity sha512-hxJRMWj8VH+SGFqsVMG6T3LSRuxzwFbWOQ5DTGQQUyR/20FL7bjiVL+2ivMJF52tAbFKcwqpRD4fddR7LbqcAw==
   dependencies:
     "@peculiar/webcrypto" "^1.4.0"
     node-fetch "^3.2.3"
