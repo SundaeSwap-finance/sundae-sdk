@@ -59,7 +59,6 @@ interface ITxBuilderLucidCompleteTxArgs {
   deposit?: bigint;
   scooperFee?: bigint;
   coinSelection?: boolean;
-  complete?: boolean;
 }
 
 /**
@@ -683,7 +682,6 @@ export class TxBuilderLucid extends TxBuilder<
     deposit,
     scooperFee,
     coinSelection,
-    complete = true,
   }: ITxBuilderLucidCompleteTxArgs): Promise<
     ITxBuilder<Tx, Datum | undefined>
   > {

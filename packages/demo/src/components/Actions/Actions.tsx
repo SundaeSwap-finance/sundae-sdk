@@ -10,6 +10,7 @@ import { Zap } from "./modules/Zap";
 import { Lock } from "./modules/LockAssets";
 import { Unlock } from "./modules/UnlockAssets";
 import { UpdateSwap } from "./modules/UpdateSwap";
+import { DepositTasteTest } from "./modules/DepositTasteTest";
 
 export const poolQuery: IPoolQuery = {
   pair: [
@@ -77,6 +78,9 @@ export const Actions: FC = () => {
         <UpdateSwap setCBOR={setCBOR} setFees={setFees} submit={submit} />
         <Lock setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Unlock setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        <hr className="my-10" />
+        <h4>Taste Test</h4>
+        <DepositTasteTest setFees={setFees} setCBOR={setCBOR} submit={submit} />
       </div>
       {cbor.hash && (
         <>
@@ -105,6 +109,7 @@ export const Actions: FC = () => {
               cardanoTxFee: fees.cardanoTxFee?.amount.toString(),
               scooperFee: fees.scooperFee.amount.toString(),
               deposit: fees.deposit.amount.toString(),
+              foldFee: fees.foldFee?.amount.toString() ?? "0",
               referral: {
                 assetId: fees.referral?.metadata.assetId ?? "",
                 amount: fees.referral?.amount.toString() ?? "0",

@@ -41,9 +41,10 @@ export interface ITxBuilderReferralFee {
 export interface ITxBuilderFees {
   cardanoTxFee?: AssetAmount<IAssetAmountMetadata>;
   deposit: AssetAmount<IAssetAmountMetadata>;
-  scooperFee: AssetAmount<IAssetAmountMetadata>;
+  foldFee?: AssetAmount<IAssetAmountMetadata>;
   liquidity?: AssetAmount<IAssetAmountMetadata>;
   referral?: AssetAmount<IAssetAmountMetadata>;
+  scooperFee: AssetAmount<IAssetAmountMetadata>;
 }
 
 /**
