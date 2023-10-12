@@ -1,8 +1,8 @@
-import { SundaeSDK } from "@sundaeswap/sdk-core";
-import { FC, useState, useEffect } from "react";
+import { SundaeSDK } from "@sundaeswap/core";
+import { FC, useEffect, useState } from "react";
 
+import { ITxBuilderLucidOptions } from "@sundaeswap/core/extensions";
 import { useAppState } from "../../state/context";
-import { ITxBuilderLucidOptions } from "@sundaeswap/sdk-core/extensions";
 
 type TSupportedTxBuilders = "lucid" | "mesh";
 
@@ -33,7 +33,7 @@ const SelectBuilder: FC = () => {
         //   break;
         case "lucid":
           const { TxBuilderLucid, ProviderSundaeSwap } = await import(
-            "@sundaeswap/sdk-core/extensions"
+            "@sundaeswap/core/extensions"
           );
 
           const options: ITxBuilderLucidOptions = {

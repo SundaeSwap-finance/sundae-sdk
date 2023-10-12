@@ -1,16 +1,16 @@
-import { IPoolQuery, ITxBuilderFees } from "@sundaeswap/sdk-core";
+import { IPoolQuery, ITxBuilderFees } from "@sundaeswap/core";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import ReactJson from "react-json-view";
 import { useAppState } from "../../state/context";
 import { Deposit } from "./modules/Deposit";
+import { DepositTasteTest } from "./modules/DepositTasteTest";
+import { Lock } from "./modules/LockAssets";
 import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
-import { Withdraw } from "./modules/Withdraw";
-import { Zap } from "./modules/Zap";
-import { Lock } from "./modules/LockAssets";
 import { Unlock } from "./modules/UnlockAssets";
 import { UpdateSwap } from "./modules/UpdateSwap";
-import { DepositTasteTest } from "./modules/DepositTasteTest";
+import { Withdraw } from "./modules/Withdraw";
+import { Zap } from "./modules/Zap";
 
 export const poolQuery: IPoolQuery = {
   pair: [

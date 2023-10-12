@@ -1,15 +1,15 @@
-import { MockedExports } from "@sundaeswap/sdk-core/testing";
+import { MockedExports } from "@sundaeswap/core/testing";
 MockedExports.MockAll();
 
-import "@testing-library/jest-dom";
-import { render, fireEvent, waitFor } from "@testing-library/react";
-import { AppStateProvider } from "../state/context";
-import Actions from "../components/Actions";
-import { SundaeSDK } from "@sundaeswap/sdk-core";
+import { SundaeSDK } from "@sundaeswap/core";
 import {
   ProviderSundaeSwap,
   TxBuilderLucid,
-} from "@sundaeswap/sdk-core/extensions";
+} from "@sundaeswap/core/extensions";
+import "@testing-library/jest-dom";
+import { fireEvent, render, waitFor } from "@testing-library/react";
+import Actions from "../components/Actions";
+import { AppStateProvider } from "../state/context";
 
 describe("Example testing", () => {
   it("should use the mocked SundaeSDK", async () => {

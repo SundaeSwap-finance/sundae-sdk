@@ -1,11 +1,8 @@
 import { AssetAmount } from "@sundaeswap/asset";
+import { DelegationProgramPools, DelegationPrograms } from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
 import { ActionArgs } from "../Actions";
-import {
-  DelegationPrograms,
-  DelegationProgramPools,
-} from "@sundaeswap/sdk-core";
 
 import Button from "../../Button";
 
