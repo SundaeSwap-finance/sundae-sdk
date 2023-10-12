@@ -1,30 +1,29 @@
-import {
-  Data,
-  toUnit,
-  type Lucid,
-  type MintingPolicy,
-  fromText,
-  SpendingValidator,
-  TxComplete,
-  Tx,
-  Datum,
-  ScriptType,
-  UTxO,
-} from "lucid-cardano";
+import { AssetAmount } from "@sundaeswap/asset";
 import type {
   ITxBuilder,
   ITxBuilderFees,
   ITxBuilderReferralFee,
 } from "@sundaeswap/core";
+import {
+  Data,
+  Datum,
+  SpendingValidator,
+  Tx,
+  TxComplete,
+  UTxO,
+  fromText,
+  toUnit,
+  type Lucid,
+  type MintingPolicy,
+} from "lucid-cardano";
 
 import { IDepositArgs } from "./@types";
-import { AbstractTasteTest } from "./lib/classes/AbstractTasteTest.class";
 import {
   DiscoveryNodeAction,
   NodeValidatorAction,
   SetNode,
 } from "./@types/contracts";
-import { findCoveringNode } from "./utils";
+import { AbstractTasteTest } from "./lib/classes/AbstractTasteTest.class";
 import {
   FOLDING_FEE_ADA,
   MIN_COMMITMENT_ADA,
@@ -32,7 +31,7 @@ import {
   SETNODE_PREFIX,
   TIME_TOLERANCE_MS,
 } from "./lib/contants";
-import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { findCoveringNode } from "./utils";
 
 /**
  * Object arguments for completing a transaction.

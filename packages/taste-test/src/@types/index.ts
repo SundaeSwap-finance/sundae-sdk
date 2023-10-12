@@ -17,3 +17,15 @@ export interface IDepositArgs {
   };
   utxos?: UTxO[];
 }
+
+export interface IWithdrawArgs {
+  currentTime?: number;
+  deadline: number;
+  penaltyAddress: string;
+  referralFee?: ITxBuilderReferralFee;
+  scripts: {
+    policy: MintingPolicy | OutRef;
+    validator: SpendingValidator | OutRef;
+  };
+  utxos?: UTxO[];
+}

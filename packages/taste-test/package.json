@@ -15,7 +15,7 @@
   "private": false,
   "sideEffects": false,
   "publishConfig": {
-    "access": "public"
+    "access": "restricted"
   },
   "files": [
     "dist",
