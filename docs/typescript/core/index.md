@@ -13,15 +13,15 @@ Sundae-SDK is a TypeScript library for building transactions for the SundaeSwap 
 First, install the relevant packages:
 
 ```console
-$ yarn add lucid-cardano @sundaeswap/sdk-core
+$ yarn add lucid-cardano @sundaeswap/core
 ```
 Then start using the SDK:
 ```typescript
-import { SundaeSDK } from "@sundaeswap/sdk-core";
+import { SundaeSDK } from "@sundaeswap/core";
 import {
  TxBuilderLucid,
  ProviderSundaeSwap
-} from "@sundaeswap/sdk-core/extensions";
+} from "@sundaeswap/core/extensions";
 
 const txBuilder = new TxBuilderLucid(
  {

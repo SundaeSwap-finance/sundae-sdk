@@ -1,10 +1,15 @@
-import { SundaeSDK } from "@sundaeswap/sdk-core";
+import { SundaeSDK } from "@sundaeswap/core";
 import { getAddressDetails } from "lucid-cardano";
-import { Dispatch, SetStateAction, useEffect } from "react";
-import { useState } from "react";
-import { useContext } from "react";
-import { FC, PropsWithChildren } from "react";
-import { createContext } from "react";
+import {
+  Dispatch,
+  FC,
+  PropsWithChildren,
+  SetStateAction,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface IAppState {
   SDK?: SundaeSDK;

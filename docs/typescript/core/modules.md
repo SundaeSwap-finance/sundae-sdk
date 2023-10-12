@@ -1,4 +1,4 @@
-# @sundaeswap/sdk-core
+# @sundaeswap/core
 
 ## Modules
 

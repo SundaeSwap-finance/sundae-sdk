@@ -41,7 +41,7 @@ const MockCoreExports = () => {
     mockQuery.mockClear();
   });
 
-  jest.mock("@sundaeswap/sdk-core", () => ({
+  jest.mock("@sundaeswap/core", () => ({
     SundaeSDK: MockedSundaeSDK,
   }));
 };
@@ -51,7 +51,7 @@ const MockQueryProviderExports = () => {
     MockedProviderSundaeSwap.mockClear();
   });
 
-  jest.mock("@sundaeswap/sdk-core/extensions", () => ({
+  jest.mock("@sundaeswap/core/extensions", () => ({
     ProviderSundaeSwap: MockedProviderSundaeSwap,
   }));
 };
@@ -63,7 +63,7 @@ const MockExtensionExports = () => {
     MockedTxBuilderLucid.mockClear();
   });
 
-  jest.mock("@sundaeswap/sdk-core/extensions", () => ({
+  jest.mock("@sundaeswap/core/extensions", () => ({
     DatumBuilderLucid: MockedDatumBuilderLucid,
     ProviderSundaeSwap: MockedProviderSundaeSwap,
     TxBuilderLucid: MockedTxBuilderLucid,
@@ -82,9 +82,9 @@ const SundaeSDK = {
 };
 
 export {
+  MockAll,
   MockCoreExports,
   MockExtensionExports,
   MockQueryProviderExports,
-  MockAll,
   SundaeSDK,
 };

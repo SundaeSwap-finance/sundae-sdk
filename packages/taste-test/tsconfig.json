@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./dist/",
+    "noFallthroughCasesInSwitch": false,
+  },
+  "extends": "../../tsconfig.json",
+  "include": ["./src/**/*"],
+}

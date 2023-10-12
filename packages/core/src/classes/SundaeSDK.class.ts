@@ -41,7 +41,7 @@ export class SundaeSDK {
    * @returns
    */
   build<O = any, T = any>(): TxBuilder<O, T, any, IQueryProviderClass> {
-    return this.builder;
+    return this.builder as TxBuilder<O, T, any, IQueryProviderClass>;
   }
 
   /**

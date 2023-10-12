@@ -1,4 +1,5 @@
 import { FC, StrictMode } from "react";
+
 import { AppStateProvider } from "./state/context";
 import Settings from "./components/Settings";
 import SettingsViewer from "./components/SettingsViewer";
