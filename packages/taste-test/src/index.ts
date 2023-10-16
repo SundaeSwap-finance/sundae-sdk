@@ -57,4 +57,4 @@
  * @module TasteTest
  * @packageDocumentation
  */
-export { TasteTest } from "./TasteTest.class";
+export { TasteTest } from "./lib/classes/TasteTest.class";

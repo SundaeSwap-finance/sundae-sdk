@@ -7,8 +7,7 @@ import type {
   UTxO,
 } from "lucid-cardano";
 
-export interface IDepositArgs {
-  assetAmount: AssetAmount;
+export interface IBaseArgs {
   currentTime?: number;
   referralFee?: ITxBuilderReferralFee;
   scripts: {
@@ -18,14 +17,15 @@ export interface IDepositArgs {
   utxos?: UTxO[];
 }
 
-export interface IWithdrawArgs {
-  currentTime?: number;
+export interface IDepositArgs extends IBaseArgs {
+  assetAmount: AssetAmount;
+}
+
+export interface IUpdateArgs extends IDepositArgs {
+  assetAmount: AssetAmount;
+}
+
+export interface IWithdrawArgs extends IBaseArgs {
   deadline: number;
   penaltyAddress: string;
-  referralFee?: ITxBuilderReferralFee;
-  scripts: {
-    policy: MintingPolicy | OutRef;
-    validator: SpendingValidator | OutRef;
-  };
-  utxos?: UTxO[];
 }
