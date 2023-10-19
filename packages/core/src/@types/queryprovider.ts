@@ -5,6 +5,14 @@
 import { UTXO } from "./datumbuilder";
 
 /**
+ * Defines the type of pool list to retrieve.
+ */
+export enum EPoolSearchType {
+  ALL = "pools",
+  POPULAR = "poolsPopular",
+}
+
+/**
  * The base Provider interface by which you can implement custom Provider classes.
  *
  * @group Extension Builders
@@ -15,6 +23,7 @@ export interface IQueryProviderClass {
    *
    * @param pair An array of the hex-encoded assetIDs in the pool, separated by a period (i.e. POLICY_ID.ASSET_NAME).
    * @param fee A string representation of the pool fee, as a float (i.e. "0.03").
+   * @returns {Promise<IPoolData>} Returns the queried pool's data.
    */
   findPoolData: (query: IPoolQuery) => Promise<IPoolData>;
 
@@ -23,8 +32,18 @@ export interface IQueryProviderClass {
    *
    * @param pair An array of the hex-encoded assetIDs in the pool, separated by a period (i.e. POLICY_ID.ASSET_NAME).
    * @param fee A string representation of the pool fee, as a float (i.e. "0.03").
+   * @returns {Promise<string>} Returns queried pool's ident.
    */
   findPoolIdent: (query: IPoolQuery) => Promise<string>;
+
+  /**
+   * Retrieves all available pools' data.
+   *
+   * @param type The type of search to perform.
+   * @param query A string to use as your query.
+   * @returns {Promise<IPoolData[]>} Returns an array of IPoolData objects, each representing the data for an individual pool.
+   */
+  getAllPools: (type?: EPoolSearchType, query?: string) => Promise<IPoolData[]>;
 
   /**
    * Finds the associated UTXO data of an open order.

@@ -7,6 +7,9 @@ import type {
   UTxO,
 } from "lucid-cardano";
 
+/**
+ * Common arguments for the deposit and update methods of the TasteTest class instance.
+ */
 export interface IBaseArgs {
   currentTime?: number;
   referralFee?: ITxBuilderReferralFee;
@@ -17,14 +20,24 @@ export interface IBaseArgs {
   utxos?: UTxO[];
 }
 
+/**
+ * Arguments for the deposit method of the TasteTest class instance.
+ */
 export interface IDepositArgs extends IBaseArgs {
   assetAmount: AssetAmount;
+  updateFallback?: boolean;
 }
 
+/**
+ * Arguments for the update method of the TasteTest class instance.
+ */
 export interface IUpdateArgs extends IDepositArgs {
   assetAmount: AssetAmount;
 }
 
+/**
+ * Arguments for the deposit withdraw of the TasteTest class instance.
+ */
 export interface IWithdrawArgs extends IBaseArgs {
   deadline: number;
   penaltyAddress: string;

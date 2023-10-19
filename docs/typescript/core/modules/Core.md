@@ -51,6 +51,7 @@ const txHash = await sdk.swap( /** ... */ ).then(({ submit }) => submit());
 
 ## Enumerations
 
+- [EPoolSearchType](../enums/Core.EPoolSearchType.md)
 - [PoolCoin](../enums/Core.PoolCoin.md)
 
 ## Classes

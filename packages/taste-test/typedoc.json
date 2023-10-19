@@ -2,7 +2,7 @@
     "$schema": "https://typedoc.org/schema.json",
     "out": "../../docs/typescript/taste-test",
     "entryPoints": [
-        "./src/index.ts",
+        "./src/index.ts"
     ],
     "hideBreadcrumbs": true,
     "hideInPageTOC": true,

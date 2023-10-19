@@ -54,3 +54,17 @@ if (walletInstance) {
 
 tt?.deposit({ ...args });
 ```
+
+## Classes
+
+- [AbstractTasteTest](classes/AbstractTasteTest.md)
+- [TasteTest](classes/TasteTest.md)
+
+## Interfaces
+
+- [IBaseArgs](interfaces/IBaseArgs.md)
+- [IDepositArgs](interfaces/IDepositArgs.md)
+- [ITasteTestCompleteTxArgs](interfaces/ITasteTestCompleteTxArgs.md)
+- [ITxBuilder](interfaces/ITxBuilder.md)
+- [IUpdateArgs](interfaces/IUpdateArgs.md)
+- [IWithdrawArgs](interfaces/IWithdrawArgs.md)
