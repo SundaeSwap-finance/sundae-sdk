@@ -66,7 +66,7 @@ export const findPrevNode = (utxos: UTxO[], userKey: string) =>
     }
 
     const datum = Data.from(value.datum, SetNode);
-    return datum.next !== null && datum.next == userKey;
+    return datum?.next === userKey;
   });
 
 /**
