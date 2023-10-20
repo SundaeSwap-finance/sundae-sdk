@@ -7,13 +7,13 @@ import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { ActionArgs } from "../Actions";
 
-export const DepositTasteTest: FC<ActionArgs> = ({
+export const UpdateTasteTest: FC<ActionArgs> = ({
   setCBOR,
   setFees,
   submit,
 }) => {
   const { SDK, ready, walletAddress, useReferral } = useAppState();
-  const [depositing, setDepositing] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   const handleDeposit = useCallback(async () => {
     if (!SDK) {
@@ -26,12 +26,11 @@ export const DepositTasteTest: FC<ActionArgs> = ({
     }
 
     const tt = new TasteTest(builderWallet);
-    setDepositing(true);
+    setUpdating(true);
     try {
       await tt
-        .deposit({
-          updateFallback: true,
-          assetAmount: new AssetAmount(1000000n, 6),
+        .update({
+          assetAmount: new AssetAmount(5000000n, 6),
           scripts: {
             policy: {
               txHash:
@@ -77,7 +76,7 @@ export const DepositTasteTest: FC<ActionArgs> = ({
       console.log(e);
     }
 
-    setDepositing(false);
+    setUpdating(false);
   }, [SDK, submit, walletAddress, useReferral]);
 
   if (!SDK) {
@@ -85,8 +84,8 @@ export const DepositTasteTest: FC<ActionArgs> = ({
   }
 
   return (
-    <Button disabled={!ready} onClick={handleDeposit} loading={depositing}>
-      Deposit 1 ADA into Taste Test
+    <Button disabled={!ready} onClick={handleDeposit} loading={updating}>
+      Add 5 ADA to Existing Deposit
     </Button>
   );
 };

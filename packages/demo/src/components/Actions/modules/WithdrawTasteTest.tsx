@@ -7,13 +7,13 @@ import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { ActionArgs } from "../Actions";
 
-export const DepositTasteTest: FC<ActionArgs> = ({
+export const WithdrawTasteTest: FC<ActionArgs> = ({
   setCBOR,
   setFees,
   submit,
 }) => {
   const { SDK, ready, walletAddress, useReferral } = useAppState();
-  const [depositing, setDepositing] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
 
   const handleDeposit = useCallback(async () => {
     if (!SDK) {
@@ -26,12 +26,13 @@ export const DepositTasteTest: FC<ActionArgs> = ({
     }
 
     const tt = new TasteTest(builderWallet);
-    setDepositing(true);
+    setWithdrawing(true);
     try {
       await tt
-        .deposit({
-          updateFallback: true,
-          assetAmount: new AssetAmount(1000000n, 6),
+        .withdraw({
+          deadline: new Date().setMonth(11),
+          penaltyAddress:
+            "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
           scripts: {
             policy: {
               txHash:
@@ -44,18 +45,16 @@ export const DepositTasteTest: FC<ActionArgs> = ({
               outputIndex: 0,
             },
           },
-          ...(useReferral
-            ? {
-                referralFee: {
-                  destination:
-                    "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-                  payment: new AssetAmount(1000000n, {
-                    assetId: "",
-                    decimals: 6,
-                  }),
-                },
-              }
-            : {}),
+          ...(useReferral && {
+            referralFee: {
+              destination:
+                "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
+              payment: new AssetAmount(1000000n, {
+                assetId: "",
+                decimals: 6,
+              }),
+            },
+          }),
         })
         .then(async ({ build, fees }) => {
           setFees(fees);
@@ -77,7 +76,7 @@ export const DepositTasteTest: FC<ActionArgs> = ({
       console.log(e);
     }
 
-    setDepositing(false);
+    setWithdrawing(false);
   }, [SDK, submit, walletAddress, useReferral]);
 
   if (!SDK) {
@@ -85,8 +84,8 @@ export const DepositTasteTest: FC<ActionArgs> = ({
   }
 
   return (
-    <Button disabled={!ready} onClick={handleDeposit} loading={depositing}>
-      Deposit 1 ADA into Taste Test
+    <Button disabled={!ready} onClick={handleDeposit} loading={withdrawing}>
+      Withdraw ADA from Taste Test
     </Button>
   );
 };

@@ -57,4 +57,8 @@
  * @module TasteTest
  * @packageDocumentation
  */
-export { TasteTest } from "./TasteTest.class";
+export type { ITxBuilder } from "@sundaeswap/core";
+export * from "./@types/index";
+export * from "./lib/classes/AbstractTasteTest.class";
+export * from "./lib/classes/TasteTest.class";
+export * from "./utils";

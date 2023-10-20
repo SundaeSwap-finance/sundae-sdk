@@ -3,9 +3,9 @@ import { JestConfigWithTsJest } from "ts-jest";
 const config: JestConfigWithTsJest = {
   projects: [
     {
-      displayName: "@sundaeswap/core",
+      displayName: "All Packages",
       testEnvironment: "node",
-      testMatch: ["<rootDir>/packages/core/**/__tests__/**/*.test.*?(x)"],
+      testMatch: ["<rootDir>/packages/(?!demo)*/**/__tests__/**/*.test.*?(x)"],
       testPathIgnorePatterns: ["/dist/", "/node_modules/", "__tests__/data"],
       extensionsToTreatAsEsm: [".ts"],
       transform: {

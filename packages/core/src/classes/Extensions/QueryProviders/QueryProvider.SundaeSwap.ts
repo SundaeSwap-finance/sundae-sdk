@@ -1,4 +1,5 @@
 import {
+  EPoolSearchType,
   IPoolData,
   IPoolQuery,
   IQueryProviderClass,
@@ -39,6 +40,51 @@ export class QueryProviderSundaeSwap implements IQueryProviderClass {
     }
 
     return data.ident;
+  }
+
+  async getAllPools(
+    type: EPoolSearchType = EPoolSearchType.POPULAR,
+    query: string = ""
+  ): Promise<IPoolData[]> {
+    const res: {
+      data?: {
+        pools: IPoolData[];
+      };
+    } = await fetch(this.baseUrl, {
+      method: "POST",
+      body: JSON.stringify({
+        query: `
+          query allPools($query: String!) {
+            ${type}(${query ? "query: $query, " : ""}pageSize: 200) {
+              fee
+              ident
+              assetA {
+                assetId
+                decimals
+              }
+              assetB {
+                assetId
+                decimals
+              }
+              quantityA
+              quantityB
+            }
+          }
+        `,
+        variables: {
+          query,
+        },
+      }),
+    }).then((res) => res.json());
+
+    if (!res?.data) {
+      throw new Error(
+        "Something went wrong when trying to fetch the pool list. Full response: " +
+          JSON.stringify(res)
+      );
+    }
+
+    return res.data.pools;
   }
 
   async findPoolData({ pair: [coinA, coinB], fee }: IPoolQuery) {

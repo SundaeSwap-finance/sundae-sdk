@@ -32,7 +32,7 @@ Finds the associated UTXO data of an open order.
 
 #### Defined in
 
-[@types/queryprovider.ts:34](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L34)
+[@types/queryprovider.ts:53](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L53)
 
 ___
 
@@ -56,9 +56,11 @@ Finds a matching pool on the SundaeSwap protocol.
 
 `Promise`<[`IPoolData`](Core.IPoolData.md)\>
 
+Returns the queried pool's data.
+
 #### Defined in
 
-[@types/queryprovider.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L19)
+[@types/queryprovider.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L28)
 
 ___
 
@@ -82,6 +84,37 @@ Finds a matching pool on the SundaeSwap protocol and returns only the ident.
 
 `Promise`<`string`\>
 
+Returns queried pool's ident.
+
 #### Defined in
 
-[@types/queryprovider.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L27)
+[@types/queryprovider.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L37)
+
+___
+
+### getAllPools
+
+• **getAllPools**: (`type?`: [`EPoolSearchType`](../enums/Core.EPoolSearchType.md), `query?`: `string`) => `Promise`<[`IPoolData`](Core.IPoolData.md)[]\>
+
+#### Type declaration
+
+▸ (`type?`, `query?`): `Promise`<[`IPoolData`](Core.IPoolData.md)[]\>
+
+Retrieves all available pools' data.
+
+##### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `type?` | [`EPoolSearchType`](../enums/Core.EPoolSearchType.md) | The type of search to perform. |
+| `query?` | `string` | A string to use as your query. |
+
+##### Returns
+
+`Promise`<[`IPoolData`](Core.IPoolData.md)[]\>
+
+Returns an array of IPoolData objects, each representing the data for an individual pool.
+
+#### Defined in
+
+[@types/queryprovider.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L46)

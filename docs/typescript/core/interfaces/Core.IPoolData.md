@@ -14,7 +14,7 @@ Asset data for the pool pair, Asset A
 
 #### Defined in
 
-[@types/queryprovider.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L82)
+[@types/queryprovider.ts:101](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L101)
 
 ___
 
@@ -26,7 +26,7 @@ Asset data for the pool pair, Asset B
 
 #### Defined in
 
-[@types/queryprovider.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L84)
+[@types/queryprovider.ts:103](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L103)
 
 ___
 
@@ -38,7 +38,7 @@ The pool fee represented as a string. i.e. 1% === "1" and .03% === "0.03"
 
 #### Defined in
 
-[@types/queryprovider.ts:78](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L78)
+[@types/queryprovider.ts:97](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L97)
 
 ___
 
@@ -50,7 +50,7 @@ The unique identifier of the pool. Also returned directly via [findPoolIdent](Co
 
 #### Defined in
 
-[@types/queryprovider.ts:80](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L80)
+[@types/queryprovider.ts:99](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L99)
 
 ___
 
@@ -62,7 +62,7 @@ The pool quantity of [assetA](Core.IPoolData.md#asseta)
 
 #### Defined in
 
-[@types/queryprovider.ts:86](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L86)
+[@types/queryprovider.ts:105](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L105)
 
 ___
 
@@ -74,4 +74,4 @@ The pool quantity of [assetB](Core.IPoolData.md#assetb)
 
 #### Defined in
 
-[@types/queryprovider.ts:88](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L88)
+[@types/queryprovider.ts:107](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L107)

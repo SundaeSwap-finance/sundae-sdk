@@ -9,7 +9,9 @@ import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
 import { Unlock } from "./modules/UnlockAssets";
 import { UpdateSwap } from "./modules/UpdateSwap";
+import { UpdateTasteTest } from "./modules/UpdateTasteTest";
 import { Withdraw } from "./modules/Withdraw";
+import { WithdrawTasteTest } from "./modules/WithdrawTasteTest";
 import { Zap } from "./modules/Zap";
 
 export const poolQuery: IPoolQuery = {
@@ -78,9 +80,17 @@ export const Actions: FC = () => {
         <UpdateSwap setCBOR={setCBOR} setFees={setFees} submit={submit} />
         <Lock setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Unlock setFees={setFees} setCBOR={setCBOR} submit={submit} />
-        <hr className="my-10" />
-        <h4>Taste Test</h4>
+        <div className="col-span-2 flex items-center justify-between gap-2">
+          <h4 className="w-24">Taste Tests</h4>
+          <hr className="my-10 w-full" />
+        </div>
         <DepositTasteTest setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        <UpdateTasteTest setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        <WithdrawTasteTest
+          setFees={setFees}
+          setCBOR={setCBOR}
+          submit={submit}
+        />
       </div>
       {cbor.hash && (
         <>
