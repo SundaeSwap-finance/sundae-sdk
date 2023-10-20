@@ -45,7 +45,7 @@ export const findOwnNode = (utxos: UTxO[], userKey: string) =>
     }
 
     const nodeData = Data.from(value.datum, SetNode);
-    return nodeData.key == userKey;
+    return nodeData.key === userKey;
   });
 
 /**
