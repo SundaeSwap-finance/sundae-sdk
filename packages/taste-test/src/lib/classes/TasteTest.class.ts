@@ -23,9 +23,12 @@ import {
   IDepositArgs,
   IUpdateArgs,
   IWithdrawArgs,
+  TTasteTestType,
 } from "../../@types";
 import {
   DiscoveryNodeAction,
+  LiquidityNodeAction,
+  LiquiditySetNode,
   NodeValidatorAction,
   SetNode,
 } from "../../@types/contracts";
@@ -126,6 +129,8 @@ export class TasteTest implements AbstractTasteTest {
       );
     }
 
+    const isLiquidityTasteTest =
+      this._getTasteTestTypeFromArgs(args) === "liquidity";
     const nodeValidator = await this.getNodeValidatorFromArgs(args);
     const nodeValidatorAddr =
       this.lucid.utils.validatorToAddress(nodeValidator);
@@ -140,11 +145,19 @@ export class TasteTest implements AbstractTasteTest {
     if (args.utxos) {
       coveringNode = args.utxos[0];
     } else {
-      coveringNode = findCoveringNode(nodeUTXOs, userKey);
+      coveringNode = findCoveringNode(
+        nodeUTXOs,
+        userKey,
+        this._getTasteTestTypeFromArgs(args)
+      );
     }
 
     if (!coveringNode || !coveringNode.datum) {
-      const hasOwnNode = findOwnNode(nodeUTXOs, userKey);
+      const hasOwnNode = findOwnNode(
+        nodeUTXOs,
+        userKey,
+        this._getTasteTestTypeFromArgs(args)
+      );
       if (hasOwnNode && updateFallback) {
         return this.update({ ...args });
       }
@@ -152,23 +165,50 @@ export class TasteTest implements AbstractTasteTest {
       throw new Error("Could not find covering node.");
     }
 
-    const coveringNodeDatum = Data.from(coveringNode.datum, SetNode);
-
-    const prevNodeDatum = Data.to(
-      {
-        key: coveringNodeDatum.key,
-        next: userKey,
-      },
-      SetNode
+    const coveringNodeDatum = Data.from(
+      coveringNode.datum,
+      isLiquidityTasteTest ? LiquiditySetNode : SetNode
     );
 
-    const nodeDatum = Data.to(
-      {
-        key: userKey,
-        next: coveringNodeDatum.next,
-      },
-      SetNode
-    );
+    let prevNodeDatum: string = "";
+    if (isLiquidityTasteTest) {
+      prevNodeDatum = Data.to(
+        {
+          key: coveringNodeDatum.key,
+          next: userKey,
+          commitment: BigInt(0),
+        },
+        LiquiditySetNode
+      );
+    } else {
+      prevNodeDatum = Data.to(
+        {
+          key: coveringNodeDatum.key,
+          next: userKey,
+        },
+        SetNode
+      );
+    }
+
+    let nodeDatum: string = "";
+    if (isLiquidityTasteTest) {
+      nodeDatum = Data.to(
+        {
+          key: userKey,
+          next: coveringNodeDatum.next,
+          commitment: BigInt(0),
+        },
+        LiquiditySetNode
+      );
+    } else {
+      nodeDatum = Data.to(
+        {
+          key: userKey,
+          next: coveringNodeDatum.next,
+        },
+        SetNode
+      );
+    }
 
     const redeemerNodePolicy = Data.to(
       {
@@ -177,7 +217,7 @@ export class TasteTest implements AbstractTasteTest {
           coveringNode: coveringNodeDatum,
         },
       },
-      DiscoveryNodeAction
+      isLiquidityTasteTest ? LiquidityNodeAction : DiscoveryNodeAction
     );
 
     const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
@@ -258,7 +298,11 @@ export class TasteTest implements AbstractTasteTest {
       ownNode = args.utxos[0];
     } else {
       const nodeUTXOs = await this.lucid.utxosAt(nodeValidatorAddr);
-      ownNode = findOwnNode(nodeUTXOs, userKey);
+      ownNode = findOwnNode(
+        nodeUTXOs,
+        userKey,
+        this._getTasteTestTypeFromArgs(args)
+      );
     }
 
     if (!ownNode || !ownNode.datum) {
@@ -328,6 +372,8 @@ export class TasteTest implements AbstractTasteTest {
       throw new Error("Missing wallet's payment credential hash.");
     }
 
+    const isLiquidityTasteTest =
+      this._getTasteTestTypeFromArgs(args) === "liquidity";
     const nodeUTXOS = args.utxos
       ? args.utxos
       : await this.lucid.utxosAt(nodeValidatorAddr);
@@ -337,38 +383,64 @@ export class TasteTest implements AbstractTasteTest {
       ownNode = nodeUTXOS[0];
     } else {
       const nodeUTXOs = await this.lucid.utxosAt(nodeValidatorAddr);
-      ownNode = findOwnNode(nodeUTXOs, userKey);
+      ownNode = findOwnNode(
+        nodeUTXOs,
+        userKey,
+        this._getTasteTestTypeFromArgs(args)
+      );
     }
 
     if (!ownNode || !ownNode.datum) {
       throw new Error("Could not find covering node.");
     }
 
-    const nodeDatum = Data.from(ownNode.datum, SetNode);
+    const nodeDatum = Data.from(
+      ownNode.datum,
+      isLiquidityTasteTest ? LiquiditySetNode : SetNode
+    );
 
     let prevNode: UTxO | undefined;
     if (args.utxos) {
       prevNode = args.utxos[0];
     } else {
-      prevNode = findPrevNode(nodeUTXOS, userKey);
+      prevNode = findPrevNode(
+        nodeUTXOS,
+        userKey,
+        this._getTasteTestTypeFromArgs(args)
+      );
     }
 
     if (!prevNode || !prevNode.datum) {
       throw new Error("Could not find previous node.");
     }
 
-    const prevNodeDatum = Data.from(prevNode.datum, SetNode);
+    const prevNodeDatum = Data.from(
+      prevNode.datum,
+      isLiquidityTasteTest ? LiquiditySetNode : SetNode
+    );
 
     const assets = {
       [toUnit(nodePolicyId, fromText(SETNODE_PREFIX) + userKey)]: -1n,
     };
 
-    const newPrevNode: SetNode = {
-      key: prevNodeDatum.key,
-      next: nodeDatum.next,
-    };
+    let newPrevNode: SetNode | LiquiditySetNode | undefined;
+    if (isLiquidityTasteTest) {
+      newPrevNode = {
+        key: prevNodeDatum.key,
+        next: nodeDatum.next,
+        commitment: BigInt(0),
+      };
+    } else {
+      newPrevNode = {
+        key: prevNodeDatum.key,
+        next: nodeDatum.next,
+      };
+    }
 
-    const newPrevNodeDatum = Data.to(newPrevNode, SetNode);
+    const newPrevNodeDatum = Data.to(
+      newPrevNode,
+      isLiquidityTasteTest ? LiquiditySetNode : SetNode
+    );
 
     const redeemerNodePolicy = Data.to(
       {
@@ -377,7 +449,7 @@ export class TasteTest implements AbstractTasteTest {
           coveringNode: newPrevNode,
         },
       },
-      DiscoveryNodeAction
+      isLiquidityTasteTest ? DiscoveryNodeAction : LiquidityNodeAction
     );
 
     const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
@@ -620,5 +692,19 @@ export class TasteTest implements AbstractTasteTest {
     }
 
     return userKey;
+  }
+
+  /**
+   * A utility method to default the Taste Test type to liquidity if not set.
+   *
+   * @param {IBaseArgs} args The base arguments.
+   * @returns {TTasteTestType}
+   */
+  private _getTasteTestTypeFromArgs(args: IBaseArgs): TTasteTestType {
+    if (!args.tasteTestType) {
+      args.tasteTestType = "liquidity";
+    }
+
+    return args.tasteTestType as TTasteTestType;
   }
 }

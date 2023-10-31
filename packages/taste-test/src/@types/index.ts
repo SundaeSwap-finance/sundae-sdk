@@ -8,6 +8,12 @@ import type {
 } from "lucid-cardano";
 
 /**
+ * The type of Taste Test, where "basic" is a non-pool Taste Test, and "liquidity"
+ * is ends the taste test with pool creation.
+ */
+export type TTasteTestType = "basic" | "liquidity";
+
+/**
  * Common arguments for the deposit and update methods of the TasteTest class instance.
  */
 export interface IBaseArgs {
@@ -17,6 +23,7 @@ export interface IBaseArgs {
     policy: MintingPolicy | OutRef;
     validator: SpendingValidator | OutRef;
   };
+  tasteTestType?: TTasteTestType;
   utxos?: UTxO[];
 }
 

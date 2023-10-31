@@ -68,3 +68,16 @@ tt?.deposit({ ...args });
 - [ITxBuilder](interfaces/ITxBuilder.md)
 - [IUpdateArgs](interfaces/IUpdateArgs.md)
 - [IWithdrawArgs](interfaces/IWithdrawArgs.md)
+
+## Type Aliases
+
+### TTasteTestType
+
+Ƭ **TTasteTestType**: ``"basic"`` \| ``"liquidity"``
+
+The type of Taste Test, where "basic" is a non-pool Taste Test, and "liquidity"
+is ends the taste test with pool creation.
+
+#### Defined in
+
+[taste-test/src/@types/index.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L14)
