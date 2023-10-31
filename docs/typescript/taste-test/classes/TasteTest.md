@@ -39,7 +39,7 @@ An instance of the Lucid class, providing various utility methods for blockchain
 
 ### \_getTasteTestTypeFromArgs
 
-▸ `Private` **_getTasteTestTypeFromArgs**(`args`): [`IBaseArgs`](../interfaces/IBaseArgs.md) & { `tasteTestType`: [`TTasteTestType`](../modules.md#ttastetesttype)  }
+▸ `Private` **_getTasteTestTypeFromArgs**(`args`): [`TTasteTestType`](../modules.md#ttastetesttype)
 
 A utility method to default the Taste Test type to liquidity if not set.
 
@@ -51,7 +51,7 @@ A utility method to default the Taste Test type to liquidity if not set.
 
 #### Returns
 
-[`IBaseArgs`](../interfaces/IBaseArgs.md) & { `tasteTestType`: [`TTasteTestType`](../modules.md#ttastetesttype)  }
+[`TTasteTestType`](../modules.md#ttastetesttype)
 
 #### Defined in
 

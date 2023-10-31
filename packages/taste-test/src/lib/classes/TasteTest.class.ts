@@ -130,7 +130,7 @@ export class TasteTest implements AbstractTasteTest {
     }
 
     const isLiquidityTasteTest =
-      this._getTasteTestTypeFromArgs(args).tasteTestType === "liquidity";
+      this._getTasteTestTypeFromArgs(args) === "liquidity";
     const nodeValidator = await this.getNodeValidatorFromArgs(args);
     const nodeValidatorAddr =
       this.lucid.utils.validatorToAddress(nodeValidator);
@@ -148,7 +148,7 @@ export class TasteTest implements AbstractTasteTest {
       coveringNode = findCoveringNode(
         nodeUTXOs,
         userKey,
-        this._getTasteTestTypeFromArgs(args).tasteTestType
+        this._getTasteTestTypeFromArgs(args)
       );
     }
 
@@ -156,7 +156,7 @@ export class TasteTest implements AbstractTasteTest {
       const hasOwnNode = findOwnNode(
         nodeUTXOs,
         userKey,
-        this._getTasteTestTypeFromArgs(args).tasteTestType
+        this._getTasteTestTypeFromArgs(args)
       );
       if (hasOwnNode && updateFallback) {
         return this.update({ ...args });
@@ -301,7 +301,7 @@ export class TasteTest implements AbstractTasteTest {
       ownNode = findOwnNode(
         nodeUTXOs,
         userKey,
-        this._getTasteTestTypeFromArgs(args).tasteTestType
+        this._getTasteTestTypeFromArgs(args)
       );
     }
 
@@ -373,7 +373,7 @@ export class TasteTest implements AbstractTasteTest {
     }
 
     const isLiquidityTasteTest =
-      this._getTasteTestTypeFromArgs(args).tasteTestType === "liquidity";
+      this._getTasteTestTypeFromArgs(args) === "liquidity";
     const nodeUTXOS = args.utxos
       ? args.utxos
       : await this.lucid.utxosAt(nodeValidatorAddr);
@@ -386,7 +386,7 @@ export class TasteTest implements AbstractTasteTest {
       ownNode = findOwnNode(
         nodeUTXOs,
         userKey,
-        this._getTasteTestTypeFromArgs(args).tasteTestType
+        this._getTasteTestTypeFromArgs(args)
       );
     }
 
@@ -406,7 +406,7 @@ export class TasteTest implements AbstractTasteTest {
       prevNode = findPrevNode(
         nodeUTXOS,
         userKey,
-        this._getTasteTestTypeFromArgs(args).tasteTestType
+        this._getTasteTestTypeFromArgs(args)
       );
     }
 
@@ -698,15 +698,13 @@ export class TasteTest implements AbstractTasteTest {
    * A utility method to default the Taste Test type to liquidity if not set.
    *
    * @param {IBaseArgs} args The base arguments.
-   * @returns {IBaseArgs}
+   * @returns {TTasteTestType}
    */
-  private _getTasteTestTypeFromArgs(
-    args: IBaseArgs
-  ): IBaseArgs & { tasteTestType: TTasteTestType } {
+  private _getTasteTestTypeFromArgs(args: IBaseArgs): TTasteTestType {
     if (!args.tasteTestType) {
       args.tasteTestType = "liquidity";
     }
 
-    return args as IBaseArgs & { tasteTestType: TTasteTestType };
+    return args.tasteTestType as TTasteTestType;
   }
 }
