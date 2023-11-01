@@ -1,17 +1,27 @@
 import type { AssetAmount } from "@sundaeswap/asset";
-import { ITxBuilderReferralFee } from "@sundaeswap/core";
+import { ITxBuilder, ITxBuilderReferralFee } from "@sundaeswap/core";
 import type {
   MintingPolicy,
   OutRef,
   SpendingValidator,
   UTxO,
 } from "lucid-cardano";
+import { ITasteTestFees } from "../lib/classes/TasteTest.class";
 
 /**
  * The type of Taste Test, where "basic" is a non-pool Taste Test, and "liquidity"
  * is ends the taste test with pool creation.
  */
 export type TTasteTestType = "basic" | "liquidity";
+
+/**
+ * Helper type to export the fees object associated with the TasteTest class.
+ */
+export type TTasteTestFees = ITxBuilder<
+  unknown,
+  unknown,
+  ITasteTestFees
+>["fees"];
 
 /**
  * Common arguments for the deposit and update methods of the TasteTest class instance.

@@ -55,13 +55,13 @@ A utility method to default the Taste Test type to liquidity if not set.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:703](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L703)
+[taste-test/src/lib/classes/TasteTest.class.ts:723](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L723)
 
 ___
 
 ### completeTx
 
-▸ `Private` **completeTx**(`params`): `Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+▸ `Private` **completeTx**(`params`): `Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 Finalizes the construction of a transaction with the necessary operations and fees.
 
@@ -90,19 +90,19 @@ Throws an error if the transaction cannot be completed or if there are issues wi
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:545](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L545)
+[taste-test/src/lib/classes/TasteTest.class.ts:559](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L559)
 
 ___
 
 ### deposit
 
-▸ **deposit**(`args`): `Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+▸ **deposit**(`args`): `Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 Initiates a deposit transaction, conducting various checks and orchestrating the transaction construction.
 
@@ -132,7 +132,7 @@ Throws an error if no UTXOs are available, if reference scripts are missing, or 
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 - Returns a promise that resolves with a transaction builder object,
 which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
@@ -143,7 +143,7 @@ which includes the transaction, its associated fees, and functions to build, sig
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:116](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L116)
+[taste-test/src/lib/classes/TasteTest.class.ts:121](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L121)
 
 ___
 
@@ -174,7 +174,7 @@ Will throw an error if unable to derive UTXO from the provided OutRef in `script
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:648](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L648)
+[taste-test/src/lib/classes/TasteTest.class.ts:668](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L668)
 
 ___
 
@@ -205,7 +205,7 @@ Will throw an error if unable to derive UTXO from the provided OutRef in `script
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:613](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L613)
+[taste-test/src/lib/classes/TasteTest.class.ts:633](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L633)
 
 ___
 
@@ -232,13 +232,13 @@ If neither stake nor payment credentials could be determined from the address.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:683](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L683)
+[taste-test/src/lib/classes/TasteTest.class.ts:703](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L703)
 
 ___
 
 ### update
 
-▸ **update**(`args`): `Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+▸ **update**(`args`): `Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 Initiates an update transaction for a node's assets, ensuring various checks and constructing the transaction.
 
@@ -268,7 +268,7 @@ Throws an error if the user's payment credential hash is missing or if the node 
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 - Returns a promise that resolves with a transaction builder object,
 equipped with the transaction, its associated fees, and functions to build, sign, and submit the transaction.
@@ -279,13 +279,13 @@ equipped with the transaction, its associated fees, and functions to build, sign
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:283](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L283)
+[taste-test/src/lib/classes/TasteTest.class.ts:288](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L288)
 
 ___
 
 ### withdraw
 
-▸ **withdraw**(`args`): `Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+▸ **withdraw**(`args`): `Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 Processes a withdrawal transaction, handling various pre-conditions and state checks.
 
@@ -315,7 +315,7 @@ Throws errors if the withdrawal conditions are not met, such as missing keys, in
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
 
@@ -325,4 +325,4 @@ Throws errors if the withdrawal conditions are not met, such as missing keys, in
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:359](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L359)
+[taste-test/src/lib/classes/TasteTest.class.ts:364](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L364)

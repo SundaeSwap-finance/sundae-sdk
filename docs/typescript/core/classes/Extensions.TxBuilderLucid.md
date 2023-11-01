@@ -55,7 +55,7 @@ TxBuilder&lt;
 
 ### buildFreezerTx
 
-▸ **buildFreezerTx**(`freezerConfig`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+▸ **buildFreezerTx**(`freezerConfig`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 Builds a valid transaction for the V2 Yield Farming contract
 that allows a user to add or update staking positions.
@@ -68,7 +68,7 @@ that allows a user to add or update staking positions.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 #### Overrides
 
@@ -82,7 +82,7 @@ ___
 
 ### buildUpdateSwapTx
 
-▸ **buildUpdateSwapTx**(`«destructured»`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+▸ **buildUpdateSwapTx**(`«destructured»`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 Updates an open order by spending the UTXO back into the smart contract
 with an updated swap datum.
@@ -97,7 +97,7 @@ with an updated swap datum.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`Tx`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 #### Overrides
 

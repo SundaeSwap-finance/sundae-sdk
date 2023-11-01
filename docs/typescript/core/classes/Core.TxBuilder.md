@@ -23,7 +23,7 @@ The main class by which TxBuilder classes are extended.
 
 ### buildAtomicZapTx
 
-▸ `Abstract` **buildAtomicZapTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildAtomicZapTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 The main function to build an atomic zap Transaction.
 
@@ -35,7 +35,7 @@ The main function to build an atomic zap Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 #### Defined in
 
@@ -45,7 +45,7 @@ ___
 
 ### buildCancelTx
 
-▸ `Abstract` **buildCancelTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildCancelTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 The main function to build a cancellation Transaction.
 
@@ -57,7 +57,7 @@ The main function to build a cancellation Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 #### Defined in
 
@@ -67,7 +67,7 @@ ___
 
 ### buildChainedZapTx
 
-▸ `Abstract` **buildChainedZapTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildChainedZapTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 The currently functioning way to process a chained Zap Transaction.
 
@@ -79,7 +79,7 @@ The currently functioning way to process a chained Zap Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 #### Defined in
 
@@ -89,7 +89,7 @@ ___
 
 ### buildDepositTx
 
-▸ `Abstract` **buildDepositTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildDepositTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 The main function to build a deposit Transaction.
 
@@ -101,7 +101,7 @@ The main function to build a deposit Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 #### Defined in
 
@@ -111,7 +111,7 @@ ___
 
 ### buildFreezerTx
 
-▸ `Abstract` **buildFreezerTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildFreezerTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 The main function to build a freezer Transaction.
 
@@ -123,7 +123,7 @@ The main function to build a freezer Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 #### Defined in
 
@@ -133,7 +133,7 @@ ___
 
 ### buildSwapTx
 
-▸ `Abstract` **buildSwapTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildSwapTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 The main function to build a swap Transaction.
 
@@ -145,7 +145,7 @@ The main function to build a swap Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 #### Defined in
 
@@ -155,7 +155,7 @@ ___
 
 ### buildUpdateSwapTx
 
-▸ `Abstract` **buildUpdateSwapTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildUpdateSwapTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 The main function to update an open swap.
 
@@ -169,7 +169,7 @@ The main function to update an open swap.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 #### Defined in
 
@@ -179,7 +179,7 @@ ___
 
 ### buildWithdrawTx
 
-▸ `Abstract` **buildWithdrawTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+▸ `Abstract` **buildWithdrawTx**(`config`): `Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 The main function to build a withdraw Transaction.
 
@@ -191,7 +191,7 @@ The main function to build a withdraw Transaction.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `unknown`\>\>
+`Promise`<[`ITxBuilder`](../interfaces/Core.ITxBuilder.md)<`unknown`, `undefined` \| `string`, `Record`<`string`, `AssetAmount`<`IAssetAmountMetadata`\>\>\>\>
 
 #### Defined in
 

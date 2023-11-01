@@ -1,13 +1,17 @@
-import { TSupportedNetworks, TSupportedWallets } from ".";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { TSupportedNetworks, TSupportedWallets } from ".";
 
 /**
  * The primary top-level API surface for dealing with built TxBuilder transactions.
  */
-export interface ITxBuilder<T = unknown, K = unknown> {
+export interface ITxBuilder<
+  T = unknown,
+  K = string | undefined,
+  F = Record<string, AssetAmount<IAssetAmountMetadata>>
+> {
   tx: T;
   datum: K;
-  fees: ITxBuilderFees;
+  fees: ITxBuilderFees & F;
   build: () => Promise<ITxBuilderSign>;
 }
 
@@ -41,7 +45,6 @@ export interface ITxBuilderReferralFee {
 export interface ITxBuilderFees {
   cardanoTxFee?: AssetAmount<IAssetAmountMetadata>;
   deposit: AssetAmount<IAssetAmountMetadata>;
-  foldFee?: AssetAmount<IAssetAmountMetadata>;
   liquidity?: AssetAmount<IAssetAmountMetadata>;
   referral?: AssetAmount<IAssetAmountMetadata>;
   scooperFee: AssetAmount<IAssetAmountMetadata>;
