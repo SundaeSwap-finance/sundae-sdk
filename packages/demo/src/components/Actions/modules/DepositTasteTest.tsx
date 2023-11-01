@@ -30,6 +30,7 @@ export const DepositTasteTest: FC<ActionArgs> = ({
     try {
       await tt
         .deposit({
+          tasteTestType: "basic",
           updateFallback: true,
           assetAmount: new AssetAmount(1000000n, 6),
           scripts: {

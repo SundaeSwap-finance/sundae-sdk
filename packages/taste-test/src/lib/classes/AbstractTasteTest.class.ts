@@ -1,7 +1,8 @@
 import type { ITxBuilder } from "@sundaeswap/core";
-import type { Lucid } from "lucid-cardano";
+import type { Datum, Lucid, Tx } from "lucid-cardano";
 
-import { IDepositArgs, IUpdateArgs, IWithdrawArgs } from "../../@types";
+import type { IDepositArgs, IUpdateArgs, IWithdrawArgs } from "../../@types";
+import type { ITasteTestFees } from "./TasteTest.class";
 
 /**
  * Represents the abstract class that should be extended to implement
@@ -23,10 +24,12 @@ export abstract class AbstractTasteTest {
    *
    * @param {IDepositArgs} args - The arguments required for the deposit operation,
    * including the amount, user credentials, and other transaction details.
-   * @returns {Promise<ITxBuilder>} - Returns a promise that resolves with an
+   * @returns {Promise<ITxBuilder<Tx, Datum | undefined, ITasteTestFees>>} - Returns a promise that resolves with an
    * ITxBuilder instance, representing the constructed transaction for the deposit.
    */
-  abstract deposit(args: IDepositArgs): Promise<ITxBuilder>;
+  abstract deposit(
+    args: IDepositArgs
+  ): Promise<ITxBuilder<Tx, Datum | undefined, ITasteTestFees>>;
 
   /**
    * Initiates an update transaction. This method is responsible for handling
@@ -36,10 +39,12 @@ export abstract class AbstractTasteTest {
    * @param {IUpdateArgs} args - The arguments required for the update operation.
    * This includes any fields that are updatable within the transaction and may
    * include credentials for authorization.
-   * @returns {Promise<ITxBuilder>} - Returns a promise that resolves with an
+   * @returns {Promise<ITxBuilder<Tx, Datum | undefined, ITasteTestFees>>} - Returns a promise that resolves with an
    * ITxBuilder instance, representing the constructed transaction for the update.
    */
-  abstract update(args: IUpdateArgs): Promise<ITxBuilder>;
+  abstract update(
+    args: IUpdateArgs
+  ): Promise<ITxBuilder<Tx, Datum | undefined, ITasteTestFees>>;
 
   /**
    * Initiates a withdrawal transaction. This method should handle the logic
@@ -48,8 +53,10 @@ export abstract class AbstractTasteTest {
    *
    * @param {IWithdrawArgs} args - The arguments required for the withdrawal operation,
    * including the amount to withdraw, user credentials, and other necessary details.
-   * @returns {Promise<ITxBuilder>} - Returns a promise that resolves with an
+   * @returns {Promise<ITxBuilder<Tx, Datum | undefined, ITasteTestFees>>} - Returns a promise that resolves with an
    * ITxBuilder instance, representing the constructed transaction for the withdrawal.
    */
-  abstract withdraw(args: IWithdrawArgs): Promise<ITxBuilder>;
+  abstract withdraw(
+    args: IWithdrawArgs
+  ): Promise<ITxBuilder<Tx, Datum | undefined, ITasteTestFees>>;
 }

@@ -65,11 +65,24 @@ tt?.deposit({ ...args });
 - [IBaseArgs](interfaces/IBaseArgs.md)
 - [IDepositArgs](interfaces/IDepositArgs.md)
 - [ITasteTestCompleteTxArgs](interfaces/ITasteTestCompleteTxArgs.md)
+- [ITasteTestFees](interfaces/ITasteTestFees.md)
 - [ITxBuilder](interfaces/ITxBuilder.md)
 - [IUpdateArgs](interfaces/IUpdateArgs.md)
 - [IWithdrawArgs](interfaces/IWithdrawArgs.md)
 
 ## Type Aliases
+
+### TTasteTestFees
+
+Ƭ **TTasteTestFees**: [`ITxBuilder`](interfaces/ITxBuilder.md)<`unknown`, `unknown`, [`ITasteTestFees`](interfaces/ITasteTestFees.md)\>[``"fees"``]
+
+Helper type to export the fees object associated with the TasteTest class.
+
+#### Defined in
+
+[taste-test/src/@types/index.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L20)
+
+___
 
 ### TTasteTestType
 
@@ -80,4 +93,4 @@ is ends the taste test with pool creation.
 
 #### Defined in
 
-[taste-test/src/@types/index.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L14)
+[taste-test/src/@types/index.ts:15](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L15)

@@ -1,9 +1,5 @@
-import { AssetAmount } from "@sundaeswap/asset";
-import type {
-  ITxBuilder,
-  ITxBuilderFees,
-  ITxBuilderReferralFee,
-} from "@sundaeswap/core";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import type { ITxBuilder, ITxBuilderReferralFee } from "@sundaeswap/core";
 import {
   Assets,
   Data,
@@ -55,6 +51,15 @@ export interface ITasteTestCompleteTxArgs {
   tx: Tx;
   referralFee?: ITxBuilderReferralFee;
   hasFees?: boolean;
+  penalty?: AssetAmount<IAssetAmountMetadata>;
+}
+
+/**
+ * Object containing the extended fees.
+ */
+export interface ITasteTestFees {
+  foldFee: AssetAmount<IAssetAmountMetadata>;
+  penaltyFee: AssetAmount<IAssetAmountMetadata>;
 }
 
 /**
@@ -115,7 +120,7 @@ export class TasteTest implements AbstractTasteTest {
    */
   public async deposit(
     args: IDepositArgs
-  ): Promise<ITxBuilder<Tx, Datum | undefined>> {
+  ): Promise<ITxBuilder<Tx, Datum | undefined, ITasteTestFees>> {
     const walletUtxos = await this.lucid.wallet.getUtxos();
     const { updateFallback = false } = args;
 
@@ -282,7 +287,7 @@ export class TasteTest implements AbstractTasteTest {
    */
   public async update(
     args: IUpdateArgs
-  ): Promise<ITxBuilder<Tx, string | undefined>> {
+  ): Promise<ITxBuilder<Tx, Datum | undefined, ITasteTestFees>> {
     const nodeValidator = await this.getNodeValidatorFromArgs(args);
     const nodeValidatorAddr =
       this.lucid.utils.validatorToAddress(nodeValidator);
@@ -358,7 +363,7 @@ export class TasteTest implements AbstractTasteTest {
    */
   public async withdraw(
     args: IWithdrawArgs
-  ): Promise<ITxBuilder<Tx, Datum | undefined>> {
+  ): Promise<ITxBuilder<Tx, Datum | undefined, ITasteTestFees>> {
     const nodeValidator = await this.getNodeValidatorFromArgs(args);
     const nodeValidatorAddr =
       this.lucid.utils.validatorToAddress(nodeValidator);
@@ -449,7 +454,7 @@ export class TasteTest implements AbstractTasteTest {
           coveringNode: newPrevNode,
         },
       },
-      isLiquidityTasteTest ? DiscoveryNodeAction : LiquidityNodeAction
+      isLiquidityTasteTest ? LiquidityNodeAction : DiscoveryNodeAction
     );
 
     const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
@@ -498,7 +503,16 @@ export class TasteTest implements AbstractTasteTest {
         .validFrom(lowerBound)
         .validTo(upperBound);
 
-      return this.completeTx({ tx, referralFee: args.referralFee });
+      return this.completeTx({
+        tx,
+        referralFee: args.referralFee,
+        penalty: new AssetAmount(penaltyAmount, {
+          assetId: "",
+          decimals: 6,
+          ticker: "ADA",
+          assetName: "Cardano",
+        }),
+      });
     }
 
     const tx = this.lucid
@@ -544,9 +558,12 @@ export class TasteTest implements AbstractTasteTest {
    */
   private async completeTx({
     hasFees = false,
+    penalty,
     referralFee,
     tx,
-  }: ITasteTestCompleteTxArgs): Promise<ITxBuilder<Tx, Datum | undefined>> {
+  }: ITasteTestCompleteTxArgs): Promise<
+    ITxBuilder<Tx, Datum | undefined, ITasteTestFees>
+  > {
     if (referralFee) {
       if (referralFee.payment.metadata.assetId !== "") {
         tx.payToAddress(referralFee.destination, {
@@ -559,18 +576,21 @@ export class TasteTest implements AbstractTasteTest {
       }
     }
 
-    const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
-      deposit: new AssetAmount(hasFees ? NODE_DEPOSIT_ADA : 0n, 6),
-      referral: referralFee?.payment,
-      foldFee: new AssetAmount(hasFees ? FOLDING_FEE_ADA : 0n, 6),
-      scooperFee: new AssetAmount(0n),
-    };
-
     const txFee = tx.txBuilder.get_fee_if_set();
     let finishedTx: TxComplete | undefined;
-    const thisTx: ITxBuilder<Tx, Datum | undefined> = {
+    const thisTx: ITxBuilder<Tx, Datum | undefined, ITasteTestFees> = {
       tx,
-      fees: baseFees,
+      fees: {
+        cardanoTxFee: new AssetAmount(0n, 6),
+        deposit: new AssetAmount(hasFees ? NODE_DEPOSIT_ADA : 0n, 6),
+        foldFee: new AssetAmount(hasFees ? FOLDING_FEE_ADA : 0n, 6),
+        penaltyFee: penalty ?? new AssetAmount(0n, 6),
+        referral: new AssetAmount(
+          referralFee?.payment?.amount ?? 0n,
+          referralFee?.payment?.metadata ?? 6
+        ),
+        scooperFee: new AssetAmount(0n, 6),
+      },
       datum: Buffer.from(tx.txBuilder.to_bytes()).toString("hex"),
       async build() {
         if (!finishedTx) {

@@ -1,6 +1,8 @@
 import { IPoolQuery, ITxBuilderFees } from "@sundaeswap/core";
+import type { TTasteTestFees } from "@sundaeswap/taste-test";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import ReactJson from "react-json-view";
+
 import { useAppState } from "../../state/context";
 import { Deposit } from "./modules/Deposit";
 import { DepositTasteTest } from "./modules/DepositTasteTest";
@@ -30,7 +32,9 @@ interface CBOR {
 export interface ActionArgs {
   submit?: boolean;
   setCBOR: Dispatch<SetStateAction<CBOR>>;
-  setFees: Dispatch<SetStateAction<ITxBuilderFees | undefined>>;
+  setFees: Dispatch<
+    SetStateAction<ITxBuilderFees | TTasteTestFees | undefined>
+  >;
 }
 
 export const Actions: FC = () => {
@@ -38,7 +42,7 @@ export const Actions: FC = () => {
   const [cbor, setCBOR] = useState<CBOR>({
     cbor: "",
   });
-  const [fees, setFees] = useState<ITxBuilderFees>();
+  const [fees, setFees] = useState<ITxBuilderFees | TTasteTestFees>();
   const [submit, setSubmit] = useState(false);
 
   if (!SDK) {
@@ -119,9 +123,12 @@ export const Actions: FC = () => {
               cardanoTxFee: fees.cardanoTxFee?.amount.toString(),
               scooperFee: fees.scooperFee.amount.toString(),
               deposit: fees.deposit.amount.toString(),
-              foldFee: fees.foldFee?.amount.toString() ?? "0",
+              foldFee:
+                (fees as TTasteTestFees).foldFee?.amount.toString() ?? "0",
+              penalty:
+                (fees as TTasteTestFees).penaltyFee?.amount.toString() ?? "0",
               referral: {
-                assetId: fees.referral?.metadata.assetId ?? "",
+                assetId: fees.referral?.metadata?.assetId ?? "",
                 amount: fees.referral?.amount.toString() ?? "0",
               },
             }}
