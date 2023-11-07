@@ -135,7 +135,7 @@ export class TasteTest implements AbstractTasteTest {
     }
 
     const isLiquidityTasteTest =
-      this._getTasteTestTypeFromArgs(args) === "liquidity";
+      this._getTasteTestTypeFromArgs(args) === "Liquidity";
     const nodeValidator = await this.getNodeValidatorFromArgs(args);
     const nodeValidatorAddr =
       this.lucid.utils.validatorToAddress(nodeValidator);
@@ -378,7 +378,7 @@ export class TasteTest implements AbstractTasteTest {
     }
 
     const isLiquidityTasteTest =
-      this._getTasteTestTypeFromArgs(args) === "liquidity";
+      this._getTasteTestTypeFromArgs(args) === "Liquidity";
     const nodeUTXOS = args.utxos
       ? args.utxos
       : await this.lucid.utxosAt(nodeValidatorAddr);
@@ -722,7 +722,7 @@ export class TasteTest implements AbstractTasteTest {
    */
   private _getTasteTestTypeFromArgs(args: IBaseArgs): TTasteTestType {
     if (!args.tasteTestType) {
-      args.tasteTestType = "liquidity";
+      args.tasteTestType = "Liquidity";
     }
 
     return args.tasteTestType as TTasteTestType;

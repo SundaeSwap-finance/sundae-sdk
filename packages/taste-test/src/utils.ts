@@ -28,7 +28,7 @@ export const findCoveringNode = (
 
     const datum = Data.from(
       value.datum,
-      ttType === "liquidity" ? LiquiditySetNode : SetNode
+      ttType === "Liquidity" ? LiquiditySetNode : SetNode
     );
     return (
       (datum.key == null || datum.key < userKey) &&
@@ -60,7 +60,7 @@ export const findOwnNode = (
 
     const nodeData = Data.from(
       value.datum,
-      ttType === "liquidity" ? LiquiditySetNode : SetNode
+      ttType === "Liquidity" ? LiquiditySetNode : SetNode
     );
     return nodeData.key === userKey;
   });
@@ -89,7 +89,7 @@ export const findPrevNode = (
 
     const datum = Data.from(
       value.datum,
-      ttType === "liquidity" ? LiquiditySetNode : SetNode
+      ttType === "Liquidity" ? LiquiditySetNode : SetNode
     );
     return datum?.next === userKey;
   });

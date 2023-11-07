@@ -9,10 +9,10 @@ import type {
 import { ITasteTestFees } from "../lib/classes/TasteTest.class";
 
 /**
- * The type of Taste Test, where "basic" is a non-pool Taste Test, and "liquidity"
+ * The type of Taste Test, where "Direct" is a non-pool Taste Test, and "Liquidity"
  * is ends the taste test with pool creation.
  */
-export type TTasteTestType = "basic" | "liquidity";
+export type TTasteTestType = "Direct" | "Liquidity";
 
 /**
  * Helper type to export the fees object associated with the TasteTest class.

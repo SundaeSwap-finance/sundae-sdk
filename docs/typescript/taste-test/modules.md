@@ -86,9 +86,9 @@ ___
 
 ### TTasteTestType
 
-Ƭ **TTasteTestType**: ``"basic"`` \| ``"liquidity"``
+Ƭ **TTasteTestType**: ``"Direct"`` \| ``"Liquidity"``
 
-The type of Taste Test, where "basic" is a non-pool Taste Test, and "liquidity"
+The type of Taste Test, where "Direct" is a non-pool Taste Test, and "Liquidity"
 is ends the taste test with pool creation.
 
 #### Defined in
