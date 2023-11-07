@@ -30,7 +30,7 @@ export const UpdateTasteTest: FC<ActionArgs> = ({
     try {
       await tt
         .update({
-          tasteTestType: "basic",
+          tasteTestType: "Direct",
           assetAmount: new AssetAmount(5000000n, 6),
           scripts: {
             policy: {

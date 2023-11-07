@@ -30,7 +30,7 @@ export const WithdrawTasteTest: FC<ActionArgs> = ({
     try {
       await tt
         .withdraw({
-          tasteTestType: "basic",
+          tasteTestType: "Direct",
           deadline: new Date().setMonth(11),
           penaltyAddress:
             "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
