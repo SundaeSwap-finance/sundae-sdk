@@ -55,7 +55,7 @@ A utility method to default the Taste Test type to liquidity if not set.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:723](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L723)
+[taste-test/src/lib/classes/TasteTest.class.ts:709](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L709)
 
 ___
 
@@ -96,7 +96,7 @@ Throws an error if the transaction cannot be completed or if there are issues wi
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:559](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L559)
+[taste-test/src/lib/classes/TasteTest.class.ts:545](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L545)
 
 ___
 
@@ -174,7 +174,7 @@ Will throw an error if unable to derive UTXO from the provided OutRef in `script
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:668](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L668)
+[taste-test/src/lib/classes/TasteTest.class.ts:654](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L654)
 
 ___
 
@@ -205,7 +205,7 @@ Will throw an error if unable to derive UTXO from the provided OutRef in `script
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:633](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L633)
+[taste-test/src/lib/classes/TasteTest.class.ts:619](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L619)
 
 ___
 
@@ -232,7 +232,7 @@ If neither stake nor payment credentials could be determined from the address.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.class.ts:703](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L703)
+[taste-test/src/lib/classes/TasteTest.class.ts:689](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.class.ts#L689)
 
 ___
 

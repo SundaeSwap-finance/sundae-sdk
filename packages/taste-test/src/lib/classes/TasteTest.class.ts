@@ -465,25 +465,11 @@ export class TasteTest implements AbstractTasteTest {
     const beforeTwentyFourHours =
       upperBound < args.deadline - TWENTY_FOUR_HOURS_MS;
 
-    if (beforeDeadline && beforeTwentyFourHours) {
-      const tx = this.lucid
-        .newTx()
-        .collectFrom([ownNode, prevNode], redeemerNodeValidator)
-        .compose(this.lucid.newTx().attachSpendingValidator(nodeValidator))
-        .payToContract(
-          nodeValidatorAddr,
-          { inline: newPrevNodeDatum },
-          prevNode.assets
-        )
-        .addSignerKey(userKey)
-        .mintAssets(assets, redeemerNodePolicy)
-        .compose(this.lucid.newTx().attachMintingPolicy(nodePolicy))
-        .validFrom(lowerBound)
-        .validTo(upperBound);
-
-      return this.completeTx({ tx, referralFee: args.referralFee });
-    } else if (beforeDeadline && !beforeTwentyFourHours) {
-      const penaltyAmount = divCeil(ownNode.assets["lovelace"], 4n);
+    if (beforeDeadline && !beforeTwentyFourHours) {
+      const penaltyAmount = divCeil(
+        ownNode.assets["lovelace"] - MIN_COMMITMENT_ADA,
+        4n
+      );
 
       const tx = this.lucid
         .newTx()
