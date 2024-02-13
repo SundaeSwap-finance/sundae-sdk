@@ -9,5 +9,5 @@
     "excludeNotDocumented": true,
     "githubPages": false,
     "gitRevision": "main",
-    "treatWarningsAsErrors": true
+    "treatWarningsAsErrors": true,
 }

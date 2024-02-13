@@ -4,31 +4,15 @@ Represents the abstract class that should be extended to implement
 the functionality of the Taste Test features. This class provides
 the structure for depositing, updating, and withdrawing operations.
 
-**`Property`**
-
-An instance of the Lucid class, representing the core functionality handler.
-
 ## Implemented by
 
-- [`TasteTest`](TasteTest.md)
-
-## Properties
-
-### lucid
-
-• `Abstract` **lucid**: `Lucid`
-
-Represents the Lucid instance used for core operations.
-
-#### Defined in
-
-[taste-test/src/lib/classes/AbstractTasteTest.class.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/AbstractTasteTest.class.ts#L18)
+- [`TasteTestLucid`](TasteTestLucid.md)
 
 ## Methods
 
 ### deposit
 
-▸ `Abstract` **deposit**(`args`): `Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+▸ **deposit**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 Initiates a deposit transaction. The specific implementation of this method
 should handle the business logic associated with making a deposit, including
@@ -42,20 +26,20 @@ validations, transaction building, and error handling.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 - Returns a promise that resolves with an
-ITxBuilder instance, representing the constructed transaction for the deposit.
+IComposedTx instance, representing the constructed transaction for the deposit.
 
 #### Defined in
 
-[taste-test/src/lib/classes/AbstractTasteTest.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/AbstractTasteTest.class.ts#L30)
+[taste-test/src/lib/Abstracts/AbstractTasteTest.class.ts:29](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/Abstracts/AbstractTasteTest.class.ts#L29)
 
 ___
 
 ### update
 
-▸ `Abstract` **update**(`args`): `Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+▸ **update**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 Initiates an update transaction. This method is responsible for handling
 the business logic necessary to update an existing record or transaction.
@@ -69,20 +53,20 @@ This could include changing the amount, modifying references, or other updates.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 - Returns a promise that resolves with an
-ITxBuilder instance, representing the constructed transaction for the update.
+IComposedTx instance, representing the constructed transaction for the update.
 
 #### Defined in
 
-[taste-test/src/lib/classes/AbstractTasteTest.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/AbstractTasteTest.class.ts#L45)
+[taste-test/src/lib/Abstracts/AbstractTasteTest.class.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/Abstracts/AbstractTasteTest.class.ts#L44)
 
 ___
 
 ### withdraw
 
-▸ `Abstract` **withdraw**(`args`): `Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+▸ **withdraw**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 Initiates a withdrawal transaction. This method should handle the logic
 associated with withdrawing funds, including validations, constructing the
@@ -96,11 +80,11 @@ withdrawal transaction, and handling errors appropriately.
 
 #### Returns
 
-`Promise`<[`ITxBuilder`](../interfaces/ITxBuilder.md)<`Tx`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 - Returns a promise that resolves with an
-ITxBuilder instance, representing the constructed transaction for the withdrawal.
+IComposedTx instance, representing the constructed transaction for the withdrawal.
 
 #### Defined in
 
-[taste-test/src/lib/classes/AbstractTasteTest.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/AbstractTasteTest.class.ts#L59)
+[taste-test/src/lib/Abstracts/AbstractTasteTest.class.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/Abstracts/AbstractTasteTest.class.ts#L58)

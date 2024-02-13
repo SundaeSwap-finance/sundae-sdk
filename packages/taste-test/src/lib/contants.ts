@@ -6,4 +6,4 @@ export const FOLDING_FEE_ADA = 1_000_000n;
 export const MIN_COMMITMENT_ADA = NODE_DEPOSIT_ADA + FOLDING_FEE_ADA;
 
 export const TIME_TOLERANCE_MS =
-  process.env.NODE_ENV == "emulator" ? 0 : 600_000;
+  process.env.NODE_ENV === "emulator" ? 0 : 600_000;

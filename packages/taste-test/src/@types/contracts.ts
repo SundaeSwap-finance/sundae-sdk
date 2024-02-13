@@ -1,16 +1,16 @@
 import { Data } from "lucid-cardano";
 
 export const PubKeyHashSchema = Data.Bytes({ minLength: 28, maxLength: 28 });
-export type PubKeyHash = Data.Static<typeof PubKeyHashSchema>;
-export const PubKeyHash = PubKeyHashSchema as unknown as PubKeyHash;
+export type TPubKeyHash = Data.Static<typeof PubKeyHashSchema>;
+export const PubKeyHash = PubKeyHashSchema as unknown as TPubKeyHash;
 
 export const OutputReferenceSchema = Data.Object({
   txHash: Data.Object({ hash: Data.Bytes({ minLength: 32, maxLength: 32 }) }),
   outputIndex: Data.Integer(),
 });
-export type OutputReference = Data.Static<typeof OutputReferenceSchema>;
+export type TOutputReference = Data.Static<typeof OutputReferenceSchema>;
 export const OutputReference =
-  OutputReferenceSchema as unknown as OutputReference;
+  OutputReferenceSchema as unknown as TOutputReference;
 
 export const CredentialSchema = Data.Enum([
   Data.Object({
@@ -24,8 +24,8 @@ export const CredentialSchema = Data.Enum([
     ]),
   }),
 ]);
-export type CredentialD = Data.Static<typeof CredentialSchema>;
-export const CredentialD = CredentialSchema as unknown as CredentialD;
+export type TCredentialD = Data.Static<typeof CredentialSchema>;
+export const CredentialD = CredentialSchema as unknown as TCredentialD;
 
 export const AddressSchema = Data.Object({
   paymentCredential: CredentialSchema,
@@ -44,30 +44,30 @@ export const AddressSchema = Data.Object({
     ])
   ),
 });
-export type AddressD = Data.Static<typeof AddressSchema>;
-export const AddressD = AddressSchema as unknown as AddressD;
+export type TAddressD = Data.Static<typeof AddressSchema>;
+export const AddressD = AddressSchema as unknown as TAddressD;
 
 export const NodeKeySchema = Data.Nullable(Data.Bytes());
-export type NodeKeySchema = Data.Static<typeof NodeKeySchema>;
+export type TNodeKeySchema = Data.Static<typeof NodeKeySchema>;
 
-export type NodeKey = Data.Static<typeof NodeKeySchema>;
-export const NodeKey = NodeKeySchema as unknown as NodeKey;
+export type TNodeKey = Data.Static<typeof NodeKeySchema>;
+export const NodeKey = NodeKeySchema as unknown as TNodeKey;
 
 export const LiquiditySetNodeSchema = Data.Object({
   key: NodeKeySchema,
   next: NodeKeySchema,
   commitment: Data.Integer(),
 });
-export type LiquiditySetNode = Data.Static<typeof LiquiditySetNodeSchema>;
+export type TLiquiditySetNode = Data.Static<typeof LiquiditySetNodeSchema>;
 export const LiquiditySetNode =
-  LiquiditySetNodeSchema as unknown as LiquiditySetNode;
+  LiquiditySetNodeSchema as unknown as TLiquiditySetNode;
 
 export const SetNodeSchema = Data.Object({
   key: NodeKeySchema,
   next: NodeKeySchema,
 });
-export type SetNode = Data.Static<typeof SetNodeSchema>;
-export const SetNode = SetNodeSchema as unknown as SetNode;
+export type TSetNode = Data.Static<typeof SetNodeSchema>;
+export const SetNode = SetNodeSchema as unknown as TSetNode;
 
 export const LiquidityNodeActionSchema = Data.Enum([
   Data.Literal("PLInit"),
@@ -85,9 +85,11 @@ export const LiquidityNodeActionSchema = Data.Enum([
     }),
   }),
 ]);
-export type LiquidityNodeAction = Data.Static<typeof LiquidityNodeActionSchema>;
+export type TLiquidityNodeAction = Data.Static<
+  typeof LiquidityNodeActionSchema
+>;
 export const LiquidityNodeAction =
-  LiquidityNodeActionSchema as unknown as LiquidityNodeAction;
+  LiquidityNodeActionSchema as unknown as TLiquidityNodeAction;
 
 export const DiscoveryNodeActionSchema = Data.Enum([
   Data.Literal("PInit"),
@@ -105,35 +107,39 @@ export const DiscoveryNodeActionSchema = Data.Enum([
     }),
   }),
 ]);
-export type DiscoveryNodeAction = Data.Static<typeof DiscoveryNodeActionSchema>;
+export type TDiscoveryNodeAction = Data.Static<
+  typeof DiscoveryNodeActionSchema
+>;
 export const DiscoveryNodeAction =
-  DiscoveryNodeActionSchema as unknown as DiscoveryNodeAction;
+  DiscoveryNodeActionSchema as unknown as TDiscoveryNodeAction;
 export const DiscoveryConfigSchema = Data.Object({
   initUTXO: OutputReferenceSchema,
   maxRaise: Data.Integer(),
   discoveryDeadLine: Data.Integer(),
   penaltyAddress: AddressSchema,
 });
-export type DiscoveryConfig = Data.Static<typeof DiscoveryConfigSchema>;
+export type TDiscoveryConfig = Data.Static<typeof DiscoveryConfigSchema>;
 export const DiscoveryConfig =
-  DiscoveryConfigSchema as unknown as DiscoveryConfig;
+  DiscoveryConfigSchema as unknown as TDiscoveryConfig;
 
 export const NodeValidatorActionSchema = Data.Enum([
   Data.Literal("LinkedListAct"),
   Data.Literal("ModifyCommitment"),
   Data.Literal("RewardFoldAct"),
 ]);
-export type NodeValidatorAction = Data.Static<typeof NodeValidatorActionSchema>;
+export type TNodeValidatorAction = Data.Static<
+  typeof NodeValidatorActionSchema
+>;
 export const NodeValidatorAction =
-  NodeValidatorActionSchema as unknown as NodeValidatorAction;
+  NodeValidatorActionSchema as unknown as TNodeValidatorAction;
 
 export const FoldDatumSchema = Data.Object({
   currNode: SetNodeSchema,
   committed: Data.Integer(),
   owner: AddressSchema,
 });
-export type FoldDatum = Data.Static<typeof FoldDatumSchema>;
-export const FoldDatum = FoldDatumSchema as unknown as FoldDatum;
+export type TFoldDatum = Data.Static<typeof FoldDatumSchema>;
+export const FoldDatum = FoldDatumSchema as unknown as TFoldDatum;
 
 export const FoldActSchema = Data.Enum([
   Data.Object({
@@ -143,15 +149,15 @@ export const FoldActSchema = Data.Enum([
   }),
   Data.Literal("Reclaim"),
 ]);
-export type FoldAct = Data.Static<typeof FoldActSchema>;
-export const FoldAct = FoldActSchema as unknown as FoldAct;
+export type TFoldAct = Data.Static<typeof FoldActSchema>;
+export const FoldAct = FoldActSchema as unknown as TFoldAct;
 
 export const FoldMintActSchema = Data.Enum([
   Data.Literal("MintFold"),
   Data.Literal("BurnFold"),
 ]);
-export type FoldMintAct = Data.Static<typeof FoldMintActSchema>;
-export const FoldMintAct = FoldMintActSchema as unknown as FoldMintAct;
+export type TFoldMintAct = Data.Static<typeof FoldMintActSchema>;
+export const FoldMintAct = FoldMintActSchema as unknown as TFoldMintAct;
 
 export const RewardFoldDatumSchema = Data.Object({
   currNode: SetNodeSchema,
@@ -159,6 +165,6 @@ export const RewardFoldDatumSchema = Data.Object({
   totalCommitted: Data.Integer(),
   owner: AddressSchema,
 });
-export type RewardFoldDatum = Data.Static<typeof RewardFoldDatumSchema>;
+export type TRewardFoldDatum = Data.Static<typeof RewardFoldDatumSchema>;
 export const RewardFoldDatum =
-  RewardFoldDatumSchema as unknown as RewardFoldDatum;
+  RewardFoldDatumSchema as unknown as TRewardFoldDatum;

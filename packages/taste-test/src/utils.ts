@@ -1,7 +1,7 @@
 import { Data, UTxO } from "lucid-cardano";
 
-import { TTasteTestType } from "./@types";
-import { LiquiditySetNode, SetNode } from "./@types/contracts";
+import { LiquiditySetNode, SetNode } from "./@types/contracts.js";
+import { TTasteTestType } from "./@types/index.js";
 
 /**
  * Finds the UTxO node that covers a given user key.

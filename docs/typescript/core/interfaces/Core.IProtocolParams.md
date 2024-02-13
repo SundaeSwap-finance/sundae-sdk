@@ -6,96 +6,108 @@ The SundaeSwap protocol parameters object.
 
 ## Properties
 
-### ESCROW\_ADDRESS
+### CANCEL\_REDEEMER\_V1
 
-• **ESCROW\_ADDRESS**: `string`
+• **CANCEL\_REDEEMER\_V1**: `string`
 
-The Bech32 script address of the SundaeSwap Escrow contract.
-
-#### Defined in
-
-[@types/utilities.ts:8](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L8)
-
-___
-
-### ESCROW\_CANCEL\_REDEEMER
-
-• **ESCROW\_CANCEL\_REDEEMER**: `string`
-
-The hex-encoded redeemer value for cancelling Escrow Orders
+The hex-encoded redeemer value for cancelling V1 Orders
 
 #### Defined in
 
-[@types/utilities.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L14)
+[packages/core/src/@types/utilities.ts:12](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L12)
 
 ___
 
-### ESCROW\_SCRIPT\_VALIDATOR
+### CANCEL\_REDEEMER\_V3
 
-• **ESCROW\_SCRIPT\_VALIDATOR**: `string`
+• **CANCEL\_REDEEMER\_V3**: `string`
 
-The hex-encoded script value of the Escrow Order contract
+The hex-encoded redeemer value for cancelling V3 Orders
 
 #### Defined in
 
-[@types/utilities.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L16)
+[packages/core/src/@types/utilities.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L14)
 
 ___
 
-### FREEZER\_PAYMENT\_SCRIPTHASH
+### ORDER\_SCRIPT\_V1
 
-• **FREEZER\_PAYMENT\_SCRIPTHASH**: `string`
+• **ORDER\_SCRIPT\_V1**: `string`
+
+The Bech32 script address of the SundaeSwap Order V1 contract.
+
+#### Defined in
+
+[packages/core/src/@types/utilities.ts:8](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L8)
+
+___
+
+### ORDER\_SCRIPT\_V3
+
+• **ORDER\_SCRIPT\_V3**: `string`
+
+The Bech32 script address of the SundaeSwap Order V3 contract.
+
+#### Defined in
+
+[packages/core/src/@types/utilities.ts:10](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L10)
+
+___
+
+### SCRIPT\_VALIDATOR\_V1
+
+• **SCRIPT\_VALIDATOR\_V1**: `string`
+
+The hex-encoded script validator of the Order V1 contract
+
+#### Defined in
+
+[packages/core/src/@types/utilities.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L16)
+
+___
+
+### SCRIPT\_VALIDATOR\_V3
+
+• **SCRIPT\_VALIDATOR\_V3**: `string`
+
+The hex-encoded script validator of the Order V3 contract
+
+#### Defined in
+
+[packages/core/src/@types/utilities.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L18)
+
+___
+
+### YF\_PAYMENT\_SCRIPTHASH
+
+• **YF\_PAYMENT\_SCRIPTHASH**: `string`
 
 The hex-encoded keyhash for the Yield Farming contract.
 
 #### Defined in
 
-[@types/utilities.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L20)
+[packages/core/src/@types/utilities.ts:22](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L22)
 
 ___
 
-### FREEZER\_REFERENCE\_INPUT
+### YF\_REFERENCE\_INPUT
 
-• **FREEZER\_REFERENCE\_INPUT**: `string`
+• **YF\_REFERENCE\_INPUT**: `string`
 
 The hex-enc
 
 #### Defined in
 
-[@types/utilities.ts:22](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L22)
+[packages/core/src/@types/utilities.ts:24](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L24)
 
 ___
 
-### FREEZER\_STAKE\_KEYHASH
+### YF\_STAKE\_KEYHASH
 
-• **FREEZER\_STAKE\_KEYHASH**: `string`
+• **YF\_STAKE\_KEYHASH**: `string`
 
 The hex-encoded staking key for the Yield Farming lockups.
 
 #### Defined in
 
-[@types/utilities.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L18)
-
-___
-
-### RIDER\_FEE
-
-• **RIDER\_FEE**: `bigint`
-
-The minimum amount of ADA to deliver assets with.
-
-#### Defined in
-
-[@types/utilities.ts:12](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L12)
-
-___
-
-### SCOOPER\_FEE
-
-• **SCOOPER\_FEE**: `bigint`
-
-The fee paid to Scoopers who process transactions.
-
-#### Defined in
-
-[@types/utilities.ts:10](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L10)
+[packages/core/src/@types/utilities.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L20)

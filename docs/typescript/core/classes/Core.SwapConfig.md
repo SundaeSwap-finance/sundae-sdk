@@ -2,7 +2,7 @@
 
 [Core](../modules/Core.md).SwapConfig
 
-The `SwapConfig` class helps to properly format your swap arguments for use within [TxBuilder.buildSwapTx](Core.TxBuilder.md#buildswaptx).
+The `SwapConfig` class helps to properly format your swap arguments for use within [Core.TxBuilder](Core.TxBuilder.md).
 
 **`Example`**
 
@@ -22,13 +22,9 @@ const config = new SwapConfig()
 const { submit, cbor } = await SDK.swap(config);
 ```
 
-**`See`**
-
-[swap](Core.SundaeSDK.md#swap)
-
 ## Hierarchy
 
-- `OrderConfig`<[`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md)\>
+- [`OrderConfig`](Core.OrderConfig.md)\<`Omit`\<[`ISwapConfigArgs`](../interfaces/Core.ISwapConfigArgs.md), ``"swapType"``\> & \{ `minReceivable`: `AssetAmount`\<`IAssetAmountMetadata`\>  }\>
 
   ↳ **`SwapConfig`**
 
@@ -36,17 +32,17 @@ const { submit, cbor } = await SDK.swap(config);
 
 ### orderAddresses
 
-• `Optional` **orderAddresses**: [`OrderAddresses`](../modules/Core.md#orderaddresses)
+• `Optional` **orderAddresses**: [`TOrderAddresses`](../modules/Core.md#torderaddresses)
 
 The addresses for the order.
 
 #### Inherited from
 
-OrderConfig.orderAddresses
+[OrderConfig](Core.OrderConfig.md).[orderAddresses](Core.OrderConfig.md#orderaddresses)
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L19)
+[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L19)
 
 ___
 
@@ -58,36 +54,44 @@ The data for the pool involved in the order.
 
 #### Inherited from
 
-OrderConfig.pool
+[OrderConfig](Core.OrderConfig.md).[pool](Core.OrderConfig.md#pool)
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L14)
+[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L14)
 
 ## Methods
 
 ### buildArgs
 
-▸ **buildArgs**(): [`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md)
+▸ **buildArgs**(): `Object`
 
 Used for building a swap where you already know the pool data.
 Useful for when building Transactions directly from the builder instance.
 
-**`See`**
-
-[buildSwapTx](Core.TxBuilder.md#buildswaptx)
-
 #### Returns
 
-[`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md)
+`Object`
+
+| Name | Type |
+| :------ | :------ |
+| `minReceivable` | `AssetAmount`\<`IAssetAmountMetadata`\> |
+| `orderAddresses` | [`TOrderAddresses`](../modules/Core.md#torderaddresses) |
+| `pool` | [`IPoolData`](../interfaces/Core.IPoolData.md) |
+| `referralFee` | `undefined` \| [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md) |
+| `suppliedAsset` | `AssetAmount`\<`IAssetAmountMetadata`\> |
+
+**`See`**
+
+[Core.TxBuilder](Core.TxBuilder.md)
 
 #### Overrides
 
-OrderConfig.buildArgs
+[OrderConfig](Core.OrderConfig.md).[buildArgs](Core.OrderConfig.md#buildargs)
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:76](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L76)
+[packages/core/src/Configs/SwapConfig.class.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L79)
 
 ___
 
@@ -101,7 +105,7 @@ Helper function to build valid swap arguments from a JSON object.
 
 | Name | Type |
 | :------ | :------ |
-| `«destructured»` | [`SwapConfigArgs`](../interfaces/Core.SwapConfigArgs.md) |
+| `«destructured»` | [`ISwapConfigArgs`](../interfaces/Core.ISwapConfigArgs.md) |
 
 #### Returns
 
@@ -109,11 +113,11 @@ Helper function to build valid swap arguments from a JSON object.
 
 #### Overrides
 
-OrderConfig.setFromObject
+[OrderConfig](Core.OrderConfig.md).[setFromObject](Core.OrderConfig.md#setfromobject)
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:90](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L90)
+[packages/core/src/Configs/SwapConfig.class.ts:93](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L93)
 
 ___
 
@@ -127,7 +131,7 @@ Set a minimum receivable asset amount for the swap. This is akin to setting a li
 
 | Name | Type |
 | :------ | :------ |
-| `amount` | `AssetAmount`<`any`\> |
+| `amount` | `AssetAmount`\<`IAssetAmountMetadata`\> |
 
 #### Returns
 
@@ -135,7 +139,7 @@ Set a minimum receivable asset amount for the swap. This is akin to setting a li
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L63)
+[packages/core/src/Configs/SwapConfig.class.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L66)
 
 ___
 
@@ -143,13 +147,13 @@ ___
 
 ▸ **setOrderAddresses**(`orderAddresses`): [`SwapConfig`](Core.SwapConfig.md)
 
-Set the [OrderAddresses](../modules/Core.md#orderaddresses) for a swap's required datum.
+Set the [Core.TOrderAddresses](../modules/Core.md#torderaddresses) for a swap's required datum.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `orderAddresses` | [`OrderAddresses`](../modules/Core.md#orderaddresses) | The addresses for the order. |
+| `orderAddresses` | [`TOrderAddresses`](../modules/Core.md#torderaddresses) | The addresses for the order. |
 
 #### Returns
 
@@ -159,11 +163,11 @@ The current instance of the class.
 
 #### Inherited from
 
-OrderConfig.setOrderAddresses
+[OrderConfig](Core.OrderConfig.md).[setOrderAddresses](Core.OrderConfig.md#setorderaddresses)
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L30)
+[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:26](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L26)
 
 ___
 
@@ -187,11 +191,11 @@ The current instance of the class.
 
 #### Inherited from
 
-OrderConfig.setPool
+[OrderConfig](Core.OrderConfig.md).[setPool](Core.OrderConfig.md#setpool)
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L41)
+[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L37)
 
 ___
 
@@ -213,11 +217,11 @@ An inherited method that allows a config to add an optional referral fee.
 
 #### Inherited from
 
-OrderConfig.setReferralFee
+[OrderConfig](Core.OrderConfig.md).[setReferralFee](Core.OrderConfig.md#setreferralfee)
 
 #### Defined in
 
-[classes/Abstracts/Config.abstract.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L39)
+[packages/core/src/Abstracts/Config.abstract.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L40)
 
 ___
 
@@ -231,7 +235,7 @@ Set the supplied asset for the swap.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `asset` | `AssetAmount`<`IAssetAmountMetadata`\> | The provided asset and amount from a connected wallet. |
+| `asset` | `AssetAmount`\<`IAssetAmountMetadata`\> | The provided asset and amount from a connected wallet. |
 
 #### Returns
 
@@ -239,4 +243,4 @@ Set the supplied asset for the swap.
 
 #### Defined in
 
-[classes/Configs/SwapConfig.class.ts:52](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Configs/SwapConfig.class.ts#L52)
+[packages/core/src/Configs/SwapConfig.class.ts:55](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L55)

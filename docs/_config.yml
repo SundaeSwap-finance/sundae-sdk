@@ -21,9 +21,7 @@
 title: SundaeSwap
 email: contact@sundaeswap.finance
 description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+  The official SDK documentation for TypeScript packages released by the SundaeSwap Labs team.
 baseurl: "/sundae-sdk" # the subpath of your site, e.g. /blog
 url: "https://sundaeswap-finance.github.io/" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: sundaeswap
@@ -31,22 +29,30 @@ github_username: SundaeSwap-Finance
 permalink: slug:output_ext
 
 # Build settings
-remote_theme: just-the-docs/just-the-docs
+theme: just-the-docs
 plugins:
   - jekyll-feed
   - jekyll-optional-front-matter
 
 logo: "/assets/logo.png"
 favicon_ico: "/assets/logo.png"
+color_scheme: dark
 
 defaults:
   - scope:
       path: "/typescript/core/*/*"
     values:
-      parent: "TypeScript"
+      parent: "core"
+      grand_parent: "Packages"
   - scope:
-      path: "/typescript/core/*"
+      path: "/typescript/taste-test/*/*"
     values:
-      nav_order: 2
+      parent: "taste-test"
+      grand_parent: "Packages"
+  - scope:
+      path: "/typescript/yield-farming/*/*"
+    values:
+      parent: "yield-farming"
+      grand_parent: "Packages"
 
 gh_edit_repository: "https://github.com/SundaeSwap-finance/sundae-sdk"

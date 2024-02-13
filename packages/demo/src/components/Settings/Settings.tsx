@@ -1,7 +1,12 @@
-import { SundaeSDK } from "@sundaeswap/core";
+import {
+  ETxBuilderType,
+  ISundaeSDKOptions,
+  QueryProviderSundaeSwapLegacy,
+  SundaeSDK,
+} from "@sundaeswap/core";
+import { Blockfrost, Lucid } from "lucid-cardano";
 import { FC, useEffect, useState } from "react";
 
-import { ITxBuilderLucidOptions } from "@sundaeswap/core/extensions";
 import { useAppState } from "../../state/context";
 
 type TSupportedTxBuilders = "lucid" | "mesh";
@@ -12,7 +17,7 @@ const SelectBuilderOption: FC<{
 }> = ({ builder, name }) => <option value={builder}>{name}</option>;
 
 const SelectBuilder: FC = () => {
-  const { setSDK } = useAppState();
+  const { setSDK, useV3Contracts } = useAppState();
   const [builderLib, setBuilderLib] = useState<TSupportedTxBuilders>("lucid");
 
   const handleTxBuilderLoaderSelect = (key: TSupportedTxBuilders) => {
@@ -23,40 +28,37 @@ const SelectBuilder: FC = () => {
     (async () => {
       let sdk: SundaeSDK | undefined = undefined;
       switch (builderLib) {
-        // case "mesh":
-        //   sdk = new SundaeSDK(
-        //     TxBuilderMesh.new({
-        //       wallet: ESupportedWallets.Eternl,
-        //       network: "preview",
-        //     })
-        //   );
-        //   break;
         case "lucid":
-          const { TxBuilderLucid, ProviderSundaeSwap } = await import(
-            "@sundaeswap/core/extensions"
+          const lucidInstance = await Lucid.new(
+            new Blockfrost(
+              "https://cardano-preview.blockfrost.io/api/v0/",
+              // @ts-ignore
+              window.__APP_CONFIG.blockfrostAPI
+            ),
+            "Preview"
           );
 
-          const options: ITxBuilderLucidOptions = {
-            providerType: "blockfrost",
-            blockfrost: {
-              url: "https://cardano-preview.blockfrost.io/api/v0/",
-              // @ts-ignore
-              apiKey: window.__APP_CONFIG.blockfrostAPI,
+          const options: ISundaeSDKOptions = {
+            customQueryProvider: !useV3Contracts
+              ? new QueryProviderSundaeSwapLegacy("preview")
+              : undefined,
+            wallet: {
+              name: "eternl",
+              network: "preview",
+              builder: {
+                lucid: lucidInstance,
+                type: ETxBuilderType.LUCID,
+              },
             },
-            network: "preview",
-            wallet: "eternl",
           };
 
-          sdk = new SundaeSDK(
-            new TxBuilderLucid(options, new ProviderSundaeSwap("preview"))
-          );
-
+          sdk = new SundaeSDK(options);
           break;
       }
 
       setSDK(sdk);
     })();
-  }, [builderLib, setSDK]);
+  }, [builderLib, setSDK, useV3Contracts]);
 
   return (
     <div className="container flex gap-10">

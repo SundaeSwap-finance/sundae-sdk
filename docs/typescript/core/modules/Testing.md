@@ -8,12 +8,8 @@ The Mocks can be used for mocking the imports in order to help reduce your API s
 For example, rather than loading the entire SundaeSDK library, you can mock it and just confirm that a method
 from the SDK was actually called within your app.
 
-In addition, for those who build custom [TxBuilder](../classes/Core.TxBuilder.md) and [DatumBuilder](../classes/Core.DatumBuilder.md) classes, we've added
+In addition, for those who build custom [Core.TxBuilder](../classes/Core.TxBuilder.md) and [Core.DatumBuilder](../classes/Core.DatumBuilder.md) classes, we've added
 base tests that you can run on these classes to ensure that your Order builds output the expected
 hex-encoded CBOR when writing your own unit tests on them.
 
 **`Package Description`**
-
-## Namespaces
-
-- [MockedExports](Testing.MockedExports.md)

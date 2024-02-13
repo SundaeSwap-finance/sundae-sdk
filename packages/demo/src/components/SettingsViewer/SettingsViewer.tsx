@@ -1,4 +1,3 @@
-import { ITxBuilderBaseOptions } from "@sundaeswap/core";
 import { FC } from "react";
 import ReactJson from "react-json-view";
 
@@ -11,13 +10,8 @@ const SettingsViewer: FC = () => {
     return null;
   }
 
-  const options: ITxBuilderBaseOptions = {
-    ...SDK.build().options,
-    blockfrost: {
-      ...SDK.build().options.blockfrost,
-      apiKey: "HIDDEN",
-    },
-    minLockAda: SDK.build().options.minLockAda.toString(),
+  const options = {
+    network: SDK.getOptions().wallet.network,
   };
 
   return (

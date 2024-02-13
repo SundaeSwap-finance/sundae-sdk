@@ -1,18 +1,22 @@
 import { AssetAmount } from "@sundaeswap/asset";
+import { TasteTestLucid } from "@sundaeswap/taste-test";
 import { FC, useCallback, useState } from "react";
 
-import { TasteTest } from "@sundaeswap/taste-test";
-import { Lucid } from "lucid-cardano";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { ActionArgs } from "../Actions";
+import { IActionArgs } from "../Actions";
 
-export const DepositTasteTest: FC<ActionArgs> = ({
+export const DepositTasteTest: FC<IActionArgs> = ({
   setCBOR,
   setFees,
   submit,
 }) => {
-  const { SDK, ready, walletAddress, useReferral } = useAppState();
+  const {
+    SDK,
+    ready,
+    activeWalletAddr: walletAddress,
+    useReferral,
+  } = useAppState();
   const [depositing, setDepositing] = useState(false);
 
   const handleDeposit = useCallback(async () => {
@@ -20,12 +24,7 @@ export const DepositTasteTest: FC<ActionArgs> = ({
       return;
     }
 
-    const builderWallet = SDK.build<unknown, Lucid>().wallet;
-    if (!builderWallet) {
-      return;
-    }
-
-    const tt = new TasteTest(builderWallet);
+    const tt = new TasteTestLucid(SDK.builder().lucid);
     setDepositing(true);
     try {
       await tt
@@ -36,12 +35,12 @@ export const DepositTasteTest: FC<ActionArgs> = ({
           scripts: {
             policy: {
               txHash:
-                "ba464546272ac37694ba86d3e2021a63189704259a708d83ded54b6eba9b721d",
+                "0d88fdba9d3fa1182177c8907d8dc23a7cc0f111d402c12016e36017b6f16fb9",
               outputIndex: 0,
             },
             validator: {
               txHash:
-                "5ce83772dabedc1eeea992b68eb232c42dbd59ba260e057c890bfa77364bc7f3",
+                "e9eeb2da7a528faffb20e195d15f67ae23a7a56498edcf47c41aee388cadc374",
               outputIndex: 0,
             },
           },

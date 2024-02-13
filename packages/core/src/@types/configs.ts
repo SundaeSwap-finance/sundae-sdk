@@ -1,37 +1,67 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { OrderAddresses, PoolCoin, UTXO } from "./datumbuilder";
-import { IPoolData } from "./queryprovider";
-import { ITxBuilderReferralFee } from "./txbuilder";
+import { EPoolCoin, TOrderAddresses, TUTXO } from "./datumbuilder.js";
+import { IPoolData } from "./queryprovider.js";
+import { ITxBuilderReferralFee } from "./txbuilders.js";
 
 /**
  * The base config that all configs extend.
  */
-export interface BaseConfig {
+export interface IBaseConfig {
   referralFee?: ITxBuilderReferralFee;
 }
 
 /**
  * The common arguments for any valid order.
  */
-export interface OrderConfigArgs extends BaseConfig {
+export interface IOrderConfigArgs extends IBaseConfig {
   pool: IPoolData;
-  orderAddresses: OrderAddresses;
+  orderAddresses: TOrderAddresses;
 }
+
+/**
+ * An enum to represent a Swap order type.
+ */
+export enum ESwapType {
+  MARKET = "MARKET",
+  LIMIT = "LIMIT",
+}
+
+/**
+ * An interface that represents a market order
+ * swap with required slippage.
+ */
+export interface IMarketSwap {
+  type: ESwapType.MARKET;
+  slippage: number;
+}
+
+/**
+ * An interface that represents a limit order
+ * swap with required minimum receivable.
+ */
+export interface ILimitSwap {
+  type: ESwapType.LIMIT;
+  minReceivable: AssetAmount<IAssetAmountMetadata>;
+}
+
+/**
+ * A union type to represent all possible swap types.
+ */
+export type TSwapType = IMarketSwap | ILimitSwap;
 
 /**
  * The arguments configuration for building a valid Swap.
  */
-export interface SwapConfigArgs extends OrderConfigArgs {
+export interface ISwapConfigArgs extends IOrderConfigArgs {
   suppliedAsset: AssetAmount<IAssetAmountMetadata>;
-  minReceivable?: AssetAmount<IAssetAmountMetadata>;
-  slippage?: number | false;
+  swapType: TSwapType;
 }
 
 /**
  * The arguments configuration for building a valid Deposit.
  */
-export interface DepositConfigArgs extends OrderConfigArgs {
+export interface IDepositConfigArgs extends IOrderConfigArgs {
   suppliedAssets: [
     AssetAmount<IAssetAmountMetadata>,
     AssetAmount<IAssetAmountMetadata>
@@ -41,40 +71,23 @@ export interface DepositConfigArgs extends OrderConfigArgs {
 /**
  * The arguments configuration for building a valid cancellation transaction.
  */
-export interface CancelConfigArgs extends BaseConfig {
-  utxo: UTXO;
-  datum: string;
-  datumHash: string;
-  address: string;
+export interface ICancelConfigArgs extends IBaseConfig {
+  ownerAddress: string;
+  utxo: TUTXO;
 }
 
 /**
  * The arguments configuration for building a valid Deposit.
  */
-export interface ZapConfigArgs extends OrderConfigArgs {
+export interface IZapConfigArgs extends IOrderConfigArgs {
   suppliedAsset: AssetAmount<IAssetAmountMetadata>;
-  zapDirection: PoolCoin;
+  zapDirection: EPoolCoin;
   swapSlippage?: number;
 }
 
 /**
  * The arguments configuration for building a valid Withdraw.
  */
-export interface WithdrawConfigArgs extends OrderConfigArgs {
+export interface IWithdrawConfigArgs extends IOrderConfigArgs {
   suppliedLPAsset: AssetAmount<IAssetAmountMetadata>;
-}
-
-/** A map of pools with their associated weight. */
-export type DelegationProgramPools = Map<string, bigint>;
-/** A map of programs with their associated {@link DelegationProgramPools} map. */
-export type DelegationPrograms = Map<string, DelegationProgramPools>;
-
-/**
- * The configuration object for a FreezerConfig instance.
- */
-export interface FreezerConfigArgs extends BaseConfig {
-  delegation?: DelegationPrograms;
-  existingPositions?: UTXO[];
-  lockedValues: AssetAmount<{ assetId: string; decimals: number }>[];
-  ownerAddress: string;
 }

@@ -23,11 +23,4 @@
     "noEmitOnError": true,
   },
   "exclude": ["node_modules", "temporary_modules", "tools/*.ts", "dist"],
-  "ts-node": {
-    "esm": true,
-    "compilerOptions": {
-      "module": "ESNext",
-      "target": "ESNext"
-    }
-  },
 }

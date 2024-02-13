@@ -1,12 +1,21 @@
-import { IPoolQuery, ITxBuilderFees } from "@sundaeswap/core";
+import {
+  ADA_ASSET_ID,
+  IPoolByIdentQuery,
+  type IPoolByPairQuery,
+  type ITxBuilderFees,
+} from "@sundaeswap/core";
+import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 import type { TTasteTestFees } from "@sundaeswap/taste-test";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import ReactJson from "react-json-view";
 
+import { V3_CONTRACT_POOL_TINDY } from "../../constants";
 import { useAppState } from "../../state/context";
+import { CancelSwap } from "./modules/CancelSwap";
 import { Deposit } from "./modules/Deposit";
 import { DepositTasteTest } from "./modules/DepositTasteTest";
 import { Lock } from "./modules/LockAssets";
+import { Migrate } from "./modules/MigrateV1LiquidityToV3";
 import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
 import { Unlock } from "./modules/UnlockAssets";
@@ -16,30 +25,37 @@ import { Withdraw } from "./modules/Withdraw";
 import { WithdrawTasteTest } from "./modules/WithdrawTasteTest";
 import { Zap } from "./modules/Zap";
 
-export const poolQuery: IPoolQuery = {
-  pair: [
-    "",
-    "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
-  ],
+export const poolQuery: IPoolByPairQuery = {
+  pair: ["", PREVIEW_DATA.pools.v1.assetB.assetId],
   fee: "0.30",
 };
 
-interface CBOR {
+export const newPoolQuery: IPoolByIdentQuery = {
+  ident: V3_CONTRACT_POOL_TINDY.ident,
+};
+
+interface ICBOR {
   cbor: string;
   hash?: string;
 }
 
-export interface ActionArgs {
+export interface IActionArgs {
   submit?: boolean;
-  setCBOR: Dispatch<SetStateAction<CBOR>>;
+  setCBOR: Dispatch<SetStateAction<ICBOR>>;
   setFees: Dispatch<
     SetStateAction<ITxBuilderFees | TTasteTestFees | undefined>
   >;
 }
 
 export const Actions: FC = () => {
-  const { SDK, useReferral, setUseReferral } = useAppState();
-  const [cbor, setCBOR] = useState<CBOR>({
+  const {
+    SDK,
+    useReferral,
+    setUseReferral,
+    useV3Contracts,
+    setUseV3Contracts,
+  } = useAppState();
+  const [cbor, setCBOR] = useState<ICBOR>({
     cbor: "",
   });
   const [fees, setFees] = useState<ITxBuilderFees | TTasteTestFees>();
@@ -75,15 +91,30 @@ export const Actions: FC = () => {
         </div>
       </h2>
       <div className="grid grid-cols-2 gap-4">
+        <div className="col-span-2 flex items-center justify-center gap-2">
+          <h4 className="w-12">DEX </h4>
+          <hr className="my-10 w-full" />
+        </div>
+        <div className="col-span-2 flex items-center justify-start gap-2">
+          <label htmlFor="v3Contracts">Use V3 Contracts?</label>
+          <input
+            id="v3Contracts"
+            type="checkbox"
+            checked={useV3Contracts}
+            onChange={(e) => setUseV3Contracts(e.target.checked)}
+          />
+        </div>
         <SwapAB setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <SwapBA setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Deposit setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Withdraw setFees={setFees} setCBOR={setCBOR} submit={submit} />
-        {/* <button onClick={tempCancelOrder}>Cancel Order</button> */}
         <Zap setCBOR={setCBOR} setFees={setFees} submit={submit} />
         <UpdateSwap setCBOR={setCBOR} setFees={setFees} submit={submit} />
         <Lock setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Unlock setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        <CancelSwap setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        <Migrate setFees={setFees} setCBOR={setCBOR} submit={submit} />
+
         <div className="col-span-2 flex items-center justify-between gap-2">
           <h4 className="w-24">Taste Tests</h4>
           <hr className="my-10 w-full" />
@@ -128,7 +159,7 @@ export const Actions: FC = () => {
               penalty:
                 (fees as TTasteTestFees).penaltyFee?.amount.toString() ?? "0",
               referral: {
-                assetId: fees.referral?.metadata?.assetId ?? "",
+                assetId: fees.referral?.metadata?.assetId ?? ADA_ASSET_ID,
                 amount: fees.referral?.amount.toString() ?? "0",
               },
             }}

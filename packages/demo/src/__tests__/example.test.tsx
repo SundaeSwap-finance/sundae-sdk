@@ -1,32 +1,32 @@
-import { MockedExports } from "@sundaeswap/core/testing";
-MockedExports.MockAll();
-
-import { SundaeSDK } from "@sundaeswap/core";
-import {
-  ProviderSundaeSwap,
-  TxBuilderLucid,
-} from "@sundaeswap/core/extensions";
+import { ETxBuilderType, SundaeSDK } from "@sundaeswap/core";
+import { MockAll, setupLucid } from "@sundaeswap/core/testing";
 import "@testing-library/jest-dom";
 import { fireEvent, render, waitFor } from "@testing-library/react";
+import { Lucid } from "lucid-cardano";
+
+MockAll();
+
+let lucidInstance: Lucid;
+
+setupLucid((lucid) => {
+  lucidInstance = lucid;
+});
+
 import Actions from "../components/Actions";
 import { AppStateProvider } from "../state/context";
 
 describe("Example testing", () => {
   it("should use the mocked SundaeSDK", async () => {
-    const MockedSDK = new SundaeSDK(
-      new TxBuilderLucid(
-        {
-          network: "preview",
-          wallet: "eternl",
-          providerType: "blockfrost",
-          blockfrost: {
-            apiKey: "",
-            url: "",
-          },
+    const MockedSDK = new SundaeSDK({
+      wallet: {
+        builder: {
+          type: ETxBuilderType.LUCID,
+          lucid: lucidInstance,
         },
-        new ProviderSundaeSwap("preview")
-      )
-    );
+        name: "eternl",
+        network: "preview",
+      },
+    });
 
     const { container, getByText } = render(
       <AppStateProvider defaultValue={{ SDK: MockedSDK }}>
@@ -39,8 +39,8 @@ describe("Example testing", () => {
 
     fireEvent.click(swapButton);
     await waitFor(() => {
-      expect(MockedExports.SundaeSDK.mockQuery).toHaveBeenCalledTimes(1);
-      expect(MockedExports.SundaeSDK.mockSwap).toHaveBeenCalledTimes(1);
+      expect(MockedSDK.query).toHaveBeenCalledTimes(1);
+      expect(MockedSDK.builder().swap).toHaveBeenCalledTimes(1);
     });
 
     expect(container).toMatchSnapshot();
