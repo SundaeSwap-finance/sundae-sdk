@@ -1,52 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="144" failures="0" errors="0" time="7.853">
-  <testsuite name="buildDestinationAddresses()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:21" time="3.807" tests="12">
-    <testcase classname="buildDestinationAddresses() should pass when providing a valid DestinationAddress argument" name="buildDestinationAddresses() should pass when providing a valid DestinationAddress argument" time="0.007">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when an invalid DatumType is used" name="buildDestinationAddresses() should fail when an invalid DatumType is used" time="0.014">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when passing just a staking key as the DestinationAddress" name="buildDestinationAddresses() should fail when passing just a staking key as the DestinationAddress" time="0.001">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail with non-serializable address strings" name="buildDestinationAddresses() should fail with non-serializable address strings" time="0.002">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when passing a Preview Network DestinationAddress to an Mainnet instance" name="buildDestinationAddresses() should fail when passing a Preview Network DestinationAddress to an Mainnet instance" time="0.002">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when passing a Mainnet DestinationAddress to a Preview instance" name="buildDestinationAddresses() should fail when passing a Mainnet DestinationAddress to a Preview instance" time="0">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when passing a script address to DestinationAddress without a datumHash attached" name="buildDestinationAddresses() should fail when passing a script address to DestinationAddress without a datumHash attached" time="0">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when passing an invalid datumHash along with a script DestinationAddress" name="buildDestinationAddresses() should fail when passing an invalid datumHash along with a script DestinationAddress" time="0.001">
-    </testcase>
-    <testcase classname="buildOwnerDatum() should build the owner datum properly" name="buildOwnerDatum() should build the owner datum properly" time="0">
-    </testcase>
-    <testcase classname="buildAssetDatum should correctly build the datum for ADA" name="buildAssetDatum should correctly build the datum for ADA" time="0">
-    </testcase>
-    <testcase classname="buildAssetDatum should correctly build the datum for alt-coin" name="buildAssetDatum should correctly build the datum for alt-coin" time="0">
-    </testcase>
-    <testcase classname="static getDestinationAddressesFromDatum() should properly extract the addresses from the datum" name="static getDestinationAddressesFromDatum() should properly extract the addresses from the datum" time="0.001">
-    </testcase>
-  </testsuite>
-  <testsuite name="YieldFarmingLucid" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:21" time="4.004" tests="9">
-    <testcase classname="YieldFarmingLucid should build an accurate transaction with an accurate datum when locking a position for the first time." name="YieldFarmingLucid should build an accurate transaction with an accurate datum when locking a position for the first time." time="0.023">
-    </testcase>
-    <testcase classname="YieldFarmingLucid should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)" name="YieldFarmingLucid should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)" time="0">
-    </testcase>
-    <testcase classname="YieldFarmingLucid should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)" name="YieldFarmingLucid should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)" time="0.001">
-    </testcase>
-    <testcase classname="YieldFarmingLucid should build a delegation datum along with the transaction if set" name="YieldFarmingLucid should build a delegation datum along with the transaction if set" time="0.011">
-    </testcase>
-    <testcase classname="YieldFarmingLucid should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)" name="YieldFarmingLucid should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)" time="0.001">
-    </testcase>
-    <testcase classname="YieldFarmingLucid should not build a datum when unlocking assets" name="YieldFarmingLucid should not build a datum when unlocking assets" time="0.001">
-    </testcase>
-    <testcase classname="YieldFarmingLucid should throw an error if the reference input cannot be found" name="YieldFarmingLucid should throw an error if the reference input cannot be found" time="0.006">
-    </testcase>
-    <testcase classname="YieldFarmingLucid should correctly build the fees object" name="YieldFarmingLucid should correctly build the fees object" time="0.004">
-    </testcase>
-    <testcase classname="YieldFarmingLucid should correctly add the referral fee" name="YieldFarmingLucid should correctly add the referral fee" time="0.043">
-    </testcase>
-  </testsuite>
-  <testsuite name="SwapConfig class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:21" time="4.162" tests="10">
+<testsuites name="jest tests" tests="144" failures="0" errors="0" time="7.058">
+  <testsuite name="SwapConfig class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:23:56" time="3.45" tests="10">
     <testcase classname="SwapConfig class should construct with no parameters" name="SwapConfig class should construct with no parameters" time="0.001">
     </testcase>
     <testcase classname="SwapConfig class should construct with a config" name="SwapConfig class should construct with a config" time="0.001">
@@ -57,41 +11,27 @@
     </testcase>
     <testcase classname="SwapConfig class should set the orderAddresses correctly" name="SwapConfig class should set the orderAddresses correctly" time="0.001">
     </testcase>
-    <testcase classname="SwapConfig class it should calculate minReceivable correctly" name="SwapConfig class it should calculate minReceivable correctly" time="0">
+    <testcase classname="SwapConfig class it should calculate minReceivable correctly" name="SwapConfig class it should calculate minReceivable correctly" time="0.001">
     </testcase>
-    <testcase classname="SwapConfig class should throw when providing invalid assetIDs to setSuppliedAsset()" name="SwapConfig class should throw when providing invalid assetIDs to setSuppliedAsset()" time="0.001">
+    <testcase classname="SwapConfig class should throw when providing invalid assetIDs to setSuppliedAsset()" name="SwapConfig class should throw when providing invalid assetIDs to setSuppliedAsset()" time="0">
     </testcase>
-    <testcase classname="SwapConfig class should run buildArgs() without errors" name="SwapConfig class should run buildArgs() without errors" time="0">
+    <testcase classname="SwapConfig class should run buildArgs() without errors" name="SwapConfig class should run buildArgs() without errors" time="0.002">
     </testcase>
     <testcase classname="SwapConfig class should validate correctly when no suppliedAsset is set" name="SwapConfig class should validate correctly when no suppliedAsset is set" time="0">
     </testcase>
     <testcase classname="SwapConfig class should validate correctly when no minReceivable is set" name="SwapConfig class should validate correctly when no minReceivable is set" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="buildDestinationAddresses()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:21" time="4.283" tests="8">
-    <testcase classname="buildDestinationAddresses() should pass when providing a valid DestinationAddress argument" name="buildDestinationAddresses() should pass when providing a valid DestinationAddress argument" time="0.012">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when an invalid DatumType is used" name="buildDestinationAddresses() should fail when an invalid DatumType is used" time="0.089">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when passing just a staking key as the DestinationAddress" name="buildDestinationAddresses() should fail when passing just a staking key as the DestinationAddress" time="0.001">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail with non-serializable address strings" name="buildDestinationAddresses() should fail with non-serializable address strings" time="0.002">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when passing a Preview Network DestinationAddress to an Mainnet instance" name="buildDestinationAddresses() should fail when passing a Preview Network DestinationAddress to an Mainnet instance" time="0">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when passing a Mainnet DestinationAddress to a Preview instance" name="buildDestinationAddresses() should fail when passing a Mainnet DestinationAddress to a Preview instance" time="0.001">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when passing a script address to DestinationAddress without a datum attached" name="buildDestinationAddresses() should fail when passing a script address to DestinationAddress without a datum attached" time="0.001">
-    </testcase>
-    <testcase classname="buildDestinationAddresses() should fail when passing an invalid datum along with a script DestinationAddress" name="buildDestinationAddresses() should fail when passing an invalid datum along with a script DestinationAddress" time="0">
+  <testsuite name="buildPoolIdent" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:23:56" time="3.539" tests="1">
+    <testcase classname="buildPoolIdent should correctly build and validate a pool ident" name="buildPoolIdent should correctly build and validate a pool ident" time="0.021">
     </testcase>
   </testsuite>
-  <testsuite name="WithdrawConfig class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:21" time="4.3" tests="10">
+  <testsuite name="WithdrawConfig class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:23:56" time="3.546" tests="10">
     <testcase classname="WithdrawConfig class should construct with no parameters" name="WithdrawConfig class should construct with no parameters" time="0.001">
     </testcase>
-    <testcase classname="WithdrawConfig class should construct with a config" name="WithdrawConfig class should construct with a config" time="0.001">
+    <testcase classname="WithdrawConfig class should construct with a config" name="WithdrawConfig class should construct with a config" time="0">
     </testcase>
-    <testcase classname="WithdrawConfig class it should set the pool correctly" name="WithdrawConfig class it should set the pool correctly" time="0">
+    <testcase classname="WithdrawConfig class it should set the pool correctly" name="WithdrawConfig class it should set the pool correctly" time="0.001">
     </testcase>
     <testcase classname="WithdrawConfig class should set the suppliedAsset correctly" name="WithdrawConfig class should set the suppliedAsset correctly" time="0">
     </testcase>
@@ -108,144 +48,138 @@
     <testcase classname="WithdrawConfig class should throw an error when validating with no suppliedLPAsset defined" name="WithdrawConfig class should throw an error when validating with no suppliedLPAsset defined" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="buildPoolIdent" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:21" time="4.466" tests="1">
-    <testcase classname="buildPoolIdent should correctly build and validate a pool ident" name="buildPoolIdent should correctly build and validate a pool ident" time="0.007">
+  <testsuite name="buildDestinationAddresses()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:23:56" time="3.61" tests="12">
+    <testcase classname="buildDestinationAddresses() should pass when providing a valid DestinationAddress argument" name="buildDestinationAddresses() should pass when providing a valid DestinationAddress argument" time="0.01">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when an invalid DatumType is used" name="buildDestinationAddresses() should fail when an invalid DatumType is used" time="0.014">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when passing just a staking key as the DestinationAddress" name="buildDestinationAddresses() should fail when passing just a staking key as the DestinationAddress" time="0.001">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail with non-serializable address strings" name="buildDestinationAddresses() should fail with non-serializable address strings" time="0.006">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when passing a Preview Network DestinationAddress to an Mainnet instance" name="buildDestinationAddresses() should fail when passing a Preview Network DestinationAddress to an Mainnet instance" time="0.002">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when passing a Mainnet DestinationAddress to a Preview instance" name="buildDestinationAddresses() should fail when passing a Mainnet DestinationAddress to a Preview instance" time="0">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when passing a script address to DestinationAddress without a datumHash attached" name="buildDestinationAddresses() should fail when passing a script address to DestinationAddress without a datumHash attached" time="0.001">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when passing an invalid datumHash along with a script DestinationAddress" name="buildDestinationAddresses() should fail when passing an invalid datumHash along with a script DestinationAddress" time="0.001">
+    </testcase>
+    <testcase classname="buildOwnerDatum() should build the owner datum properly" name="buildOwnerDatum() should build the owner datum properly" time="0">
+    </testcase>
+    <testcase classname="buildAssetDatum should correctly build the datum for ADA" name="buildAssetDatum should correctly build the datum for ADA" time="0">
+    </testcase>
+    <testcase classname="buildAssetDatum should correctly build the datum for alt-coin" name="buildAssetDatum should correctly build the datum for alt-coin" time="0">
+    </testcase>
+    <testcase classname="static getDestinationAddressesFromDatum() should properly extract the addresses from the datum" name="static getDestinationAddressesFromDatum() should properly extract the addresses from the datum" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="DatumBuilderLucid.buildOrderAddressesDatum" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:21" time="4.521" tests="10">
-    <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should pass when providing valid OrderAddresses arguments" name="DatumBuilderLucid.buildOrderAddressesDatum should pass when providing valid OrderAddresses arguments" time="0.007">
+  <testsuite name="buildDestinationAddresses()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:23:56" time="3.622" tests="8">
+    <testcase classname="buildDestinationAddresses() should pass when providing a valid DestinationAddress argument" name="buildDestinationAddresses() should pass when providing a valid DestinationAddress argument" time="0.024">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when an invalid DatumType is used" name="buildDestinationAddresses() should fail when an invalid DatumType is used" time="0.008">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when passing just a staking key as the DestinationAddress" name="buildDestinationAddresses() should fail when passing just a staking key as the DestinationAddress" time="0.001">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail with non-serializable address strings" name="buildDestinationAddresses() should fail with non-serializable address strings" time="0.001">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when passing a Preview Network DestinationAddress to an Mainnet instance" name="buildDestinationAddresses() should fail when passing a Preview Network DestinationAddress to an Mainnet instance" time="0.001">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when passing a Mainnet DestinationAddress to a Preview instance" name="buildDestinationAddresses() should fail when passing a Mainnet DestinationAddress to a Preview instance" time="0">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when passing a script address to DestinationAddress without a datum attached" name="buildDestinationAddresses() should fail when passing a script address to DestinationAddress without a datum attached" time="0.001">
+    </testcase>
+    <testcase classname="buildDestinationAddresses() should fail when passing an invalid datum along with a script DestinationAddress" name="buildDestinationAddresses() should fail when passing an invalid datum along with a script DestinationAddress" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="TxBuilderLucidV3" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:23:56" time="3.675" tests="8">
+    <testcase classname="TxBuilderLucidV3 should have the correct settings" name="TxBuilderLucidV3 should have the correct settings" time="0.001">
+    </testcase>
+    <testcase classname="TxBuilderLucidV3 should create a new transaction instance correctly" name="TxBuilderLucidV3 should create a new transaction instance correctly" time="0.043">
+    </testcase>
+    <testcase classname="TxBuilderLucidV3 swap()" name="TxBuilderLucidV3 swap()" time="0.009">
+    </testcase>
+    <testcase classname="TxBuilderLucidV3 swap() with incorrect idents should throw" name="TxBuilderLucidV3 swap() with incorrect idents should throw" time="0">
+    </testcase>
+    <testcase classname="TxBuilderLucidV3 deposit()" name="TxBuilderLucidV3 deposit()" time="0.035">
+    </testcase>
+    <testcase classname="TxBuilderLucidV3 deposit() incorrect idents throw" name="TxBuilderLucidV3 deposit() incorrect idents throw" time="0.001">
+    </testcase>
+    <testcase classname="TxBuilderLucidV3 withdraw()" name="TxBuilderLucidV3 withdraw()" time="0.011">
+    </testcase>
+    <testcase classname="TxBuilderLucidV3 withdraw() incorrect idents throw" name="TxBuilderLucidV3 withdraw() incorrect idents throw" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="TxBuilderLucidV1" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:23:56" time="3.768" tests="9">
+    <testcase classname="TxBuilderLucidV1 should have the correct settings" name="TxBuilderLucidV1 should have the correct settings" time="0.001">
+    </testcase>
+    <testcase classname="TxBuilderLucidV1 newTxInstance()" name="TxBuilderLucidV1 newTxInstance()" time="0.045">
+    </testcase>
+    <testcase classname="TxBuilderLucidV1 swap()" name="TxBuilderLucidV1 swap()" time="0.018">
+    </testcase>
+    <testcase classname="TxBuilderLucidV1 swap() with incorrect idents should throw" name="TxBuilderLucidV1 swap() with incorrect idents should throw" time="0.001">
+    </testcase>
+    <testcase classname="TxBuilderLucidV1 migrateLiquidityToV3() - single migration" name="TxBuilderLucidV1 migrateLiquidityToV3() - single migration" time="0.042">
+    </testcase>
+    <testcase classname="TxBuilderLucidV1 migrateLiquidityToV3() - multi migration" name="TxBuilderLucidV1 migrateLiquidityToV3() - multi migration" time="0.014">
+    </testcase>
+    <testcase classname="TxBuilderLucidV1 cancel()" name="TxBuilderLucidV1 cancel()" time="0.001">
+    </testcase>
+    <testcase classname="TxBuilderLucidV1 withdraw()" name="TxBuilderLucidV1 withdraw()" time="0.005">
+    </testcase>
+    <testcase classname="TxBuilderLucidV1 withdraw() incorrect idents throw" name="TxBuilderLucidV1 withdraw() incorrect idents throw" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="YieldFarmingLucid" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:23:56" time="3.784" tests="9">
+    <testcase classname="YieldFarmingLucid should build an accurate transaction with an accurate datum when locking a position for the first time." name="YieldFarmingLucid should build an accurate transaction with an accurate datum when locking a position for the first time." time="0.037">
+    </testcase>
+    <testcase classname="YieldFarmingLucid should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)" name="YieldFarmingLucid should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)" time="0">
+    </testcase>
+    <testcase classname="YieldFarmingLucid should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)" name="YieldFarmingLucid should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)" time="0">
+    </testcase>
+    <testcase classname="YieldFarmingLucid should build a delegation datum along with the transaction if set" name="YieldFarmingLucid should build a delegation datum along with the transaction if set" time="0.039">
+    </testcase>
+    <testcase classname="YieldFarmingLucid should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)" name="YieldFarmingLucid should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)" time="0.001">
+    </testcase>
+    <testcase classname="YieldFarmingLucid should not build a datum when unlocking assets" name="YieldFarmingLucid should not build a datum when unlocking assets" time="0.001">
+    </testcase>
+    <testcase classname="YieldFarmingLucid should throw an error if the reference input cannot be found" name="YieldFarmingLucid should throw an error if the reference input cannot be found" time="0.01">
+    </testcase>
+    <testcase classname="YieldFarmingLucid should correctly build the fees object" name="YieldFarmingLucid should correctly build the fees object" time="0.03">
+    </testcase>
+    <testcase classname="YieldFarmingLucid should correctly add the referral fee" name="YieldFarmingLucid should correctly add the referral fee" time="0.068">
+    </testcase>
+  </testsuite>
+  <testsuite name="DatumBuilderLucid.buildOrderAddressesDatum" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:23:56" time="3.794" tests="10">
+    <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should pass when providing valid OrderAddresses arguments" name="DatumBuilderLucid.buildOrderAddressesDatum should pass when providing valid OrderAddresses arguments" time="0.01">
     </testcase>
     <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing just a staking key as the DestinationAddress" name="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing just a staking key as the DestinationAddress" time="0.001">
     </testcase>
-    <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should fail with non-serializable address strings" name="DatumBuilderLucid.buildOrderAddressesDatum should fail with non-serializable address strings" time="0.001">
+    <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should fail with non-serializable address strings" name="DatumBuilderLucid.buildOrderAddressesDatum should fail with non-serializable address strings" time="0">
     </testcase>
     <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Preview Network DestinationAddress to an Mainnet instance" name="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Preview Network DestinationAddress to an Mainnet instance" time="0">
     </testcase>
     <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Mainnet DestinationAddress to a Preview instance" name="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Mainnet DestinationAddress to a Preview instance" time="0">
     </testcase>
-    <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Preview Network AlternateAddress to an Mainnet instance" name="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Preview Network AlternateAddress to an Mainnet instance" time="0.006">
+    <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Preview Network AlternateAddress to an Mainnet instance" name="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Preview Network AlternateAddress to an Mainnet instance" time="0.001">
     </testcase>
-    <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should correctly build and valid a pool ident" name="DatumBuilderLucid.buildOrderAddressesDatum should correctly build and valid a pool ident" time="0.014">
+    <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should correctly build and valid a pool ident" name="DatumBuilderLucid.buildOrderAddressesDatum should correctly build and valid a pool ident" time="0.012">
     </testcase>
-    <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Mainnet Network AlternateAddress to an Preview instance" name="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Mainnet Network AlternateAddress to an Preview instance" time="0">
+    <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Mainnet Network AlternateAddress to an Preview instance" name="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a Mainnet Network AlternateAddress to an Preview instance" time="0.002">
     </testcase>
     <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a script address to DestinationAddress without a datumHash attached" name="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing a script address to DestinationAddress without a datumHash attached" time="0.001">
     </testcase>
     <testcase classname="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing an invalid datumHash along with a script DestinationAddress" name="DatumBuilderLucid.buildOrderAddressesDatum should fail when passing an invalid datumHash along with a script DestinationAddress" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="TxBuilderLucidV3" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:21" time="4.572" tests="8">
-    <testcase classname="TxBuilderLucidV3 should have the correct settings" name="TxBuilderLucidV3 should have the correct settings" time="0.001">
-    </testcase>
-    <testcase classname="TxBuilderLucidV3 should create a new transaction instance correctly" name="TxBuilderLucidV3 should create a new transaction instance correctly" time="0.112">
-    </testcase>
-    <testcase classname="TxBuilderLucidV3 swap()" name="TxBuilderLucidV3 swap()" time="0.034">
-    </testcase>
-    <testcase classname="TxBuilderLucidV3 swap() with incorrect idents should throw" name="TxBuilderLucidV3 swap() with incorrect idents should throw" time="0.001">
-    </testcase>
-    <testcase classname="TxBuilderLucidV3 deposit()" name="TxBuilderLucidV3 deposit()" time="0.004">
-    </testcase>
-    <testcase classname="TxBuilderLucidV3 deposit() incorrect idents throw" name="TxBuilderLucidV3 deposit() incorrect idents throw" time="0.001">
-    </testcase>
-    <testcase classname="TxBuilderLucidV3 withdraw()" name="TxBuilderLucidV3 withdraw()" time="0.045">
-    </testcase>
-    <testcase classname="TxBuilderLucidV3 withdraw() incorrect idents throw" name="TxBuilderLucidV3 withdraw() incorrect idents throw" time="0">
+  <testsuite name="buildDepositDatum()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:00" time="1.969" tests="1">
+    <testcase classname="buildDepositDatum() should correctly build the datum, variation 1" name="buildDepositDatum() should correctly build the datum, variation 1" time="0.006">
     </testcase>
   </testsuite>
-  <testsuite name="TxBuilderLucidV1" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:21" time="4.782" tests="9">
-    <testcase classname="TxBuilderLucidV1 should have the correct settings" name="TxBuilderLucidV1 should have the correct settings" time="0.001">
+  <testsuite name="SundaeUtils class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:00" time="1.941" tests="21">
+    <testcase classname="SundaeUtils class getMinReceivableFromSlippage" name="SundaeUtils class getMinReceivableFromSlippage" time="0.023">
     </testcase>
-    <testcase classname="TxBuilderLucidV1 newTxInstance()" name="TxBuilderLucidV1 newTxInstance()" time="0.122">
-    </testcase>
-    <testcase classname="TxBuilderLucidV1 swap()" name="TxBuilderLucidV1 swap()" time="0.009">
-    </testcase>
-    <testcase classname="TxBuilderLucidV1 swap() with incorrect idents should throw" name="TxBuilderLucidV1 swap() with incorrect idents should throw" time="0">
-    </testcase>
-    <testcase classname="TxBuilderLucidV1 migrateLiquidityToV3() - single migration" name="TxBuilderLucidV1 migrateLiquidityToV3() - single migration" time="0.011">
-    </testcase>
-    <testcase classname="TxBuilderLucidV1 migrateLiquidityToV3() - multi migration" name="TxBuilderLucidV1 migrateLiquidityToV3() - multi migration" time="0.039">
-    </testcase>
-    <testcase classname="TxBuilderLucidV1 cancel()" name="TxBuilderLucidV1 cancel()" time="0.001">
-    </testcase>
-    <testcase classname="TxBuilderLucidV1 withdraw()" name="TxBuilderLucidV1 withdraw()" time="0.004">
-    </testcase>
-    <testcase classname="TxBuilderLucidV1 withdraw() incorrect idents throw" name="TxBuilderLucidV1 withdraw() incorrect idents throw" time="0">
-    </testcase>
-  </testsuite>
-  <testsuite name="TasteTestLucid" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:25" time="1.412" tests="2">
-    <testcase classname="TasteTestLucid should initialize with the right config" name="TasteTestLucid should initialize with the right config" time="0.001">
-    </testcase>
-    <testcase classname="TasteTestLucid nodePolicyFromArgs" name="TasteTestLucid nodePolicyFromArgs" time="0.009">
-    </testcase>
-  </testsuite>
-  <testsuite name="buildDepositDatum()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:25" time="1.232" tests="1">
-    <testcase classname="buildDepositDatum() should correctly build the datum, variation 1" name="buildDepositDatum() should correctly build the datum, variation 1" time="0.004">
-    </testcase>
-  </testsuite>
-  <testsuite name="WithdrawConfig class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:26" time="1.318" tests="6">
-    <testcase classname="WithdrawConfig class should construct with no parameters" name="WithdrawConfig class should construct with no parameters" time="0.001">
-    </testcase>
-    <testcase classname="WithdrawConfig class should construct with a config" name="WithdrawConfig class should construct with a config" time="0.001">
-    </testcase>
-    <testcase classname="WithdrawConfig class it should set the pool correctly" name="WithdrawConfig class it should set the pool correctly" time="0.001">
-    </testcase>
-    <testcase classname="WithdrawConfig class should set the suppliedAsset correctly" name="WithdrawConfig class should set the suppliedAsset correctly" time="0">
-    </testcase>
-    <testcase classname="WithdrawConfig class should set the orderAddresses correctly" name="WithdrawConfig class should set the orderAddresses correctly" time="0">
-    </testcase>
-    <testcase classname="WithdrawConfig class should throw an error when validating with no suppliedLPAsset defined" name="WithdrawConfig class should throw an error when validating with no suppliedLPAsset defined" time="0">
-    </testcase>
-  </testsuite>
-  <testsuite name="static getDestinationAddressesFromDatum()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:26" time="1.046" tests="1">
-    <testcase classname="static getDestinationAddressesFromDatum() should properly extract the addresses from the datum" name="static getDestinationAddressesFromDatum() should properly extract the addresses from the datum" time="0.003">
-    </testcase>
-  </testsuite>
-  <testsuite name="buildAssetDatum" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:26" time="1.05" tests="2">
-    <testcase classname="buildAssetDatum should correctly build the datum for ADA" name="buildAssetDatum should correctly build the datum for ADA" time="0.002">
-    </testcase>
-    <testcase classname="buildAssetDatum should correctly build the datum for alt-coin" name="buildAssetDatum should correctly build the datum for alt-coin" time="0">
-    </testcase>
-  </testsuite>
-  <testsuite name="SundaeSDK" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:25" time="2.529" tests="5">
-    <testcase classname="SundaeSDK should build settings with correct defaults" name="SundaeSDK should build settings with correct defaults" time="0.001">
-    </testcase>
-    <testcase classname="SundaeSDK should build settings with correct overrides" name="SundaeSDK should build settings with correct overrides" time="0">
-    </testcase>
-    <testcase classname="SundaeSDK should populate correct TxBuilders" name="SundaeSDK should populate correct TxBuilders" time="0">
-    </testcase>
-    <testcase classname="SundaeSDK should populate correct QueryProvider" name="SundaeSDK should populate correct QueryProvider" time="0">
-    </testcase>
-    <testcase classname="SundaeSDK should throw an error if given an invalid provider type" name="SundaeSDK should throw an error if given an invalid provider type" time="0.024">
-    </testcase>
-  </testsuite>
-  <testsuite name="buildOwnerDatum()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:27" time="1.02" tests="1">
-    <testcase classname="buildOwnerDatum() should build the owner datum properly" name="buildOwnerDatum() should build the owner datum properly" time="0.003">
-    </testcase>
-  </testsuite>
-  <testsuite name="LockConfig class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:25" time="2.766" tests="9">
-    <testcase classname="LockConfig class should construct with no parameters" name="LockConfig class should construct with no parameters" time="0.001">
-    </testcase>
-    <testcase classname="LockConfig class should construct with a config" name="LockConfig class should construct with a config" time="0.001">
-    </testcase>
-    <testcase classname="LockConfig class should correctly set the setFromObject method" name="LockConfig class should correctly set the setFromObject method" time="0.008">
-    </testcase>
-    <testcase classname="LockConfig class it should set the ownerAddress correctly" name="LockConfig class it should set the ownerAddress correctly" time="0">
-    </testcase>
-    <testcase classname="LockConfig class should set the lockValues correctly" name="LockConfig class should set the lockValues correctly" time="0">
-    </testcase>
-    <testcase classname="LockConfig class should set the delegation correctly" name="LockConfig class should set the delegation correctly" time="0">
-    </testcase>
-    <testcase classname="LockConfig class should throw an error when validating that lockedValues are of the AssetAmount class" name="LockConfig class should throw an error when validating that lockedValues are of the AssetAmount class" time="0.001">
-    </testcase>
-    <testcase classname="LockConfig class should throw an error when giving a program but no locked values or existing data" name="LockConfig class should throw an error when giving a program but no locked values or existing data" time="0">
-    </testcase>
-    <testcase classname="LockConfig class should throw an error when no owner address is given" name="LockConfig class should throw an error when no owner address is given" time="0.001">
-    </testcase>
-  </testsuite>
-  <testsuite name="SundaeUtils class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:26" time="2.456" tests="21">
-    <testcase classname="SundaeUtils class getMinReceivableFromSlippage" name="SundaeUtils class getMinReceivableFromSlippage" time="0.028">
-    </testcase>
-    <testcase classname="SundaeUtils class getSwapDirection()" name="SundaeUtils class getSwapDirection()" time="0.001">
+    <testcase classname="SundaeUtils class getSwapDirection()" name="SundaeUtils class getSwapDirection()" time="0.002">
     </testcase>
     <testcase classname="SundaeUtils class should accurately accumulate suppliedAssets" name="SundaeUtils class should accurately accumulate suppliedAssets" time="0">
     </testcase>
@@ -253,15 +187,15 @@
     </testcase>
     <testcase classname="SundaeUtils class should accurately get the swap direction" name="SundaeUtils class should accurately get the swap direction" time="0">
     </testcase>
-    <testcase classname="SundaeUtils class should convert a long string to a chunked array correctly" name="SundaeUtils class should convert a long string to a chunked array correctly" time="0.001">
+    <testcase classname="SundaeUtils class should convert a long string to a chunked array correctly" name="SundaeUtils class should convert a long string to a chunked array correctly" time="0.002">
     </testcase>
     <testcase classname="SundaeUtils class should correctly convert a decaying pool fee to a Fraction" name="SundaeUtils class should correctly convert a decaying pool fee to a Fraction" time="0.001">
     </testcase>
-    <testcase classname="SundaeUtils class should correctly test an assetId as ADA" name="SundaeUtils class should correctly test an assetId as ADA" time="0.001">
+    <testcase classname="SundaeUtils class should correctly test an assetId as ADA" name="SundaeUtils class should correctly test an assetId as ADA" time="0">
     </testcase>
     <testcase classname="SundaeUtils class should return the pool with the best swap outcome" name="SundaeUtils class should return the pool with the best swap outcome" time="0">
     </testcase>
-    <testcase classname="SundaeUtils class should return the pool with the best swap outcome from the ada pair" name="SundaeUtils class should return the pool with the best swap outcome from the ada pair" time="0">
+    <testcase classname="SundaeUtils class should return the pool with the best swap outcome from the ada pair" name="SundaeUtils class should return the pool with the best swap outcome from the ada pair" time="0.001">
     </testcase>
     <testcase classname="SundaeUtils class isLPAsset should return true for a matching LP asset policy ID" name="SundaeUtils class isLPAsset should return true for a matching LP asset policy ID" time="0">
     </testcase>
@@ -271,7 +205,7 @@
     </testcase>
     <testcase classname="SundaeUtils class isAssetIdsEqual should return true for different ADA asset IDs" name="SundaeUtils class isAssetIdsEqual should return true for different ADA asset IDs" time="0">
     </testcase>
-    <testcase classname="SundaeUtils class isAssetIdsEqual should return true for equal non-ADA asset IDs with periods" name="SundaeUtils class isAssetIdsEqual should return true for equal non-ADA asset IDs with periods" time="0">
+    <testcase classname="SundaeUtils class isAssetIdsEqual should return true for equal non-ADA asset IDs with periods" name="SundaeUtils class isAssetIdsEqual should return true for equal non-ADA asset IDs with periods" time="0.001">
     </testcase>
     <testcase classname="SundaeUtils class isAssetIdsEqual should return true for equal non-ADA asset IDs without periods" name="SundaeUtils class isAssetIdsEqual should return true for equal non-ADA asset IDs without periods" time="0">
     </testcase>
@@ -279,61 +213,127 @@
     </testcase>
     <testcase classname="SundaeUtils class isAssetIdsEqual should return true for equal non-ADA asset IDs where one contains a period" name="SundaeUtils class isAssetIdsEqual should return true for equal non-ADA asset IDs where one contains a period" time="0">
     </testcase>
-    <testcase classname="SundaeUtils class isAssetIdsEqual should handle empty strings correctly" name="SundaeUtils class isAssetIdsEqual should handle empty strings correctly" time="0">
+    <testcase classname="SundaeUtils class isAssetIdsEqual should handle empty strings correctly" name="SundaeUtils class isAssetIdsEqual should handle empty strings correctly" time="0.001">
     </testcase>
     <testcase classname="SundaeUtils class isV3PoolIdent should return true for a v3 pool ident" name="SundaeUtils class isV3PoolIdent should return true for a v3 pool ident" time="0">
     </testcase>
     <testcase classname="SundaeUtils class isV3PoolIdent should return false for a v1 pool ident" name="SundaeUtils class isV3PoolIdent should return false for a v1 pool ident" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="buildSwapDatum()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:26" time="2.334" tests="2">
-    <testcase classname="buildSwapDatum() should correctly build the datum, variation 1" name="buildSwapDatum() should correctly build the datum, variation 1" time="0.004">
+  <testsuite name="LockConfig class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:00" time="2.152" tests="9">
+    <testcase classname="LockConfig class should construct with no parameters" name="LockConfig class should construct with no parameters" time="0.001">
     </testcase>
-    <testcase classname="buildSwapDatum() should correctly build the datum, variation 2" name="buildSwapDatum() should correctly build the datum, variation 2" time="0.003">
+    <testcase classname="LockConfig class should construct with a config" name="LockConfig class should construct with a config" time="0.001">
+    </testcase>
+    <testcase classname="LockConfig class should correctly set the setFromObject method" name="LockConfig class should correctly set the setFromObject method" time="0.012">
+    </testcase>
+    <testcase classname="LockConfig class it should set the ownerAddress correctly" name="LockConfig class it should set the ownerAddress correctly" time="0.001">
+    </testcase>
+    <testcase classname="LockConfig class should set the lockValues correctly" name="LockConfig class should set the lockValues correctly" time="0">
+    </testcase>
+    <testcase classname="LockConfig class should set the delegation correctly" name="LockConfig class should set the delegation correctly" time="0">
+    </testcase>
+    <testcase classname="LockConfig class should throw an error when validating that lockedValues are of the AssetAmount class" name="LockConfig class should throw an error when validating that lockedValues are of the AssetAmount class" time="0.001">
+    </testcase>
+    <testcase classname="LockConfig class should throw an error when giving a program but no locked values or existing data" name="LockConfig class should throw an error when giving a program but no locked values or existing data" time="0.001">
+    </testcase>
+    <testcase classname="LockConfig class should throw an error when no owner address is given" name="LockConfig class should throw an error when no owner address is given" time="0">
     </testcase>
   </testsuite>
-  <testsuite name="DatumBuilderLucid" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:25" time="2.654" tests="3">
-    <testcase classname="DatumBuilderLucid should build an accurate lock datum with no delegation" name="DatumBuilderLucid should build an accurate lock datum with no delegation" time="0.004">
+  <testsuite name="SundaeSDK" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:00" time="2.028" tests="5">
+    <testcase classname="SundaeSDK should build settings with correct defaults" name="SundaeSDK should build settings with correct defaults" time="0.002">
+    </testcase>
+    <testcase classname="SundaeSDK should build settings with correct overrides" name="SundaeSDK should build settings with correct overrides" time="0.001">
+    </testcase>
+    <testcase classname="SundaeSDK should populate correct TxBuilders" name="SundaeSDK should populate correct TxBuilders" time="0.001">
+    </testcase>
+    <testcase classname="SundaeSDK should populate correct QueryProvider" name="SundaeSDK should populate correct QueryProvider" time="0">
+    </testcase>
+    <testcase classname="SundaeSDK should throw an error if given an invalid provider type" name="SundaeSDK should throw an error if given an invalid provider type" time="0.011">
+    </testcase>
+  </testsuite>
+  <testsuite name="buildSwapDatum()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:00" time="1.919" tests="2">
+    <testcase classname="buildSwapDatum() should correctly build the datum, variation 1" name="buildSwapDatum() should correctly build the datum, variation 1" time="0.009">
+    </testcase>
+    <testcase classname="buildSwapDatum() should correctly build the datum, variation 2" name="buildSwapDatum() should correctly build the datum, variation 2" time="0.024">
+    </testcase>
+  </testsuite>
+  <testsuite name="DatumBuilderLucid" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:00" time="2.145" tests="3">
+    <testcase classname="DatumBuilderLucid should build an accurate lock datum with no delegation" name="DatumBuilderLucid should build an accurate lock datum with no delegation" time="0.005">
     </testcase>
     <testcase classname="DatumBuilderLucid should build an accurate lock datum" name="DatumBuilderLucid should build an accurate lock datum" time="0.001">
     </testcase>
     <testcase classname="DatumBuilderLucid should build an accurate lock datum with just a payment credential" name="DatumBuilderLucid should build an accurate lock datum with just a payment credential" time="0.001">
     </testcase>
   </testsuite>
-  <testsuite name="ZapConfig class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:26" time="2.26" tests="9">
+  <testsuite name="TasteTestLucid" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:00" time="2.104" tests="2">
+    <testcase classname="TasteTestLucid should initialize with the right config" name="TasteTestLucid should initialize with the right config" time="0.001">
+    </testcase>
+    <testcase classname="TasteTestLucid nodePolicyFromArgs" name="TasteTestLucid nodePolicyFromArgs" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="WithdrawConfig class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:00" time="2.089" tests="6">
+    <testcase classname="WithdrawConfig class should construct with no parameters" name="WithdrawConfig class should construct with no parameters" time="0.002">
+    </testcase>
+    <testcase classname="WithdrawConfig class should construct with a config" name="WithdrawConfig class should construct with a config" time="0.005">
+    </testcase>
+    <testcase classname="WithdrawConfig class it should set the pool correctly" name="WithdrawConfig class it should set the pool correctly" time="0.001">
+    </testcase>
+    <testcase classname="WithdrawConfig class should set the suppliedAsset correctly" name="WithdrawConfig class should set the suppliedAsset correctly" time="0">
+    </testcase>
+    <testcase classname="WithdrawConfig class should set the orderAddresses correctly" name="WithdrawConfig class should set the orderAddresses correctly" time="0">
+    </testcase>
+    <testcase classname="WithdrawConfig class should throw an error when validating with no suppliedLPAsset defined" name="WithdrawConfig class should throw an error when validating with no suppliedLPAsset defined" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="ZapConfig class" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:00" time="2.056" tests="9">
     <testcase classname="ZapConfig class should construct with no parameters" name="ZapConfig class should construct with no parameters" time="0.001">
     </testcase>
-    <testcase classname="ZapConfig class should construct with a config" name="ZapConfig class should construct with a config" time="0.001">
+    <testcase classname="ZapConfig class should construct with a config" name="ZapConfig class should construct with a config" time="0">
     </testcase>
-    <testcase classname="ZapConfig class should correctly set the setFromObject method" name="ZapConfig class should correctly set the setFromObject method" time="0.006">
+    <testcase classname="ZapConfig class should correctly set the setFromObject method" name="ZapConfig class should correctly set the setFromObject method" time="0.016">
     </testcase>
     <testcase classname="ZapConfig class it should set the orderAddresses correctly" name="ZapConfig class it should set the orderAddresses correctly" time="0">
     </testcase>
     <testcase classname="ZapConfig class should set the pool correctly" name="ZapConfig class should set the pool correctly" time="0.001">
     </testcase>
-    <testcase classname="ZapConfig class should set the suppliedAsset correctly" name="ZapConfig class should set the suppliedAsset correctly" time="0">
+    <testcase classname="ZapConfig class should set the suppliedAsset correctly" name="ZapConfig class should set the suppliedAsset correctly" time="0.001">
     </testcase>
     <testcase classname="ZapConfig class should set the zapDirection correctly" name="ZapConfig class should set the zapDirection correctly" time="0">
     </testcase>
-    <testcase classname="ZapConfig class should set the swapSlippage correctly" name="ZapConfig class should set the swapSlippage correctly" time="0.004">
+    <testcase classname="ZapConfig class should set the swapSlippage correctly" name="ZapConfig class should set the swapSlippage correctly" time="0">
     </testcase>
     <testcase classname="ZapConfig class should throw the correct errors when building the config" name="ZapConfig class should throw the correct errors when building the config" time="0.002">
     </testcase>
   </testsuite>
-  <testsuite name="Config" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:27" time="0.89" tests="2">
+  <testsuite name="Config" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:02" time="0.992" tests="2">
     <testcase classname="Config should set the referral fee correctly" name="Config should set the referral fee correctly" time="0.002">
     </testcase>
     <testcase classname="Config should validate the referral fee correctly" name="Config should validate the referral fee correctly" time="0.004">
     </testcase>
   </testsuite>
-  <testsuite name="buildWithdrawDatum()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:27" time="0.899" tests="1">
-    <testcase classname="buildWithdrawDatum() should correctly build the datum, variation 1" name="buildWithdrawDatum() should correctly build the datum, variation 1" time="0.003">
-    </testcase>
-  </testsuite>
-  <testsuite name="OrderConfig" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:18:28" time="0.771" tests="2">
+  <testsuite name="OrderConfig" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:02" time="1.042" tests="2">
     <testcase classname="OrderConfig should throw an Error when OrderAddresses are not set" name="OrderConfig should throw an Error when OrderAddresses are not set" time="0.001">
     </testcase>
     <testcase classname="OrderConfig should throw an error if a pool isn&apos;t set" name="OrderConfig should throw an error if a pool isn&apos;t set" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="buildAssetDatum" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:02" time="1.13" tests="2">
+    <testcase classname="buildAssetDatum should correctly build the datum for ADA" name="buildAssetDatum should correctly build the datum for ADA" time="0.003">
+    </testcase>
+    <testcase classname="buildAssetDatum should correctly build the datum for alt-coin" name="buildAssetDatum should correctly build the datum for alt-coin" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="buildOwnerDatum()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:02" time="1.111" tests="1">
+    <testcase classname="buildOwnerDatum() should build the owner datum properly" name="buildOwnerDatum() should build the owner datum properly" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="static getDestinationAddressesFromDatum()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:02" time="1.103" tests="1">
+    <testcase classname="static getDestinationAddressesFromDatum() should properly extract the addresses from the datum" name="static getDestinationAddressesFromDatum() should properly extract the addresses from the datum" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="buildWithdrawDatum()" errors="0" failures="0" skipped="0" timestamp="2024-02-13T21:24:02" time="1.146" tests="1">
+    <testcase classname="buildWithdrawDatum() should correctly build the datum, variation 1" name="buildWithdrawDatum() should correctly build the datum, variation 1" time="0.004">
     </testcase>
   </testsuite>
 </testsuites>
