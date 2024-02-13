@@ -3,11 +3,6 @@
 ## Modules
 
 - [Core](modules/Core.md)
-
-## Extensions
-
-- [Extensions](modules/Extensions.md)
-
-## Testing
-
+- [Lucid](modules/Lucid.md)
 - [Testing](modules/Testing.md)
+- [Utilities](modules/Utilities.md)

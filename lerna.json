@@ -10,18 +10,13 @@
     "**/*.test.js",
     "**/*.md"
   ],
+  "ignore": "demo",
   "command": {
     "version": {
       "message": "chore(release): publish %s",
       "conventionalCommits": true,
       "conventionalPrerelease": true,
       "private": false
-    },
-    "build": {
-      "ignore": "demo"
-    },
-    "test": {
-      "ignore": "demo"
     }
   }
 }

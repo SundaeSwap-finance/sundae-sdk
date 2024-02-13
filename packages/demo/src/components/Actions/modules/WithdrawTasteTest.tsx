@@ -1,18 +1,22 @@
 import { AssetAmount } from "@sundaeswap/asset";
+import { TasteTestLucid } from "@sundaeswap/taste-test";
 import { FC, useCallback, useState } from "react";
 
-import { TasteTest } from "@sundaeswap/taste-test";
-import { Lucid } from "lucid-cardano";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { ActionArgs } from "../Actions";
+import { IActionArgs } from "../Actions";
 
-export const WithdrawTasteTest: FC<ActionArgs> = ({
+export const WithdrawTasteTest: FC<IActionArgs> = ({
   setCBOR,
   setFees,
   submit,
 }) => {
-  const { SDK, ready, walletAddress, useReferral } = useAppState();
+  const {
+    SDK,
+    ready,
+    activeWalletAddr: walletAddress,
+    useReferral,
+  } = useAppState();
   const [withdrawing, setWithdrawing] = useState(false);
 
   const handleDeposit = useCallback(async () => {
@@ -20,12 +24,7 @@ export const WithdrawTasteTest: FC<ActionArgs> = ({
       return;
     }
 
-    const builderWallet = SDK.build<unknown, Lucid>().wallet;
-    if (!builderWallet) {
-      return;
-    }
-
-    const tt = new TasteTest(builderWallet);
+    const tt = new TasteTestLucid(SDK.builder().lucid);
     setWithdrawing(true);
     try {
       await tt

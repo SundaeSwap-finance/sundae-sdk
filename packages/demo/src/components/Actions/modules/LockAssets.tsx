@@ -1,13 +1,22 @@
 import { AssetAmount } from "@sundaeswap/asset";
-import { DelegationProgramPools, DelegationPrograms } from "@sundaeswap/core";
+import {
+  TDelegationPrograms,
+  YieldFarmingLucid,
+} from "@sundaeswap/yield-farming";
 import { FC, useCallback, useState } from "react";
+
 import { useAppState } from "../../../state/context";
-import { ActionArgs } from "../Actions";
+import { IActionArgs } from "../Actions";
 
 import Button from "../../Button";
 
-export const Lock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, ready, walletAddress, useReferral } = useAppState();
+export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+  const {
+    SDK,
+    ready,
+    activeWalletAddr: walletAddress,
+    useReferral,
+  } = useAppState();
   const [locking, setLocking] = useState(false);
 
   const handleLock = useCallback(async () => {
@@ -17,18 +26,17 @@ export const Lock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
     setLocking(true);
     try {
-      const djedProgram: DelegationProgramPools = new Map();
-      const sundaeProgram: DelegationProgramPools = new Map();
-      const delegations: DelegationPrograms = new Map();
+      const delegation: TDelegationPrograms = [
+        { Delegation: [Buffer.from("SUNDAE").toString("hex"), "01", 1n] },
+        { Delegation: [Buffer.from("DJED").toString("hex"), "02", 2n] },
+      ];
 
-      sundaeProgram.set("01", 1n);
-      djedProgram.set("02", 2n);
-      delegations.set("SUNDAE", sundaeProgram);
+      const YF = new YieldFarmingLucid(SDK.builder().lucid);
 
-      await SDK.lock({
+      await YF.lock({
         ownerAddress: walletAddress,
         lockedValues: [new AssetAmount(5000000n, { assetId: "", decimals: 6 })],
-        delegation: delegations,
+        programs: delegation,
         ...(useReferral
           ? {
               referralFee: {
@@ -41,22 +49,24 @@ export const Lock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
               },
             }
           : {}),
-      }).then(async ({ build, fees }) => {
-        setFees(fees);
-        const builtTx = await build();
+      })
+        // @ts-ignore
+        .then(async ({ build, fees }) => {
+          setFees(fees);
+          const builtTx = await build();
 
-        if (submit) {
-          const { cbor, submit } = await builtTx.sign();
-          setCBOR({
-            cbor,
-            hash: await submit(),
-          });
-        } else {
-          setCBOR({
-            cbor: builtTx.cbor,
-          });
-        }
-      });
+          if (submit) {
+            const { cbor, submit } = await builtTx.sign();
+            setCBOR({
+              cbor,
+              hash: await submit(),
+            });
+          } else {
+            setCBOR({
+              cbor: builtTx.cbor,
+            });
+          }
+        });
     } catch (e) {
       console.log(e);
     }

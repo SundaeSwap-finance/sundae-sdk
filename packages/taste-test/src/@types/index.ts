@@ -1,12 +1,12 @@
 import type { AssetAmount } from "@sundaeswap/asset";
-import { ITxBuilder, ITxBuilderReferralFee } from "@sundaeswap/core";
+import { IComposedTx, ITxBuilderReferralFee } from "@sundaeswap/core";
 import type {
   MintingPolicy,
   OutRef,
   SpendingValidator,
   UTxO,
 } from "lucid-cardano";
-import { ITasteTestFees } from "../lib/classes/TasteTest.class";
+import { ITasteTestFees } from "../lib/classes/TasteTest.Lucid.class.js";
 
 /**
  * The type of Taste Test, where "Direct" is a non-pool Taste Test, and "Liquidity"
@@ -17,7 +17,7 @@ export type TTasteTestType = "Direct" | "Liquidity";
 /**
  * Helper type to export the fees object associated with the TasteTest class.
  */
-export type TTasteTestFees = ITxBuilder<
+export type TTasteTestFees = IComposedTx<
   unknown,
   unknown,
   ITasteTestFees

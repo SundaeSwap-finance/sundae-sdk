@@ -1,4 +1,6 @@
+import cx from "classnames";
 import { ButtonHTMLAttributes, FC } from "react";
+
 import Loader from "../Loader";
 
 export const Button: FC<
@@ -6,7 +8,10 @@ export const Button: FC<
 > = ({ children, className, loading, ...rest }) => {
   return (
     <button
-      className="flex items-center justify-center gap-4 rounded-md bg-blue-500 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-800"
+      className={cx(
+        "flex items-center justify-center gap-4 rounded-md bg-blue-500 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-800",
+        className
+      )}
       {...rest}
     >
       {children}

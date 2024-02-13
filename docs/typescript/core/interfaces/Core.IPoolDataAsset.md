@@ -2,7 +2,7 @@
 
 [Core](../modules/Core.md).IPoolDataAsset
 
-Asset data returned from [findPoolData](Core.IQueryProviderClass.md#findpooldata).
+Asset data returned from [Core.QueryProvider.findPoolData](../classes/Core.QueryProvider.md#findpooldata).
 
 ## Properties
 
@@ -20,7 +20,7 @@ POLICY_ID_HEX.ASSET_NAME_HEX
 
 #### Defined in
 
-[@types/queryprovider.ts:87](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L87)
+[packages/core/src/@types/queryprovider.ts:51](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L51)
 
 ___
 
@@ -32,4 +32,4 @@ The registered decimal places of the asset.
 
 #### Defined in
 
-[@types/queryprovider.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L89)
+[packages/core/src/@types/queryprovider.ts:53](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L53)

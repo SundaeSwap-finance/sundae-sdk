@@ -3,3 +3,6 @@ dist
 storybook-static
 tools
 __tests__
+
+# Ignore these files.
+packages/core/src/TestUtilities/*.ts

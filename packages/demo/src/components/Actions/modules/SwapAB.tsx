@@ -1,12 +1,23 @@
 import { AssetAmount } from "@sundaeswap/asset";
-import { SwapConfigArgs } from "@sundaeswap/core";
+import {
+  EContractVersion,
+  EDatumType,
+  ESwapType,
+  ISwapConfigArgs,
+} from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { ActionArgs, poolQuery } from "../Actions";
+import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
 
-export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, ready, walletAddress, useReferral } = useAppState();
+export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+  const {
+    SDK,
+    ready,
+    activeWalletAddr: walletAddress,
+    useReferral,
+    useV3Contracts,
+  } = useAppState();
   const [reverseSwapping, setReverseSwapping] = useState(false);
 
   const handleSwap = useCallback(async () => {
@@ -16,15 +27,24 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
     setReverseSwapping(true);
     try {
-      const pool = await SDK.query().findPoolData(poolQuery);
-      const args: SwapConfigArgs = {
+      const pool = await SDK.query().findPoolData(
+        useV3Contracts ? newPoolQuery : poolQuery
+      );
+      const args: ISwapConfigArgs = {
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
         pool,
         orderAddresses: {
           DestinationAddress: {
             address: walletAddress,
+            datum: {
+              type: EDatumType.NONE,
+            },
           },
         },
-        suppliedAsset: new AssetAmount(25000000n, { assetId: "", decimals: 6 }),
+        suppliedAsset: new AssetAmount(25000000n, pool.assetA),
       };
 
       if (useReferral) {
@@ -39,28 +59,31 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
         };
       }
 
-      await SDK.swap(args).then(async ({ build, fees }) => {
-        setFees(fees);
-        const builtTx = await build();
-
-        if (submit) {
-          const { cbor, submit } = await builtTx.sign();
-          setCBOR({
-            cbor,
-            hash: await submit(),
-          });
-        } else {
+      await SDK.builder(
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
+      )
+        .swap(args)
+        .then(async ({ build, fees }) => {
+          setFees(fees);
+          const builtTx = await build();
           setCBOR({
             cbor: builtTx.cbor,
           });
-        }
-      });
+
+          if (submit) {
+            const { cbor, submit } = await builtTx.sign();
+            setCBOR({
+              cbor,
+              hash: await submit(),
+            });
+          }
+        });
     } catch (e) {
       console.log(e);
     }
 
     setReverseSwapping(false);
-  }, [SDK, submit, walletAddress, useReferral]);
+  }, [SDK, submit, walletAddress, useReferral, useV3Contracts, poolQuery]);
 
   if (!SDK) {
     return null;
@@ -68,7 +91,7 @@ export const SwapAB: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
   return (
     <Button disabled={!ready} onClick={handleSwap} loading={reverseSwapping}>
-      Swap tADA for tINDY
+      Swap tADA for tINDY ({useV3Contracts ? "V3" : "V1"})
     </Button>
   );
 };

@@ -1,12 +1,25 @@
 import { AssetAmount } from "@sundaeswap/asset";
-import { CancelConfigArgs, SwapConfigArgs, Utils } from "@sundaeswap/core";
+import {
+  EContractVersion,
+  EDatumType,
+  ESwapType,
+  ICancelConfigArgs,
+  ISwapConfigArgs,
+} from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
+
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { ActionArgs } from "../Actions";
+import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
 
-export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, ready, walletAddress, useReferral } = useAppState();
+export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+  const {
+    SDK,
+    ready,
+    activeWalletAddr: walletAddress,
+    useReferral,
+    useV3Contracts,
+  } = useAppState();
   const [updating, setUpdating] = useState(false);
 
   const handleUpdateSwap = useCallback(async () => {
@@ -16,45 +29,45 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
     setUpdating(true);
     try {
-      const utxo = {
-        hash: "fb1169adf43a5888b4e15ffef6db839705b2ffab7057fc3ea0a6713479307be0",
-        index: 0,
+      const hash = prompt("What is the hash?");
+      const index = prompt("what is the index?");
+
+      if (hash === null || index === null) {
+        setUpdating(false);
+        return;
+      }
+
+      const pool = await SDK.query().findPoolData(
+        useV3Contracts ? newPoolQuery : poolQuery
+      );
+
+      const cancelConfig: ICancelConfigArgs = {
+        utxo: {
+          hash,
+          index: Number(index),
+        },
+        ownerAddress: walletAddress,
       };
 
-      const { datum, datumHash } = await SDK.query().findOpenOrderDatum(utxo);
-      const pool = await SDK.query().findPoolData({
-        fee: "0.05",
-        pair: [
-          "",
-          "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15.524245525259",
-        ],
-      });
-
-      const cancelConfig: CancelConfigArgs = {
-        datum,
-        datumHash,
-        utxo,
-        address: walletAddress,
-      };
-
-      const suppliedAsset = new AssetAmount(100000000n, {
+      const suppliedAsset = new AssetAmount(30_000_000n, {
         assetId: "",
         decimals: 6,
       });
 
-      const updatedSwapConfig: SwapConfigArgs = {
+      const updatedSwapConfig: ISwapConfigArgs = {
         pool,
         orderAddresses: {
           DestinationAddress: {
             address: walletAddress,
+            datum: {
+              type: EDatumType.NONE,
+            },
           },
         },
-        slippage: 0.3,
-        minReceivable: Utils.getMinReceivableFromSlippage(
-          pool,
-          suppliedAsset,
-          0.3
-        ),
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
         suppliedAsset,
         ...(useReferral
           ? {
@@ -70,8 +83,14 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
           : {}),
       };
 
-      await SDK.updateSwap(cancelConfig, updatedSwapConfig).then(
-        async ({ build, fees }) => {
+      await SDK.builder(
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
+      )
+        .update({
+          cancelArgs: cancelConfig,
+          swapArgs: updatedSwapConfig,
+        })
+        .then(async ({ build, fees }) => {
           setFees(fees);
           const builtTx = await build();
 
@@ -86,14 +105,13 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
               cbor: builtTx.cbor,
             });
           }
-        }
-      );
+        });
     } catch (e) {
       console.log(e);
     }
 
     setUpdating(false);
-  }, [SDK, submit, walletAddress, useReferral]);
+  }, [SDK, submit, walletAddress, useReferral, useV3Contracts]);
 
   if (!SDK) {
     return null;
@@ -101,7 +119,7 @@ export const UpdateSwap: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
 
   return (
     <Button disabled={!ready} onClick={handleUpdateSwap} loading={updating}>
-      Update Order
+      Update Order ({useV3Contracts ? "V3" : "V1"})
     </Button>
   );
 };

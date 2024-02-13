@@ -2,7 +2,6 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./dist/",
-    "noFallthroughCasesInSwitch": false,
   },
   "extends": "../../tsconfig.json",
   "include": ["./src/**/*", "__tests__", "__mocks__", "jest-setup.ts"],

@@ -6,7 +6,7 @@ The main config class for building valid arguments for a Deposit.
 
 ## Hierarchy
 
-- `OrderConfig`<[`DepositConfigArgs`](../interfaces/Core.DepositConfigArgs.md)\>
+- [`OrderConfig`](Core.OrderConfig.md)\<[`IDepositConfigArgs`](../interfaces/Core.IDepositConfigArgs.md)\>
 
   ↳ **`DepositConfig`**
 
@@ -14,17 +14,17 @@ The main config class for building valid arguments for a Deposit.
 
 ### orderAddresses
 
-• `Optional` **orderAddresses**: [`OrderAddresses`](../modules/Core.md#orderaddresses)
+• `Optional` **orderAddresses**: [`TOrderAddresses`](../modules/Core.md#torderaddresses)
 
 The addresses for the order.
 
 #### Inherited from
 
-OrderConfig.orderAddresses
+[OrderConfig](Core.OrderConfig.md).[orderAddresses](Core.OrderConfig.md#orderaddresses)
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L19)
+[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L19)
 
 ___
 
@@ -36,11 +36,11 @@ The data for the pool involved in the order.
 
 #### Inherited from
 
-OrderConfig.pool
+[OrderConfig](Core.OrderConfig.md).[pool](Core.OrderConfig.md#pool)
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L14)
+[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L14)
 
 ## Methods
 
@@ -48,13 +48,13 @@ OrderConfig.pool
 
 ▸ **setOrderAddresses**(`orderAddresses`): [`DepositConfig`](Core.DepositConfig.md)
 
-Set the [OrderAddresses](../modules/Core.md#orderaddresses) for a swap's required datum.
+Set the [Core.TOrderAddresses](../modules/Core.md#torderaddresses) for a swap's required datum.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `orderAddresses` | [`OrderAddresses`](../modules/Core.md#orderaddresses) | The addresses for the order. |
+| `orderAddresses` | [`TOrderAddresses`](../modules/Core.md#torderaddresses) | The addresses for the order. |
 
 #### Returns
 
@@ -64,11 +64,11 @@ The current instance of the class.
 
 #### Inherited from
 
-OrderConfig.setOrderAddresses
+[OrderConfig](Core.OrderConfig.md).[setOrderAddresses](Core.OrderConfig.md#setorderaddresses)
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L30)
+[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:26](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L26)
 
 ___
 
@@ -92,11 +92,11 @@ The current instance of the class.
 
 #### Inherited from
 
-OrderConfig.setPool
+[OrderConfig](Core.OrderConfig.md).[setPool](Core.OrderConfig.md#setpool)
 
 #### Defined in
 
-[classes/Abstracts/OrderConfig.abstract.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/OrderConfig.abstract.class.ts#L41)
+[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L37)
 
 ___
 
@@ -118,8 +118,8 @@ An inherited method that allows a config to add an optional referral fee.
 
 #### Inherited from
 
-OrderConfig.setReferralFee
+[OrderConfig](Core.OrderConfig.md).[setReferralFee](Core.OrderConfig.md#setreferralfee)
 
 #### Defined in
 
-[classes/Abstracts/Config.abstract.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/classes/Abstracts/Config.abstract.class.ts#L39)
+[packages/core/src/Abstracts/Config.abstract.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L40)

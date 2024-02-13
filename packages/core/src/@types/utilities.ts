@@ -1,25 +1,27 @@
-import { AssetAmount } from "@sundaeswap/asset";
+import { TFee } from "./queryprovider.js";
 
 /**
  * The SundaeSwap protocol parameters object.
  */
 export interface IProtocolParams {
-  /** The Bech32 script address of the SundaeSwap Escrow contract. */
-  ESCROW_ADDRESS: string;
-  /** The fee paid to Scoopers who process transactions. */
-  SCOOPER_FEE: bigint;
-  /** The minimum amount of ADA to deliver assets with. */
-  RIDER_FEE: bigint;
-  /** The hex-encoded redeemer value for cancelling Escrow Orders  */
-  ESCROW_CANCEL_REDEEMER: string;
-  /** The hex-encoded script value of the Escrow Order contract */
-  ESCROW_SCRIPT_VALIDATOR: string;
+  /** The Bech32 script address of the SundaeSwap Order V1 contract. */
+  ORDER_SCRIPT_V1: string;
+  /** The Bech32 script address of the SundaeSwap Order V3 contract. */
+  ORDER_SCRIPT_V3: string;
+  /** The hex-encoded redeemer value for cancelling V1 Orders */
+  CANCEL_REDEEMER_V1: string;
+  /** The hex-encoded redeemer value for cancelling V3 Orders */
+  CANCEL_REDEEMER_V3: string;
+  /** The hex-encoded script validator of the Order V1 contract */
+  SCRIPT_VALIDATOR_V1: string;
+  /** The hex-encoded script validator of the Order V3 contract */
+  SCRIPT_VALIDATOR_V3: string;
   /** The hex-encoded staking key for the Yield Farming lockups. */
-  FREEZER_STAKE_KEYHASH: string;
+  YF_STAKE_KEYHASH: string;
   /** The hex-encoded keyhash for the Yield Farming contract. */
-  FREEZER_PAYMENT_SCRIPTHASH: string;
+  YF_PAYMENT_SCRIPTHASH: string;
   /** The hex-enc */
-  FREEZER_REFERENCE_INPUT: string;
+  YF_REFERENCE_INPUT: string;
 }
 
 /**
@@ -46,3 +48,14 @@ export type TSupportedWallets =
   | "cardwallet"
   | "nufi"
   | "begin";
+
+/**
+ * An interface to describe a utility function's arguments in SundaeUtils.
+ */
+export interface ICurrentFeeFromDecayingFeeArgs {
+  endFee: TFee;
+  endSlot: string;
+  startFee: TFee;
+  startSlot: string;
+  network: TSupportedNetworks;
+}

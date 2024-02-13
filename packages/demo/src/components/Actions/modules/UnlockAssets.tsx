@@ -1,12 +1,18 @@
-import { FC, useCallback, useState } from "react";
-import { useAppState } from "../../../state/context";
-import { ActionArgs } from "../Actions";
-
-import Button from "../../Button";
 import { AssetAmount } from "@sundaeswap/asset";
+import { FC, useCallback, useState } from "react";
 
-export const Unlock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, ready, walletAddress, useReferral } = useAppState();
+import { YieldFarmingLucid } from "@sundaeswap/yield-farming";
+import { useAppState } from "../../../state/context";
+import Button from "../../Button";
+import { IActionArgs } from "../Actions";
+
+export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+  const {
+    SDK,
+    ready,
+    activeWalletAddr: walletAddress,
+    useReferral,
+  } = useAppState();
   const [unlocking, setUnlocking] = useState(false);
 
   const handleUnlock = useCallback(async () => {
@@ -14,9 +20,11 @@ export const Unlock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
       return;
     }
 
+    const YF = new YieldFarmingLucid(SDK.builder().lucid);
+
     setUnlocking(true);
     try {
-      await SDK.unlock({
+      await YF.unlock({
         ownerAddress: walletAddress,
         existingPositions: [
           {
@@ -36,22 +44,24 @@ export const Unlock: FC<ActionArgs> = ({ setCBOR, setFees, submit }) => {
               },
             }
           : {}),
-      }).then(async ({ build, fees }) => {
-        setFees(fees);
-        const builtTx = await build();
+      })
+        // @ts-ignore
+        .then(async ({ build, fees }) => {
+          setFees(fees);
+          const builtTx = await build();
 
-        if (submit) {
-          const { cbor, submit } = await builtTx.sign();
-          setCBOR({
-            cbor,
-            hash: await submit(),
-          });
-        } else {
-          setCBOR({
-            cbor: builtTx.cbor,
-          });
-        }
-      });
+          if (submit) {
+            const { cbor, submit } = await builtTx.sign();
+            setCBOR({
+              cbor,
+              hash: await submit(),
+            });
+          } else {
+            setCBOR({
+              cbor: builtTx.cbor,
+            });
+          }
+        });
     } catch (e) {
       console.log(e);
     }
