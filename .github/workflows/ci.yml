@@ -36,13 +36,20 @@ jobs:
       - name: Install
         run: yarn install --frozen-lockfile --ignore-scripts
 
+      # Build dist folders
+      - name: Build
+        run: yarn build
+
       # Run Tests
       - name: Run Tests
-        run: yarn test:ci
-
-      # Prebuild to check
-      - name: Run Prebuild
-        run: yarn build
+        run: |
+          xmllint --noout test-results/jest-junit.xml
+          if grep -q '<failure' test-results/jest-junit.xml; then
+            echo "Tests failures detected in jest-junit.xml"
+            exit 1
+          else
+            echo "No test failures found in jest-junit.xml"
+          fi
 
       # Git Identity
       - name: Git Identity

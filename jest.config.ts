@@ -26,6 +26,16 @@ export const baseConfig = {
 };
 
 const config: JestConfigWithTsJest = {
+  reporters: [
+    "default",
+    [
+      "jest-junit",
+      {
+        outputDirectory: "test-results",
+        outputName: "jest-junit.xml",
+      },
+    ],
+  ],
   projects: [
     // @ts-ignore Annoying type overloads.
     {
