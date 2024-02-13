@@ -30,7 +30,6 @@ permalink: slug:output_ext
 
 # Build settings
 remote_theme: just-the-docs/just-the-docs
-theme: just-the-docs
 plugins:
   - jekyll-feed
   - jekyll-optional-front-matter
