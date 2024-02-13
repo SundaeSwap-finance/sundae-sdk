@@ -22,5 +22,5 @@
     "declarationMap": false,
     "noEmitOnError": true,
   },
-  "exclude": ["node_modules", "temporary_modules", "tools/*.ts", "dist"],
+  "exclude": ["node_modules", "temporary_modules", "tools/*.ts", "dist", "docs"],
 }
