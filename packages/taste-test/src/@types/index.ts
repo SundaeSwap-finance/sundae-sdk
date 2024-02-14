@@ -1,18 +1,25 @@
-import type { AssetAmount } from "@sundaeswap/asset";
-import { IComposedTx, ITxBuilderReferralFee } from "@sundaeswap/core";
+import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import type { IComposedTx, ITxBuilderReferralFee } from "@sundaeswap/core";
 import type {
   MintingPolicy,
   OutRef,
   SpendingValidator,
   UTxO,
 } from "lucid-cardano";
-import { ITasteTestFees } from "../lib/classes/TasteTest.Lucid.class.js";
 
 /**
  * The type of Taste Test, where "Direct" is a non-pool Taste Test, and "Liquidity"
  * is ends the taste test with pool creation.
  */
 export type TTasteTestType = "Direct" | "Liquidity";
+
+/**
+ * Object containing the extended fees.
+ */
+export interface ITasteTestFees {
+  foldFee: AssetAmount<IAssetAmountMetadata>;
+  penaltyFee: AssetAmount<IAssetAmountMetadata>;
+}
 
 /**
  * Helper type to export the fees object associated with the TasteTest class.

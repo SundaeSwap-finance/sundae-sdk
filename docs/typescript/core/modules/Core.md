@@ -39,7 +39,6 @@
 - [IPoolData](../interfaces/Core.IPoolData.md)
 - [IPoolDataAsset](../interfaces/Core.IPoolDataAsset.md)
 - [IPoolDate](../interfaces/Core.IPoolDate.md)
-- [IProtocolParams](../interfaces/Core.IProtocolParams.md)
 - [ISundaeProtocolParams](../interfaces/Core.ISundaeProtocolParams.md)
 - [ISundaeSDKOptions](../interfaces/Core.ISundaeSDKOptions.md)
 - [ISwapArguments](../interfaces/Core.ISwapArguments.md)
@@ -427,7 +426,7 @@ A type constant used for determining valid Cardano Network values.
 
 #### Defined in
 
-[packages/core/src/@types/utilities.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L32)
+[packages/core/src/@types/utilities.ts:8](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L8)
 
 ___
 
@@ -439,4 +438,4 @@ A type constant used for determining valid CIP-30 compliant Web3 Wallets for Car
 
 #### Defined in
 
-[packages/core/src/@types/utilities.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L39)
+[packages/core/src/@types/utilities.ts:15](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L15)

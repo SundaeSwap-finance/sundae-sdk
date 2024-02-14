@@ -13,7 +13,8 @@ import { DatumBuilder } from "./DatumBuilder.abstract.class.js";
 export abstract class TxBuilder {
   abstract datumBuilder: DatumBuilder;
   abstract network: TSupportedNetworks;
-  static MAX_SCOOPER_FEE: bigint;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static PARAMS: Record<TSupportedNetworks, Record<string, any>>;
 
   /**
    * Should create a new transaction instance from the supplied transaction library.

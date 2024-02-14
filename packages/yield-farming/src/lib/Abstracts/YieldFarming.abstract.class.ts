@@ -9,7 +9,6 @@ import { ILockConfigArgs } from "../../@types/configs.js";
  * the structure for depositing, updating, and withdrawing operations.
  */
 export abstract class YieldFarming {
-  abstract MIN_LOCK_ADA: bigint;
   abstract datumBuilder: DatumBuilder;
 
   abstract lock(
