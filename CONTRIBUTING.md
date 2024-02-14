@@ -10,11 +10,13 @@ Do not hesitate to upvote discussions or comments to show your interest!
 
 #### 2. Code
 
-The tests can be run with 
+After running `yarn install`, you can run the following to ensure tests pass:
 
 ```
 yarn test
 ```
+
+This is also an automatic hook with each commit.
 
 ## About Issues / Discussion
 
