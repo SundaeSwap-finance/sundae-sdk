@@ -54,10 +54,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Bump Versions (reinstate after release)
-      # - name: Bump versions
-      #   run: yarn version:ci
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Bump versions
+        run: yarn version:ci
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Create Release
       - name: Publish
