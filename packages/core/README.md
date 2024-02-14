@@ -11,4 +11,4 @@ nav_order: 1
 $ yarn add @sundaeswap/core lucid-cardano
 ```
 
-For more instructions see [Overview](/typescript/)
+For more instructions see [Overview](/)

@@ -30,4 +30,4 @@ const TT = new TasteTestLucid(walletInstance);
 const txHash = await TT.deposit({ ...args }).then(({ submit }) => submit())
 ```
 
-For more instructions see [Overview](/typescript/).
+For more instructions see [Overview](/).

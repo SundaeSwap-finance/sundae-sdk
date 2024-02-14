@@ -31,4 +31,4 @@ const YF = new YieldFarmingLucid(walletInstance);
 const txHash = await YF.lock({ ...args }).then(({ submit }) => submit());
 ```
 
-For more instructions see [Overview](/typescript/).
+For more instructions see [Overview](/).
