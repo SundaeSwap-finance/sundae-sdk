@@ -20,7 +20,7 @@ The current network id.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L66)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:93](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L93)
 
 ___
 
@@ -32,7 +32,7 @@ The error to throw when the pool ident does not match V1 constraints.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L68)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:95](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L95)
 
 ## Methods
 
@@ -63,7 +63,62 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:131](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L131)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L160)
+
+___
+
+### buildMintPoolDatum
+
+▸ **buildMintPoolDatum**(`param`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `assets`: [[`string`, `string`], [`string`, `string`]] ; `circulatingLp`: `bigint` ; `feeFinalized`: `bigint` ; `feesPer10Thousand`: [`bigint`, `bigint`] ; `identifier`: `string` ; `marketOpen`: `bigint` ; `protocolFee`: `bigint`  }\>
+
+Creates a new pool datum for minting a the pool. This is attached to the assets that are sent
+to the pool minting contract. See [Lucid.TxBuilderLucidV3](Lucid.TxBuilderLucidV3.md) for more details.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `param` | [`IDatumBuilderMintPoolV3Args`](../interfaces/Lucid.IDatumBuilderMintPoolV3Args.md) | The assets being supplied to the new pool. - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway. - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway. |
+
+#### Returns
+
+[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `assets`: [[`string`, `string`], [`string`, `string`]] ; `circulatingLp`: `bigint` ; `feeFinalized`: `bigint` ; `feesPer10Thousand`: [`bigint`, `bigint`] ; `identifier`: `string` ; `marketOpen`: `bigint` ; `protocolFee`: `bigint`  }\>
+
+An object containing the hash of the inline datum, the inline datum itself,
+                                             and the schema of the original pool mint datum, crucial for the execution
+                                             of the minting pool operation.
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:248](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L248)
+
+___
+
+### buildPoolMintRedeemerDatum
+
+▸ **buildPoolMintRedeemerDatum**(`param`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `MintLP`: \{ `identifier`: `string`  }  } \| \{ `CreatePool`: \{ `assets`: [[`string`, `string`], [`string`, `string`]] ; `metadataOutput`: `bigint` ; `poolOutput`: `bigint`  }  }\>
+
+Creates a redeemer datum for minting a new pool. This is attached to the new assets that
+creating a new pool mints on the blockchain. See [Lucid.TxBuilderLucidV3](Lucid.TxBuilderLucidV3.md) for more
+details.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `param` | [`IDatumBuilderPoolMintRedeemerV3Args`](../interfaces/Lucid.IDatumBuilderPoolMintRedeemerV3Args.md) | The assets being supplied to the new pool. - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway. - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway. |
+
+#### Returns
+
+[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `MintLP`: \{ `identifier`: `string`  }  } \| \{ `CreatePool`: \{ `assets`: [[`string`, `string`], [`string`, `string`]] ; `metadataOutput`: `bigint` ; `poolOutput`: `bigint`  }  }\>
+
+An object containing the hash of the inline datum, the inline datum itself,
+                                             and the schema of the original pool mint redeemer datum, crucial for the execution
+                                             of the minting pool operation.
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:296](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L296)
 
 ___
 
@@ -93,7 +148,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:87](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L87)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:116](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L116)
 
 ___
 
@@ -124,7 +179,95 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:178](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L178)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:207](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L207)
+
+___
+
+### computePoolId
+
+▸ **computePoolId**(`utxo`): `string`
+
+Computes the pool ID based on the provided UTxO being spent.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `utxo` | `UTxO`[] | The UTxO txHash and index. |
+
+#### Returns
+
+`string`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:519](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L519)
+
+___
+
+### computePoolLqName
+
+▸ **computePoolLqName**(`poolId`): `string`
+
+Computes the pool liquidity name.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `poolId` | `string` | The hex encoded pool ident. |
+
+#### Returns
+
+`string`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:495](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L495)
+
+___
+
+### computePoolNftName
+
+▸ **computePoolNftName**(`poolId`): `string`
+
+Computes the pool NFT name.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `poolId` | `string` | The hex encoded pool ident. |
+
+#### Returns
+
+`string`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:483](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L483)
+
+___
+
+### computePoolRefName
+
+▸ **computePoolRefName**(`poolId`): `string`
+
+Computes the pool reference name.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `poolId` | `string` | The hex encoded pool ident. |
+
+#### Returns
+
+`string`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:507](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L507)
 
 ___
 
@@ -159,7 +302,7 @@ An object containing the staking and
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:359](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L359)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:547](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L547)
 
 ___
 
@@ -188,4 +331,4 @@ The signing key associated with the owner, extracted from the datum. This key is
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:398](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L398)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:586](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L586)

@@ -2,7 +2,6 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   EPoolCoin,
   IPoolData,
-  ITxBuilderReferralFee,
   IZapConfigArgs,
   TOrderAddresses,
 } from "../@types/index.js";
@@ -12,7 +11,6 @@ import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
  * The main config class for building valid arguments for a Zap.
  */
 export class ZapConfig extends OrderConfig<IZapConfigArgs> {
-  referralFee?: ITxBuilderReferralFee | undefined;
   suppliedAsset?: AssetAmount<IAssetAmountMetadata>;
   zapDirection?: EPoolCoin;
   swapSlippage?: number;

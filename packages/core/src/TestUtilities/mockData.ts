@@ -355,9 +355,9 @@ const PREVIEW_DATA: INetworkData = {
 export { PREVIEW_DATA };
 
 SundaeUtils.getCurrentFeeFromDecayingFee({
-  endFee: [5, 100],
+  endFee: [5n, 100n],
   endSlot: "1712941979",
   network: "preview",
-  startFee: [5, 1000],
+  startFee: [5n, 1000n],
   startSlot: "1702941926",
 });

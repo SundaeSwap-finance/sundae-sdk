@@ -2,7 +2,6 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import {
   IPoolData,
-  ITxBuilderReferralFee,
   IWithdrawConfigArgs,
   TOrderAddresses,
 } from "../@types/index.js";
@@ -30,7 +29,6 @@ import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
  * ```
  */
 export class WithdrawConfig extends OrderConfig<IWithdrawConfigArgs> {
-  referralFee?: ITxBuilderReferralFee | undefined;
   suppliedLPAsset?: AssetAmount<IAssetAmountMetadata>;
 
   constructor(args?: IWithdrawConfigArgs) {

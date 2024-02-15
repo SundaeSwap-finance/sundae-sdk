@@ -1,6 +1,7 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   C,
+  toUnit,
   type Assets,
   type Datum,
   type Lucid,
@@ -9,10 +10,14 @@ import {
 } from "lucid-cardano";
 
 import {
+  EContractVersion,
   EDatumType,
   ICancelConfigArgs,
   IComposedTx,
   IDepositConfigArgs,
+  IMintV3PoolConfigArgs,
+  ISundaeProtocolParamsFull,
+  ISundaeProtocolValidatorFull,
   ISwapConfigArgs,
   ITxBuilderFees,
   ITxBuilderReferralFee,
@@ -24,10 +29,12 @@ import {
 import { TxBuilder } from "../Abstracts/TxBuilder.abstract.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
+import { MintV3PoolConfig } from "../Configs/MintV3PoolConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
+import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
@@ -51,8 +58,6 @@ interface ITxBuilderLucidCompleteTxArgs {
  * Interface describing the parameter names for the transaction builder.
  */
 export interface ITxBuilderV3Params {
-  scriptAddress: string;
-  scriptValidator: string;
   cancelRedeemer: string;
   maxScooperFee: bigint;
 }
@@ -66,18 +71,14 @@ export interface ITxBuilderV3Params {
  */
 export class TxBuilderLucidV3 extends TxBuilder {
   network: TSupportedNetworks;
+  protocolParams: ISundaeProtocolParamsFull | undefined;
+
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV3Params> = {
     mainnet: {
-      scriptAddress: "",
-      scriptValidator: "",
       cancelRedeemer: VOID_REDEEMER,
       maxScooperFee: 1_000_000n,
     },
     preview: {
-      scriptAddress:
-        "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe",
-      scriptValidator:
-        "59081f010000332323232323232322322223253330093232533300b3370e90010010991919991119198008008021119299980999b87480000044c8c8cc00400401c894ccc06400452809919299980c19b8f00200514a226600800800260380046eb8c068004dd7180b98088010a99980999b87480080044c8c8c8cc004004008894ccc06800452889919299980c998048048010998020020008a50301d002301b0013758603000260220042a66602666e1d200400113232323300100100222533301a00114a026464a6660326601201200429444cc010010004c074008c06c004dd6180c00098088010a99980999b87480180044c8c8c8c8cdc48019919980080080124000444a66603a00420022666006006603e00464a66603666016016002266e0000920021002301e0023758603400260340046eb4c060004c04400854ccc04ccdc3a4010002264646464a66602e66e1d20020011323253330193370e9001180d1baa300d3017300d301700a13371200200a266e20004014dd6980e000980a8010a503015001300b301330093013006375a60300026022004264646464a66602e66e1d20020011323253330193370e9001180d1baa300d3017300f301700a13371200a002266e20014004dd6980e000980a8010a503015001300b3013300b3013006375a603000260220046022002600260160106eb0c044c048c048c048c048c048c048c048c048c02cc00cc02c018c044c048c048c048c048c048c048c048c02cc00cc02c0188c044c048004c8c8c8c8c94ccc040cdc3a40000022646464646464646464646464a66603e60420042646464649319299981019b87480000044c8c94ccc094c09c00852616375c604a002603c00e2a66604066e1d20020011323232325333027302900213232498c8c8c8c8c94ccc0b4c0bc00852616375a605a002605a0046eb8c0ac004c0ac00cdd718148011919191919299981618170010a4c2c6eb4c0b0004c0b0008dd7181500098150021bae3028003163758604e002604e0046eb0c094004c07801c54ccc080cdc3a400800226464a66604a604e004264931919191919191919299981698178010a4c2c6eb4c0b4004c0b4008dd7181580098158019bae30290023232323232533302c302e002149858dd6981600098160011bae302a001302a003375c60500046eb0c094008dd618118008b1919bb03026001302630270013758604a002603c00e2a66604066e1d20060011323253330253027002132498c8c8c8c8c94ccc0a8c0b000852616375a605400260540046eb8c0a0004c0a0008dd718130008b1bac3025001301e007153330203370e9004000899192999812981380109924c6464646464646464a66605a605e0042930b1bad302d001302d002375c605600260560066eb8c0a4008c8c8c8c8c94ccc0b0c0b800852616375a605800260580046eb8c0a8004c0a800cdd718140011bac3025002375860460022c6466ec0c098004c098c09c004dd61812800980f0038b180f00319299980f99b87480000044c8c8c8c94ccc098c0a00084c8c9263253330253370e90000008a99981418118018a4c2c2a66604a66e1d200200113232533302a302c002149858dd7181500098118018a99981299b87480100044c8c94ccc0a8c0b000852616302a00130230031630230023253330243370e9000000899191919299981598168010991924c64a66605466e1d200000113232533302f3031002132498c94ccc0b4cdc3a400000226464a66606460680042649318120008b181900098158010a99981699b87480080044c8c8c8c8c8c94ccc0d8c0e000852616375a606c002606c0046eb4c0d0004c0d0008dd6981900098158010b18158008b181780098140018a99981519b874800800454ccc0b4c0a000c52616163028002301d00316302b001302b0023029001302200416302200316302600130260023024001301d00816301d007300f00a32533301d3370e900000089919299981118120010a4c2c6eb8c088004c06c03054ccc074cdc3a40040022a66604060360182930b0b180d8058b180f800980f801180e800980e801180d800980d8011bad30190013019002301700130170023015001300e00b16300e00a3001001223253330103370e900000089919299980a980b8010a4c2c6eb8c054004c03800854ccc040cdc3a400400226464a66602a602e00426493198030009198030030008b1bac3015001300e002153330103370e900200089919299980a980b80109924c6600c00246600c00c0022c6eb0c054004c03800854ccc040cdc3a400c002264646464a66602e603200426493198040009198040040008b1bac30170013017002375a602a002601c0042a66602066e1d20080011323253330153017002149858dd6980a80098070010a99980819b87480280044c8c94ccc054c05c00852616375a602a002601c0042c601c00244646600200200644a66602600229309919801801980b0011801980a000919299980699b87480000044c8c94ccc048c05000852616375c602400260160042a66601a66e1d20020011323253330123014002149858dd7180900098058010b1805800899192999808180900109919299980799b8748000c0380084c8c94ccc044cdc3a40046020002266e3cdd7180a9807800806801980a00098068010008a50300e0011630100013756601e6020602060206020602060206012600260120084601e002601000629309b2b19299980499b874800000454ccc030c01c00c52616153330093370e90010008a99980618038018a4c2c2c600e0046eb80048c014dd5000918019baa0015734aae7555cf2ab9f5742ae893011e581c6ed8ba08a3a0ab1cdc63079fb057f84ff43f87dc4792f6f09b94e8030001",
       cancelRedeemer: VOID_REDEEMER,
       maxScooperFee: 1_000_000n,
     },
@@ -112,8 +113,44 @@ export class TxBuilderLucidV3 extends TxBuilder {
    *
    * @param param The parameter you want to retrieve.
    */
-  private __getParam<K extends keyof ITxBuilderV3Params>(param: K) {
+  public __getParam<K extends keyof ITxBuilderV3Params>(param: K) {
     return TxBuilderLucidV3.getParam(param, this.network);
+  }
+
+  /**
+   * Retrieves the full protocol parameters from the SundaeSwap API.
+   *
+   * @returns {ISundaeProtocolParamsFull}
+   */
+  public async getProtocolParams(): Promise<ISundaeProtocolParamsFull> {
+    if (!this.protocolParams) {
+      const queryProvider = new QueryProviderSundaeSwap(this.network);
+      this.protocolParams = await queryProvider.getProtocolBlueprints(
+        EContractVersion.V3
+      );
+    }
+
+    return this.protocolParams;
+  }
+
+  /**
+   * Gets the desired validator from the protocol blueprint.
+   *
+   * @param {string} name The name of the validator, as it relates to the API schema.
+   * @returns {ISundaeProtocolValidatorFull}
+   */
+  private async __getProtocolValidator(
+    name: string
+  ): Promise<ISundaeProtocolValidatorFull> {
+    const {
+      blueprint: { validators },
+    } = await this.getProtocolParams();
+    const result = validators.find(({ title }) => title === name);
+    if (!result) {
+      throw new Error(`Could not find corresponding validator for: ${name}`);
+    }
+
+    return result;
   }
 
   /**
@@ -148,6 +185,98 @@ export class TxBuilderLucidV3 extends TxBuilder {
     }
 
     return instance;
+  }
+
+  async mintPool(args: IMintV3PoolConfigArgs) {
+    const {
+      assetA,
+      assetB,
+      feeDecay,
+      feeSlotEnd,
+      feeSlotStart,
+      ownerAddress,
+      protocolFee,
+      referralFee,
+    } = new MintV3PoolConfig(args).buildArgs();
+    const { hash } = await this.__getProtocolValidator("pool.mint");
+    const utxos = await this.lucid.provider.getUtxos(ownerAddress);
+
+    const {
+      inline: mintPoolDatum,
+      schema: { identifier, circulatingLp },
+    } = this.datumBuilder.buildMintPoolDatum({
+      assetA,
+      assetB,
+      feeDecay,
+      feeSlotEnd,
+      feeSlotStart,
+      protocolFee,
+      spendingUtxos: utxos,
+    });
+
+    const { inline: mintRedeemerDatum } =
+      this.datumBuilder.buildPoolMintRedeemerDatum({
+        assetA,
+        assetB,
+
+        // @todo Ensure these are correct or if they need to be dynamic.
+        metadataOutput: 2n,
+        poolOutput: 0n,
+      });
+
+    const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
+      assetA,
+      assetB,
+    ]);
+
+    const poolNftNameHex = DatumBuilderLucidV3.computePoolNftName(identifier);
+    const poolRefNameHex = DatumBuilderLucidV3.computePoolRefName(identifier);
+    const poolLqNameHex = DatumBuilderLucidV3.computePoolLqName(identifier);
+
+    let poolValue = {
+      [toUnit(hash, poolNftNameHex)]: 1n,
+      [sortedAssets[1].metadata.assetId.replace(".", "")]:
+        sortedAssets[1].amount,
+    };
+
+    if (SundaeUtils.isAdaAsset(sortedAssets[0].metadata)) {
+      poolValue["lovelace"] = sortedAssets[0].amount + ORDER_DEPOSIT_DEFAULT;
+    } else {
+      poolValue["lovelace"] = ORDER_DEPOSIT_DEFAULT;
+      poolValue[sortedAssets[0].metadata.assetId.replace(".", "")] =
+        sortedAssets[0].amount;
+    }
+
+    const tx = this.newTxInstance(referralFee)
+      .mintAssets(
+        {
+          [toUnit(hash, poolNftNameHex)]: 1n,
+          [toUnit(hash, poolRefNameHex)]: 1n,
+          [toUnit(hash, poolLqNameHex)]: circulatingLp,
+        },
+        mintRedeemerDatum
+      )
+      // .readFrom([...references, settings]);
+      .collectFrom(utxos)
+      .payToContract(
+        await this.generateScriptAddress("pool.mint"),
+        { inline: mintPoolDatum },
+        poolValue
+      )
+      .payToAddress(ownerAddress, {
+        lovelace: 2_000_000n,
+        [toUnit(hash, poolLqNameHex)]: circulatingLp,
+      })
+      .payToAddress(ownerAddress, {
+        lovelace: 2_000_000n,
+        [toUnit(hash, poolRefNameHex)]: 1n,
+      });
+
+    return this.completeTx({
+      tx,
+      datum: mintPoolDatum,
+      referralFee: referralFee?.payment,
+    });
   }
 
   /**
@@ -197,7 +326,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
 
     txInstance.payToContract(
-      this.getContractAddressWithStakingKey(
+      await this.generateScriptAddress(
+        "order.spend",
         orderAddresses.DestinationAddress.address
       ),
       { inline },
@@ -263,7 +393,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
         utxosToSpend,
         this.__getParam("cancelRedeemer")
       ).attachSpendingValidator({
-        script: this.__getParam("scriptValidator"),
+        script: (await this.__getProtocolValidator("order.spend")).compiledCode,
         type: "PlutusV2",
       });
 
@@ -344,7 +474,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     }
 
     cancelTx.payToContract(
-      this.getContractAddressWithStakingKey(
+      await this.generateScriptAddress(
+        "order.spend",
         orderAddresses.DestinationAddress.address
       ),
       { inline: swapDatum.inline },
@@ -385,7 +516,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
   }
 
-  deposit(depositArgs: IDepositConfigArgs) {
+  async deposit(depositArgs: IDepositConfigArgs) {
     const { suppliedAssets, pool, orderAddresses, referralFee } =
       new DepositConfig(depositArgs).buildArgs();
 
@@ -409,7 +540,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
 
     tx.payToContract(
-      this.getContractAddressWithStakingKey(
+      await this.generateScriptAddress(
+        "order.spend",
         orderAddresses.DestinationAddress.address
       ),
       { inline },
@@ -463,7 +595,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
 
     tx.payToContract(
-      this.getContractAddressWithStakingKey(
+      await this.generateScriptAddress(
+        "order.spend",
         orderAddresses.DestinationAddress.address
       ),
       { inline },
@@ -577,7 +710,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const { inline } = this.datumBuilder.buildSwapDatum({
       ident: pool.ident,
       destinationAddress: {
-        address: this.getContractAddressWithStakingKey(
+        address: await this.generateScriptAddress(
+          "order.spend",
           orderAddresses.DestinationAddress.address
         ),
         /**
@@ -606,7 +740,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
 
     tx.payToContract(
-      this.getContractAddressWithStakingKey(
+      await this.generateScriptAddress(
+        "order.spend",
         orderAddresses.DestinationAddress.address
       ),
       { inline },
@@ -624,26 +759,38 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
   /**
    * Merges the user's staking key to the contract payment address if present.
+   *
+   * @param {string} type
    * @param ownerAddress
    * @returns
    */
-  private getContractAddressWithStakingKey(ownerAddress: string): string {
-    const orderAddress = this.__getParam("scriptAddress");
-    const paymentCred = C.Address.from_bech32(orderAddress)
-      .as_enterprise()
-      ?.payment_cred();
-    const stakeCred = C.Address.from_bech32(ownerAddress)
-      .as_base()
-      ?.stake_cred();
+  public async generateScriptAddress(
+    type: "order.spend" | "pool.mint",
+    ownerAddress?: string
+  ): Promise<string> {
+    const { hash } = await this.__getProtocolValidator(type);
+    const paymentCred = this.lucid.utils.scriptHashToCredential(hash);
+    const orderAddress = this.lucid.utils.credentialToAddress(paymentCred);
 
-    if (!stakeCred || !paymentCred) {
+    if (!ownerAddress) {
+      return orderAddress;
+    }
+
+    const paymentStakeCred = C.StakeCredential.from_scripthash(
+      C.ScriptHash.from_hex(hash)
+    );
+    const ownerStakeCred =
+      ownerAddress &&
+      C.Address.from_bech32(ownerAddress).as_base()?.stake_cred();
+
+    if (!ownerStakeCred) {
       return orderAddress;
     }
 
     const newAddress = C.BaseAddress.new(
       this.network === "mainnet" ? 1 : 0,
-      paymentCred,
-      stakeCred
+      paymentStakeCred,
+      ownerStakeCred
     ).to_address();
 
     return newAddress.to_bech32(

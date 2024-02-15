@@ -33,6 +33,7 @@
 - [ILimitSwap](../interfaces/Core.ILimitSwap.md)
 - [ILucidBuilder](../interfaces/Core.ILucidBuilder.md)
 - [IMarketSwap](../interfaces/Core.IMarketSwap.md)
+- [IMintV3PoolConfigArgs](../interfaces/Core.IMintV3PoolConfigArgs.md)
 - [IOrderConfigArgs](../interfaces/Core.IOrderConfigArgs.md)
 - [IPoolByIdentQuery](../interfaces/Core.IPoolByIdentQuery.md)
 - [IPoolByPairQuery](../interfaces/Core.IPoolByPairQuery.md)
@@ -40,6 +41,9 @@
 - [IPoolDataAsset](../interfaces/Core.IPoolDataAsset.md)
 - [IPoolDate](../interfaces/Core.IPoolDate.md)
 - [ISundaeProtocolParams](../interfaces/Core.ISundaeProtocolParams.md)
+- [ISundaeProtocolParamsFull](../interfaces/Core.ISundaeProtocolParamsFull.md)
+- [ISundaeProtocolValidator](../interfaces/Core.ISundaeProtocolValidator.md)
+- [ISundaeProtocolValidatorFull](../interfaces/Core.ISundaeProtocolValidatorFull.md)
 - [ISundaeSDKOptions](../interfaces/Core.ISundaeSDKOptions.md)
 - [ISwapArguments](../interfaces/Core.ISwapArguments.md)
 - [ISwapConfigArgs](../interfaces/Core.ISwapConfigArgs.md)
@@ -236,7 +240,7 @@ ___
 
 ### TFee
 
-Ƭ **TFee**: [`number`, `number`]
+Ƭ **TFee**: [`bigint`, `bigint`]
 
 The fee structure, denoted as an array of numerator and denominator.
 

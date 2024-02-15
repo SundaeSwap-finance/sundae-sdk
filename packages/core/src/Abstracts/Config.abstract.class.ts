@@ -8,12 +8,12 @@ import { ITxBuilderReferralFee } from "../@types/index.js";
  * @template Args The type of the arguments object, defaulting to an empty object.
  */
 export abstract class Config<Args = {}> {
-  static INVALID_FEE_AMOUNT = `The fee amount must be of type AssetAmount.`;
+  INVALID_FEE_AMOUNT = `The fee amount must be of type AssetAmount.`;
 
   /**
    * An optional argument that contains referral fee data.
    */
-  abstract referralFee?: ITxBuilderReferralFee;
+  public referralFee?: ITxBuilderReferralFee;
 
   /**
    * An abstract method to set the configuration from an object.
@@ -52,7 +52,7 @@ export abstract class Config<Args = {}> {
     }
 
     if (!(this.referralFee.payment instanceof AssetAmount)) {
-      throw new Error(Config.INVALID_FEE_AMOUNT);
+      throw new Error(this.INVALID_FEE_AMOUNT);
     }
   }
 }

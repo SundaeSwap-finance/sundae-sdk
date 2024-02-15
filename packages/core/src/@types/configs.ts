@@ -1,7 +1,7 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import { EPoolCoin, TOrderAddresses, TUTXO } from "./datumbuilder.js";
-import { IPoolData } from "./queryprovider.js";
+import { IPoolData, TFee } from "./queryprovider.js";
 import { ITxBuilderReferralFee } from "./txbuilders.js";
 
 /**
@@ -90,4 +90,18 @@ export interface IZapConfigArgs extends IOrderConfigArgs {
  */
 export interface IWithdrawConfigArgs extends IOrderConfigArgs {
   suppliedLPAsset: AssetAmount<IAssetAmountMetadata>;
+}
+
+/**
+ * Interface describing the method arguments for creating a pool
+ * in the V3 Pool Contract.
+ */
+export interface IMintV3PoolConfigArgs extends IBaseConfig {
+  assetA: AssetAmount<IAssetAmountMetadata>;
+  assetB: AssetAmount<IAssetAmountMetadata>;
+  feeDecay: TFee;
+  feeSlotStart: bigint;
+  feeSlotEnd: bigint;
+  ownerAddress: string;
+  protocolFee?: bigint;
 }

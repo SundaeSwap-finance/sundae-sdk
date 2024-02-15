@@ -118,14 +118,25 @@ export type TOrderDatum = Data.Static<typeof OrderDatumSchema>;
 export const OrderDatum = OrderDatumSchema as unknown as TOrderDatum;
 
 export const AssetClassSchema = Data.Tuple([Data.Bytes(), Data.Bytes()]);
+export type TAssetClass = Data.Static<typeof AssetClassSchema>;
+export const AssetClass = AssetClassSchema as unknown as TAssetClass;
+
+export const AssetClassPairSchema = Data.Tuple([
+  AssetClassSchema,
+  AssetClassSchema,
+]);
+export type TAssetClassPair = Data.Static<typeof AssetClassPairSchema>;
+export const AssetClassPair =
+  AssetClassPairSchema as unknown as TAssetClassPair;
 
 export const PoolDatumSchema = Data.Object({
   identifier: IdentSchema,
-  assets: Data.Tuple([AssetClassSchema, AssetClassSchema]),
+  assets: AssetClassPairSchema,
   circulatingLp: Data.Integer(),
-  feesPer10Thousand: Data.Integer(),
+  feesPer10Thousand: Data.Tuple([Data.Integer(), Data.Integer()]),
   marketOpen: Data.Integer(),
-  rewards: Data.Integer(),
+  feeFinalized: Data.Integer(),
+  protocolFee: Data.Integer(),
 });
 export type TPoolDatum = Data.Static<typeof PoolDatumSchema>;
 export const PoolDatum = PoolDatumSchema as unknown as TPoolDatum;
@@ -162,6 +173,7 @@ export const PoolMintRedeemerSchema = Data.Enum([
     CreatePool: Data.Object({
       assets: Data.Tuple([AssetClassSchema, AssetClassSchema]),
       poolOutput: Data.Integer(),
+      metadataOutput: Data.Integer(),
     }),
   }),
 ]);

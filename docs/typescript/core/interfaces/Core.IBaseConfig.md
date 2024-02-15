@@ -11,3 +11,5 @@ The base config that all configs extend.
   ↳ [`IOrderConfigArgs`](Core.IOrderConfigArgs.md)
 
   ↳ [`ICancelConfigArgs`](Core.ICancelConfigArgs.md)
+
+  ↳ [`IMintV3PoolConfigArgs`](Core.IMintV3PoolConfigArgs.md)

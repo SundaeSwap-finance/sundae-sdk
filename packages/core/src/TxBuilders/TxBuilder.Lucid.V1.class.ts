@@ -651,6 +651,12 @@ export class TxBuilderLucidV1 extends TxBuilder {
     let totalDeposit = 0n;
     let totalReferralFees = new AssetAmount(0n, ADA_METADATA);
     const metadataDatums: Record<string, string[]> = {};
+    const v3TxBuilderInstance = new TxBuilderLucidV3(
+      this.lucid,
+      new DatumBuilderLucidV3(this.network)
+    );
+    const v3OrderScriptAddress =
+      await v3TxBuilderInstance.generateScriptAddress("order.spend");
 
     migrations.forEach(({ withdrawConfig, depositPool }) => {
       const withdrawArgs = new WithdrawConfig(withdrawConfig).buildArgs();
@@ -662,13 +668,13 @@ export class TxBuilderLucidV1 extends TxBuilder {
         // Add another scooper fee requirement since we are executing two orders.
         scooperFee:
           this.__getParam("maxScooperFee") +
-          TxBuilderLucidV3.getParam("maxScooperFee", this.network),
+          v3TxBuilderInstance.__getParam("maxScooperFee"),
       });
 
       totalDeposit += ORDER_DEPOSIT_DEFAULT;
       totalScooper +=
         this.__getParam("maxScooperFee") +
-        TxBuilderLucidV3.getParam("maxScooperFee", this.network);
+        v3TxBuilderInstance.__getParam("maxScooperFee");
       withdrawArgs.referralFee?.payment &&
         totalReferralFees.add(withdrawArgs.referralFee.payment);
 
@@ -694,14 +700,14 @@ export class TxBuilderLucidV1 extends TxBuilder {
               depositPool.assetB
             ),
           },
-          scooperFee: TxBuilderLucidV3.getParam("maxScooperFee", this.network),
+          scooperFee: v3TxBuilderInstance.__getParam("maxScooperFee"),
         });
 
       const { inline: withdrawInline } = this.datumBuilder.buildWithdrawDatum({
         ident: withdrawArgs.pool.ident,
         orderAddresses: {
           DestinationAddress: {
-            address: TxBuilderLucidV3.getParam("scriptAddress", this.network),
+            address: v3OrderScriptAddress,
             datum: {
               type: EDatumType.HASH,
               value: depositHash,

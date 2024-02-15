@@ -1,5 +1,4 @@
 import { AssetAmount } from "@sundaeswap/asset";
-import type { ITxBuilderReferralFee } from "@sundaeswap/core";
 import { Config } from "@sundaeswap/core";
 
 import { ILockConfigArgs } from "../../@types/index.js";
@@ -8,7 +7,6 @@ import { ILockConfigArgs } from "../../@types/index.js";
  * The main config class for building valid arguments for a Lock transaction.
  */
 export class LockConfig extends Config<ILockConfigArgs> {
-  referralFee?: ITxBuilderReferralFee | undefined;
   ownerAddress?: ILockConfigArgs["ownerAddress"];
   existingPositions?: ILockConfigArgs["existingPositions"];
   lockedValues?: ILockConfigArgs["lockedValues"];

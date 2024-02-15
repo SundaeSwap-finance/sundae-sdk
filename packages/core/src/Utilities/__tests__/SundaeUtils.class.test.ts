@@ -237,9 +237,9 @@ describe("SundaeUtils class", () => {
     );
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
-        endFee: [1, 100],
+        endFee: [1n, 100n],
         endSlot: "1702941979",
-        startFee: [1, 100],
+        startFee: [1n, 100n],
         startSlot: "1702941926",
         network: "preview",
       })
@@ -250,9 +250,9 @@ describe("SundaeUtils class", () => {
     );
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
-        endFee: [5, 100],
+        endFee: [5n, 100n],
         endSlot: "1712941979",
-        startFee: [5, 1000],
+        startFee: [5n, 1000n],
         startSlot: "1702941926",
         network: "preview",
       })
@@ -261,9 +261,9 @@ describe("SundaeUtils class", () => {
     jest.setSystemTime(SundaeUtils.slotToUnix(1702941926, "preview") * 1000);
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
-        endFee: [5, 100],
+        endFee: [5n, 100n],
         endSlot: "1702941979",
-        startFee: [5, 1000],
+        startFee: [5n, 1000n],
         startSlot: "1702941926",
         network: "preview",
       })
@@ -272,9 +272,9 @@ describe("SundaeUtils class", () => {
     jest.setSystemTime(SundaeUtils.slotToUnix(1702941979, "preview") * 1000);
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
-        endFee: [5, 100],
+        endFee: [5n, 100n],
         endSlot: "1702941979",
-        startFee: [5, 1000],
+        startFee: [5n, 1000n],
         startSlot: "1702941926",
         network: "preview",
       })

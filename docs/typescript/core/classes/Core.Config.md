@@ -21,7 +21,7 @@ It is meant to be extended by more specific configuration classes.
 
 ### referralFee
 
-• `Optional` `Abstract` **referralFee**: [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md)
+• `Optional` **referralFee**: [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md)
 
 An optional argument that contains referral fee data.
 
