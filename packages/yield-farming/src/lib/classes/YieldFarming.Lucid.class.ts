@@ -1,9 +1,10 @@
-import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   ADA_METADATA,
-  IComposedTx,
-  ITxBuilderReferralFee,
   VOID_REDEEMER,
+  type IComposedTx,
+  type ITxBuilderReferralFee,
+  type TSupportedNetworks,
 } from "@sundaeswap/core";
 import { LucidHelper } from "@sundaeswap/core/lucid";
 import { SundaeUtils } from "@sundaeswap/core/utilities";
@@ -31,6 +32,13 @@ export interface IYieldFarmingCompleteTxArgs {
   tx: Tx;
 }
 
+interface IYieldFarmingParams {
+  referenceInput: string;
+  scriptHash: string;
+  stakeKeyHash: string;
+  minLockAda: bigint;
+}
+
 /**
  * Represents the YieldFarmingLucid class, capable of handling various blockchain interactions for interacting with the
  * Yield Farming V2 contracts on the SundaeSwap protocol.
@@ -53,14 +61,55 @@ export interface IYieldFarmingCompleteTxArgs {
  * @implements {YieldFarming}
  */
 export class YieldFarmingLucid implements YieldFarming {
+  network: TSupportedNetworks;
   datumBuilder: DatumBuilderLucid;
-  MIN_LOCK_ADA: bigint;
 
-  constructor(public lucid: Lucid, minLockAda?: bigint) {
-    this.MIN_LOCK_ADA = minLockAda ?? 5_000_000n;
-    this.datumBuilder = new DatumBuilderLucid(
-      this.lucid.network === "Mainnet" ? "mainnet" : "preview"
-    );
+  static PARAMS: Record<TSupportedNetworks, IYieldFarmingParams> = {
+    mainnet: {
+      stakeKeyHash: "d7244b4a8777b7dc6909f4640cf02ea4757a557a99fb483b05f87dfe",
+      scriptHash: "73275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c",
+      referenceInput:
+        "006ddd85cfc2e2d8b7238daa37b37a5db2ac63de2df35884a5e501667981e1e3#0",
+      minLockAda: 5_000_000n,
+    },
+    preview: {
+      stakeKeyHash: "045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa8",
+      scriptHash: "73275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c",
+      referenceInput:
+        "e08869946b5d3b6f32d11bac15d99ce68a993d5853980e4fca302825c02df94f#0",
+      minLockAda: 5_000_000n,
+    },
+  };
+
+  constructor(public lucid: Lucid) {
+    const network = lucid.network === "Mainnet" ? "mainnet" : "preview";
+
+    this.datumBuilder = new DatumBuilderLucid(network);
+    this.network = network;
+  }
+
+  /**
+   * Helper method to get a specific parameter of the transaction builder.
+   *
+   * @param {K extends keyof IYieldFarmingParams} param The parameter you want to retrieve.
+   * @param {TSupportedNetworks} network The protocol network.
+   * @returns {IYieldFarmingParams[K]}
+   */
+  static getParam<K extends keyof IYieldFarmingParams>(
+    param: K,
+    network: TSupportedNetworks
+  ): IYieldFarmingParams[K] {
+    return YieldFarmingLucid.PARAMS[network][param];
+  }
+
+  /**
+   * An internal shortcut method to avoid having to pass in the network all the time.
+   *
+   * @param param The parameter you want to retrieve.
+   * @returns {IYieldFarmingParams}
+   */
+  private __getParam<K extends keyof IYieldFarmingParams>(param: K) {
+    return YieldFarmingLucid.getParam(param, this.network);
   }
 
   /**
@@ -78,16 +127,11 @@ export class YieldFarmingLucid implements YieldFarming {
       referralFee,
     } = new LockConfig(lockArgs).buildArgs();
 
-    const { YF_REFERENCE_INPUT, YF_PAYMENT_SCRIPTHASH, YF_STAKE_KEYHASH } =
-      SundaeUtils.getParams(
-        this.lucid.network === "Mainnet" ? "mainnet" : "preview"
-      );
-
     const [referenceInput, existingPositionData] = await Promise.all([
       this.lucid.provider.getUtxosByOutRef([
         {
-          txHash: YF_REFERENCE_INPUT.split("#")[0],
-          outputIndex: Number(YF_REFERENCE_INPUT.split("#")[1]),
+          txHash: this.__getParam("referenceInput").split("#")[0],
+          outputIndex: Number(this.__getParam("referenceInput").split("#")[1]),
         },
       ]),
       (() =>
@@ -142,17 +186,17 @@ export class YieldFarmingLucid implements YieldFarming {
     }
 
     // Deduct the minimum amount we started with if we've supplied at least that much.
-    if (payment.lovelace < this.MIN_LOCK_ADA) {
-      payment.lovelace = this.MIN_LOCK_ADA;
+    if (payment.lovelace < this.__getParam("minLockAda")) {
+      payment.lovelace = this.__getParam("minLockAda");
     }
 
     const contractAddress = this.lucid.utils.credentialToAddress(
       {
-        hash: YF_PAYMENT_SCRIPTHASH,
+        hash: this.__getParam("scriptHash"),
         type: "Script",
       },
       {
-        hash: YF_STAKE_KEYHASH,
+        hash: this.__getParam("stakeKeyHash"),
         type: "Key",
       }
     );
@@ -177,7 +221,7 @@ export class YieldFarmingLucid implements YieldFarming {
     }
 
     const deposit = new AssetAmount(
-      (existingPositions?.length ?? 0) > 0 ? 0n : this.MIN_LOCK_ADA,
+      (existingPositions?.length ?? 0) > 0 ? 0n : this.__getParam("minLockAda"),
       ADA_METADATA
     );
 

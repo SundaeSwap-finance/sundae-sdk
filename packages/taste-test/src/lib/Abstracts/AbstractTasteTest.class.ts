@@ -3,10 +3,10 @@ import type { Datum, Tx, TxComplete } from "lucid-cardano";
 
 import type {
   IDepositArgs,
+  ITasteTestFees,
   IUpdateArgs,
   IWithdrawArgs,
 } from "../../@types/index.js";
-import type { ITasteTestFees } from "../classes/TasteTest.Lucid.class.js";
 
 /**
  * Represents the abstract class that should be extended to implement

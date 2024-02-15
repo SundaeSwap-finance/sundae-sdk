@@ -42,7 +42,7 @@ jobs:
 
       # Run Tests
       - name: Run Tests
-        run: yarn test:ci
+        run: yarn test
 
       # Git Identity
       - name: Git Identity

@@ -22,3 +22,5 @@ in your main repository! Also includes a helper class for basic operations.
 - [IDatumBuilderSwapV3Args](../interfaces/Lucid.IDatumBuilderSwapV3Args.md)
 - [IDatumBuilderWithdrawV3Args](../interfaces/Lucid.IDatumBuilderWithdrawV3Args.md)
 - [ITxBuilderLucidCompleteTxArgs](../interfaces/Lucid.ITxBuilderLucidCompleteTxArgs.md)
+- [ITxBuilderV1Params](../interfaces/Lucid.ITxBuilderV1Params.md)
+- [ITxBuilderV3Params](../interfaces/Lucid.ITxBuilderV3Params.md)

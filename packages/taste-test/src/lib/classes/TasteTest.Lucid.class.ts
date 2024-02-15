@@ -1,5 +1,5 @@
-import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { type IComposedTx, type ITxBuilderReferralFee } from "@sundaeswap/core";
+import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
+import type { IComposedTx, ITxBuilderReferralFee } from "@sundaeswap/core";
 import { SundaeUtils } from "@sundaeswap/core/utilities";
 import {
   Assets,
@@ -27,6 +27,7 @@ import {
 import {
   IBaseArgs,
   IDepositArgs,
+  ITasteTestFees,
   IUpdateArgs,
   IWithdrawArgs,
   TTasteTestType,
@@ -55,14 +56,6 @@ export interface ITasteTestCompleteTxArgs {
   referralFee?: ITxBuilderReferralFee;
   hasFees?: boolean;
   penalty?: AssetAmount<IAssetAmountMetadata>;
-}
-
-/**
- * Object containing the extended fees.
- */
-export interface ITasteTestFees {
-  foldFee: AssetAmount<IAssetAmountMetadata>;
-  penaltyFee: AssetAmount<IAssetAmountMetadata>;
 }
 
 /**

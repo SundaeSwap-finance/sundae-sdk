@@ -28,7 +28,7 @@ Helper type to export the fees object associated with the TasteTest class.
 
 #### Defined in
 
-[taste-test/src/@types/index.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L20)
+[taste-test/src/@types/index.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L27)
 
 ___
 
@@ -41,7 +41,7 @@ is ends the taste test with pool creation.
 
 #### Defined in
 
-[taste-test/src/@types/index.ts:15](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L15)
+[taste-test/src/@types/index.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L14)
 
 ## Functions
 

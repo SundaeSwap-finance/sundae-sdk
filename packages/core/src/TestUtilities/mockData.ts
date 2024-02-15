@@ -4,7 +4,6 @@ import { Assets, UTxO } from "lucid-cardano";
 import { EDatumType, TOrderAddresses } from "../@types/datumbuilder.js";
 import { IPoolData } from "../@types/queryprovider.js";
 import { EContractVersion } from "../@types/txbuilders.js";
-import { IProtocolParams } from "../@types/utilities.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { ADA_METADATA } from "../constants.js";
 
@@ -16,7 +15,6 @@ interface INetworkData {
   addresses: {
     current: string;
     alternatives: string[];
-    contracts: IProtocolParams;
   };
   assets: {
     tada: AssetAmount<IAssetAmountMetadata>;
@@ -46,7 +44,6 @@ const PREVIEW_DATA: INetworkData = {
       "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32",
       "addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294",
     ],
-    contracts: SundaeUtils.getParams("preview"),
   },
   pools: {
     v1: {

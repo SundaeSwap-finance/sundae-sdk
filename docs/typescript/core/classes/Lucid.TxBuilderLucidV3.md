@@ -37,7 +37,7 @@ TxBuilder.constructor
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L61)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:90](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L90)
 
 ## Properties
 
@@ -53,7 +53,7 @@ TxBuilder.datumBuilder
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L61)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:90](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L90)
 
 ___
 
@@ -65,9 +65,37 @@ A configured Lucid instance to use.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L61)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:90](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L90)
 
 ## Methods
+
+### \_\_getParam
+
+▸ **__getParam**\<`K`\>(`param`): [`ITxBuilderV3Params`](../interfaces/Lucid.ITxBuilderV3Params.md)[`K`]
+
+An internal shortcut method to avoid having to pass in the network all the time.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `K` | extends keyof [`ITxBuilderV3Params`](../interfaces/Lucid.ITxBuilderV3Params.md) |
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `param` | `K` | The parameter you want to retrieve. |
+
+#### Returns
+
+[`ITxBuilderV3Params`](../interfaces/Lucid.ITxBuilderV3Params.md)[`K`]
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:115](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L115)
+
+___
 
 ### cancel
 
@@ -107,7 +135,7 @@ TxBuilder.cancel
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:178](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L178)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:231](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L231)
 
 ___
 
@@ -129,7 +157,7 @@ Merges the user's staking key to the contract payment address if present.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:578](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L578)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:630](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L630)
 
 ___
 
@@ -155,7 +183,7 @@ Returns a new Tx instance from Lucid. Throws an error if not ready.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L70)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:123](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L123)
 
 ___
 
@@ -197,7 +225,7 @@ TxBuilder.swap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:118](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L118)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:171](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L171)
 
 ___
 
@@ -248,7 +276,7 @@ TxBuilder.update
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:259](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L259)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:311](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L311)
 
 ___
 
@@ -290,7 +318,7 @@ TxBuilder.withdraw
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:391](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L391)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:443](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L443)
 
 ___
 
@@ -331,4 +359,35 @@ TxBuilder.zap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:444](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L444)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:496](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L496)
+
+___
+
+### getParam
+
+▸ **getParam**\<`K`\>(`param`, `network`): [`ITxBuilderV3Params`](../interfaces/Lucid.ITxBuilderV3Params.md)[`K`]
+
+Helper method to get a specific parameter of the transaction builder.
+
+#### Type parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `K` | extends keyof [`ITxBuilderV3Params`](../interfaces/Lucid.ITxBuilderV3Params.md) | A generic type parameter that extends the keys of `ITxBuilderV3Params`. |
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `param` | `K` | The name of the parameter to retrieve. Must be a key of `ITxBuilderV3Params`. |
+| `network` | [`TSupportedNetworks`](../modules/Core.md#tsupportednetworks) | The network for which to retrieve the parameter. Determines the set of parameters to use. |
+
+#### Returns
+
+[`ITxBuilderV3Params`](../interfaces/Lucid.ITxBuilderV3Params.md)[`K`]
+
+- The value of the requested parameter, with the type corresponding to the key `param`.
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:103](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L103)

@@ -38,7 +38,7 @@ TxBuilder.constructor
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L60)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L91)
 
 ## Properties
 
@@ -54,7 +54,7 @@ TxBuilder.datumBuilder
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L60)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L91)
 
 ___
 
@@ -66,9 +66,37 @@ A configured Lucid instance to use.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L60)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L91)
 
 ## Methods
+
+### \_\_getParam
+
+▸ **__getParam**\<`K`\>(`param`): [`ITxBuilderV1Params`](../interfaces/Lucid.ITxBuilderV1Params.md)[`K`]
+
+An internal shortcut method to avoid having to pass in the network all the time.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `K` | extends keyof [`ITxBuilderV1Params`](../interfaces/Lucid.ITxBuilderV1Params.md) |
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `param` | `K` | The parameter you want to retrieve. |
+
+#### Returns
+
+[`ITxBuilderV1Params`](../interfaces/Lucid.ITxBuilderV1Params.md)[`K`]
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:116](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L116)
+
+___
 
 ### cancel
 
@@ -108,7 +136,7 @@ TxBuilder.cancel
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:177](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L177)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:230](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L230)
 
 ___
 
@@ -169,7 +197,7 @@ const migrationResult = await sdk.builder().migrateLiquidityToV3([
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:602](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L602)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:643](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L643)
 
 ___
 
@@ -195,7 +223,7 @@ Returns a new Tx instance from Lucid. Throws an error if not ready.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:69](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L69)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:124](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L124)
 
 ___
 
@@ -237,7 +265,7 @@ TxBuilder.swap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:117](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L117)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:172](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L172)
 
 ___
 
@@ -288,7 +316,7 @@ TxBuilder.update
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:256](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L256)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:304](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L304)
 
 ___
 
@@ -330,7 +358,7 @@ TxBuilder.withdraw
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:390](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L390)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:432](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L432)
 
 ___
 
@@ -372,4 +400,33 @@ TxBuilder.zap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:440](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L440)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:478](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L478)
+
+___
+
+### getParam
+
+▸ **getParam**\<`K`\>(`param`, `network`): [`ITxBuilderV1Params`](../interfaces/Lucid.ITxBuilderV1Params.md)[`K`]
+
+Helper method to get a specific parameter of the transaction builder.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `K` | extends keyof [`ITxBuilderV1Params`](../interfaces/Lucid.ITxBuilderV1Params.md) |
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `param` | `K` | The parameter you want to retrieve. |
+| `network` | [`TSupportedNetworks`](../modules/Core.md#tsupportednetworks) | The protocol network. |
+
+#### Returns
+
+[`ITxBuilderV1Params`](../interfaces/Lucid.ITxBuilderV1Params.md)[`K`]
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:103](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L103)
