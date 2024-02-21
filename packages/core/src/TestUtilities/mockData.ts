@@ -90,8 +90,11 @@ const PREVIEW_DATA: INetworkData = {
     },
   },
   assets: {
-    tada: new AssetAmount(20000000n, { assetId: "ada.lovelace", decimals: 6 }),
-    tindy: new AssetAmount(20000000n, {
+    tada: new AssetAmount(20_000_000n, {
+      assetId: "ada.lovelace",
+      decimals: 6,
+    }),
+    tindy: new AssetAmount(20_000_000n, {
       assetId:
         "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
       decimals: 0,

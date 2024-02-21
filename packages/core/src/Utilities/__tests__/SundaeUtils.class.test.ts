@@ -1,12 +1,17 @@
 import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
 
-import { EContractVersion, EPoolCoin, IPoolData } from "../../@types/index.js";
+import {
+  EContractVersion,
+  EPoolCoin,
+  IPoolData,
+  ISundaeProtocolParams,
+} from "../../@types/index.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../../constants.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { SundaeUtils } from "../SundaeUtils.class.js";
 
-const mockedProtocols = [
+const mockedProtocols: ISundaeProtocolParams[] = [
   {
     blueprint: {
       validators: [
@@ -16,6 +21,7 @@ const mockedProtocols = [
         },
       ],
     },
+    references: [],
     version: EContractVersion.V1,
   },
 ];

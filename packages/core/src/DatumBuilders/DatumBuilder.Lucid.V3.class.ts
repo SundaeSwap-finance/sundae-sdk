@@ -62,7 +62,7 @@ export interface IDatumBuilderWithdrawV3Args extends IDatumBuilderBaseV3Args {
  * the V3 pool contract.
  */
 export interface IDatumBuilderMintPoolV3Args {
-  spendingUtxos: UTxO[];
+  seedUtxo: UTxO;
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
   feeDecay: TFee;
@@ -252,9 +252,9 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     feeSlotEnd,
     feeSlotStart,
     protocolFee,
-    spendingUtxos,
+    seedUtxo,
   }: IDatumBuilderMintPoolV3Args): TDatumResult<V3Types.TPoolDatum> {
-    const ident = DatumBuilderLucidV3.computePoolId(spendingUtxos);
+    const ident = DatumBuilderLucidV3.computePoolId(seedUtxo);
     const liquidity = sqrt(assetA.amount * assetB.amount);
 
     const assetsPair = this.buildLexicographicalAssetsDatum(
@@ -513,23 +513,26 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
   /**
    * Computes the pool ID based on the provided UTxO being spent.
    *
-   * @param {UTxO} utxo The UTxO txHash and index.
+   * @param {UTxO} seed The UTxO txHash and index.
    * @returns {string}
    */
-  static computePoolId([utxo]: UTxO[]): string {
-    const poolInputTxHash = Buffer.from(utxo.txHash, "hex");
+  static computePoolId(seed: UTxO): string {
+    const poolInputTxHash = Buffer.from(seed.txHash, "hex");
     const numberSign = new Uint8Array([0x23]);
-    const poolInputTxIx = new Uint8Array([utxo.outputIndex]); // ident encoding for output index 1
+    const poolInputTxIx = new Uint8Array([seed.outputIndex]);
     const poolInputRef = new Uint8Array([
       ...poolInputTxHash,
       ...numberSign,
       ...poolInputTxIx,
     ]);
-    return Buffer.from(
+
+    const hash = Buffer.from(
       C.hash_blake2b256(poolInputRef)
         // Truncate first four bytes and convert to hex string.
         .slice(4)
     ).toString("hex");
+
+    return hash;
   }
 
   /**

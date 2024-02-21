@@ -8,16 +8,6 @@ export type TMultiSigScript = Data.Static<typeof MultiSigScriptSchema>;
 export const MultiSigScript =
   MultiSigScriptSchema as unknown as TMultiSigScript;
 
-export const SettingsDatumSchema = Data.Object({
-  poolScriptHash: Data.Bytes(),
-  settingsAdmin: MultiSigScriptSchema,
-  rewardsAdmin: MultiSigScriptSchema,
-  authorizedScoopers: Data.Array(Data.Bytes()),
-  authorizedStakingKeys: Data.Array(Data.Bytes()),
-});
-export type TSettingsDatum = Data.Static<typeof SettingsDatumSchema>;
-export const SettingsDatum = SettingsDatumSchema as unknown as TSettingsDatum;
-
 export const SingletonValueSchema = Data.Tuple([
   Data.Bytes(),
   Data.Bytes(),
@@ -180,3 +170,20 @@ export const PoolMintRedeemerSchema = Data.Enum([
 export type TPoolMintRedeemer = Data.Static<typeof PoolMintRedeemerSchema>;
 export const PoolMintRedeemer =
   PoolMintRedeemerSchema as unknown as TPoolMintRedeemer;
+
+export const SettingsDatumSchema = Data.Object({
+  settingsAdmin: MultiSigScriptSchema,
+  metadataAdmin: AddressSchema,
+  treasuryAdmin: MultiSigScriptSchema,
+  treasuryAddress: AddressSchema,
+  treasuryAllowance: Data.Array(Data.Integer()),
+  authorizedScoopers: Data.Nullable(Data.Array(Data.Bytes())),
+  authorizedStakingKeys: Data.Array(CredentialSchema),
+  baseFee: Data.Integer(),
+  simpleFee: Data.Integer(),
+  strategyFee: Data.Integer(),
+  poolCreationFee: Data.Integer(),
+  extensions: Data.Integer(),
+});
+export type SettingsDatum = Data.Static<typeof SettingsDatumSchema>;
+export const SettingsDatum = SettingsDatumSchema as unknown as SettingsDatum;

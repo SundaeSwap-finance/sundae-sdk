@@ -211,13 +211,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
    *
    * @param {EContractVersion} version The protocol script hashes.
    */
-  async getProtocolScriptHashes(
+  async getProtocolParamsWithScriptHashes(
     version: undefined
   ): Promise<ISundaeProtocolParams[]>;
-  async getProtocolScriptHashes(
+  async getProtocolParamsWithScriptHashes(
     version: EContractVersion
   ): Promise<ISundaeProtocolParams>;
-  async getProtocolScriptHashes(
+  async getProtocolParamsWithScriptHashes(
     version?: EContractVersion
   ): Promise<ISundaeProtocolParams[] | ISundaeProtocolParams> {
     const res: {
@@ -235,6 +235,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               validators {
                 hash
                 title
+              }
+            }
+            references {
+              key
+              txIn {
+                hash
+                index
               }
             }
             version
@@ -266,13 +273,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
    *
    * @param {EContractVersion} version The protocol script hashes.
    */
-  async getProtocolBlueprints(
+  async getProtocolParamsWithScripts(
     version: undefined
   ): Promise<ISundaeProtocolParamsFull[]>;
-  async getProtocolBlueprints(
+  async getProtocolParamsWithScripts(
     version: EContractVersion
   ): Promise<ISundaeProtocolParamsFull>;
-  async getProtocolBlueprints(
+  async getProtocolParamsWithScripts(
     version?: EContractVersion
   ): Promise<ISundaeProtocolParamsFull[] | ISundaeProtocolParamsFull> {
     const res: {
@@ -291,6 +298,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 hash
                 title
                 compiledCode
+              }
+            }
+            references {
+              key
+              txIn {
+                hash
+                index
               }
             }
             version

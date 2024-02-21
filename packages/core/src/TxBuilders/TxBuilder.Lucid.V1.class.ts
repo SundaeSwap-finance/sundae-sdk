@@ -25,6 +25,7 @@ import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
 import { DatumBuilderLucidV1 } from "../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
+import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
@@ -64,7 +65,9 @@ export interface ITxBuilderV1Params {
  * @implements {TxBuilder}
  */
 export class TxBuilderLucidV1 extends TxBuilder {
+  queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
+
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV1Params> = {
     mainnet: {
       scriptAddress:
@@ -88,9 +91,15 @@ export class TxBuilderLucidV1 extends TxBuilder {
    * @param {Lucid} lucid A configured Lucid instance to use.
    * @param {DatumBuilderLucidV1} datumBuilder A valid V1 DatumBuilder class that will build valid datums.
    */
-  constructor(public lucid: Lucid, public datumBuilder: DatumBuilderLucidV1) {
+  constructor(
+    public lucid: Lucid,
+    public datumBuilder: DatumBuilderLucidV1,
+    queryProvider?: QueryProviderSundaeSwap
+  ) {
     super();
     this.network = lucid.network === "Mainnet" ? "mainnet" : "preview";
+    this.queryProvider =
+      queryProvider ?? new QueryProviderSundaeSwap(this.network);
   }
 
   /**
@@ -653,7 +662,8 @@ export class TxBuilderLucidV1 extends TxBuilder {
     const metadataDatums: Record<string, string[]> = {};
     const v3TxBuilderInstance = new TxBuilderLucidV3(
       this.lucid,
-      new DatumBuilderLucidV3(this.network)
+      new DatumBuilderLucidV3(this.network),
+      this.queryProvider
     );
     const v3OrderScriptAddress =
       await v3TxBuilderInstance.generateScriptAddress("order.spend");

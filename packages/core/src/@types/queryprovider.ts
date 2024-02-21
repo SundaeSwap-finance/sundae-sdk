@@ -96,6 +96,17 @@ export interface ISundaeProtocolValidatorFull extends ISundaeProtocolValidator {
 }
 
 /**
+ * Interface describing the expected structure of the reference object returned by the API.
+ */
+export interface ISundaeProtocolReference {
+  key: string;
+  txIn: {
+    hash: string;
+    index: number;
+  };
+}
+
+/**
  * The Sundae protocol parameters.
  */
 export interface ISundaeProtocolParams {
@@ -103,6 +114,7 @@ export interface ISundaeProtocolParams {
   blueprint: {
     validators: ISundaeProtocolValidator[];
   };
+  references: ISundaeProtocolReference[];
 }
 
 /**
@@ -114,4 +126,5 @@ export interface ISundaeProtocolParamsFull {
   blueprint: {
     validators: ISundaeProtocolValidatorFull[];
   };
+  references: ISundaeProtocolReference[];
 }
