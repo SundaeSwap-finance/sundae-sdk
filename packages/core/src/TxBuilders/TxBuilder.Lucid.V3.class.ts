@@ -440,19 +440,11 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * and completes the transaction by paying to the contract and finalizing the transaction details.
    *
    * @param {ISwapConfigArgs} swapArgs - The configuration arguments for the swap.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the completed transaction.
-   *
-   * @async
-   * @example
-   * ```ts
-   * const txHash = await sdk.builder().swap({
-   *   ...args
-   * })
-   *   .then(({ sign }) => sign())
-   *   .then(({ submit }) => submit())
-   * ```
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the result of the completed transaction.
    */
-  async swap(swapArgs: ISwapConfigArgs) {
+  async swap(
+    swapArgs: ISwapConfigArgs
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const config = new SwapConfig(swapArgs);
 
     const {
@@ -501,19 +493,11 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * sets up the transaction, and completes it.
    *
    * @param {ICancelConfigArgs} cancelArgs - The configuration arguments for the cancel transaction.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the cancel transaction.
-   *
-   * @async
-   * @example
-   * ```ts
-   * const txHash = await sdk.builder().cancel({
-   *   ...args
-   * })
-   *   .then(({ sign }) => sign())
-   *   .then(({ submit }) => submit());
-   * ```
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the result of the cancel transaction.
    */
-  async cancel(cancelArgs: ICancelConfigArgs) {
+  async cancel(
+    cancelArgs: ICancelConfigArgs
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const { utxo, referralFee } = new CancelConfig(cancelArgs).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
@@ -575,23 +559,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
    *
    * @param {{ cancelArgs: ICancelConfigArgs, swapArgs: ISwapConfigArgs }}
    *        The arguments for cancel and swap configurations.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the updated transaction.
-   *
-   * @throws
-   * @async
-   * @example
-   * ```ts
-   * const txHash = await sdk.builder().update({
-   *   cancelArgs: {
-   *     ...args
-   *   },
-   *   swapArgs: {
-   *     ...args
-   *   }
-   * })
-   *   .then(({ sign }) => sign())
-   *   .then(({ submit }) => submit());
-   * ```
+   * @returns {PromisePromise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the result of the updated transaction.
    */
   async update({
     cancelArgs,
@@ -599,7 +567,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
   }: {
     cancelArgs: ICancelConfigArgs;
     swapArgs: ISwapConfigArgs;
-  }) {
+  }): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     /**
      * First, build the cancel transaction.
      */
@@ -671,7 +639,17 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
   }
 
-  async deposit(depositArgs: IDepositConfigArgs) {
+  /**
+   * Executes a deposit transaction using the provided deposit configuration arguments.
+   * The method builds the deposit transaction, including the necessary accumulation of deposit tokens
+   * and the required datum, then completes the transaction to add liquidity to a pool.
+   *
+   * @param {IDepositConfigArgs} depositArgs - The configuration arguments for the deposit.
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object.
+   */
+  async deposit(
+    depositArgs: IDepositConfigArgs
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const { suppliedAssets, pool, orderAddresses, referralFee } =
       new DepositConfig(depositArgs).buildArgs();
 
@@ -715,21 +693,11 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * and datum, and then completes the transaction to remove liquidity from a pool.
    *
    * @param {IWithdrawConfigArgs} withdrawArgs - The configuration arguments for the withdrawal.
-   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A promise that resolves to the composed transaction object.
-   *
-   * @async
-   * @example
-   * ```ts
-   * const txHash = await sdk.builder().withdraw({
-   *   ..args
-   * })
-   *   .then(({ sign }) => sign())
-   *   .then(({ submit }) => submit());
-   * ```
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object.
    */
   async withdraw(
     withdrawArgs: IWithdrawConfigArgs
-  ): Promise<IComposedTx<Tx, TxComplete>> {
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const { suppliedLPAsset, pool, orderAddresses, referralFee } =
       new WithdrawConfig(withdrawArgs).buildArgs();
 
@@ -770,20 +738,11 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * and then completes it by attaching the required metadata and making payments.
    *
    * @param {Omit<IZapConfigArgs, "zapDirection">} zapArgs - The configuration arguments for the zap, excluding the zap direction.
-   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A promise that resolves to the composed transaction object resulting from the zap operation.
-   *
-   * @async
-   * @example
-   * ```ts
-   * const txHash = await sdk.builder().zap({
-   *   ...args
-   * })
-   *   .then(({ sign }) => sign())
-   *   .then(({ submit }) => submit());
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object resulting from the zap operation.
    */
   async zap(
     zapArgs: Omit<IZapConfigArgs, "zapDirection">
-  ): Promise<IComposedTx<Tx, TxComplete>> {
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const zapDirection = SundaeUtils.getAssetSwapDirection(
       zapArgs.suppliedAsset.metadata,
       [zapArgs.pool.assetA, zapArgs.pool.assetB]
@@ -917,7 +876,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
    *
    * @param {string} type
    * @param ownerAddress
-   * @returns
+   * @returns {Promise<string>} The generated Bech32 address.
    */
   public async generateScriptAddress(
     type: "order.spend" | "pool.mint",
@@ -956,12 +915,13 @@ export class TxBuilderLucidV3 extends TxBuilder {
   /**
    * Retrieves the list of UTXOs associated with the wallet, sorts them first by transaction hash (`txHash`)
    * in ascending order and then by output index (`outputIndex`) in ascending order, and returns the first UTXO
-   * in the sorted list. This UTXO is considered as the seed UTXO for pool minting operations.
+   * in the sorted list to act as the `seed`, and any others required to satisfy the required deposits.
    *
    * @param {AssetAmount<IAssetAmountMetadata>[]} assets The pool assets being deposited. They will automatically be sorted.
    *
-   * @returns {Promise<UTxO>} A promise that resolves to the first UTXO in the sorted list, based on the
-   * specified sorting criteria. The UTXO object includes properties such as `txHash` and `outputIndex`.
+   * @returns {Promise<UTxO[]>} A promise that resolves to an array of UTXOs for the transaction. The first UTXO in the sorted list
+   * is the seed (used for generating a unique pool ident, etc). The array includes any other required inputs to satisfy the
+   * deposit requirements of the pool being minted.
    * @throws {Error} Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
    */
   public async getUtxosForPoolMint(
