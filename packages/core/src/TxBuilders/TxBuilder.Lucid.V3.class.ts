@@ -288,25 +288,32 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * constructs and submits a transaction that includes all the necessary generation
    * of pool NFTs, metadata, pool assets, and initial liquidity tokens,
    *
-   * @param {IMintV3PoolConfigArgs} args - Configuration arguments for minting the pool, including assets,
+   * @param {IMintV3PoolConfigArgs} mintPoolArgs - Configuration arguments for minting the pool, including assets,
    * fee parameters, owner address, protocol fee, and referral fee.
+   *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
+   *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
+   *  - feeDecay: A tuple of bigints, [bigint, bigint], representing the fee at marketOpen, decaying linearly till feeDecayEnd.
+   *  - feeDecayEnd: The POSIX timestamp for when the fee should stop decaying.
+   *  - marketOpen: The POSIX timestamp for when pool trades should start executing.
+   *  - ownerAddress: Who the generated LP tokens should be sent to.
+   *  - protocolFee: The fee gathered for the protocol treasury.
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A completed transaction object.
    *
    * @throws {Error} Throws an error if the transaction fails to build or submit.
    */
   async mintPool(
-    args: IMintV3PoolConfigArgs
+    mintPoolArgs: IMintV3PoolConfigArgs
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const {
       assetA,
       assetB,
       feeDecay,
-      feeSlotEnd,
-      feeSlotStart,
+      feeDecayEnd,
+      marketOpen,
       ownerAddress,
       protocolFee,
       referralFee,
-    } = new MintV3PoolConfig(args).buildArgs();
+    } = new MintV3PoolConfig(mintPoolArgs).buildArgs();
 
     const [userUtxos, { hash: poolPolicyId }, references, settings] =
       await Promise.all([
@@ -323,8 +330,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
       assetA,
       assetB,
       feeDecay,
-      feeSlotEnd,
-      feeSlotStart,
+      feeDecayEnd,
+      marketOpen,
       protocolFee,
       seedUtxo: userUtxos[0],
     });

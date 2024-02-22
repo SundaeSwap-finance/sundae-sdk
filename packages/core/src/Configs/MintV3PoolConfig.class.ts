@@ -8,8 +8,8 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
   assetA?: AssetAmount<IAssetAmountMetadata>;
   assetB?: AssetAmount<IAssetAmountMetadata>;
   feeDecay?: TFee;
-  feeSlotEnd?: bigint;
-  feeSlotStart?: bigint;
+  feeDecayEnd?: bigint;
+  marketOpen?: bigint;
   ownerAddress?: string;
   protocolFee?: bigint;
 
@@ -22,8 +22,8 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     assetA,
     assetB,
     feeDecay,
-    feeSlotEnd,
-    feeSlotStart,
+    feeDecayEnd,
+    marketOpen,
     ownerAddress,
     protocolFee,
     referralFee,
@@ -32,22 +32,27 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     this.setAssetA(assetA);
     this.setAssetB(assetB);
     this.setFeeDecay(feeDecay);
-    this.setSlotEnd(feeSlotEnd);
-    this.setSlotStart(feeSlotStart);
+    this.setFeeDecayEnd(feeDecayEnd);
+    this.setMarketOpen(marketOpen);
     this.setOwnerAddress(ownerAddress);
     this.setProtocolFee(protocolFee ?? 2_000_000n);
   }
 
-  buildArgs(): Omit<IMintV3PoolConfigArgs, "protocolFee"> & {
+  buildArgs(): Omit<
+    IMintV3PoolConfigArgs,
+    "protocolFee" | "marketOpen" | "feeDecayEnd"
+  > & {
     protocolFee: bigint;
+    marketOpen: bigint;
+    feeDecayEnd: bigint;
   } {
     this.validate();
     return {
       assetA: this.assetA as AssetAmount<IAssetAmountMetadata>,
       assetB: this.assetB as AssetAmount<IAssetAmountMetadata>,
       feeDecay: this.feeDecay as TFee,
-      feeSlotEnd: this.feeSlotEnd as bigint,
-      feeSlotStart: this.feeSlotStart as bigint,
+      feeDecayEnd: this.feeDecayEnd as bigint,
+      marketOpen: this.marketOpen as bigint,
       ownerAddress: this.ownerAddress as string,
       protocolFee: this.protocolFee ?? 2_000_000n,
       referralFee: this.referralFee,
@@ -69,13 +74,13 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     return this;
   }
 
-  setSlotEnd(slot: bigint) {
-    this.feeSlotEnd = slot;
+  setFeeDecayEnd(posix: bigint | number) {
+    this.feeDecayEnd = BigInt(posix);
     return this;
   }
 
-  setSlotStart(slot: bigint) {
-    this.feeSlotStart = slot;
+  setMarketOpen(posix: bigint | number) {
+    this.marketOpen = BigInt(posix);
     return this;
   }
 

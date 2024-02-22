@@ -66,8 +66,8 @@ export interface IDatumBuilderMintPoolV3Args {
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
   feeDecay: TFee;
-  feeSlotStart: bigint;
-  feeSlotEnd: bigint;
+  feeDecayEnd: bigint;
+  marketOpen: bigint;
   protocolFee: bigint;
 }
 
@@ -238,9 +238,15 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
    * Creates a new pool datum for minting a the pool. This is attached to the assets that are sent
    * to the pool minting contract. See {@link Lucid.TxBuilderLucidV3} for more details.
    *
-   * @param {IDatumBuilderMintPoolV3Args} param The assets being supplied to the new pool.
+   * @param {IDatumBuilderMintPoolV3Args} params The arguments for building a pool mint datum.
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
+   *  - feeDecay: A tuple of bigints, [bigint, bigint], representing the fee at marketOpen, decaying linearly till feeDecayEnd.
+   *  - feeDecayEnd: The POSIX timestamp for when the fee should stop decaying.
+   *  - marketOpen: The POSIX timestamp for when pool trades should start executing.
+   *  - protocolFee: The fee gathered for the protocol treasury.
+   *  - seedUtxo: The UTXO to use as the seed, which generates asset names and the pool ident.
+   *
    * @returns {TDatumResult<V3Types.TPoolDatum>} An object containing the hash of the inline datum, the inline datum itself,
    *                                              and the schema of the original pool mint datum, crucial for the execution
    *                                              of the minting pool operation.
@@ -249,8 +255,8 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     assetA,
     assetB,
     feeDecay,
-    feeSlotEnd,
-    feeSlotStart,
+    feeDecayEnd,
+    marketOpen,
     protocolFee,
     seedUtxo,
   }: IDatumBuilderMintPoolV3Args): TDatumResult<V3Types.TPoolDatum> {
@@ -263,12 +269,12 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     ).schema;
 
     const newPoolDatum: V3Types.TPoolDatum = {
-      identifier: ident,
       assets: assetsPair,
       circulatingLp: liquidity,
       feesPer10Thousand: feeDecay,
-      marketOpen: feeSlotStart || 0n,
-      feeFinalized: feeSlotEnd || 0n,
+      feeFinalized: feeDecayEnd || 0n,
+      identifier: ident,
+      marketOpen: marketOpen || 0n,
       protocolFee,
     };
 

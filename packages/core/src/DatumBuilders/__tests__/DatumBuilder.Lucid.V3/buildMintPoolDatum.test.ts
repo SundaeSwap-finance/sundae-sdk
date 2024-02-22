@@ -12,8 +12,8 @@ const defaultArgs: IDatumBuilderMintPoolV3Args = {
   assetA: PREVIEW_DATA.assets.tada,
   assetB: PREVIEW_DATA.assets.tindy,
   feeDecay: [5n, 10n],
-  feeSlotEnd: 5n,
-  feeSlotStart: 123n,
+  feeDecayEnd: 5n,
+  marketOpen: 123n,
   protocolFee: 2_000_000n,
   seedUtxo: {
     address:

@@ -497,8 +497,11 @@ describe("TxBuilderLucidV3", () => {
       assetA: PREVIEW_DATA.assets.tada,
       assetB: PREVIEW_DATA.assets.tindy,
       feeDecay: [5n, 10n],
-      feeSlotStart: 5n,
-      feeSlotEnd: 10_000n,
+
+      // Should work with bigint or number
+      feeDecayEnd: 10_000n,
+      marketOpen: 5,
+
       ownerAddress: PREVIEW_DATA.addresses.current,
     });
 

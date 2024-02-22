@@ -100,8 +100,8 @@ export interface IMintV3PoolConfigArgs extends IBaseConfig {
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
   feeDecay: TFee;
-  feeSlotStart: bigint;
-  feeSlotEnd: bigint;
+  feeDecayEnd: number | bigint;
+  marketOpen: number | bigint;
   ownerAddress: string;
   protocolFee?: bigint;
 }
