@@ -263,17 +263,10 @@ export const mockBlockfrostEvaluateResponse = {
   servicename: "ogmios",
   methodname: "EvaluateTx",
   result: {
-    EvaluationFailure: {
-      ScriptFailures: {
-        "mint:0": [
-          {
-            validatorFailed: {
-              error:
-                "An error has occurred:  User error:\nThe machine terminated because of an error, either from a built-in function or from an explicit use of 'error'.",
-              traces: [],
-            },
-          },
-        ],
+    EvaluationResult: {
+      "mint:0": {
+        memory: 740085,
+        steps: 303801484,
       },
     },
   },

@@ -359,7 +359,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     };
 
     if (SundaeUtils.isAdaAsset(sortedAssets[0].metadata)) {
-      poolAssets["lovelace"] = sortedAssets[0].amount;
+      poolAssets["lovelace"] = sortedAssets[0].amount + ORDER_DEPOSIT_DEFAULT;
     } else {
       poolAssets["lovelace"] = ORDER_DEPOSIT_DEFAULT;
       poolAssets[sortedAssets[0].metadata.assetId.replace(".", "")] =
@@ -383,11 +383,11 @@ export class TxBuilderLucidV3 extends TxBuilder {
         poolAssets
       )
       .payToAddress(metadataAddress, {
-        lovelace: 2_000_000n,
+        lovelace: ORDER_DEPOSIT_DEFAULT,
         [poolRefNameHex]: 1n,
       })
       .payToAddress(ownerAddress, {
-        lovelace: 2_000_000n,
+        lovelace: ORDER_DEPOSIT_DEFAULT,
         [poolLqNameHex]: circulatingLp,
       });
 
@@ -395,6 +395,18 @@ export class TxBuilderLucidV3 extends TxBuilder {
       tx,
       datum: mintPoolDatum,
       referralFee: referralFee?.payment,
+      /**
+       * The deposit is multiplied by 3 to cover the following:
+       * - Pool assets.
+       * - Metadata asset.
+       * - Liquidity assets.
+       */
+      deposit: ORDER_DEPOSIT_DEFAULT * 3n,
+      /**
+       * We avoid Lucid's version of coinSelection because we need to ensure
+       * that the first input is also the seed input for determining the pool
+       * ident.
+       */
       coinSelection: false,
       /**
        * There are some issues with the way Lucid evaluates scripts sometimes,
@@ -958,9 +970,15 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const selectedUtxos: UTxO[] = [seedUtxo];
     const [assetARequirement, assetBRequirement] =
       SundaeUtils.sortSwapAssetsWithAmounts(assets).map((asset) => {
-        // We add an additional 4 ADA requirement to the ADA UTXO just to cover min amounts.
+        /**
+         * We add an additional 6 ADA requirement to the ADA UTXO just to cover min amounts.
+         * Specifically, this makes sure we have enough ADA to cover:
+         * - Pool Tokens
+         * - Metadata NFT Token
+         * - Liquidity LP Tokens
+         */
         if (SundaeUtils.isAdaAsset(asset.metadata)) {
-          return asset.withAmount(asset.amount + 4_000_000n);
+          return asset.withAmount(asset.amount + ORDER_DEPOSIT_DEFAULT * 3n);
         }
 
         return asset;

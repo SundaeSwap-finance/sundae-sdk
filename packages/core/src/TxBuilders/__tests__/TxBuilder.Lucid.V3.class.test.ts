@@ -5,6 +5,7 @@ import { C, Lucid, Tx } from "lucid-cardano";
 
 import { EDatumType, ESwapType, ITxBuilderFees } from "../../@types/index.js";
 import { DatumBuilderLucidV3 } from "../../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
+import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../../constants.js";
 import { PREVIEW_DATA, setupLucid } from "../../exports/testing.js";
 import { TxBuilderLucidV3 } from "../TxBuilder.Lucid.V3.class.js";
@@ -15,33 +16,23 @@ import {
   settingsUtxos,
 } from "./data/mockData.js";
 
-// // @ts-ignore
-// const _fetchMock = fetchMock.fetchHandler;
-// // @ts-ignore
-// fetchMock.fetchHandler = (request, options) => {
-//   if (request?.url) {
-//     // Function was called with a single argument of type Request
-//     return _fetchMock(request.url, { method: request.method });
-//   }
-//   return _fetchMock(request, options);
-// };
-// fetchMock.post(
-//   // @ts-ignore
-//   (url, opts) => {
-//     console.log(url);
-//     if (
-//       url === "https://cardano-preview.blockfrost.io/api/v0/utils/txs/evaluate"
-//     ) {
-//       console.log(opts);
-//       return true;
-//     }
-
-//     return false;
-//   },
-//   {
-//     body: JSON.stringify(mockBlockfrostEvaluateResponse),
-//   }
-// );
+beforeEach(() => {
+  jest
+    .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
+    .mockResolvedValue(settingsUtxos);
+  jest
+    .spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos")
+    .mockResolvedValue(referenceUtxos);
+  jest
+    .spyOn(
+      QueryProviderSundaeSwap.prototype,
+      "getProtocolParamsWithScriptHashes"
+    )
+    .mockResolvedValue(params);
+  jest
+    .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScripts")
+    .mockResolvedValue(params);
+});
 
 afterAll(() => {
   jest.restoreAllMocks();
@@ -502,17 +493,6 @@ describe("TxBuilderLucidV3", () => {
    * h
    */
   test("mintPool() should build a transaction correctly", async () => {
-    // Pulled from real transaction: bc2236165b3c7f7ca4f498b4b8c49a9a58cc3f9aaedd5c39f6a2aa003c2e9496
-    const spiedOnSettings = jest
-      .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-      .mockResolvedValue(settingsUtxos);
-    const spiedOnReferences = jest
-      .spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos")
-      .mockResolvedValue(referenceUtxos);
-    const spiedOnProtocol = jest
-      .spyOn(TxBuilderLucidV3.prototype, "getProtocolParams")
-      .mockResolvedValue(params);
-
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
 
@@ -525,12 +505,34 @@ describe("TxBuilderLucidV3", () => {
       ownerAddress: PREVIEW_DATA.addresses.current,
     });
 
-    expect(spiedOnSettings).toHaveBeenCalled();
-    expect(spiedOnProtocol).toHaveBeenCalled();
-    expect(spiedOnReferences).toHaveBeenCalled();
+    const { cbor, builtTx } = await build();
 
-    const { cbor } = await build();
-    console.log(cbor);
+    // Pool output.
+    const poolOutput = builtTx.txComplete.body().outputs().get(0);
+    expect(
+      Buffer.from(poolOutput.address().to_bytes()).toString("hex")
+    ).toEqual("708140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca");
+    expect(poolOutput.amount().coin().to_str()).toEqual("22000000");
+    const poolNFT = poolOutput
+      .amount()
+      .multiasset()
+      ?.get(
+        C.ScriptHash.from_hex(
+          "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
+        )
+      )
+      ?.get(
+        C.AssetName.from_bytes(
+          Buffer.from(
+            "000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550",
+            "hex"
+          )
+        )
+      )
+      ?.to_str();
+
+    expect(poolNFT).not.toBeUndefined();
+    expect(poolNFT).toEqual(1);
 
     fetchMock.disableMocks();
   });

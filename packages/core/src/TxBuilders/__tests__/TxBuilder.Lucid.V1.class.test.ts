@@ -10,9 +10,11 @@ import {
   ESwapType,
   IPoolData,
   ITxBuilderFees,
+  QueryProviderSundaeSwap,
 } from "../../exports/core.js";
 import { PREVIEW_DATA, setupLucid } from "../../exports/testing.js";
 import { TxBuilderLucidV1 } from "../TxBuilder.Lucid.V1.class.js";
+import { params } from "./data/mockData.js";
 
 let builder: TxBuilderLucidV1;
 let datumBuilder: DatumBuilderLucidV1;
@@ -23,6 +25,18 @@ const { getUtxosByOutRefMock } = setupLucid((lucid) => {
 });
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
+
+beforeAll(() => {
+  jest
+    .spyOn(
+      QueryProviderSundaeSwap.prototype,
+      "getProtocolParamsWithScriptHashes"
+    )
+    .mockResolvedValue(params);
+  jest
+    .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScripts")
+    .mockResolvedValue(params);
+});
 
 describe("TxBuilderLucidV1", () => {
   it("should have the correct settings", () => {
