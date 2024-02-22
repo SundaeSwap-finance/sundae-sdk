@@ -30,9 +30,9 @@ jobs:
       - name: Install
         run: yarn install --frozen-lockfile --ignore-scripts
 
-      # Typecheck
-      - name: Typecheck
-        run: yarn typecheck
+      # Build
+      - name: Build
+        run: yarn build
 
       # Run Tests
       - name: Run Tests
