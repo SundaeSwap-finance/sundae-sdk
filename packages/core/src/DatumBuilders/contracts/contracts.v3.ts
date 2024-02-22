@@ -185,5 +185,5 @@ export const SettingsDatumSchema = Data.Object({
   poolCreationFee: Data.Integer(),
   extensions: Data.Integer(),
 });
-export type SettingsDatum = Data.Static<typeof SettingsDatumSchema>;
-export const SettingsDatum = SettingsDatumSchema as unknown as SettingsDatum;
+export type TSettingsDatum = Data.Static<typeof SettingsDatumSchema>;
+export const SettingsDatum = SettingsDatumSchema as unknown as TSettingsDatum;

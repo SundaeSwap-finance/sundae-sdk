@@ -42,6 +42,7 @@
 - [IPoolDate](../interfaces/Core.IPoolDate.md)
 - [ISundaeProtocolParams](../interfaces/Core.ISundaeProtocolParams.md)
 - [ISundaeProtocolParamsFull](../interfaces/Core.ISundaeProtocolParamsFull.md)
+- [ISundaeProtocolReference](../interfaces/Core.ISundaeProtocolReference.md)
 - [ISundaeProtocolValidator](../interfaces/Core.ISundaeProtocolValidator.md)
 - [ISundaeProtocolValidatorFull](../interfaces/Core.ISundaeProtocolValidatorFull.md)
 - [ISundaeSDKOptions](../interfaces/Core.ISundaeSDKOptions.md)

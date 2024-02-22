@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "postinstall": "lerna bootstrap",
-    "test": "yarn node --max-old-space-size=4000 --no-warnings --experimental-vm-modules $(yarn bin jest)",
+    "test": "yarn node --max-old-space-size=6000 --no-warnings --experimental-vm-modules $(yarn bin jest)",
     "lint": "eslint ./packages --ext js,jsx,ts,tsx",
     "lint:fix": "yarn lint --fix",
     "prepare": "husky install",

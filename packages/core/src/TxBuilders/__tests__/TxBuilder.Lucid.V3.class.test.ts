@@ -16,35 +16,16 @@ import {
   settingsUtxos,
 } from "./data/mockData.js";
 
-beforeEach(() => {
-  jest
-    .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-    .mockResolvedValue(settingsUtxos);
-  jest
-    .spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos")
-    .mockResolvedValue(referenceUtxos);
-  jest
-    .spyOn(
-      QueryProviderSundaeSwap.prototype,
-      "getProtocolParamsWithScriptHashes"
-    )
-    .mockResolvedValue(params);
-  jest
-    .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScripts")
-    .mockResolvedValue(params);
-});
+jest
+  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScriptHashes")
+  .mockResolvedValue(params);
 
-afterAll(() => {
-  jest.restoreAllMocks();
-});
+jest
+  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScripts")
+  .mockResolvedValue(params);
 
 let builder: TxBuilderLucidV3;
 let datumBuilder: DatumBuilderLucidV3;
-
-setupLucid((lucid) => {
-  datumBuilder = new DatumBuilderLucidV3("preview");
-  builder = new TxBuilderLucidV3(lucid, datumBuilder);
-});
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
 
@@ -65,6 +46,15 @@ const getPaymentAddressFromOutput = (output: C.TransactionOutput) => {
 
   return paymentAddress;
 };
+
+setupLucid((lucid) => {
+  datumBuilder = new DatumBuilderLucidV3("preview");
+  builder = new TxBuilderLucidV3(lucid, datumBuilder);
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
 
 describe("TxBuilderLucidV3", () => {
   it("should have the correct settings", () => {
@@ -493,6 +483,13 @@ describe("TxBuilderLucidV3", () => {
    * h
    */
   test("mintPool() should build a transaction correctly", async () => {
+    jest
+      .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
+      .mockResolvedValue(settingsUtxos);
+    jest
+      .spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos")
+      .mockResolvedValue(referenceUtxos);
+
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
 
@@ -505,34 +502,85 @@ describe("TxBuilderLucidV3", () => {
       ownerAddress: PREVIEW_DATA.addresses.current,
     });
 
-    const { cbor, builtTx } = await build();
+    expect(fees.deposit.amount).toEqual(ORDER_DEPOSIT_DEFAULT * 3n);
 
-    // Pool output.
+    const { builtTx } = await build();
+
+    /**
+     * The pool output should be the first in the outputs.
+     */
     const poolOutput = builtTx.txComplete.body().outputs().get(0);
     expect(
       Buffer.from(poolOutput.address().to_bytes()).toString("hex")
     ).toEqual("708140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca");
-    expect(poolOutput.amount().coin().to_str()).toEqual("22000000");
-    const poolNFT = poolOutput
+    const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
+    const poolDepositedAssetA = poolOutput.amount().coin().to_str();
+    const poolDepositedAssetB =
+      poolDepositAssets[
+        PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[0]
+      ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]];
+    const poolDepositedNFT =
+      poolDepositAssets[
+        "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
+      ]["000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"];
+
+    [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(
+      (val) => expect(val).not.toBeUndefined()
+    );
+    // Should deposit with ADA deposit.
+    expect(poolDepositedAssetA).toEqual(
+      (PREVIEW_DATA.assets.tada.amount + 2_000_000n).toString()
+    );
+    expect(poolDepositedAssetB).toEqual("20000000");
+    expect(poolDepositedNFT).toEqual("1");
+
+    /**
+     * The metadata output should be the second in the outputs.
+     */
+    const metadataOutput = builtTx.txComplete.body().outputs().get(1);
+    expect(
+      Buffer.from(metadataOutput.address().to_bytes()).toString("hex")
+    ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
+    const metadataDepositAssets = metadataOutput
       .amount()
       .multiasset()
-      ?.get(
-        C.ScriptHash.from_hex(
-          "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
-        )
-      )
-      ?.get(
-        C.AssetName.from_bytes(
-          Buffer.from(
-            "000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550",
-            "hex"
-          )
-        )
-      )
-      ?.to_str();
+      ?.to_js_value();
+    const metadataDepositedAssetA = metadataOutput.amount().coin().to_str();
+    const metadataDepositedNFT =
+      metadataDepositAssets[params.blueprint.validators[1].hash][
+        "000643b09e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
+      ];
 
-    expect(poolNFT).not.toBeUndefined();
-    expect(poolNFT).toEqual(1);
+    [metadataDepositedAssetA, metadataDepositedNFT].forEach((val) =>
+      expect(val).not.toBeUndefined()
+    );
+    expect(metadataDepositedAssetA).toEqual("2000000");
+    expect(metadataDepositedNFT).toEqual("1");
+
+    /**
+     * The lp tokens output should be the third in the outputs.
+     */
+    const lpTokensOutput = builtTx.txComplete.body().outputs().get(2);
+    expect(
+      Buffer.from(lpTokensOutput.address().to_bytes()).toString("hex")
+    ).toEqual(
+      "00c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0"
+    );
+    const lpTokensDepositAssets = lpTokensOutput
+      .amount()
+      .multiasset()
+      ?.to_js_value();
+    const lpTokensReturnedADA = lpTokensOutput.amount().coin().to_str();
+    const lpTokensReturned =
+      lpTokensDepositAssets[params.blueprint.validators[1].hash][
+        "0014df109e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
+      ];
+
+    [lpTokensReturnedADA, lpTokensReturned].forEach((val) =>
+      expect(val).not.toBeUndefined()
+    );
+    expect(lpTokensReturnedADA).toEqual("2000000");
+    expect(lpTokensReturned).toEqual("20000000");
 
     fetchMock.disableMocks();
   });

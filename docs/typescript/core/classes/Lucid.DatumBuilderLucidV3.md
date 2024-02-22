@@ -185,7 +185,7 @@ ___
 
 ### computePoolId
 
-▸ **computePoolId**(`utxo`): `string`
+▸ **computePoolId**(`seed`): `string`
 
 Computes the pool ID based on the provided UTxO being spent.
 
@@ -193,7 +193,7 @@ Computes the pool ID based on the provided UTxO being spent.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `utxo` | `UTxO`[] | The UTxO txHash and index. |
+| `seed` | `UTxO` | The UTxO txHash and index. |
 
 #### Returns
 
@@ -302,7 +302,7 @@ An object containing the staking and
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:547](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L547)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:550](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L550)
 
 ___
 
@@ -331,4 +331,4 @@ The signing key associated with the owner, extracted from the datum. This key is
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:586](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L586)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:589](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L589)

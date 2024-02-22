@@ -11,6 +11,7 @@ export const setupLucid = (
   useLucid?: (lucid: Lucid) => void,
   options?: {
     customUtxos?: UTxO[];
+    beforeAll?: () => void;
   }
 ): {
   getUtxosByOutRefMock: jest.Mock<TGetUtxosByOutRefMock>;
@@ -37,6 +38,8 @@ export const setupLucid = (
   }));
 
   beforeAll(async () => {
+    options?.beforeAll?.();
+
     global.window = {
       // @ts-ignore
       cardano: windowCardano,

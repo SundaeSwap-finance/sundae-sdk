@@ -108,7 +108,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       queryProvider ?? new QueryProviderSundaeSwap(this.network);
 
     // Preemptively fetch protocol parameters.
-    this.getProtocolParams();
+    // this.getProtocolParams();
   }
 
   /**
@@ -222,7 +222,12 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const {
       blueprint: { validators },
     } = await this.getProtocolParams();
-    if (validators.some(({ compiledCode }) => !compiledCode)) {
+
+    const hasFetchedCompiledCode = validators.some(
+      ({ compiledCode }) => !compiledCode
+    );
+
+    if (!hasFetchedCompiledCode) {
       this.protocolParams =
         await this.queryProvider.getProtocolParamsWithScripts(
           EContractVersion.V3
@@ -278,7 +283,20 @@ export class TxBuilderLucidV3 extends TxBuilder {
     return instance;
   }
 
-  async mintPool(args: IMintV3PoolConfigArgs) {
+  /**
+   * Mints a new liquidity pool on the Cardano blockchain. This method
+   * constructs and submits a transaction that includes all the necessary generation
+   * of pool NFTs, metadata, pool assets, and initial liquidity tokens,
+   *
+   * @param {IMintV3PoolConfigArgs} args - Configuration arguments for minting the pool, including assets,
+   * fee parameters, owner address, protocol fee, and referral fee.
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A completed transaction object.
+   *
+   * @throws {Error} Throws an error if the transaction fails to build or submit.
+   */
+  async mintPool(
+    args: IMintV3PoolConfigArgs
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const {
       assetA,
       assetB,
@@ -1035,12 +1053,6 @@ export class TxBuilderLucidV3 extends TxBuilder {
       accumulatedAValue < assetARequirement.amount ||
       accumulatedBValue < assetBRequirement.amount
     ) {
-      console.log(
-        utxos,
-        selectedUtxos,
-        assetARequirement.metadata.assetId,
-        assetBRequirement.metadata.assetId
-      );
       throw new Error(`
         Could not select enough assets from your wallet to satisfy the pool creation requirements.
         Looking for ${assetARequirement.value.toString()} ${
