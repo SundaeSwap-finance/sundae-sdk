@@ -99,9 +99,8 @@ export interface IWithdrawConfigArgs extends IOrderConfigArgs {
 export interface IMintV3PoolConfigArgs extends IBaseConfig {
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
-  feeDecay: TFee;
-  feeDecayEnd: number | bigint;
-  marketOpen: number | bigint;
+  fees: TFee;
+  marketTimings: [number | bigint, number | bigint];
   ownerAddress: string;
   protocolFee?: bigint;
 }

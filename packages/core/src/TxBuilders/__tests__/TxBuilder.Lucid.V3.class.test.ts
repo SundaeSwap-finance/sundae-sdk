@@ -496,12 +496,8 @@ describe("TxBuilderLucidV3", () => {
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tada,
       assetB: PREVIEW_DATA.assets.tindy,
-      feeDecay: [5n, 10n],
-
-      // Should work with bigint or number
-      feeDecayEnd: 10_000n,
-      marketOpen: 5,
-
+      fees: [5n, 10n],
+      marketTimings: [5, 10_000n],
       ownerAddress: PREVIEW_DATA.addresses.current,
     });
 

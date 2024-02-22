@@ -292,9 +292,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * fee parameters, owner address, protocol fee, and referral fee.
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
-   *  - feeDecay: A tuple of bigints, [bigint, bigint], representing the fee at marketOpen, decaying linearly till feeDecayEnd.
-   *  - feeDecayEnd: The POSIX timestamp for when the fee should stop decaying.
-   *  - marketOpen: The POSIX timestamp for when pool trades should start executing.
+   *  - fees: A pair of fees, denominated out of 10 thousand, that correspond to their respective index in marketTimings.
+   *  - marketTimings: The POSIX timestamp for when the fee should start (market open), and stop (fee progression ends).
    *  - ownerAddress: Who the generated LP tokens should be sent to.
    *  - protocolFee: The fee gathered for the protocol treasury.
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A completed transaction object.
@@ -307,9 +306,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const {
       assetA,
       assetB,
-      feeDecay,
-      feeDecayEnd,
-      marketOpen,
+      fees,
+      marketTimings,
       ownerAddress,
       protocolFee,
       referralFee,
@@ -329,9 +327,9 @@ export class TxBuilderLucidV3 extends TxBuilder {
     } = this.datumBuilder.buildMintPoolDatum({
       assetA,
       assetB,
-      feeDecay,
-      feeDecayEnd,
-      marketOpen,
+      feeDecay: fees,
+      feeDecayEnd: marketTimings[1],
+      marketOpen: marketTimings[0],
       protocolFee,
       seedUtxo: userUtxos[0],
     });

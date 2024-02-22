@@ -7,9 +7,8 @@ import { Config } from "../Abstracts/Config.abstract.class.js";
 export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
   assetA?: AssetAmount<IAssetAmountMetadata>;
   assetB?: AssetAmount<IAssetAmountMetadata>;
-  feeDecay?: TFee;
-  feeDecayEnd?: bigint;
-  marketOpen?: bigint;
+  fees?: TFee;
+  marketTimings?: [bigint, bigint];
   ownerAddress?: string;
   protocolFee?: bigint;
 
@@ -21,9 +20,8 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
   setFromObject({
     assetA,
     assetB,
-    feeDecay,
-    feeDecayEnd,
-    marketOpen,
+    fees,
+    marketTimings,
     ownerAddress,
     protocolFee,
     referralFee,
@@ -31,28 +29,22 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     referralFee && this.setReferralFee(referralFee);
     this.setAssetA(assetA);
     this.setAssetB(assetB);
-    this.setFeeDecay(feeDecay);
-    this.setFeeDecayEnd(feeDecayEnd);
-    this.setMarketOpen(marketOpen);
+    this.setFees(fees);
+    this.setMarketTimings(marketTimings);
     this.setOwnerAddress(ownerAddress);
     this.setProtocolFee(protocolFee ?? 2_000_000n);
   }
 
-  buildArgs(): Omit<
-    IMintV3PoolConfigArgs,
-    "protocolFee" | "marketOpen" | "feeDecayEnd"
-  > & {
+  buildArgs(): Omit<IMintV3PoolConfigArgs, "protocolFee" | "marketTimings"> & {
     protocolFee: bigint;
-    marketOpen: bigint;
-    feeDecayEnd: bigint;
+    marketTimings: [bigint, bigint];
   } {
     this.validate();
     return {
       assetA: this.assetA as AssetAmount<IAssetAmountMetadata>,
       assetB: this.assetB as AssetAmount<IAssetAmountMetadata>,
-      feeDecay: this.feeDecay as TFee,
-      feeDecayEnd: this.feeDecayEnd as bigint,
-      marketOpen: this.marketOpen as bigint,
+      fees: this.fees as TFee,
+      marketTimings: this.marketTimings as [bigint, bigint],
       ownerAddress: this.ownerAddress as string,
       protocolFee: this.protocolFee ?? 2_000_000n,
       referralFee: this.referralFee,
@@ -69,18 +61,13 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     return this;
   }
 
-  setFeeDecay(fee: TFee) {
-    this.feeDecay = fee;
+  setFees(fee: TFee) {
+    this.fees = fee;
     return this;
   }
 
-  setFeeDecayEnd(posix: bigint | number) {
-    this.feeDecayEnd = BigInt(posix);
-    return this;
-  }
-
-  setMarketOpen(posix: bigint | number) {
-    this.marketOpen = BigInt(posix);
+  setMarketTimings(timings: [bigint | number, bigint | number]) {
+    this.marketTimings = [BigInt(timings[0]), BigInt(timings[1])];
     return this;
   }
 
