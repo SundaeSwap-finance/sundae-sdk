@@ -5,6 +5,8 @@ import { TFee } from "../@types/queryprovider.js";
 import { Config } from "../Abstracts/Config.abstract.class.js";
 
 export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
+  static MAX_FEE: bigint = 10_000n;
+
   assetA?: AssetAmount<IAssetAmountMetadata>;
   assetB?: AssetAmount<IAssetAmountMetadata>;
   fees?: TFee;
@@ -83,5 +85,22 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
 
   validate(): void {
     super.validate();
+
+    const [feeOpen = 0, feeClose = 0] = this.marketTimings || [];
+    if (feeClose < feeOpen) {
+      throw new Error(
+        "The second timestamp in the marketTimings tuple must be greater than the first."
+      );
+    }
+
+    const [feeStart = 0n, feeEnd = 0n] = this.fees || [];
+    if (
+      feeStart > MintV3PoolConfig.MAX_FEE ||
+      feeEnd > MintV3PoolConfig.MAX_FEE
+    ) {
+      throw new Error(
+        `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+      );
+    }
   }
 }
