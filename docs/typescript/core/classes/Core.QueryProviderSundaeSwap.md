@@ -22,9 +22,9 @@ console.log(ident); // "02"
 
 ## Methods
 
-### getProtocolScriptHashes
+### getProtocolParamsWithScriptHashes
 
-▸ **getProtocolScriptHashes**(`version`): `Promise`\<[`ISundaeProtocolParams`](../interfaces/Core.ISundaeProtocolParams.md)[]\>
+▸ **getProtocolParamsWithScriptHashes**(`version`): `Promise`\<[`ISundaeProtocolParams`](../interfaces/Core.ISundaeProtocolParams.md)[]\>
 
 Retrieves the script hashes for all available Protocols.
 
@@ -40,4 +40,26 @@ Retrieves the script hashes for all available Protocols.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:213](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L213)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:214](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L214)
+
+___
+
+### getProtocolParamsWithScripts
+
+▸ **getProtocolParamsWithScripts**(`version`): `Promise`\<[`ISundaeProtocolParamsFull`](../interfaces/Core.ISundaeProtocolParamsFull.md)[]\>
+
+Retrieves the script hashes for all available Protocols.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `version` | `undefined` | The protocol script hashes. |
+
+#### Returns
+
+`Promise`\<[`ISundaeProtocolParamsFull`](../interfaces/Core.ISundaeProtocolParamsFull.md)[]\>
+
+#### Defined in
+
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:276](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L276)

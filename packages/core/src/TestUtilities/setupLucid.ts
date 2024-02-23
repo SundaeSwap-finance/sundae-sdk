@@ -5,12 +5,13 @@ import { getBlockfrostProtocolParameters, windowCardano } from "./cardano.js";
 import { PREVIEW_DATA } from "./mockData.js";
 
 type TGetUtxosByOutRefMock = (outRefs: OutRef[]) => Promise<UTxO[] | undefined>;
-type TGetUtxosMock = () => UTxO[];
+type TGetUtxosMock = () => Promise<UTxO[]>;
 
 export const setupLucid = (
   useLucid?: (lucid: Lucid) => void,
   options?: {
     customUtxos?: UTxO[];
+    beforeAll?: () => void;
   }
 ): {
   getUtxosByOutRefMock: jest.Mock<TGetUtxosByOutRefMock>;
@@ -21,9 +22,13 @@ export const setupLucid = (
   const getUtxosByOutRefMock = jest.fn<TGetUtxosByOutRefMock>();
   const getUtxosMock = jest
     .fn<TGetUtxosMock>()
-    .mockImplementation(() => PREVIEW_DATA.wallet.utxos);
+    .mockResolvedValue(PREVIEW_DATA.wallet.utxos);
 
   const mockProvider = jest.fn().mockImplementation(() => ({
+    url: "https://cardano-preview.blockfrost.io/",
+    // All fetch requests get mocked anyway.
+    projectId: "test-project-id",
+
     // Required for collecting UTXOs for some reason.
     getUtxos: getUtxosMock,
     getProtocolParameters: jest
@@ -33,6 +38,8 @@ export const setupLucid = (
   }));
 
   beforeAll(async () => {
+    options?.beforeAll?.();
+
     global.window = {
       // @ts-ignore
       cardano: windowCardano,

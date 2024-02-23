@@ -7,8 +7,6 @@ const mockAddress =
   "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32";
 
 class TestClass extends Config {
-  referralFee?: ITxBuilderReferralFee | undefined;
-
   constructor() {
     super();
   }
@@ -65,7 +63,7 @@ describe("Config", () => {
 
     configWithAmount.setReferralFee(amountConfig);
     expect(() => configWithAmount.buildArgs()).toThrowError(
-      new Error(Config.INVALID_FEE_AMOUNT)
+      new Error(configWithAmount.INVALID_FEE_AMOUNT)
     );
   });
 });

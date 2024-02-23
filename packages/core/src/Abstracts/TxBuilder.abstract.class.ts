@@ -1,5 +1,6 @@
 import { TSupportedNetworks } from "../@types/utilities.js";
 import { DatumBuilder } from "./DatumBuilder.abstract.class.js";
+import { QueryProvider } from "./QueryProvider.abstract.class.js";
 
 /**
  * The main class by which TxBuilder classes are extended.
@@ -11,6 +12,7 @@ import { DatumBuilder } from "./DatumBuilder.abstract.class.js";
  * @group Exported TxBuilders
  */
 export abstract class TxBuilder {
+  abstract queryProvider: QueryProvider;
   abstract datumBuilder: DatumBuilder;
   abstract network: TSupportedNetworks;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

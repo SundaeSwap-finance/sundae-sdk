@@ -12,6 +12,7 @@ import ReactJson from "react-json-view";
 import { V3_CONTRACT_POOL_TINDY } from "../../constants";
 import { useAppState } from "../../state/context";
 import { CancelSwap } from "./modules/CancelSwap";
+import { CreatePool } from "./modules/CreatePool";
 import { Deposit } from "./modules/Deposit";
 import { DepositTasteTest } from "./modules/DepositTasteTest";
 import { Lock } from "./modules/LockAssets";
@@ -114,6 +115,7 @@ export const Actions: FC = () => {
         <Unlock setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <CancelSwap setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Migrate setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        <CreatePool setFees={setFees} setCBOR={setCBOR} submit={submit} />
 
         <div className="col-span-2 flex items-center justify-between gap-2">
           <h4 className="w-24">Taste Tests</h4>

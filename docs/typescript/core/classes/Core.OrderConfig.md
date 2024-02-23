@@ -55,7 +55,7 @@ ___
 
 ### referralFee
 
-• `Optional` `Abstract` **referralFee**: [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md)
+• `Optional` **referralFee**: [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md)
 
 An optional argument that contains referral fee data.
 

@@ -4,6 +4,7 @@ import {
   IPoolData,
   IPoolDataAsset,
   ISundaeProtocolParams,
+  ISundaeProtocolParamsFull,
   TFee,
   TSupportedNetworks,
   TUTXO,
@@ -210,13 +211,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
    *
    * @param {EContractVersion} version The protocol script hashes.
    */
-  async getProtocolScriptHashes(
+  async getProtocolParamsWithScriptHashes(
     version: undefined
   ): Promise<ISundaeProtocolParams[]>;
-  async getProtocolScriptHashes(
+  async getProtocolParamsWithScriptHashes(
     version: EContractVersion
   ): Promise<ISundaeProtocolParams>;
-  async getProtocolScriptHashes(
+  async getProtocolParamsWithScriptHashes(
     version?: EContractVersion
   ): Promise<ISundaeProtocolParams[] | ISundaeProtocolParams> {
     const res: {
@@ -234,6 +235,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               validators {
                 hash
                 title
+              }
+            }
+            references {
+              key
+              txIn {
+                hash
+                index
               }
             }
             version
@@ -255,6 +263,69 @@ export class QueryProviderSundaeSwap implements QueryProvider {
       return res.data.protocols.find(
         ({ version: protocolVersion }) => version === protocolVersion
       ) as ISundaeProtocolParams;
+    }
+
+    return res.data.protocols;
+  }
+
+  /**
+   * Retrieves the script hashes for all available Protocols.
+   *
+   * @param {EContractVersion} version The protocol script hashes.
+   */
+  async getProtocolParamsWithScripts(
+    version: undefined
+  ): Promise<ISundaeProtocolParamsFull[]>;
+  async getProtocolParamsWithScripts(
+    version: EContractVersion
+  ): Promise<ISundaeProtocolParamsFull>;
+  async getProtocolParamsWithScripts(
+    version?: EContractVersion
+  ): Promise<ISundaeProtocolParamsFull[] | ISundaeProtocolParamsFull> {
+    const res: {
+      data?: { protocols: ISundaeProtocolParamsFull[] };
+    } = await fetch(this.baseUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
+        query ProtocolValidators {
+          protocols {
+            blueprint {
+              validators {
+                hash
+                title
+                compiledCode
+              }
+            }
+            references {
+              key
+              txIn {
+                hash
+                index
+              }
+            }
+            version
+          }
+        }
+        `,
+      }),
+    }).then((res) => res.json());
+
+    if (!res?.data) {
+      throw new Error(
+        `Something went wrong when trying to fetch the protocol validators. Full response: ${JSON.stringify(
+          res
+        )}`
+      );
+    }
+
+    if (version) {
+      return res.data.protocols.find(
+        ({ version: protocolVersion }) => version === protocolVersion
+      ) as ISundaeProtocolParamsFull;
     }
 
     return res.data.protocols;

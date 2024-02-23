@@ -1,11 +1,12 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { Constr, Data } from "lucid-cardano";
+import { sqrt } from "@sundaeswap/bigint-math";
+import { C, Constr, Data, UTxO } from "lucid-cardano";
 
 import {
   EDatumType,
   TDatumResult,
-  TDepositMixed,
   TDestinationAddress,
+  TFee,
   TSupportedNetworks,
 } from "../@types/index.js";
 import { DatumBuilder } from "../Abstracts/DatumBuilder.abstract.class.js";
@@ -47,13 +48,39 @@ export interface IDatumBuilderDepositV3Args extends IDatumBuilderBaseV3Args {
 }
 
 /**
- * The arguments from building a withdraw transaction against
+ * The arguments for building a withdraw transaction against
  * a V3 pool contract.
  */
 export interface IDatumBuilderWithdrawV3Args extends IDatumBuilderBaseV3Args {
   order: {
     lpToken: AssetAmount<IAssetAmountMetadata>;
   };
+}
+
+/**
+ * The arguments for building a minting a new pool transaction against
+ * the V3 pool contract.
+ */
+export interface IDatumBuilderMintPoolV3Args {
+  seedUtxo: UTxO;
+  assetA: AssetAmount<IAssetAmountMetadata>;
+  assetB: AssetAmount<IAssetAmountMetadata>;
+  feeDecay: TFee;
+  feeDecayEnd: bigint;
+  marketOpen: bigint;
+  protocolFee: bigint;
+}
+
+/**
+ * The arguments for building a minting a new pool transaction against
+ * the V3 pool contract, specifically to be associated with the
+ * newly minted assets, such as liquidity tokens.
+ */
+export interface IDatumBuilderPoolMintRedeemerV3Args {
+  assetB: AssetAmount<IAssetAmountMetadata>;
+  assetA: AssetAmount<IAssetAmountMetadata>;
+  poolOutput: bigint;
+  metadataOutput: bigint;
 }
 
 /**
@@ -67,6 +94,8 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
   /** The error to throw when the pool ident does not match V1 constraints. */
   static INVALID_POOL_IDENT =
     "You supplied a pool ident of an invalid length! The will prevent the scooper from processing this order.";
+
+  public V3_POOL_PARAMS = {};
 
   constructor(network: TSupportedNetworks) {
     this.network = network;
@@ -99,8 +128,8 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
       scooperFee: scooperFee,
       order: {
         Swap: {
-          offer: this.buildAssetDatum(order.offered).schema,
-          minReceived: this.buildAssetDatum(order.minReceived).schema,
+          offer: this.buildAssetAmountDatum(order.offered).schema,
+          minReceived: this.buildAssetAmountDatum(order.minReceived).schema,
         },
       },
       extension: "NoExtension",
@@ -140,8 +169,8 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
       order: {
         Deposit: {
           assets: [
-            this.buildAssetDatum(order.assetA).schema,
-            this.buildAssetDatum(order.assetB).schema,
+            this.buildAssetAmountDatum(order.assetA).schema,
+            this.buildAssetAmountDatum(order.assetB).schema,
           ],
         },
       },
@@ -187,7 +216,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
       extension: "NoExtension",
       order: {
         Withdrawal: {
-          amount: this.buildAssetDatum(order.lpToken).schema,
+          amount: this.buildAssetAmountDatum(order.lpToken).schema,
         },
       },
       owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
@@ -205,19 +234,91 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     };
   }
 
-  public buildDepositPair(deposit: TDepositMixed): TDatumResult<Data> {
-    const datum = new Constr(2, [
-      new Constr(1, [
-        new Constr(0, [deposit.CoinAAmount.amount, deposit.CoinBAmount.amount]),
-      ]),
-    ]);
+  /**
+   * Creates a new pool datum for minting a the pool. This is attached to the assets that are sent
+   * to the pool minting contract. See {@link Lucid.TxBuilderLucidV3} for more details.
+   *
+   * @param {IDatumBuilderMintPoolV3Args} params The arguments for building a pool mint datum.
+   *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
+   *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
+   *  - feeDecay: A tuple of bigints, [bigint, bigint], representing the fee at marketOpen, decaying linearly till feeDecayEnd.
+   *  - feeDecayEnd: The POSIX timestamp for when the fee should stop decaying.
+   *  - marketOpen: The POSIX timestamp for when pool trades should start executing.
+   *  - protocolFee: The fee gathered for the protocol treasury.
+   *  - seedUtxo: The UTXO to use as the seed, which generates asset names and the pool ident.
+   *
+   * @returns {TDatumResult<V3Types.TPoolDatum>} An object containing the hash of the inline datum, the inline datum itself,
+   *                                              and the schema of the original pool mint datum, crucial for the execution
+   *                                              of the minting pool operation.
+   */
+  public buildMintPoolDatum({
+    assetA,
+    assetB,
+    feeDecay,
+    feeDecayEnd,
+    marketOpen,
+    protocolFee,
+    seedUtxo,
+  }: IDatumBuilderMintPoolV3Args): TDatumResult<V3Types.TPoolDatum> {
+    const ident = DatumBuilderLucidV3.computePoolId(seedUtxo);
+    const liquidity = sqrt(assetA.amount * assetB.amount);
 
-    const inline = Data.to(datum);
+    const assetsPair = this.buildLexicographicalAssetsDatum(
+      assetA,
+      assetB
+    ).schema;
+
+    const newPoolDatum: V3Types.TPoolDatum = {
+      assets: assetsPair,
+      circulatingLp: liquidity,
+      feesPer10Thousand: feeDecay,
+      feeFinalized: feeDecayEnd || 0n,
+      identifier: ident,
+      marketOpen: marketOpen || 0n,
+      protocolFee,
+    };
+
+    const inline = Data.to(newPoolDatum, V3Types.PoolDatum);
 
     return {
       hash: LucidHelper.inlineDatumToHash(inline),
       inline,
-      schema: datum,
+      schema: newPoolDatum,
+    };
+  }
+
+  /**
+   * Creates a redeemer datum for minting a new pool. This is attached to the new assets that
+   * creating a new pool mints on the blockchain. See {@link Lucid.TxBuilderLucidV3} for more
+   * details.
+   *
+   * @param {IDatumBuilderPoolMintRedeemerV3Args} param The assets being supplied to the new pool.
+   *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
+   *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
+   * @returns {TDatumResult<V3Types.TPoolMintRedeemer>} An object containing the hash of the inline datum, the inline datum itself,
+   *                                              and the schema of the original pool mint redeemer datum, crucial for the execution
+   *                                              of the minting pool operation.
+   */
+  public buildPoolMintRedeemerDatum({
+    assetA,
+    assetB,
+    metadataOutput,
+    poolOutput,
+  }: IDatumBuilderPoolMintRedeemerV3Args): TDatumResult<V3Types.TPoolMintRedeemer> {
+    const poolMintRedeemer: V3Types.TPoolMintRedeemer = {
+      CreatePool: {
+        assets: this.buildLexicographicalAssetsDatum(assetA, assetB).schema,
+        poolOutput,
+        metadataOutput,
+      },
+    };
+
+    const inline = Data.to(poolMintRedeemer, V3Types.PoolMintRedeemer);
+
+    return {
+      hash: LucidHelper.inlineDatumToHash(inline),
+      inline,
+      schema: poolMintRedeemer,
     };
   }
 
@@ -316,7 +417,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     };
   }
 
-  public buildAssetDatum(
+  public buildAssetAmountDatum(
     asset: AssetAmount<IAssetAmountMetadata>
   ): TDatumResult<V3Types.TSingletonValue> {
     const isAdaLovelace = SundaeUtils.isAdaAsset(asset.metadata);
@@ -336,12 +437,108 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     };
   }
 
+  public buildLexicographicalAssetsDatum(
+    assetA: AssetAmount<IAssetAmountMetadata>,
+    assetB: AssetAmount<IAssetAmountMetadata>
+  ): TDatumResult<[V3Types.TAssetClass, V3Types.TAssetClass]> {
+    const lexicographicalAssets = SundaeUtils.sortSwapAssetsWithAmounts([
+      assetA,
+      assetB,
+    ]);
+
+    const assets = lexicographicalAssets.reduce((result, { metadata }) => {
+      if (SundaeUtils.isAdaAsset(metadata)) {
+        result.push(["", ""]);
+        return result;
+      }
+
+      const [policyId, assetName] = metadata.assetId.split(".");
+      if (!policyId || !assetName) {
+        throw new Error(
+          `Invalid asset format for minting a pool with ${metadata.assetId}. Expected both a policyID and assetName.`
+        );
+      }
+
+      result.push([policyId, assetName]);
+      return result;
+    }, [] as unknown as [V3Types.TAssetClass, V3Types.TAssetClass]);
+
+    const inline = Data.to(assets, V3Types.AssetClassPair);
+
+    return {
+      hash: LucidHelper.inlineDatumToHash(inline),
+      inline,
+      schema: assets,
+    };
+  }
+
   public buildPoolIdent(ident: string): string {
     if (ident.length !== V3_POOL_IDENT_LENGTH) {
       throw new Error(DatumBuilderLucidV3.INVALID_POOL_IDENT);
     }
 
     return ident;
+  }
+
+  /**
+   * Computes the pool NFT name.
+   *
+   * @param {string} poolId The hex encoded pool ident.
+   * @returns {string}
+   */
+  static computePoolNftName(poolId: string): string {
+    const prefix = new Uint8Array([0x00, 0x0d, 0xe1, 0x40]);
+    const name = new Uint8Array([...prefix, ...Buffer.from(poolId, "hex")]);
+    return Buffer.from(name).toString("hex");
+  }
+
+  /**
+   * Computes the pool liquidity name.
+   *
+   * @param {string} poolId The hex encoded pool ident.
+   * @returns {string}
+   */
+  static computePoolLqName(poolId: string): string {
+    const prefix = new Uint8Array([0x00, 0x14, 0xdf, 0x10]);
+    const name = new Uint8Array([...prefix, ...Buffer.from(poolId, "hex")]);
+    return Buffer.from(name).toString("hex");
+  }
+
+  /**
+   * Computes the pool reference name.
+   *
+   * @param {string} poolId The hex encoded pool ident.
+   * @returns {string}
+   */
+  static computePoolRefName(poolId: string): string {
+    const prefix = new Uint8Array([0x00, 0x06, 0x43, 0xb0]);
+    const name = new Uint8Array([...prefix, ...Buffer.from(poolId, "hex")]);
+    return Buffer.from(name).toString("hex");
+  }
+
+  /**
+   * Computes the pool ID based on the provided UTxO being spent.
+   *
+   * @param {UTxO} seed The UTxO txHash and index.
+   * @returns {string}
+   */
+  static computePoolId(seed: UTxO): string {
+    const poolInputTxHash = Buffer.from(seed.txHash, "hex");
+    const numberSign = new Uint8Array([0x23]);
+    const poolInputTxIx = new Uint8Array([seed.outputIndex]);
+    const poolInputRef = new Uint8Array([
+      ...poolInputTxHash,
+      ...numberSign,
+      ...poolInputTxIx,
+    ]);
+
+    const hash = Buffer.from(
+      C.hash_blake2b256(poolInputRef)
+        // Truncate first four bytes and convert to hex string.
+        .slice(4)
+    ).toString("hex");
+
+    return hash;
   }
 
   /**

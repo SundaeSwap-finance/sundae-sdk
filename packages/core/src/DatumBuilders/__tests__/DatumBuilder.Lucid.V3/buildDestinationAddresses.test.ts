@@ -1,7 +1,6 @@
 import { jest } from "@jest/globals";
 
 import { EDatumType } from "../../../@types/datumbuilder.js";
-import { TxBuilderLucidV3 } from "../../../TxBuilders/TxBuilder.Lucid.V3.class.js";
 import { LucidHelper } from "../../../Utilities/LucidHelper.class.js";
 import { PREVIEW_DATA } from "../../../exports/testing.js";
 import { DatumBuilderLucidV3 } from "../../DatumBuilder.Lucid.V3.class.js";
@@ -76,7 +75,8 @@ describe("buildDestinationAddresses()", () => {
 
     const resultWithScriptDestination =
       builderInstance.buildDestinationAddresses({
-        address: TxBuilderLucidV3.getParam("scriptAddress", "preview"),
+        address:
+          "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe",
         datum: {
           type: EDatumType.INLINE,
           value: inline,

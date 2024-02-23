@@ -16,14 +16,14 @@ afterEach(() => {
 
 describe("buildAssetDatum", () => {
   it("should correctly build the datum for ADA", () => {
-    const result = builderInstance.buildAssetDatum(
+    const result = builderInstance.buildAssetAmountDatum(
       new AssetAmount(100n, ADA_METADATA)
     );
     expect(result.inline).toEqual("9f40401864ff");
   });
 
   it("should correctly build the datum for alt-coin", () => {
-    const result = builderInstance.buildAssetDatum(
+    const result = builderInstance.buildAssetAmountDatum(
       new AssetAmount(100_000_000n, {
         ...ADA_METADATA,
         assetId:

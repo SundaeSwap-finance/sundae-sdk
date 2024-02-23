@@ -1,15 +1,10 @@
-import {
-  ICancelConfigArgs,
-  ITxBuilderReferralFee,
-  TUTXO,
-} from "../@types/index.js";
+import { ICancelConfigArgs, TUTXO } from "../@types/index.js";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
 
 /**
  * The main config class for building valid arguments for a Cancel.
  */
 export class CancelConfig extends OrderConfig<ICancelConfigArgs> {
-  referralFee?: ITxBuilderReferralFee | undefined;
   ownerAddress?: string;
   utxo?: TUTXO;
 

@@ -3,7 +3,6 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   IDepositConfigArgs,
   IPoolData,
-  ITxBuilderReferralFee,
   TOrderAddresses,
 } from "../@types/index.js";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
@@ -12,7 +11,6 @@ import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
  * The main config class for building valid arguments for a Deposit.
  */
 export class DepositConfig extends OrderConfig<IDepositConfigArgs> {
-  referralFee?: ITxBuilderReferralFee | undefined;
   suppliedAssets?: [
     AssetAmount<IAssetAmountMetadata>,
     AssetAmount<IAssetAmountMetadata>

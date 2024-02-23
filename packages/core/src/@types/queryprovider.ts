@@ -59,7 +59,7 @@ export interface IPoolDate {
 }
 
 /** The fee structure, denoted as an array of numerator and denominator. */
-export type TFee = [number, number];
+export type TFee = [bigint, bigint];
 
 /**
  * Pool data that is returned from {@link Core.QueryProvider.findPoolData}.
@@ -81,14 +81,50 @@ export interface IPoolData {
 }
 
 /**
+ * Interface describing the format of the basic validator.
+ */
+export interface ISundaeProtocolValidator {
+  title: string;
+  hash: string;
+}
+
+/**
+ * Extended interface describing the validator with the compiled code included.
+ */
+export interface ISundaeProtocolValidatorFull extends ISundaeProtocolValidator {
+  compiledCode: string;
+}
+
+/**
+ * Interface describing the expected structure of the reference object returned by the API.
+ */
+export interface ISundaeProtocolReference {
+  key: string;
+  txIn: {
+    hash: string;
+    index: number;
+  };
+}
+
+/**
  * The Sundae protocol parameters.
  */
 export interface ISundaeProtocolParams {
   version: EContractVersion;
   blueprint: {
-    validators: {
-      title: string;
-      hash: string;
-    }[];
+    validators: ISundaeProtocolValidator[];
   };
+  references: ISundaeProtocolReference[];
+}
+
+/**
+ * The Sundae protocol parameters with the compiled
+ * code included in the response.
+ */
+export interface ISundaeProtocolParamsFull {
+  version: EContractVersion;
+  blueprint: {
+    validators: ISundaeProtocolValidatorFull[];
+  };
+  references: ISundaeProtocolReference[];
 }

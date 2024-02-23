@@ -1,6 +1,10 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   C,
+  Data,
+  OutRef,
+  UTxO,
+  toUnit,
   type Assets,
   type Datum,
   type Lucid,
@@ -9,10 +13,14 @@ import {
 } from "lucid-cardano";
 
 import {
+  EContractVersion,
   EDatumType,
   ICancelConfigArgs,
   IComposedTx,
   IDepositConfigArgs,
+  IMintV3PoolConfigArgs,
+  ISundaeProtocolParamsFull,
+  ISundaeProtocolValidatorFull,
   ISwapConfigArgs,
   ITxBuilderFees,
   ITxBuilderReferralFee,
@@ -24,10 +32,13 @@ import {
 import { TxBuilder } from "../Abstracts/TxBuilder.abstract.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
+import { MintV3PoolConfig } from "../Configs/MintV3PoolConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
+import { V3Types } from "../DatumBuilders/contracts/index.js";
+import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
@@ -45,14 +56,13 @@ interface ITxBuilderLucidCompleteTxArgs {
   deposit?: bigint;
   scooperFee?: bigint;
   coinSelection?: boolean;
+  nativeUplc?: boolean;
 }
 
 /**
  * Interface describing the parameter names for the transaction builder.
  */
 export interface ITxBuilderV3Params {
-  scriptAddress: string;
-  scriptValidator: string;
   cancelRedeemer: string;
   maxScooperFee: bigint;
 }
@@ -65,19 +75,19 @@ export interface ITxBuilderV3Params {
  * @implements {TxBuilder}
  */
 export class TxBuilderLucidV3 extends TxBuilder {
+  queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
+  protocolParams: ISundaeProtocolParamsFull | undefined;
+  referenceUtxos: UTxO[] | undefined;
+  settingsUtxos: UTxO[] | undefined;
+  validatorScripts: Record<string, ISundaeProtocolValidatorFull> = {};
+
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV3Params> = {
     mainnet: {
-      scriptAddress: "",
-      scriptValidator: "",
       cancelRedeemer: VOID_REDEEMER,
       maxScooperFee: 1_000_000n,
     },
     preview: {
-      scriptAddress:
-        "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe",
-      scriptValidator:
-        "59081f010000332323232323232322322223253330093232533300b3370e90010010991919991119198008008021119299980999b87480000044c8c8cc00400401c894ccc06400452809919299980c19b8f00200514a226600800800260380046eb8c068004dd7180b98088010a99980999b87480080044c8c8c8cc004004008894ccc06800452889919299980c998048048010998020020008a50301d002301b0013758603000260220042a66602666e1d200400113232323300100100222533301a00114a026464a6660326601201200429444cc010010004c074008c06c004dd6180c00098088010a99980999b87480180044c8c8c8c8cdc48019919980080080124000444a66603a00420022666006006603e00464a66603666016016002266e0000920021002301e0023758603400260340046eb4c060004c04400854ccc04ccdc3a4010002264646464a66602e66e1d20020011323253330193370e9001180d1baa300d3017300d301700a13371200200a266e20004014dd6980e000980a8010a503015001300b301330093013006375a60300026022004264646464a66602e66e1d20020011323253330193370e9001180d1baa300d3017300f301700a13371200a002266e20014004dd6980e000980a8010a503015001300b3013300b3013006375a603000260220046022002600260160106eb0c044c048c048c048c048c048c048c048c048c02cc00cc02c018c044c048c048c048c048c048c048c048c02cc00cc02c0188c044c048004c8c8c8c8c94ccc040cdc3a40000022646464646464646464646464a66603e60420042646464649319299981019b87480000044c8c94ccc094c09c00852616375c604a002603c00e2a66604066e1d20020011323232325333027302900213232498c8c8c8c8c94ccc0b4c0bc00852616375a605a002605a0046eb8c0ac004c0ac00cdd718148011919191919299981618170010a4c2c6eb4c0b0004c0b0008dd7181500098150021bae3028003163758604e002604e0046eb0c094004c07801c54ccc080cdc3a400800226464a66604a604e004264931919191919191919299981698178010a4c2c6eb4c0b4004c0b4008dd7181580098158019bae30290023232323232533302c302e002149858dd6981600098160011bae302a001302a003375c60500046eb0c094008dd618118008b1919bb03026001302630270013758604a002603c00e2a66604066e1d20060011323253330253027002132498c8c8c8c8c94ccc0a8c0b000852616375a605400260540046eb8c0a0004c0a0008dd718130008b1bac3025001301e007153330203370e9004000899192999812981380109924c6464646464646464a66605a605e0042930b1bad302d001302d002375c605600260560066eb8c0a4008c8c8c8c8c94ccc0b0c0b800852616375a605800260580046eb8c0a8004c0a800cdd718140011bac3025002375860460022c6466ec0c098004c098c09c004dd61812800980f0038b180f00319299980f99b87480000044c8c8c8c94ccc098c0a00084c8c9263253330253370e90000008a99981418118018a4c2c2a66604a66e1d200200113232533302a302c002149858dd7181500098118018a99981299b87480100044c8c94ccc0a8c0b000852616302a00130230031630230023253330243370e9000000899191919299981598168010991924c64a66605466e1d200000113232533302f3031002132498c94ccc0b4cdc3a400000226464a66606460680042649318120008b181900098158010a99981699b87480080044c8c8c8c8c8c94ccc0d8c0e000852616375a606c002606c0046eb4c0d0004c0d0008dd6981900098158010b18158008b181780098140018a99981519b874800800454ccc0b4c0a000c52616163028002301d00316302b001302b0023029001302200416302200316302600130260023024001301d00816301d007300f00a32533301d3370e900000089919299981118120010a4c2c6eb8c088004c06c03054ccc074cdc3a40040022a66604060360182930b0b180d8058b180f800980f801180e800980e801180d800980d8011bad30190013019002301700130170023015001300e00b16300e00a3001001223253330103370e900000089919299980a980b8010a4c2c6eb8c054004c03800854ccc040cdc3a400400226464a66602a602e00426493198030009198030030008b1bac3015001300e002153330103370e900200089919299980a980b80109924c6600c00246600c00c0022c6eb0c054004c03800854ccc040cdc3a400c002264646464a66602e603200426493198040009198040040008b1bac30170013017002375a602a002601c0042a66602066e1d20080011323253330153017002149858dd6980a80098070010a99980819b87480280044c8c94ccc054c05c00852616375a602a002601c0042c601c00244646600200200644a66602600229309919801801980b0011801980a000919299980699b87480000044c8c94ccc048c05000852616375c602400260160042a66601a66e1d20020011323253330123014002149858dd7180900098058010b1805800899192999808180900109919299980799b8748000c0380084c8c94ccc044cdc3a40046020002266e3cdd7180a9807800806801980a00098068010008a50300e0011630100013756601e6020602060206020602060206012600260120084601e002601000629309b2b19299980499b874800000454ccc030c01c00c52616153330093370e90010008a99980618038018a4c2c2c600e0046eb80048c014dd5000918019baa0015734aae7555cf2ab9f5742ae893011e581c6ed8ba08a3a0ab1cdc63079fb057f84ff43f87dc4792f6f09b94e8030001",
       cancelRedeemer: VOID_REDEEMER,
       maxScooperFee: 1_000_000n,
     },
@@ -87,9 +97,18 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * @param {Lucid} lucid A configured Lucid instance to use.
    * @param {DatumBuilderLucidV3} datumBuilder A valid V3 DatumBuilder class that will build valid datums.
    */
-  constructor(public lucid: Lucid, public datumBuilder: DatumBuilderLucidV3) {
+  constructor(
+    public lucid: Lucid,
+    public datumBuilder: DatumBuilderLucidV3,
+    queryProvider?: QueryProviderSundaeSwap
+  ) {
     super();
     this.network = lucid.network === "Mainnet" ? "mainnet" : "preview";
+    this.queryProvider =
+      queryProvider ?? new QueryProviderSundaeSwap(this.network);
+
+    // Preemptively fetch protocol parameters.
+    // this.getProtocolParams();
   }
 
   /**
@@ -112,13 +131,127 @@ export class TxBuilderLucidV3 extends TxBuilder {
    *
    * @param param The parameter you want to retrieve.
    */
-  private __getParam<K extends keyof ITxBuilderV3Params>(param: K) {
+  public __getParam<K extends keyof ITxBuilderV3Params>(param: K) {
     return TxBuilderLucidV3.getParam(param, this.network);
   }
 
   /**
-   * Returns a new Tx instance from Lucid. Throws an error if not ready.
-   * @returns
+   * Retrieves the basic protocol parameters from the SundaeSwap API
+   * and fills in a place-holder for the compiled code of any validators.
+   *
+   * This is to keep things lean until we really need to attach a validator,
+   * in which case, a subsequent method call to {@link TxBuilderLucidV3#getValidatorScript}
+   * will re-populate with real data.
+   *
+   * @returns {Promise<ISundaeProtocolParamsFull>}
+   */
+  public async getProtocolParams(): Promise<ISundaeProtocolParamsFull> {
+    if (!this.protocolParams) {
+      const rawResponse =
+        await this.queryProvider.getProtocolParamsWithScriptHashes(
+          EContractVersion.V3
+        );
+      this.protocolParams = {
+        ...rawResponse,
+        blueprint: {
+          ...rawResponse.blueprint,
+          validators: rawResponse.blueprint.validators.map((data) => ({
+            ...data,
+            compiledCode: "",
+          })),
+        },
+      };
+    }
+
+    return this.protocolParams;
+  }
+
+  /**
+   * Gets the reference UTxOs based on the transaction data
+   * stored in the reference scripts of the protocol parameters
+   * using the Lucid provider.
+   *
+   * @returns {Promise<UTxO[]>}
+   */
+  public async getAllReferenceUtxos(): Promise<UTxO[]> {
+    if (!this.referenceUtxos) {
+      const utxos: OutRef[] = [];
+      const { references } = await this.getProtocolParams();
+      references.forEach(({ txIn }) =>
+        utxos.push({ outputIndex: txIn.index, txHash: txIn.hash })
+      );
+      this.referenceUtxos = await this.lucid.provider.getUtxosByOutRef(utxos);
+    }
+
+    return this.referenceUtxos;
+  }
+
+  /**
+   * Gets the settings UTxOs based on the transaction data
+   * stored in the settings scripts of the protocol parameters
+   * using the Lucid provider.
+   *
+   * @returns {Promise<UTxO[]>}
+   */
+  public async getAllSettingsUtxos(): Promise<UTxO[]> {
+    if (!this.settingsUtxos) {
+      // Hardcoded for now, will be added to API later.
+      this.settingsUtxos = await this.lucid.provider.getUtxosByOutRef([
+        {
+          outputIndex: 0,
+          txHash:
+            "387dbd6718ed9218a28c11ea1386c688b4215a47d39610b8b1657bbcdc054e3c",
+        },
+      ]);
+    }
+
+    return this.settingsUtxos;
+  }
+
+  /**
+   * Gets the full validator script based on the key. If the validator
+   * scripts have not been fetched yet, then we get that information
+   * before returning a response.
+   *
+   * @param {string} name The name of the validator script to retrieve.
+   * @returns {Promise<ISundaeProtocolValidatorFull>}
+   */
+  public async getValidatorScript(
+    name: string
+  ): Promise<ISundaeProtocolValidatorFull> {
+    const {
+      blueprint: { validators },
+    } = await this.getProtocolParams();
+
+    const hasFetchedCompiledCode = validators.some(
+      ({ compiledCode }) => !compiledCode
+    );
+
+    if (!hasFetchedCompiledCode) {
+      this.protocolParams =
+        await this.queryProvider.getProtocolParamsWithScripts(
+          EContractVersion.V3
+        );
+    }
+
+    const result = this.protocolParams?.blueprint.validators.find(
+      ({ title }) => title === name
+    );
+    if (!result) {
+      throw new Error(
+        `Could not find a validator that matched the key: ${name}`
+      );
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns a new Tx instance from Lucid and pre-applies the referral
+   * fee payment if a {@link ITxBuilderReferralFee} config is passed in.
+   *
+   * @param {ITxBuilderReferralFee | undefined} fee The optional referral fee configuration.
+   * @returns {Tx}
    */
   newTxInstance(fee?: ITxBuilderReferralFee): Tx {
     const instance = this.lucid.newTx();
@@ -151,24 +284,172 @@ export class TxBuilderLucidV3 extends TxBuilder {
   }
 
   /**
+   * Mints a new liquidity pool on the Cardano blockchain. This method
+   * constructs and submits a transaction that includes all the necessary generation
+   * of pool NFTs, metadata, pool assets, and initial liquidity tokens,
+   *
+   * @param {IMintV3PoolConfigArgs} mintPoolArgs - Configuration arguments for minting the pool, including assets,
+   * fee parameters, owner address, protocol fee, and referral fee.
+   *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
+   *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
+   *  - fees: A pair of fees, denominated out of 10 thousand, that correspond to their respective index in marketTimings.
+   *  - marketTimings: The POSIX timestamp for when the fee should start (market open), and stop (fee progression ends).
+   *  - ownerAddress: Who the generated LP tokens should be sent to.
+   *  - protocolFee: The fee gathered for the protocol treasury.
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A completed transaction object.
+   *
+   * @throws {Error} Throws an error if the transaction fails to build or submit.
+   */
+  async mintPool(
+    mintPoolArgs: IMintV3PoolConfigArgs
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
+    const {
+      assetA,
+      assetB,
+      fees,
+      marketTimings,
+      ownerAddress,
+      protocolFee,
+      referralFee,
+    } = new MintV3PoolConfig(mintPoolArgs).buildArgs();
+
+    const [userUtxos, { hash: poolPolicyId }, references, settings] =
+      await Promise.all([
+        this.getUtxosForPoolMint([assetA, assetB]),
+        this.getValidatorScript("pool.mint"),
+        this.getAllReferenceUtxos(),
+        this.getAllSettingsUtxos(),
+      ]);
+
+    const {
+      inline: mintPoolDatum,
+      schema: { identifier, circulatingLp },
+    } = this.datumBuilder.buildMintPoolDatum({
+      assetA,
+      assetB,
+      feeDecay: fees,
+      feeDecayEnd: marketTimings[1],
+      marketOpen: marketTimings[0],
+      protocolFee,
+      seedUtxo: userUtxos[0],
+    });
+
+    const { inline: mintRedeemerDatum } =
+      this.datumBuilder.buildPoolMintRedeemerDatum({
+        assetA,
+        assetB,
+        // The metadata NFT is in the second output.
+        metadataOutput: 1n,
+        // The pool output is the first output.
+        poolOutput: 0n,
+      });
+
+    const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
+      assetA,
+      assetB,
+    ]);
+
+    const {
+      metadataAdmin: { paymentCredential },
+    } = Data.from(settings[0].datum as string, V3Types.SettingsDatum);
+    const metadataAddress = C.EnterpriseAddress.new(
+      this.network === "preview" ? 0 : 1,
+      C.StakeCredential.from_keyhash(
+        // @ts-ignore
+        C.Ed25519KeyHash.from_hex(paymentCredential.VKeyCredential.bytes)
+      )
+    )
+      .to_address()
+      .to_bech32(this.network === "preview" ? "addr_test" : "addr");
+
+    const poolNftNameHex = toUnit(
+      poolPolicyId,
+      DatumBuilderLucidV3.computePoolNftName(identifier)
+    );
+    const poolRefNameHex = toUnit(
+      poolPolicyId,
+      DatumBuilderLucidV3.computePoolRefName(identifier)
+    );
+    const poolLqNameHex = toUnit(
+      poolPolicyId,
+      DatumBuilderLucidV3.computePoolLqName(identifier)
+    );
+
+    const poolAssets = {
+      [poolNftNameHex]: 1n,
+      [sortedAssets[1].metadata.assetId.replace(".", "")]:
+        sortedAssets[1].amount,
+    };
+
+    if (SundaeUtils.isAdaAsset(sortedAssets[0].metadata)) {
+      poolAssets["lovelace"] = sortedAssets[0].amount + ORDER_DEPOSIT_DEFAULT;
+    } else {
+      poolAssets["lovelace"] = ORDER_DEPOSIT_DEFAULT;
+      poolAssets[sortedAssets[0].metadata.assetId.replace(".", "")] =
+        sortedAssets[0].amount;
+    }
+
+    const tx = this.newTxInstance(referralFee)
+      .mintAssets(
+        {
+          [poolNftNameHex]: 1n,
+          [poolRefNameHex]: 1n,
+          [poolLqNameHex]: circulatingLp,
+        },
+        mintRedeemerDatum
+      )
+      .readFrom([...references, ...settings])
+      .collectFrom(userUtxos)
+      .payToContract(
+        await this.generateScriptAddress("pool.mint"),
+        { inline: mintPoolDatum },
+        poolAssets
+      )
+      .payToAddress(metadataAddress, {
+        lovelace: ORDER_DEPOSIT_DEFAULT,
+        [poolRefNameHex]: 1n,
+      })
+      .payToAddress(ownerAddress, {
+        lovelace: ORDER_DEPOSIT_DEFAULT,
+        [poolLqNameHex]: circulatingLp,
+      });
+
+    return this.completeTx({
+      tx,
+      datum: mintPoolDatum,
+      referralFee: referralFee?.payment,
+      /**
+       * The deposit is multiplied by 3 to cover the following:
+       * - Pool assets.
+       * - Metadata asset.
+       * - Liquidity assets.
+       */
+      deposit: ORDER_DEPOSIT_DEFAULT * 3n,
+      /**
+       * We avoid Lucid's version of coinSelection because we need to ensure
+       * that the first input is also the seed input for determining the pool
+       * ident.
+       */
+      coinSelection: false,
+      /**
+       * There are some issues with the way Lucid evaluates scripts sometimes,
+       * so we just use the Haskell Plutus core engine since we use Blockfrost.
+       */
+      nativeUplc: false,
+    });
+  }
+
+  /**
    * Executes a swap transaction based on the provided swap configuration.
    * It constructs the necessary arguments for the swap, builds the transaction instance,
    * and completes the transaction by paying to the contract and finalizing the transaction details.
    *
    * @param {ISwapConfigArgs} swapArgs - The configuration arguments for the swap.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the completed transaction.
-   *
-   * @async
-   * @example
-   * ```ts
-   * const txHash = await sdk.builder().swap({
-   *   ...args
-   * })
-   *   .then(({ sign }) => sign())
-   *   .then(({ submit }) => submit())
-   * ```
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the result of the completed transaction.
    */
-  async swap(swapArgs: ISwapConfigArgs) {
+  async swap(
+    swapArgs: ISwapConfigArgs
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const config = new SwapConfig(swapArgs);
 
     const {
@@ -197,7 +478,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
 
     txInstance.payToContract(
-      this.getContractAddressWithStakingKey(
+      await this.generateScriptAddress(
+        "order.spend",
         orderAddresses.DestinationAddress.address
       ),
       { inline },
@@ -216,19 +498,11 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * sets up the transaction, and completes it.
    *
    * @param {ICancelConfigArgs} cancelArgs - The configuration arguments for the cancel transaction.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the cancel transaction.
-   *
-   * @async
-   * @example
-   * ```ts
-   * const txHash = await sdk.builder().cancel({
-   *   ...args
-   * })
-   *   .then(({ sign }) => sign())
-   *   .then(({ submit }) => submit());
-   * ```
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the result of the cancel transaction.
    */
-  async cancel(cancelArgs: ICancelConfigArgs) {
+  async cancel(
+    cancelArgs: ICancelConfigArgs
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const { utxo, referralFee } = new CancelConfig(cancelArgs).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
@@ -263,7 +537,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
         utxosToSpend,
         this.__getParam("cancelRedeemer")
       ).attachSpendingValidator({
-        script: this.__getParam("scriptValidator"),
+        script: (await this.getValidatorScript("order.spend")).compiledCode,
         type: "PlutusV2",
       });
 
@@ -290,23 +564,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
    *
    * @param {{ cancelArgs: ICancelConfigArgs, swapArgs: ISwapConfigArgs }}
    *        The arguments for cancel and swap configurations.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the updated transaction.
-   *
-   * @throws
-   * @async
-   * @example
-   * ```ts
-   * const txHash = await sdk.builder().update({
-   *   cancelArgs: {
-   *     ...args
-   *   },
-   *   swapArgs: {
-   *     ...args
-   *   }
-   * })
-   *   .then(({ sign }) => sign())
-   *   .then(({ submit }) => submit());
-   * ```
+   * @returns {PromisePromise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the result of the updated transaction.
    */
   async update({
     cancelArgs,
@@ -314,7 +572,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
   }: {
     cancelArgs: ICancelConfigArgs;
     swapArgs: ISwapConfigArgs;
-  }) {
+  }): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     /**
      * First, build the cancel transaction.
      */
@@ -344,7 +602,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     }
 
     cancelTx.payToContract(
-      this.getContractAddressWithStakingKey(
+      await this.generateScriptAddress(
+        "order.spend",
         orderAddresses.DestinationAddress.address
       ),
       { inline: swapDatum.inline },
@@ -385,7 +644,17 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
   }
 
-  deposit(depositArgs: IDepositConfigArgs) {
+  /**
+   * Executes a deposit transaction using the provided deposit configuration arguments.
+   * The method builds the deposit transaction, including the necessary accumulation of deposit tokens
+   * and the required datum, then completes the transaction to add liquidity to a pool.
+   *
+   * @param {IDepositConfigArgs} depositArgs - The configuration arguments for the deposit.
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object.
+   */
+  async deposit(
+    depositArgs: IDepositConfigArgs
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const { suppliedAssets, pool, orderAddresses, referralFee } =
       new DepositConfig(depositArgs).buildArgs();
 
@@ -409,7 +678,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
 
     tx.payToContract(
-      this.getContractAddressWithStakingKey(
+      await this.generateScriptAddress(
+        "order.spend",
         orderAddresses.DestinationAddress.address
       ),
       { inline },
@@ -428,21 +698,11 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * and datum, and then completes the transaction to remove liquidity from a pool.
    *
    * @param {IWithdrawConfigArgs} withdrawArgs - The configuration arguments for the withdrawal.
-   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A promise that resolves to the composed transaction object.
-   *
-   * @async
-   * @example
-   * ```ts
-   * const txHash = await sdk.builder().withdraw({
-   *   ..args
-   * })
-   *   .then(({ sign }) => sign())
-   *   .then(({ submit }) => submit());
-   * ```
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object.
    */
   async withdraw(
     withdrawArgs: IWithdrawConfigArgs
-  ): Promise<IComposedTx<Tx, TxComplete>> {
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const { suppliedLPAsset, pool, orderAddresses, referralFee } =
       new WithdrawConfig(withdrawArgs).buildArgs();
 
@@ -463,7 +723,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
 
     tx.payToContract(
-      this.getContractAddressWithStakingKey(
+      await this.generateScriptAddress(
+        "order.spend",
         orderAddresses.DestinationAddress.address
       ),
       { inline },
@@ -482,20 +743,11 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * and then completes it by attaching the required metadata and making payments.
    *
    * @param {Omit<IZapConfigArgs, "zapDirection">} zapArgs - The configuration arguments for the zap, excluding the zap direction.
-   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A promise that resolves to the composed transaction object resulting from the zap operation.
-   *
-   * @async
-   * @example
-   * ```ts
-   * const txHash = await sdk.builder().zap({
-   *   ...args
-   * })
-   *   .then(({ sign }) => sign())
-   *   .then(({ submit }) => submit());
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object resulting from the zap operation.
    */
   async zap(
     zapArgs: Omit<IZapConfigArgs, "zapDirection">
-  ): Promise<IComposedTx<Tx, TxComplete>> {
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const zapDirection = SundaeUtils.getAssetSwapDirection(
       zapArgs.suppliedAsset.metadata,
       [zapArgs.pool.assetA, zapArgs.pool.assetB]
@@ -577,7 +829,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const { inline } = this.datumBuilder.buildSwapDatum({
       ident: pool.ident,
       destinationAddress: {
-        address: this.getContractAddressWithStakingKey(
+        address: await this.generateScriptAddress(
+          "order.spend",
           orderAddresses.DestinationAddress.address
         ),
         /**
@@ -606,7 +859,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
 
     tx.payToContract(
-      this.getContractAddressWithStakingKey(
+      await this.generateScriptAddress(
+        "order.spend",
         orderAddresses.DestinationAddress.address
       ),
       { inline },
@@ -624,31 +878,164 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
   /**
    * Merges the user's staking key to the contract payment address if present.
+   *
+   * @param {string} type
    * @param ownerAddress
-   * @returns
+   * @returns {Promise<string>} The generated Bech32 address.
    */
-  private getContractAddressWithStakingKey(ownerAddress: string): string {
-    const orderAddress = this.__getParam("scriptAddress");
-    const paymentCred = C.Address.from_bech32(orderAddress)
-      .as_enterprise()
-      ?.payment_cred();
-    const stakeCred = C.Address.from_bech32(ownerAddress)
-      .as_base()
-      ?.stake_cred();
+  public async generateScriptAddress(
+    type: "order.spend" | "pool.mint",
+    ownerAddress?: string
+  ): Promise<string> {
+    const { hash } = await this.getValidatorScript(type);
+    const paymentCred = this.lucid.utils.scriptHashToCredential(hash);
+    const orderAddress = this.lucid.utils.credentialToAddress(paymentCred);
 
-    if (!stakeCred || !paymentCred) {
+    if (!ownerAddress) {
+      return orderAddress;
+    }
+
+    const paymentStakeCred = C.StakeCredential.from_scripthash(
+      C.ScriptHash.from_hex(hash)
+    );
+    const ownerStakeCred =
+      ownerAddress &&
+      C.Address.from_bech32(ownerAddress).as_base()?.stake_cred();
+
+    if (!ownerStakeCred) {
       return orderAddress;
     }
 
     const newAddress = C.BaseAddress.new(
       this.network === "mainnet" ? 1 : 0,
-      paymentCred,
-      stakeCred
+      paymentStakeCred,
+      ownerStakeCred
     ).to_address();
 
     return newAddress.to_bech32(
       this.network === "mainnet" ? "addr" : "addr_test"
     );
+  }
+
+  /**
+   * Retrieves the list of UTXOs associated with the wallet, sorts them first by transaction hash (`txHash`)
+   * in ascending order and then by output index (`outputIndex`) in ascending order, and returns the first UTXO
+   * in the sorted list to act as the `seed`, and any others required to satisfy the required deposits.
+   *
+   * @param {AssetAmount<IAssetAmountMetadata>[]} assets The pool assets being deposited. They will automatically be sorted.
+   *
+   * @returns {Promise<UTxO[]>} A promise that resolves to an array of UTXOs for the transaction. The first UTXO in the sorted list
+   * is the seed (used for generating a unique pool ident, etc). The array includes any other required inputs to satisfy the
+   * deposit requirements of the pool being minted.
+   * @throws {Error} Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
+   */
+  public async getUtxosForPoolMint(
+    assets: [
+      AssetAmount<IAssetAmountMetadata>,
+      AssetAmount<IAssetAmountMetadata>
+    ]
+  ): Promise<UTxO[]> {
+    const utxos = await this.lucid.wallet.getUtxos();
+    const sortedUtxos = utxos.sort((a, b) => {
+      // Sort by txHash first.
+      if (a.txHash < b.txHash) return -1;
+      if (a.txHash > b.txHash) return 1;
+
+      // Sort by their index.
+      return a.outputIndex - b.outputIndex;
+    });
+
+    const seedUtxo = sortedUtxos.shift();
+    if (!seedUtxo) {
+      throw new Error("Could not find a seed UTXO from the user's wallet.");
+    }
+
+    const selectedUtxos: UTxO[] = [seedUtxo];
+    const [assetARequirement, assetBRequirement] =
+      SundaeUtils.sortSwapAssetsWithAmounts(assets).map((asset) => {
+        /**
+         * We add an additional 6 ADA requirement to the ADA UTXO just to cover min amounts.
+         * Specifically, this makes sure we have enough ADA to cover:
+         * - Pool Tokens
+         * - Metadata NFT Token
+         * - Liquidity LP Tokens
+         */
+        if (SundaeUtils.isAdaAsset(asset.metadata)) {
+          return asset.withAmount(asset.amount + ORDER_DEPOSIT_DEFAULT * 3n);
+        }
+
+        return asset;
+      });
+
+    const assetAId = SundaeUtils.isAdaAsset(assetARequirement.metadata)
+      ? "lovelace"
+      : assetARequirement.metadata.assetId.replace(".", "");
+    const assetBId = SundaeUtils.isAdaAsset(assetBRequirement.metadata)
+      ? "lovelace"
+      : assetBRequirement.metadata.assetId.replace(".", "");
+
+    const checkSelectedUtxosValue = () =>
+      selectedUtxos.reduce(
+        (total, { assets }) => {
+          total[0] += assets[assetAId] ?? 0n;
+          total[1] += assets[assetBId] ?? 0n;
+
+          return total;
+        },
+        [0n, 0n]
+      );
+
+    for (const utxo of sortedUtxos) {
+      // Add up our currently accumulated value within selected UTXOs.
+      const [accumulatedAValue, accumulatedBValue] = checkSelectedUtxosValue();
+
+      // If we have enough value in the selected UTXOs, then break out of the loop.
+      if (
+        accumulatedAValue >= assetARequirement.amount &&
+        accumulatedBValue >= assetBRequirement.amount
+      ) {
+        break;
+      }
+
+      // No required assets, skip.
+      if (!accumulatedAValue && !accumulatedBValue) {
+        continue;
+      }
+
+      // Add UTXO.
+      if (
+        (accumulatedAValue < assetARequirement.amount &&
+          utxo.assets[assetAId]) ||
+        (accumulatedBValue < assetBRequirement.amount && utxo.assets[assetBId])
+      ) {
+        selectedUtxos.push(utxo);
+      }
+    }
+
+    const [accumulatedAValue, accumulatedBValue] = checkSelectedUtxosValue();
+
+    if (
+      accumulatedAValue < assetARequirement.amount ||
+      accumulatedBValue < assetBRequirement.amount
+    ) {
+      throw new Error(`
+        Could not select enough assets from your wallet to satisfy the pool creation requirements.
+        Looking for ${assetARequirement.value.toString()} ${
+        SundaeUtils.isAdaAsset(assetARequirement.metadata)
+          ? "ADA"
+          : Buffer.from(
+              assetARequirement.metadata.assetId.split(".")[1],
+              "hex"
+            ).toString("utf-8")
+      },
+        and ${assetBRequirement.value.toString()} ${Buffer.from(
+        assetBRequirement.metadata.assetId.split(".")[1],
+        "hex"
+      ).toString("utf-8")}.
+      `);
+    }
+
+    return selectedUtxos;
   }
 
   private async completeTx({
@@ -657,7 +1044,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     referralFee,
     deposit,
     scooperFee,
-    coinSelection,
+    coinSelection = true,
+    nativeUplc = true,
   }: ITxBuilderLucidCompleteTxArgs): Promise<
     IComposedTx<Tx, TxComplete, Datum | undefined>
   > {
@@ -679,7 +1067,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       fees: baseFees,
       async build() {
         if (!finishedTx) {
-          finishedTx = await tx.complete({ coinSelection });
+          finishedTx = await tx.complete({ coinSelection, nativeUplc });
           thisTx.fees.cardanoTxFee = new AssetAmount(
             BigInt(txFee?.to_str() ?? finishedTx?.fee?.toString() ?? "0"),
             ADA_METADATA

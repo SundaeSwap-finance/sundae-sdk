@@ -60,6 +60,22 @@ The data for the pool involved in the order.
 
 [packages/core/src/Abstracts/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L14)
 
+___
+
+### referralFee
+
+• `Optional` **referralFee**: [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md)
+
+An optional argument that contains referral fee data.
+
+#### Inherited from
+
+[OrderConfig](Core.OrderConfig.md).[referralFee](Core.OrderConfig.md#referralfee)
+
+#### Defined in
+
+[packages/core/src/Abstracts/Config.abstract.class.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L16)
+
 ## Methods
 
 ### buildArgs
@@ -78,7 +94,7 @@ Build a valid arguments object for a TxBuilder withdraw method.
 
 #### Defined in
 
-[packages/core/src/Configs/WithdrawConfig.class.ts:71](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L71)
+[packages/core/src/Configs/WithdrawConfig.class.ts:69](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L69)
 
 ___
 
@@ -104,7 +120,7 @@ Set the default arguments from a JSON object as opposed to individually.
 
 #### Defined in
 
-[packages/core/src/Configs/WithdrawConfig.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L45)
+[packages/core/src/Configs/WithdrawConfig.class.ts:43](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L43)
 
 ___
 
@@ -208,7 +224,7 @@ Set the funded asset of LP tokens.
 
 #### Defined in
 
-[packages/core/src/Configs/WithdrawConfig.class.ts:62](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L62)
+[packages/core/src/Configs/WithdrawConfig.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L60)
 
 ___
 
@@ -228,4 +244,4 @@ Validates the current config and throws an Error if any required item is not set
 
 #### Defined in
 
-[packages/core/src/Configs/WithdrawConfig.class.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L84)
+[packages/core/src/Configs/WithdrawConfig.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L82)

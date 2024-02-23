@@ -1,9 +1,4 @@
-import {
-  EContractVersion,
-  EDatumType,
-  IPoolData,
-  ITxBuilderReferralFee,
-} from "../../@types/index.js";
+import { EContractVersion, EDatumType, IPoolData } from "../../@types/index.js";
 import { OrderConfig } from "../OrderConfig.abstract.class.js";
 
 const mockPool: IPoolData = {
@@ -34,8 +29,6 @@ const mockAddress =
   "addr_test1qzrf9g3ea6hzgpnlkm4dr48kx6hy073t2j2gssnpm4mgcnqdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzsfd9r32";
 
 class TestClass extends OrderConfig {
-  referralFee?: ITxBuilderReferralFee | undefined;
-
   constructor() {
     super();
   }

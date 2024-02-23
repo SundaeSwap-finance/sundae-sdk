@@ -4,7 +4,6 @@ import {
   ESwapType,
   IPoolData,
   ISwapConfigArgs,
-  ITxBuilderReferralFee,
   TOrderAddresses,
 } from "../@types/index.js";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
@@ -36,7 +35,6 @@ export class SwapConfig extends OrderConfig<
     minReceivable: AssetAmount<IAssetAmountMetadata>;
   }
 > {
-  referralFee?: ITxBuilderReferralFee | undefined;
   suppliedAsset?: AssetAmount<IAssetAmountMetadata>;
   minReceivable?: AssetAmount<IAssetAmountMetadata>;
 

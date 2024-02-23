@@ -19,6 +19,8 @@ in your main repository! Also includes a helper class for basic operations.
 
 - [IDatumBuilderBaseV3Args](../interfaces/Lucid.IDatumBuilderBaseV3Args.md)
 - [IDatumBuilderDepositV3Args](../interfaces/Lucid.IDatumBuilderDepositV3Args.md)
+- [IDatumBuilderMintPoolV3Args](../interfaces/Lucid.IDatumBuilderMintPoolV3Args.md)
+- [IDatumBuilderPoolMintRedeemerV3Args](../interfaces/Lucid.IDatumBuilderPoolMintRedeemerV3Args.md)
 - [IDatumBuilderSwapV3Args](../interfaces/Lucid.IDatumBuilderSwapV3Args.md)
 - [IDatumBuilderWithdrawV3Args](../interfaces/Lucid.IDatumBuilderWithdrawV3Args.md)
 - [ITxBuilderLucidCompleteTxArgs](../interfaces/Lucid.ITxBuilderLucidCompleteTxArgs.md)

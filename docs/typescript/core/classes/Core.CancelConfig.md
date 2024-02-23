@@ -42,6 +42,22 @@ The data for the pool involved in the order.
 
 [packages/core/src/Abstracts/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L14)
 
+___
+
+### referralFee
+
+• `Optional` **referralFee**: [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md)
+
+An optional argument that contains referral fee data.
+
+#### Inherited from
+
+[OrderConfig](Core.OrderConfig.md).[referralFee](Core.OrderConfig.md#referralfee)
+
+#### Defined in
+
+[packages/core/src/Abstracts/Config.abstract.class.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L16)
+
 ## Methods
 
 ### setOrderAddresses
