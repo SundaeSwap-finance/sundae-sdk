@@ -88,10 +88,10 @@ describe("YieldFarmingLucid", () => {
         address: lucidInstance.utils.getAddressDetails(ownerAddress)
           .stakeCredential?.hash as string,
       },
-      programs: ["None"],
+      programs: [],
     });
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
     );
   });
 
@@ -173,7 +173,7 @@ describe("YieldFarmingLucid", () => {
     });
 
     expect(fallbackDatum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
     );
   });
 
@@ -227,7 +227,7 @@ describe("YieldFarmingLucid", () => {
      */
     // await build();
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
     );
   });
 
