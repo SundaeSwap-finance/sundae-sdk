@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.4](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.3...@sundaeswap/yield-farming@1.0.4) (2024-02-24)
+
+### Bug Fixes
+
+- missing datum when null passed to programs but empty existing position ([8f71d76](https://github.com/SundaeSwap-finance/sundae-sdk/commit/8f71d762f6272cd9e539525860ffadaf843c96c7))
+
 ## [1.0.3](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.2...@sundaeswap/yield-farming@1.0.3) (2024-02-23)
 
 **Note:** Version bump only for package @sundaeswap/yield-farming
