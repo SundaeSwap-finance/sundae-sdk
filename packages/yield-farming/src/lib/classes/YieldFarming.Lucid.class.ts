@@ -264,7 +264,7 @@ export class YieldFarmingLucid implements YieldFarming {
         owner: {
           address: ownerAddress,
         },
-        programs: programs || ["None"],
+        programs: programs || [],
       });
       inline = newDatum.inline;
     }
