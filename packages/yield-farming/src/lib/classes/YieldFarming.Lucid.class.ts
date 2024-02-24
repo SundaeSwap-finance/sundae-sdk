@@ -136,6 +136,7 @@ export class YieldFarmingLucid implements YieldFarming {
       ]),
       (() =>
         existingPositions &&
+        existingPositions.length > 0 &&
         this.lucid.provider.getUtxosByOutRef(
           existingPositions.map(({ hash, index }) => ({
             outputIndex: index,
@@ -266,6 +267,12 @@ export class YieldFarmingLucid implements YieldFarming {
         programs: programs || ["None"],
       });
       inline = newDatum.inline;
+    }
+
+    if (!inline) {
+      throw new Error(
+        "A datum was not constructed for this lockup, which can brick the funds! Aborting."
+      );
     }
 
     txInstance.payToContract(contractAddress, { inline }, payment);

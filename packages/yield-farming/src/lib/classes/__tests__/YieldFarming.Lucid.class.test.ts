@@ -148,6 +148,33 @@ describe("YieldFarmingLucid", () => {
     expect(datum).toEqual(
       "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
     );
+
+    // Cover case where there are no existing positions with null.
+    getUtxosByOutRefMock.mockResolvedValueOnce([
+      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+    ]);
+    const { datum: fallbackDatum } = await YFInstance.lock({
+      lockedValues: [
+        new AssetAmount(5_000_000n, ADA_METADATA),
+        new AssetAmount(10_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          decimals: 6,
+        }),
+        new AssetAmount(372_501_888n, {
+          assetId:
+            "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702003",
+          decimals: 0,
+        }),
+      ],
+      ownerAddress: ownerAddress,
+      existingPositions: [],
+      programs: null,
+    });
+
+    expect(fallbackDatum).toEqual(
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff"
+    );
   });
 
   it("should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)", async () => {
