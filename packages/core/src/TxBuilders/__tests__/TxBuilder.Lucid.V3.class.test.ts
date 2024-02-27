@@ -496,7 +496,7 @@ describe("TxBuilderLucidV3", () => {
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tada,
       assetB: PREVIEW_DATA.assets.tindy,
-      fees: [5n, 10n],
+      fees: [5n, 5n],
       marketTimings: [5, 10_000n],
       ownerAddress: PREVIEW_DATA.addresses.current,
     });
@@ -504,6 +504,24 @@ describe("TxBuilderLucidV3", () => {
     expect(fees.deposit.amount).toEqual(ORDER_DEPOSIT_DEFAULT * 3n);
 
     const { builtTx } = await build();
+
+    const mintingDatum = builtTx.txComplete.witness_set().plutus_data()?.get(0);
+    const poolBalanceDatum = builtTx.txComplete
+      .witness_set()
+      .redeemers()
+      ?.get(0);
+    expect(mintingDatum).not.toBeUndefined();
+    expect(poolBalanceDatum).not.toBeUndefined();
+    expect(
+      Buffer.from(mintingDatum?.to_bytes() as Uint8Array).toString("hex")
+    ).toEqual(
+      "d8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ffd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ff9f010affd8799f9f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b581cb1d4b4ab243033062144fe0203e88f0110ebf3f5bcb48d3a72f304e7581c9710db5182cf46c20ccaad5f1493a2e8e2543a5e51bb7fe1a5da082e581c7b6ffb5623865a4b4c624191aaf58cd9027007590e2c4eea11958e6b581c4a45875de978e14f5e6da323cea33d4f3dc8af113ce13e8a72a03288ffff9fd8799f581c2b8d75e72875efc8dd8ee3f17b3a96b8ff3b07ce6d84dc29d2517e08ffff1a000510e01a000a31601a000f42400000ff"
+    );
+    expect(
+      Buffer.from(poolBalanceDatum?.to_bytes() as Uint8Array).toString("hex")
+    ).toEqual(
+      "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a000b4af51a121ba48c"
+    );
 
     /**
      * The pool output should be the first in the outputs.
@@ -532,6 +550,14 @@ describe("TxBuilderLucidV3", () => {
     );
     expect(poolDepositedAssetB).toEqual("20000000");
     expect(poolDepositedNFT).toEqual("1");
+    // Should have datum attached.
+    expect(
+      Buffer.from(
+        poolOutput.datum()?.as_data()?.to_bytes() as Uint8Array
+      ).toString("hex")
+    ).toEqual(
+      "d8185860d8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d009f0505ff051927101a001e8480ff"
+    );
 
     /**
      * The metadata output should be the second in the outputs.
@@ -582,5 +608,21 @@ describe("TxBuilderLucidV3", () => {
     expect(lpTokensReturned).toEqual("20000000");
 
     fetchMock.disableMocks();
+  });
+
+  it("should fail when trying to mint a pool with decaying values", async () => {
+    try {
+      await builder.mintPool({
+        assetA: PREVIEW_DATA.assets.tada,
+        assetB: PREVIEW_DATA.assets.tindy,
+        fees: [5n, 10n],
+        marketTimings: [5, 10_000n],
+        ownerAddress: PREVIEW_DATA.addresses.current,
+      });
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        "Decaying fees are currently not supported in the scoopers. For now, use the same fee for both start and end values."
+      );
+    }
   });
 });
