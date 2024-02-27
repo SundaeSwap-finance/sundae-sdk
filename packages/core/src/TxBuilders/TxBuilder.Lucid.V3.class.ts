@@ -293,6 +293,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - fees: A pair of fees, denominated out of 10 thousand, that correspond to their respective index in marketTimings.
+   *  - - **NOTE**: Fees must be the same value until decay is supported by scoopers.
    *  - marketTimings: The POSIX timestamp for when the fee should start (market open), and stop (fee progression ends).
    *  - ownerAddress: Who the generated LP tokens should be sent to.
    *  - protocolFee: The fee gathered for the protocol treasury.
@@ -312,6 +313,16 @@ export class TxBuilderLucidV3 extends TxBuilder {
       protocolFee,
       referralFee,
     } = new MintV3PoolConfig(mintPoolArgs).buildArgs();
+
+    /**
+     * @todo
+     * This will be removed once decaying fees are supported by scoopers.
+     */
+    if (fees[0] !== fees[1]) {
+      throw new Error(
+        "Decaying fees are currently not supported in the scoopers. For now, use the same fee for both start and end values."
+      );
+    }
 
     const [userUtxos, { hash: poolPolicyId }, references, settings] =
       await Promise.all([
