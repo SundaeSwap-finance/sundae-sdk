@@ -55,7 +55,7 @@ A utility method to default the Taste Test type to liquidity if not set.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:709](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L709)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:697](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L697)
 
 ___
 
@@ -96,7 +96,7 @@ Throws an error if the transaction cannot be completed or if there are issues wi
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:541](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L541)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:529](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L529)
 
 ___
 
@@ -143,7 +143,7 @@ Throws an error if no UTXOs are available, if reference scripts are missing, or 
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:117](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L117)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:116](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L116)
 
 ___
 
@@ -174,7 +174,7 @@ Will throw an error if unable to derive UTXO from the provided OutRef in `script
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:654](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L654)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:642](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L642)
 
 ___
 
@@ -205,7 +205,7 @@ Will throw an error if unable to derive UTXO from the provided OutRef in `script
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:620](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L620)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:608](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L608)
 
 ___
 
@@ -232,7 +232,7 @@ If neither stake nor payment credentials could be determined from the address.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:689](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L689)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:677](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L677)
 
 ___
 
@@ -279,7 +279,7 @@ Throws an error if the user's payment credential hash is missing or if the node 
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:284](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L284)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:278](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L278)
 
 ___
 
@@ -325,4 +325,4 @@ Throws errors if the withdrawal conditions are not met, such as missing keys, in
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:360](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L360)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:354](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L354)

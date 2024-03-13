@@ -44,7 +44,6 @@ import {
   MIN_COMMITMENT_ADA,
   NODE_DEPOSIT_ADA,
   SETNODE_PREFIX,
-  TIME_TOLERANCE_MS,
   TWENTY_FOUR_HOURS_MS,
 } from "../contants.js";
 
@@ -177,7 +176,7 @@ export class TasteTestLucid implements AbstractTasteTest {
         {
           key: coveringNodeDatum.key,
           next: userKey,
-          commitment: BigInt(0),
+          commitment: 0n,
         },
         LiquiditySetNode
       );
@@ -197,7 +196,7 @@ export class TasteTestLucid implements AbstractTasteTest {
         {
           key: userKey,
           next: coveringNodeDatum.next,
-          commitment: BigInt(0),
+          commitment: 0n,
         },
         LiquiditySetNode
       );
@@ -229,13 +228,9 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const correctAmount = BigInt(args.assetAmount.amount) + MIN_COMMITMENT_ADA;
 
-    const upperBound = (args?.currentTime ?? Date.now()) + TIME_TOLERANCE_MS;
-    const lowerBound = (args?.currentTime ?? Date.now()) - TIME_TOLERANCE_MS;
-
     const tx = this.lucid
       .newTx()
       .collectFrom([coveringNode], redeemerNodeValidator)
-      .compose(this.lucid.newTx().attachSpendingValidator(nodeValidator))
       .payToContract(
         nodeValidatorAddr,
         { inline: prevNodeDatum },
@@ -248,9 +243,8 @@ export class TasteTestLucid implements AbstractTasteTest {
       )
       .addSignerKey(userKey)
       .mintAssets(assets, redeemerNodePolicy)
-      .compose(this.lucid.newTx().attachMintingPolicy(nodePolicy))
-      .validFrom(lowerBound)
-      .validTo(upperBound);
+      .attachSpendingValidator(nodeValidator)
+      .attachMintingPolicy(nodePolicy);
 
     return this.completeTx({
       tx,
@@ -424,12 +418,12 @@ export class TasteTestLucid implements AbstractTasteTest {
       [toUnit(nodePolicyId, fromText(SETNODE_PREFIX) + userKey)]: -1n,
     };
 
-    let newPrevNode: TSetNode | TLiquiditySetNode | undefined;
+    let newPrevNode: TSetNode | TLiquiditySetNode;
     if (isLiquidityTasteTest) {
       newPrevNode = {
         key: prevNodeDatum.key,
         next: nodeDatum.next,
-        commitment: BigInt(0),
+        commitment: 0n,
       };
     } else {
       newPrevNode = {
@@ -454,12 +448,10 @@ export class TasteTestLucid implements AbstractTasteTest {
     );
 
     const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
-    const upperBound = (args?.currentTime ?? Date.now()) + TIME_TOLERANCE_MS;
-    const lowerBound = (args?.currentTime ?? Date.now()) - TIME_TOLERANCE_MS;
 
-    const beforeDeadline = upperBound < args.deadline;
+    const beforeDeadline = Date.now() < args.deadline;
     const beforeTwentyFourHours =
-      upperBound < args.deadline - TWENTY_FOUR_HOURS_MS;
+      Date.now() < args.deadline - TWENTY_FOUR_HOURS_MS;
 
     if (beforeDeadline && !beforeTwentyFourHours) {
       const penaltyAmount = divCeil(
@@ -470,7 +462,6 @@ export class TasteTestLucid implements AbstractTasteTest {
       const tx = this.lucid
         .newTx()
         .collectFrom([ownNode, prevNode], redeemerNodeValidator)
-        .compose(this.lucid.newTx().attachSpendingValidator(nodeValidator))
         .payToContract(
           nodeValidatorAddr,
           { inline: newPrevNodeDatum },
@@ -481,9 +472,8 @@ export class TasteTestLucid implements AbstractTasteTest {
         })
         .addSignerKey(userKey)
         .mintAssets(assets, redeemerNodePolicy)
-        .compose(this.lucid.newTx().attachMintingPolicy(nodePolicy))
-        .validFrom(lowerBound)
-        .validTo(upperBound);
+        .attachMintingPolicy(nodePolicy)
+        .attachSpendingValidator(nodeValidator);
 
       return this.completeTx({
         tx,
@@ -500,17 +490,15 @@ export class TasteTestLucid implements AbstractTasteTest {
     const tx = this.lucid
       .newTx()
       .collectFrom([ownNode, prevNode], redeemerNodeValidator)
-      .compose(this.lucid.newTx().attachSpendingValidator(nodeValidator))
       .payToContract(
         nodeValidatorAddr,
         { inline: newPrevNodeDatum },
         prevNode.assets
       )
       .addSignerKey(userKey)
-      .mintAssets(assets, redeemerNodePolicy)
-      .compose(this.lucid.newTx().attachMintingPolicy(nodePolicy))
-      .validFrom(lowerBound)
-      .validTo(upperBound);
+      .attachMintingPolicy(nodePolicy)
+      .attachSpendingValidator(nodeValidator)
+      .mintAssets(assets, redeemerNodePolicy);
 
     return this.completeTx({ tx, referralFee: args.referralFee });
   }

@@ -58,7 +58,9 @@ export const AppStateProvider: FC<
         return;
       }
 
-      const address = (await api.getUsedAddresses())?.[0];
+      const address =
+        (await api.getUsedAddresses())?.[0] ??
+        (await api.getUnusedAddresses())?.[0];
       const {
         address: { bech32 },
         paymentCredential,

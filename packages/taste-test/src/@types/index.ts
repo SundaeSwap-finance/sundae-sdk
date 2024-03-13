@@ -34,7 +34,6 @@ export type TTasteTestFees = IComposedTx<
  * Common arguments for the deposit and update methods of the TasteTest class instance.
  */
 export interface IBaseArgs {
-  currentTime?: number;
   referralFee?: ITxBuilderReferralFee;
   scripts: {
     policy: MintingPolicy | OutRef;

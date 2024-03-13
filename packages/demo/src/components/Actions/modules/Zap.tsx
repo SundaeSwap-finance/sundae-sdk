@@ -22,14 +22,12 @@ export const Zap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         useV3Contracts ? newPoolQuery : poolQuery
       );
 
-      console.log(activeWalletAddr);
-
       await SDK.builder(
         useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
       )
         .zap({
           pool,
-          suppliedAsset: new AssetAmount(9999999n, pool.assetA),
+          suppliedAsset: new AssetAmount(17_500_000n, pool.assetA),
           orderAddresses: {
             DestinationAddress: {
               address: activeWalletAddr,

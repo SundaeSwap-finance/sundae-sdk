@@ -1,3 +1,4 @@
+import { IComposedTx } from "../@types/txbuilders.js";
 import { TSupportedNetworks } from "../@types/utilities.js";
 import { DatumBuilder } from "./DatumBuilder.abstract.class.js";
 import { QueryProvider } from "./QueryProvider.abstract.class.js";
@@ -23,10 +24,10 @@ export abstract class TxBuilder {
    */
   abstract newTxInstance(): unknown;
 
-  abstract swap(args: unknown): Promise<unknown>;
-  abstract deposit(args: unknown): Promise<unknown>;
-  abstract withdraw(args: unknown): Promise<unknown>;
-  abstract update(args: unknown): Promise<unknown>;
-  abstract cancel(args: unknown): Promise<unknown>;
-  abstract zap(args: unknown): Promise<unknown>;
+  abstract swap(args: unknown): Promise<IComposedTx>;
+  abstract deposit(args: unknown): Promise<IComposedTx>;
+  abstract withdraw(args: unknown): Promise<IComposedTx>;
+  abstract update(args: unknown): Promise<IComposedTx>;
+  abstract cancel(args: unknown): Promise<IComposedTx>;
+  abstract zap(args: unknown): Promise<IComposedTx>;
 }

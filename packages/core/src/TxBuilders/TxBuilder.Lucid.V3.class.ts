@@ -496,6 +496,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       { inline },
       payment
     );
+
     return this.completeTx({
       tx: txInstance,
       datum: inline,
