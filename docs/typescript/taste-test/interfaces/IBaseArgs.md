@@ -9,3 +9,5 @@ Common arguments for the deposit and update methods of the TasteTest class insta
   ↳ [`IDepositArgs`](IDepositArgs.md)
 
   ↳ [`IWithdrawArgs`](IWithdrawArgs.md)
+
+  ↳ [`IClaimArgs`](IClaimArgs.md)

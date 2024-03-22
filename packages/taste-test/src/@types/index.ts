@@ -31,13 +31,59 @@ export type TTasteTestFees = IComposedTx<
 >["fees"];
 
 /**
+ * An enum that describes different script types.
+ */
+export enum EScriptType {
+  VALIDATOR = "VALIDATOR",
+  POLICY = "POLICY",
+  OUTREF = "OUTREF",
+}
+
+/**
+ * A type to describe the validator script.
+ */
+export type TSpendingValidatorScript = {
+  type: EScriptType.VALIDATOR;
+  value: SpendingValidator;
+};
+
+/**
+ * A type to describe the minting policy script.
+ */
+export type TMintingPolicyScript = {
+  type: EScriptType.POLICY;
+  value: MintingPolicy;
+};
+
+/**
+ * A type to describe the out ref UTXO. We use this to
+ * the scripts as reference inputs.
+ */
+export type TOutRef = {
+  type: EScriptType.OUTREF;
+  value: {
+    hash: string;
+    outRef: OutRef;
+  };
+};
+
+/**
+ * The default type for scripts.
+ */
+export type TScriptType =
+  | TSpendingValidatorScript
+  | TMintingPolicyScript
+  | TOutRef;
+
+/**
  * Common arguments for the deposit and update methods of the TasteTest class instance.
  */
 export interface IBaseArgs {
   referralFee?: ITxBuilderReferralFee;
+  validatorAddress: string;
   scripts: {
-    policy: MintingPolicy | OutRef;
-    validator: SpendingValidator | OutRef;
+    policy: TScriptType;
+    validator: TScriptType;
   };
   tasteTestType?: TTasteTestType;
   utxos?: UTxO[];
@@ -64,4 +110,11 @@ export interface IUpdateArgs extends IDepositArgs {
 export interface IWithdrawArgs extends IBaseArgs {
   deadline: number;
   penaltyAddress: string;
+}
+
+/**
+ * Arguments for the reward claim of the TasteTest class instance.
+ */
+export interface IClaimArgs extends IBaseArgs {
+  rewardFoldPolicyId: string;
 }

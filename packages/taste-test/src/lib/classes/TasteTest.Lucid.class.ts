@@ -5,31 +5,29 @@ import {
   Assets,
   Data,
   Datum,
-  SpendingValidator,
   Tx,
   TxComplete,
   UTxO,
   fromText,
   toUnit,
   type Lucid,
-  type MintingPolicy,
 } from "lucid-cardano";
 
 import {
-  DiscoveryNodeAction,
   LiquidityNodeAction,
   LiquiditySetNode,
   NodeValidatorAction,
   SetNode,
-  TLiquiditySetNode,
-  TSetNode,
 } from "../../@types/contracts.js";
 import {
+  EScriptType,
   IBaseArgs,
+  IClaimArgs,
   IDepositArgs,
   ITasteTestFees,
   IUpdateArgs,
   IWithdrawArgs,
+  TScriptType,
   TTasteTestType,
 } from "../../@types/index.js";
 import {
@@ -44,6 +42,8 @@ import {
   MIN_COMMITMENT_ADA,
   NODE_DEPOSIT_ADA,
   SETNODE_PREFIX,
+  TIME_TOLERANCE_MS,
+  TT_UTXO_ADDITIONAL_ADA,
   TWENTY_FOUR_HOURS_MS,
 } from "../contants.js";
 
@@ -129,35 +129,19 @@ export class TasteTestLucid implements AbstractTasteTest {
       );
     }
 
-    const isLiquidityTasteTest =
-      this._getTasteTestTypeFromArgs(args) === "Liquidity";
-    const nodeValidator = await this.getNodeValidatorFromArgs(args);
-    const nodeValidatorAddr =
-      this.lucid.utils.validatorToAddress(nodeValidator);
-    const nodePolicy = await this.getNodePolicyFromArgs(args);
-    const nodePolicyId = this.lucid.utils.mintingPolicyToId(nodePolicy);
-
     const userKey = await this.getUserKey();
 
     let coveringNode: UTxO | undefined;
-    const nodeUTXOs = await this.lucid.utxosAt(nodeValidatorAddr);
+    const nodeUTXOs = await this.lucid.utxosAt(args.validatorAddress);
 
     if (args.utxos) {
       coveringNode = args.utxos[0];
     } else {
-      coveringNode = findCoveringNode(
-        nodeUTXOs,
-        userKey,
-        this._getTasteTestTypeFromArgs(args)
-      );
+      coveringNode = findCoveringNode(nodeUTXOs, userKey, "Liquidity");
     }
 
     if (!coveringNode || !coveringNode.datum) {
-      const hasOwnNode = findOwnNode(
-        nodeUTXOs,
-        userKey,
-        this._getTasteTestTypeFromArgs(args)
-      );
+      const hasOwnNode = findOwnNode(nodeUTXOs, userKey, "Liquidity");
       if (hasOwnNode && updateFallback) {
         return this.update({ ...args });
       }
@@ -165,50 +149,25 @@ export class TasteTestLucid implements AbstractTasteTest {
       throw new Error("Could not find covering node.");
     }
 
-    const coveringNodeDatum = Data.from(
-      coveringNode.datum,
-      isLiquidityTasteTest ? LiquiditySetNode : SetNode
+    const coveringNodeDatum = Data.from(coveringNode.datum, LiquiditySetNode);
+
+    const prevNodeDatum = Data.to(
+      {
+        key: coveringNodeDatum.key,
+        next: userKey,
+        commitment: 0n,
+      },
+      LiquiditySetNode
     );
 
-    let prevNodeDatum: string = "";
-    if (isLiquidityTasteTest) {
-      prevNodeDatum = Data.to(
-        {
-          key: coveringNodeDatum.key,
-          next: userKey,
-          commitment: 0n,
-        },
-        LiquiditySetNode
-      );
-    } else {
-      prevNodeDatum = Data.to(
-        {
-          key: coveringNodeDatum.key,
-          next: userKey,
-        },
-        SetNode
-      );
-    }
-
-    let nodeDatum: string = "";
-    if (isLiquidityTasteTest) {
-      nodeDatum = Data.to(
-        {
-          key: userKey,
-          next: coveringNodeDatum.next,
-          commitment: 0n,
-        },
-        LiquiditySetNode
-      );
-    } else {
-      nodeDatum = Data.to(
-        {
-          key: userKey,
-          next: coveringNodeDatum.next,
-        },
-        SetNode
-      );
-    }
+    const nodeDatum = Data.to(
+      {
+        key: userKey,
+        next: coveringNodeDatum.next,
+        commitment: 0n,
+      },
+      LiquiditySetNode
+    );
 
     const redeemerNodePolicy = Data.to(
       {
@@ -217,34 +176,57 @@ export class TasteTestLucid implements AbstractTasteTest {
           coveringNode: coveringNodeDatum,
         },
       },
-      isLiquidityTasteTest ? LiquidityNodeAction : DiscoveryNodeAction
+      LiquidityNodeAction
     );
 
     const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
+
+    let nodePolicyId: string | undefined;
+    if (args.scripts.policy.type === EScriptType.OUTREF) {
+      nodePolicyId = args.scripts.policy.value.hash;
+    } else if (args.scripts.policy.type === EScriptType.POLICY) {
+      nodePolicyId = this.lucid.utils.mintingPolicyToId(
+        args.scripts.policy.value
+      );
+    }
+
+    if (!nodePolicyId) {
+      throw new Error("Could not derive a PolicyID for burning the node NFT!");
+    }
 
     const assets = {
       [toUnit(nodePolicyId, `${fromText(SETNODE_PREFIX)}${userKey}`)]: 1n,
     };
 
-    const correctAmount = BigInt(args.assetAmount.amount) + MIN_COMMITMENT_ADA;
+    if (args.assetAmount.amount < MIN_COMMITMENT_ADA) {
+      throw new Error("Amount deposited is less than the minimum amount.");
+    }
+
+    const correctAmount =
+      BigInt(args.assetAmount.amount) + TT_UTXO_ADDITIONAL_ADA;
 
     const tx = this.lucid
       .newTx()
       .collectFrom([coveringNode], redeemerNodeValidator)
       .payToContract(
-        nodeValidatorAddr,
+        args.validatorAddress,
         { inline: prevNodeDatum },
         coveringNode.assets
       )
       .payToContract(
-        nodeValidatorAddr,
+        args.validatorAddress,
         { inline: nodeDatum },
         { ...assets, lovelace: correctAmount }
       )
       .addSignerKey(userKey)
       .mintAssets(assets, redeemerNodePolicy)
-      .attachSpendingValidator(nodeValidator)
-      .attachMintingPolicy(nodePolicy);
+      .validFrom(Date.now() - TIME_TOLERANCE_MS)
+      .validTo(Date.now() + TIME_TOLERANCE_MS);
+
+    await Promise.all([
+      this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
+      this._attachScriptsOrReferenceInputs(tx, args.scripts.validator),
+    ]);
 
     return this.completeTx({
       tx,
@@ -278,10 +260,6 @@ export class TasteTestLucid implements AbstractTasteTest {
   public async update(
     args: IUpdateArgs
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>> {
-    const nodeValidator = await this.getNodeValidatorFromArgs(args);
-    const nodeValidatorAddr =
-      this.lucid.utils.validatorToAddress(nodeValidator);
-
     const userKey = await this.getUserKey();
 
     if (!userKey) {
@@ -292,7 +270,7 @@ export class TasteTestLucid implements AbstractTasteTest {
     if (args.utxos) {
       ownNode = args.utxos[0];
     } else {
-      const nodeUTXOs = await this.lucid.utxosAt(nodeValidatorAddr);
+      const nodeUTXOs = await this.lucid.utxosAt(args.validatorAddress);
       ownNode = findOwnNode(
         nodeUTXOs,
         userKey,
@@ -320,12 +298,15 @@ export class TasteTestLucid implements AbstractTasteTest {
     const tx = this.lucid
       .newTx()
       .collectFrom([ownNode], redeemerNodeValidator)
-      .compose(this.lucid.newTx().attachSpendingValidator(nodeValidator))
       .payToContract(
-        nodeValidatorAddr,
+        args.validatorAddress,
         { inline: ownNode.datum },
         newNodeAssets
-      );
+      )
+      .validFrom(Date.now() - TIME_TOLERANCE_MS)
+      .validTo(Date.now() + TIME_TOLERANCE_MS);
+
+    this._attachScriptsOrReferenceInputs(tx, args.scripts.validator);
 
     return this.completeTx({ tx, referralFee: args.referralFee });
   }
@@ -354,13 +335,6 @@ export class TasteTestLucid implements AbstractTasteTest {
   public async withdraw(
     args: IWithdrawArgs
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>> {
-    const nodeValidator = await this.getNodeValidatorFromArgs(args);
-    const nodeValidatorAddr =
-      this.lucid.utils.validatorToAddress(nodeValidator);
-
-    const nodePolicy = await this.getNodePolicyFromArgs(args);
-    const nodePolicyId = this.lucid.utils.mintingPolicyToId(nodePolicy);
-
     const userKey = await this.getUserKey();
 
     if (!userKey) {
@@ -371,13 +345,13 @@ export class TasteTestLucid implements AbstractTasteTest {
       this._getTasteTestTypeFromArgs(args) === "Liquidity";
     const nodeUTXOS = args.utxos
       ? args.utxos
-      : await this.lucid.utxosAt(nodeValidatorAddr);
+      : await this.lucid.utxosAt(args.validatorAddress);
 
     let ownNode: UTxO | undefined;
     if (args.utxos) {
       ownNode = nodeUTXOS[0];
     } else {
-      const nodeUTXOs = await this.lucid.utxosAt(nodeValidatorAddr);
+      const nodeUTXOs = await this.lucid.utxosAt(args.validatorAddress);
       ownNode = findOwnNode(
         nodeUTXOs,
         userKey,
@@ -414,23 +388,28 @@ export class TasteTestLucid implements AbstractTasteTest {
       isLiquidityTasteTest ? LiquiditySetNode : SetNode
     );
 
+    let nodePolicyId: string | undefined;
+    if (args.scripts.policy.type === EScriptType.OUTREF) {
+      nodePolicyId = args.scripts.policy.value.hash;
+    } else if (args.scripts.policy.type === EScriptType.POLICY) {
+      nodePolicyId = this.lucid.utils.mintingPolicyToId(
+        args.scripts.policy.value
+      );
+    }
+
+    if (!nodePolicyId) {
+      throw new Error("Could not derive a PolicyID for burning the node NFT!");
+    }
+
     const assets = {
       [toUnit(nodePolicyId, fromText(SETNODE_PREFIX) + userKey)]: -1n,
     };
 
-    let newPrevNode: TSetNode | TLiquiditySetNode;
-    if (isLiquidityTasteTest) {
-      newPrevNode = {
-        key: prevNodeDatum.key,
-        next: nodeDatum.next,
-        commitment: 0n,
-      };
-    } else {
-      newPrevNode = {
-        key: prevNodeDatum.key,
-        next: nodeDatum.next,
-      };
-    }
+    const newPrevNode = {
+      key: prevNodeDatum.key,
+      next: nodeDatum.next,
+      commitment: 0n,
+    };
 
     const newPrevNodeDatum = Data.to(
       newPrevNode,
@@ -444,7 +423,7 @@ export class TasteTestLucid implements AbstractTasteTest {
           coveringNode: newPrevNode,
         },
       },
-      isLiquidityTasteTest ? LiquidityNodeAction : DiscoveryNodeAction
+      LiquidityNodeAction
     );
 
     const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
@@ -463,7 +442,7 @@ export class TasteTestLucid implements AbstractTasteTest {
         .newTx()
         .collectFrom([ownNode, prevNode], redeemerNodeValidator)
         .payToContract(
-          nodeValidatorAddr,
+          args.validatorAddress,
           { inline: newPrevNodeDatum },
           prevNode.assets
         )
@@ -472,8 +451,13 @@ export class TasteTestLucid implements AbstractTasteTest {
         })
         .addSignerKey(userKey)
         .mintAssets(assets, redeemerNodePolicy)
-        .attachMintingPolicy(nodePolicy)
-        .attachSpendingValidator(nodeValidator);
+        .validFrom(Date.now() - TIME_TOLERANCE_MS)
+        .validTo(Date.now() + TIME_TOLERANCE_MS);
+
+      await Promise.all([
+        this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
+        this._attachScriptsOrReferenceInputs(tx, args.scripts.validator),
+      ]);
 
       return this.completeTx({
         tx,
@@ -491,14 +475,113 @@ export class TasteTestLucid implements AbstractTasteTest {
       .newTx()
       .collectFrom([ownNode, prevNode], redeemerNodeValidator)
       .payToContract(
-        nodeValidatorAddr,
+        args.validatorAddress,
         { inline: newPrevNodeDatum },
         prevNode.assets
       )
       .addSignerKey(userKey)
-      .attachMintingPolicy(nodePolicy)
-      .attachSpendingValidator(nodeValidator)
       .mintAssets(assets, redeemerNodePolicy);
+
+    await Promise.all([
+      this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
+      this._attachScriptsOrReferenceInputs(tx, args.scripts.validator),
+    ]);
+
+    return this.completeTx({ tx, referralFee: args.referralFee });
+  }
+
+  /**
+   * Processes a claim transaction, handling various pre-conditions and state checks.
+   *
+   * This method is responsible for orchestrating a claim operation, including validating nodes,
+   * ensuring proper policy adherence, and constructing the necessary transaction steps. It checks
+   * for the user's participation in the network, retrieves the associated validator and policy information,
+   * and determines the rightful ownership of claimable assets.
+   *
+   * After preparing the necessary information and constructing the transaction steps, it completes the transaction
+   * by setting the appropriate fees and preparing it for submission.
+   *
+   * @public
+   * @param {IClaimArgs} args - The required arguments for the claim operation.
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
+   * @async
+   * @throws {Error} Throws errors if the claim conditions are not met, such as missing keys, inability to find nodes, or ownership issues.
+   */
+  public async claim(
+    args: IClaimArgs
+  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>> {
+    const rewardFoldUtxo = await this.lucid.utxoByUnit(
+      toUnit(args.rewardFoldPolicyId, Buffer.from("RFold").toString("hex"))
+    );
+
+    const userKey = await this.getUserKey();
+
+    let ownNode: UTxO | undefined;
+    if (args.utxos) {
+      ownNode = args.utxos[0];
+    } else {
+      const nodeUTXOs = await this.lucid.utxosAt(args.validatorAddress);
+      ownNode = findOwnNode(
+        nodeUTXOs,
+        userKey,
+        this._getTasteTestTypeFromArgs(args)
+      );
+    }
+
+    if (!ownNode) {
+      throw new Error("Could not find the user's node.");
+    }
+
+    const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
+
+    const burnRedeemer = Data.to(
+      {
+        PRemove: {
+          keyToRemove: userKey,
+          coveringNode: {
+            commitment: 0n,
+            key: null,
+            next: null,
+          },
+        },
+      },
+      LiquidityNodeAction
+    );
+
+    let nodePolicyId: string | undefined;
+    if (args.scripts.policy.type === EScriptType.OUTREF) {
+      nodePolicyId = args.scripts.policy.value.hash;
+    } else if (args.scripts.policy.type === EScriptType.POLICY) {
+      nodePolicyId = this.lucid.utils.mintingPolicyToId(
+        args.scripts.policy.value
+      );
+    }
+
+    if (!nodePolicyId) {
+      throw new Error("Could not derive a PolicyID for burning the node NFT!");
+    }
+
+    const upperBound = Date.now() + TIME_TOLERANCE_MS;
+    const lowerBound = Date.now() - TIME_TOLERANCE_MS;
+
+    const tx = this.lucid
+      .newTx()
+      .collectFrom([ownNode], redeemerNodeValidator)
+      .readFrom([rewardFoldUtxo])
+      .addSignerKey(userKey)
+      .mintAssets(
+        {
+          [toUnit(nodePolicyId, `${fromText(SETNODE_PREFIX)}${userKey}`)]: -1n,
+        },
+        burnRedeemer
+      )
+      .validFrom(lowerBound)
+      .validTo(upperBound);
+
+    await Promise.all([
+      this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
+      this._attachScriptsOrReferenceInputs(tx, args.scripts.validator),
+    ]);
 
     return this.completeTx({ tx, referralFee: args.referralFee });
   }
@@ -595,74 +678,6 @@ export class TasteTestLucid implements AbstractTasteTest {
   }
 
   /**
-   * Retrieves the node validator based on the provided arguments.
-   * It either fetches the validator directly from the arguments or derives it from a transaction hash.
-   *
-   * @param {IBaseArgs} args - The arguments containing information about scripts.
-   *  - `scripts`: Contains the scripts information.
-   * @returns {Promise<SpendingValidator>} - Returns a SpendingValidator.
-   * @throws Will throw an error if unable to derive UTXO from the provided OutRef in `scripts.validator`.
-   * @async
-   * @private
-   */
-  public async getNodeValidatorFromArgs({
-    scripts,
-  }: IBaseArgs): Promise<SpendingValidator> {
-    let nodeValidator: SpendingValidator;
-
-    // If we're using a txHash property, then we know to fetch the UTXO, otherwise, we already have the data.
-    if ("txHash" in scripts.validator) {
-      const script = (
-        await this.lucid.provider.getUtxosByOutRef([scripts.validator])
-      )?.[0];
-      if (!script?.scriptRef) {
-        throw new Error(
-          "Could not derive UTXO from supplied OutRef in scripts.validator."
-        );
-      }
-      nodeValidator = script.scriptRef;
-    } else {
-      nodeValidator = scripts.validator;
-    }
-
-    return nodeValidator;
-  }
-
-  /**
-   * Retrieves the node minting policy ID based on the provided arguments.
-   * It either fetches the policy ID directly from the arguments or derives it from a transaction hash.
-   *
-   * @param {IBaseArgs} args - The arguments containing information about scripts.
-   *  - `scripts`: Contains the scripts information.
-   * @returns {Promise<MintingPolicy>} - Returns a MintingPolicy.
-   * @throws Will throw an error if unable to derive UTXO from the provided OutRef in `scripts.policy`.
-   * @async
-   * @private
-   */
-  public async getNodePolicyFromArgs({
-    scripts,
-  }: IBaseArgs): Promise<MintingPolicy> {
-    let nodePolicy: MintingPolicy;
-
-    // If we're using a txHash property, then we know to fetch the UTXO, otherwise, we already have the data.
-    if ("txHash" in scripts.policy) {
-      const script = (
-        await this.lucid.provider.getUtxosByOutRef([scripts.policy])
-      )?.[0];
-      if (!script?.scriptRef) {
-        throw new Error(
-          "Could not derive UTXO from supplied OutRef in scripts.policy."
-        );
-      }
-      nodePolicy = script.scriptRef;
-    } else {
-      nodePolicy = scripts.policy;
-    }
-
-    return nodePolicy;
-  }
-
-  /**
    * Retrieves the user key (hash) from a given Cardano address.
    *
    * This method processes the Cardano address, attempts to extract the stake credential or payment credential hash,
@@ -700,5 +715,25 @@ export class TasteTestLucid implements AbstractTasteTest {
     }
 
     return args.tasteTestType as TTasteTestType;
+  }
+
+  /**
+   * Utility function to attach the correct validators or reference inputs
+   * to a transaction.
+   * @param {Tx} tx The Lucid Transaction instance.
+   * @param {TScriptType} script The script passed by the config.
+   */
+  private async _attachScriptsOrReferenceInputs(tx: Tx, script: TScriptType) {
+    switch (script.type) {
+      case EScriptType.VALIDATOR:
+        tx.attachSpendingValidator(script.value);
+        break;
+      case EScriptType.POLICY:
+        tx.attachMintingPolicy(script.value);
+        break;
+      default:
+      case EScriptType.OUTREF:
+        tx.readFrom(await this.lucid.utxosByOutRef([script.value.outRef]));
+    }
   }
 }

@@ -37,6 +37,30 @@ An instance of the Lucid class, providing various utility methods for blockchain
 
 ## Methods
 
+### \_attachScriptsOrReferenceInputs
+
+▸ **_attachScriptsOrReferenceInputs**(`tx`, `script`): `Promise`\<`void`\>
+
+Utility function to attach the correct validators or reference inputs
+to a transaction.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `tx` | `Tx` | The Lucid Transaction instance. |
+| `script` | [`TScriptType`](../modules.md#tscripttype) | The script passed by the config. |
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Defined in
+
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:726](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L726)
+
+___
+
 ### \_getTasteTestTypeFromArgs
 
 ▸ **_getTasteTestTypeFromArgs**(`args`): [`TTasteTestType`](../modules.md#ttastetesttype)
@@ -55,7 +79,45 @@ A utility method to default the Taste Test type to liquidity if not set.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:697](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L697)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:712](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L712)
+
+___
+
+### claim
+
+▸ **claim**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+
+Processes a claim transaction, handling various pre-conditions and state checks.
+
+This method is responsible for orchestrating a claim operation, including validating nodes,
+ensuring proper policy adherence, and constructing the necessary transaction steps. It checks
+for the user's participation in the network, retrieves the associated validator and policy information,
+and determines the rightful ownership of claimable assets.
+
+After preparing the necessary information and constructing the transaction steps, it completes the transaction
+by setting the appropriate fees and preparing it for submission.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `args` | [`IClaimArgs`](../interfaces/IClaimArgs.md) | The required arguments for the claim operation. |
+
+#### Returns
+
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+
+- Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
+
+**`Async`**
+
+**`Throws`**
+
+Throws errors if the claim conditions are not met, such as missing keys, inability to find nodes, or ownership issues.
+
+#### Defined in
+
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:510](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L510)
 
 ___
 
@@ -96,7 +158,7 @@ Throws an error if the transaction cannot be completed or if there are issues wi
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:529](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L529)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:612](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L612)
 
 ___
 
@@ -147,68 +209,6 @@ Throws an error if no UTXOs are available, if reference scripts are missing, or 
 
 ___
 
-### getNodePolicyFromArgs
-
-▸ **getNodePolicyFromArgs**(`args`): `Promise`\<`Script`\>
-
-Retrieves the node minting policy ID based on the provided arguments.
-It either fetches the policy ID directly from the arguments or derives it from a transaction hash.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `args` | [`IBaseArgs`](../interfaces/IBaseArgs.md) | The arguments containing information about scripts. - `scripts`: Contains the scripts information. |
-
-#### Returns
-
-`Promise`\<`Script`\>
-
-- Returns a MintingPolicy.
-
-**`Throws`**
-
-Will throw an error if unable to derive UTXO from the provided OutRef in `scripts.policy`.
-
-**`Async`**
-
-#### Defined in
-
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:642](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L642)
-
-___
-
-### getNodeValidatorFromArgs
-
-▸ **getNodeValidatorFromArgs**(`args`): `Promise`\<`Script`\>
-
-Retrieves the node validator based on the provided arguments.
-It either fetches the validator directly from the arguments or derives it from a transaction hash.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `args` | [`IBaseArgs`](../interfaces/IBaseArgs.md) | The arguments containing information about scripts. - `scripts`: Contains the scripts information. |
-
-#### Returns
-
-`Promise`\<`Script`\>
-
-- Returns a SpendingValidator.
-
-**`Throws`**
-
-Will throw an error if unable to derive UTXO from the provided OutRef in `scripts.validator`.
-
-**`Async`**
-
-#### Defined in
-
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:608](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L608)
-
-___
-
 ### getUserKey
 
 ▸ **getUserKey**(): `Promise`\<`string`\>
@@ -232,7 +232,7 @@ If neither stake nor payment credentials could be determined from the address.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:677](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L677)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:692](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L692)
 
 ___
 
@@ -279,7 +279,7 @@ Throws an error if the user's payment credential hash is missing or if the node 
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:278](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L278)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:260](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L260)
 
 ___
 
@@ -325,4 +325,4 @@ Throws errors if the withdrawal conditions are not met, such as missing keys, in
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:354](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L354)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:335](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L335)

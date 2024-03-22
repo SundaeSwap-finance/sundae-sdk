@@ -3,6 +3,10 @@
 This package includes necessary exports for building Taste
 Test transactions for the SundaeSwap protocol.
 
+## Enumerations
+
+- [EScriptType](enums/EScriptType.md)
+
 ## Classes
 
 - [AbstractTasteTest](classes/AbstractTasteTest.md)
@@ -11,6 +15,7 @@ Test transactions for the SundaeSwap protocol.
 ## Interfaces
 
 - [IBaseArgs](interfaces/IBaseArgs.md)
+- [IClaimArgs](interfaces/IClaimArgs.md)
 - [IComposedTx](interfaces/IComposedTx.md)
 - [IDepositArgs](interfaces/IDepositArgs.md)
 - [ITasteTestCompleteTxArgs](interfaces/ITasteTestCompleteTxArgs.md)
@@ -19,6 +24,78 @@ Test transactions for the SundaeSwap protocol.
 - [IWithdrawArgs](interfaces/IWithdrawArgs.md)
 
 ## Type Aliases
+
+### TMintingPolicyScript
+
+Ƭ **TMintingPolicyScript**: `Object`
+
+A type to describe the minting policy script.
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `type` | [`POLICY`](enums/EScriptType.md#policy) |
+| `value` | `MintingPolicy` |
+
+#### Defined in
+
+[taste-test/src/@types/index.ts:53](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L53)
+
+___
+
+### TOutRef
+
+Ƭ **TOutRef**: `Object`
+
+A type to describe the out ref UTXO. We use this to
+the scripts as reference inputs.
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `type` | [`OUTREF`](enums/EScriptType.md#outref) |
+| `value` | \{ `hash`: `string` ; `outRef`: `OutRef`  } |
+| `value.hash` | `string` |
+| `value.outRef` | `OutRef` |
+
+#### Defined in
+
+[taste-test/src/@types/index.ts:62](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L62)
+
+___
+
+### TScriptType
+
+Ƭ **TScriptType**: [`TSpendingValidatorScript`](modules.md#tspendingvalidatorscript) \| [`TMintingPolicyScript`](modules.md#tmintingpolicyscript) \| [`TOutRef`](modules.md#toutref)
+
+The default type for scripts.
+
+#### Defined in
+
+[taste-test/src/@types/index.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L73)
+
+___
+
+### TSpendingValidatorScript
+
+Ƭ **TSpendingValidatorScript**: `Object`
+
+A type to describe the validator script.
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `type` | [`VALIDATOR`](enums/EScriptType.md#validator) |
+| `value` | `SpendingValidator` |
+
+#### Defined in
+
+[taste-test/src/@types/index.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L45)
+
+___
 
 ### TTasteTestFees
 
