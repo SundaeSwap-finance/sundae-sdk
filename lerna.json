@@ -14,7 +14,6 @@
   "command": {
     "version": {
       "message": "chore(release): publish %s",
-      "amend": true,
       "conventionalCommits": true,
       "private": false,
       "allowBranch": ["main"]
