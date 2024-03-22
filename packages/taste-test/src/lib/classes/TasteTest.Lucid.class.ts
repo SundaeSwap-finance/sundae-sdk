@@ -641,7 +641,7 @@ export class TasteTestLucid implements AbstractTasteTest {
       fees: {
         cardanoTxFee: new AssetAmount(0n, 6),
         deposit: new AssetAmount(hasFees ? NODE_DEPOSIT_ADA : 0n, 6),
-        foldFee: new AssetAmount(hasFees ? FOLDING_FEE_ADA : 0n, 6),
+        foldFee: new AssetAmount(hasFees ? FOLDING_FEE_ADA * 2n : 0n, 6),
         penaltyFee: penalty ?? new AssetAmount(0n, 6),
         referral: new AssetAmount(
           referralFee?.payment?.amount ?? 0n,
