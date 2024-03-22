@@ -63,28 +63,6 @@ export const SetNodeSchema = Data.Object({
 export type TSetNode = Data.Static<typeof SetNodeSchema>;
 export const SetNode = SetNodeSchema as unknown as TSetNode;
 
-export const DiscoveryNodeActionSchema = Data.Enum([
-  Data.Literal("PInit"),
-  Data.Literal("PDInit"),
-  Data.Object({
-    PInsert: Data.Object({
-      keyToInsert: PubKeyHashSchema,
-      coveringNode: SetNodeSchema,
-    }),
-  }),
-  Data.Object({
-    PRemove: Data.Object({
-      keyToRemove: PubKeyHashSchema,
-      coveringNode: SetNodeSchema,
-    }),
-  }),
-]);
-export type TDiscoveryNodeAction = Data.Static<
-  typeof DiscoveryNodeActionSchema
->;
-export const DiscoveryNodeAction =
-  DiscoveryNodeActionSchema as unknown as TDiscoveryNodeAction;
-
 export const DiscoveryConfigSchema = Data.Object({
   initUTXO: OutputReferenceSchema,
   maxRaise: Data.Integer(),
