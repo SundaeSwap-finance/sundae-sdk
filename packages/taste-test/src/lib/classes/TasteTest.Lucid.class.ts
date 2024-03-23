@@ -181,7 +181,7 @@ export class TasteTestLucid implements AbstractTasteTest {
     );
 
     const redeemerNodeValidator = Data.to(
-      "ClaimAct",
+      "LinkedListAct",
       LiquidityNodeValidatorAction
     );
 
