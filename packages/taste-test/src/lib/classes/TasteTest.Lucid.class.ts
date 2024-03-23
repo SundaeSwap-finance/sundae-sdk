@@ -18,7 +18,7 @@ import {
   LiquidityNodeValidatorAction,
   LiquiditySetNode,
   NodeValidatorAction,
-  SetNode,
+  TLiquiditySetNode,
 } from "../../@types/contracts.js";
 import {
   EScriptType,
@@ -43,9 +43,10 @@ import {
   MIN_COMMITMENT_ADA,
   NODE_DEPOSIT_ADA,
   SETNODE_PREFIX,
-  TIME_TOLERANCE_MS,
   TT_UTXO_ADDITIONAL_ADA,
   TWENTY_FOUR_HOURS_MS,
+  VALID_FROM_TOLERANCE_MS,
+  VALID_TO_TOLERANCE_MS,
 } from "../contants.js";
 
 /**
@@ -181,7 +182,7 @@ export class TasteTestLucid implements AbstractTasteTest {
     );
 
     const redeemerNodeValidator = Data.to(
-      "ClaimAct",
+      "LinkedListAct",
       LiquidityNodeValidatorAction
     );
 
@@ -224,8 +225,8 @@ export class TasteTestLucid implements AbstractTasteTest {
       )
       .addSignerKey(userKey)
       .mintAssets(assets, redeemerNodePolicy)
-      .validFrom(Date.now() - TIME_TOLERANCE_MS)
-      .validTo(Date.now() + TIME_TOLERANCE_MS);
+      .validFrom(Date.now() - VALID_FROM_TOLERANCE_MS)
+      .validTo(Date.now() + VALID_TO_TOLERANCE_MS);
 
     await Promise.all([
       this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
@@ -288,16 +289,13 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const redeemerNodeValidator = Data.to(
       "ModifyCommitment",
-      NodeValidatorAction
+      LiquidityNodeValidatorAction
     );
 
-    const newNodeAssets: Assets = {};
-    Object.entries(ownNode.assets).forEach(([key, value]) => {
-      newNodeAssets[key] = BigInt(value);
-    });
-
-    newNodeAssets["lovelace"] =
-      newNodeAssets["lovelace"] + args.assetAmount.amount;
+    const newNodeAssets: Assets = {
+      ...ownNode.assets,
+      lovelace: ownNode.assets.lovelace + args.assetAmount.amount,
+    };
 
     const tx = this.lucid
       .newTx()
@@ -307,10 +305,10 @@ export class TasteTestLucid implements AbstractTasteTest {
         { inline: ownNode.datum },
         newNodeAssets
       )
-      .validFrom(Date.now() - TIME_TOLERANCE_MS)
-      .validTo(Date.now() + TIME_TOLERANCE_MS);
+      .validFrom(Date.now() - VALID_FROM_TOLERANCE_MS)
+      .validTo(Date.now() + VALID_TO_TOLERANCE_MS);
 
-    this._attachScriptsOrReferenceInputs(tx, args.scripts.validator);
+    await this._attachScriptsOrReferenceInputs(tx, args.scripts.validator);
 
     return this.completeTx({ tx, referralFee: args.referralFee });
   }
@@ -345,52 +343,24 @@ export class TasteTestLucid implements AbstractTasteTest {
       throw new Error("Missing wallet's payment credential hash.");
     }
 
-    const isLiquidityTasteTest =
-      this._getTasteTestTypeFromArgs(args) === "Liquidity";
     const nodeUTXOS = args.utxos
       ? args.utxos
       : await this.lucid.utxosAt(args.validatorAddress);
 
-    let ownNode: UTxO | undefined;
-    if (args.utxos) {
-      ownNode = nodeUTXOS[0];
-    } else {
-      const nodeUTXOs = await this.lucid.utxosAt(args.validatorAddress);
-      ownNode = findOwnNode(
-        nodeUTXOs,
-        userKey,
-        this._getTasteTestTypeFromArgs(args)
-      );
-    }
+    const ownNode = findOwnNode(nodeUTXOS, userKey, "Liquidity");
 
     if (!ownNode || !ownNode.datum) {
       throw new Error("Could not find covering node.");
     }
 
-    const nodeDatum = Data.from(
-      ownNode.datum,
-      isLiquidityTasteTest ? LiquiditySetNode : SetNode
-    );
-
-    let prevNode: UTxO | undefined;
-    if (args.utxos) {
-      prevNode = args.utxos[0];
-    } else {
-      prevNode = findPrevNode(
-        nodeUTXOS,
-        userKey,
-        this._getTasteTestTypeFromArgs(args)
-      );
-    }
+    const prevNode = findPrevNode(nodeUTXOS, userKey, "Liquidity");
 
     if (!prevNode || !prevNode.datum) {
       throw new Error("Could not find previous node.");
     }
 
-    const prevNodeDatum = Data.from(
-      prevNode.datum,
-      isLiquidityTasteTest ? LiquiditySetNode : SetNode
-    );
+    const ownNodeDatum = Data.from(ownNode.datum, LiquiditySetNode);
+    const prevNodeDatum = Data.from(prevNode.datum, LiquiditySetNode);
 
     let nodePolicyId: string | undefined;
     if (args.scripts.policy.type === EScriptType.OUTREF) {
@@ -405,26 +375,23 @@ export class TasteTestLucid implements AbstractTasteTest {
       throw new Error("Could not derive a PolicyID for burning the node NFT!");
     }
 
-    const assets = {
+    const assetsToBurn = {
       [toUnit(nodePolicyId, fromText(SETNODE_PREFIX) + userKey)]: -1n,
     };
 
-    const newPrevNode = {
+    const newPrevNodeSchema: TLiquiditySetNode = {
       key: prevNodeDatum.key,
-      next: nodeDatum.next,
+      next: ownNodeDatum.next,
       commitment: 0n,
     };
 
-    const newPrevNodeDatum = Data.to(
-      newPrevNode,
-      isLiquidityTasteTest ? LiquiditySetNode : SetNode
-    );
+    const newPrevNodeDatum = Data.to(newPrevNodeSchema, LiquiditySetNode);
 
     const redeemerNodePolicy = Data.to(
       {
         PRemove: {
           keyToRemove: userKey,
-          coveringNode: newPrevNode,
+          coveringNode: newPrevNodeSchema,
         },
       },
       LiquidityNodeAction
@@ -454,9 +421,9 @@ export class TasteTestLucid implements AbstractTasteTest {
           lovelace: penaltyAmount,
         })
         .addSignerKey(userKey)
-        .mintAssets(assets, redeemerNodePolicy)
-        .validFrom(Date.now() - TIME_TOLERANCE_MS)
-        .validTo(Date.now() + TIME_TOLERANCE_MS);
+        .mintAssets(assetsToBurn, redeemerNodePolicy)
+        .validFrom(Date.now() - VALID_FROM_TOLERANCE_MS)
+        .validTo(Date.now() + VALID_TO_TOLERANCE_MS);
 
       await Promise.all([
         this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
@@ -484,7 +451,9 @@ export class TasteTestLucid implements AbstractTasteTest {
         prevNode.assets
       )
       .addSignerKey(userKey)
-      .mintAssets(assets, redeemerNodePolicy);
+      .mintAssets(assetsToBurn, redeemerNodePolicy)
+      .validFrom(Date.now() - VALID_FROM_TOLERANCE_MS)
+      .validTo(Date.now() + VALID_TO_TOLERANCE_MS);
 
     await Promise.all([
       this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
@@ -565,16 +534,13 @@ export class TasteTestLucid implements AbstractTasteTest {
       throw new Error("Could not derive a PolicyID for burning the node NFT!");
     }
 
-    const upperBound = Date.now() + TIME_TOLERANCE_MS;
-    const lowerBound = Date.now() - TIME_TOLERANCE_MS;
-
     const tx = this.lucid
       .newTx()
       .collectFrom([ownNode], redeemerNodeValidator)
       .readFrom([rewardFoldUtxo])
       .addSignerKey(userKey)
-      .validFrom(lowerBound)
-      .validTo(upperBound);
+      .validFrom(Date.now() - VALID_FROM_TOLERANCE_MS)
+      .validTo(Date.now() + VALID_TO_TOLERANCE_MS);
 
     if (args?.burnFoldToken) {
       tx.mintAssets(
