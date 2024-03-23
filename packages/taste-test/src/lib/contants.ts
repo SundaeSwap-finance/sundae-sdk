@@ -6,4 +6,5 @@ export const FOLDING_FEE_ADA = 1_000_000n;
 export const MIN_COMMITMENT_ADA = 1_000_000n;
 export const TT_UTXO_ADDITIONAL_ADA = NODE_DEPOSIT_ADA + FOLDING_FEE_ADA * 2n;
 
-export const TIME_TOLERANCE_MS = 600_000;
+export const LOWER_TOLERANCE_MS = 10_000;
+export const UPPER_TOLERANCE_MS = 300_000;

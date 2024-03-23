@@ -94,6 +94,8 @@ export interface IBaseArgs {
  */
 export interface IDepositArgs extends IBaseArgs {
   assetAmount: AssetAmount;
+  time?: number;
+  deadline: number;
   updateFallback?: boolean;
 }
 
@@ -102,12 +104,15 @@ export interface IDepositArgs extends IBaseArgs {
  */
 export interface IUpdateArgs extends IDepositArgs {
   assetAmount: AssetAmount;
+  time?: number;
+  deadline: number;
 }
 
 /**
  * Arguments for the deposit withdraw of the TasteTest class instance.
  */
 export interface IWithdrawArgs extends IBaseArgs {
+  time?: number;
   deadline: number;
   penaltyAddress: string;
 }
@@ -118,4 +123,5 @@ export interface IWithdrawArgs extends IBaseArgs {
 export interface IClaimArgs extends IBaseArgs {
   burnFoldToken?: boolean;
   rewardFoldPolicyId: string;
+  time?: number;
 }

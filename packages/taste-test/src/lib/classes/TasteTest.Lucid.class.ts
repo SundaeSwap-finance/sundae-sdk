@@ -40,12 +40,13 @@ import {
 import { AbstractTasteTest } from "../Abstracts/AbstractTasteTest.class.js";
 import {
   FOLDING_FEE_ADA,
+  LOWER_TOLERANCE_MS,
   MIN_COMMITMENT_ADA,
   NODE_DEPOSIT_ADA,
   SETNODE_PREFIX,
-  TIME_TOLERANCE_MS,
   TT_UTXO_ADDITIONAL_ADA,
   TWENTY_FOUR_HOURS_MS,
+  UPPER_TOLERANCE_MS
 } from "../contants.js";
 
 /**
@@ -181,7 +182,7 @@ export class TasteTestLucid implements AbstractTasteTest {
     );
 
     const redeemerNodeValidator = Data.to(
-      "ClaimAct",
+      "LinkedListAct",
       LiquidityNodeValidatorAction
     );
 
@@ -209,6 +210,14 @@ export class TasteTestLucid implements AbstractTasteTest {
     const correctAmount =
       BigInt(args.assetAmount.amount) + TT_UTXO_ADDITIONAL_ADA;
 
+    // Compute the lower bound and the upper bound for the tx
+    // We use the time passed in, and default to now; that way we can pass in server time,
+    // and not be dependent on the users computer time.
+    // We also take the earliest of our tolerance, and the deadline - 1
+    // this is so that a user racing the clock has a chance of getting their tx in
+    const lowerBound = (args.time ?? Date.now()) - LOWER_TOLERANCE_MS;
+    const upperBound = Math.min((args.time ?? Date.now()) - UPPER_TOLERANCE_MS, args.deadline - 1);
+
     const tx = this.lucid
       .newTx()
       .collectFrom([coveringNode], redeemerNodeValidator)
@@ -224,9 +233,10 @@ export class TasteTestLucid implements AbstractTasteTest {
       )
       .addSignerKey(userKey)
       .mintAssets(assets, redeemerNodePolicy)
-      .validFrom(Date.now() - TIME_TOLERANCE_MS)
-      .validTo(Date.now() + TIME_TOLERANCE_MS);
+      .validFrom(lowerBound)
+      .validTo(upperBound);
 
+    // TODO: is it safe to do this in parallel?
     await Promise.all([
       this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
       this._attachScriptsOrReferenceInputs(tx, args.scripts.validator),
@@ -299,6 +309,10 @@ export class TasteTestLucid implements AbstractTasteTest {
     newNodeAssets["lovelace"] =
       newNodeAssets["lovelace"] + args.assetAmount.amount;
 
+    // Compute the tx valid window; see the note in deposit for more details
+    const lowerBound = (args.time ?? Date.now()) - LOWER_TOLERANCE_MS;
+    const upperBound = Math.min((args.time ?? Date.now()) + UPPER_TOLERANCE_MS, args.deadline - 1);
+
     const tx = this.lucid
       .newTx()
       .collectFrom([ownNode], redeemerNodeValidator)
@@ -307,8 +321,8 @@ export class TasteTestLucid implements AbstractTasteTest {
         { inline: ownNode.datum },
         newNodeAssets
       )
-      .validFrom(Date.now() - TIME_TOLERANCE_MS)
-      .validTo(Date.now() + TIME_TOLERANCE_MS);
+      .validFrom(lowerBound)
+      .validTo(upperBound);
 
     this._attachScriptsOrReferenceInputs(tx, args.scripts.validator);
 
@@ -432,9 +446,15 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
 
-    const beforeDeadline = Date.now() < args.deadline;
+    // Compute the lower bound and the upper bound for the tx
+    // See the note in deposit for why we do it this way
+    const lowerBound = (args.time ?? Date.now()) - LOWER_TOLERANCE_MS;
+    const upperBound = Math.min((args.time ?? Date.now()) + UPPER_TOLERANCE_MS, args.deadline - 1);
+
+
+    const beforeDeadline = upperBound < args.deadline;
     const beforeTwentyFourHours =
-      Date.now() < args.deadline - TWENTY_FOUR_HOURS_MS;
+      upperBound < args.deadline - TWENTY_FOUR_HOURS_MS;
 
     if (beforeDeadline && !beforeTwentyFourHours) {
       const penaltyAmount = divCeil(
@@ -455,8 +475,8 @@ export class TasteTestLucid implements AbstractTasteTest {
         })
         .addSignerKey(userKey)
         .mintAssets(assets, redeemerNodePolicy)
-        .validFrom(Date.now() - TIME_TOLERANCE_MS)
-        .validTo(Date.now() + TIME_TOLERANCE_MS);
+        .validFrom(lowerBound)
+        .validTo(upperBound);
 
       await Promise.all([
         this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
@@ -484,7 +504,9 @@ export class TasteTestLucid implements AbstractTasteTest {
         prevNode.assets
       )
       .addSignerKey(userKey)
-      .mintAssets(assets, redeemerNodePolicy);
+      .mintAssets(assets, redeemerNodePolicy)
+      .validFrom(lowerBound)
+      .validTo(upperBound);
 
     await Promise.all([
       this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
@@ -565,8 +587,10 @@ export class TasteTestLucid implements AbstractTasteTest {
       throw new Error("Could not derive a PolicyID for burning the node NFT!");
     }
 
-    const upperBound = Date.now() + TIME_TOLERANCE_MS;
-    const lowerBound = Date.now() - TIME_TOLERANCE_MS;
+    // Compute the lower and upper bounds
+    // Unlike the other paths, we don't need to consider the deadline for the upper bound
+    const lowerBound = (args.time ?? Date.now()) - LOWER_TOLERANCE_MS;
+    const upperBound = (args.time ?? Date.now()) + UPPER_TOLERANCE_MS;
 
     const tx = this.lucid
       .newTx()
