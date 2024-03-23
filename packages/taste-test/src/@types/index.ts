@@ -116,5 +116,6 @@ export interface IWithdrawArgs extends IBaseArgs {
  * Arguments for the reward claim of the TasteTest class instance.
  */
 export interface IClaimArgs extends IBaseArgs {
+  burnFoldToken?: boolean;
   rewardFoldPolicyId: string;
 }

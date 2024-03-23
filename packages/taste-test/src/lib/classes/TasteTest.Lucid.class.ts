@@ -15,6 +15,7 @@ import {
 
 import {
   LiquidityNodeAction,
+  LiquidityNodeValidatorAction,
   LiquiditySetNode,
   NodeValidatorAction,
   SetNode,
@@ -179,7 +180,10 @@ export class TasteTestLucid implements AbstractTasteTest {
       LiquidityNodeAction
     );
 
-    const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
+    const redeemerNodeValidator = Data.to(
+      "ClaimAct",
+      LiquidityNodeValidatorAction
+    );
 
     let nodePolicyId: string | undefined;
     if (args.scripts.policy.type === EScriptType.OUTREF) {
@@ -569,14 +573,17 @@ export class TasteTestLucid implements AbstractTasteTest {
       .collectFrom([ownNode], redeemerNodeValidator)
       .readFrom([rewardFoldUtxo])
       .addSignerKey(userKey)
-      .mintAssets(
+      .validFrom(lowerBound)
+      .validTo(upperBound);
+
+    if (args?.burnFoldToken) {
+      tx.mintAssets(
         {
           [toUnit(nodePolicyId, `${fromText(SETNODE_PREFIX)}${userKey}`)]: -1n,
         },
         burnRedeemer
-      )
-      .validFrom(lowerBound)
-      .validTo(upperBound);
+      );
+    }
 
     await Promise.all([
       this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
