@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.9](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/taste-test@1.0.8...@sundaeswap/taste-test@1.0.9) (2024-03-25)
+
+### Bug Fixes
+
+- pass `hasFees` arg to tt `claim` fn ([0f9d87c](https://github.com/SundaeSwap-finance/sundae-sdk/commit/0f9d87cb1433d893f74a38a1e21c407e438ac6cf))
+
 ## [1.0.8](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/taste-test@1.0.7...@sundaeswap/taste-test@1.0.8) (2024-03-23)
 
 **Note:** Version bump only for package @sundaeswap/taste-test
