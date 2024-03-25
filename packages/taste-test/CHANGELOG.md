@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.12](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/taste-test@1.0.11...@sundaeswap/taste-test@1.0.12) (2024-03-25)
+
+### Bug Fixes
+
+- penalty amount for claim withdraw ([a5c3c1e](https://github.com/SundaeSwap-finance/sundae-sdk/commit/a5c3c1e5773ce217fc4ea8005fb4658f1212f212))
+
 ## [1.0.11](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/taste-test@1.0.10...@sundaeswap/taste-test@1.0.11) (2024-03-25)
 
 **Note:** Version bump only for package @sundaeswap/taste-test
