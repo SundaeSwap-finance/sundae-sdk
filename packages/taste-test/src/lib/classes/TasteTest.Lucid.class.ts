@@ -210,6 +210,8 @@ export class TasteTestLucid implements AbstractTasteTest {
     const correctAmount =
       BigInt(args.assetAmount.amount) + TT_UTXO_ADDITIONAL_ADA;
 
+    const [lowerBound, upperBound] = this._getTxBounds(args.time, args.deadline);
+
     const tx = this.lucid
       .newTx()
       .collectFrom([coveringNode], redeemerNodeValidator)
@@ -225,8 +227,8 @@ export class TasteTestLucid implements AbstractTasteTest {
       )
       .addSignerKey(userKey)
       .mintAssets(assets, redeemerNodePolicy)
-      .validFrom(Date.now() - VALID_FROM_TOLERANCE_MS)
-      .validTo(Date.now() + VALID_TO_TOLERANCE_MS);
+      .validFrom(lowerBound)
+      .validTo(upperBound);
 
     await Promise.all([
       this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
@@ -297,6 +299,8 @@ export class TasteTestLucid implements AbstractTasteTest {
       lovelace: ownNode.assets.lovelace + args.assetAmount.amount,
     };
 
+    const [lowerBound, upperBound] = this._getTxBounds(args.time, args.deadline);
+
     const tx = this.lucid
       .newTx()
       .collectFrom([ownNode], redeemerNodeValidator)
@@ -305,8 +309,8 @@ export class TasteTestLucid implements AbstractTasteTest {
         { inline: ownNode.datum },
         newNodeAssets
       )
-      .validFrom(Date.now() - VALID_FROM_TOLERANCE_MS)
-      .validTo(Date.now() + VALID_TO_TOLERANCE_MS);
+      .validFrom(lowerBound)
+      .validTo(upperBound);
 
     await this._attachScriptsOrReferenceInputs(tx, args.scripts.validator);
 
@@ -399,9 +403,10 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
 
-    const beforeDeadline = Date.now() < args.deadline;
+    const [lowerBound, upperBound] = this._getTxBounds(args.time, args.deadline);
+    const beforeDeadline = upperBound < args.deadline;
     const beforeTwentyFourHours =
-      Date.now() < args.deadline - TWENTY_FOUR_HOURS_MS;
+      upperBound < args.deadline - TWENTY_FOUR_HOURS_MS;
 
     if (beforeDeadline && !beforeTwentyFourHours) {
       const penaltyAmount = divCeil(
@@ -422,8 +427,8 @@ export class TasteTestLucid implements AbstractTasteTest {
         })
         .addSignerKey(userKey)
         .mintAssets(assetsToBurn, redeemerNodePolicy)
-        .validFrom(Date.now() - VALID_FROM_TOLERANCE_MS)
-        .validTo(Date.now() + VALID_TO_TOLERANCE_MS);
+        .validFrom(lowerBound)
+        .validTo(upperBound);
 
       await Promise.all([
         this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
@@ -452,8 +457,8 @@ export class TasteTestLucid implements AbstractTasteTest {
       )
       .addSignerKey(userKey)
       .mintAssets(assetsToBurn, redeemerNodePolicy)
-      .validFrom(Date.now() - VALID_FROM_TOLERANCE_MS)
-      .validTo(Date.now() + VALID_TO_TOLERANCE_MS);
+      .validFrom(lowerBound)
+      .validTo(upperBound);
 
     await Promise.all([
       this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
@@ -534,13 +539,15 @@ export class TasteTestLucid implements AbstractTasteTest {
       throw new Error("Could not derive a PolicyID for burning the node NFT!");
     }
 
+    const [lowerBound, upperBound] = this._getTxBounds(args.time);
+
     const tx = this.lucid
       .newTx()
       .collectFrom([ownNode], redeemerNodeValidator)
       .readFrom([rewardFoldUtxo])
       .addSignerKey(userKey)
-      .validFrom(Date.now() - VALID_FROM_TOLERANCE_MS)
-      .validTo(Date.now() + VALID_TO_TOLERANCE_MS);
+      .validFrom(lowerBound)
+      .validTo(upperBound);
 
     if (args?.burnFoldToken) {
       tx.mintAssets(
@@ -711,5 +718,13 @@ export class TasteTestLucid implements AbstractTasteTest {
       case EScriptType.OUTREF:
         tx.readFrom(await this.lucid.utxosByOutRef([script.value.outRef]));
     }
+  }
+
+  private _getTxBounds(time?: number, deadline?: number): [number, number] {
+    const lowerBound = (time ?? Date.now()) - VALID_FROM_TOLERANCE_MS;
+    const naturalUpperBound = (time ?? Date.now()) + VALID_TO_TOLERANCE_MS
+    const upperBound = !!deadline ? Math.min(deadline - 1, naturalUpperBound) : naturalUpperBound;
+
+    return [lowerBound, upperBound];
   }
 }

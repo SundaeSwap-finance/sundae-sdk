@@ -79,6 +79,8 @@ export type TScriptType =
  * Common arguments for the deposit and update methods of the TasteTest class instance.
  */
 export interface IBaseArgs {
+  time?: number;
+  deadline?: number;
   referralFee?: ITxBuilderReferralFee;
   validatorAddress: string;
   scripts: {
@@ -108,8 +110,8 @@ export interface IUpdateArgs extends IDepositArgs {
  * Arguments for the deposit withdraw of the TasteTest class instance.
  */
 export interface IWithdrawArgs extends IBaseArgs {
-  deadline: number;
   penaltyAddress: string;
+  deadline: number;
 }
 
 /**
