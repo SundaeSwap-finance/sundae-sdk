@@ -556,7 +556,11 @@ export class TasteTestLucid implements AbstractTasteTest {
       this._attachScriptsOrReferenceInputs(tx, args.scripts.validator),
     ]);
 
-    return this.completeTx({ tx, referralFee: args.referralFee });
+    return this.completeTx({
+      hasFees: true,
+      tx,
+      referralFee: args.referralFee,
+    });
   }
 
   /**
