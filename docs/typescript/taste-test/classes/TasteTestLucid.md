@@ -57,7 +57,7 @@ to a transaction.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:703](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L703)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:702](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L702)
 
 ___
 
@@ -79,7 +79,7 @@ A utility method to default the Taste Test type to liquidity if not set.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:689](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L689)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:688](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L688)
 
 ___
 
@@ -158,7 +158,7 @@ Throws an error if the transaction cannot be completed or if there are issues wi
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:589](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L589)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:588](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L588)
 
 ___
 
@@ -232,7 +232,7 @@ If neither stake nor payment credentials could be determined from the address.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:669](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L669)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:668](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L668)
 
 ___
 

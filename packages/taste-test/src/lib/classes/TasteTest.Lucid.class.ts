@@ -557,7 +557,6 @@ export class TasteTestLucid implements AbstractTasteTest {
     ]);
 
     return this.completeTx({
-      hasFees: true,
       tx,
       referralFee: args.referralFee,
     });
