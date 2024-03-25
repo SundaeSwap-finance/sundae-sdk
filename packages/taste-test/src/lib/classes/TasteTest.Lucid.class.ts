@@ -210,7 +210,10 @@ export class TasteTestLucid implements AbstractTasteTest {
     const correctAmount =
       BigInt(args.assetAmount.amount) + TT_UTXO_ADDITIONAL_ADA;
 
-    const [lowerBound, upperBound] = this._getTxBounds(args.time, args.deadline);
+    const [lowerBound, upperBound] = this._getTxBounds(
+      args.time,
+      args.deadline
+    );
 
     const tx = this.lucid
       .newTx()
@@ -299,7 +302,10 @@ export class TasteTestLucid implements AbstractTasteTest {
       lovelace: ownNode.assets.lovelace + args.assetAmount.amount,
     };
 
-    const [lowerBound, upperBound] = this._getTxBounds(args.time, args.deadline);
+    const [lowerBound, upperBound] = this._getTxBounds(
+      args.time,
+      args.deadline
+    );
 
     const tx = this.lucid
       .newTx()
@@ -403,16 +409,16 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
 
-    const [lowerBound, upperBound] = this._getTxBounds(args.time, args.deadline);
+    const [lowerBound, upperBound] = this._getTxBounds(
+      args.time,
+      args.deadline
+    );
     const beforeDeadline = upperBound < args.deadline;
     const beforeTwentyFourHours =
       upperBound < args.deadline - TWENTY_FOUR_HOURS_MS;
 
     if (beforeDeadline && !beforeTwentyFourHours) {
-      const penaltyAmount = divCeil(
-        ownNode.assets["lovelace"] - MIN_COMMITMENT_ADA,
-        4n
-      );
+      const penaltyAmount = divCeil(ownNode.assets.lovelace - 4_000_000n, 4n);
 
       const tx = this.lucid
         .newTx()
@@ -720,10 +726,25 @@ export class TasteTestLucid implements AbstractTasteTest {
     }
   }
 
+  /**
+   * Calculates and returns the lower and upper bounds for a transaction based on the provided time and deadline.
+   * If the `time` parameter is not provided, the current timestamp (`Date.now()`) is used. The lower bound is calculated
+   * by subtracting a predefined tolerance value (`VALID_FROM_TOLERANCE_MS`) from the `time`. The natural upper bound
+   * is calculated by adding another predefined tolerance value (`VALID_TO_TOLERANCE_MS`) to the `time`. If a `deadline`
+   * is provided, the actual upper bound is the minimum between the `deadline - 1` and the natural upper bound; otherwise,
+   * the natural upper bound is used.
+   *
+   * @private
+   * @param {number} time - The reference time for the bounds calculation. Defaults to the current timestamp if not provided.
+   * @param {number} deadline - An optional deadline that may cap the upper bound.
+   * @returns {[number, number]} An array containing two elements: the lower and upper bounds for the transaction.
+   */
   private _getTxBounds(time?: number, deadline?: number): [number, number] {
     const lowerBound = (time ?? Date.now()) - VALID_FROM_TOLERANCE_MS;
-    const naturalUpperBound = (time ?? Date.now()) + VALID_TO_TOLERANCE_MS
-    const upperBound = !!deadline ? Math.min(deadline - 1, naturalUpperBound) : naturalUpperBound;
+    const naturalUpperBound = (time ?? Date.now()) + VALID_TO_TOLERANCE_MS;
+    const upperBound = !!deadline
+      ? Math.min(deadline - 1, naturalUpperBound)
+      : naturalUpperBound;
 
     return [lowerBound, upperBound];
   }
