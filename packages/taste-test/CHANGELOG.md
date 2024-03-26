@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.13](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/taste-test@1.0.12...@sundaeswap/taste-test@1.0.13) (2024-03-26)
+
+### Bug Fixes
+
+- penalty amount calculation ([6b7481b](https://github.com/SundaeSwap-finance/sundae-sdk/commit/6b7481bf52c3cd0409281dca49050268360e8d91))
+
 ## [1.0.12](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/taste-test@1.0.11...@sundaeswap/taste-test@1.0.12) (2024-03-25)
 
 ### Bug Fixes
