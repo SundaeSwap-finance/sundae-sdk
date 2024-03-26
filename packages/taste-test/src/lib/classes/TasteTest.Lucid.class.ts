@@ -418,7 +418,13 @@ export class TasteTestLucid implements AbstractTasteTest {
       upperBound < args.deadline - TWENTY_FOUR_HOURS_MS;
 
     if (beforeDeadline && !beforeTwentyFourHours) {
-      const penaltyAmount = divCeil(ownNode.assets.lovelace - 4_000_000n, 4n);
+      const quarterPenalty = divCeil(
+        ownNode.assets.lovelace - TT_UTXO_ADDITIONAL_ADA,
+        4n
+      );
+      const penaltyAmount = BigInt(
+        Math.max(Number(quarterPenalty), Number(TT_UTXO_ADDITIONAL_ADA))
+      );
 
       const tx = this.lucid
         .newTx()
