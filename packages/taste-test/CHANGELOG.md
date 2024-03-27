@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.14](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/taste-test@1.0.13...@sundaeswap/taste-test@1.0.14) (2024-03-27)
+
+### Bug Fixes
+
+- claim redeemer ([b926de6](https://github.com/SundaeSwap-finance/sundae-sdk/commit/b926de64bfaf346be1d966d936edbd9b30b85c8f))
+
 ## [1.0.13](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/taste-test@1.0.12...@sundaeswap/taste-test@1.0.13) (2024-03-26)
 
 ### Bug Fixes
