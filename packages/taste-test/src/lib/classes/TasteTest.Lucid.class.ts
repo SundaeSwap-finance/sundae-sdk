@@ -511,18 +511,17 @@ export class TasteTestLucid implements AbstractTasteTest {
       ownNode = args.utxos[0];
     } else {
       const nodeUTXOs = await this.lucid.utxosAt(args.validatorAddress);
-      ownNode = findOwnNode(
-        nodeUTXOs,
-        userKey,
-        this._getTasteTestTypeFromArgs(args)
-      );
+      ownNode = findOwnNode(nodeUTXOs, userKey, "Liquidity");
     }
 
     if (!ownNode) {
       throw new Error("Could not find the user's node.");
     }
 
-    const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
+    const redeemerNodeValidator = Data.to(
+      "ClaimAct",
+      LiquidityNodeValidatorAction
+    );
 
     const burnRedeemer = Data.to(
       {
