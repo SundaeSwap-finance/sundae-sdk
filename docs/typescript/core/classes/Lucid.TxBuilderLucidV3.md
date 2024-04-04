@@ -124,7 +124,7 @@ TxBuilder.cancel
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:508](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L508)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:551](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L551)
 
 ___
 
@@ -154,7 +154,7 @@ TxBuilder.deposit
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:660](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L660)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:703](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L703)
 
 ___
 
@@ -179,7 +179,7 @@ The generated Bech32 address.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:891](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L891)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:934](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L934)
 
 ___
 
@@ -242,26 +242,18 @@ ___
 
 ### getUtxosForPoolMint
 
-▸ **getUtxosForPoolMint**(`assets`, `additionalAda?`): `Promise`\<`UTxO`[]\>
+▸ **getUtxosForPoolMint**(): `Promise`\<`UTxO`[]\>
 
 Retrieves the list of UTXOs associated with the wallet, sorts them first by transaction hash (`txHash`)
-in ascending order and then by output index (`outputIndex`) in ascending order, and returns the first UTXO
-in the sorted list to act as the `seed`, and any others required to satisfy the required deposits.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `assets` | [`AssetAmount`\<`IAssetAmountMetadata`\>, `AssetAmount`\<`IAssetAmountMetadata`\>] | The pool assets being deposited. They will automatically be sorted. |
-| `additionalAda` | `bigint` | - |
+in ascending order and then by output index (`outputIndex`) in ascending order, and returns them for Lucid
+to collect from.
 
 #### Returns
 
 `Promise`\<`UTxO`[]\>
 
-A promise that resolves to an array of UTXOs for the transaction. The first UTXO in the sorted list
-is the seed (used for generating a unique pool ident, etc). The array includes any other required inputs to satisfy the
-deposit requirements of the pool being minted.
+A promise that resolves to an array of UTXOs for the transaction. Sorting is required
+because the first UTXO in the sorted list is the seed (used for generating a unique pool ident, etc).
 
 **`Throws`**
 
@@ -269,7 +261,7 @@ Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:937](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L937)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:977](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L977)
 
 ___
 
@@ -380,7 +372,7 @@ TxBuilder.swap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:454](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L454)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:497](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L497)
 
 ___
 
@@ -412,7 +404,7 @@ TxBuilder.update
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:574](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L574)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:617](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L617)
 
 ___
 
@@ -442,7 +434,7 @@ TxBuilder.withdraw
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:708](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L708)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:751](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L751)
 
 ___
 
@@ -472,7 +464,7 @@ TxBuilder.zap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:753](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L753)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:796](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L796)
 
 ___
 

@@ -322,23 +322,93 @@ export class TxBuilderLucidV3 extends TxBuilder {
     ]);
 
     const exoticPair = !SundaeUtils.isAdaAsset(sortedAssets[0].metadata);
-    const depositFee = exoticPair ? 2_500_000n : 0n;
 
     const [userUtxos, { hash: poolPolicyId }, references, settings] =
       await Promise.all([
-        this.getUtxosForPoolMint(
-          [assetA, assetB],
-          // If exotic pair, we want to collect at least 10 extra ADA to cover the deposit fee.
-          exoticPair ? 10_000_000n : 0n
-        ),
+        this.getUtxosForPoolMint(),
         this.getValidatorScript("pool.mint"),
         this.getAllReferenceUtxos(),
         this.getAllSettingsUtxos(),
       ]);
 
+    const newPoolIdent = DatumBuilderLucidV3.computePoolId(userUtxos[0]);
+
+    const poolNftNameHex = toUnit(
+      poolPolicyId,
+      DatumBuilderLucidV3.computePoolNftName(newPoolIdent)
+    );
+    const poolRefNameHex = toUnit(
+      poolPolicyId,
+      DatumBuilderLucidV3.computePoolRefName(newPoolIdent)
+    );
+    const poolLqNameHex = toUnit(
+      poolPolicyId,
+      DatumBuilderLucidV3.computePoolLqName(newPoolIdent)
+    );
+
+    const poolDepositAddress = await this.generateScriptAddress("pool.mint");
+
+    const assetsDeposited = C.MultiAsset.new();
+    assetsDeposited.set_asset(
+      C.ScriptHash.from_hex(poolPolicyId),
+      C.AssetName.new(
+        Buffer.from(DatumBuilderLucidV3.computePoolNftName(newPoolIdent), "hex")
+      ),
+      C.BigNum.from_str("1")
+    );
+    assetsDeposited.set_asset(
+      C.ScriptHash.from_hex(sortedAssets[1].metadata.assetId.split(".")[0]),
+      C.AssetName.new(
+        Buffer.from(sortedAssets[1].metadata.assetId.split(".")[1])
+      ),
+      C.BigNum.from_str(sortedAssets[1].amount.toString())
+    );
+    if (exoticPair) {
+      assetsDeposited.set_asset(
+        C.ScriptHash.from_hex(sortedAssets[0].metadata.assetId.split(".")[0]),
+        C.AssetName.new(
+          Buffer.from(sortedAssets[0].metadata.assetId.split(".")[1])
+        ),
+        C.BigNum.from_str(sortedAssets[0].amount.toString())
+      );
+    }
+
+    const minDepositLovelace = BigInt(
+      C.min_ada_required(
+        C.TransactionOutput.new(
+          C.Address.from_bech32(poolDepositAddress),
+          C.Value.new_from_assets(assetsDeposited)
+        ),
+        C.BigNum.from_str(
+          (
+            await this.lucid.provider.getProtocolParameters()
+          ).coinsPerUtxoByte.toString()
+        )
+      ).to_str()
+    );
+
+    const depositFee = exoticPair ? minDepositLovelace : 0n;
+
+    const poolAssets = {
+      [poolNftNameHex]: 1n,
+      [sortedAssets[1].metadata.assetId.replace(".", "")]:
+        sortedAssets[1].amount,
+    };
+
+    if (exoticPair) {
+      poolAssets.lovelace = minDepositLovelace;
+      poolAssets[sortedAssets[0].metadata.assetId.replace(".", "")] =
+        sortedAssets[0].amount;
+    } else {
+      poolAssets.lovelace =
+        sortedAssets[0].amount >= minDepositLovelace
+          ? sortedAssets[0].amount
+          : minDepositLovelace;
+    }
+
     const {
       inline: mintPoolDatum,
-      schema: { identifier, circulatingLp },
+      schema: { circulatingLp },
     } = this.datumBuilder.buildMintPoolDatum({
       assetA: sortedAssets[0],
       assetB: sortedAssets[1],
@@ -371,33 +441,6 @@ export class TxBuilderLucidV3 extends TxBuilder {
     )
       .to_address()
       .to_bech32(this.network === "preview" ? "addr_test" : "addr");
-
-    const poolNftNameHex = toUnit(
-      poolPolicyId,
-      DatumBuilderLucidV3.computePoolNftName(identifier)
-    );
-    const poolRefNameHex = toUnit(
-      poolPolicyId,
-      DatumBuilderLucidV3.computePoolRefName(identifier)
-    );
-    const poolLqNameHex = toUnit(
-      poolPolicyId,
-      DatumBuilderLucidV3.computePoolLqName(identifier)
-    );
-
-    const poolAssets = {
-      [poolNftNameHex]: 1n,
-      [sortedAssets[1].metadata.assetId.replace(".", "")]:
-        sortedAssets[1].amount,
-    };
-
-    if (exoticPair) {
-      poolAssets["lovelace"] = depositFee;
-      poolAssets[sortedAssets[0].metadata.assetId.replace(".", "")] =
-        sortedAssets[0].amount;
-    } else {
-      poolAssets["lovelace"] = sortedAssets[0].amount;
-    }
 
     const tx = this.newTxInstance(referralFee)
       .mintAssets(
@@ -924,23 +967,14 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
   /**
    * Retrieves the list of UTXOs associated with the wallet, sorts them first by transaction hash (`txHash`)
-   * in ascending order and then by output index (`outputIndex`) in ascending order, and returns the first UTXO
-   * in the sorted list to act as the `seed`, and any others required to satisfy the required deposits.
+   * in ascending order and then by output index (`outputIndex`) in ascending order, and returns them for Lucid
+   * to collect from.
    *
-   * @param {AssetAmount<IAssetAmountMetadata>[]} assets The pool assets being deposited. They will automatically be sorted.
-   *
-   * @returns {Promise<UTxO[]>} A promise that resolves to an array of UTXOs for the transaction. The first UTXO in the sorted list
-   * is the seed (used for generating a unique pool ident, etc). The array includes any other required inputs to satisfy the
-   * deposit requirements of the pool being minted.
+   * @returns {Promise<UTxO[]>} A promise that resolves to an array of UTXOs for the transaction. Sorting is required
+   * because the first UTXO in the sorted list is the seed (used for generating a unique pool ident, etc).
    * @throws {Error} Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
    */
-  public async getUtxosForPoolMint(
-    assets: [
-      AssetAmount<IAssetAmountMetadata>,
-      AssetAmount<IAssetAmountMetadata>
-    ],
-    additionalAda = 0n
-  ): Promise<UTxO[]> {
+  public async getUtxosForPoolMint(): Promise<UTxO[]> {
     const utxos = await this.lucid.wallet.getUtxos();
     const sortedUtxos = utxos.sort((a, b) => {
       // Sort by txHash first.
@@ -951,104 +985,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       return a.outputIndex - b.outputIndex;
     });
 
-    const seedUtxo = sortedUtxos.shift();
-    if (!seedUtxo) {
-      throw new Error("Could not find a seed UTXO from the user's wallet.");
-    }
-
-    const selectedUtxos: UTxO[] = [seedUtxo];
-    const [assetARequirement, assetBRequirement] =
-      SundaeUtils.sortSwapAssetsWithAmounts(assets).map((asset) => {
-        // Pad the ADA amount required with the additional ADA if present.
-        if (SundaeUtils.isAdaAsset(asset.metadata) && additionalAda > 0n) {
-          return asset.withAmount(asset.amount + additionalAda);
-        }
-
-        return asset;
-      });
-
-    // Fallback to collect additional ADA in case, after sorting, we still don't have an ADA asset.
-    const assetCRequirement = new AssetAmount(
-      SundaeUtils.isAdaAsset(assetARequirement.metadata) ? 0n : additionalAda,
-      ADA_METADATA
-    );
-
-    const assetAId = SundaeUtils.isAdaAsset(assetARequirement.metadata)
-      ? "lovelace"
-      : assetARequirement.metadata.assetId.replace(".", "");
-    const assetBId = SundaeUtils.isAdaAsset(assetBRequirement.metadata)
-      ? "lovelace"
-      : assetBRequirement.metadata.assetId.replace(".", "");
-
-    const checkSelectedUtxosValue = () =>
-      selectedUtxos.reduce(
-        (total, { assets }) => {
-          total[0] += assets[assetAId] ?? 0n;
-          total[1] += assets[assetBId] ?? 0n;
-
-          // Only accumulate additional ADA if the first two don't.
-          if (assetAId !== "lovelace" && assetBId !== "lovelace") {
-            total[2] += assets["lovelace"] ?? 0n;
-          }
-
-          return total;
-        },
-        [0n, 0n, 0n]
-      );
-
-    for (const utxo of sortedUtxos) {
-      // Add up our currently accumulated value within selected UTXOs.
-      const [accumulatedAValue, accumulatedBValue, accumulatedCValue] =
-        checkSelectedUtxosValue();
-
-      // If we have enough value in the selected UTXOs, then break out of the loop.
-      if (
-        accumulatedAValue >= assetARequirement.amount &&
-        accumulatedBValue >= assetBRequirement.amount &&
-        accumulatedCValue >= assetCRequirement.amount
-      ) {
-        break;
-      }
-
-      const canUseAssetA =
-        accumulatedAValue < assetARequirement.amount && utxo.assets[assetAId];
-      const canUseAssetB =
-        accumulatedBValue < assetBRequirement.amount && utxo.assets[assetBId];
-      const canUseAssetC =
-        accumulatedCValue < assetCRequirement.amount && utxo.assets["lovelace"];
-
-      // Add UTXO.
-      if (canUseAssetA || canUseAssetB || canUseAssetC) {
-        selectedUtxos.push(utxo);
-      }
-    }
-
-    const [accumulatedAValue, accumulatedBValue, accumulatedCValue] =
-      checkSelectedUtxosValue();
-
-    if (
-      accumulatedAValue < assetARequirement.amount ||
-      accumulatedBValue < assetBRequirement.amount ||
-      accumulatedCValue < assetCRequirement.amount
-    ) {
-      throw new Error(`
-        Could not select enough assets from your wallet to satisfy the pool creation requirements.
-        Looking for ${assetARequirement.value.toString()} ${
-        SundaeUtils.isAdaAsset(assetARequirement.metadata)
-          ? "ADA"
-          : Buffer.from(
-              assetARequirement.metadata.assetId.split(".")[1],
-              "hex"
-            ).toString("utf-8")
-      },
-        and ${assetBRequirement.value.toString()} ${Buffer.from(
-        assetBRequirement.metadata.assetId.split(".")[1],
-        "hex"
-      ).toString("utf-8")}.
-      `);
-    }
-
-    return selectedUtxos;
+    return sortedUtxos;
   }
 
   private async completeTx({

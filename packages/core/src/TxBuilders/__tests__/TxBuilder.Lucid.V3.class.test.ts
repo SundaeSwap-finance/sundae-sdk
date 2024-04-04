@@ -630,11 +630,11 @@ describe("TxBuilderLucidV3", () => {
 
     /**
      * Since we're depositing exotic assets, we expect:
-     * - 2.5 ADA to cover minUtxo for exotic pair
+     * - 1.538670 minAda required for exotic pair
      * - 2 ADA for metadata ref token
      * - 2 ADA for sending back LP tokens
      */
-    expect(fees.deposit.amount.toString()).toEqual("6500000");
+    expect(fees.deposit.amount.toString()).toEqual("5538670");
 
     const { builtTx } = await build();
 
@@ -676,7 +676,7 @@ describe("TxBuilderLucidV3", () => {
     const poolDepositedNFT =
       poolDepositAssets[
         "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
-      ]["000de140605dc1c671125b2bab364b371deb4845ce098df177dd21bc88a305a0"];
+      ]["000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"];
 
     [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(
       (val) => expect(val).not.toBeUndefined()
@@ -693,7 +693,7 @@ describe("TxBuilderLucidV3", () => {
         poolOutput.datum()?.as_data()?.to_bytes() as Uint8Array
       ).toString("hex")
     ).toEqual(
-      "d8185881d8799f581c605dc1c671125b2bab364b371deb4845ce098df177dd21bc88a305a09f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d009f0505ff051927101a002625a0ff"
+      "d8185881d8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d009f0505ff051927101a00177a6eff"
     );
 
     /**
@@ -710,7 +710,7 @@ describe("TxBuilderLucidV3", () => {
     const metadataDepositedAssetA = metadataOutput.amount().coin().to_str();
     const metadataDepositedNFT =
       metadataDepositAssets[params.blueprint.validators[1].hash][
-        "000643b0605dc1c671125b2bab364b371deb4845ce098df177dd21bc88a305a0"
+        "000643b09e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
       ];
 
     [metadataDepositedAssetA, metadataDepositedNFT].forEach((val) =>
@@ -735,7 +735,7 @@ describe("TxBuilderLucidV3", () => {
     const lpTokensReturnedADA = lpTokensOutput.amount().coin().to_str();
     const lpTokensReturned =
       lpTokensDepositAssets[params.blueprint.validators[1].hash][
-        "0014df10605dc1c671125b2bab364b371deb4845ce098df177dd21bc88a305a0"
+        "0014df109e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
       ];
 
     [lpTokensReturnedADA, lpTokensReturned].forEach((val) =>
