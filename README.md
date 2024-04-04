@@ -1,7 +1,7 @@
 # SundaeSwap SDKs
 
 | [![Licence](https://img.shields.io/github/license/SundaeSwap-finance/sundae-sdk)](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/LICENSE) | ![Tests](https://github.com/SundaeSwap-finance/sundae-sdk/actions/workflows/ci.yml/badge.svg) | [![Known Vulnerabilities](https://snyk.io/test/github/SundaeSwap-finance/sundae-sdk/badge.svg)](https://snyk.io/test/github/SundaeSwap-finance/sundae-sdk/) |
-|----------|----------|----------|
+| ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 This is the main monorepo for the SundaeSwap protocol SDKs. They are maintained and documented by [SundaeSwap Labs](https://sundae.fi).
 
@@ -10,6 +10,7 @@ This is the main monorepo for the SundaeSwap protocol SDKs. They are maintained 
 - [Core](./packages/core/)
 - [Yield Farming](./packages/yield-farming/)
 - [Taste Tests](./packages/taste-test/)
+- [GummiWorm (L2)](./packages/gummiworm/)
 
 ## Documentation
 
