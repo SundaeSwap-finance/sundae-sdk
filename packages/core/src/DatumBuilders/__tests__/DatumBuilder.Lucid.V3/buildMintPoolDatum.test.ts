@@ -14,7 +14,7 @@ const defaultArgs: IDatumBuilderMintPoolV3Args = {
   feeDecay: [5n, 10n],
   feeDecayEnd: 5n,
   marketOpen: 123n,
-  protocolFee: 2_000_000n,
+  depositFee: 2_000_000n,
   seedUtxo: {
     address:
       "addr_test1qrp8nglm8d8x9w783c5g0qa4spzaft5z5xyx0kp495p8wksjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngqtjfk6s",

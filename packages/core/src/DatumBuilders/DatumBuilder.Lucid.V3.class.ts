@@ -68,7 +68,7 @@ export interface IDatumBuilderMintPoolV3Args {
   feeDecay: TFee;
   feeDecayEnd: bigint;
   marketOpen: bigint;
-  protocolFee: bigint;
+  depositFee: bigint;
 }
 
 /**
@@ -257,7 +257,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     feeDecay,
     feeDecayEnd,
     marketOpen,
-    protocolFee,
+    depositFee,
     seedUtxo,
   }: IDatumBuilderMintPoolV3Args): TDatumResult<V3Types.TPoolDatum> {
     const ident = DatumBuilderLucidV3.computePoolId(seedUtxo);
@@ -275,7 +275,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
       feeFinalized: feeDecayEnd || 0n,
       identifier: ident,
       marketOpen: marketOpen || 0n,
-      protocolFee,
+      protocolFee: depositFee,
     };
 
     const inline = Data.to(newPoolDatum, V3Types.PoolDatum);

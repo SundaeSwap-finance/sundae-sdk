@@ -35,7 +35,6 @@ describe("MintV3PoolConfig class", () => {
       fees: [20n, 100n],
       marketTimings: [0n, 100n],
       ownerAddress: "addr_test",
-      protocolFee: 2_000_000n,
     });
   });
 

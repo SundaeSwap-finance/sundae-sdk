@@ -57,7 +57,7 @@ to a transaction.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:702](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L702)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:720](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L720)
 
 ___
 
@@ -79,7 +79,37 @@ A utility method to default the Taste Test type to liquidity if not set.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:688](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L688)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:706](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L706)
+
+___
+
+### \_getTxBounds
+
+▸ **_getTxBounds**(`time?`, `deadline?`): [`number`, `number`]
+
+Calculates and returns the lower and upper bounds for a transaction based on the provided time and deadline.
+If the `time` parameter is not provided, the current timestamp (`Date.now()`) is used. The lower bound is calculated
+by subtracting a predefined tolerance value (`VALID_FROM_TOLERANCE_MS`) from the `time`. The natural upper bound
+is calculated by adding another predefined tolerance value (`VALID_TO_TOLERANCE_MS`) to the `time`. If a `deadline`
+is provided, the actual upper bound is the minimum between the `deadline - 1` and the natural upper bound; otherwise,
+the natural upper bound is used.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `time?` | `number` | The reference time for the bounds calculation. Defaults to the current timestamp if not provided. |
+| `deadline?` | `number` | An optional deadline that may cap the upper bound. |
+
+#### Returns
+
+[`number`, `number`]
+
+An array containing two elements: the lower and upper bounds for the transaction.
+
+#### Defined in
+
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:747](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L747)
 
 ___
 
@@ -117,7 +147,7 @@ Throws errors if the claim conditions are not met, such as missing keys, inabili
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:483](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L483)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:500](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L500)
 
 ___
 
@@ -158,7 +188,7 @@ Throws an error if the transaction cannot be completed or if there are issues wi
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:588](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L588)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:606](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L606)
 
 ___
 
@@ -232,7 +262,7 @@ If neither stake nor payment credentials could be determined from the address.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:668](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L668)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:686](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L686)
 
 ___
 
@@ -279,7 +309,7 @@ Throws an error if the user's payment credential hash is missing or if the node 
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:265](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L265)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:270](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L270)
 
 ___
 
@@ -325,4 +355,4 @@ Throws errors if the withdrawal conditions are not met, such as missing keys, in
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:337](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L337)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:347](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L347)
