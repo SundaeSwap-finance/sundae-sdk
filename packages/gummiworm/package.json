@@ -1,7 +1,7 @@
 {
-  "name": "@sundaeswap/taste-test",
-  "version": "1.0.14",
-  "description": "The official SundaeSwap Taste Test SDK for clients.",
+  "name": "@sundaeswap/gummiworm",
+  "version": "0.0.1",
+  "description": "The official SundaeSwap GummiWorm SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {
     "name": "SundaeSwap Labs, Inc.",
@@ -12,7 +12,7 @@
   },
   "homepage": "https://github.com/SundaeSwap-finance/sundae-sdk#readme",
   "license": "MIT",
-  "private": false,
+  "private": true,
   "sideEffects": false,
   "publishConfig": {
     "access": "public"
@@ -60,7 +60,7 @@
   },
   "peerDependencies": {
     "@sundaeswap/asset": "^0.7.1",
-    "@sundaeswap/core": "^1.0.0",
+    "@sundaeswap/core": "^1.0.5",
     "lucid-cardano": "^0.10.7"
   }
 }
