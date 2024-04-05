@@ -102,5 +102,4 @@ export interface IMintV3PoolConfigArgs extends IBaseConfig {
   fees: TFee;
   marketTimings: [number | bigint, number | bigint];
   ownerAddress: string;
-  protocolFee?: bigint;
 }

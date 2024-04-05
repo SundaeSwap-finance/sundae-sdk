@@ -12,7 +12,6 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
   fees?: TFee;
   marketTimings?: [bigint, bigint];
   ownerAddress?: string;
-  protocolFee?: bigint;
 
   constructor(args?: IMintV3PoolConfigArgs) {
     super();
@@ -25,7 +24,6 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     fees,
     marketTimings,
     ownerAddress,
-    protocolFee,
     referralFee,
   }: IMintV3PoolConfigArgs): void {
     referralFee && this.setReferralFee(referralFee);
@@ -34,11 +32,9 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     this.setFees(fees);
     this.setMarketTimings(marketTimings);
     this.setOwnerAddress(ownerAddress);
-    this.setProtocolFee(protocolFee ?? 2_000_000n);
   }
 
-  buildArgs(): Omit<IMintV3PoolConfigArgs, "protocolFee" | "marketTimings"> & {
-    protocolFee: bigint;
+  buildArgs(): Omit<IMintV3PoolConfigArgs, "marketTimings"> & {
     marketTimings: [bigint, bigint];
   } {
     this.validate();
@@ -48,7 +44,6 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
       fees: this.fees as TFee,
       marketTimings: this.marketTimings as [bigint, bigint],
       ownerAddress: this.ownerAddress as string,
-      protocolFee: this.protocolFee ?? 2_000_000n,
       referralFee: this.referralFee,
     };
   }
@@ -75,11 +70,6 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
 
   setOwnerAddress(address: string) {
     this.ownerAddress = address;
-    return this;
-  }
-
-  setProtocolFee(fee: bigint) {
-    this.protocolFee = fee;
     return this;
   }
 

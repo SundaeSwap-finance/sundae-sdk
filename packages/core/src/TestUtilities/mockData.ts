@@ -19,6 +19,7 @@ interface INetworkData {
   assets: {
     tada: AssetAmount<IAssetAmountMetadata>;
     tindy: AssetAmount<IAssetAmountMetadata>;
+    usdc: AssetAmount<IAssetAmountMetadata>;
     v1LpToken: AssetAmount<IAssetAmountMetadata>;
     v3LpToken: AssetAmount<IAssetAmountMetadata>;
   };
@@ -98,6 +99,11 @@ const PREVIEW_DATA: INetworkData = {
       assetId:
         "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
       decimals: 0,
+    }),
+    usdc: new AssetAmount(20_000_000n, {
+      assetId:
+        "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15.55534443",
+      decimals: 6,
     }),
     v1LpToken: new AssetAmount(100_000_000n, {
       assetId:
