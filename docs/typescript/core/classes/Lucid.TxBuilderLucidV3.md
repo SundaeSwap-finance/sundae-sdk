@@ -38,7 +38,7 @@ TxBuilder.constructor
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:100](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L100)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:103](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L103)
 
 ## Properties
 
@@ -54,7 +54,7 @@ TxBuilder.datumBuilder
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:102](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L102)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:105](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L105)
 
 ___
 
@@ -66,7 +66,7 @@ A configured Lucid instance to use.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:101](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L101)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:104](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L104)
 
 ## Methods
 
@@ -94,7 +94,7 @@ An internal shortcut method to avoid having to pass in the network all the time.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:134](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L134)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:137](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L137)
 
 ___
 
@@ -124,7 +124,7 @@ TxBuilder.cancel
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:515](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L515)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:539](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L539)
 
 ___
 
@@ -154,7 +154,7 @@ TxBuilder.deposit
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:667](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L667)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:691](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L691)
 
 ___
 
@@ -179,7 +179,7 @@ The generated Bech32 address.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:898](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L898)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:922](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L922)
 
 ___
 
@@ -197,7 +197,7 @@ using the Lucid provider.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:176](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L176)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:179](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L179)
 
 ___
 
@@ -215,7 +215,7 @@ using the Lucid provider.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:196](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L196)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:199](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L199)
 
 ___
 
@@ -236,31 +236,24 @@ will re-populate with real data.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L148)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:151](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L151)
 
 ___
 
 ### getUtxosForPoolMint
 
-▸ **getUtxosForPoolMint**(`assets`): `Promise`\<`UTxO`[]\>
+▸ **getUtxosForPoolMint**(): `Promise`\<`UTxO`[]\>
 
 Retrieves the list of UTXOs associated with the wallet, sorts them first by transaction hash (`txHash`)
-in ascending order and then by output index (`outputIndex`) in ascending order, and returns the first UTXO
-in the sorted list to act as the `seed`, and any others required to satisfy the required deposits.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `assets` | [`AssetAmount`\<`IAssetAmountMetadata`\>, `AssetAmount`\<`IAssetAmountMetadata`\>] | The pool assets being deposited. They will automatically be sorted. |
+in ascending order and then by output index (`outputIndex`) in ascending order, and returns them for Lucid
+to collect from.
 
 #### Returns
 
 `Promise`\<`UTxO`[]\>
 
-A promise that resolves to an array of UTXOs for the transaction. The first UTXO in the sorted list
-is the seed (used for generating a unique pool ident, etc). The array includes any other required inputs to satisfy the
-deposit requirements of the pool being minted.
+A promise that resolves to an array of UTXOs for the transaction. Sorting is required
+because the first UTXO in the sorted list is the seed (used for generating a unique pool ident, etc).
 
 **`Throws`**
 
@@ -268,7 +261,7 @@ Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:944](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L944)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:965](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L965)
 
 ___
 
@@ -292,7 +285,7 @@ before returning a response.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:219](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L219)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:222](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L222)
 
 ___
 
@@ -308,7 +301,7 @@ of pool NFTs, metadata, pool assets, and initial liquidity tokens,
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `mintPoolArgs` | [`IMintV3PoolConfigArgs`](../interfaces/Core.IMintV3PoolConfigArgs.md) | Configuration arguments for minting the pool, including assets, fee parameters, owner address, protocol fee, and referral fee. - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway. - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway. - fees: A pair of fees, denominated out of 10 thousand, that correspond to their respective index in marketTimings. - - **NOTE**: Fees must be the same value until decay is supported by scoopers. - marketTimings: The POSIX timestamp for when the fee should start (market open), and stop (fee progression ends). - ownerAddress: Who the generated LP tokens should be sent to. - protocolFee: The fee gathered for the protocol treasury. |
+| `mintPoolArgs` | [`IMintV3PoolConfigArgs`](../interfaces/Core.IMintV3PoolConfigArgs.md) | Configuration arguments for minting the pool, including assets, fee parameters, owner address, protocol fee, and referral fee. - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway. - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway. - fees: A pair of fees, denominated out of 10 thousand, that correspond to their respective index in marketTimings. - - **NOTE**: Fees must be the same value until decay is supported by scoopers. - marketTimings: The POSIX timestamp for when the fee should start (market open), and stop (fee progression ends). - ownerAddress: Who the generated LP tokens should be sent to. |
 
 #### Returns
 
@@ -322,7 +315,7 @@ Throws an error if the transaction fails to build or submit.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:304](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L304)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:306](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L306)
 
 ___
 
@@ -349,7 +342,7 @@ fee payment if a [ITxBuilderReferralFee](../interfaces/Core.ITxBuilderReferralFe
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:256](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L256)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:259](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L259)
 
 ___
 
@@ -379,7 +372,7 @@ TxBuilder.swap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:461](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L461)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:485](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L485)
 
 ___
 
@@ -411,7 +404,7 @@ TxBuilder.update
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:581](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L581)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:605](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L605)
 
 ___
 
@@ -441,7 +434,7 @@ TxBuilder.withdraw
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:715](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L715)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:739](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L739)
 
 ___
 
@@ -471,7 +464,7 @@ TxBuilder.zap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:760](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L760)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:784](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L784)
 
 ___
 
@@ -502,4 +495,4 @@ Helper method to get a specific parameter of the transaction builder.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:122](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L122)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts:125](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V3.class.ts#L125)
