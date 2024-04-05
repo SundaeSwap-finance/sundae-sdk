@@ -630,11 +630,11 @@ describe("TxBuilderLucidV3", () => {
 
     /**
      * Since we're depositing exotic assets, we expect:
-     * - 1.538670 minAda required for exotic pair
+     * - 2 minAda required for exotic pair
      * - 2 ADA for metadata ref token
      * - 2 ADA for sending back LP tokens
      */
-    expect(fees.deposit.amount.toString()).toEqual("5538670");
+    expect(fees.deposit.amount.toString()).toEqual("6000000");
 
     const { builtTx } = await build();
 
@@ -693,7 +693,7 @@ describe("TxBuilderLucidV3", () => {
         poolOutput.datum()?.as_data()?.to_bytes() as Uint8Array
       ).toString("hex")
     ).toEqual(
-      "d8185881d8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d009f0505ff051927101a00177a6eff"
+      "d8185881d8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d009f0505ff051927101a001e8480ff"
     );
 
     /**
@@ -745,6 +745,32 @@ describe("TxBuilderLucidV3", () => {
     expect(lpTokensReturned).toEqual("20000000");
 
     fetchMock.disableMocks();
+  });
+
+  test("mintPool() should throw an error when the ADA provided is less than the min required", async () => {
+    jest
+      .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
+      .mockResolvedValue(settingsUtxos);
+    jest
+      .spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos")
+      .mockResolvedValue(referenceUtxos);
+
+    fetchMock.enableMocks();
+    fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
+
+    try {
+      await builder.mintPool({
+        assetA: PREVIEW_DATA.assets.tada.withAmount(500_000n),
+        assetB: PREVIEW_DATA.assets.usdc,
+        fees: [5n, 5n],
+        marketTimings: [5, 10_000n],
+        ownerAddress: PREVIEW_DATA.addresses.current,
+      });
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        TxBuilderLucidV3.MIN_ADA_POOL_MINT_ERROR
+      );
+    }
   });
 
   it("should fail when trying to mint a pool with decaying values", async () => {

@@ -82,6 +82,9 @@ export class TxBuilderLucidV3 extends TxBuilder {
   settingsUtxos: UTxO[] | undefined;
   validatorScripts: Record<string, ISundaeProtocolValidatorFull> = {};
 
+  static MIN_ADA_POOL_MINT_ERROR =
+    "You tried to create a pool with less ADA than is required. Try again with more than 2 ADA.";
+
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV3Params> = {
     mainnet: {
       cancelRedeemer: VOID_REDEEMER,
@@ -346,8 +349,6 @@ export class TxBuilderLucidV3 extends TxBuilder {
       DatumBuilderLucidV3.computePoolLqName(newPoolIdent)
     );
 
-    const poolDepositAddress = await this.generateScriptAddress("pool.mint");
-
     const assetsDeposited = C.MultiAsset.new();
     assetsDeposited.set_asset(
       C.ScriptHash.from_hex(poolPolicyId),
@@ -373,37 +374,24 @@ export class TxBuilderLucidV3 extends TxBuilder {
       );
     }
 
-    const minDepositLovelace = BigInt(
-      C.min_ada_required(
-        C.TransactionOutput.new(
-          C.Address.from_bech32(poolDepositAddress),
-          C.Value.new_from_assets(assetsDeposited)
-        ),
-        C.BigNum.from_str(
-          (
-            await this.lucid.provider.getProtocolParameters()
-          ).coinsPerUtxoByte.toString()
-        )
-      ).to_str()
-    );
-
-    const depositFee = exoticPair ? minDepositLovelace : 0n;
-
     const poolAssets = {
+      lovelace: ORDER_DEPOSIT_DEFAULT,
       [poolNftNameHex]: 1n,
       [sortedAssets[1].metadata.assetId.replace(".", "")]:
         sortedAssets[1].amount,
     };
 
     if (exoticPair) {
-      poolAssets.lovelace = minDepositLovelace;
+      // Add non-ada asset.
       poolAssets[sortedAssets[0].metadata.assetId.replace(".", "")] =
         sortedAssets[0].amount;
     } else {
-      poolAssets.lovelace =
-        sortedAssets[0].amount >= minDepositLovelace
-          ? sortedAssets[0].amount
-          : minDepositLovelace;
+      // Ensure min-ada value is correct value.
+      if (sortedAssets[0].amount < ORDER_DEPOSIT_DEFAULT) {
+        throw new Error(TxBuilderLucidV3.MIN_ADA_POOL_MINT_ERROR);
+      }
+
+      poolAssets.lovelace = sortedAssets[0].amount;
     }
 
     const {
@@ -415,7 +403,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       feeDecay: fees,
       feeDecayEnd: marketTimings[1],
       marketOpen: marketTimings[0],
-      depositFee,
+      depositFee: exoticPair ? ORDER_DEPOSIT_DEFAULT : 0n,
       seedUtxo: userUtxos[0],
     });
 
@@ -471,7 +459,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       tx,
       datum: mintPoolDatum,
       referralFee: referralFee?.payment,
-      deposit: depositFee + ORDER_DEPOSIT_DEFAULT * 2n,
+      deposit: ORDER_DEPOSIT_DEFAULT * (exoticPair ? 3n : 2n),
       /**
        * We avoid Lucid's version of coinSelection because we need to ensure
        * that the first input is also the seed input for determining the pool
