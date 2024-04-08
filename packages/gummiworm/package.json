@@ -62,5 +62,9 @@
     "@sundaeswap/asset": "^0.7.1",
     "@sundaeswap/core": "^1.0.5",
     "lucid-cardano": "^0.10.7"
+  },
+  "dependencies": {
+    "graphql": "^16.8.1",
+    "graphql-request": "^6.1.0"
   }
 }
