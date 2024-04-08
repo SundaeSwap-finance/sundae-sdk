@@ -12,12 +12,12 @@ import { GetUtxosQuery } from "./queries";
 export class GummiProvider implements Provider {
   constructor(public endpoint: string) {}
 
-  getDatum(datumHash: string): Promise<string> {}
-
   awaitTx(
     txHash: string,
     checkInterval?: number | undefined
   ): Promise<boolean> {}
+
+  getDatum(datumHash: string): Promise<string> {}
 
   getDelegation(rewardAddress: string): Promise<Delegation> {}
 
@@ -26,7 +26,11 @@ export class GummiProvider implements Provider {
   getUtxoByUnit(unit: string): Promise<UTxO> {}
 
   async getUtxos(addressOrCredential: string | Credential): Promise<UTxO[]> {
-    return await request<UTxO[]>(this.endpoint, GetUtxosQuery);
+    return await request<UTxO[]>(this.endpoint, GetUtxosQuery, {
+      variables: {
+        address: addressOrCredential,
+      },
+    });
   }
 
   getUtxosByOutRef(outRefs: OutRef[]): Promise<UTxO[]> {}
