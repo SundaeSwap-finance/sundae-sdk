@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
 
-import { DatumBuilderLucid } from "../DatumBuilder.Lucid.class.js";
+import { DatumBuilderLucid } from "../Classes/DatumBuilder.Lucid.class.js";
 
 let builderInstance: DatumBuilderLucid;
 

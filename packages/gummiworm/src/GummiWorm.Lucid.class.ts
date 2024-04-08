@@ -10,9 +10,9 @@ import { SundaeUtils } from "@sundaeswap/core/utilities";
 
 import { Data, type Datum, type Tx, type TxComplete } from "lucid-cardano";
 
-import { IDepositArgs } from "../../@types/configs.js";
-import { GummiWorm } from "../Abstracts/GummiWorm.abstract.class.js";
-import { DatumBuilderLucid } from "./DatumBuilder.Lucid.class.js";
+import { IDepositArgs } from "./@types/configs.js";
+import { GummiWorm } from "./Abstracts/GummiWorm.abstract.class.js";
+import { DatumBuilderLucid } from "./Classes/DatumBuilder.Lucid.class.js";
 
 /**
  * Object arguments for completing a transaction.
