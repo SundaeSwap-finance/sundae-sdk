@@ -49,6 +49,14 @@ const config: JestConfigWithTsJest = {
       ],
       ...baseConfig,
     },
+    // @ts-ignore Annoying type overloads.
+    {
+      displayName: "gummiworm",
+      testMatch: [
+        "<rootDir>/packages/gummiworm/*/**/__tests__/**/*.test.*?(x)",
+      ],
+      ...baseConfig,
+    },
   ],
 };
 
