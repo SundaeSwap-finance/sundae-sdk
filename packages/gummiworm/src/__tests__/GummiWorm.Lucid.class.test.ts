@@ -6,7 +6,7 @@ import {
   type ITxBuilderFees,
 } from "@sundaeswap/core";
 import { PREVIEW_DATA, setupLucid } from "@sundaeswap/core/testing";
-import { C, Data } from "lucid-cardano";
+import { C } from "lucid-cardano";
 
 import { GummiWormLucid } from "../GummiWorm.Lucid.class.js";
 
@@ -41,7 +41,8 @@ describe("GummiWormLucid", () => {
   });
 
   it("should correctly build an ADA deposit transaction", async () => {
-    const expectedDatum = Data.void();
+    const expectedDatum =
+      "d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ff";
     const deposit = await GWInstance.deposit({
       assets: [new AssetAmount(10_000_000n, ADA_METADATA)],
     });
@@ -72,7 +73,8 @@ describe("GummiWormLucid", () => {
   });
 
   it("should correctly build a SUNDAE deposit transaction", async () => {
-    const expectedDatum = Data.void();
+    const expectedDatum =
+      "d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ff";
     const deposit = await GWInstance.deposit({
       assets: [PREVIEW_DATA.assets.tindy],
     });

@@ -8,7 +8,7 @@ import {
 } from "@sundaeswap/core";
 import { SundaeUtils } from "@sundaeswap/core/utilities";
 
-import { Data, type Datum, type Tx, type TxComplete } from "lucid-cardano";
+import { type Datum, type Tx, type TxComplete } from "lucid-cardano";
 
 import { IDepositArgs } from "./@types/configs.js";
 import { GummiWorm } from "./Abstracts/GummiWorm.abstract.class.js";
@@ -119,13 +119,24 @@ export class GummiWormLucid implements GummiWorm {
       orderDeposit: this.getParam("minLockAda"),
     });
 
+    const wallet = this.sdk.builder().lucid.wallet;
+    if (!wallet) {
+      throw new Error(
+        "A wallet was not initialized in your Lucid instance. Please select a wallet, and then try again."
+      );
+    }
+
     const txInstance = this.sdk.builder().lucid.newTx();
-    txInstance.payToContract(contractAddress, { inline: Data.void() }, payment);
+    const { inline } = this.datumBuilder.buildDepositDatum({
+      address: depositArgs.address ?? (await wallet.address()),
+    });
+
+    txInstance.payToContract(contractAddress, { inline }, payment);
 
     return this.completeTx({
       tx: txInstance,
       deposit: new AssetAmount(this.getParam("minLockAda"), ADA_METADATA),
-      datum: Data.void(),
+      datum: inline,
     });
   }
 

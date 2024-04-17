@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 
 import { DatumBuilderLucid } from "../Classes/DatumBuilder.Lucid.class.js";
 
@@ -12,11 +13,15 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-const ownerAddress =
-  "addr_test1qrp8nglm8d8x9w783c5g0qa4spzaft5z5xyx0kp495p8wksjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngqtjfk6s";
-
 describe("DatumBuilderLucid", () => {
   it("should pass", () => {
-    expect(true).toBeTruthy();
+    const { inline } = builderInstance.buildDepositDatum({
+      address: PREVIEW_DATA.addresses.current,
+    });
+
+    const expectedInline =
+      "d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ff";
+
+    expect(inline).toEqual(expectedInline);
   });
 });

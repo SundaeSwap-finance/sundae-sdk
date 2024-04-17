@@ -1,15 +1,34 @@
 import {
+  Assets,
   Credential,
   Delegation,
+  Lucid,
+  Network,
   OutRef,
   PROTOCOL_PARAMETERS_DEFAULT,
   ProtocolParameters,
   Provider,
   UTxO,
 } from "lucid-cardano";
+import { IGummiWormUtxos } from "../@types/api";
 
 export class GummiProvider implements Provider {
-  constructor(public endpoint: string) {}
+  public url: string;
+
+  constructor(public network: Network | "Local") {
+    switch (network) {
+      default:
+      case "Local":
+        this.url = "http://18.221.77.128:8088";
+        break;
+      case "Preview":
+        this.url = "";
+        break;
+      case "Mainnet":
+        this.url = "";
+        break;
+    }
+  }
 
   async awaitTx(
     txHash: string,
@@ -49,14 +68,19 @@ export class GummiProvider implements Provider {
   }
 
   async getUtxos(addressOrCredential: string | Credential): Promise<UTxO[]> {
-    // return await request<UTxO[]>(this.endpoint, GetUtxosQuery, {
-    //   variables: {
-    //     address: addressOrCredential,
-    //   },
-    // });
-    console.log(addressOrCredential);
+    const lucid = await Lucid.new(
+      undefined,
+      this.network === "Local" ? "Preview" : this.network
+    );
+    const address =
+      typeof addressOrCredential === "string"
+        ? addressOrCredential
+        : lucid.utils.credentialToAddress(addressOrCredential);
+    const response = await fetch(
+      `${this.url}/get_utxos?address=${address}`
+    ).then((res) => res.json());
 
-    return [];
+    return this.__transformRestUtxos(response);
   }
 
   async getUtxoByUnit(unit: string): Promise<UTxO> {
@@ -103,5 +127,22 @@ export class GummiProvider implements Provider {
   async submitTx(tx: string): Promise<string> {
     console.log(tx);
     return "";
+  }
+
+  private __transformRestUtxos(response: IGummiWormUtxos): UTxO[] {
+    return Object.values(response).map(({ value, ...rest }) => {
+      const transformedValue: Assets = {};
+      for (let [id, amt] of Object.entries(value)) {
+        transformedValue[id] = BigInt(amt);
+      }
+
+      return {
+        ...rest,
+        assets: transformedValue,
+        // @todo update
+        outputIndex: 0,
+        txHash: "",
+      };
+    });
   }
 }
