@@ -43,6 +43,7 @@ import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
   ORDER_DEPOSIT_DEFAULT,
+  POOL_MIN_ADA,
   VOID_REDEEMER,
 } from "../constants.js";
 
@@ -355,33 +356,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
       DatumBuilderLucidV3.computePoolLqName(newPoolIdent)
     );
 
-    const assetsDeposited = C.MultiAsset.new();
-    assetsDeposited.set_asset(
-      C.ScriptHash.from_hex(poolPolicyId),
-      C.AssetName.new(
-        Buffer.from(DatumBuilderLucidV3.computePoolNftName(newPoolIdent), "hex")
-      ),
-      C.BigNum.from_str("1")
-    );
-    assetsDeposited.set_asset(
-      C.ScriptHash.from_hex(sortedAssets[1].metadata.assetId.split(".")[0]),
-      C.AssetName.new(
-        Buffer.from(sortedAssets[1].metadata.assetId.split(".")[1])
-      ),
-      C.BigNum.from_str(sortedAssets[1].amount.toString())
-    );
-    if (exoticPair) {
-      assetsDeposited.set_asset(
-        C.ScriptHash.from_hex(sortedAssets[0].metadata.assetId.split(".")[0]),
-        C.AssetName.new(
-          Buffer.from(sortedAssets[0].metadata.assetId.split(".")[1])
-        ),
-        C.BigNum.from_str(sortedAssets[0].amount.toString())
-      );
-    }
-
     const poolAssets = {
-      lovelace: ORDER_DEPOSIT_DEFAULT,
+      lovelace: POOL_MIN_ADA,
       [poolNftNameHex]: 1n,
       [sortedAssets[1].metadata.assetId.replace(".", "")]:
         sortedAssets[1].amount,
@@ -393,7 +369,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
         sortedAssets[0].amount;
     } else {
       // Ensure min-ada value is correct value.
-      if (sortedAssets[0].amount < ORDER_DEPOSIT_DEFAULT) {
+      if (sortedAssets[0].amount < POOL_MIN_ADA) {
         throw new Error(TxBuilderLucidV3.MIN_ADA_POOL_MINT_ERROR);
       }
 
@@ -409,7 +385,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       feeDecay: fees,
       feeDecayEnd: marketTimings[1],
       marketOpen: marketTimings[0],
-      depositFee: exoticPair ? ORDER_DEPOSIT_DEFAULT : 0n,
+      depositFee: exoticPair ? POOL_MIN_ADA : 0n,
       seedUtxo: userUtxos[0],
     });
 
@@ -436,6 +412,35 @@ export class TxBuilderLucidV3 extends TxBuilder {
       .to_address()
       .to_bech32(this.network === "preview" ? "addr_test" : "addr");
 
+    let sundaeStakeAddress: string | undefined;
+    const { blueprint } = await this.getProtocolParams();
+    const poolContract = blueprint.validators.find(
+      ({ title }) => title === "pool.mint"
+    );
+    const stakeContract = blueprint.validators.find(
+      ({ title }) => title === "pool_stake.stake"
+    );
+    if (stakeContract?.hash && poolContract?.hash) {
+      const paymentCred = C.StakeCredential.from_scripthash(
+        C.ScriptHash.from_hex(poolContract.hash)
+      );
+      const stakingCred = C.StakeCredential.from_scripthash(
+        C.ScriptHash.from_hex(stakeContract.hash)
+      );
+
+      sundaeStakeAddress = C.BaseAddress.new(
+        this.network === "mainnet" ? 1 : 0,
+        paymentCred,
+        stakingCred
+      )
+        .to_address()
+        .to_bech32(this.network === "mainnet" ? "addr" : "addr_test");
+    } else {
+      throw new Error(
+        "Could not generate a valid pool address. Please try again."
+      );
+    }
+
     const tx = this.newTxInstance(referralFee)
       .mintAssets(
         {
@@ -447,15 +452,15 @@ export class TxBuilderLucidV3 extends TxBuilder {
       )
       .readFrom([...references, ...settings])
       .collectFrom(userUtxos)
-      .payToContract(
-        await this.generateScriptAddress("pool.mint"),
-        { inline: mintPoolDatum },
-        poolAssets
+      .payToContract(sundaeStakeAddress, { inline: mintPoolDatum }, poolAssets)
+      .payToAddressWithData(
+        metadataAddress,
+        { inline: Data.void() },
+        {
+          lovelace: ORDER_DEPOSIT_DEFAULT,
+          [poolRefNameHex]: 1n,
+        }
       )
-      .payToAddress(metadataAddress, {
-        lovelace: ORDER_DEPOSIT_DEFAULT,
-        [poolRefNameHex]: 1n,
-      })
       .payToAddress(ownerAddress, {
         lovelace: ORDER_DEPOSIT_DEFAULT,
         [poolLqNameHex]: circulatingLp,

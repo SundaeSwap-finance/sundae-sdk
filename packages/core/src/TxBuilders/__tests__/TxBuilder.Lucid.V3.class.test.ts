@@ -528,7 +528,9 @@ describe("TxBuilderLucidV3", () => {
     const poolOutput = builtTx.txComplete.body().outputs().get(0);
     expect(
       Buffer.from(poolOutput.address().to_bytes()).toString("hex")
-    ).toEqual("708140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca");
+    ).toEqual(
+      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca5843f8c9138598fcaf0270c2bf2eb536fb46b03431cde64275811178"
+    );
     const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
     const poolDepositedAssetA = poolOutput.amount().coin().to_str();
     const poolDepositedAssetB =
@@ -662,7 +664,9 @@ describe("TxBuilderLucidV3", () => {
     const poolOutput = builtTx.txComplete.body().outputs().get(0);
     expect(
       Buffer.from(poolOutput.address().to_bytes()).toString("hex")
-    ).toEqual("708140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca");
+    ).toEqual(
+      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca5843f8c9138598fcaf0270c2bf2eb536fb46b03431cde64275811178"
+    );
     const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
     // const poolDepositedAssetA = poolOutput.amount().coin().to_str();
     const poolDepositedAssetA =
@@ -693,7 +697,7 @@ describe("TxBuilderLucidV3", () => {
         poolOutput.datum()?.as_data()?.to_bytes() as Uint8Array
       ).toString("hex")
     ).toEqual(
-      "d8185888d8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d009f0505ff9f0505ffd87a80051927101a001e8480ff"
+      "d8185888d8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d009f0505ff9f0505ffd87a80051927101a002dc6c0ff"
     );
 
     /**
