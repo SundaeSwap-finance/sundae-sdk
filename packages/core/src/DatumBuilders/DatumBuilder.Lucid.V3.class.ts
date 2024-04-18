@@ -271,7 +271,9 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     const newPoolDatum: V3Types.TPoolDatum = {
       assets: assetsPair,
       circulatingLp: liquidity,
-      feesPer10Thousand: feeDecay,
+      bidFeePer10Thousand: feeDecay,
+      askFeePer10Thousand: feeDecay,
+      feeManager: null,
       feeFinalized: feeDecayEnd || 0n,
       identifier: ident,
       marketOpen: marketOpen || 0n,
