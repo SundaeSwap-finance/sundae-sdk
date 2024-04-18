@@ -132,7 +132,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
           minReceived: this.buildAssetAmountDatum(order.minReceived).schema,
         },
       },
-      extension: "NoExtension",
+      extension: Data.void(),
     };
 
     const inline = Data.to(datum, V3Types.OrderDatum);
@@ -180,7 +180,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
             .schema,
       poolIdent: this.buildPoolIdent(ident),
       scooperFee,
-      extension: "NoExtension",
+      extension: Data.void(),
     };
     const inline = Data.to(datum, V3Types.OrderDatum);
 
@@ -213,7 +213,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
   }: IDatumBuilderWithdrawV3Args): TDatumResult<V3Types.TOrderDatum> {
     const datum: V3Types.TOrderDatum = {
       destination: this.buildDestinationAddresses(destinationAddress).schema,
-      extension: "NoExtension",
+      extension: Data.void(),
       order: {
         Withdrawal: {
           amount: this.buildAssetAmountDatum(order.lpToken).schema,

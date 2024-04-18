@@ -89,11 +89,6 @@ export type TDestinationDatum = Data.Static<typeof DestinationSchema>;
 export const DestinationDatum =
   DestinationSchema as unknown as TDestinationDatum;
 
-export const ExtensionSchema = Data.Enum([
-  Data.Literal("NoExtension"),
-  Data.Literal("Foo"),
-]);
-
 export const IdentSchema = Data.Bytes();
 
 export const OrderDatumSchema = Data.Object({
@@ -102,7 +97,7 @@ export const OrderDatumSchema = Data.Object({
   scooperFee: Data.Integer(),
   destination: DestinationSchema,
   order: OrderSchema,
-  extension: ExtensionSchema,
+  extension: Data.Any(),
 });
 export type TOrderDatum = Data.Static<typeof OrderDatumSchema>;
 export const OrderDatum = OrderDatumSchema as unknown as TOrderDatum;
@@ -185,7 +180,7 @@ export const SettingsDatumSchema = Data.Object({
   simpleFee: Data.Integer(),
   strategyFee: Data.Integer(),
   poolCreationFee: Data.Integer(),
-  extensions: Data.Integer(),
+  extensions: Data.Any(),
 });
 export type TSettingsDatum = Data.Static<typeof SettingsDatumSchema>;
 export const SettingsDatum = SettingsDatumSchema as unknown as TSettingsDatum;
