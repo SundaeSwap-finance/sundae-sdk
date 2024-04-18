@@ -200,11 +200,17 @@ export class TxBuilderLucidV3 extends TxBuilder {
     if (!this.settingsUtxos) {
       // Hardcoded for now, will be added to API later.
       this.settingsUtxos = await this.lucid.provider.getUtxosByOutRef([
-        {
-          outputIndex: 0,
-          txHash:
-            "387dbd6718ed9218a28c11ea1386c688b4215a47d39610b8b1657bbcdc054e3c",
-        },
+        this.network === "mainnet"
+          ? {
+              txHash:
+                "728d26ae69f4602f54703e563c7baf7e9786dd4e6f6f8fdd078bd582d3118873",
+              outputIndex: 0,
+            }
+          : {
+              outputIndex: 0,
+              txHash:
+                "387dbd6718ed9218a28c11ea1386c688b4215a47d39610b8b1657bbcdc054e3c",
+            },
       ]);
     }
 
