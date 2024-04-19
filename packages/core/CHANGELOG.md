@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.10](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.0.9...@sundaeswap/core@1.0.10) (2024-04-18)
+
+### Bug Fixes
+
+- use staking address for pool mint assets ([64e83c7](https://github.com/SundaeSwap-finance/sundae-sdk/commit/64e83c7e66cb808ed97b944a7bedc56ce3a843c4))
+
 ## [1.0.9](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.0.8...@sundaeswap/core@1.0.9) (2024-04-18)
 
 **Note:** Version bump only for package @sundaeswap/core
