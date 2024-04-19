@@ -20,6 +20,7 @@ import {
   IDepositConfigArgs,
   IMintV3PoolConfigArgs,
   ISundaeProtocolParamsFull,
+  ISundaeProtocolReference,
   ISundaeProtocolValidatorFull,
   ISwapConfigArgs,
   ITxBuilderFees,
@@ -151,20 +152,10 @@ export class TxBuilderLucidV3 extends TxBuilder {
    */
   public async getProtocolParams(): Promise<ISundaeProtocolParamsFull> {
     if (!this.protocolParams) {
-      const rawResponse =
-        await this.queryProvider.getProtocolParamsWithScriptHashes(
+      this.protocolParams =
+        await this.queryProvider.getProtocolParamsWithScripts(
           EContractVersion.V3
         );
-      this.protocolParams = {
-        ...rawResponse,
-        blueprint: {
-          ...rawResponse.blueprint,
-          validators: rawResponse.blueprint.validators.map((data) => ({
-            ...data,
-            compiledCode: "",
-          })),
-        },
-      };
     }
 
     return this.protocolParams;
@@ -188,6 +179,23 @@ export class TxBuilderLucidV3 extends TxBuilder {
     }
 
     return this.referenceUtxos;
+  }
+
+  /**
+   *
+   * @param {string} type The type of reference input to retrieve.
+   * @returns {ISundaeProtocolReference}
+   */
+  public async getReferenceScript(
+    type: "order.spend" | "pool.spend"
+  ): Promise<ISundaeProtocolReference> {
+    const { references } = await this.getProtocolParams();
+    const match = references.find(({ key }) => key === type);
+    if (!match) {
+      throw new Error(`Could not find reference input with type: ${type}`);
+    }
+
+    return match;
   }
 
   /**
@@ -229,22 +237,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
   public async getValidatorScript(
     name: string
   ): Promise<ISundaeProtocolValidatorFull> {
-    const {
-      blueprint: { validators },
-    } = await this.getProtocolParams();
-
-    const hasFetchedCompiledCode = validators.some(
-      ({ compiledCode }) => !compiledCode
-    );
-
-    if (!hasFetchedCompiledCode) {
-      this.protocolParams =
-        await this.queryProvider.getProtocolParamsWithScripts(
-          EContractVersion.V3
-        );
-    }
-
-    const result = this.protocolParams?.blueprint.validators.find(
+    const params = await this.getProtocolParams();
+    const result = params.blueprint.validators.find(
       ({ title }) => title === name
     );
     if (!result) {
@@ -579,21 +573,17 @@ export class TxBuilderLucidV3 extends TxBuilder {
       );
     }
 
-    try {
-      tx.collectFrom(
-        utxosToSpend,
-        this.__getParam("cancelRedeemer")
-      ).attachSpendingValidator({
-        script: (await this.getValidatorScript("order.spend")).compiledCode,
-        type: "PlutusV2",
-      });
+    const cancelReferenceInput = await this.getReferenceScript("order.spend");
+    const cancelReadFrom = await this.lucid.provider.getUtxosByOutRef([
+      {
+        outputIndex: cancelReferenceInput.txIn.index,
+        txHash: cancelReferenceInput.txIn.hash,
+      },
+    ]);
 
-      tx.addSignerKey(
-        DatumBuilderLucidV3.getSignerKeyFromDatum(orderUtxo.datum)
-      );
-    } catch (e) {
-      throw e;
-    }
+    tx.collectFrom(utxosToSpend, this.__getParam("cancelRedeemer"))
+      .readFrom(cancelReadFrom)
+      .addSignerKey(DatumBuilderLucidV3.getSignerKeyFromDatum(orderUtxo.datum));
 
     return this.completeTx({
       tx,
