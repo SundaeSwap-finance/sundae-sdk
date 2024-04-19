@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.11](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.0.10...@sundaeswap/core@1.0.11) (2024-04-19)
+
+### Bug Fixes
+
+- cancellation on v3 and param retrieval ([d4be646](https://github.com/SundaeSwap-finance/sundae-sdk/commit/d4be646bb78d29196e83c7fb7f2b8eef316cf1d1))
+
 ## [1.0.10](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.0.9...@sundaeswap/core@1.0.10) (2024-04-18)
 
 ### Bug Fixes
