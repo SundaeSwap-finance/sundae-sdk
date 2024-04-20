@@ -19,10 +19,10 @@ export class GummiProvider implements Provider {
     switch (network) {
       default:
       case "Local":
-        this.url = "http://18.221.77.128:8088";
+        this.url = "https://api.gummiworm.preview.sundae.fi";
         break;
       case "Preview":
-        this.url = "";
+        this.url = "https://api.gummiworm.preview.sundae.fi";
         break;
       case "Mainnet":
         this.url = "";
