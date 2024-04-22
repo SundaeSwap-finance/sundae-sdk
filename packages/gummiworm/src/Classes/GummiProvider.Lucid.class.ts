@@ -10,17 +10,15 @@ import {
   Provider,
   UTxO,
 } from "lucid-cardano";
+
 import { IGummiWormUtxos } from "../@types/api";
 
 export class GummiProvider implements Provider {
   public url: string;
 
-  constructor(public network: Network | "Local") {
+  constructor(public network: Network) {
     switch (network) {
       default:
-      case "Local":
-        this.url = "http://18.221.77.128:8088";
-        break;
       case "Preview":
         this.url = "https://api.gummiworm.preview.sundae.fi";
         break;
@@ -68,10 +66,7 @@ export class GummiProvider implements Provider {
   }
 
   async getUtxos(addressOrCredential: string | Credential): Promise<UTxO[]> {
-    const lucid = await Lucid.new(
-      undefined,
-      this.network === "Local" ? "Preview" : this.network
-    );
+    const lucid = await Lucid.new(undefined, this.network);
     const address =
       typeof addressOrCredential === "string"
         ? addressOrCredential
