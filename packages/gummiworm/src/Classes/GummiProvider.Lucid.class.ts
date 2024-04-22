@@ -12,6 +12,7 @@ import {
 } from "lucid-cardano";
 
 import { IGummiWormUtxos } from "../@types/api";
+import { GUMMIWORM_PROTOCOL_PARAMS } from "../constants/gummiworm.js";
 
 export class GummiProvider implements Provider {
   public url: string;
@@ -62,7 +63,25 @@ export class GummiProvider implements Provider {
   }
 
   async getProtocolParameters(): Promise<ProtocolParameters> {
-    return PROTOCOL_PARAMETERS_DEFAULT;
+    return {
+      minFeeA: 0,
+      minFeeB: 0,
+      maxTxSize: GUMMIWORM_PROTOCOL_PARAMS.maxTxSize,
+      maxValSize: GUMMIWORM_PROTOCOL_PARAMS.maxValueSize,
+      keyDeposit: BigInt(GUMMIWORM_PROTOCOL_PARAMS.stakeAddressDeposit),
+      poolDeposit: BigInt(GUMMIWORM_PROTOCOL_PARAMS.stakePoolDeposit),
+      priceMem: GUMMIWORM_PROTOCOL_PARAMS.executionUnitPrices.priceMemory,
+      priceStep: GUMMIWORM_PROTOCOL_PARAMS.executionUnitPrices.priceSteps,
+      maxTxExMem: BigInt(GUMMIWORM_PROTOCOL_PARAMS.maxTxExecutionUnits.memory),
+      maxTxExSteps: BigInt(GUMMIWORM_PROTOCOL_PARAMS.maxTxExecutionUnits.steps),
+      coinsPerUtxoByte: BigInt(GUMMIWORM_PROTOCOL_PARAMS.utxoCostPerByte),
+      collateralPercentage: GUMMIWORM_PROTOCOL_PARAMS.collateralPercentage,
+      maxCollateralInputs: GUMMIWORM_PROTOCOL_PARAMS.maxCollateralInputs,
+      costModels: {
+        PlutusV1: PROTOCOL_PARAMETERS_DEFAULT.costModels.PlutusV1,
+        PlutusV2: PROTOCOL_PARAMETERS_DEFAULT.costModels.PlutusV2,
+      },
+    };
   }
 
   async getUtxos(addressOrCredential: string | Credential): Promise<UTxO[]> {
