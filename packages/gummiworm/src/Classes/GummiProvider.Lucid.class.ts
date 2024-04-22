@@ -22,10 +22,10 @@ export class GummiProvider implements Provider {
         this.url = "http://18.221.77.128:8088";
         break;
       case "Preview":
-        this.url = "";
+        this.url = "https://api.gummiworm.preview.sundae.fi";
         break;
       case "Mainnet":
-        this.url = "";
+        this.url = "https://api.gummiworm.sundae.fi";
         break;
     }
   }
@@ -129,20 +129,46 @@ export class GummiProvider implements Provider {
     return "";
   }
 
+  /**
+   * Transforms details as needed.
+   *
+   * @param {IGummiWormUtxos} response The raw API response from the gummiworm api endpoint.
+   * @returns
+   */
   private __transformRestUtxos(response: IGummiWormUtxos): UTxO[] {
-    return Object.values(response).map(({ value, ...rest }) => {
-      const transformedValue: Assets = {};
-      for (let [id, amt] of Object.entries(value)) {
-        transformedValue[id] = BigInt(amt);
-      }
+    return Object.values(response).map(({ value, ...rest }, index, values) => {
+      const transformedValue: Assets = this.__convertNumbersToBigInts(value);
+
+      const [txHash, outputIndex] = Object.keys(values)[index].split("#");
 
       return {
         ...rest,
         assets: transformedValue,
-        // @todo update
-        outputIndex: 0,
-        txHash: "",
+        outputIndex: Number(outputIndex),
+        txHash,
       };
     });
+  }
+
+  /**
+   * Just converts numbers to bigints, will be removed later.
+   *
+   * @param {any} input An asset map of utxo assets.
+   * @returns
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private __convertNumbersToBigInts(input: any): any {
+    if (typeof input === "number") {
+      // Convert number to BigInt
+      return BigInt(input);
+    } else if (typeof input === "object" && input !== null) {
+      // Recursively handle objects
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result: Record<string, any> = {};
+      for (const [key, value] of Object.entries(input)) {
+        result[key] = this.__convertNumbersToBigInts(value);
+      }
+      return result;
+    }
   }
 }
