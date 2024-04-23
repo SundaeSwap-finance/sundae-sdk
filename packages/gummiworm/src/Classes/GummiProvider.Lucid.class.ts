@@ -34,28 +34,19 @@ export class GummiProvider implements Provider {
     checkInterval?: number | undefined
   ): Promise<boolean> {
     console.log(txHash, checkInterval);
-    // const query = `
-    //   query {
-    //     confirmTx(hash: $hash)
-    //   }
-    // `
+    console.log("called awaitTx");
 
     return true;
   }
 
-  async getDatum(datumHash: string): Promise<string> {
-    console.log(datumHash);
-    // const query = `
-    //   query {
-    //     getDatum(txHash: $txHash)
-    //   }
-    // `
+  async getDatum(_datumHash: string): Promise<string> {
+    console.log("called datum");
 
     return "";
   }
 
-  async getDelegation(rewardAddress: string): Promise<Delegation> {
-    console.log(rewardAddress);
+  async getDelegation(_rewardAddress: string): Promise<Delegation> {
+    console.log("called delegation");
     return {
       poolId: "",
       rewards: 0n,
@@ -97,15 +88,8 @@ export class GummiProvider implements Provider {
     return this.__transformRestUtxos(response);
   }
 
-  async getUtxoByUnit(unit: string): Promise<UTxO> {
-    // const query = `
-    //   query {
-    //     getUtxosByUnit(assetId: $assetId) {
-    //       ...
-    //     }
-    //   }
-    // `
-    console.log(unit);
+  async getUtxoByUnit(_unit: string): Promise<UTxO> {
+    console.log("called utxoByUnit");
 
     return {
       address: "",
@@ -115,8 +99,8 @@ export class GummiProvider implements Provider {
     };
   }
 
-  async getUtxosByOutRef(outRefs: OutRef[]): Promise<UTxO[]> {
-    console.log(outRefs);
+  async getUtxosByOutRef(_outRefs: OutRef[]): Promise<UTxO[]> {
+    console.log("called utxosByOutRef");
     return [
       {
         address: "",
@@ -128,6 +112,7 @@ export class GummiProvider implements Provider {
   }
 
   async getUtxosWithUnit(): Promise<UTxO[]> {
+    console.log("called utxosWithUnit");
     return [
       {
         address: "",
@@ -138,8 +123,17 @@ export class GummiProvider implements Provider {
     ];
   }
 
-  async submitTx(tx: string): Promise<string> {
-    console.log(tx);
+  async submitTx(txCbor: string): Promise<string> {
+    await fetch(`${this.url}/submit_tx`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        txCbor,
+      }),
+    });
+
     return "";
   }
 
@@ -150,14 +144,13 @@ export class GummiProvider implements Provider {
    * @returns
    */
   private __transformRestUtxos(response: IGummiWormUtxos): UTxO[] {
-    return Object.values(response).map(({ value, ...rest }, index, values) => {
-      const transformedValue: Assets = this.__convertNumbersToBigInts(value);
-
-      const [txHash, outputIndex] = Object.keys(values)[index].split("#");
+    return Object.entries(response).map(([txData, { value, ...rest }]) => {
+      const assets = this.__convertValueToAssets(value);
+      const [txHash, outputIndex] = txData.split("#");
 
       return {
         ...rest,
-        assets: transformedValue,
+        assets,
         outputIndex: Number(outputIndex),
         txHash,
       };
@@ -165,24 +158,27 @@ export class GummiProvider implements Provider {
   }
 
   /**
-   * Just converts numbers to bigints, will be removed later.
+   * Converts the API response object structure to an Assets structure.
    *
    * @param {any} input An asset map of utxo assets.
-   * @returns
+   * @returns {Assets}
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private __convertNumbersToBigInts(input: any): any {
-    if (typeof input === "number") {
-      // Convert number to BigInt
-      return BigInt(input);
-    } else if (typeof input === "object" && input !== null) {
-      // Recursively handle objects
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result: Record<string, any> = {};
-      for (const [key, value] of Object.entries(input)) {
-        result[key] = this.__convertNumbersToBigInts(value);
+  private __convertValueToAssets(input: any): Assets {
+    const newValue: Assets = {};
+
+    for (const [key, value] of Object.entries<number | Record<string, number>>(
+      input
+    )) {
+      if (typeof value === "number") {
+        newValue[key] = BigInt(value);
+      } else if (typeof value === "object" && value !== null) {
+        for (const [assetName, amount] of Object.entries<number>(value)) {
+          newValue[key + assetName] = BigInt(amount);
+        }
       }
-      return result;
     }
+
+    return newValue;
   }
 }
