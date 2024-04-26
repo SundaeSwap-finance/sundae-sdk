@@ -1,6 +1,9 @@
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   ADA_METADATA,
+  EContractVersion,
+  EDatumType,
+  SundaeSDK,
   VOID_REDEEMER,
   type IComposedTx,
   type ITxBuilderReferralFee,
@@ -17,7 +20,7 @@ import {
   type TxComplete,
 } from "lucid-cardano";
 
-import { ILockConfigArgs } from "../../@types/configs.js";
+import { ILockConfigArgs, IMigrateConfigArgs } from "../../@types/configs.js";
 import { YieldFarming } from "../Abstracts/YieldFarming.abstract.class.js";
 import { LockConfig } from "../Configs/LockConfig.js";
 import { DatumBuilderLucid } from "./DatumBuilder.Lucid.class.js";
@@ -206,7 +209,7 @@ export class YieldFarmingLucid implements YieldFarming {
       throw new Error("Could not generate a valid contract address.");
     }
 
-    const signerKey = LucidHelper.getAddressHashes(ownerAddress);
+    const signerKey = LucidHelper.getAddressHashes(ownerAddress.address);
     const txInstance = this.lucid.newTx();
 
     txInstance
@@ -262,7 +265,7 @@ export class YieldFarmingLucid implements YieldFarming {
     } else {
       const newDatum = this.datumBuilder.buildLockDatum({
         owner: {
-          address: ownerAddress,
+          address: ownerAddress.address,
         },
         programs: programs || [],
       });
@@ -326,6 +329,45 @@ export class YieldFarmingLucid implements YieldFarming {
       ...unlockArgs,
       lockedValues: [],
     });
+  }
+
+  async migrateToV3(migrationArgs: IMigrateConfigArgs, sdk: SundaeSDK) {
+    const { ownerAddress, depositPool: depositingPool, ...rest } = migrationArgs;
+    const txBuilder = sdk.builder(EContractVersion.V1);
+
+    const { } = await txBuilder.migrateLiquidityToV3([
+      {
+        depositPool: depositingPool,
+        withdrawConfig: {
+          orderAddresses: {
+            DestinationAddress: {
+              address: this.__getParam("scriptHash"),
+              datum: {
+                type: EDatumType.NONE
+              }
+            }
+          },
+          pool
+        }
+      }
+    ]);
+
+    const unlock = await this.unlock({
+      ownerAddress: {
+        address: txBuilder.__getParam("scriptAddress"),
+        datum: {
+          type: EDatumType.HASH,
+          value: 
+        }
+      },
+      ...rest
+    })
+
+    const lockV3 = await this.lock({
+      ownerAddress,
+      programs: rest.programs,
+      lockedValues: 
+    })
   }
 
   /**

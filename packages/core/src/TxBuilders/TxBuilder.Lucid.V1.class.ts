@@ -122,7 +122,9 @@ export class TxBuilderLucidV1 extends TxBuilder {
    * @param param The parameter you want to retrieve.
    * @returns {ITxBuilderV1Params}
    */
-  private __getParam<K extends keyof ITxBuilderV1Params>(param: K) {
+  public __getParam<K extends keyof ITxBuilderV1Params>(
+    param: K
+  ): ITxBuilderV1Params[K] {
     return TxBuilderLucidV1.getParam(param, this.network);
   }
 

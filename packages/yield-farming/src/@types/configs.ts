@@ -1,7 +1,9 @@
-import type { AssetAmount } from "@sundaeswap/asset";
+import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import type {
   IBaseConfig,
+  IPoolData,
   ITxBuilderReferralFee,
+  TDestinationAddress,
   TUTXO,
 } from "@sundaeswap/core";
 
@@ -27,5 +29,11 @@ export interface ILockConfigArgs extends IBaseConfig {
   programs?: TDelegationPrograms | null;
   existingPositions?: TUTXO[];
   lockedValues?: AssetAmount<{ assetId: string; decimals: number }>[] | null;
-  ownerAddress: string;
+  ownerAddress: TDestinationAddress;
+}
+
+export interface IMigrateConfigArgs extends ILockConfigArgs {
+  suppliedLPAsset: AssetAmount<IAssetAmountMetadata>;
+  withdrawPool: IPoolData;
+  depositPool: IPoolData;
 }
