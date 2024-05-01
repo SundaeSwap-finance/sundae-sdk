@@ -14,7 +14,8 @@ import {
 } from "../../exports/core.js";
 import { PREVIEW_DATA, setupLucid } from "../../exports/testing.js";
 import { TxBuilderLucidV1 } from "../TxBuilder.Lucid.V1.class.js";
-import { params } from "./data/mockData.js";
+import { TxBuilderLucidV3 } from "../TxBuilder.Lucid.V3.class.js";
+import { params, settingsUtxos } from "./data/mockData.js";
 
 let builder: TxBuilderLucidV1;
 let datumBuilder: DatumBuilderLucidV1;
@@ -36,6 +37,9 @@ beforeAll(() => {
   jest
     .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScripts")
     .mockResolvedValue(params);
+  jest
+    .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
+    .mockResolvedValue(settingsUtxos);
 });
 
 describe("TxBuilderLucidV1", () => {
