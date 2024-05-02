@@ -332,42 +332,89 @@ export class YieldFarmingLucid implements YieldFarming {
   }
 
   async migrateToV3(migrationArgs: IMigrateConfigArgs, sdk: SundaeSDK) {
-    const { ownerAddress, depositPool: depositingPool, ...rest } = migrationArgs;
+    const { ownerAddress, migrations, existingPositions } = migrationArgs;
     const txBuilder = sdk.builder(EContractVersion.V1);
+    const withdrawAssetsList = migrations.reduce((list, { withdrawPool }) => {
+      list.push(withdrawPool.assetLP.assetId.replace(".", ""));
+      return list;
+    }, [] as string[]);
+    const newLockedAssets: Record<
+      string,
+      IAssetAmountMetadata & { amount: bigint }
+    > = {};
+    const migrationAssets: Record<
+      string,
+      IAssetAmountMetadata & { amount: bigint }
+    > = {};
 
-    const { } = await txBuilder.migrateLiquidityToV3([
-      {
-        depositPool: depositingPool,
-        withdrawConfig: {
-          orderAddresses: {
-            DestinationAddress: {
-              address: this.__getParam("scriptHash"),
-              datum: {
-                type: EDatumType.NONE
-              }
-            }
-          },
-          pool
+    if (!existingPositions || existingPositions.length === 0) {
+      throw new Error("There must be a list of existing positions to migrate!");
+    }
+
+    const existingPositionsData = await this.lucid.provider.getUtxosByOutRef(
+      existingPositions.map(({ hash, index }) => ({
+        outputIndex: index,
+        txHash: hash,
+      }))
+    );
+
+    existingPositionsData.forEach(({ assets }) => {
+      for (const [id, amount] of Object.entries(assets)) {
+        if (withdrawAssetsList.includes(id)) {
+          if (!migrationAssets[id]) {
+            migrationAssets[id] = {
+              amount,
+              assetId: id,
+              decimals: 0, // Decimals aren't required since we just use the raw amount.
+            };
+          } else {
+            migrationAssets[id].amount += amount;
+          }
+        } else {
+          if (!newLockedAssets[id]) {
+            newLockedAssets[id] = {
+              amount,
+              assetId: id,
+              decimals: 0, // Decimals aren't required since we just use the raw amount.
+            };
+          } else {
+            newLockedAssets[id].amount += amount;
+          }
         }
       }
-    ]);
+    });
 
-    const unlock = await this.unlock({
-      ownerAddress: {
-        address: txBuilder.__getParam("scriptAddress"),
-        datum: {
-          type: EDatumType.HASH,
-          value: 
-        }
-      },
-      ...rest
-    })
+    if (Object.keys(migrationAssets).length === 0) {
+      throw new Error(
+        "There were no eligible assets to migrate within the provided existing positions. Please check your migration config, and try again."
+      );
+    }
 
-    const lockV3 = await this.lock({
-      ownerAddress,
-      programs: rest.programs,
-      lockedValues: 
-    })
+    const builtMigrations = txBuilder.migrateLiquidityToV3(
+      migrations.map(({ withdrawPool, depositPool }) => {
+        return {
+          depositPool,
+          withdrawConfig: {
+            orderAddresses: {
+              DestinationAddress: {
+                address: this.__getParam("scriptHash"),
+                datum: {
+                  type: EDatumType.INLINE,
+                  value: "",
+                },
+              },
+            },
+            pool: withdrawPool,
+            suppliedLPAsset: new AssetAmount(
+              migrationAssets[
+                withdrawPool.assetLP.assetId.replace(".", "")
+              ].amount,
+              withdrawPool.assetLP
+            ),
+          },
+        };
+      })
+    );
   }
 
   /**

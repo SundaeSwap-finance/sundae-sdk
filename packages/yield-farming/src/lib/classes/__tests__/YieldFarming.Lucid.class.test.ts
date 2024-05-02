@@ -1,12 +1,21 @@
 import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
-import { ADA_METADATA } from "@sundaeswap/core";
+import {
+  ADA_METADATA,
+  EDatumType,
+  ETxBuilderType,
+  SundaeSDK,
+} from "@sundaeswap/core";
 import { PREVIEW_DATA, setupLucid } from "@sundaeswap/core/testing";
 import { C, Data, Lucid, Tx } from "lucid-cardano";
 
 import { Delegation, TDelegation } from "../../../@types/contracts.js";
 import { YieldFarmingLucid } from "../YieldFarming.Lucid.class.js";
 import { delegation } from "./data/delegation.js";
+import {
+  MIGRATION_ASSETS_UTXO,
+  NO_MIGRATION_ASSETS_UTXO,
+} from "./data/positions.js";
 
 let YFInstance: YieldFarmingLucid;
 let lucidInstance: Lucid;
@@ -37,7 +46,12 @@ describe("YieldFarmingLucid", () => {
           decimals: 6,
         }),
       ],
-      ownerAddress: ownerAddress,
+      ownerAddress: {
+        address: ownerAddress,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       existingPositions: [],
     });
 
@@ -131,7 +145,12 @@ describe("YieldFarmingLucid", () => {
           decimals: 0,
         }),
       ],
-      ownerAddress: ownerAddress,
+      ownerAddress: {
+        address: ownerAddress,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       existingPositions: [
         {
           hash: "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
@@ -167,7 +186,12 @@ describe("YieldFarmingLucid", () => {
           decimals: 0,
         }),
       ],
-      ownerAddress: ownerAddress,
+      ownerAddress: {
+        address: ownerAddress,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       existingPositions: [],
       programs: null,
     });
@@ -213,7 +237,12 @@ describe("YieldFarmingLucid", () => {
           decimals: 0,
         }),
       ],
-      ownerAddress: ownerAddress,
+      ownerAddress: {
+        address: ownerAddress,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       existingPositions: [
         {
           hash: "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
@@ -253,7 +282,12 @@ describe("YieldFarmingLucid", () => {
           decimals: 6,
         }),
       ],
-      ownerAddress: ownerAddress,
+      ownerAddress: {
+        address: ownerAddress,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       programs: delegation,
       existingPositions: [],
     });
@@ -337,7 +371,12 @@ describe("YieldFarmingLucid", () => {
     const spiedPayToContract = jest.spyOn(Tx.prototype, "payToContract");
     const { datum } = await YFInstance.lock({
       lockedValues: null,
-      ownerAddress: ownerAddress,
+      ownerAddress: {
+        address: ownerAddress,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       existingPositions: [
         {
           hash: "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
@@ -389,7 +428,12 @@ describe("YieldFarmingLucid", () => {
       ]);
 
     const { datum, fees } = await YFInstance.unlock({
-      ownerAddress: ownerAddress,
+      ownerAddress: {
+        address: ownerAddress,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       programs: delegation,
       existingPositions: [
         {
@@ -416,7 +460,12 @@ describe("YieldFarmingLucid", () => {
             decimals: 6,
           }),
         ],
-        ownerAddress: ownerAddress,
+        ownerAddress: {
+          address: ownerAddress,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
         programs: delegation,
         existingPositions: [],
       })
@@ -439,7 +488,12 @@ describe("YieldFarmingLucid", () => {
           decimals: 6,
         }),
       ],
-      ownerAddress: ownerAddress,
+      ownerAddress: {
+        address: ownerAddress,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       programs: delegation,
       existingPositions: [],
     });
@@ -479,7 +533,12 @@ describe("YieldFarmingLucid", () => {
           decimals: 6,
         }),
       ],
-      ownerAddress: ownerAddress,
+      ownerAddress: {
+        address: ownerAddress,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       programs: delegation,
       existingPositions: [],
       referralFee: {
@@ -535,7 +594,12 @@ describe("YieldFarmingLucid", () => {
           decimals: 6,
         }),
       ],
-      ownerAddress: ownerAddress,
+      ownerAddress: {
+        address: ownerAddress,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       programs: delegation,
       existingPositions: [],
       referralFee: {
@@ -605,5 +669,98 @@ describe("YieldFarmingLucid", () => {
         ?.get(C.BigNum.from_str("674"))
         ?.as_text()
     ).toEqual("Non-Ada Test Label: 1 iUSD");
+  });
+
+  it("should do a v1 to v3 migration properly", async () => {
+    const sdk = new SundaeSDK({
+      wallet: {
+        builder: {
+          type: ETxBuilderType.LUCID,
+          lucid: lucidInstance,
+        },
+        name: "eternl",
+        network: "preview",
+      },
+    });
+
+    try {
+      await YFInstance.migrateToV3(
+        {
+          ownerAddress: {
+            address: ownerAddress,
+            datum: {
+              type: EDatumType.NONE,
+            },
+          },
+          migrations: [
+            {
+              depositPool: PREVIEW_DATA.pools.v3,
+              withdrawPool: PREVIEW_DATA.pools.v1,
+            },
+          ],
+        },
+        sdk
+      );
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        "There must be a list of existing positions to migrate!"
+      );
+    }
+
+    getUtxosByOutRefMock.mockResolvedValueOnce([NO_MIGRATION_ASSETS_UTXO]);
+    try {
+      await YFInstance.migrateToV3(
+        {
+          ownerAddress: {
+            address: ownerAddress,
+            datum: {
+              type: EDatumType.NONE,
+            },
+          },
+          migrations: [
+            {
+              depositPool: PREVIEW_DATA.pools.v3,
+              withdrawPool: PREVIEW_DATA.pools.v1,
+            },
+          ],
+          existingPositions: [
+            {
+              hash: "f28d6c3105a8a72f83e2cff9c9c042eb8e0449a6b5ab38b26ff899ab61be997e",
+              index: 0,
+            },
+          ],
+        },
+        sdk
+      );
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        "There were no eligible assets to migrate within the provided existing positions. Please check your migration config, and try again."
+      );
+    }
+
+    getUtxosByOutRefMock.mockResolvedValueOnce([MIGRATION_ASSETS_UTXO]);
+    await YFInstance.migrateToV3(
+      {
+        ownerAddress: {
+          address: ownerAddress,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+        migrations: [
+          {
+            depositPool: PREVIEW_DATA.pools.v3,
+            withdrawPool: PREVIEW_DATA.pools.v1,
+          },
+        ],
+        existingPositions: [
+          {
+            hash: "f28d6c3105a8a72f83e2cff9c9c042eb8e0449a6b5ab38b26ff899ab61be997e",
+            index: 0,
+          },
+        ],
+      },
+      sdk
+    );
   });
 });

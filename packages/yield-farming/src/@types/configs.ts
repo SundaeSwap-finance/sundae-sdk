@@ -1,4 +1,4 @@
-import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import type { AssetAmount } from "@sundaeswap/asset";
 import type {
   IBaseConfig,
   IPoolData,
@@ -33,7 +33,8 @@ export interface ILockConfigArgs extends IBaseConfig {
 }
 
 export interface IMigrateConfigArgs extends ILockConfigArgs {
-  suppliedLPAsset: AssetAmount<IAssetAmountMetadata>;
-  withdrawPool: IPoolData;
-  depositPool: IPoolData;
+  migrations: {
+    withdrawPool: IPoolData;
+    depositPool: IPoolData;
+  }[];
 }
