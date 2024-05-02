@@ -669,6 +669,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
     );
     const v3OrderScriptAddress =
       await v3TxBuilderInstance.generateScriptAddress("order.spend");
+    const v3MaxScooperFee = await v3TxBuilderInstance.getMaxScooperFeeAmount();
 
     migrations.forEach(({ withdrawConfig, depositPool }) => {
       const withdrawArgs = new WithdrawConfig(withdrawConfig).buildArgs();
@@ -678,15 +679,11 @@ export class TxBuilderLucidV1 extends TxBuilder {
       const payment = SundaeUtils.accumulateSuppliedAssets({
         suppliedAssets: [withdrawArgs.suppliedLPAsset],
         // Add another scooper fee requirement since we are executing two orders.
-        scooperFee:
-          this.__getParam("maxScooperFee") +
-          v3TxBuilderInstance.__getParam("maxScooperFee"),
+        scooperFee: this.__getParam("maxScooperFee") + v3MaxScooperFee,
       });
 
       totalDeposit += ORDER_DEPOSIT_DEFAULT;
-      totalScooper +=
-        this.__getParam("maxScooperFee") +
-        v3TxBuilderInstance.__getParam("maxScooperFee");
+      totalScooper += this.__getParam("maxScooperFee") + v3MaxScooperFee;
       withdrawArgs.referralFee?.payment &&
         totalReferralFees.add(withdrawArgs.referralFee.payment);
 
@@ -712,7 +709,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
               depositPool.assetB
             ),
           },
-          scooperFee: v3TxBuilderInstance.__getParam("maxScooperFee"),
+          scooperFee: v3MaxScooperFee,
         });
 
       const { inline: withdrawInline } = this.datumBuilder.buildWithdrawDatum({

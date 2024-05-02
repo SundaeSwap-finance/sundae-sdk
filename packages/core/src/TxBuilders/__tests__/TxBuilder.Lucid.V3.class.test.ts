@@ -1,10 +1,14 @@
 import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
 import fetchMock from "jest-fetch-mock";
-import { C, Lucid, Tx } from "lucid-cardano";
+import { C, Data, Lucid, Tx } from "lucid-cardano";
 
 import { EDatumType, ESwapType, ITxBuilderFees } from "../../@types/index.js";
 import { DatumBuilderLucidV3 } from "../../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
+import {
+  SettingsDatum,
+  TSettingsDatum,
+} from "../../DatumBuilders/contracts/contracts.v3.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../../constants.js";
 import { PREVIEW_DATA, setupLucid } from "../../exports/testing.js";
@@ -23,6 +27,14 @@ jest
 jest
   .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScripts")
   .mockResolvedValue(params);
+
+jest
+  .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
+  .mockResolvedValue(settingsUtxos);
+
+jest
+  .spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos")
+  .mockResolvedValue(referenceUtxos);
 
 let builder: TxBuilderLucidV3;
 let datumBuilder: DatumBuilderLucidV3;
@@ -62,19 +74,36 @@ describe("TxBuilderLucidV3", () => {
     expect(builder.lucid).toBeInstanceOf(Lucid);
   });
 
-  it("should have the correct parameters", () => {
-    expect(TxBuilderLucidV3.getParam("cancelRedeemer", "preview")).toEqual(
-      "d87a80"
+  it("should get the correct maxScooperFee", async () => {
+    const result = await builder.getMaxScooperFeeAmount();
+    expect(result).toEqual(1_000_000n);
+
+    const oldSettingsDatum = Data.from(
+      settingsUtxos[0].datum as string,
+      SettingsDatum
     );
-    expect(TxBuilderLucidV3.getParam("cancelRedeemer", "mainnet")).toEqual(
-      "d87a80"
-    );
-    expect(TxBuilderLucidV3.getParam("maxScooperFee", "preview")).toEqual(
-      1_000_000n
-    );
-    expect(TxBuilderLucidV3.getParam("maxScooperFee", "mainnet")).toEqual(
-      1_000_000n
-    );
+    const newSettingsDatum: TSettingsDatum = {
+      ...oldSettingsDatum,
+      simpleFee: 0n,
+    };
+
+    jest
+      .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
+      .mockResolvedValue([
+        {
+          ...settingsUtxos[0],
+          datum: Data.to(newSettingsDatum, SettingsDatum),
+        },
+        ...settingsUtxos.slice(1),
+      ]);
+
+    const result2 = await builder.getMaxScooperFeeAmount();
+    expect(result2).toEqual(332_000n);
+
+    // Reset scooper fee
+    jest
+      .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
+      .mockResolvedValue(settingsUtxos);
   });
 
   it("should create a new transaction instance correctly", async () => {
@@ -479,13 +508,6 @@ describe("TxBuilderLucidV3", () => {
   });
 
   test("mintPool() should build a transaction correctly when including ADA", async () => {
-    jest
-      .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-      .mockResolvedValue(settingsUtxos);
-    jest
-      .spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos")
-      .mockResolvedValue(referenceUtxos);
-
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
 
@@ -612,13 +634,6 @@ describe("TxBuilderLucidV3", () => {
   });
 
   test("mintPool() should build a transaction correctly when using exotic pairs", async () => {
-    jest
-      .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-      .mockResolvedValue(settingsUtxos);
-    jest
-      .spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos")
-      .mockResolvedValue(referenceUtxos);
-
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
 
@@ -752,13 +767,6 @@ describe("TxBuilderLucidV3", () => {
   });
 
   test("mintPool() should throw an error when the ADA provided is less than the min required", async () => {
-    jest
-      .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-      .mockResolvedValue(settingsUtxos);
-    jest
-      .spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos")
-      .mockResolvedValue(referenceUtxos);
-
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
 
