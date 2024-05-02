@@ -12,9 +12,7 @@ import {
   type TxComplete,
 } from "lucid-cardano";
 
-import {
-  EContractVersion,
-  EDatumType,
+import type {
   ICancelConfigArgs,
   IComposedTx,
   IDepositConfigArgs,
@@ -30,6 +28,7 @@ import {
   TDepositMixed,
   TSupportedNetworks,
 } from "../@types/index.js";
+import { EContractVersion, EDatumType } from "../@types/index.js";
 import { TxBuilder } from "../Abstracts/TxBuilder.abstract.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
@@ -38,6 +37,7 @@ import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
+import { SettingsDatum } from "../DatumBuilders/contracts/contracts.v3.js";
 import { V3Types } from "../DatumBuilders/contracts/index.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
@@ -66,7 +66,6 @@ interface ITxBuilderLucidCompleteTxArgs {
  */
 export interface ITxBuilderV3Params {
   cancelRedeemer: string;
-  maxScooperFee: bigint;
 }
 
 /**
@@ -87,17 +86,6 @@ export class TxBuilderLucidV3 extends TxBuilder {
   static MIN_ADA_POOL_MINT_ERROR =
     "You tried to create a pool with less ADA than is required. Try again with more than 2 ADA.";
 
-  static PARAMS: Record<TSupportedNetworks, ITxBuilderV3Params> = {
-    mainnet: {
-      cancelRedeemer: VOID_REDEEMER,
-      maxScooperFee: 1_000_000n,
-    },
-    preview: {
-      cancelRedeemer: VOID_REDEEMER,
-      maxScooperFee: 1_000_000n,
-    },
-  };
-
   /**
    * @param {Lucid} lucid A configured Lucid instance to use.
    * @param {DatumBuilderLucidV3} datumBuilder A valid V3 DatumBuilder class that will build valid datums.
@@ -111,33 +99,6 @@ export class TxBuilderLucidV3 extends TxBuilder {
     this.network = lucid.network === "Mainnet" ? "mainnet" : "preview";
     this.queryProvider =
       queryProvider ?? new QueryProviderSundaeSwap(this.network);
-
-    // Preemptively fetch protocol parameters.
-    // this.getProtocolParams();
-  }
-
-  /**
-   * Helper method to get a specific parameter of the transaction builder.
-   *
-   * @template K - A generic type parameter that extends the keys of `ITxBuilderV3Params`.
-   * @param {K} param - The name of the parameter to retrieve. Must be a key of `ITxBuilderV3Params`.
-   * @param {TSupportedNetworks} network - The network for which to retrieve the parameter. Determines the set of parameters to use.
-   * @returns {ITxBuilderV3Params[K]} - The value of the requested parameter, with the type corresponding to the key `param`.
-   */
-  static getParam<K extends keyof ITxBuilderV3Params>(
-    param: K,
-    network: TSupportedNetworks
-  ): ITxBuilderV3Params[K] {
-    return TxBuilderLucidV3.PARAMS[network][param];
-  }
-
-  /**
-   * An internal shortcut method to avoid having to pass in the network all the time.
-   *
-   * @param param The parameter you want to retrieve.
-   */
-  public __getParam<K extends keyof ITxBuilderV3Params>(param: K) {
-    return TxBuilderLucidV3.getParam(param, this.network);
   }
 
   /**
@@ -224,6 +185,27 @@ export class TxBuilderLucidV3 extends TxBuilder {
     }
 
     return this.settingsUtxos;
+  }
+
+  /**
+   * Utility function to get the max scooper fee amount, which is defined
+   * in the settings UTXO datum. If no settings UTXO was found, due to a network
+   * error or otherwise, we fallback to 1 ADA.
+   *
+   * @returns {bigint} The maxScooperFee as defined by the settings UTXO.
+   */
+  public async getMaxScooperFeeAmount(): Promise<bigint> {
+    const [settings] = await this.getAllSettingsUtxos();
+    if (!settings) {
+      return 1_000_000n;
+    }
+
+    const { baseFee, simpleFee } = Data.from(
+      settings.datum as string,
+      SettingsDatum
+    );
+
+    return baseFee + simpleFee;
   }
 
   /**
@@ -509,12 +491,12 @@ export class TxBuilderLucidV3 extends TxBuilder {
         minReceived: minReceivable,
         offered: suppliedAsset,
       },
-      scooperFee: this.__getParam("maxScooperFee"),
+      scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: [suppliedAsset],
-      scooperFee: this.__getParam("maxScooperFee"),
+      scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
     txInstance.payToContract(
@@ -581,7 +563,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       },
     ]);
 
-    tx.collectFrom(utxosToSpend, this.__getParam("cancelRedeemer"))
+    tx.collectFrom(utxosToSpend, VOID_REDEEMER)
       .readFrom(cancelReadFrom)
       .addSignerKey(DatumBuilderLucidV3.getSignerKeyFromDatum(orderUtxo.datum));
 
@@ -631,7 +613,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
         offered: suppliedAsset,
         minReceived: minReceivable,
       },
-      scooperFee: this.__getParam("maxScooperFee"),
+      scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
     if (!swapDatum) {
@@ -646,7 +628,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       { inline: swapDatum.inline },
       SundaeUtils.accumulateSuppliedAssets({
         suppliedAssets: [suppliedAsset],
-        scooperFee: this.__getParam("maxScooperFee"),
+        scooperFee: await this.getMaxScooperFeeAmount(),
       })
     );
 
@@ -699,7 +681,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets,
-      scooperFee: this.__getParam("maxScooperFee"),
+      scooperFee: await this.getMaxScooperFeeAmount(),
     });
     const [coinA, coinB] =
       SundaeUtils.sortSwapAssetsWithAmounts(suppliedAssets);
@@ -711,7 +693,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
         assetA: coinA,
         assetB: coinB,
       },
-      scooperFee: this.__getParam("maxScooperFee"),
+      scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
     tx.payToContract(
@@ -747,7 +729,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: [suppliedLPAsset],
-      scooperFee: this.__getParam("maxScooperFee"),
+      scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
     const { inline } = this.datumBuilder.buildWithdrawDatum({
@@ -756,7 +738,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       order: {
         lpToken: suppliedLPAsset,
       },
-      scooperFee: this.__getParam("maxScooperFee"),
+      scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
     tx.payToContract(
@@ -800,7 +782,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: [suppliedAsset],
       // Add another scooper fee requirement since we are executing two orders.
-      scooperFee: this.__getParam("maxScooperFee") * 2n,
+      scooperFee: (await this.getMaxScooperFeeAmount()) * 2n,
     });
 
     /**
@@ -846,7 +828,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
         assetA: depositPair.CoinAAmount,
         assetB: depositPair.CoinBAmount,
       },
-      scooperFee: this.__getParam("maxScooperFee"),
+      scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
     if (!depositData?.hash) {
@@ -885,7 +867,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
         offered: halfSuppliedAmount,
         minReceived: minReceivable,
       },
-      scooperFee: this.__getParam("maxScooperFee"),
+      scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
     tx.attachMetadataWithConversion(103251, {
@@ -908,7 +890,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       tx,
       datum: inline,
       deposit: undefined,
-      scooperFee: this.__getParam("maxScooperFee") * 2n,
+      scooperFee: (await this.getMaxScooperFeeAmount()) * 2n,
       referralFee: referralFee?.payment,
     });
   }
@@ -991,7 +973,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
       scooperFee: new AssetAmount(
-        scooperFee ?? this.__getParam("maxScooperFee"),
+        scooperFee ?? (await this.getMaxScooperFeeAmount()),
         ADA_METADATA
       ),
       referral: referralFee,
