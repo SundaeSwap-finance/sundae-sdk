@@ -12,24 +12,23 @@ import {
   type TxComplete,
 } from "lucid-cardano";
 
-import {
-  EContractVersion,
-  EDatumType,
-  type ICancelConfigArgs,
-  type IComposedTx,
-  type IDepositConfigArgs,
-  type IMintV3PoolConfigArgs,
-  type ISundaeProtocolParamsFull,
-  type ISundaeProtocolReference,
-  type ISundaeProtocolValidatorFull,
-  type ISwapConfigArgs,
-  type ITxBuilderFees,
-  type ITxBuilderReferralFee,
-  type IWithdrawConfigArgs,
-  type IZapConfigArgs,
-  type TDepositMixed,
-  type TSupportedNetworks,
+import type {
+  ICancelConfigArgs,
+  IComposedTx,
+  IDepositConfigArgs,
+  IMintV3PoolConfigArgs,
+  ISundaeProtocolParamsFull,
+  ISundaeProtocolReference,
+  ISundaeProtocolValidatorFull,
+  ISwapConfigArgs,
+  ITxBuilderFees,
+  ITxBuilderReferralFee,
+  IWithdrawConfigArgs,
+  IZapConfigArgs,
+  TDepositMixed,
+  TSupportedNetworks,
 } from "../@types/index.js";
+import { EContractVersion, EDatumType } from "../@types/index.js";
 import { TxBuilder } from "../Abstracts/TxBuilder.abstract.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
@@ -190,16 +189,22 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
   /**
    * Utility function to get the max scooper fee amount, which is defined
-   * in the settings UTXO datum.
+   * in the settings UTXO datum. If no settings UTXO was found, due to a network
+   * error or otherwise, we fallback to 1 ADA.
    *
    * @returns {bigint} The maxScooperFee as defined by the settings UTXO.
    */
   public async getMaxScooperFeeAmount(): Promise<bigint> {
     const [settings] = await this.getAllSettingsUtxos();
+    if (!settings) {
+      return 1_000_000n;
+    }
+
     const { baseFee, simpleFee } = Data.from(
       settings.datum as string,
       SettingsDatum
     );
+
     return baseFee + simpleFee;
   }
 
