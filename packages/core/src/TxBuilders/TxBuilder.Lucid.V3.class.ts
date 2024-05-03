@@ -563,9 +563,14 @@ export class TxBuilderLucidV3 extends TxBuilder {
       },
     ]);
 
-    tx.collectFrom(utxosToSpend, VOID_REDEEMER)
-      .readFrom(cancelReadFrom)
-      .addSignerKey(DatumBuilderLucidV3.getSignerKeyFromDatum(orderUtxo.datum));
+    tx.collectFrom(utxosToSpend, VOID_REDEEMER).readFrom(cancelReadFrom);
+
+    const signerKey = DatumBuilderLucidV3.getSignerKeyFromDatum(
+      orderUtxo.datum
+    );
+    if (signerKey) {
+      tx.addSignerKey(signerKey);
+    }
 
     return this.completeTx({
       tx,

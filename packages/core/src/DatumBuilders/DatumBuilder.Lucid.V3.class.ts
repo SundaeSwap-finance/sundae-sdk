@@ -592,10 +592,23 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
    * @returns {string} The signing key associated with the owner, extracted from the datum. This key is used
    *          for transaction validation and authorization purposes.
    */
-  static getSignerKeyFromDatum(datum: string) {
+  static getSignerKeyFromDatum(datum: string): string | undefined {
     const { owner } = Data.from(datum, V3Types.OrderDatum);
 
-    // @ts-ignore
-    return owner as string;
+    if (
+      typeof (owner as V3Types.TSignatureSchema)?.Address === "object" &&
+      typeof (owner as V3Types.TSignatureSchema).Address.hex === "string"
+    ) {
+      return (owner as V3Types.TSignatureSchema).Address.hex;
+    }
+
+    if (
+      typeof (owner as V3Types.TScriptSchema)?.Script === "object" &&
+      typeof (owner as V3Types.TScriptSchema).Script.hex === "string"
+    ) {
+      return (owner as V3Types.TScriptSchema).Script.hex;
+    }
+
+    return undefined;
   }
 }

@@ -15,6 +15,7 @@ import { PREVIEW_DATA, setupLucid } from "../../exports/testing.js";
 import { TxBuilderLucidV3 } from "../TxBuilder.Lucid.V3.class.js";
 import {
   mockBlockfrostEvaluateResponse,
+  mockOrderToCancel,
   params,
   referenceUtxos,
   settingsUtxos,
@@ -59,7 +60,7 @@ const getPaymentAddressFromOutput = (output: C.TransactionOutput) => {
   return paymentAddress;
 };
 
-setupLucid((lucid) => {
+const { getUtxosByOutRefMock } = setupLucid((lucid) => {
   datumBuilder = new DatumBuilderLucidV3("preview");
   builder = new TxBuilderLucidV3(lucid, datumBuilder);
 });
@@ -177,6 +178,41 @@ describe("TxBuilderLucidV3", () => {
     });
 
     expect(referralAddressOutput3).toBeUndefined();
+  });
+
+  it("should allow you to cancel an order", async () => {
+    getUtxosByOutRefMock.mockResolvedValue([
+      ...mockOrderToCancel,
+      ...referenceUtxos,
+    ]);
+    const spiedGetSignerKeyFromDatum = jest.spyOn(
+      DatumBuilderLucidV3,
+      "getSignerKeyFromDatum"
+    );
+
+    const { build, datum, fees } = await builder.cancel({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      utxo: {
+        hash: "b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c",
+        index: 0,
+      },
+    });
+
+    expect(spiedGetSignerKeyFromDatum).toHaveBeenCalledTimes(1);
+    expect(spiedGetSignerKeyFromDatum).toHaveReturnedWith(
+      "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0"
+    );
+
+    expect(fees.deposit.amount).toEqual(0n);
+    expect(fees.scooperFee.amount).toEqual(0n);
+    expect(fees.referral).toBeUndefined();
+    expect(fees.cardanoTxFee).toBeUndefined();
+
+    const { cbor } = await build();
+    expect(cbor).toEqual(
+      "84a90089825820b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c00825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394700825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394701825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394702825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f243947038258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828008258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828018258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b82802825820fda5c685eaff5fbb2a7ecb250389fd24a7216128929a9da0ad95b72b586fab7001018282583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0821a0012050ca1581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a1465242455252591b000221b262dd800082583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01b000000ec96799e71021a000377790b5820410d50a9bae4e34ef5d946757ab33869427e57096fa4839d8fb562d302370c2d0d81825820fda5c685eaff5fbb2a7ecb250389fd24a7216128929a9da0ad95b72b586fab70010e81581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01082583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01b00000003beb1bdfb111a000533361288825820b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c00825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394700825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394701825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394702825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f243947038258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828008258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828018258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b82802a10581840007d87a80821a0001bb671a025f4882f5f6"
+    );
+    expect(fees.cardanoTxFee?.amount).toEqual(227193n);
   });
 
   test("swap()", async () => {
@@ -783,6 +819,8 @@ describe("TxBuilderLucidV3", () => {
         TxBuilderLucidV3.MIN_ADA_POOL_MINT_ERROR
       );
     }
+
+    fetchMock.disableMocks();
   });
 
   it("should fail when trying to mint a pool with decaying values", async () => {

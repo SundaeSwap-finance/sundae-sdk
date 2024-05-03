@@ -280,3 +280,18 @@ export const mockBlockfrostEvaluateResponse = {
     id: "5416a850-b573-4422-9bef-fb48ff5afb22",
   },
 };
+
+export const mockOrderToCancel: UTxO[] = [
+  {
+    address:
+      "addr_test1zpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92sjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngqm78cm4",
+    assets: {
+      lovelace: 28_000_000n,
+    },
+    outputIndex: 0,
+    txHash: "b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c",
+    datum:
+      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a017d7840ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a00465cbbffff43d87980ff",
+    scriptRef: null,
+  },
+];

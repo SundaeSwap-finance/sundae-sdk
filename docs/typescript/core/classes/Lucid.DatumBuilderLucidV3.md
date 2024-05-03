@@ -308,7 +308,7 @@ ___
 
 ### getSignerKeyFromDatum
 
-▸ **getSignerKeyFromDatum**(`datum`): `string`
+▸ **getSignerKeyFromDatum**(`datum`): `undefined` \| `string`
 
 Retrieves the owner's signing key from a given datum. This static method parses the provided
 datum to extract the owner's information, specifically focusing on the signing key associated
@@ -324,7 +324,7 @@ ensuring compatibility with specific transaction formats.
 
 #### Returns
 
-`string`
+`undefined` \| `string`
 
 The signing key associated with the owner, extracted from the datum. This key is used
          for transaction validation and authorization purposes.
