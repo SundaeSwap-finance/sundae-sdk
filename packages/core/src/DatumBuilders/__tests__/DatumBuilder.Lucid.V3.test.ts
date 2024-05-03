@@ -19,6 +19,7 @@ import { LucidHelper } from "../../exports/lucid.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { ADA_METADATA } from "../../exports/utilities.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilder.Lucid.V3.class.js";
+import { TSignatureSchema } from "../contracts/contracts.v3.js";
 
 let builderInstance: DatumBuilderLucidV3;
 
@@ -224,9 +225,11 @@ describe("buildOwnerDatum()", () => {
     expect(result.hash).toEqual(
       "eacbeb744f70afc638bd8e610fc8c91d5761da59ace673aeb3cb23a3f9fb5eab"
     );
-    expect(result.schema.owner).toEqual(
-      "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0"
-    );
+    expect(result.schema).toMatchObject<TSignatureSchema>({
+      Address: {
+        hex: "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0",
+      },
+    });
   });
 });
 

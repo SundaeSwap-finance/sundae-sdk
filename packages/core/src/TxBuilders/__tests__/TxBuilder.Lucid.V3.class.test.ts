@@ -15,6 +15,7 @@ import { PREVIEW_DATA, setupLucid } from "../../exports/testing.js";
 import { TxBuilderLucidV3 } from "../TxBuilder.Lucid.V3.class.js";
 import {
   mockBlockfrostEvaluateResponse,
+  mockOrderToCancel,
   params,
   referenceUtxos,
   settingsUtxos,
@@ -59,7 +60,7 @@ const getPaymentAddressFromOutput = (output: C.TransactionOutput) => {
   return paymentAddress;
 };
 
-setupLucid((lucid) => {
+const { getUtxosByOutRefMock } = setupLucid((lucid) => {
   datumBuilder = new DatumBuilderLucidV3("preview");
   builder = new TxBuilderLucidV3(lucid, datumBuilder);
 });
@@ -76,7 +77,7 @@ describe("TxBuilderLucidV3", () => {
 
   it("should get the correct maxScooperFee", async () => {
     const result = await builder.getMaxScooperFeeAmount();
-    expect(result).toEqual(1_000_000n);
+    expect(result.toString()).toEqual("500000");
 
     const oldSettingsDatum = Data.from(
       settingsUtxos[0].datum as string,
@@ -98,7 +99,7 @@ describe("TxBuilderLucidV3", () => {
       ]);
 
     const result2 = await builder.getMaxScooperFeeAmount();
-    expect(result2).toEqual(332_000n);
+    expect(result2.toString()).toEqual("332000");
 
     // Reset scooper fee
     jest
@@ -179,6 +180,41 @@ describe("TxBuilderLucidV3", () => {
     expect(referralAddressOutput3).toBeUndefined();
   });
 
+  it("should allow you to cancel an order", async () => {
+    getUtxosByOutRefMock.mockResolvedValue([
+      ...mockOrderToCancel,
+      ...referenceUtxos,
+    ]);
+    const spiedGetSignerKeyFromDatum = jest.spyOn(
+      DatumBuilderLucidV3,
+      "getSignerKeyFromDatum"
+    );
+
+    const { build, datum, fees } = await builder.cancel({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      utxo: {
+        hash: "b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c",
+        index: 0,
+      },
+    });
+
+    expect(spiedGetSignerKeyFromDatum).toHaveBeenCalledTimes(1);
+    expect(spiedGetSignerKeyFromDatum).toHaveReturnedWith(
+      "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0"
+    );
+
+    expect(fees.deposit.amount).toEqual(0n);
+    expect(fees.scooperFee.amount).toEqual(0n);
+    expect(fees.referral).toBeUndefined();
+    expect(fees.cardanoTxFee).toBeUndefined();
+
+    const { cbor } = await build();
+    expect(cbor).toEqual(
+      "84a90089825820b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c00825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394700825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394701825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394702825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f243947038258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828008258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828018258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b82802825820fda5c685eaff5fbb2a7ecb250389fd24a7216128929a9da0ad95b72b586fab7001018282583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0821a0012050ca1581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a1465242455252591b000221b262dd800082583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01b000000ec96799e71021a000377790b5820410d50a9bae4e34ef5d946757ab33869427e57096fa4839d8fb562d302370c2d0d81825820fda5c685eaff5fbb2a7ecb250389fd24a7216128929a9da0ad95b72b586fab70010e81581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01082583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01b00000003beb1bdfb111a000533361288825820b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c00825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394700825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394701825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394702825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f243947038258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828008258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828018258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b82802a10581840007d87a80821a0001bb671a025f4882f5f6"
+    );
+    expect(fees.cardanoTxFee?.amount).toEqual(227193n);
+  });
+
   test("swap()", async () => {
     const spiedNewTx = jest.spyOn(builder, "newTxInstance");
     const spiedBuildSwapDatum = jest.spyOn(datumBuilder, "buildSwapDatum");
@@ -218,7 +254,7 @@ describe("TxBuilderLucidV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a010cd3b9ffff43d87980ff"
+      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a010cd3b9ffff43d87980ff"
     );
     expect(fees).toMatchObject<ITxBuilderFees>({
       deposit: expect.objectContaining({
@@ -226,7 +262,7 @@ describe("TxBuilderLucidV3", () => {
         metadata: ADA_METADATA,
       }),
       scooperFee: expect.objectContaining({
-        amount: 1_000_000n,
+        amount: 500_000n,
         metadata: ADA_METADATA,
       }),
     });
@@ -242,8 +278,8 @@ describe("TxBuilderLucidV3", () => {
         if (
           getPaymentAddressFromOutput(output) ===
             "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
-          // Supplied asset (20) + deposit (2) + scooper fee (1) = 23
-          output.amount().coin().to_str() === "23000000"
+          // Supplied asset (20) + deposit (2) + scooper fee (.5) = 22.5
+          output.amount().coin().to_str() === "22500000"
         ) {
           depositOutput = output;
         }
@@ -328,7 +364,7 @@ describe("TxBuilderLucidV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87b9f9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ffffff43d87980ff"
+      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87b9f9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ffffff43d87980ff"
     );
     expect(fees).toMatchObject<ITxBuilderFees>({
       deposit: expect.objectContaining({
@@ -336,7 +372,7 @@ describe("TxBuilderLucidV3", () => {
         metadata: ADA_METADATA,
       }),
       scooperFee: expect.objectContaining({
-        amount: 1_000_000n,
+        amount: 500_000n,
         metadata: ADA_METADATA,
       }),
     });
@@ -351,8 +387,8 @@ describe("TxBuilderLucidV3", () => {
         if (
           getPaymentAddressFromOutput(output) ===
             "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
-          // Supplied asset (20) + deposit (2) + scooper fee (1) = 23
-          output.amount().coin().to_str() === "23000000" &&
+          // Supplied asset (20) + deposit (2) + scooper fee (.5) = 22.5
+          output.amount().coin().to_str() === "22500000" &&
           output.amount().multiasset() &&
           output.amount().multiasset()?.to_js_value()[
             "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183"
@@ -434,7 +470,7 @@ describe("TxBuilderLucidV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87c9f9f581c633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d928958200014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e21a05f5e100ffff43d87980ff"
+      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87c9f9f581c633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d928958200014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e21a05f5e100ffff43d87980ff"
     );
     expect(fees).toMatchObject<ITxBuilderFees>({
       deposit: expect.objectContaining({
@@ -442,7 +478,7 @@ describe("TxBuilderLucidV3", () => {
         metadata: ADA_METADATA,
       }),
       scooperFee: expect.objectContaining({
-        amount: 1_000_000n,
+        amount: 500_000n,
         metadata: ADA_METADATA,
       }),
     });
@@ -457,8 +493,8 @@ describe("TxBuilderLucidV3", () => {
         if (
           getPaymentAddressFromOutput(output) ===
             "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
-          // deposit (2) + scooper fee (1) = 3
-          output.amount().coin().to_str() === "3000000" &&
+          // deposit (2) + scooper fee (.5) = 2.5
+          output.amount().coin().to_str() === "2500000" &&
           output.amount().multiasset() &&
           output.amount().multiasset()?.to_js_value()[
             PREVIEW_DATA.assets.v3LpToken.metadata.assetId.split(".")[0]
@@ -526,18 +562,11 @@ describe("TxBuilderLucidV3", () => {
 
     const { builtTx } = await build();
 
-    const mintingDatum = builtTx.txComplete.witness_set().plutus_data()?.get(0);
     const poolBalanceDatum = builtTx.txComplete
       .witness_set()
       .redeemers()
       ?.get(0);
-    expect(mintingDatum).not.toBeUndefined();
     expect(poolBalanceDatum).not.toBeUndefined();
-    expect(
-      Buffer.from(mintingDatum?.to_bytes() as Uint8Array).toString("hex")
-    ).toEqual(
-      "d8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ffd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ff9f010affd8799f9f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b581cb1d4b4ab243033062144fe0203e88f0110ebf3f5bcb48d3a72f304e7581c9710db5182cf46c20ccaad5f1493a2e8e2543a5e51bb7fe1a5da082e581c7b6ffb5623865a4b4c624191aaf58cd9027007590e2c4eea11958e6b581c4a45875de978e14f5e6da323cea33d4f3dc8af113ce13e8a72a03288ffff9fd8799f581c2b8d75e72875efc8dd8ee3f17b3a96b8ff3b07ce6d84dc29d2517e08ffff1a000510e01a000a31601a000f42400000ff"
-    );
     expect(
       Buffer.from(poolBalanceDatum?.to_bytes() as Uint8Array).toString("hex")
     ).toEqual(
@@ -588,7 +617,7 @@ describe("TxBuilderLucidV3", () => {
     const metadataOutput = builtTx.txComplete.body().outputs().get(1);
     expect(
       Buffer.from(metadataOutput.address().to_bytes()).toString("hex")
-    ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
+    ).toEqual("601854e9028a89496e9772a54882729d16554f8ed9af27ec6046c9a87c");
     const metadataDepositAssets = metadataOutput
       .amount()
       .multiasset()
@@ -655,18 +684,11 @@ describe("TxBuilderLucidV3", () => {
 
     const { builtTx } = await build();
 
-    const mintingDatum = builtTx.txComplete.witness_set().plutus_data()?.get(0);
     const poolBalanceDatum = builtTx.txComplete
       .witness_set()
       .redeemers()
       ?.get(0);
-    expect(mintingDatum).not.toBeUndefined();
     expect(poolBalanceDatum).not.toBeUndefined();
-    expect(
-      Buffer.from(mintingDatum?.to_bytes() as Uint8Array).toString("hex")
-    ).toEqual(
-      "d8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ffd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ff9f010affd8799f9f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b581cb1d4b4ab243033062144fe0203e88f0110ebf3f5bcb48d3a72f304e7581c9710db5182cf46c20ccaad5f1493a2e8e2543a5e51bb7fe1a5da082e581c7b6ffb5623865a4b4c624191aaf58cd9027007590e2c4eea11958e6b581c4a45875de978e14f5e6da323cea33d4f3dc8af113ce13e8a72a03288ffff9fd8799f581c2b8d75e72875efc8dd8ee3f17b3a96b8ff3b07ce6d84dc29d2517e08ffff1a000510e01a000a31601a000f42400000ff"
-    );
     expect(
       Buffer.from(poolBalanceDatum?.to_bytes() as Uint8Array).toString("hex")
     ).toEqual(
@@ -721,7 +743,7 @@ describe("TxBuilderLucidV3", () => {
     const metadataOutput = builtTx.txComplete.body().outputs().get(1);
     expect(
       Buffer.from(metadataOutput.address().to_bytes()).toString("hex")
-    ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
+    ).toEqual("601854e9028a89496e9772a54882729d16554f8ed9af27ec6046c9a87c");
     const metadataDepositAssets = metadataOutput
       .amount()
       .multiasset()
@@ -783,6 +805,8 @@ describe("TxBuilderLucidV3", () => {
         TxBuilderLucidV3.MIN_ADA_POOL_MINT_ERROR
       );
     }
+
+    fetchMock.disableMocks();
   });
 
   it("should fail when trying to mint a pool with decaying values", async () => {

@@ -1,9 +1,80 @@
 import { Data } from "lucid-cardano";
 
-// Needs to be updated later to allow full variant
-export const MultiSigScriptSchema = Data.Object({
-  owner: Data.Bytes(),
+export const SignatureSchema = Data.Object({
+  Address: Data.Object({
+    hex: Data.Bytes(),
+  }),
 });
+
+export type TSignatureSchema = Data.Static<typeof SignatureSchema>;
+export const Signature = SignatureSchema as unknown as TSignatureSchema;
+
+export const AllOfSchema = Data.Object({
+  AllOf: Data.Object({
+    scripts: Data.Any(),
+  }),
+});
+
+export type TAllOfSchema = Data.Static<typeof AllOfSchema>;
+export const AllOf = AllOfSchema as unknown as TAllOfSchema;
+
+export const AnyOfSchema = Data.Object({
+  AnyOf: Data.Object({
+    scripts: Data.Any(),
+  }),
+});
+
+export type TAnyOfSchema = Data.Static<typeof AnyOfSchema>;
+export const AnyOf = AnyOfSchema as unknown as TAnyOfSchema;
+
+export const AtLeastSchema = Data.Object({
+  AtLeast: Data.Object({
+    required: Data.Integer(),
+    scripts: Data.Any(),
+  }),
+});
+
+export type TAtLeastSchema = Data.Static<typeof AtLeastSchema>;
+export const AtLeast = AtLeastSchema as unknown as TAtLeastSchema;
+
+export const BeforeSchema = Data.Object({
+  Before: Data.Object({
+    posix: Data.Integer(),
+  }),
+});
+
+export type TBeforeSchema = Data.Static<typeof BeforeSchema>;
+export const Before = BeforeSchema as unknown as TBeforeSchema;
+
+export const AfterSchema = Data.Object({
+  After: Data.Object({
+    posix: Data.Integer(),
+  }),
+});
+
+export type TAfterSchema = Data.Static<typeof AfterSchema>;
+export const After = AfterSchema as unknown as TAfterSchema;
+
+export const ScriptSchema = Data.Object({
+  Script: Data.Object({
+    hex: Data.Bytes(),
+  }),
+});
+
+export type TScriptSchema = Data.Static<typeof ScriptSchema>;
+export const Script = ScriptSchema as unknown as TScriptSchema;
+
+// Needs to be updated later to allow full variant
+export const MultiSigScriptSchema = Data.Enum([
+  SignatureSchema,
+  AllOfSchema,
+  AnyOfSchema,
+  AtLeastSchema,
+  BeforeSchema,
+  AfterSchema,
+  ScriptSchema,
+]);
+
 export type TMultiSigScript = Data.Static<typeof MultiSigScriptSchema>;
 export const MultiSigScript =
   MultiSigScriptSchema as unknown as TMultiSigScript;
