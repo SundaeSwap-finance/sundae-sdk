@@ -174,10 +174,8 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
           ],
         },
       },
-      owner: ownerAddress
-        ? { owner: ownerAddress }
-        : this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
-            .schema,
+      owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
+        .schema,
       poolIdent: this.buildPoolIdent(ident),
       scooperFee,
       extension: Data.void(),
@@ -407,7 +405,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     const { stakeCredentials, paymentCredentials } =
       LucidHelper.getAddressHashes(main);
     const ownerDatum: V3Types.TMultiSigScript = {
-      owner: stakeCredentials || paymentCredentials,
+      Address: { hex: stakeCredentials || paymentCredentials },
     };
 
     const inline = Data.to(ownerDatum, V3Types.MultiSigScript);
@@ -595,10 +593,9 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
    *          for transaction validation and authorization purposes.
    */
   static getSignerKeyFromDatum(datum: string) {
-    const {
-      owner: { owner },
-    } = Data.from(datum, V3Types.OrderDatum);
+    const { owner } = Data.from(datum, V3Types.OrderDatum);
 
-    return owner;
+    // @ts-ignore
+    return owner as string;
   }
 }

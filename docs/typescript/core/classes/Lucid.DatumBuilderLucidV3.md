@@ -38,7 +38,7 @@ The error to throw when the pool ident does not match V1 constraints.
 
 ### buildDepositDatum
 
-▸ **buildDepositDatum**(`args`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `owner`: `string`  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
+▸ **buildDepositDatum**(`args`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `Address`: \{ `hex`: `string`  }  } \| \{ `AllOf`: \{ `data`: `Data`  }  } \| \{ `AnyOf`: \{ `data`: `Data`  }  } \| \{ `AtLeast`: \{ `data`: `Data`  }  } \| \{ `Before`: \{ `posix`: `bigint`  }  } \| \{ `After`: \{ `posix`: `bigint`  }  } \| \{ `Script`: \{ `hex`: `string`  }  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
 
 Constructs a deposit datum object for V3 deposits, based on the specified arguments. This function
 creates a comprehensive deposit datum structure, which includes the destination address, the pool ident,
@@ -56,7 +56,7 @@ within a transactional framework.
 
 #### Returns
 
-[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `owner`: `string`  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
+[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `Address`: \{ `hex`: `string`  }  } \| \{ `AllOf`: \{ `data`: `Data`  }  } \| \{ `AnyOf`: \{ `data`: `Data`  }  } \| \{ `AtLeast`: \{ `data`: `Data`  }  } \| \{ `Before`: \{ `posix`: `bigint`  }  } \| \{ `After`: \{ `posix`: `bigint`  }  } \| \{ `Script`: \{ `hex`: `string`  }  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
 
 An object comprising the hash of the inline datum, the inline datum itself,
                                              and the schema of the original deposit datum, essential for the execution of the deposit operation.
@@ -69,7 +69,7 @@ ___
 
 ### buildMintPoolDatum
 
-▸ **buildMintPoolDatum**(`params`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `askFeePer10Thousand`: [`bigint`, `bigint`] ; `assets`: [[`string`, `string`], [`string`, `string`]] ; `bidFeePer10Thousand`: [`bigint`, `bigint`] ; `circulatingLp`: `bigint` ; `feeFinalized`: `bigint` ; `feeManager`: ``null`` \| \{ `owner`: `string`  } ; `identifier`: `string` ; `marketOpen`: `bigint` ; `protocolFee`: `bigint`  }\>
+▸ **buildMintPoolDatum**(`params`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `askFeePer10Thousand`: [`bigint`, `bigint`] ; `assets`: [[`string`, `string`], [`string`, `string`]] ; `bidFeePer10Thousand`: [`bigint`, `bigint`] ; `circulatingLp`: `bigint` ; `feeFinalized`: `bigint` ; `feeManager`: ``null`` \| \{ `Address`: \{ `hex`: `string`  }  } \| \{ `AllOf`: \{ `data`: `Data`  }  } \| \{ `AnyOf`: \{ `data`: `Data`  }  } \| \{ `AtLeast`: \{ `data`: `Data`  }  } \| \{ `Before`: \{ `posix`: `bigint`  }  } \| \{ `After`: \{ `posix`: `bigint`  }  } \| \{ `Script`: \{ `hex`: `string`  }  } ; `identifier`: `string` ; `marketOpen`: `bigint` ; `protocolFee`: `bigint`  }\>
 
 Creates a new pool datum for minting a the pool. This is attached to the assets that are sent
 to the pool minting contract. See [Lucid.TxBuilderLucidV3](Lucid.TxBuilderLucidV3.md) for more details.
@@ -82,7 +82,7 @@ to the pool minting contract. See [Lucid.TxBuilderLucidV3](Lucid.TxBuilderLucidV
 
 #### Returns
 
-[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `askFeePer10Thousand`: [`bigint`, `bigint`] ; `assets`: [[`string`, `string`], [`string`, `string`]] ; `bidFeePer10Thousand`: [`bigint`, `bigint`] ; `circulatingLp`: `bigint` ; `feeFinalized`: `bigint` ; `feeManager`: ``null`` \| \{ `owner`: `string`  } ; `identifier`: `string` ; `marketOpen`: `bigint` ; `protocolFee`: `bigint`  }\>
+[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `askFeePer10Thousand`: [`bigint`, `bigint`] ; `assets`: [[`string`, `string`], [`string`, `string`]] ; `bidFeePer10Thousand`: [`bigint`, `bigint`] ; `circulatingLp`: `bigint` ; `feeFinalized`: `bigint` ; `feeManager`: ``null`` \| \{ `Address`: \{ `hex`: `string`  }  } \| \{ `AllOf`: \{ `data`: `Data`  }  } \| \{ `AnyOf`: \{ `data`: `Data`  }  } \| \{ `AtLeast`: \{ `data`: `Data`  }  } \| \{ `Before`: \{ `posix`: `bigint`  }  } \| \{ `After`: \{ `posix`: `bigint`  }  } \| \{ `Script`: \{ `hex`: `string`  }  } ; `identifier`: `string` ; `marketOpen`: `bigint` ; `protocolFee`: `bigint`  }\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                                              and the schema of the original pool mint datum, crucial for the execution
@@ -90,7 +90,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:254](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L254)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:252](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L252)
 
 ___
 
@@ -118,13 +118,13 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:304](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L304)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:302](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L302)
 
 ___
 
 ### buildSwapDatum
 
-▸ **buildSwapDatum**(`args`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `owner`: `string`  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
+▸ **buildSwapDatum**(`args`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `Address`: \{ `hex`: `string`  }  } \| \{ `AllOf`: \{ `data`: `Data`  }  } \| \{ `AnyOf`: \{ `data`: `Data`  }  } \| \{ `AtLeast`: \{ `data`: `Data`  }  } \| \{ `Before`: \{ `posix`: `bigint`  }  } \| \{ `After`: \{ `posix`: `bigint`  }  } \| \{ `Script`: \{ `hex`: `string`  }  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
 
 Constructs a swap datum object tailored for V3 swaps, based on the provided arguments. This function
 assembles a detailed swap datum structure, which includes the pool ident, destination address, owner information,
@@ -141,7 +141,7 @@ datum schema, facilitating the swap operation within a transactional context.
 
 #### Returns
 
-[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `owner`: `string`  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
+[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `Address`: \{ `hex`: `string`  }  } \| \{ `AllOf`: \{ `data`: `Data`  }  } \| \{ `AnyOf`: \{ `data`: `Data`  }  } \| \{ `AtLeast`: \{ `data`: `Data`  }  } \| \{ `Before`: \{ `posix`: `bigint`  }  } \| \{ `After`: \{ `posix`: `bigint`  }  } \| \{ `Script`: \{ `hex`: `string`  }  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                                              and the schema of the original swap datum, essential for the execution of the swap operation.
@@ -154,7 +154,7 @@ ___
 
 ### buildWithdrawDatum
 
-▸ **buildWithdrawDatum**(`args`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `owner`: `string`  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
+▸ **buildWithdrawDatum**(`args`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `Address`: \{ `hex`: `string`  }  } \| \{ `AllOf`: \{ `data`: `Data`  }  } \| \{ `AnyOf`: \{ `data`: `Data`  }  } \| \{ `AtLeast`: \{ `data`: `Data`  }  } \| \{ `Before`: \{ `posix`: `bigint`  }  } \| \{ `After`: \{ `posix`: `bigint`  }  } \| \{ `Script`: \{ `hex`: `string`  }  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
 
 Creates a withdraw datum object for V3 withdrawals, utilizing the provided arguments. This function
 assembles a detailed withdraw datum structure, which encompasses the destination address, pool ident,
@@ -172,14 +172,14 @@ datum, facilitating the withdrawal operation within a transactional context.
 
 #### Returns
 
-[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `owner`: `string`  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
+[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `destination`: \{ `address`: \{ `paymentCredential`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  } ; `stakeCredential`: ``null`` \| \{ `keyHash`: \{ `VKeyCredential`: \{ `bytes`: `string`  }  } \| \{ `SCredential`: \{ `bytes`: `string`  }  }  }  } ; `datum`: ``"NoDatum"`` \| \{ `DatumHash`: [`string`]  } \| \{ `InlineDatum`: [`Data`]  }  } ; `extension`: `Data` ; `order`: \{ `Strategies`: ``null`` \| ``"TODO"``  } \| \{ `Swap`: \{ `minReceived`: [`string`, `string`, `bigint`] ; `offer`: [`string`, `string`, `bigint`]  }  } \| \{ `Deposit`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } \| \{ `Withdrawal`: \{ `amount`: [`string`, `string`, `bigint`]  }  } \| \{ `Donation`: \{ `assets`: [[`string`, `string`, `bigint`], [`string`, `string`, `bigint`]]  }  } ; `owner`: \{ `Address`: \{ `hex`: `string`  }  } \| \{ `AllOf`: \{ `data`: `Data`  }  } \| \{ `AnyOf`: \{ `data`: `Data`  }  } \| \{ `AtLeast`: \{ `data`: `Data`  }  } \| \{ `Before`: \{ `posix`: `bigint`  }  } \| \{ `After`: \{ `posix`: `bigint`  }  } \| \{ `Script`: \{ `hex`: `string`  }  } ; `poolIdent`: ``null`` \| `string` ; `scooperFee`: `bigint`  }\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                                              and the schema of the original withdraw datum, crucial for the execution of the withdrawal operation.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:207](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L207)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:205](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L205)
 
 ___
 
@@ -201,7 +201,7 @@ Computes the pool ID based on the provided UTxO being spent.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:527](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L527)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:525](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L525)
 
 ___
 
@@ -223,7 +223,7 @@ Computes the pool liquidity name.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:503](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L503)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:501](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L501)
 
 ___
 
@@ -245,7 +245,7 @@ Computes the pool NFT name.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:491](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L491)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:489](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L489)
 
 ___
 
@@ -267,7 +267,7 @@ Computes the pool reference name.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:515](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L515)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:513](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L513)
 
 ___
 
@@ -302,7 +302,7 @@ An object containing the staking and
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:558](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L558)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:556](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L556)
 
 ___
 
@@ -331,4 +331,4 @@ The signing key associated with the owner, extracted from the datum. This key is
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:597](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L597)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts:595](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V3.class.ts#L595)
