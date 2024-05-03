@@ -11,7 +11,7 @@ export const Signature = SignatureSchema as unknown as TSignatureSchema;
 
 export const AllOfSchema = Data.Object({
   AllOf: Data.Object({
-    data: Data.Any(),
+    scripts: Data.Any(),
   }),
 });
 
@@ -20,7 +20,7 @@ export const AllOf = AllOfSchema as unknown as TAllOfSchema;
 
 export const AnyOfSchema = Data.Object({
   AnyOf: Data.Object({
-    data: Data.Any(),
+    scripts: Data.Any(),
   }),
 });
 
@@ -29,7 +29,8 @@ export const AnyOf = AnyOfSchema as unknown as TAnyOfSchema;
 
 export const AtLeastSchema = Data.Object({
   AtLeast: Data.Object({
-    data: Data.Any(),
+    required: Data.Integer(),
+    scripts: Data.Any(),
   }),
 });
 

@@ -378,15 +378,35 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const {
       metadataAdmin: { paymentCredential },
     } = Data.from(settings[0].datum as string, V3Types.SettingsDatum);
-    const metadataAddress = C.EnterpriseAddress.new(
-      this.network === "preview" ? 0 : 1,
-      C.StakeCredential.from_keyhash(
-        // @ts-ignore
-        C.Ed25519KeyHash.from_hex(paymentCredential.VKeyCredential.bytes)
+
+    let metadataAddress: string;
+    if ((paymentCredential as V3Types.TVKeyCredential)?.VKeyCredential) {
+      metadataAddress = C.EnterpriseAddress.new(
+        this.network === "preview" ? 0 : 1,
+        C.StakeCredential.from_keyhash(
+          C.Ed25519KeyHash.from_hex(
+            (paymentCredential as V3Types.TVKeyCredential).VKeyCredential.bytes
+          )
+        )
       )
-    )
-      .to_address()
-      .to_bech32(this.network === "preview" ? "addr_test" : "addr");
+        .to_address()
+        .to_bech32(this.network === "preview" ? "addr_test" : "addr");
+    } else if ((paymentCredential as V3Types.TSCredential)?.SCredential) {
+      metadataAddress = C.EnterpriseAddress.new(
+        this.network === "preview" ? 0 : 1,
+        C.StakeCredential.from_keyhash(
+          C.Ed25519KeyHash.from_hex(
+            (paymentCredential as V3Types.TSCredential).SCredential.bytes
+          )
+        )
+      )
+        .to_address()
+        .to_bech32(this.network === "preview" ? "addr_test" : "addr");
+    } else {
+      throw new Error(
+        "Could not derive metadata address from the settings UTXO. Please try again."
+      );
+    }
 
     let sundaeStakeAddress: string | undefined;
     const { blueprint } = await this.getProtocolParams();
