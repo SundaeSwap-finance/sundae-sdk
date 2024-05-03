@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/core",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "The official SundaeSwap protocol SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {
