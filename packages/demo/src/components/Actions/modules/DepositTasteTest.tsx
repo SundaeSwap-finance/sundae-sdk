@@ -1,5 +1,5 @@
 import { AssetAmount } from "@sundaeswap/asset";
-import { TasteTestLucid } from "@sundaeswap/taste-test";
+import { EScriptType, TasteTestLucid } from "@sundaeswap/taste-test";
 import { FC, useCallback, useState } from "react";
 
 import { useAppState } from "../../../state/context";
@@ -34,16 +34,29 @@ export const DepositTasteTest: FC<IActionArgs> = ({
           assetAmount: new AssetAmount(1000000n, 6),
           scripts: {
             policy: {
-              txHash:
-                "0d88fdba9d3fa1182177c8907d8dc23a7cc0f111d402c12016e36017b6f16fb9",
-              outputIndex: 0,
+              type: EScriptType.OUTREF,
+              value: {
+                hash: "",
+                outRef: {
+                  txHash:
+                    "0d88fdba9d3fa1182177c8907d8dc23a7cc0f111d402c12016e36017b6f16fb9",
+                  outputIndex: 0,
+                },
+              },
             },
             validator: {
-              txHash:
-                "e9eeb2da7a528faffb20e195d15f67ae23a7a56498edcf47c41aee388cadc374",
-              outputIndex: 0,
+              type: EScriptType.OUTREF,
+              value: {
+                hash: "",
+                outRef: {
+                  txHash:
+                    "e9eeb2da7a528faffb20e195d15f67ae23a7a56498edcf47c41aee388cadc374",
+                  outputIndex: 0,
+                },
+              },
             },
           },
+          validatorAddress: "",
           ...(useReferral
             ? {
                 referralFee: {
