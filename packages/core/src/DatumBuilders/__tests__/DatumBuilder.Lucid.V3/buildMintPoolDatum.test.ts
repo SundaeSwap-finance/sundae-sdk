@@ -11,8 +11,7 @@ let builderInstance: DatumBuilderLucidV3;
 const defaultArgs: IDatumBuilderMintPoolV3Args = {
   assetA: PREVIEW_DATA.assets.tada,
   assetB: PREVIEW_DATA.assets.tindy,
-  feeDecay: [5n, 10n],
-  feeDecayEnd: 5n,
+  fee: 5n,
   marketOpen: 123n,
   depositFee: 2_000_000n,
   seedUtxo: {
@@ -58,7 +57,7 @@ describe("builderMintPoolDatum()", () => {
     expect(spiedOnComputePoolId).toHaveNthReturnedWith(1, expectedIdent);
     expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(1);
     expect(inline).toEqual(
-      "d8799f581c82f70fd1663b2b6f4250d6054fe4cac8c815d9eef8b38f68bbe22c929f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d009f050aff9f050affd87a80187b051a001e8480ff"
+      "d8799f581c82f70fd1663b2b6f4250d6054fe4cac8c815d9eef8b38f68bbe22c929f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80187b1a001e8480ff"
     );
   });
 });

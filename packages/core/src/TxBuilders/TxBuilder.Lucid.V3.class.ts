@@ -85,6 +85,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
   static MIN_ADA_POOL_MINT_ERROR =
     "You tried to create a pool with less ADA than is required. Try again with more than 2 ADA.";
+  private SETTINGS_NFT_NAME = "73657474696e6773";
 
   /**
    * @param {Lucid} lucid A configured Lucid instance to use.
@@ -168,22 +169,12 @@ export class TxBuilderLucidV3 extends TxBuilder {
    */
   public async getAllSettingsUtxos(): Promise<UTxO[]> {
     if (!this.settingsUtxos) {
-      // Hardcoded for now, will be added to API later.
-      if (this.network === "mainnet") {
-        const settingsNFTAssetId =
-          "74778edebdb99ae5e2b7484bd7c3300282a046ad69b0dfb15b919f5273657474696e6773";
-        this.settingsUtxos = [
-          await this.lucid.provider.getUtxoByUnit(settingsNFTAssetId),
-        ];
-      } else {
-        this.settingsUtxos = await this.lucid.provider.getUtxosByOutRef([
-          {
-            outputIndex: 0,
-            txHash:
-              "387dbd6718ed9218a28c11ea1386c688b4215a47d39610b8b1657bbcdc054e3c",
-          },
-        ]);
-      }
+      const { hash } = await this.getValidatorScript("settings.mint");
+      this.settingsUtxos = [
+        await this.lucid.provider.getUtxoByUnit(
+          `${hash}${this.SETTINGS_NFT_NAME}`
+        ),
+      ];
     }
 
     return this.settingsUtxos;
@@ -280,9 +271,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * fee parameters, owner address, protocol fee, and referral fee.
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
-   *  - fees: A pair of fees, denominated out of 10 thousand, that correspond to their respective index in marketTimings.
-   *  - - **NOTE**: Fees must be the same value until decay is supported by scoopers.
-   *  - marketTimings: The POSIX timestamp for when the fee should start (market open), and stop (fee progression ends).
+   *  - fee: The desired pool fee, denominated out of 10 thousand.
+   *  - marketOpen: The POSIX timestamp for when the pool should allow trades (market open).
    *  - ownerAddress: Who the generated LP tokens should be sent to.
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A completed transaction object.
    *
@@ -291,18 +281,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
   async mintPool(
     mintPoolArgs: IMintV3PoolConfigArgs
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
-    const { assetA, assetB, fees, marketTimings, ownerAddress, referralFee } =
+    const { assetA, assetB, fee, marketOpen, ownerAddress, referralFee } =
       new MintV3PoolConfig(mintPoolArgs).buildArgs();
-
-    /**
-     * @todo
-     * This will be removed once decaying fees are supported by scoopers.
-     */
-    if (fees[0] !== fees[1]) {
-      throw new Error(
-        "Decaying fees are currently not supported in the scoopers. For now, use the same fee for both start and end values."
-      );
-    }
 
     const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       assetA,
@@ -360,9 +340,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     } = this.datumBuilder.buildMintPoolDatum({
       assetA: sortedAssets[0],
       assetB: sortedAssets[1],
-      feeDecay: fees,
-      feeDecayEnd: marketTimings[1],
-      marketOpen: marketTimings[0],
+      fee,
+      marketOpen,
       depositFee: exoticPair ? POOL_MIN_ADA : 0n,
       seedUtxo: userUtxos[0],
     });
@@ -416,6 +395,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const poolContract = blueprint.validators.find(
       ({ title }) => title === "pool.mint"
     );
+
     let stakeContractHash: string | undefined;
     if ((poolStakingCredential as V3Types.TVKeyCredential)?.VKeyCredential) {
       stakeContractHash = C.EnterpriseAddress.new(

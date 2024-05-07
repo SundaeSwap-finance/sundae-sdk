@@ -6,7 +6,6 @@ import {
   EDatumType,
   TDatumResult,
   TDestinationAddress,
-  TFee,
   TSupportedNetworks,
 } from "../@types/index.js";
 import { DatumBuilder } from "../Abstracts/DatumBuilder.abstract.class.js";
@@ -65,10 +64,9 @@ export interface IDatumBuilderMintPoolV3Args {
   seedUtxo: UTxO;
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
-  feeDecay: TFee;
-  feeDecayEnd: bigint;
-  marketOpen: bigint;
+  fee: bigint;
   depositFee: bigint;
+  marketOpen?: bigint;
 }
 
 /**
@@ -239,8 +237,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
    * @param {IDatumBuilderMintPoolV3Args} params The arguments for building a pool mint datum.
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
-   *  - feeDecay: A tuple of bigints, [bigint, bigint], representing the fee at marketOpen, decaying linearly till feeDecayEnd.
-   *  - feeDecayEnd: The POSIX timestamp for when the fee should stop decaying.
+   *  - fee: The pool fee represented as per thousand.
    *  - marketOpen: The POSIX timestamp for when pool trades should start executing.
    *  - protocolFee: The fee gathered for the protocol treasury.
    *  - seedUtxo: The UTXO to use as the seed, which generates asset names and the pool ident.
@@ -252,8 +249,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
   public buildMintPoolDatum({
     assetA,
     assetB,
-    feeDecay,
-    feeDecayEnd,
+    fee,
     marketOpen,
     depositFee,
     seedUtxo,
@@ -269,10 +265,9 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     const newPoolDatum: V3Types.TPoolDatum = {
       assets: assetsPair,
       circulatingLp: liquidity,
-      bidFeePer10Thousand: feeDecay,
-      askFeePer10Thousand: feeDecay,
+      bidFeePer10Thousand: fee,
+      askFeePer10Thousand: fee,
       feeManager: null,
-      feeFinalized: feeDecayEnd || 0n,
       identifier: ident,
       marketOpen: marketOpen || 0n,
       protocolFee: depositFee,
