@@ -171,7 +171,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       // Hardcoded for now, will be added to API later.
       if (this.network === "mainnet") {
         const settingsNFTAssetId =
-          "74778edebdb99ae5e2b7484bd7c3300282a046ad69b0dfb15b919f52.73657474696e6773";
+          "74778edebdb99ae5e2b7484bd7c3300282a046ad69b0dfb15b919f5273657474696e6773";
         this.settingsUtxos = [
           await this.lucid.provider.getUtxoByUnit(settingsNFTAssetId),
         ];
@@ -379,6 +379,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
     const {
       metadataAdmin: { paymentCredential },
+      authorizedStakingKeys: [poolStakingCredential],
     } = Data.from(settings[0].datum as string, V3Types.SettingsDatum);
 
     let metadataAddress: string;
@@ -396,8 +397,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     } else if ((paymentCredential as V3Types.TSCredential)?.SCredential) {
       metadataAddress = C.EnterpriseAddress.new(
         this.network === "preview" ? 0 : 1,
-        C.StakeCredential.from_keyhash(
-          C.Ed25519KeyHash.from_hex(
+        C.StakeCredential.from_scripthash(
+          C.ScriptHash.from_hex(
             (paymentCredential as V3Types.TSCredential).SCredential.bytes
           )
         )
@@ -415,15 +416,46 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const poolContract = blueprint.validators.find(
       ({ title }) => title === "pool.mint"
     );
-    const stakeContract = blueprint.validators.find(
-      ({ title }) => title === "pool_stake.stake"
-    );
-    if (stakeContract?.hash && poolContract?.hash) {
+    let stakeContractHash: string | undefined;
+    if ((poolStakingCredential as V3Types.TVKeyCredential)?.VKeyCredential) {
+      stakeContractHash = C.EnterpriseAddress.new(
+        this.network === "preview" ? 0 : 1,
+        C.StakeCredential.from_keyhash(
+          C.Ed25519KeyHash.from_hex(
+            (poolStakingCredential as V3Types.TVKeyCredential).VKeyCredential
+              .bytes
+          )
+        )
+      )
+        ?.payment_cred()
+        .to_keyhash()
+        ?.to_hex();
+    } else if ((poolStakingCredential as V3Types.TSCredential)?.SCredential) {
+      stakeContractHash = C.EnterpriseAddress.new(
+        this.network === "preview" ? 0 : 1,
+        C.StakeCredential.from_scripthash(
+          C.ScriptHash.from_hex(
+            (poolStakingCredential as V3Types.TSCredential).SCredential.bytes
+          )
+        )
+      )
+        ?.payment_cred()
+        .to_scripthash()
+        ?.to_hex();
+    }
+
+    if (!stakeContractHash) {
+      throw new Error(
+        "Could not derive metadata address from the settings UTXO. Please try again."
+      );
+    }
+
+    if (stakeContractHash && poolContract?.hash) {
       const paymentCred = C.StakeCredential.from_scripthash(
         C.ScriptHash.from_hex(poolContract.hash)
       );
       const stakingCred = C.StakeCredential.from_scripthash(
-        C.ScriptHash.from_hex(stakeContract.hash)
+        C.ScriptHash.from_hex(stakeContractHash)
       );
 
       sundaeStakeAddress = C.BaseAddress.new(

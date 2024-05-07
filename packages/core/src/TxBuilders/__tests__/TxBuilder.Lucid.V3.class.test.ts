@@ -617,7 +617,7 @@ describe("TxBuilderLucidV3", () => {
     const metadataOutput = builtTx.txComplete.body().outputs().get(1);
     expect(
       Buffer.from(metadataOutput.address().to_bytes()).toString("hex")
-    ).toEqual("601854e9028a89496e9772a54882729d16554f8ed9af27ec6046c9a87c");
+    ).toEqual("701854e9028a89496e9772a54882729d16554f8ed9af27ec6046c9a87c");
     const metadataDepositAssets = metadataOutput
       .amount()
       .multiasset()
@@ -743,7 +743,7 @@ describe("TxBuilderLucidV3", () => {
     const metadataOutput = builtTx.txComplete.body().outputs().get(1);
     expect(
       Buffer.from(metadataOutput.address().to_bytes()).toString("hex")
-    ).toEqual("601854e9028a89496e9772a54882729d16554f8ed9af27ec6046c9a87c");
+    ).toEqual("701854e9028a89496e9772a54882729d16554f8ed9af27ec6046c9a87c");
     const metadataDepositAssets = metadataOutput
       .amount()
       .multiasset()
