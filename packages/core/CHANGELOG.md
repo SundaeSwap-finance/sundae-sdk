@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.3](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.1.2...@sundaeswap/core@1.1.3) (2024-05-07)
+
+### Bug Fixes
+
+- stake credential calculation ([f1be560](https://github.com/SundaeSwap-finance/sundae-sdk/commit/f1be5603d8c1f58ade08658881eabbb5181729a0))
+
 ## [1.1.2](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.1.1...@sundaeswap/core@1.1.2) (2024-05-07)
 
 **Note:** Version bump only for package @sundaeswap/core

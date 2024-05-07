@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.24](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/taste-test@1.0.23...@sundaeswap/taste-test@1.0.24) (2024-05-07)
+
+**Note:** Version bump only for package @sundaeswap/taste-test
+
 ## [1.0.23](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/taste-test@1.0.22...@sundaeswap/taste-test@1.0.23) (2024-05-07)
 
 **Note:** Version bump only for package @sundaeswap/taste-test
