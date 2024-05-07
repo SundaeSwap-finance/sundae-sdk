@@ -24,7 +24,7 @@ export const CreatePool: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         .mintPool({
           assetA: PREVIEW_DATA.assets.tada,
           assetB: PREVIEW_DATA.assets.tindy,
-          fees: [5n, 10n],
+          fees: [5n, 5n],
           marketTimings: [Date.now(), fiveDaysLater],
           ownerAddress: activeWalletAddr,
           ...(useReferral
