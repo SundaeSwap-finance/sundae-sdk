@@ -169,19 +169,21 @@ export class TxBuilderLucidV3 extends TxBuilder {
   public async getAllSettingsUtxos(): Promise<UTxO[]> {
     if (!this.settingsUtxos) {
       // Hardcoded for now, will be added to API later.
-      this.settingsUtxos = await this.lucid.provider.getUtxosByOutRef([
-        this.network === "mainnet"
-          ? {
-              txHash:
-                "728d26ae69f4602f54703e563c7baf7e9786dd4e6f6f8fdd078bd582d3118873",
-              outputIndex: 0,
-            }
-          : {
-              outputIndex: 0,
-              txHash:
-                "387dbd6718ed9218a28c11ea1386c688b4215a47d39610b8b1657bbcdc054e3c",
-            },
-      ]);
+      if (this.network === "mainnet") {
+        const settingsNFTAssetId =
+          "74778edebdb99ae5e2b7484bd7c3300282a046ad69b0dfb15b919f52.73657474696e6773";
+        this.settingsUtxos = [
+          await this.lucid.provider.getUtxoByUnit(settingsNFTAssetId),
+        ];
+      } else {
+        this.settingsUtxos = await this.lucid.provider.getUtxosByOutRef([
+          {
+            outputIndex: 0,
+            txHash:
+              "387dbd6718ed9218a28c11ea1386c688b4215a47d39610b8b1657bbcdc054e3c",
+          },
+        ]);
+      }
     }
 
     return this.settingsUtxos;
