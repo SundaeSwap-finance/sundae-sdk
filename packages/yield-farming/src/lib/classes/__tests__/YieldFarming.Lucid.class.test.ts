@@ -1,12 +1,11 @@
 import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
+import { ADA_METADATA, EDatumType } from "@sundaeswap/core";
 import {
-  ADA_METADATA,
-  EDatumType,
-  ETxBuilderType,
-  SundaeSDK,
-} from "@sundaeswap/core";
-import { PREVIEW_DATA, setupLucid } from "@sundaeswap/core/testing";
+  PREVIEW_DATA,
+  settingsUtxos,
+  setupLucid,
+} from "@sundaeswap/core/testing";
 import { C, Data, Lucid, Tx } from "lucid-cardano";
 
 import { Delegation, TDelegation } from "../../../@types/contracts.js";
@@ -672,35 +671,21 @@ describe("YieldFarmingLucid", () => {
   });
 
   it("should do a v1 to v3 migration properly", async () => {
-    const sdk = new SundaeSDK({
-      wallet: {
-        builder: {
-          type: ETxBuilderType.LUCID,
-          lucid: lucidInstance,
-        },
-        name: "eternl",
-        network: "preview",
-      },
-    });
-
     try {
-      await YFInstance.migrateToV3(
-        {
-          ownerAddress: {
-            address: ownerAddress,
-            datum: {
-              type: EDatumType.NONE,
-            },
+      await YFInstance.migrateToV3({
+        ownerAddress: {
+          address: ownerAddress,
+          datum: {
+            type: EDatumType.NONE,
           },
-          migrations: [
-            {
-              depositPool: PREVIEW_DATA.pools.v3,
-              withdrawPool: PREVIEW_DATA.pools.v1,
-            },
-          ],
         },
-        sdk
-      );
+        migrations: [
+          {
+            depositPool: PREVIEW_DATA.pools.v3,
+            withdrawPool: PREVIEW_DATA.pools.v1,
+          },
+        ],
+      });
     } catch (e) {
       expect((e as Error).message).toEqual(
         "There must be a list of existing positions to migrate!"
@@ -709,38 +694,7 @@ describe("YieldFarmingLucid", () => {
 
     getUtxosByOutRefMock.mockResolvedValueOnce([NO_MIGRATION_ASSETS_UTXO]);
     try {
-      await YFInstance.migrateToV3(
-        {
-          ownerAddress: {
-            address: ownerAddress,
-            datum: {
-              type: EDatumType.NONE,
-            },
-          },
-          migrations: [
-            {
-              depositPool: PREVIEW_DATA.pools.v3,
-              withdrawPool: PREVIEW_DATA.pools.v1,
-            },
-          ],
-          existingPositions: [
-            {
-              hash: "f28d6c3105a8a72f83e2cff9c9c042eb8e0449a6b5ab38b26ff899ab61be997e",
-              index: 0,
-            },
-          ],
-        },
-        sdk
-      );
-    } catch (e) {
-      expect((e as Error).message).toEqual(
-        "There were no eligible assets to migrate within the provided existing positions. Please check your migration config, and try again."
-      );
-    }
-
-    getUtxosByOutRefMock.mockResolvedValueOnce([MIGRATION_ASSETS_UTXO]);
-    await YFInstance.migrateToV3(
-      {
+      await YFInstance.migrateToV3({
         ownerAddress: {
           address: ownerAddress,
           datum: {
@@ -759,8 +713,36 @@ describe("YieldFarmingLucid", () => {
             index: 0,
           },
         ],
+      });
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        "There were no eligible assets to migrate within the provided existing positions. Please check your migration config, and try again."
+      );
+    }
+
+    getUtxosByOutRefMock
+      .mockResolvedValueOnce([MIGRATION_ASSETS_UTXO])
+      .mockResolvedValue(settingsUtxos);
+
+    await YFInstance.migrateToV3({
+      ownerAddress: {
+        address: ownerAddress,
+        datum: {
+          type: EDatumType.NONE,
+        },
       },
-      sdk
-    );
+      migrations: [
+        {
+          depositPool: PREVIEW_DATA.pools.v3,
+          withdrawPool: PREVIEW_DATA.pools.v1,
+        },
+      ],
+      existingPositions: [
+        {
+          hash: "f28d6c3105a8a72f83e2cff9c9c042eb8e0449a6b5ab38b26ff899ab61be997e",
+          index: 0,
+        },
+      ],
+    });
   });
 });

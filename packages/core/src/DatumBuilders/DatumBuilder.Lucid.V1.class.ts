@@ -235,8 +235,7 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
 
   buildOrderAddresses(addresses: TOrderAddresses): TDatumResult<Data> {
     LucidHelper.validateAddressAndDatumAreValid({
-      address: addresses.DestinationAddress.address,
-      datum: addresses.DestinationAddress.datum,
+      ...addresses.DestinationAddress,
       network: this.network,
     });
 

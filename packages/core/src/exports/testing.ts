@@ -19,3 +19,4 @@ export * from "../TestUtilities/cardano.js";
 export { PREVIEW_DATA } from "../TestUtilities/mockData.js";
 export { MockAll } from "../TestUtilities/mocks.js";
 export { setupLucid } from "../TestUtilities/setupLucid.js";
+export * from "../TxBuilders/__tests__/data/mockData.js";

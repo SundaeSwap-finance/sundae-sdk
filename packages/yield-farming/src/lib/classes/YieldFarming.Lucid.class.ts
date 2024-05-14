@@ -1,18 +1,20 @@
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   ADA_METADATA,
-  EContractVersion,
   EDatumType,
-  SundaeSDK,
   VOID_REDEEMER,
   type IComposedTx,
   type ITxBuilderReferralFee,
   type TSupportedNetworks,
 } from "@sundaeswap/core";
-import { LucidHelper } from "@sundaeswap/core/lucid";
-import { SundaeUtils } from "@sundaeswap/core/utilities";
-
 import {
+  DatumBuilderLucidV1,
+  LucidHelper,
+  TxBuilderLucidV1,
+} from "@sundaeswap/core/lucid";
+import { SundaeUtils } from "@sundaeswap/core/utilities";
+import {
+  Data,
   type Assets,
   type Datum,
   type Lucid,
@@ -21,6 +23,11 @@ import {
 } from "lucid-cardano";
 
 import { ILockConfigArgs, IMigrateConfigArgs } from "../../@types/configs.js";
+import {
+  Delegation,
+  TDelegation,
+  TDelegationPrograms,
+} from "../../@types/contracts.js";
 import { YieldFarming } from "../Abstracts/YieldFarming.abstract.class.js";
 import { LockConfig } from "../Configs/LockConfig.js";
 import { DatumBuilderLucid } from "./DatumBuilder.Lucid.class.js";
@@ -331,9 +338,12 @@ export class YieldFarmingLucid implements YieldFarming {
     });
   }
 
-  async migrateToV3(migrationArgs: IMigrateConfigArgs, sdk: SundaeSDK) {
+  async migrateToV3(migrationArgs: IMigrateConfigArgs) {
     const { ownerAddress, migrations, existingPositions } = migrationArgs;
-    const txBuilder = sdk.builder(EContractVersion.V1);
+    const txBuilder = new TxBuilderLucidV1(
+      this.lucid,
+      new DatumBuilderLucidV1(this.network)
+    );
     const withdrawAssetsList = migrations.reduce((list, { withdrawPool }) => {
       list.push(withdrawPool.assetLP.assetId.replace(".", ""));
       return list;
@@ -390,19 +400,41 @@ export class YieldFarmingLucid implements YieldFarming {
       );
     }
 
-    const builtMigrations = txBuilder.migrateLiquidityToV3(
+    const lockContractAddress = this.lucid.utils.credentialToAddress(
+      {
+        hash: this.__getParam("scriptHash"),
+        type: "Script",
+      },
+      {
+        hash: this.__getParam("stakeKeyHash"),
+        type: "Key",
+      }
+    );
+
+    const { tx } = await txBuilder.migrateLiquidityToV3(
       migrations.map(({ withdrawPool, depositPool }) => {
+        const oldDelegation = existingPositionsData.find(({ assets }) => {
+          if (assets[withdrawPool.assetLP.assetId.replace(".", "")]) {
+            return true;
+          }
+        });
+
+        if (!oldDelegation) {
+          throw new Error("Could not find a matching delegation!");
+        }
+
         return {
           depositPool,
           withdrawConfig: {
             orderAddresses: {
               DestinationAddress: {
-                address: this.__getParam("scriptHash"),
+                address: lockContractAddress,
                 datum: {
                   type: EDatumType.INLINE,
-                  value: "",
+                  value: oldDelegation.datum as string,
                 },
               },
+              AlternateAddress: ownerAddress.address,
             },
             pool: withdrawPool,
             suppliedLPAsset: new AssetAmount(
@@ -415,6 +447,55 @@ export class YieldFarmingLucid implements YieldFarming {
         };
       })
     );
+
+    let programs: TDelegationPrograms = [];
+    const newDelegation: TDelegation = {
+      owner: ownerAddress,
+      programs,
+    };
+
+    existingPositionsData.forEach(({ datum }) => {
+      const currentDatum = Data.from(datum as string, Delegation);
+      for (const program of currentDatum.programs) {
+        if (program === "None") {
+          continue;
+        }
+
+        const programIsDefined = programs.find((data) => {
+          if (data === "None") {
+            return false;
+          }
+
+          const [existingRewardId, existingPoolIdent] = data.Delegation;
+          if (
+            existingRewardId === program.Delegation[0] &&
+            existingPoolIdent === program.Delegation[1]
+          ) {
+            return true;
+          }
+        });
+
+        if (programIsDefined) {
+          continue;
+        }
+
+        programs.push(program);
+      }
+    });
+
+    console.log(programs);
+
+    // const { } = await tx
+    //   .collectFrom(existingPositionsData)
+    //   .complete({
+    //     coinSelection: false,
+    //     change: {
+    //       address: existingPositionsData[0].address,
+    //       outputData: {
+    //         inline:
+    //       }
+    //     }
+    //   });
   }
 
   /**

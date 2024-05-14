@@ -7,32 +7,15 @@ export type TDelegationOwner = Data.Static<typeof DelegationOwnerSchema>;
 export const DelegationOwner =
   DelegationOwnerSchema as unknown as TDelegationOwner;
 
-// export const DelegationProgramMapSchema = Data.Array(
-//   Data.Tuple([Data.Bytes(), Data.Bytes({ minLength: 2 }), Data.Integer()])
-// );
-// export type TDelegationProgramMap = Data.Static<
-//   typeof DelegationProgramMapSchema
-// >;
-// export const DelegationProgramMap =
-//   DelegationProgramMapSchema as unknown as TDelegationProgramMap;
-
-// export const DelegationProgramsSchema = Data.Object({
-//   value: Data.Enum([
-//     Data.Literal("None"),
-//     Data.Object({ List: DelegationProgramMapSchema }),
-//   ]),
-// });
-// export type TDelegationPrograms = Data.Static<typeof DelegationProgramsSchema>;
-// export const DelegationPrograms =
-//   DelegationProgramsSchema as unknown as TDelegationPrograms;
+export const DelegationArraySchema = Data.Object({
+  Delegation: Data.Tuple([Data.Bytes(), Data.Bytes(), Data.Integer()]),
+});
+export type TDelegationArray = Data.Static<typeof DelegationArraySchema>;
+export const DelegationArray =
+  DelegationArraySchema as unknown as TDelegationArray;
 
 export const DelegationProgramsSchema = Data.Array(
-  Data.Enum([
-    Data.Literal("None"),
-    Data.Object({
-      Delegation: Data.Tuple([Data.Bytes(), Data.Bytes(), Data.Integer()]),
-    }),
-  ])
+  Data.Enum([Data.Literal("None"), DelegationArraySchema])
 );
 export type TDelegationPrograms = Data.Static<typeof DelegationProgramsSchema>;
 export const DelegationPrograms =
