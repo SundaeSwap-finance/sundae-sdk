@@ -36,8 +36,12 @@ import { MintV3PoolConfig } from "../Configs/MintV3PoolConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
+import { DatumBuilderLucidV1 } from "../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
-import { SettingsDatum } from "../DatumBuilders/contracts/contracts.v3.js";
+import {
+  OrderDatum,
+  SettingsDatum,
+} from "../DatumBuilders/contracts/contracts.v3.js";
 import { V3Types } from "../DatumBuilders/contracts/index.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
@@ -47,6 +51,7 @@ import {
   POOL_MIN_ADA,
   VOID_REDEEMER,
 } from "../constants.js";
+import { TxBuilderLucidV1 } from "./TxBuilder.Lucid.V1.class.js";
 
 /**
  * Object arguments for completing a transaction.
@@ -566,6 +571,21 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const utxosToSpend = await this.lucid.provider.getUtxosByOutRef([
       { outputIndex: utxo.index, txHash: utxo.hash },
     ]);
+
+    /**
+     * If we can properly deserialize the order datum using a V3 type, then it's a V3 order.
+     * If not, then we can assume it is a normal V1 order, and call accordingly.
+     */
+    try {
+      Data.from(utxosToSpend?.[0]?.datum as string, OrderDatum);
+    } catch (e) {
+      console.log("This is a V1 order! Calling appropriate builder...");
+      const v1Builder = new TxBuilderLucidV1(
+        this.lucid,
+        new DatumBuilderLucidV1(this.network)
+      );
+      return v1Builder.cancel({ ...cancelArgs });
+    }
 
     const orderUtxo = utxosToSpend.find(
       ({ txHash, outputIndex }) =>
