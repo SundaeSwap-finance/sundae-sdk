@@ -12,6 +12,7 @@ import {
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../../constants.js";
 import { PREVIEW_DATA, setupLucid } from "../../exports/testing.js";
+import { TxBuilderLucidV1 } from "../TxBuilder.Lucid.V1.class.js";
 import { TxBuilderLucidV3 } from "../TxBuilder.Lucid.V3.class.js";
 import {
   mockBlockfrostEvaluateResponse,
@@ -213,6 +214,26 @@ describe("TxBuilderLucidV3", () => {
       "84a90089825820b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c00825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394700825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394701825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394702825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f243947038258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828008258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828018258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b82802825820fda5c685eaff5fbb2a7ecb250389fd24a7216128929a9da0ad95b72b586fab7001018282583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0821a0012050ca1581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a1465242455252591b000221b262dd800082583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01b000000ec96799e71021a000377790b5820410d50a9bae4e34ef5d946757ab33869427e57096fa4839d8fb562d302370c2d0d81825820fda5c685eaff5fbb2a7ecb250389fd24a7216128929a9da0ad95b72b586fab70010e81581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01082583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01b00000003beb1bdfb111a000533361288825820b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c00825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394700825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394701825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394702825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f243947038258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828008258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828018258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b82802a10581840007d87a80821a0001bb671a025f4882f5f6"
     );
     expect(fees.cardanoTxFee?.amount).toEqual(227193n);
+  });
+
+  test("cancel() v1 order", async () => {
+    const spiedOnV1Cancel = jest.spyOn(TxBuilderLucidV1.prototype, "cancel");
+    getUtxosByOutRefMock.mockResolvedValue([
+      PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1,
+    ]);
+
+    // Don't care to mock v3 so it will throw.
+    try {
+      await builder.cancel({
+        ownerAddress: PREVIEW_DATA.addresses.current,
+        utxo: {
+          hash: PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.txHash,
+          index: PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.outputIndex,
+        },
+      });
+    } catch (e) {
+      expect(spiedOnV1Cancel).toHaveBeenCalledTimes(1);
+    }
   });
 
   test("swap()", async () => {
@@ -550,8 +571,8 @@ describe("TxBuilderLucidV3", () => {
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tada,
       assetB: PREVIEW_DATA.assets.tindy,
-      fees: [5n, 5n],
-      marketTimings: [5, 10_000n],
+      fee: 5n,
+      marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
     });
 
@@ -580,7 +601,7 @@ describe("TxBuilderLucidV3", () => {
     expect(
       Buffer.from(poolOutput.address().to_bytes()).toString("hex")
     ).toEqual(
-      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca5843f8c9138598fcaf0270c2bf2eb536fb46b03431cde64275811178"
+      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
     );
     const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
     const poolDepositedAssetA = poolOutput.amount().coin().to_str();
@@ -608,7 +629,7 @@ describe("TxBuilderLucidV3", () => {
         poolOutput.datum()?.as_data()?.to_bytes() as Uint8Array
       ).toString("hex")
     ).toEqual(
-      "d8185863d8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d009f0505ff9f0505ffd87a800519271000ff"
+      "d818585ad8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a800500ff"
     );
 
     /**
@@ -617,7 +638,7 @@ describe("TxBuilderLucidV3", () => {
     const metadataOutput = builtTx.txComplete.body().outputs().get(1);
     expect(
       Buffer.from(metadataOutput.address().to_bytes()).toString("hex")
-    ).toEqual("601854e9028a89496e9772a54882729d16554f8ed9af27ec6046c9a87c");
+    ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
     const metadataDepositAssets = metadataOutput
       .amount()
       .multiasset()
@@ -669,8 +690,8 @@ describe("TxBuilderLucidV3", () => {
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tindy,
       assetB: PREVIEW_DATA.assets.usdc,
-      fees: [5n, 5n],
-      marketTimings: [5, 10_000n],
+      fee: 5n,
+      marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
     });
 
@@ -702,7 +723,7 @@ describe("TxBuilderLucidV3", () => {
     expect(
       Buffer.from(poolOutput.address().to_bytes()).toString("hex")
     ).toEqual(
-      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca5843f8c9138598fcaf0270c2bf2eb536fb46b03431cde64275811178"
+      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
     );
     const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
     // const poolDepositedAssetA = poolOutput.amount().coin().to_str();
@@ -734,7 +755,7 @@ describe("TxBuilderLucidV3", () => {
         poolOutput.datum()?.as_data()?.to_bytes() as Uint8Array
       ).toString("hex")
     ).toEqual(
-      "d8185888d8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d009f0505ff9f0505ffd87a80051927101a002dc6c0ff"
+      "d818587fd8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
     );
 
     /**
@@ -743,7 +764,7 @@ describe("TxBuilderLucidV3", () => {
     const metadataOutput = builtTx.txComplete.body().outputs().get(1);
     expect(
       Buffer.from(metadataOutput.address().to_bytes()).toString("hex")
-    ).toEqual("601854e9028a89496e9772a54882729d16554f8ed9af27ec6046c9a87c");
+    ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
     const metadataDepositAssets = metadataOutput
       .amount()
       .multiasset()
@@ -796,8 +817,8 @@ describe("TxBuilderLucidV3", () => {
       await builder.mintPool({
         assetA: PREVIEW_DATA.assets.tada.withAmount(500_000n),
         assetB: PREVIEW_DATA.assets.usdc,
-        fees: [5n, 5n],
-        marketTimings: [5, 10_000n],
+        fee: 5n,
+        marketOpen: 5n,
         ownerAddress: PREVIEW_DATA.addresses.current,
       });
     } catch (e) {
@@ -814,8 +835,8 @@ describe("TxBuilderLucidV3", () => {
       await builder.mintPool({
         assetA: PREVIEW_DATA.assets.tada,
         assetB: PREVIEW_DATA.assets.tindy,
-        fees: [5n, 10n],
-        marketTimings: [5, 10_000n],
+        fee: 5n,
+        marketOpen: 5n,
         ownerAddress: PREVIEW_DATA.addresses.current,
       });
     } catch (e) {

@@ -19,13 +19,11 @@ export const CreatePool: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
 
     setCreatePooling(true);
     try {
-      const fiveDaysLater = Date.now() + 1000 * 60 * 60 * 24 * 5;
       await SDK.builder(EContractVersion.V3)
         .mintPool({
           assetA: PREVIEW_DATA.assets.tada,
           assetB: PREVIEW_DATA.assets.tindy,
-          fees: [5n, 5n],
-          marketTimings: [Date.now(), fiveDaysLater],
+          fee: 5n,
           ownerAddress: activeWalletAddr,
           ...(useReferral
             ? {

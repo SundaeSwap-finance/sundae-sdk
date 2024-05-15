@@ -36,8 +36,12 @@ import { MintV3PoolConfig } from "../Configs/MintV3PoolConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
+import { DatumBuilderLucidV1 } from "../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
-import { SettingsDatum } from "../DatumBuilders/contracts/contracts.v3.js";
+import {
+  OrderDatum,
+  SettingsDatum,
+} from "../DatumBuilders/contracts/contracts.v3.js";
 import { V3Types } from "../DatumBuilders/contracts/index.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
@@ -47,6 +51,7 @@ import {
   POOL_MIN_ADA,
   VOID_REDEEMER,
 } from "../constants.js";
+import { TxBuilderLucidV1 } from "./TxBuilder.Lucid.V1.class.js";
 
 /**
  * Object arguments for completing a transaction.
@@ -85,6 +90,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
   static MIN_ADA_POOL_MINT_ERROR =
     "You tried to create a pool with less ADA than is required. Try again with more than 2 ADA.";
+  private SETTINGS_NFT_NAME = "73657474696e6773";
 
   /**
    * @param {Lucid} lucid A configured Lucid instance to use.
@@ -168,20 +174,12 @@ export class TxBuilderLucidV3 extends TxBuilder {
    */
   public async getAllSettingsUtxos(): Promise<UTxO[]> {
     if (!this.settingsUtxos) {
-      // Hardcoded for now, will be added to API later.
-      this.settingsUtxos = await this.lucid.provider.getUtxosByOutRef([
-        this.network === "mainnet"
-          ? {
-              txHash:
-                "728d26ae69f4602f54703e563c7baf7e9786dd4e6f6f8fdd078bd582d3118873",
-              outputIndex: 0,
-            }
-          : {
-              outputIndex: 0,
-              txHash:
-                "387dbd6718ed9218a28c11ea1386c688b4215a47d39610b8b1657bbcdc054e3c",
-            },
-      ]);
+      const { hash } = await this.getValidatorScript("settings.mint");
+      this.settingsUtxos = [
+        await this.lucid.provider.getUtxoByUnit(
+          `${hash}${this.SETTINGS_NFT_NAME}`
+        ),
+      ];
     }
 
     return this.settingsUtxos;
@@ -278,9 +276,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * fee parameters, owner address, protocol fee, and referral fee.
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
-   *  - fees: A pair of fees, denominated out of 10 thousand, that correspond to their respective index in marketTimings.
-   *  - - **NOTE**: Fees must be the same value until decay is supported by scoopers.
-   *  - marketTimings: The POSIX timestamp for when the fee should start (market open), and stop (fee progression ends).
+   *  - fee: The desired pool fee, denominated out of 10 thousand.
+   *  - marketOpen: The POSIX timestamp for when the pool should allow trades (market open).
    *  - ownerAddress: Who the generated LP tokens should be sent to.
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A completed transaction object.
    *
@@ -289,18 +286,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
   async mintPool(
     mintPoolArgs: IMintV3PoolConfigArgs
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
-    const { assetA, assetB, fees, marketTimings, ownerAddress, referralFee } =
+    const { assetA, assetB, fee, marketOpen, ownerAddress, referralFee } =
       new MintV3PoolConfig(mintPoolArgs).buildArgs();
-
-    /**
-     * @todo
-     * This will be removed once decaying fees are supported by scoopers.
-     */
-    if (fees[0] !== fees[1]) {
-      throw new Error(
-        "Decaying fees are currently not supported in the scoopers. For now, use the same fee for both start and end values."
-      );
-    }
 
     const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       assetA,
@@ -358,9 +345,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     } = this.datumBuilder.buildMintPoolDatum({
       assetA: sortedAssets[0],
       assetB: sortedAssets[1],
-      feeDecay: fees,
-      feeDecayEnd: marketTimings[1],
-      marketOpen: marketTimings[0],
+      fee,
+      marketOpen,
       depositFee: exoticPair ? POOL_MIN_ADA : 0n,
       seedUtxo: userUtxos[0],
     });
@@ -377,6 +363,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
     const {
       metadataAdmin: { paymentCredential },
+      authorizedStakingKeys: [poolStakingCredential],
     } = Data.from(settings[0].datum as string, V3Types.SettingsDatum);
 
     let metadataAddress: string;
@@ -394,8 +381,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
     } else if ((paymentCredential as V3Types.TSCredential)?.SCredential) {
       metadataAddress = C.EnterpriseAddress.new(
         this.network === "preview" ? 0 : 1,
-        C.StakeCredential.from_keyhash(
-          C.Ed25519KeyHash.from_hex(
+        C.StakeCredential.from_scripthash(
+          C.ScriptHash.from_hex(
             (paymentCredential as V3Types.TSCredential).SCredential.bytes
           )
         )
@@ -413,15 +400,47 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const poolContract = blueprint.validators.find(
       ({ title }) => title === "pool.mint"
     );
-    const stakeContract = blueprint.validators.find(
-      ({ title }) => title === "pool_stake.stake"
-    );
-    if (stakeContract?.hash && poolContract?.hash) {
+
+    let stakeContractHash: string | undefined;
+    if ((poolStakingCredential as V3Types.TVKeyCredential)?.VKeyCredential) {
+      stakeContractHash = C.EnterpriseAddress.new(
+        this.network === "preview" ? 0 : 1,
+        C.StakeCredential.from_keyhash(
+          C.Ed25519KeyHash.from_hex(
+            (poolStakingCredential as V3Types.TVKeyCredential).VKeyCredential
+              .bytes
+          )
+        )
+      )
+        ?.payment_cred()
+        .to_keyhash()
+        ?.to_hex();
+    } else if ((poolStakingCredential as V3Types.TSCredential)?.SCredential) {
+      stakeContractHash = C.EnterpriseAddress.new(
+        this.network === "preview" ? 0 : 1,
+        C.StakeCredential.from_scripthash(
+          C.ScriptHash.from_hex(
+            (poolStakingCredential as V3Types.TSCredential).SCredential.bytes
+          )
+        )
+      )
+        ?.payment_cred()
+        .to_scripthash()
+        ?.to_hex();
+    }
+
+    if (!stakeContractHash) {
+      throw new Error(
+        "Could not derive metadata address from the settings UTXO. Please try again."
+      );
+    }
+
+    if (stakeContractHash && poolContract?.hash) {
       const paymentCred = C.StakeCredential.from_scripthash(
         C.ScriptHash.from_hex(poolContract.hash)
       );
       const stakingCred = C.StakeCredential.from_scripthash(
-        C.ScriptHash.from_hex(stakeContract.hash)
+        C.ScriptHash.from_hex(stakeContractHash)
       );
 
       sundaeStakeAddress = C.BaseAddress.new(
@@ -552,6 +571,21 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const utxosToSpend = await this.lucid.provider.getUtxosByOutRef([
       { outputIndex: utxo.index, txHash: utxo.hash },
     ]);
+
+    /**
+     * If we can properly deserialize the order datum using a V3 type, then it's a V3 order.
+     * If not, then we can assume it is a normal V1 order, and call accordingly.
+     */
+    try {
+      Data.from(utxosToSpend?.[0]?.datum as string, OrderDatum);
+    } catch (e) {
+      console.log("This is a V1 order! Calling appropriate builder...");
+      const v1Builder = new TxBuilderLucidV1(
+        this.lucid,
+        new DatumBuilderLucidV1(this.network)
+      );
+      return v1Builder.cancel({ ...cancelArgs });
+    }
 
     const orderUtxo = utxosToSpend.find(
       ({ txHash, outputIndex }) =>

@@ -1,7 +1,7 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import { EPoolCoin, TOrderAddresses, TUTXO } from "./datumbuilder.js";
-import { IPoolData, TFee } from "./queryprovider.js";
+import { IPoolData } from "./queryprovider.js";
 import { ITxBuilderReferralFee } from "./txbuilders.js";
 
 /**
@@ -99,7 +99,8 @@ export interface IWithdrawConfigArgs extends IOrderConfigArgs {
 export interface IMintV3PoolConfigArgs extends IBaseConfig {
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
-  fees: TFee;
-  marketTimings: [number | bigint, number | bigint];
+  fee: bigint;
   ownerAddress: string;
+  // Defaults to immediately.
+  marketOpen?: bigint;
 }

@@ -1,7 +1,7 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getTokensForLp } from "@sundaeswap/cpp";
 import type { Assets, Datum, Lucid, Tx, TxComplete } from "lucid-cardano";
-import { getAddressDetails } from "lucid-cardano";
+import { Data, getAddressDetails } from "lucid-cardano";
 
 import {
   EDatumType,
@@ -25,6 +25,7 @@ import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
 import { DatumBuilderLucidV1 } from "../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
+import { OrderDatum } from "../DatumBuilders/contracts/contracts.v3.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
@@ -247,6 +248,20 @@ export class TxBuilderLucidV1 extends TxBuilder {
     const utxoToSpend = await this.lucid.provider.getUtxosByOutRef([
       { outputIndex: utxo.index, txHash: utxo.hash },
     ]);
+
+    /**
+     * If we can properly deserialize the order datum using a V3 type, then it's a V3 order.
+     * If not, then we can assume it is a normal V1 order.
+     */
+    try {
+      Data.from(utxoToSpend?.[0]?.datum as string, OrderDatum);
+      console.log("This is a V3 order! Calling appropriate builder...");
+      const v3Builder = new TxBuilderLucidV3(
+        this.lucid,
+        new DatumBuilderLucidV3(this.network)
+      );
+      return v3Builder.cancel({ ...cancelArgs });
+    } catch (e) {}
 
     if (!utxoToSpend) {
       throw new Error(
@@ -656,7 +671,14 @@ export class TxBuilderLucidV1 extends TxBuilder {
       withdrawConfig: IWithdrawConfigArgs;
       depositPool: IPoolData;
     }[]
-  ) {
+  ): Promise<
+    IComposedTx<
+      Tx,
+      TxComplete,
+      string | undefined,
+      Record<string, AssetAmount<IAssetAmountMetadata>>
+    >
+  > {
     const finalTx = this.lucid.newTx();
     let totalScooper = 0n;
     let totalDeposit = 0n;
@@ -723,6 +745,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
             },
           },
           AlternateAddress:
+            withdrawArgs.orderAddresses.AlternateAddress ??
             withdrawArgs.orderAddresses.DestinationAddress.address,
         },
         scooperFee: this.__getParam("maxScooperFee"),

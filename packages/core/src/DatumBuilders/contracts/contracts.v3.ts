@@ -189,11 +189,10 @@ export const PoolDatumSchema = Data.Object({
   identifier: IdentSchema,
   assets: AssetClassPairSchema,
   circulatingLp: Data.Integer(),
-  bidFeePer10Thousand: Data.Tuple([Data.Integer(), Data.Integer()]),
-  askFeePer10Thousand: Data.Tuple([Data.Integer(), Data.Integer()]),
+  bidFeePer10Thousand: Data.Integer(),
+  askFeePer10Thousand: Data.Integer(),
   feeManager: Data.Nullable(MultiSigScriptSchema),
   marketOpen: Data.Integer(),
-  feeFinalized: Data.Integer(),
   protocolFee: Data.Integer(),
 });
 export type TPoolDatum = Data.Static<typeof PoolDatumSchema>;

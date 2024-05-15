@@ -32,6 +32,7 @@ interface INetworkData {
     };
     submittedOrderUtxos: {
       swapV1: UTxO;
+      swapV3: UTxO;
     };
   };
 }
@@ -356,6 +357,20 @@ const PREVIEW_DATA: INetworkData = {
           "d8799f4103d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d8799fd879801a00989680d8799f1a00989680ffffff",
         datumHash:
           "48e3160a9a3761f40d71fef4fc45e5381f35f28f7af73c11756ffaeeae6e32c8",
+      },
+      swapV3: {
+        txHash:
+          "252c1df48b6e92272320a1ca9ddc6d7e56c46ed7504ae3a4b069375ac3767577",
+        outputIndex: 0,
+        address:
+          "addr_test1zr866xg5kkvarzll69xjh0tfvqvu9zvuhht2qve9ehmgp0qjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngq4qar8t",
+        assets: {
+          lovelace: 12_500_000n,
+        },
+        datum:
+          "d8799fd8799f581c2baab4c73a1cd60176f903a29a9c92ed4237c88622da51e9179121a3ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a00989680ff9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15465342455252591a0091baa9ffff43d87980ff",
+        datumHash:
+          "f78ce6442c94d138119a1347ff747d976f40ca78bb2b8f8962ad6072008586ec",
       },
     },
   },

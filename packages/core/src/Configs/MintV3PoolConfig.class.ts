@@ -1,7 +1,6 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { IMintV3PoolConfigArgs } from "../@types/index.js";
 
-import { TFee } from "../@types/queryprovider.js";
 import { Config } from "../Abstracts/Config.abstract.class.js";
 
 export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
@@ -9,8 +8,8 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
 
   assetA?: AssetAmount<IAssetAmountMetadata>;
   assetB?: AssetAmount<IAssetAmountMetadata>;
-  fees?: TFee;
-  marketTimings?: [bigint, bigint];
+  fee?: bigint;
+  marketTimings?: bigint;
   ownerAddress?: string;
 
   constructor(args?: IMintV3PoolConfigArgs) {
@@ -21,28 +20,26 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
   setFromObject({
     assetA,
     assetB,
-    fees,
-    marketTimings,
+    fee,
+    marketOpen,
     ownerAddress,
     referralFee,
   }: IMintV3PoolConfigArgs): void {
     referralFee && this.setReferralFee(referralFee);
     this.setAssetA(assetA);
     this.setAssetB(assetB);
-    this.setFees(fees);
-    this.setMarketTimings(marketTimings);
+    this.setFee(fee);
+    this.setMarketOpen(marketOpen || 0n);
     this.setOwnerAddress(ownerAddress);
   }
 
-  buildArgs(): Omit<IMintV3PoolConfigArgs, "marketTimings"> & {
-    marketTimings: [bigint, bigint];
-  } {
+  buildArgs(): IMintV3PoolConfigArgs {
     this.validate();
     return {
       assetA: this.assetA as AssetAmount<IAssetAmountMetadata>,
       assetB: this.assetB as AssetAmount<IAssetAmountMetadata>,
-      fees: this.fees as TFee,
-      marketTimings: this.marketTimings as [bigint, bigint],
+      fee: this.fee as bigint,
+      marketOpen: this.marketTimings as bigint,
       ownerAddress: this.ownerAddress as string,
       referralFee: this.referralFee,
     };
@@ -58,13 +55,13 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     return this;
   }
 
-  setFees(fee: TFee) {
-    this.fees = fee;
+  setFee(fee: bigint) {
+    this.fee = fee;
     return this;
   }
 
-  setMarketTimings(timings: [bigint | number, bigint | number]) {
-    this.marketTimings = [BigInt(timings[0]), BigInt(timings[1])];
+  setMarketOpen(timing: bigint) {
+    this.marketTimings = timing;
     return this;
   }
 
@@ -76,18 +73,11 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
   validate(): void {
     super.validate();
 
-    const [feeOpen = 0, feeClose = 0] = this.marketTimings || [];
-    if (feeClose < feeOpen) {
-      throw new Error(
-        "The second timestamp in the marketTimings tuple must be greater than the first."
-      );
+    if (!this.fee) {
+      throw new Error(`No fee was set, but is required.`);
     }
 
-    const [feeStart = 0n, feeEnd = 0n] = this.fees || [];
-    if (
-      feeStart > MintV3PoolConfig.MAX_FEE ||
-      feeEnd > MintV3PoolConfig.MAX_FEE
-    ) {
+    if (this.fee > MintV3PoolConfig.MAX_FEE) {
       throw new Error(
         `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
       );

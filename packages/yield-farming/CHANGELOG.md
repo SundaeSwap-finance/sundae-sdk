@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.20](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.19...@sundaeswap/yield-farming@1.0.20) (2024-05-15)
+
+**Note:** Version bump only for package @sundaeswap/yield-farming
+
+## [1.0.19](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.18...@sundaeswap/yield-farming@1.0.19) (2024-05-07)
+
+**Note:** Version bump only for package @sundaeswap/yield-farming
+
+## [1.0.18](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.17...@sundaeswap/yield-farming@1.0.18) (2024-05-07)
+
+**Note:** Version bump only for package @sundaeswap/yield-farming
+
+## [1.0.17](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.16...@sundaeswap/yield-farming@1.0.17) (2024-05-07)
+
+**Note:** Version bump only for package @sundaeswap/yield-farming
+
 ## [1.0.16](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.15...@sundaeswap/yield-farming@1.0.16) (2024-05-03)
 
 **Note:** Version bump only for package @sundaeswap/yield-farming

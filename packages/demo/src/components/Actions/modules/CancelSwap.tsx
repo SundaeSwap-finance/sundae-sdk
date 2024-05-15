@@ -30,9 +30,7 @@ export const CancelSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         return;
       }
 
-      await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
-      )
+      await SDK.builder(EContractVersion.V1)
         .cancel({
           utxo: {
             hash,
