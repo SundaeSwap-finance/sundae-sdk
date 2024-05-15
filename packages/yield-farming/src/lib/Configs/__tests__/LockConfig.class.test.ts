@@ -6,7 +6,8 @@ global.BigInt.prototype.toJSON = function () {
 };
 
 import { AssetAmount } from "@sundaeswap/asset";
-import { ADA_METADATA } from "@sundaeswap/core";
+import { ADA_METADATA, EDatumType } from "@sundaeswap/core";
+import { ILockConfigArgs } from "../../../@types/configs.js";
 import { TDelegationPrograms } from "../../../@types/contracts.js";
 import { LockConfig } from "../LockConfig.js";
 
@@ -27,14 +28,24 @@ describe("LockConfig class", () => {
 
   it("should construct with a config", async () => {
     const myConfig = new LockConfig({
-      ownerAddress: PREVIEW_DATA.addresses.current,
+      ownerAddress: {
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       lockedValues: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
       programs: programs,
       existingPositions: [],
     });
 
     expect(myConfig.buildArgs()).toMatchObject({
-      ownerAddress: PREVIEW_DATA.addresses.current,
+      ownerAddress: {
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       lockedValues: [
         expect.objectContaining({
           amount: PREVIEW_DATA.assets.tada.amount,
@@ -53,8 +64,13 @@ describe("LockConfig class", () => {
     const freezer = new LockConfig();
     expect(() => freezer.buildArgs()).toThrow();
 
-    const myConfig = {
-      ownerAddress: PREVIEW_DATA.addresses.current,
+    const myConfig: ILockConfigArgs = {
+      ownerAddress: {
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       lockedValues: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
       programs,
       existingPositions: [],
@@ -63,7 +79,12 @@ describe("LockConfig class", () => {
     freezer.setFromObject(myConfig);
 
     expect(freezer.buildArgs()).toMatchObject({
-      ownerAddress: PREVIEW_DATA.addresses.current,
+      ownerAddress: {
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
       lockedValues: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
       programs,
       existingPositions: [],
@@ -88,8 +109,13 @@ describe("LockConfig class", () => {
   });
 
   it("it should set the ownerAddress correctly", () => {
-    config.setOwnerAddress("test");
-    expect(config.ownerAddress).toEqual("test");
+    config.setOwnerAddress({
+      address: "test",
+      datum: {
+        type: EDatumType.NONE,
+      },
+    });
+    expect(config.ownerAddress?.address).toEqual("test");
   });
 
   it("should set the lockValues correctly", () => {
@@ -107,7 +133,12 @@ describe("LockConfig class", () => {
   });
 
   it("should throw an error when validating that lockedValues are of the AssetAmount class", () => {
-    config.setOwnerAddress(PREVIEW_DATA.addresses.current);
+    config.setOwnerAddress({
+      address: PREVIEW_DATA.addresses.current,
+      datum: {
+        type: EDatumType.NONE,
+      },
+    });
     config.setLockedValues([
       PREVIEW_DATA.assets.tada,
       // @ts-ignore
@@ -120,7 +151,12 @@ describe("LockConfig class", () => {
   });
 
   it("should throw an error when giving a program but no locked values or existing data", () => {
-    config.setOwnerAddress(PREVIEW_DATA.addresses.current);
+    config.setOwnerAddress({
+      address: PREVIEW_DATA.addresses.current,
+      datum: {
+        type: EDatumType.NONE,
+      },
+    });
     config.setPrograms(programs);
 
     expect(() => config.validate()).toThrowError(

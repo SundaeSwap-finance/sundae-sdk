@@ -1,8 +1,14 @@
 import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
-import { ADA_METADATA, EDatumType } from "@sundaeswap/core";
+import {
+  ADA_METADATA,
+  EDatumType,
+  QueryProviderSundaeSwap,
+} from "@sundaeswap/core";
+import { TxBuilderLucidV3 } from "@sundaeswap/core/lucid";
 import {
   PREVIEW_DATA,
+  params,
   settingsUtxos,
   setupLucid,
 } from "@sundaeswap/core/testing";
@@ -16,16 +22,20 @@ import {
   NO_MIGRATION_ASSETS_UTXO,
 } from "./data/positions.js";
 
+jest
+  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScriptHashes")
+  .mockResolvedValue(params);
+
+jest
+  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScripts")
+  .mockResolvedValue(params);
+
 let YFInstance: YieldFarmingLucid;
 let lucidInstance: Lucid;
 
 const { getUtxosByOutRefMock, ownerAddress } = setupLucid((lucid) => {
   YFInstance = new YieldFarmingLucid(lucid);
   lucidInstance = lucid;
-});
-
-afterEach(() => {
-  getUtxosByOutRefMock.mockReset();
 });
 
 describe("YieldFarmingLucid", () => {
@@ -720,8 +730,9 @@ describe("YieldFarmingLucid", () => {
       );
     }
 
-    getUtxosByOutRefMock
-      .mockResolvedValueOnce([MIGRATION_ASSETS_UTXO])
+    getUtxosByOutRefMock.mockResolvedValueOnce([MIGRATION_ASSETS_UTXO]);
+    jest
+      .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
       .mockResolvedValue(settingsUtxos);
 
     await YFInstance.migrateToV3({

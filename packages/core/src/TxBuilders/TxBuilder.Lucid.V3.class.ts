@@ -175,11 +175,8 @@ export class TxBuilderLucidV3 extends TxBuilder {
   public async getAllSettingsUtxos(): Promise<UTxO[]> {
     if (!this.settingsUtxos) {
       const { hash } = await this.getValidatorScript("settings.mint");
-      this.settingsUtxos = [
-        await this.lucid.provider.getUtxoByUnit(
-          `${hash}${this.SETTINGS_NFT_NAME}`
-        ),
-      ];
+      const unit = `${hash}${this.SETTINGS_NFT_NAME}`;
+      this.settingsUtxos = [await this.lucid.provider.getUtxoByUnit(unit)];
     }
 
     return this.settingsUtxos;

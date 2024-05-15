@@ -14,7 +14,6 @@ import {
 } from "@sundaeswap/core/lucid";
 import { SundaeUtils } from "@sundaeswap/core/utilities";
 import {
-  Data,
   type Assets,
   type Datum,
   type Lucid,
@@ -23,11 +22,6 @@ import {
 } from "lucid-cardano";
 
 import { ILockConfigArgs, IMigrateConfigArgs } from "../../@types/configs.js";
-import {
-  Delegation,
-  TDelegation,
-  TDelegationPrograms,
-} from "../../@types/contracts.js";
 import { YieldFarming } from "../Abstracts/YieldFarming.abstract.class.js";
 import { LockConfig } from "../Configs/LockConfig.js";
 import { DatumBuilderLucid } from "./DatumBuilder.Lucid.class.js";
@@ -448,54 +442,30 @@ export class YieldFarmingLucid implements YieldFarming {
       })
     );
 
-    let programs: TDelegationPrograms = [];
-    const newDelegation: TDelegation = {
-      owner: ownerAddress,
-      programs,
-    };
-
-    existingPositionsData.forEach(({ datum }) => {
-      const currentDatum = Data.from(datum as string, Delegation);
-      for (const program of currentDatum.programs) {
-        if (program === "None") {
-          continue;
-        }
-
-        const programIsDefined = programs.find((data) => {
-          if (data === "None") {
-            return false;
-          }
-
-          const [existingRewardId, existingPoolIdent] = data.Delegation;
-          if (
-            existingRewardId === program.Delegation[0] &&
-            existingPoolIdent === program.Delegation[1]
-          ) {
-            return true;
-          }
-        });
-
-        if (programIsDefined) {
-          continue;
-        }
-
-        programs.push(program);
+    const newPayment: Assets = {};
+    Object.values(newLockedAssets).forEach(({ amount, assetId }) => {
+      if (newPayment[assetId.replace(".", "")]) {
+        newPayment[assetId.replace(".", "")] += amount;
+      } else {
+        newPayment[assetId.replace(".", "")] = amount;
       }
     });
 
-    console.log(programs);
+    const updatedTx = await tx
+      .collectFrom(existingPositionsData)
+      .payToContract(
+        lockContractAddress,
+        { inline: existingPositionsData[0].datum as string },
+        newPayment
+      );
 
-    // const { } = await tx
-    //   .collectFrom(existingPositionsData)
-    //   .complete({
-    //     coinSelection: false,
-    //     change: {
-    //       address: existingPositionsData[0].address,
-    //       outputData: {
-    //         inline:
-    //       }
-    //     }
-    //   });
+    return this.completeTx({
+      tx: updatedTx,
+      deposit: new AssetAmount(
+        BigInt(migrations.length) * this.__getParam("minLockAda"),
+        ADA_METADATA
+      ),
+    });
   }
 
   /**
