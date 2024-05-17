@@ -332,6 +332,19 @@ export class YieldFarmingLucid implements YieldFarming {
     });
   }
 
+  /**
+   * Migrates liquidity positions to version 3 of the contract.
+   *
+   * This function performs the migration of liquidity positions from Version 1 pools to Version 3 pools,
+   * ensuring that all assets are correctly unlocked, withdrawn, migrated, then re-locked into the
+   * YF contract. This makes no changes to the delegation settings.
+   *
+   * @param {IMigrateConfigArgs} migrationArgs - The configuration arguments for the migration.
+   * @param {Object} migrationArgs.ownerAddress - The address of the owner of the assets.
+   * @param {Array} migrationArgs.migrations - The list of migration configurations specifying which
+   *        assets to withdraw and deposit.
+   * @param {Array} migrationArgs.existingPositions - The list of existing positions to be migrated.
+   */
   async migrateToV3(migrationArgs: IMigrateConfigArgs) {
     const { ownerAddress, migrations, existingPositions } = migrationArgs;
     const txBuilder = new TxBuilderLucidV1(
@@ -405,8 +418,9 @@ export class YieldFarmingLucid implements YieldFarming {
       }
     );
 
-    const { tx } = await txBuilder.migrateLiquidityToV3(
-      migrations.map(({ withdrawPool, depositPool }) => {
+    const newLockMetadataDatum: Record<string, string[]> = {};
+    const configuredMigrations = migrations.map(
+      ({ withdrawPool, depositPool }) => {
         const oldDelegation = existingPositionsData.find(({ assets }) => {
           if (assets[withdrawPool.assetLP.assetId.replace(".", "")]) {
             return true;
@@ -417,6 +431,15 @@ export class YieldFarmingLucid implements YieldFarming {
           throw new Error("Could not find a matching delegation!");
         }
 
+        const dataHash = this.lucid.utils.datumToHash(
+          oldDelegation.datum as string
+        );
+
+        newLockMetadataDatum[`0x${dataHash}`] = SundaeUtils.splitMetadataString(
+          oldDelegation.datum as string,
+          "0x"
+        );
+
         return {
           depositPool,
           withdrawConfig: {
@@ -424,8 +447,8 @@ export class YieldFarmingLucid implements YieldFarming {
               DestinationAddress: {
                 address: lockContractAddress,
                 datum: {
-                  type: EDatumType.INLINE,
-                  value: oldDelegation.datum as string,
+                  type: EDatumType.HASH,
+                  value: dataHash,
                 },
               },
               AlternateAddress: ownerAddress.address,
@@ -439,7 +462,11 @@ export class YieldFarmingLucid implements YieldFarming {
             ),
           },
         };
-      })
+      }
+    );
+    const { tx } = await txBuilder.migrateLiquidityToV3(
+      configuredMigrations,
+      newLockMetadataDatum
     );
 
     const newPayment: Assets = {};
@@ -451,13 +478,28 @@ export class YieldFarmingLucid implements YieldFarming {
       }
     });
 
-    const updatedTx = await tx
-      .collectFrom(existingPositionsData)
+    const yfRefInput = await this.lucid.provider.getUtxosByOutRef([
+      {
+        txHash: this.__getParam("referenceInput").split("#")[0],
+        outputIndex: Number(this.__getParam("referenceInput").split("#")[1]),
+      },
+    ]);
+
+    const signerKey = LucidHelper.getAddressHashes(ownerAddress.address);
+
+    const updatedTx = tx
+      .readFrom(yfRefInput)
+      .collectFrom(existingPositionsData, VOID_REDEEMER)
+      .addSignerKey(signerKey.paymentCredentials)
       .payToContract(
         lockContractAddress,
         { inline: existingPositionsData[0].datum as string },
         newPayment
       );
+
+    if (signerKey?.stakeCredentials) {
+      tx.addSignerKey(signerKey.stakeCredentials);
+    }
 
     return this.completeTx({
       tx: updatedTx,

@@ -143,7 +143,7 @@ ___
 
 ### migrateLiquidityToV3
 
-▸ **migrateLiquidityToV3**(`migrations`): `Promise`\<[`IComposedTx`](../interfaces/Core.IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+▸ **migrateLiquidityToV3**(`migrations`, `metadataAdditions?`): `Promise`\<[`IComposedTx`](../interfaces/Core.IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
 
 Migrates liquidity from V1 to version V3 pools in a batch process. This asynchronous function
 iterates through an array of migration configurations, each specifying the withdrawal configuration
@@ -158,6 +158,7 @@ individual migrations and returns the completed transaction along with the total
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `migrations` | \{ `depositPool`: [`IPoolData`](../interfaces/Core.IPoolData.md) ; `withdrawConfig`: [`IWithdrawConfigArgs`](../interfaces/Core.IWithdrawConfigArgs.md)  }[] | An array of objects, each containing the withdrawal configuration for a V1 pool and the deposit pool data for a V3 pool. |
+| `metadataAdditions?` | `Record`\<`string`, `string`[]\> | - |
 
 #### Returns
 

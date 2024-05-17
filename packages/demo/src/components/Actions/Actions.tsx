@@ -17,6 +17,7 @@ import { Deposit } from "./modules/Deposit";
 import { DepositTasteTest } from "./modules/DepositTasteTest";
 import { Lock } from "./modules/LockAssets";
 import { Migrate } from "./modules/MigrateV1LiquidityToV3";
+import { MigrateYF } from "./modules/MigrateV1LockedLiquidity";
 import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
 import { Unlock } from "./modules/UnlockAssets";
@@ -115,6 +116,7 @@ export const Actions: FC = () => {
         <Unlock setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <CancelSwap setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Migrate setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        <MigrateYF setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <CreatePool setFees={setFees} setCBOR={setCBOR} submit={submit} />
 
         <div className="col-span-2 flex items-center justify-between gap-2">

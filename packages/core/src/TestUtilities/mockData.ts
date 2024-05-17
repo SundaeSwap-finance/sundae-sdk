@@ -28,7 +28,7 @@ interface INetworkData {
     assets: Assets;
     utxos: UTxO[];
     referenceUtxos: {
-      previewTasteTest: UTxO;
+      previewYFReferenceInput: UTxO;
     };
     submittedOrderUtxos: {
       swapV1: UTxO;
@@ -329,7 +329,7 @@ const PREVIEW_DATA: INetworkData = {
       },
     ],
     referenceUtxos: {
-      previewTasteTest: {
+      previewYFReferenceInput: {
         address:
           "addr_test1qzj89zakqu939ljqrpsu5r0eq8eysxsncs0jyylrcjxvn2eam2na4f9wm8yxqa9andqfvu80uykztpnkfj9ey6vxf95qz4nnaf",
         assets: { lovelace: 20_000_000n },

@@ -61,6 +61,8 @@
   "peerDependencies": {
     "@sundaeswap/asset": "^0.7.1",
     "@sundaeswap/core": "^1.0.0",
+    "@sundaeswap/cpp": "^0.6.12",
     "lucid-cardano": "^0.10.7"
-  }
+  },
+  "dependencies": {}
 }

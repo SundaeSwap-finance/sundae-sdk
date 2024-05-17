@@ -1,22 +1,25 @@
 import { AssetAmount } from "@sundaeswap/asset";
 import { FC, useCallback, useState } from "react";
 
+import { EDatumType } from "@sundaeswap/core";
 import { YieldFarmingLucid } from "@sundaeswap/yield-farming";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs } from "../Actions";
 
 export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const {
-    SDK,
-    ready,
-    activeWalletAddr: walletAddress,
-    useReferral,
-  } = useAppState();
+  const { SDK, ready, activeWalletAddr, useReferral } = useAppState();
   const [unlocking, setUnlocking] = useState(false);
 
   const handleUnlock = useCallback(async () => {
     if (!SDK) {
+      return;
+    }
+
+    const txHash = prompt("txHash");
+    const index = prompt("index");
+
+    if (!txHash || !index) {
       return;
     }
 
@@ -25,11 +28,16 @@ export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     setUnlocking(true);
     try {
       await YF.unlock({
-        ownerAddress: walletAddress,
+        ownerAddress: {
+          address: activeWalletAddr,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
         existingPositions: [
           {
-            hash: "d211adc4de0633448eab33aa5292a97d4dc0815ce4d17114c9d850959800d6b3",
-            index: 0,
+            hash: txHash,
+            index: Number(index),
           },
         ],
         ...(useReferral
@@ -67,7 +75,7 @@ export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setUnlocking(false);
-  }, [SDK, submit, walletAddress, useReferral]);
+  }, [SDK, submit, activeWalletAddr, useReferral]);
 
   if (!SDK) {
     return null;

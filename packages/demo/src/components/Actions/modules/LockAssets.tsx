@@ -8,15 +8,11 @@ import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
 import { IActionArgs } from "../Actions";
 
+import { EDatumType } from "@sundaeswap/core";
 import Button from "../../Button";
 
 export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const {
-    SDK,
-    ready,
-    activeWalletAddr: walletAddress,
-    useReferral,
-  } = useAppState();
+  const { SDK, ready, activeWalletAddr, useReferral } = useAppState();
   const [locking, setLocking] = useState(false);
 
   const handleLock = useCallback(async () => {
@@ -34,7 +30,12 @@ export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       const YF = new YieldFarmingLucid(SDK.builder().lucid);
 
       await YF.lock({
-        ownerAddress: walletAddress,
+        ownerAddress: {
+          address: activeWalletAddr,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
         lockedValues: [new AssetAmount(5000000n, { assetId: "", decimals: 6 })],
         programs: delegation,
         ...(useReferral
@@ -72,7 +73,7 @@ export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setLocking(false);
-  }, [SDK, submit, walletAddress, useReferral]);
+  }, [SDK, submit, activeWalletAddr, useReferral]);
 
   if (!SDK) {
     return null;

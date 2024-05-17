@@ -1946,7 +1946,7 @@
   resolved "https://registry.yarnpkg.com/@sundaeswap/bigint-math/-/bigint-math-0.5.9.tgz#b7bec95324f8caa202794f8efd907990b5ac2a84"
   integrity sha512-TYZwvgpA+aZFAroO0qYQSOn1c1h/IdmCuqS0PZ1mbF8wBdJ7JjDV0wu6onIzXZ3O6SZHlthyN3m6F2PjeYrQfA==
 
-"@sundaeswap/cpp@^0.6.7":
+"@sundaeswap/cpp@^0.6.12", "@sundaeswap/cpp@^0.6.7":
   version "0.6.12"
   resolved "https://registry.yarnpkg.com/@sundaeswap/cpp/-/cpp-0.6.12.tgz#9588320d93eab931734fd79b16a2b30419608bb6"
   integrity sha512-0C2JzZ+aiz3Mdr0hcIggqg6zg63HNahl/UWM9KUZq+gKaXd1lF3eHPXT1/UMFU5E70RLj3KvytNLJsKR9GUkPw==

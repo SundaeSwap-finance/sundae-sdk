@@ -5,7 +5,6 @@ import {
   EDatumType,
   QueryProviderSundaeSwap,
 } from "@sundaeswap/core";
-import { TxBuilderLucidV3 } from "@sundaeswap/core/lucid";
 import {
   PREVIEW_DATA,
   params,
@@ -14,6 +13,7 @@ import {
 } from "@sundaeswap/core/testing";
 import { C, Data, Lucid, Tx } from "lucid-cardano";
 
+import { TxBuilderLucidV3 } from "@sundaeswap/core/lucid";
 import { Delegation, TDelegation } from "../../../@types/contracts.js";
 import { YieldFarmingLucid } from "../YieldFarming.Lucid.class.js";
 import { delegation } from "./data/delegation.js";
@@ -42,7 +42,7 @@ describe("YieldFarmingLucid", () => {
   it("should build an accurate transaction with an accurate datum when locking a position for the first time.", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYFReferenceInput,
       ])
       .mockResolvedValueOnce(undefined);
 
@@ -121,7 +121,7 @@ describe("YieldFarmingLucid", () => {
   it("should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYFReferenceInput,
       ])
       .mockResolvedValueOnce([
         {
@@ -179,7 +179,7 @@ describe("YieldFarmingLucid", () => {
 
     // Cover case where there are no existing positions with null.
     getUtxosByOutRefMock.mockResolvedValueOnce([
-      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+      PREVIEW_DATA.wallet.referenceUtxos.previewYFReferenceInput,
     ]);
     const { datum: fallbackDatum } = await YFInstance.lock({
       lockedValues: [
@@ -213,7 +213,7 @@ describe("YieldFarmingLucid", () => {
   it("should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYFReferenceInput,
       ])
       .mockResolvedValueOnce([
         {
@@ -272,7 +272,7 @@ describe("YieldFarmingLucid", () => {
   it("should build a delegation datum along with the transaction if set", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYFReferenceInput,
       ])
       .mockResolvedValueOnce(undefined);
 
@@ -358,7 +358,7 @@ describe("YieldFarmingLucid", () => {
   it("should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYFReferenceInput,
       ])
       .mockResolvedValueOnce([
         {
@@ -417,7 +417,7 @@ describe("YieldFarmingLucid", () => {
   it("should not build a datum when unlocking assets", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYFReferenceInput,
       ])
       .mockResolvedValueOnce([
         {
@@ -485,7 +485,7 @@ describe("YieldFarmingLucid", () => {
 
   it("should correctly build the fees object", async () => {
     getUtxosByOutRefMock.mockResolvedValueOnce([
-      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+      PREVIEW_DATA.wallet.referenceUtxos.previewYFReferenceInput,
     ]);
 
     const { fees, build } = await YFInstance.lock({
@@ -530,7 +530,7 @@ describe("YieldFarmingLucid", () => {
     const referralFeeAddress =
       "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68";
     getUtxosByOutRefMock.mockResolvedValueOnce([
-      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+      PREVIEW_DATA.wallet.referenceUtxos.previewYFReferenceInput,
     ]);
 
     const adaReferral = await YFInstance.lock({
@@ -591,7 +591,7 @@ describe("YieldFarmingLucid", () => {
     expect(hasAdaReferralFee).toBeTruthy();
 
     getUtxosByOutRefMock.mockResolvedValueOnce([
-      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+      PREVIEW_DATA.wallet.referenceUtxos.previewYFReferenceInput,
     ]);
 
     const nonAdaReferral = await YFInstance.lock({
@@ -730,12 +730,17 @@ describe("YieldFarmingLucid", () => {
       );
     }
 
-    getUtxosByOutRefMock.mockResolvedValueOnce([MIGRATION_ASSETS_UTXO]);
+    getUtxosByOutRefMock
+      .mockResolvedValueOnce([MIGRATION_ASSETS_UTXO])
+      .mockResolvedValueOnce([
+        PREVIEW_DATA.wallet.referenceUtxos.previewYFReferenceInput,
+      ]);
+
     jest
       .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
       .mockResolvedValue(settingsUtxos);
 
-    await YFInstance.migrateToV3({
+    const { build } = await YFInstance.migrateToV3({
       ownerAddress: {
         address: ownerAddress,
         datum: {
@@ -755,5 +760,10 @@ describe("YieldFarmingLucid", () => {
         },
       ],
     });
+
+    const { cbor } = await build();
+    expect(cbor).toEqual(
+      "84aa0082825820f28d6c3105a8a72f83e2cff9c9c042eb8e0449a6b5ab38b26ff899ab61be997e00825820fda5c685eaff5fbb2a7ecb250389fd24a7216128929a9da0ad95b72b586fab7001018383581d70730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977e821a004c4b40a1581c4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9a1446c7020061b000000746a5288005820bc4bc185aca53199a608b4cf3f8b312dc926e368595860934c97b8d4fbf87641a30058391073275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa801821a004c4b40a1581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a144555344431a02625a00028201d818585fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff82583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01b00000003be6703b9021a0003a2380758205c93f5c5a808b1a60e8008b61678b7c71b0e850919403e43feed6bda6107926c0b5820ee58c2a0c90d28faafb874b2351e38cae733fad8716e60814be03bf10597ab970d81825820fda5c685eaff5fbb2a7ecb250389fd24a7216128929a9da0ad95b72b586fab70010e82581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01082583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01b00000003beb17ddd111a000573541281825820aaaf193b8418253f4169ab869b77dedd4ee3df4f2837c226cee3c2f7fa95518900a2049fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffffd8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f5820ab8220760a832276e4a79cbb2730de62c5c1f17680790911a244b4d4cc9cc069ffffd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affff1a002625a0d87a9f1b000000746a528800ffffff0581840000d87a80821a000171ab1a020fc154f5a11a00019353a2582029d4b994f2d4b29e34701e1dbc3e6e519684eaa808ff3944a6d646a74d86fcc484581fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b4069581f1eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e44594104581f1837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ff42ffff5820ab8220760a832276e4a79cbb2730de62c5c1f17680790911a244b4d4cc9cc06989581fd8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a4581f2470b21ea2ffd8799f581c045d47cac5067ce697478c11051deb935a152e07581f73a5d7430a11baa8ff1a0007a120d8799fd8799fd87a9f581c73275b9e267f581fd927bfc14cf653d904d1538ad8869260ab638bf73f5cffd8799fd8799fd879581f9f581c045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa8581fffffffffd87a9f582029d4b994f2d4b29e34701e1dbc3e6e519684eaa808ff581f3944a6d646a74d86fcc4ffffd87b9f9f9f40401b000000a4a2d93ca5ff9f58581f1cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183457455494e44591b00000052516c9e52ffffff43d87980ff"
+    );
   });
 });

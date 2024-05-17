@@ -670,7 +670,8 @@ export class TxBuilderLucidV1 extends TxBuilder {
     migrations: {
       withdrawConfig: IWithdrawConfigArgs;
       depositPool: IPoolData;
-    }[]
+    }[],
+    metadataAdditions?: Record<string, string[]>
   ): Promise<
     IComposedTx<
       Tx,
@@ -683,7 +684,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
     let totalScooper = 0n;
     let totalDeposit = 0n;
     let totalReferralFees = new AssetAmount(0n, ADA_METADATA);
-    const metadataDatums: Record<string, string[]> = {};
+    const metadataDatums: Record<string, string[]> = metadataAdditions ?? {};
     const v3TxBuilderInstance = new TxBuilderLucidV3(
       this.lucid,
       new DatumBuilderLucidV3(this.network),

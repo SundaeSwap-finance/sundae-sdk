@@ -27,3 +27,16 @@ export const DelegationSchema = Data.Object({
 });
 export type TDelegation = Data.Static<typeof DelegationSchema>;
 export const Delegation = DelegationSchema as unknown as TDelegation;
+
+export const DelegationMetadataSchema = Data.Enum([
+  Data.Literal("None"),
+  Data.Literal("None"),
+  Data.Object({
+    Delegation: Data.Object({
+      value: DelegationSchema,
+    }),
+  }),
+]);
+export type TDelegationMetadata = Data.Static<typeof DelegationMetadataSchema>;
+export const DelegationMetadata =
+  DelegationMetadataSchema as unknown as TDelegationMetadata;
