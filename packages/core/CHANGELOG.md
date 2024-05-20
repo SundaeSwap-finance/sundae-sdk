@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.6](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.1.5...@sundaeswap/core@1.1.6) (2024-05-20)
+
+**Note:** Version bump only for package @sundaeswap/core
+
 ## [1.1.5](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.1.4...@sundaeswap/core@1.1.5) (2024-05-15)
 
 **Note:** Version bump only for package @sundaeswap/core
