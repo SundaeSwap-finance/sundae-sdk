@@ -10,7 +10,11 @@ import {
   TSettingsDatum,
 } from "../../DatumBuilders/contracts/contracts.v3.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
-import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../../constants.js";
+import {
+  ADA_METADATA,
+  ORDER_DEPOSIT_DEFAULT,
+  POOL_MIN_ADA,
+} from "../../constants.js";
 import { PREVIEW_DATA, setupLucid } from "../../exports/testing.js";
 import { TxBuilderLucidV1 } from "../TxBuilder.Lucid.V1.class.js";
 import { TxBuilderLucidV3 } from "../TxBuilder.Lucid.V3.class.js";
@@ -619,7 +623,7 @@ describe("TxBuilderLucidV3", () => {
     );
     // Should deposit assets without additional ADA.
     expect(poolDepositedAssetA).toEqual(
-      PREVIEW_DATA.assets.tada.amount.toString()
+      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString()
     );
     expect(poolDepositedAssetB).toEqual("20000000");
     expect(poolDepositedNFT).toEqual("1");
@@ -629,7 +633,7 @@ describe("TxBuilderLucidV3", () => {
         poolOutput.datum()?.as_data()?.to_bytes() as Uint8Array
       ).toString("hex")
     ).toEqual(
-      "d818585ad8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a800500ff"
+      "d818585ed8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
     );
 
     /**
