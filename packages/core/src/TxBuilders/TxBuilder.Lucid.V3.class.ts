@@ -331,12 +331,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       poolAssets[sortedAssets[0].metadata.assetId.replace(".", "")] =
         sortedAssets[0].amount;
     } else {
-      // Ensure min-ada value is correct value.
-      if (sortedAssets[0].amount < POOL_MIN_ADA) {
-        throw new Error(TxBuilderLucidV3.MIN_ADA_POOL_MINT_ERROR);
-      }
-
-      poolAssets.lovelace = sortedAssets[0].amount;
+      poolAssets.lovelace += sortedAssets[0].amount;
     }
 
     const {
@@ -347,7 +342,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       assetB: sortedAssets[1],
       fee,
       marketOpen,
-      depositFee: exoticPair ? POOL_MIN_ADA : 0n,
+      depositFee: POOL_MIN_ADA,
       seedUtxo: userUtxos[0],
     });
 
