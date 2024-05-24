@@ -744,7 +744,6 @@ export class TxBuilderLucidV1 extends TxBuilder {
     migrations: {
       withdrawConfig: IWithdrawConfigArgs;
       depositPool: IPoolData;
-      isYieldFarming?: boolean;
       newLockedAssets?: Record<
         string,
         IAssetAmountMetadata & { amount: bigint }
@@ -922,7 +921,6 @@ export class TxBuilderLucidV1 extends TxBuilder {
 
         const config = {
           newLockedAssets: returnedYFAssets,
-          isYieldFarming: true,
           depositPool,
           withdrawConfig: {
             orderAddresses: {
@@ -953,19 +951,20 @@ export class TxBuilderLucidV1 extends TxBuilder {
      * Now we can wrap up all the migrations and compose them into the transaction,
      * as well as update the metadata object we will attach.
      */
-    migrations.forEach(({ withdrawConfig, depositPool, isYieldFarming }) => {
+    migrations.forEach(({ withdrawConfig, depositPool }) => {
       const withdrawArgs = new WithdrawConfig(withdrawConfig).buildArgs();
 
       const tx = this.newTxInstance(withdrawArgs.referralFee);
+      const scooperFee = this.__getParam("maxScooperFee") + v3MaxScooperFee;
 
       const payment = SundaeUtils.accumulateSuppliedAssets({
         suppliedAssets: [withdrawArgs.suppliedLPAsset],
         // Add another scooper fee requirement since we are executing two orders.
-        scooperFee: this.__getParam("maxScooperFee") + v3MaxScooperFee,
+        scooperFee,
       });
 
       totalDeposit += ORDER_DEPOSIT_DEFAULT;
-      totalScooper += this.__getParam("maxScooperFee") + v3MaxScooperFee;
+      totalScooper += scooperFee;
       withdrawArgs.referralFee?.payment &&
         totalReferralFees.add(withdrawArgs.referralFee.payment);
 

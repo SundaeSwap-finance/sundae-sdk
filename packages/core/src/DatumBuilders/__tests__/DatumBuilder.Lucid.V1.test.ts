@@ -31,7 +31,7 @@ describe("DatumBuilderLucid.buildOrderAddressesDatum", () => {
   it("should pass when providing valid OrderAddresses arguments", () => {
     const result = builderInstance.buildOrderAddresses(DEFAULT_ORDER_ADDRESSES);
     expect(result.inline).toStrictEqual(
-      "d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd8799f581c02659dc406e1d51c2695bc23962b30487d3ceb995beb13b698509c6fffff"
+      "d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87a80ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff"
     );
 
     const result2 = builderInstance.buildOrderAddresses({
@@ -68,10 +68,11 @@ describe("DatumBuilderLucid.buildOrderAddressesDatum", () => {
           value: hash,
         },
       },
+      AlternateAddress: DEFAULT_ORDER_ADDRESSES.AlternateAddress,
     });
 
     expect(result4.inline).toStrictEqual(
-      "d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd8799f5820dde8ffb8c71965d451dc92ab4685111ab742dd66c788975d229141cbe1a78e8dffffd87a80ff"
+      "d8799fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd8799f5820334e43eb4307f05c651f9bdf470391c0f7810971a753053549cb1a362b7e14fcffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff"
     );
   });
 

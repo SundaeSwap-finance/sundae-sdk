@@ -235,8 +235,7 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
 
   buildOrderAddresses(addresses: TOrderAddresses): TDatumResult<Data> {
     LucidHelper.validateAddressAndDatumAreValid({
-      address: addresses.DestinationAddress.address,
-      datum: addresses.DestinationAddress.datum,
+      ...addresses.DestinationAddress,
       network: this.network,
     });
 
@@ -282,7 +281,9 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
       AlternateAddress && LucidHelper.getAddressHashes(AlternateAddress);
     const alternateDatum = new Constr(
       alternate ? 0 : 1,
-      alternate ? [alternate.paymentCredentials] : []
+      alternate
+        ? [alternate.stakeCredentials ?? alternate.paymentCredentials]
+        : []
     );
 
     const datum = new Constr(0, [destinationDatum, alternateDatum]);
