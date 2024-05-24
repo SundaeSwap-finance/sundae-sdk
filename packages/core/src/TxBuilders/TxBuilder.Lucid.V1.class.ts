@@ -1,21 +1,33 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getTokensForLp } from "@sundaeswap/cpp";
-import type { Assets, Datum, Lucid, Tx, TxComplete } from "lucid-cardano";
+import type {
+  Assets,
+  Datum,
+  Lucid,
+  Script,
+  Tx,
+  TxComplete,
+} from "lucid-cardano";
 import { Data, getAddressDetails } from "lucid-cardano";
 
 import {
+  EContractVersion,
   EDatumType,
   ICancelConfigArgs,
   IComposedTx,
   IDepositConfigArgs,
   IPoolData,
+  ISundaeProtocolParamsFull,
+  ISundaeProtocolValidatorFull,
   ISwapConfigArgs,
   ITxBuilderFees,
   ITxBuilderReferralFee,
   IWithdrawConfigArgs,
   IZapConfigArgs,
   TDepositMixed,
+  TDestinationAddress,
   TSupportedNetworks,
+  TUTXO,
 } from "../@types/index.js";
 import { TxBuilder } from "../Abstracts/TxBuilder.abstract.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
@@ -27,6 +39,7 @@ import { DatumBuilderLucidV1 } from "../DatumBuilders/DatumBuilder.Lucid.V1.clas
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import { OrderDatum } from "../DatumBuilders/contracts/contracts.v3.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
+import { LucidHelper } from "../Utilities/LucidHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
@@ -51,8 +64,6 @@ export interface ITxBuilderLucidCompleteTxArgs {
  * Interface describing the parameter names for the transaction builder.
  */
 export interface ITxBuilderV1Params {
-  scriptAddress: string;
-  scriptValidator: string;
   cancelRedeemer: string;
   maxScooperFee: bigint;
 }
@@ -68,21 +79,14 @@ export interface ITxBuilderV1Params {
 export class TxBuilderLucidV1 extends TxBuilder {
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
+  protocolParams: ISundaeProtocolParamsFull | undefined;
 
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV1Params> = {
     mainnet: {
-      scriptAddress:
-        "addr1wxaptpmxcxawvr3pzlhgnpmzz3ql43n2tc8mn3av5kx0yzs09tqh8",
-      scriptValidator:
-        "59084601000033233322232332232333222323332223322323332223233223233223332223333222233322233223322332233223332223322332233322232323232322222325335300b001103c13503d35303b3357389201035054350003c498ccc888c8c8c94cd4c05c0144d4c0680188888cd4c04c480048d4c0ed40188888888888cd4c078480048ccd5cd19b8f375c0020180440420066a6040006446a6048004446a605000444666aa60302400244a66a6a07c0044266a08c0020042002a0886466a002a088a08a2446600466a609000846a0820024a0806600400e00226a606ca002444444444466a6032240024646464666ae68cdc399991119191800802990009aa82c1119a9a826000a4000446a6aa08a00444a66a6050666ae68cdc78010048150148980380089803001990009aa82b9119a9a825800a4000446a6aa08800444a66a604e666ae68cdc7801003814814080089803001999aa81e3ae335503c75ceb4d4c084cccd5cd19b8735573aa006900011998119aba1500335742a00466a080eb8d5d09aba2500223505135304f33573892010350543100050499262220020183371491010270200035302801422220044800808007c4d5d1280089aab9e500113754002012264a66a6a070601a6aae78dd50008a81a910a99a9a81d0008a81b910a99a9a81e0008a81c910a99a9a81f0008a81d910a99a9a8200008a81e910a99a9a8210008a81f910a99a9a8220008a820910a99a9a8230008a821910a99a9a8240008a822910a99a9a8250008a823910a99a9a82600089999999999825981000a18100090080071810006181000500418100031810002001110a8259a980a1999ab9a3370e6aae754009200023301635742a0046ae84d5d1280111a8211a982019ab9c490103505431000414992622002135573ca00226ea8004cd40148c8c8c8c8cccd5cd19b8735573aa00890001199980d9bae35742a0086464646666ae68cdc39aab9d5002480008cc88cc08c008004c8c8c8cccd5cd19b8735573aa004900011991198148010009919191999ab9a3370e6aae754009200023302d304735742a00466a07a4646464646666ae68cdc3a800a4004466606a6eb4d5d0a8021bad35742a0066eb4d5d09aba2500323333573466e1d4009200023037304e357426aae7940188d4154d4c14ccd5ce2490350543100054499264984d55cea80189aba25001135573ca00226ea8004d5d09aba2500223504e35304c335738921035054310004d49926135573ca00226ea8004d5d0a80119a81cbae357426ae8940088d4128d4c120cd5ce249035054310004949926135573ca00226ea8004d5d0a80119a81abae357426ae8940088d4118d4c110cd5ce249035054310004549926135573ca00226ea8004d5d0a8019bad35742a00464646464646666ae68cdc3a800a40084605c646464646666ae68cdc3a800a40044606c6464646666ae68cdc39aab9d5002480008cc88cd40f8008004dd69aba15002375a6ae84d5d1280111a8289a982799ab9c491035054310005049926135573ca00226ea8004d5d09aab9e500423333573466e1d40092000233036304b35742a0086eb4d5d09aba2500423504e35304c335738921035054310004d499264984d55cea80109aab9e5001137540026ae84d55cf280291999ab9a3370ea0049001118169bad357426aae7940188cccd5cd19b875003480008ccc0bcc11cd5d0a8031bad35742a00a66a072eb4d5d09aba2500523504a353048335738920103505431000494992649926135573aa00626ae8940044d55cf280089baa001357426ae8940088d4108d4c100cd5ce249035054310004149926135744a00226ae8940044d55cf280089baa0010033350052323333573466e1d40052002201623333573466e1d40092000201623504035303e335738921035054310003f499264984d55ce9baa001002335005200100112001230023758002640026aa072446666aae7c004940c08cd40bcd5d080118019aba2002498c8004d540e088448894cd4d40bc0044008884cc014008ccd54c01c48004014010004c8004d540dc884894cd4d40b400440188854cd4c01cc01000840244cd4c01848004010004488008488004800488848ccc00401000c00880048848cc00400c00880044880084880048004888848cccc00401401000c00880048848cc00400c00880048848cc00400c00880048848cc00400c00880048488c00800c888488ccc00401401000c800484888c00c0108884888ccc00801801401084888c00401080048488c00800c88488cc00401000c800448848cc00400c008480044488c88c008dd5800990009aa80d11191999aab9f0022501223350113355008300635573aa004600a6aae794008c010d5d100180c09aba10011122123300100300211200112232323333573466e1d400520002350083005357426aae79400c8cccd5cd19b87500248008940208d405cd4c054cd5ce24810350543100016499264984d55cea80089baa00112122300200311220011200113500d35300b3357389211f556e6578706563746564205478496e666f20636f6e737472756374696f6e2e0000c498888888888848cccccccccc00402c02802402001c01801401000c00880044488008488488cc00401000c480048c8c8cccd5cd19b875001480088c018dd71aba135573ca00646666ae68cdc3a80124000460106eb8d5d09aab9e500423500c35300a3357389201035054310000b499264984d55cea80089baa001212230020032122300100320012323333573466e1d40052002200823333573466e1d40092000200a2350073530053357389210350543100006499264984d55ce9baa0011200120011261220021220012001112323001001223300330020020014891c0029cb7c88c7567b63d1a512c0ed626aa169688ec980730c0473b9130001",
       cancelRedeemer: VOID_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
     preview: {
-      scriptAddress:
-        "addr_test1wpesulg5dtt5y73r4zzay9qmy3wnlrxdg944xg4rzuvewls7nrsf0",
-      scriptValidator:
-        "5906f501000033233223232323232323322323233223232323222323232322322323232325335001101d13263201d335738921035054350001d32325335001133530121200123353013120012333573466e3cdd700080100b00a9aa8021111111111001991a800911a80111199aa980b0900091299a8011099a8138008010800a81299a8121a8011119a80111a8100009280f99a812001a8129a8011111001899a9809090009191919199ab9a3370e646464646002008640026aa0504466a0029000111a80111299a999ab9a3371e0040360420402600e0022600c006640026aa04e4466a0029000111a80111299a999ab9a3371e00400e04003e20022600c00666e292201027020003500722220043335501975c66aa032eb9d69a9999ab9a3370e6aae75400d200023332221233300100400300235742a0066ae854008cd406dd71aba135744a004464c6404666ae7008008c0848880092002018017135744a00226aae7940044dd50009aa80191111111110049999ab9a3370ea00c9001109100111999ab9a3370ea00e9000109100091931900f99ab9c01c01f01d01c3333573466e1cd55cea8052400046666444424666600200a0080060046eb8d5d0a8051919191999ab9a3370e6aae754009200023232123300100300233501a75c6ae84d5d128019919191999ab9a3370e6aae754009200023232123300100300233501e75c6ae84d5d128019919191999ab9a3370e6aae7540092000233221233001003002302435742a00466a0424646464646666ae68cdc3a800a4004466644424466600200a0080066eb4d5d0a8021bad35742a0066eb4d5d09aba2500323333573466e1d400920002321223002003302b357426aae7940188c98c80c0cd5ce01681801701689aab9d5003135744a00226aae7940044dd50009aba135744a004464c6405266ae700980a409c4d55cf280089baa00135742a004464c6404a66ae7008809408c4d55cf280089baa00135742a004464c6404266ae7007808407c4d55cf280089baa00135742a0126eb4d5d0a80419191919191999ab9a3370ea002900211909111801802191919191999ab9a3370ea002900111909118010019919191999ab9a3370e6aae7540092000232321233001003002375a6ae84d5d128019bad35742a004464c6405866ae700a40b00a84d55cf280089baa001357426aae7940108cccd5cd19b875002480008cc88488cc00401000cc094d5d0a8021bad357426ae8940108c98c80a4cd5ce01301481381309aab9d5002135573ca00226ea8004d5d09aab9e500523333573466e1d4009200223212223001004375a6ae84d55cf280311999ab9a3370ea00690001199911091119980100300280218109aba15006375a6ae854014cd4075d69aba135744a00a464c6404a66ae7008809408c0880844d55cea80189aba25001135573ca00226ea8004d5d09aba2500823263201d33573803403a036264a66a601c6aae78dd50008980d24c442a66a0022603893110a99a8008980f24c442a66a0022604093110a99a8008981124c442a66a0022604893110a99a8008981324c442a66a0022605093110a99a8008981524c442a66a0022605893110a99a800899999991111109199999999980080380300b80a802802007801801004981080a18108091810806181080518108031810802110981824c6a6666ae68cdc39aab9d5002480008cc8848cc00400c008d5d0a8011aba135744a004464c6403866ae70064070068880084d55cf280089baa001135573a6ea80044d5d1280089aba25001135573ca00226ea80048c008dd6000990009aa808911999aab9f0012501323350123574200460066ae8800803cc8004d5404088448894cd40044008884cc014008ccd54c01c48004014010004c8004d5403c884894cd400440148854cd4c01000840204cd4c018480040100044880084880044488c88c008dd5800990009aa80711191999aab9f00225011233501033221233001003002300635573aa004600a6aae794008c010d5d100180709aba100112232323333573466e1d400520002350073005357426aae79400c8cccd5cd19b875002480089401c8c98c8038cd5ce00580700600589aab9d5001137540022424460040062244002464646666ae68cdc3a800a400446424460020066eb8d5d09aab9e500323333573466e1d400920002321223002003375c6ae84d55cf280211931900519ab9c00700a008007135573aa00226ea80048c8cccd5cd19b8750014800884880048cccd5cd19b8750024800084880088c98c8020cd5ce00280400300289aab9d375400292103505431002326320033357389211f556e6578706563746564205478496e666f20636f6e737472756374696f6e2e00003498480044488008488488cc00401000c448c8c00400488cc00cc00800800522011c4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c90001",
       cancelRedeemer: VOID_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
@@ -101,6 +105,51 @@ export class TxBuilderLucidV1 extends TxBuilder {
     this.network = lucid.network === "Mainnet" ? "mainnet" : "preview";
     this.queryProvider =
       queryProvider ?? new QueryProviderSundaeSwap(this.network);
+  }
+
+  /**
+   * Retrieves the basic protocol parameters from the SundaeSwap API
+   * and fills in a place-holder for the compiled code of any validators.
+   *
+   * This is to keep things lean until we really need to attach a validator,
+   * in which case, a subsequent method call to {@link TxBuilderLucidV3#getValidatorScript}
+   * will re-populate with real data.
+   *
+   * @returns {Promise<ISundaeProtocolParamsFull>}
+   */
+  public async getProtocolParams(): Promise<ISundaeProtocolParamsFull> {
+    if (!this.protocolParams) {
+      this.protocolParams =
+        await this.queryProvider.getProtocolParamsWithScripts(
+          EContractVersion.V1
+        );
+    }
+
+    return this.protocolParams;
+  }
+
+  /**
+   * Gets the full validator script based on the key. If the validator
+   * scripts have not been fetched yet, then we get that information
+   * before returning a response.
+   *
+   * @param {string} name The name of the validator script to retrieve.
+   * @returns {Promise<ISundaeProtocolValidatorFull>}
+   */
+  public async getValidatorScript(
+    name: string
+  ): Promise<ISundaeProtocolValidatorFull> {
+    const params = await this.getProtocolParams();
+    const result = params.blueprint.validators.find(
+      ({ title }) => title === name
+    );
+    if (!result) {
+      throw new Error(
+        `Could not find a validator that matched the key: ${name}`
+      );
+    }
+
+    return result;
   }
 
   /**
@@ -123,7 +172,9 @@ export class TxBuilderLucidV1 extends TxBuilder {
    * @param param The parameter you want to retrieve.
    * @returns {ITxBuilderV1Params}
    */
-  private __getParam<K extends keyof ITxBuilderV1Params>(param: K) {
+  public __getParam<K extends keyof ITxBuilderV1Params>(
+    param: K
+  ): ITxBuilderV1Params[K] {
     return TxBuilderLucidV1.getParam(param, this.network);
   }
 
@@ -211,7 +262,13 @@ export class TxBuilderLucidV1 extends TxBuilder {
       scooperFee: this.__getParam("maxScooperFee"),
     });
 
-    txInstance.payToContract(this.__getParam("scriptAddress"), cbor, payment);
+    const { compiledCode } = await this.getValidatorScript("escrow.spend");
+    const scriptAddress = this.lucid.utils.validatorToAddress({
+      type: "PlutusV1",
+      script: compiledCode,
+    });
+
+    txInstance.payToContract(scriptAddress, cbor, payment);
     return this.completeTx({
       tx: txInstance,
       datum: cbor,
@@ -280,16 +337,15 @@ export class TxBuilderLucidV1 extends TxBuilder {
       );
     }
 
-    try {
-      tx.collectFrom(utxoToSpend, this.__getParam("cancelRedeemer"))
-        .addSignerKey(signerKey)
-        .attachSpendingValidator({
-          type: "PlutusV1",
-          script: this.__getParam("scriptValidator"),
-        });
-    } catch (e) {
-      throw e;
-    }
+    const { compiledCode } = await this.getValidatorScript("escrow.spend");
+    const scriptValidator: Script = {
+      type: "PlutusV1",
+      script: compiledCode,
+    };
+
+    tx.collectFrom(utxoToSpend, this.__getParam("cancelRedeemer"))
+      .addSignerKey(signerKey)
+      .attachSpendingValidator(scriptValidator);
 
     return this.completeTx({
       tx,
@@ -364,8 +420,14 @@ export class TxBuilderLucidV1 extends TxBuilder {
       throw new Error("Swap datum is required.");
     }
 
+    const { compiledCode } = await this.getValidatorScript("escrow.spend");
+    const scriptAddress = this.lucid.utils.validatorToAddress({
+      type: "PlutusV1",
+      script: compiledCode,
+    });
+
     cancelTx.payToContract(
-      this.__getParam("scriptAddress"),
+      scriptAddress,
       swapDatum.inline,
       SundaeUtils.accumulateSuppliedAssets({
         suppliedAssets: [suppliedAsset],
@@ -427,7 +489,13 @@ export class TxBuilderLucidV1 extends TxBuilder {
       scooperFee: this.__getParam("maxScooperFee"),
     });
 
-    tx.payToContract(this.__getParam("scriptAddress"), cbor, payment);
+    const { compiledCode } = await this.getValidatorScript("escrow.spend");
+    const scriptAddress = this.lucid.utils.validatorToAddress({
+      type: "PlutusV1",
+      script: compiledCode,
+    });
+
+    tx.payToContract(scriptAddress, cbor, payment);
     return this.completeTx({
       tx,
       datum: cbor,
@@ -473,7 +541,13 @@ export class TxBuilderLucidV1 extends TxBuilder {
       scooperFee: this.__getParam("maxScooperFee"),
     });
 
-    tx.payToContract(this.__getParam("scriptAddress"), cbor, payment);
+    const { compiledCode } = await this.getValidatorScript("escrow.spend");
+    const scriptAddress = this.lucid.utils.validatorToAddress({
+      type: "PlutusV1",
+      script: compiledCode,
+    });
+
+    tx.payToContract(scriptAddress, cbor, payment);
     return this.completeTx({
       tx,
       datum: cbor,
@@ -570,6 +644,12 @@ export class TxBuilderLucidV1 extends TxBuilder {
       );
     }
 
+    const { compiledCode } = await this.getValidatorScript("escrow.spend");
+    const scriptAddress = this.lucid.utils.validatorToAddress({
+      type: "PlutusV1",
+      script: compiledCode,
+    });
+
     /**
      * We then build the swap datum based using 50% of the supplied asset. A few things
      * to note here:
@@ -583,7 +663,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
       fundedAsset: halfSuppliedAmount,
       orderAddresses: {
         DestinationAddress: {
-          address: this.__getParam("scriptAddress"),
+          address: scriptAddress,
           datum: {
             type: EDatumType.HASH,
             value: depositHash,
@@ -608,11 +688,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
       ),
     });
 
-    tx.payToContract(
-      this.__getParam("scriptAddress"),
-      swapData.inline,
-      payment
-    );
+    tx.payToContract(scriptAddress, swapData.inline, payment);
     return this.completeTx({
       tx,
       datum: swapData.inline,
@@ -623,7 +699,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
   }
 
   /**
-   * Migrates liquidity from V1 to version V3 pools in a batch process. This asynchronous function
+   * Temporary function that migrates liquidity from V1 to version V3 pools in a batch process. This asynchronous function
    * iterates through an array of migration configurations, each specifying the withdrawal configuration
    * from a V1 pool and the deposit details into a V3 pool. For each migration, it constructs a withdrawal
    * datum for the V1 pool and a deposit datum for the V3 pool, calculates required fees, and constructs
@@ -668,7 +744,20 @@ export class TxBuilderLucidV1 extends TxBuilder {
     migrations: {
       withdrawConfig: IWithdrawConfigArgs;
       depositPool: IPoolData;
-    }[]
+      isYieldFarming?: boolean;
+      newLockedAssets?: Record<
+        string,
+        IAssetAmountMetadata & { amount: bigint }
+      >;
+    }[],
+    yieldFarming?: {
+      ownerAddress: TDestinationAddress;
+      existingPositions?: TUTXO[];
+      migrations: {
+        withdrawPool: IPoolData;
+        depositPool: IPoolData;
+      }[];
+    }
   ): Promise<
     IComposedTx<
       Tx,
@@ -690,8 +779,181 @@ export class TxBuilderLucidV1 extends TxBuilder {
     const v3OrderScriptAddress =
       await v3TxBuilderInstance.generateScriptAddress("order.spend");
     const v3MaxScooperFee = await v3TxBuilderInstance.getMaxScooperFeeAmount();
+    const { compiledCode } = await this.getValidatorScript("escrow.spend");
+    const scriptAddress = this.lucid.utils.validatorToAddress({
+      type: "PlutusV1",
+      script: compiledCode,
+    });
 
-    migrations.forEach(({ withdrawConfig, depositPool }) => {
+    const YF_V2_PARAMS = {
+      mainnet: {
+        stakeKeyHash:
+          "d7244b4a8777b7dc6909f4640cf02ea4757a557a99fb483b05f87dfe",
+        scriptHash: "73275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c",
+        referenceInput:
+          "006ddd85cfc2e2d8b7238daa37b37a5db2ac63de2df35884a5e501667981e1e3#0",
+      },
+      preview: {
+        stakeKeyHash:
+          "045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa8",
+        scriptHash: "73275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c",
+        referenceInput:
+          "aaaf193b8418253f4169ab869b77dedd4ee3df4f2837c226cee3c2f7fa955189#0",
+      },
+    };
+
+    const yfRefInput =
+      yieldFarming &&
+      (await this.lucid.provider.getUtxosByOutRef([
+        {
+          txHash: YF_V2_PARAMS[this.network].referenceInput.split("#")[0],
+          outputIndex: Number(
+            YF_V2_PARAMS[this.network].referenceInput.split("#")[1]
+          ),
+        },
+      ]));
+
+    const existingPositionsData =
+      yieldFarming?.existingPositions &&
+      (await this.lucid.provider.getUtxosByOutRef(
+        yieldFarming.existingPositions.map(({ hash, index }) => ({
+          outputIndex: index,
+          txHash: hash,
+        }))
+      ));
+
+    const lockContractAddress = this.lucid.utils.credentialToAddress(
+      {
+        hash: YF_V2_PARAMS[this.network].scriptHash,
+        type: "Script",
+      },
+      {
+        hash: YF_V2_PARAMS[this.network].stakeKeyHash,
+        type: "Key",
+      }
+    );
+
+    const returnedYFAssets: Record<
+      string,
+      IAssetAmountMetadata & { amount: bigint }
+    > = {};
+    const migrationAssets: Record<
+      string,
+      IAssetAmountMetadata & { amount: bigint }
+    > = {};
+
+    /**
+     * If yield farming positions have been supplied,
+     * we want to build their configurations and include them in the order.
+     * This includes taking into consideration what migrations
+     * have been submitted, and resolving that difference to what assets
+     * are actually locked up. We specifically only migrate the supplied,
+     * and then explicitely pay back the change to the YF smart contract.
+     */
+    if (
+      yieldFarming &&
+      yfRefInput &&
+      existingPositionsData &&
+      existingPositionsData.length > 0
+    ) {
+      finalTx
+        .readFrom(yfRefInput)
+        .collectFrom(existingPositionsData, VOID_REDEEMER);
+
+      const withdrawAssetsList = yieldFarming.migrations.reduce(
+        (list, { withdrawPool }) => {
+          list.push(withdrawPool.assetLP.assetId.replace(".", ""));
+          return list;
+        },
+        [] as string[]
+      );
+
+      existingPositionsData.forEach(({ assets }) => {
+        for (const [id, amount] of Object.entries(assets)) {
+          if (withdrawAssetsList.includes(id)) {
+            if (!migrationAssets[id]) {
+              migrationAssets[id] = {
+                amount,
+                assetId: id,
+                decimals: 0, // Decimals aren't required since we just use the raw amount.
+              };
+            } else {
+              migrationAssets[id].amount += amount;
+            }
+          } else {
+            if (!returnedYFAssets[id]) {
+              returnedYFAssets[id] = {
+                amount,
+                assetId: id,
+                decimals: 0, // Decimals aren't required since we just use the raw amount.
+              };
+            } else {
+              returnedYFAssets[id].amount += amount;
+            }
+          }
+        }
+      });
+
+      if (Object.keys(migrationAssets).length === 0) {
+        throw new Error(
+          "There were no eligible assets to migrate within the provided existing positions. Please check your migration config, and try again."
+        );
+      }
+
+      yieldFarming.migrations.forEach(({ withdrawPool, depositPool }) => {
+        const oldDelegation = existingPositionsData.find(({ assets }) => {
+          if (assets[withdrawPool.assetLP.assetId.replace(".", "")]) {
+            return true;
+          }
+        });
+
+        if (!oldDelegation) {
+          throw new Error("Could not find a matching delegation!");
+        }
+
+        const dataHash = this.lucid.utils.datumToHash(
+          oldDelegation.datum as string
+        );
+
+        metadataDatums[`0x${dataHash}`] = SundaeUtils.splitMetadataString(
+          oldDelegation.datum as string,
+          "0x"
+        );
+
+        const config = {
+          newLockedAssets: returnedYFAssets,
+          isYieldFarming: true,
+          depositPool,
+          withdrawConfig: {
+            orderAddresses: {
+              DestinationAddress: {
+                address: lockContractAddress,
+                datum: {
+                  type: EDatumType.HASH,
+                  value: dataHash,
+                },
+              },
+              AlternateAddress: yieldFarming.ownerAddress.address,
+            },
+            pool: withdrawPool,
+            suppliedLPAsset: new AssetAmount(
+              migrationAssets[
+                withdrawPool.assetLP.assetId.replace(".", "")
+              ].amount,
+              withdrawPool.assetLP
+            ),
+          },
+        };
+
+        migrations.push(config);
+      });
+    }
+
+    /**
+     * Now we can wrap up all the migrations and compose them into the transaction,
+     * as well as update the metadata object we will attach.
+     */
+    migrations.forEach(({ withdrawConfig, depositPool, isYieldFarming }) => {
       const withdrawArgs = new WithdrawConfig(withdrawConfig).buildArgs();
 
       const tx = this.newTxInstance(withdrawArgs.referralFee);
@@ -718,6 +980,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
       const { hash: depositHash, inline: depositInline } =
         v3DatumBuilder.buildDepositDatum({
           destinationAddress: withdrawArgs.orderAddresses.DestinationAddress,
+          ownerAddress: withdrawArgs.orderAddresses.AlternateAddress,
           ident: depositPool.ident,
           order: {
             assetA: new AssetAmount<IAssetAmountMetadata>(
@@ -754,14 +1017,42 @@ export class TxBuilderLucidV1 extends TxBuilder {
         depositInline,
         "0x"
       );
-      tx.payToContract(
-        this.__getParam("scriptAddress"),
-        withdrawInline,
-        payment
-      );
+
+      tx.payToContract(scriptAddress, withdrawInline, payment);
 
       finalTx.compose(tx);
     });
+
+    /**
+     * If we have YF migrations, then we specifically pay back the
+     * non-migrated assets back to the contract.
+     */
+    if (yieldFarming && existingPositionsData) {
+      const returningPayment: Assets = {};
+      Object.values(returnedYFAssets).forEach(({ amount, assetId }) => {
+        if (returningPayment[assetId.replace(".", "")]) {
+          returningPayment[assetId.replace(".", "")] += amount;
+        } else {
+          returningPayment[assetId.replace(".", "")] = amount;
+        }
+      });
+
+      const signerKey = LucidHelper.getAddressHashes(
+        yieldFarming.ownerAddress.address
+      );
+
+      finalTx.addSignerKey(signerKey.paymentCredentials);
+
+      if (signerKey?.stakeCredentials) {
+        finalTx.addSignerKey(signerKey.stakeCredentials);
+      }
+
+      finalTx.payToContract(
+        lockContractAddress,
+        { inline: existingPositionsData[0].datum as string },
+        returningPayment
+      );
+    }
 
     finalTx.attachMetadataWithConversion(103251, metadataDatums);
 
