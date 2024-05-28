@@ -12,7 +12,7 @@ An enum to represent a Swap order type.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L27)
+[packages/core/src/@types/configs.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L32)
 
 ___
 
@@ -22,4 +22,4 @@ ___
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:26](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L26)
+[packages/core/src/@types/configs.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L31)

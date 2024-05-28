@@ -16,7 +16,8 @@ import {
   ICancelConfigArgs,
   IComposedTx,
   IDepositConfigArgs,
-  IPoolData,
+  IMigrateLiquidityConfig,
+  IMigrateYieldFarmingLiquidityConfig,
   ISundaeProtocolParamsFull,
   ISundaeProtocolValidatorFull,
   ISwapConfigArgs,
@@ -25,9 +26,7 @@ import {
   IWithdrawConfigArgs,
   IZapConfigArgs,
   TDepositMixed,
-  TDestinationAddress,
   TSupportedNetworks,
-  TUTXO,
 } from "../@types/index.js";
 import { TxBuilder } from "../Abstracts/TxBuilder.abstract.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
@@ -326,26 +325,32 @@ export class TxBuilderLucidV1 extends TxBuilder {
       );
     }
 
-    // TODO: parse from datum instead
-    const details = getAddressDetails(ownerAddress);
-    const signerKey = details.paymentCredential?.hash;
-    if (!signerKey) {
-      throw new Error(
-        `Could not get payment keyhash from fetched UTXO details: ${JSON.stringify(
-          utxo
-        )}`
-      );
-    }
-
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
     const scriptValidator: Script = {
       type: "PlutusV1",
       script: compiledCode,
     };
 
-    tx.collectFrom(utxoToSpend, this.__getParam("cancelRedeemer"))
-      .addSignerKey(signerKey)
-      .attachSpendingValidator(scriptValidator);
+    tx.collectFrom(
+      utxoToSpend,
+      this.__getParam("cancelRedeemer")
+    ).attachSpendingValidator(scriptValidator);
+
+    const details = getAddressDetails(ownerAddress);
+
+    if (
+      details?.stakeCredential?.hash &&
+      utxoToSpend[0].datum?.includes(details.stakeCredential.hash)
+    ) {
+      tx.addSignerKey(details.stakeCredential.hash);
+    }
+
+    if (
+      details?.paymentCredential?.hash &&
+      utxoToSpend[0].datum?.includes(details.paymentCredential.hash)
+    ) {
+      tx.addSignerKey(details.paymentCredential.hash);
+    }
 
     return this.completeTx({
       tx,
@@ -707,7 +712,8 @@ export class TxBuilderLucidV1 extends TxBuilder {
    * across all migrations. The function concludes by composing a final transaction that encompasses all
    * individual migrations and returns the completed transaction along with the total fees and deposits.
    *
-   * @param {Array<{ withdrawConfig: IWithdrawConfigArgs; depositPool: IPoolData; }>} migrations - An array of objects, each containing the withdrawal configuration for a V1 pool and the deposit pool data for a V3 pool.
+   * @param {IMigrateLiquidityConfig[]} migrations - An array of objects, each containing the withdrawal configuration for a V1 pool and the deposit pool data for a V3 pool.
+   * @param {IMigrateYieldFarmingLiquidityConfig} yieldFarming - Migration configuration for any locked Yield Farming positions for a V1 pool.
    * @returns {Promise<TTransactionResult>} A promise that resolves to the transaction result, including the final transaction, total deposit, scooper fees, and referral fees.
    *
    * @example
@@ -741,22 +747,8 @@ export class TxBuilderLucidV1 extends TxBuilder {
    * ```
    */
   async migrateLiquidityToV3(
-    migrations: {
-      withdrawConfig: IWithdrawConfigArgs;
-      depositPool: IPoolData;
-      newLockedAssets?: Record<
-        string,
-        IAssetAmountMetadata & { amount: bigint }
-      >;
-    }[],
-    yieldFarming?: {
-      ownerAddress: TDestinationAddress;
-      existingPositions?: TUTXO[];
-      migrations: {
-        withdrawPool: IPoolData;
-        depositPool: IPoolData;
-      }[];
-    }
+    migrations: IMigrateLiquidityConfig[],
+    yieldFarming?: IMigrateYieldFarmingLiquidityConfig
   ): Promise<
     IComposedTx<
       Tx,

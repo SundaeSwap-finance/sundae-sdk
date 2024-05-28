@@ -33,6 +33,8 @@
 - [ILimitSwap](../interfaces/Core.ILimitSwap.md)
 - [ILucidBuilder](../interfaces/Core.ILucidBuilder.md)
 - [IMarketSwap](../interfaces/Core.IMarketSwap.md)
+- [IMigrateLiquidityConfig](../interfaces/Core.IMigrateLiquidityConfig.md)
+- [IMigrateYieldFarmingLiquidityConfig](../interfaces/Core.IMigrateYieldFarmingLiquidityConfig.md)
 - [IMintV3PoolConfigArgs](../interfaces/Core.IMintV3PoolConfigArgs.md)
 - [IOrderConfigArgs](../interfaces/Core.IOrderConfigArgs.md)
 - [IPoolByIdentQuery](../interfaces/Core.IPoolByIdentQuery.md)
@@ -322,7 +324,7 @@ A union type to represent all possible swap types.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:51](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L51)
+[packages/core/src/@types/configs.ts:56](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L56)
 
 ___
 

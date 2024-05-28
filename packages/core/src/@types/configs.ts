@@ -1,6 +1,11 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { EPoolCoin, TOrderAddresses, TUTXO } from "./datumbuilder.js";
+import {
+  EPoolCoin,
+  TDestinationAddress,
+  TOrderAddresses,
+  TUTXO,
+} from "./datumbuilder.js";
 import { IPoolData } from "./queryprovider.js";
 import { ITxBuilderReferralFee } from "./txbuilders.js";
 
@@ -103,4 +108,27 @@ export interface IMintV3PoolConfigArgs extends IBaseConfig {
   ownerAddress: string;
   // Defaults to immediately.
   marketOpen?: bigint;
+}
+
+/**
+ * Interface describing migrations for liquidity
+ * positions in a user's wallet.
+ */
+export interface IMigrateLiquidityConfig {
+  withdrawConfig: IWithdrawConfigArgs;
+  depositPool: IPoolData;
+  newLockedAssets?: Record<string, IAssetAmountMetadata & { amount: bigint }>;
+}
+
+/**
+ * Interface describing migrations for locked liquidity
+ * positions in the Yield Farming contract.
+ */
+export interface IMigrateYieldFarmingLiquidityConfig {
+  ownerAddress: TDestinationAddress;
+  existingPositions?: TUTXO[];
+  migrations: {
+    withdrawPool: IPoolData;
+    depositPool: IPoolData;
+  }[];
 }
