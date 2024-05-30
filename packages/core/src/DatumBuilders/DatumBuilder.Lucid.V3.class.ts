@@ -334,7 +334,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
   public buildDestinationAddresses({
     address,
     datum,
-  }: TDestinationAddress): TDatumResult<V3Types.TDestinationDatum> {
+  }: TDestinationAddress): TDatumResult<V3Types.TDestination> {
     LucidHelper.validateAddressAndDatumAreValid({
       address: address,
       datum: datum,
@@ -342,16 +342,16 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     });
 
     const destination = LucidHelper.getAddressHashes(address);
-    let formattedDatum: V3Types.TDestinationDatum["datum"];
+    let formattedDatum: V3Types.TDestination["datum"];
     switch (datum.type) {
       case EDatumType.NONE:
-        formattedDatum = "NoDatum";
+        formattedDatum = new Constr(0, []);
         break;
       case EDatumType.HASH:
-        formattedDatum = { DatumHash: [datum.value] };
+        formattedDatum = new Constr(1, [datum.value]);
         break;
       case EDatumType.INLINE:
-        formattedDatum = { InlineDatum: [datum.value] };
+        formattedDatum = Data.from(datum.value);
         break;
       default:
         throw new Error(
@@ -359,7 +359,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
         );
     }
 
-    const destinationDatum: V3Types.TDestinationDatum = {
+    const destinationDatum: V3Types.TDestination = {
       address: {
         paymentCredential: LucidHelper.isScriptAddress(address)
           ? {
@@ -386,7 +386,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
       datum: formattedDatum,
     };
 
-    const inline = Data.to(destinationDatum, V3Types.DestinationDatum);
+    const inline = Data.to(destinationDatum, V3Types.Destination);
 
     return {
       hash: LucidHelper.inlineDatumToHash(inline),
