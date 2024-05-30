@@ -310,13 +310,9 @@ describe("TxBuilderLucidV1", () => {
     const inlineDatum = withdrawOutput?.datum()?.as_data()?.get().to_bytes();
 
     expect(inlineDatum).toBeUndefined();
-    const withdrawOutputDatumHash = withdrawOutput
-      ?.datum()
-      ?.as_data_hash()
-      ?.to_hex();
-    // expect(withdrawOutput?.datum()?.as_data_hash()?.to_hex()).toEqual(
-    //   "4fc95753e6a84e3601ca75c0b0455af86933a2901060afd5e57e5cfc6ad69b48"
-    // );
+    expect(withdrawOutput?.datum()?.as_data_hash()?.to_hex()).toEqual(
+      "4fc95753e6a84e3601ca75c0b0455af86933a2901060afd5e57e5cfc6ad69b48"
+    );
 
     const depositMetadata = builtTx.txComplete
       .auxiliary_data()
