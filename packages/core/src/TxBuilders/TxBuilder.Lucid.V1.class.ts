@@ -902,15 +902,6 @@ export class TxBuilderLucidV1 extends TxBuilder {
           throw new Error("Could not find a matching delegation!");
         }
 
-        const dataHash = this.lucid.utils.datumToHash(
-          oldDelegation.datum as string
-        );
-
-        metadataDatums[`0x${dataHash}`] = SundaeUtils.splitMetadataString(
-          oldDelegation.datum as string,
-          "0x"
-        );
-
         const config = {
           newLockedAssets: returnedYFAssets,
           depositPool,
@@ -919,8 +910,8 @@ export class TxBuilderLucidV1 extends TxBuilder {
               DestinationAddress: {
                 address: lockContractAddress,
                 datum: {
-                  type: EDatumType.HASH,
-                  value: dataHash,
+                  type: EDatumType.INLINE,
+                  value: oldDelegation.datum as string,
                 },
               },
               AlternateAddress: yieldFarming.ownerAddress.address,

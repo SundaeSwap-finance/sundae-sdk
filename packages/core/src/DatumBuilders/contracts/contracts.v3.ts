@@ -146,19 +146,12 @@ export const AddressSchema = Data.Object({
   ),
 });
 
-export const DatumSchema = Data.Enum([
-  Data.Literal("NoDatum"),
-  Data.Object({ DatumHash: Data.Tuple([Data.Bytes()]) }),
-  Data.Object({ InlineDatum: Data.Tuple([Data.Any()]) }),
-]);
-
 export const DestinationSchema = Data.Object({
   address: AddressSchema,
-  datum: DatumSchema,
+  datum: Data.Any(),
 });
-export type TDestinationDatum = Data.Static<typeof DestinationSchema>;
-export const DestinationDatum =
-  DestinationSchema as unknown as TDestinationDatum;
+export type TDestination = Data.Static<typeof DestinationSchema>;
+export const Destination = DestinationSchema as unknown as TDestination;
 
 export const IdentSchema = Data.Bytes();
 
