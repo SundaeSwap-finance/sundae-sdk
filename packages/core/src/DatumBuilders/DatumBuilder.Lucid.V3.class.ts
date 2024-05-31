@@ -351,7 +351,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
         formattedDatum = new Constr(1, [datum.value]);
         break;
       case EDatumType.INLINE:
-        formattedDatum = Data.from(datum.value);
+        formattedDatum = new Constr(2, [Data.from(datum.value)]);
         break;
       default:
         throw new Error(

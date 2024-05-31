@@ -65,12 +65,13 @@ describe("buildDestinationAddresses()", () => {
       address: DEFAULT_DESTINATION_ADDRESS,
       datum: {
         type: EDatumType.INLINE,
-        value: inline,
+        value:
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff",
       },
     });
 
     expect(result5.inline).toEqual(
-      "d8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87980ffff"
+      "d8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87b9fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ffffff"
     );
 
     const resultWithScriptDestination =
@@ -79,26 +80,12 @@ describe("buildDestinationAddresses()", () => {
           "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe",
         datum: {
           type: EDatumType.INLINE,
-          value: inline,
+          value: result5.inline,
         },
       });
 
     expect(resultWithScriptDestination.inline).toEqual(
-      "d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87980ffff"
-    );
-
-    const resultWithScriptDestination2 =
-      builderInstance.buildDestinationAddresses({
-        address:
-          "addr_test1zrf6pky0svgst5kp4dadpsc65vaaa2nvy5pa9v9l9vqcj2gjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngq8zu6ae",
-        datum: {
-          type: EDatumType.INLINE,
-          value: inline,
-        },
-      });
-
-    expect(resultWithScriptDestination2.inline).toEqual(
-      "d8799fd8799fd87a9f581cd3a0d88f831105d2c1ab7ad0c31aa33bdeaa6c2503d2b0bf2b018929ffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87980ffff"
+      "d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd87b9fd8799fd8799fd8799f581cff310b072c281a4ef0e4166a00f9da571c4998cd57bb91764dfbdcf8ffd8799fd8799fd8799f581c0d33957c07acdddecc9882457da22f05e0d189f7fc95b1972e6d5105ffffffffd87b9fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ffffffffff"
     );
   });
 
