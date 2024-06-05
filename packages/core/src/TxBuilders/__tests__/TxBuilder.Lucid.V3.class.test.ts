@@ -352,6 +352,110 @@ describe("TxBuilderLucidV3", () => {
     }
   });
 
+  test("orderRouteSwap() - v3 to v3", async () => {
+    const { build, fees } = await builder.orderRouteSwap({
+      swapA: {
+        orderAddresses: {
+          DestinationAddress: {
+            address: PREVIEW_DATA.addresses.current,
+            datum: {
+              type: EDatumType.NONE,
+            },
+          },
+        },
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        orderAddresses: {
+          DestinationAddress: {
+            address: PREVIEW_DATA.addresses.current,
+            datum: {
+              type: EDatumType.NONE,
+            },
+          },
+        },
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
+        pool: {
+          ...PREVIEW_DATA.pools.v3,
+          assetB: {
+            ...PREVIEW_DATA.pools.v3.assetB,
+            assetId:
+              // iBTC
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          },
+          assetLP: {
+            ...PREVIEW_DATA.pools.v3.assetLP,
+            assetId:
+              "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702004",
+          },
+        },
+      },
+    });
+
+    const { cbor } = await build();
+  });
+
+  test("orderRouteSwap() - v3 to v1", async () => {
+    const { build, fees } = await builder.orderRouteSwap({
+      swapA: {
+        orderAddresses: {
+          DestinationAddress: {
+            address: PREVIEW_DATA.addresses.current,
+            datum: {
+              type: EDatumType.NONE,
+            },
+          },
+        },
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+        pool: PREVIEW_DATA.pools.v3,
+      },
+      swapB: {
+        orderAddresses: {
+          DestinationAddress: {
+            address: PREVIEW_DATA.addresses.current,
+            datum: {
+              type: EDatumType.NONE,
+            },
+          },
+        },
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
+        pool: {
+          ...PREVIEW_DATA.pools.v1,
+          ident: "04",
+          assetB: {
+            ...PREVIEW_DATA.pools.v3.assetB,
+            assetId:
+              // iBTC
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          },
+          assetLP: {
+            ...PREVIEW_DATA.pools.v3.assetLP,
+            assetId:
+              "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702004",
+          },
+        },
+      },
+    });
+
+    const { builtTx, cbor } = await build();
+    console.log(cbor);
+  });
+
   test("deposit()", async () => {
     const spiedNewTx = jest.spyOn(builder, "newTxInstance");
     const spiedBuildDepositDatum = jest.spyOn(

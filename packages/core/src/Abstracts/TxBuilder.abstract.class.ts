@@ -25,6 +25,7 @@ export abstract class TxBuilder {
   abstract newTxInstance(): unknown;
 
   abstract swap(args: unknown): Promise<IComposedTx>;
+  abstract orderRouteSwap(args: unknown): Promise<IComposedTx>;
   abstract deposit(args: unknown): Promise<IComposedTx>;
   abstract withdraw(args: unknown): Promise<IComposedTx>;
   abstract update(args: unknown): Promise<IComposedTx>;

@@ -12,6 +12,7 @@ import {
   type TxComplete,
 } from "lucid-cardano";
 
+import { getSwapOutput } from "@sundaeswap/cpp";
 import type {
   ICancelConfigArgs,
   IComposedTx,
@@ -546,6 +547,131 @@ export class TxBuilderLucidV3 extends TxBuilder {
       tx: txInstance,
       datum: inline,
       referralFee: referralFee?.payment,
+    });
+  }
+
+  async orderRouteSwap(args: {
+    swapA: ISwapConfigArgs;
+    swapB: Omit<ISwapConfigArgs, "suppliedAsset">;
+  }): Promise<
+    IComposedTx<
+      unknown,
+      unknown,
+      string | undefined,
+      Record<string, AssetAmount<IAssetAmountMetadata>>
+    >
+  > {
+    const swapA = new SwapConfig(args.swapA).buildArgs();
+
+    const [aReserve, bReserve] = SundaeUtils.sortSwapAssetsWithAmounts([
+      new AssetAmount(
+        args.swapA.pool.liquidity.aReserve,
+        args.swapA.pool.assetA
+      ),
+      new AssetAmount(
+        args.swapA.pool.liquidity.bReserve,
+        args.swapA.pool.assetB
+      ),
+    ]);
+
+    const { output } = getSwapOutput(
+      swapA.suppliedAsset.amount,
+      aReserve.amount,
+      bReserve.amount,
+      swapA.pool.currentFee
+    );
+    const outputAsset =
+      swapA.suppliedAsset.metadata.assetId === aReserve.metadata.assetId
+        ? bReserve
+        : aReserve;
+
+    const swapB = new SwapConfig({
+      ...args.swapB,
+      suppliedAsset: outputAsset,
+    }).buildArgs();
+
+    const isSecondSwapV1 = swapB.pool.version === EContractVersion.V1;
+
+    const secondSwapBuilder = isSecondSwapV1
+      ? new TxBuilderLucidV1(this.lucid, new DatumBuilderLucidV1(this.network))
+      : this;
+    const secondSwapAddress = isSecondSwapV1
+      ? await secondSwapBuilder
+          .getValidatorScript("escrow.spend")
+          .then(({ compiledCode }) =>
+            this.lucid.utils.validatorToAddress({
+              type: "PlutusV1",
+              script: compiledCode,
+            })
+          )
+      : await (secondSwapBuilder as TxBuilderLucidV3).generateScriptAddress(
+          "order.spend"
+        );
+
+    swapB.suppliedAsset = outputAsset.withAmount(output);
+    const secondSwapData = await secondSwapBuilder.swap({
+      ...swapB,
+      swapType: args.swapB.swapType,
+    });
+
+    let referralFeeAmount = 0n;
+    if (swapA.referralFee) {
+      referralFeeAmount += swapA.referralFee.payment.amount;
+    }
+
+    if (swapB.referralFee) {
+      referralFeeAmount += swapB.referralFee.payment.amount;
+    }
+
+    let mergedReferralFee: ITxBuilderReferralFee | undefined;
+    if (swapA.referralFee) {
+      mergedReferralFee = {
+        ...swapA.referralFee,
+        payment: swapA.referralFee.payment.withAmount(referralFeeAmount),
+      };
+    } else if (swapB.referralFee) {
+      mergedReferralFee = {
+        ...swapB.referralFee,
+        payment: swapB.referralFee.payment.withAmount(referralFeeAmount),
+      };
+    }
+
+    const datumHash = this.lucid.utils.datumToHash(
+      secondSwapData.datum as string
+    );
+
+    const { tx, datum, fees } = await this.swap({
+      ...args.swapA,
+      orderAddresses: {
+        ...args.swapB.orderAddresses,
+        DestinationAddress: {
+          address: secondSwapAddress,
+          datum: {
+            type: isSecondSwapV1 ? EDatumType.HASH : EDatumType.INLINE,
+            value: isSecondSwapV1
+              ? datumHash
+              : (secondSwapData.datum as string),
+          },
+        },
+      },
+      referralFee: mergedReferralFee,
+    });
+
+    if (isSecondSwapV1) {
+      tx.attachMetadataWithConversion(103251, {
+        [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
+          secondSwapData.datum as string,
+          "0x"
+        ),
+      });
+    }
+
+    return this.completeTx({
+      tx,
+      datum,
+      deposit: ORDER_DEPOSIT_DEFAULT * 2n,
+      referralFee: mergedReferralFee?.payment,
+      scooperFee: fees.scooperFee.add(secondSwapData.fees.scooperFee).amount,
     });
   }
 
