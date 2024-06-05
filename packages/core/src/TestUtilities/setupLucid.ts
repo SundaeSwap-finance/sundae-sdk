@@ -35,6 +35,7 @@ export const setupLucid = (
       .fn()
       .mockImplementation(() => getBlockfrostProtocolParameters("preview")),
     getUtxosByOutRef: getUtxosByOutRefMock,
+    getDatum: jest.fn(),
   }));
 
   beforeAll(async () => {

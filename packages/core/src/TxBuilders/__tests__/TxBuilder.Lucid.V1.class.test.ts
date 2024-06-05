@@ -783,6 +783,18 @@ describe("TxBuilderLucidV1", () => {
       PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1,
     ]);
 
+    const spiedOnGetDatum = jest.spyOn(builder.lucid.provider, "getDatum");
+    spiedOnGetDatum.mockResolvedValueOnce(
+      datumBuilder.buildOrderAddresses({
+        DestinationAddress: {
+          address: PREVIEW_DATA.addresses.current,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+      }).inline
+    );
+
     const { build, datum, fees } = await builder.cancel({
       ownerAddress: PREVIEW_DATA.addresses.current,
       utxo: {

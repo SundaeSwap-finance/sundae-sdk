@@ -337,17 +337,28 @@ export class TxBuilderLucidV1 extends TxBuilder {
     ).attachSpendingValidator(scriptValidator);
 
     const details = getAddressDetails(ownerAddress);
+    console.log(details);
+
+    const spendingDatum =
+      utxoToSpend[0]?.datumHash &&
+      (await this.lucid.provider.getDatum(utxoToSpend[0].datumHash));
+
+    if (!spendingDatum) {
+      throw new Error(
+        "Failed trying to cancel an order that doesn't include a datum!"
+      );
+    }
 
     if (
       details?.stakeCredential?.hash &&
-      utxoToSpend[0].datum?.includes(details.stakeCredential.hash)
+      spendingDatum.includes(details.stakeCredential.hash)
     ) {
       tx.addSignerKey(details.stakeCredential.hash);
     }
 
     if (
       details?.paymentCredential?.hash &&
-      utxoToSpend[0].datum?.includes(details.paymentCredential.hash)
+      spendingDatum.includes(details.paymentCredential.hash)
     ) {
       tx.addSignerKey(details.paymentCredential.hash);
     }
