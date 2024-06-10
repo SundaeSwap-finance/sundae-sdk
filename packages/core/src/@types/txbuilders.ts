@@ -83,6 +83,10 @@ export enum EContractVersion {
   V3 = "V3",
 }
 
+/**
+ * Special arguments for an Order-Route Swap. A combination of
+ * two swap arguments, but simplified for ease-of-use.
+ */
 export interface IOrderRouteSwapArgs {
   ownerAddress: string;
   swapA: Omit<ISwapConfigArgs, "orderAddresses" | "ownerAddress">;

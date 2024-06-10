@@ -219,7 +219,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
    * and completes the transaction by paying to the contract and finalizing the transaction details.
    *
    * @param {ISwapConfigArgs} swapArgs - The configuration arguments for the swap.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the completed transaction.
+   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A promise that resolves to the result of the completed transaction.
    *
    * @async
    * @example
@@ -231,7 +231,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
    *   .then(({ submit }) => submit())
    * ```
    */
-  async swap(swapArgs: ISwapConfigArgs) {
+  async swap(swapArgs: ISwapConfigArgs): Promise<IComposedTx<Tx, TxComplete>> {
     const config = new SwapConfig(swapArgs);
 
     const {
@@ -296,7 +296,17 @@ export class TxBuilderLucidV1 extends TxBuilder {
     });
   }
 
-  async orderRouteSwap(args: IOrderRouteSwapArgs) {
+  /**
+   * Performs an order route swap with the given arguments.
+   *
+   * @async
+   * @param {IOrderRouteSwapArgs} args - The arguments for the order route swap.
+   *
+   * @returns {Promise<IComposedTx<Tx, TxComplete>>} The result of the transaction.
+   */
+  async orderRouteSwap(
+    args: IOrderRouteSwapArgs
+  ): Promise<IComposedTx<Tx, TxComplete>> {
     const isSecondSwapV3 = args.swapB.pool.version === EContractVersion.V3;
 
     const secondSwapBuilder = isSecondSwapV3
@@ -429,7 +439,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
    * sets up the transaction, and completes it.
    *
    * @param {ICancelConfigArgs} cancelArgs - The configuration arguments for the cancel transaction.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the cancel transaction.
+   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A promise that resolves to the result of the cancel transaction.
    *
    * @async
    * @example
@@ -526,7 +536,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
    *
    * @param {{ cancelArgs: ICancelConfigArgs, swapArgs: ISwapConfigArgs }}
    *        The arguments for cancel and swap configurations.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the updated transaction.
+   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A promise that resolves to the result of the updated transaction.
    *
    * @throws
    * @async

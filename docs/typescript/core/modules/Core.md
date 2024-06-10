@@ -37,6 +37,7 @@
 - [IMigrateYieldFarmingLiquidityConfig](../interfaces/Core.IMigrateYieldFarmingLiquidityConfig.md)
 - [IMintV3PoolConfigArgs](../interfaces/Core.IMintV3PoolConfigArgs.md)
 - [IOrderConfigArgs](../interfaces/Core.IOrderConfigArgs.md)
+- [IOrderRouteSwapArgs](../interfaces/Core.IOrderRouteSwapArgs.md)
 - [IPoolByIdentQuery](../interfaces/Core.IPoolByIdentQuery.md)
 - [IPoolByPairQuery](../interfaces/Core.IPoolByPairQuery.md)
 - [IPoolData](../interfaces/Core.IPoolData.md)
