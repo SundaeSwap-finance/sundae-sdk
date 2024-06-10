@@ -1,6 +1,8 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { Lucid } from "lucid-cardano";
 
+import { ISwapConfigArgs } from "./configs.js";
+
 /**
  * The full list of calculated fees for a transaction built by a TxBuilder instance.
  */
@@ -79,4 +81,13 @@ export type TWalletBuilder = ILucidBuilder;
 export enum EContractVersion {
   V1 = "V1",
   V3 = "V3",
+}
+
+export interface IOrderRouteSwapArgs {
+  ownerAddress: string;
+  swapA: Omit<ISwapConfigArgs, "orderAddresses" | "ownerAddress">;
+  swapB: Omit<
+    ISwapConfigArgs,
+    "suppliedAsset" | "orderAddresses" | "ownerAddress"
+  >;
 }

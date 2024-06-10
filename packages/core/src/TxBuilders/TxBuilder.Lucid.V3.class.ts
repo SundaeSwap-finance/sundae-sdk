@@ -12,12 +12,12 @@ import {
   type TxComplete,
 } from "lucid-cardano";
 
-import { getSwapOutput } from "@sundaeswap/cpp";
 import type {
   ICancelConfigArgs,
   IComposedTx,
   IDepositConfigArgs,
   IMintV3PoolConfigArgs,
+  IOrderRouteSwapArgs,
   ISundaeProtocolParamsFull,
   ISundaeProtocolReference,
   ISundaeProtocolValidatorFull,
@@ -29,7 +29,7 @@ import type {
   TDepositMixed,
   TSupportedNetworks,
 } from "../@types/index.js";
-import { EContractVersion, EDatumType } from "../@types/index.js";
+import { EContractVersion, EDatumType, ESwapType } from "../@types/index.js";
 import { TxBuilder } from "../Abstracts/TxBuilder.abstract.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
@@ -522,6 +522,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const { inline } = this.datumBuilder.buildSwapDatum({
       ident,
       destinationAddress: orderAddresses.DestinationAddress,
+      ownerAddress: swapArgs.ownerAddress,
       order: {
         minReceived: minReceivable,
         offered: suppliedAsset,
@@ -529,19 +530,37 @@ export class TxBuilderLucidV3 extends TxBuilder {
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
+    let scooperFee = await this.getMaxScooperFeeAmount();
+    const v1TxBUilder = new TxBuilderLucidV1(
+      this.lucid,
+      new DatumBuilderLucidV1(this.network)
+    );
+    const v1Address = await v1TxBUilder
+      .getValidatorScript("escrow.spend")
+      .then(({ compiledCode }) =>
+        this.lucid.utils.validatorToAddress({
+          type: "PlutusV1",
+          script: compiledCode,
+        })
+      );
+    const v3Address = await this.generateScriptAddress(
+      "order.spend",
+      swapArgs?.ownerAddress ?? orderAddresses.DestinationAddress.address
+    );
+
+    // Adjust scooper fee supply based on destination address.
+    if (orderAddresses.DestinationAddress.address === v1Address) {
+      scooperFee += v1TxBUilder.__getParam("maxScooperFee");
+    } else if (orderAddresses.DestinationAddress.address === v3Address) {
+      scooperFee += await this.getMaxScooperFeeAmount();
+    }
+
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: [suppliedAsset],
-      scooperFee: await this.getMaxScooperFeeAmount(),
+      scooperFee,
     });
 
-    txInstance.payToContract(
-      await this.generateScriptAddress(
-        "order.spend",
-        orderAddresses.DestinationAddress.address
-      ),
-      { inline },
-      payment
-    );
+    txInstance.payToContract(v3Address, { inline }, payment);
 
     return this.completeTx({
       tx: txInstance,
@@ -550,18 +569,35 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
   }
 
-  async orderRouteSwap(args: {
-    swapA: ISwapConfigArgs;
-    swapB: Omit<ISwapConfigArgs, "suppliedAsset">;
-  }): Promise<
-    IComposedTx<
-      unknown,
-      unknown,
-      string | undefined,
-      Record<string, AssetAmount<IAssetAmountMetadata>>
-    >
-  > {
-    const swapA = new SwapConfig(args.swapA).buildArgs();
+  async orderRouteSwap(args: IOrderRouteSwapArgs) {
+    const isSecondSwapV1 = args.swapB.pool.version === EContractVersion.V1;
+
+    const secondSwapBuilder = isSecondSwapV1
+      ? new TxBuilderLucidV1(this.lucid, new DatumBuilderLucidV1(this.network))
+      : this;
+    const secondSwapAddress = isSecondSwapV1
+      ? await (secondSwapBuilder as TxBuilderLucidV1)
+          .getValidatorScript("escrow.spend")
+          .then(({ compiledCode }) =>
+            this.lucid.utils.validatorToAddress({
+              type: "PlutusV1",
+              script: compiledCode,
+            })
+          )
+      : await this.generateScriptAddress("order.spend", args.ownerAddress);
+
+    const swapA = new SwapConfig({
+      ...args.swapA,
+      ownerAddress: args.ownerAddress,
+      orderAddresses: {
+        DestinationAddress: {
+          address: secondSwapAddress,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+      },
+    }).buildArgs();
 
     const [aReserve, bReserve] = SundaeUtils.sortSwapAssetsWithAmounts([
       new AssetAmount(
@@ -574,41 +610,24 @@ export class TxBuilderLucidV3 extends TxBuilder {
       ),
     ]);
 
-    const { output } = getSwapOutput(
-      swapA.suppliedAsset.amount,
-      aReserve.amount,
-      bReserve.amount,
-      swapA.pool.currentFee
-    );
-    const outputAsset =
+    const aOutputAsset =
       swapA.suppliedAsset.metadata.assetId === aReserve.metadata.assetId
-        ? bReserve
-        : aReserve;
+        ? bReserve.withAmount(swapA.minReceivable.amount)
+        : aReserve.withAmount(swapA.minReceivable.amount);
 
     const swapB = new SwapConfig({
       ...args.swapB,
-      suppliedAsset: outputAsset,
+      suppliedAsset: aOutputAsset,
+      orderAddresses: {
+        DestinationAddress: {
+          address: args.ownerAddress,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+      },
     }).buildArgs();
 
-    const isSecondSwapV1 = swapB.pool.version === EContractVersion.V1;
-
-    const secondSwapBuilder = isSecondSwapV1
-      ? new TxBuilderLucidV1(this.lucid, new DatumBuilderLucidV1(this.network))
-      : this;
-    const secondSwapAddress = isSecondSwapV1
-      ? await secondSwapBuilder
-          .getValidatorScript("escrow.spend")
-          .then(({ compiledCode }) =>
-            this.lucid.utils.validatorToAddress({
-              type: "PlutusV1",
-              script: compiledCode,
-            })
-          )
-      : await (secondSwapBuilder as TxBuilderLucidV3).generateScriptAddress(
-          "order.spend"
-        );
-
-    swapB.suppliedAsset = outputAsset.withAmount(output);
     const secondSwapData = await secondSwapBuilder.swap({
       ...swapB,
       swapType: args.swapB.swapType,
@@ -641,11 +660,16 @@ export class TxBuilderLucidV3 extends TxBuilder {
     );
 
     const { tx, datum, fees } = await this.swap({
-      ...args.swapA,
+      ...swapA,
+      swapType: {
+        type: ESwapType.LIMIT,
+        minReceivable: swapA.minReceivable,
+      },
+      ownerAddress: args.ownerAddress,
       orderAddresses: {
-        ...args.swapB.orderAddresses,
+        ...swapA.orderAddresses,
         DestinationAddress: {
-          address: secondSwapAddress,
+          ...swapA.orderAddresses.DestinationAddress,
           datum: {
             type: isSecondSwapV1 ? EDatumType.HASH : EDatumType.INLINE,
             value: isSecondSwapV1
@@ -653,6 +677,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
               : (secondSwapData.datum as string),
           },
         },
+        AlternateAddress: args.ownerAddress,
       },
       referralFee: mergedReferralFee,
     });
@@ -669,10 +694,125 @@ export class TxBuilderLucidV3 extends TxBuilder {
     return this.completeTx({
       tx,
       datum,
-      deposit: ORDER_DEPOSIT_DEFAULT * 2n,
+      deposit: ORDER_DEPOSIT_DEFAULT,
       referralFee: mergedReferralFee?.payment,
       scooperFee: fees.scooperFee.add(secondSwapData.fees.scooperFee).amount,
     });
+
+    // const swapA = new SwapConfig(args.swapA).buildArgs();
+
+    // const [aReserve, bReserve] = SundaeUtils.sortSwapAssetsWithAmounts([
+    //   new AssetAmount(
+    //     args.swapA.pool.liquidity.aReserve,
+    //     args.swapA.pool.assetA
+    //   ),
+    //   new AssetAmount(
+    //     args.swapA.pool.liquidity.bReserve,
+    //     args.swapA.pool.assetB
+    //   ),
+    // ]);
+
+    // const aOutputAsset =
+    //   swapA.suppliedAsset.metadata.assetId === aReserve.metadata.assetId
+    //     ? bReserve.withAmount(swapA.minReceivable.amount)
+    //     : aReserve.withAmount(swapA.minReceivable.amount);
+
+    // const swapB = new SwapConfig({
+    //   ...args.swapB,
+    //   suppliedAsset: aOutputAsset,
+    // }).buildArgs();
+
+    // const isSecondSwapV1 = swapB.pool.version === EContractVersion.V1;
+
+    // const secondSwapBuilder = isSecondSwapV1
+    //   ? new TxBuilderLucidV1(this.lucid, new DatumBuilderLucidV1(this.network))
+    //   : this;
+    // const secondSwapAddress = isSecondSwapV1
+    //   ? await secondSwapBuilder
+    //       .getValidatorScript("escrow.spend")
+    //       .then(({ compiledCode }) =>
+    //         this.lucid.utils.validatorToAddress({
+    //           type: "PlutusV1",
+    //           script: compiledCode,
+    //         })
+    //       )
+    //   : await (secondSwapBuilder as TxBuilderLucidV3).generateScriptAddress(
+    //       "order.spend",
+    //       args.swapA.ownerAddress ??
+    //         swapA.orderAddresses.DestinationAddress.address
+    //     );
+
+    // const secondSwapData = await secondSwapBuilder.swap({
+    //   ...swapB,
+    //   swapType: args.swapB.swapType,
+    // });
+
+    // let referralFeeAmount = 0n;
+    // if (swapA.referralFee) {
+    //   referralFeeAmount += swapA.referralFee.payment.amount;
+    // }
+
+    // if (swapB.referralFee) {
+    //   referralFeeAmount += swapB.referralFee.payment.amount;
+    // }
+
+    // let mergedReferralFee: ITxBuilderReferralFee | undefined;
+    // if (swapA.referralFee) {
+    //   mergedReferralFee = {
+    //     ...swapA.referralFee,
+    //     payment: swapA.referralFee.payment.withAmount(referralFeeAmount),
+    //   };
+    // } else if (swapB.referralFee) {
+    //   mergedReferralFee = {
+    //     ...swapB.referralFee,
+    //     payment: swapB.referralFee.payment.withAmount(referralFeeAmount),
+    //   };
+    // }
+
+    // const datumHash = this.lucid.utils.datumToHash(
+    //   secondSwapData.datum as string
+    // );
+
+    // const { tx, datum, fees } = await this.swap({
+    //   ...swapA,
+    //   swapType: {
+    //     type: ESwapType.LIMIT,
+    //     minReceivable: swapA.minReceivable,
+    //   },
+    //   orderAddresses: {
+    //     ...swapB.orderAddresses,
+    //     DestinationAddress: {
+    //       address: secondSwapAddress,
+    //       datum: {
+    //         type: isSecondSwapV1 ? EDatumType.HASH : EDatumType.INLINE,
+    //         value: isSecondSwapV1
+    //           ? datumHash
+    //           : (secondSwapData.datum as string),
+    //       },
+    //     },
+    //     AlternateAddress:
+    //       args.swapA.ownerAddress ??
+    //       swapB.orderAddresses.DestinationAddress.address,
+    //   },
+    //   referralFee: mergedReferralFee,
+    // });
+
+    // if (isSecondSwapV1) {
+    //   tx.attachMetadataWithConversion(103251, {
+    //     [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
+    //       secondSwapData.datum as string,
+    //       "0x"
+    //     ),
+    //   });
+    // }
+
+    // return this.completeTx({
+    //   tx,
+    //   datum,
+    //   deposit: ORDER_DEPOSIT_DEFAULT,
+    //   referralFee: mergedReferralFee?.payment,
+    //   scooperFee: fees.scooperFee.add(secondSwapData.fees.scooperFee).amount,
+    // });
   }
 
   /**

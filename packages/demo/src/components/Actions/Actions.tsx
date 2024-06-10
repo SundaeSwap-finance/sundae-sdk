@@ -17,6 +17,7 @@ import { Deposit } from "./modules/Deposit";
 import { DepositTasteTest } from "./modules/DepositTasteTest";
 import { Lock } from "./modules/LockAssets";
 import { Migrate } from "./modules/MigrateV1LiquidityToV3";
+import { OrderRouting } from "./modules/OrderRouting";
 import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
 import { Unlock } from "./modules/UnlockAssets";
@@ -128,6 +129,11 @@ export const Actions: FC = () => {
           setCBOR={setCBOR}
           submit={submit}
         />
+        <div className="col-span-2 flex items-center justify-between gap-2">
+          <h4 className="w-32">Order Routing</h4>
+          <hr className="my-10 w-full" />
+        </div>
+        <OrderRouting setFees={setFees} setCBOR={setCBOR} submit={submit} />
       </div>
       {cbor.hash && (
         <>
