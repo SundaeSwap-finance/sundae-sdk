@@ -22,6 +22,7 @@ export interface IBaseConfig {
 export interface IOrderConfigArgs extends IBaseConfig {
   pool: IPoolData;
   orderAddresses: TOrderAddresses;
+  ownerAddress?: string;
 }
 
 /**

@@ -177,7 +177,7 @@ describe("TxBuilderLucidV1", () => {
       }),
     });
 
-    const { builtTx, cbor } = await build();
+    const { builtTx } = await build();
 
     expect(fees.cardanoTxFee).not.toBeUndefined();
 
@@ -248,6 +248,207 @@ describe("TxBuilderLucidV1", () => {
         DatumBuilderLucidV1.INVALID_POOL_IDENT
       );
     }
+  });
+
+  test("orderRouteSwap() - v1 to v1", async () => {
+    const { build, datum, fees } = await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      swapA: {
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
+        pool: PREVIEW_DATA.pools.v1,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
+        pool: {
+          ...PREVIEW_DATA.pools.v1,
+          ident: "04",
+          assetB: {
+            ...PREVIEW_DATA.pools.v1.assetB,
+            assetId:
+              // iBTC
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          },
+          assetLP: {
+            ...PREVIEW_DATA.pools.v1.assetLP,
+            assetId:
+              "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702004",
+          },
+        },
+      },
+    });
+
+    // Deposit carried over = 2 ADA
+    expect(fees.deposit.amount.toString()).toEqual("2000000");
+
+    // Two swaps = 2.5 + 2.5
+    expect(fees.scooperFee.amount.toString()).toEqual("5000000");
+
+    const { builtTx } = await build();
+
+    let swapOutput: C.TransactionOutput | undefined;
+    [...Array(builtTx.txComplete.body().outputs().len()).keys()].forEach(
+      (index) => {
+        const output = builtTx.txComplete.body().outputs().get(index);
+        const outputHex = output
+          .address()
+          .as_enterprise()
+          ?.payment_cred()
+          .to_scripthash()
+          ?.to_hex();
+
+        if (
+          outputHex ===
+            "730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977e" &&
+          output.amount().multiasset()?.to_js_value()[
+            PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[0]
+          ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]] ===
+            "20000000" &&
+          // deposit (2) + v1 scooper fee (2.5) + v1 scooper fee (2.5) +  = 7
+          output.amount().coin().to_str() === "7000000"
+        ) {
+          swapOutput = output;
+        }
+      }
+    );
+
+    expect(swapOutput).not.toBeUndefined();
+    expect(swapOutput).not.toBeUndefined();
+    const inlineDatum = swapOutput?.datum()?.as_data()?.get().to_bytes();
+
+    expect(inlineDatum).toBeUndefined();
+    expect(swapOutput?.datum()?.as_data_hash()?.to_hex()).toEqual(
+      "3043e2dc62f9e00a9374c71338c67bf3f55173cd11a713a31fa2f55e9a4ed428"
+    );
+
+    const datumBytes = builtTx.txComplete
+      .witness_set()
+      .plutus_data()
+      ?.get(0)
+      .to_bytes();
+    expect(datumBytes).not.toBeUndefined();
+    expect(Buffer.from(datumBytes as Uint8Array).toString("hex")).toEqual(
+      datum
+    );
+
+    const transactionMetadata = builtTx.txComplete
+      .auxiliary_data()
+      ?.metadata()
+      ?.get(C.BigNum.from_str("103251"))
+      ?.as_map();
+
+    expect(transactionMetadata).not.toBeUndefined();
+    expect(
+      Buffer.from(transactionMetadata?.to_bytes() as Uint8Array).toString("hex")
+    ).toEqual(
+      "a158202f046e481ae60ba18b449cda20c7c0878be2aee90ca79bbf3528f21b5478019585581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a021f1b48d8799f1a00f39ad2ff42ffff"
+    );
+  });
+
+  test("orderRouteSwap() - v1 to v3", async () => {
+    const { build, datum, fees } = await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      swapA: {
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
+        pool: PREVIEW_DATA.pools.v1,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
+        pool: {
+          ...PREVIEW_DATA.pools.v3,
+          assetB: {
+            ...PREVIEW_DATA.pools.v3.assetB,
+            assetId:
+              // iBTC
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          },
+          assetLP: {
+            ...PREVIEW_DATA.pools.v3.assetLP,
+            assetId:
+              "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702004",
+          },
+        },
+      },
+    });
+
+    // Deposit carried over = 2 ADA
+    expect(fees.deposit.amount.toString()).toEqual("2000000");
+
+    // Two swaps = 2.5 + .5
+    expect(fees.scooperFee.amount.toString()).toEqual("3000000");
+
+    const { builtTx } = await build();
+
+    let swapOutput: C.TransactionOutput | undefined;
+    [...Array(builtTx.txComplete.body().outputs().len()).keys()].forEach(
+      (index) => {
+        const output = builtTx.txComplete.body().outputs().get(index);
+        const outputHex = output
+          .address()
+          .as_enterprise()
+          ?.payment_cred()
+          .to_scripthash()
+          ?.to_hex();
+
+        if (
+          outputHex ===
+            "730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977e" &&
+          output.amount().multiasset()?.to_js_value()[
+            PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[0]
+          ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]] ===
+            "20000000" &&
+          // deposit (2) + v1 scooper fee (2.5) + v3 scooper fee (.5) +  = 5
+          output.amount().coin().to_str() === "5000000"
+        ) {
+          swapOutput = output;
+        }
+      }
+    );
+
+    expect(swapOutput).not.toBeUndefined();
+    expect(swapOutput).not.toBeUndefined();
+    const inlineDatum = swapOutput?.datum()?.as_data()?.get().to_bytes();
+
+    expect(inlineDatum).toBeUndefined();
+    expect(swapOutput?.datum()?.as_data_hash()?.to_hex()).toEqual(
+      "c598c3b1db99083313fce5ae25a4a83b51c0515131f8938c887affdef0ff43d5"
+    );
+
+    const datumBytes = builtTx.txComplete
+      .witness_set()
+      .plutus_data()
+      ?.get(0)
+      .to_bytes();
+    expect(datumBytes).not.toBeUndefined();
+    expect(Buffer.from(datumBytes as Uint8Array).toString("hex")).toEqual(
+      datum
+    );
+
+    const transactionMetadata = builtTx.txComplete
+      .auxiliary_data()
+      ?.metadata()
+      ?.get(C.BigNum.from_str("103251"))
+      ?.as_map();
+
+    expect(transactionMetadata).not.toBeUndefined();
+    expect(
+      Buffer.from(transactionMetadata?.to_bytes() as Uint8Array).toString("hex")
+    ).toEqual(
+      "a15820d165fd2d7150ccc49b8b2580ea4c3948d2538d5cb79e2e91a82d0d77a59e5ced88581fd8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a4581f2470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87a9f9f40401a021f1b48ff9f581c2fe3c3364b443194581fb10954771c95819b8d6ed464033c21f03f8facb544694254431a01d7af8aff46ff43d87980ff"
+    );
   });
 
   test("migrateLiquidityToV3() - single migration", async () => {

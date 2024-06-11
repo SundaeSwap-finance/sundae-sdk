@@ -12,4 +12,4 @@ Holds the acceptable provider types.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L59)
+[packages/core/src/@types/txbuilders.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L61)

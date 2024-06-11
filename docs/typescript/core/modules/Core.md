@@ -37,6 +37,7 @@
 - [IMigrateYieldFarmingLiquidityConfig](../interfaces/Core.IMigrateYieldFarmingLiquidityConfig.md)
 - [IMintV3PoolConfigArgs](../interfaces/Core.IMintV3PoolConfigArgs.md)
 - [IOrderConfigArgs](../interfaces/Core.IOrderConfigArgs.md)
+- [IOrderRouteSwapArgs](../interfaces/Core.IOrderRouteSwapArgs.md)
 - [IPoolByIdentQuery](../interfaces/Core.IPoolByIdentQuery.md)
 - [IPoolByPairQuery](../interfaces/Core.IPoolByPairQuery.md)
 - [IPoolData](../interfaces/Core.IPoolData.md)
@@ -324,7 +325,7 @@ A union type to represent all possible swap types.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:56](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L56)
+[packages/core/src/@types/configs.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L57)
 
 ___
 
@@ -355,7 +356,7 @@ The union type to hold all possible builder types.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L73)
+[packages/core/src/@types/txbuilders.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L75)
 
 ___
 

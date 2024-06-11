@@ -13,11 +13,13 @@ import { Data, getAddressDetails } from "lucid-cardano";
 import {
   EContractVersion,
   EDatumType,
+  ESwapType,
   ICancelConfigArgs,
   IComposedTx,
   IDepositConfigArgs,
   IMigrateLiquidityConfig,
   IMigrateYieldFarmingLiquidityConfig,
+  IOrderRouteSwapArgs,
   ISundaeProtocolParamsFull,
   ISundaeProtocolValidatorFull,
   ISwapConfigArgs,
@@ -217,7 +219,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
    * and completes the transaction by paying to the contract and finalizing the transaction details.
    *
    * @param {ISwapConfigArgs} swapArgs - The configuration arguments for the swap.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the completed transaction.
+   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A promise that resolves to the result of the completed transaction.
    *
    * @async
    * @example
@@ -229,7 +231,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
    *   .then(({ submit }) => submit())
    * ```
    */
-  async swap(swapArgs: ISwapConfigArgs) {
+  async swap(swapArgs: ISwapConfigArgs): Promise<IComposedTx<Tx, TxComplete>> {
     const config = new SwapConfig(swapArgs);
 
     const {
@@ -256,15 +258,34 @@ export class TxBuilderLucidV1 extends TxBuilder {
       scooperFee: this.__getParam("maxScooperFee"),
     });
 
-    const payment = SundaeUtils.accumulateSuppliedAssets({
-      suppliedAssets: [suppliedAsset],
-      scooperFee: this.__getParam("maxScooperFee"),
-    });
+    let scooperFee = this.__getParam("maxScooperFee");
+    const v3TxBuilder = new TxBuilderLucidV3(
+      this.lucid,
+      new DatumBuilderLucidV3(this.network)
+    );
+
+    const v3Address = await v3TxBuilder.generateScriptAddress(
+      "order.spend",
+      swapArgs.ownerAddress ||
+        swapArgs.orderAddresses.DestinationAddress.address
+    );
 
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
     const scriptAddress = this.lucid.utils.validatorToAddress({
       type: "PlutusV1",
       script: compiledCode,
+    });
+
+    // Adjust scooper fee supply based on destination address.
+    if (orderAddresses.DestinationAddress.address === v3Address) {
+      scooperFee += await v3TxBuilder.getMaxScooperFeeAmount();
+    } else if (orderAddresses.DestinationAddress.address === scriptAddress) {
+      scooperFee += this.__getParam("maxScooperFee");
+    }
+
+    const payment = SundaeUtils.accumulateSuppliedAssets({
+      suppliedAssets: [suppliedAsset],
+      scooperFee,
     });
 
     txInstance.payToContract(scriptAddress, cbor, payment);
@@ -276,12 +297,149 @@ export class TxBuilderLucidV1 extends TxBuilder {
   }
 
   /**
+   * Performs an order route swap with the given arguments.
+   *
+   * @async
+   * @param {IOrderRouteSwapArgs} args - The arguments for the order route swap.
+   *
+   * @returns {Promise<IComposedTx<Tx, TxComplete>>} The result of the transaction.
+   */
+  async orderRouteSwap(
+    args: IOrderRouteSwapArgs
+  ): Promise<IComposedTx<Tx, TxComplete>> {
+    const isSecondSwapV3 = args.swapB.pool.version === EContractVersion.V3;
+
+    const secondSwapBuilder = isSecondSwapV3
+      ? new TxBuilderLucidV3(this.lucid, new DatumBuilderLucidV3(this.network))
+      : this;
+    const secondSwapAddress = isSecondSwapV3
+      ? await (secondSwapBuilder as TxBuilderLucidV3).generateScriptAddress(
+          "order.spend",
+          args.ownerAddress
+        )
+      : await this.getValidatorScript("escrow.spend").then(({ compiledCode }) =>
+          this.lucid.utils.validatorToAddress({
+            type: "PlutusV1",
+            script: compiledCode,
+          })
+        );
+
+    const swapA = new SwapConfig({
+      ...args.swapA,
+      ownerAddress: args.ownerAddress,
+      orderAddresses: {
+        DestinationAddress: {
+          address: secondSwapAddress,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+      },
+    }).buildArgs();
+
+    const [aReserve, bReserve] = SundaeUtils.sortSwapAssetsWithAmounts([
+      new AssetAmount(
+        args.swapA.pool.liquidity.aReserve,
+        args.swapA.pool.assetA
+      ),
+      new AssetAmount(
+        args.swapA.pool.liquidity.bReserve,
+        args.swapA.pool.assetB
+      ),
+    ]);
+
+    const aOutputAsset =
+      swapA.suppliedAsset.metadata.assetId === aReserve.metadata.assetId
+        ? bReserve.withAmount(swapA.minReceivable.amount)
+        : aReserve.withAmount(swapA.minReceivable.amount);
+
+    const swapB = new SwapConfig({
+      ...args.swapB,
+      suppliedAsset: aOutputAsset,
+      orderAddresses: {
+        DestinationAddress: {
+          address: args.ownerAddress,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+      },
+    }).buildArgs();
+
+    const secondSwapData = await secondSwapBuilder.swap({
+      ...swapB,
+      swapType: args.swapB.swapType,
+    });
+
+    let referralFeeAmount = 0n;
+    if (swapA.referralFee) {
+      referralFeeAmount += swapA.referralFee.payment.amount;
+    }
+
+    if (swapB.referralFee) {
+      referralFeeAmount += swapB.referralFee.payment.amount;
+    }
+
+    let mergedReferralFee: ITxBuilderReferralFee | undefined;
+    if (swapA.referralFee) {
+      mergedReferralFee = {
+        ...swapA.referralFee,
+        payment: swapA.referralFee.payment.withAmount(referralFeeAmount),
+      };
+    } else if (swapB.referralFee) {
+      mergedReferralFee = {
+        ...swapB.referralFee,
+        payment: swapB.referralFee.payment.withAmount(referralFeeAmount),
+      };
+    }
+
+    const datumHash = this.lucid.utils.datumToHash(
+      secondSwapData.datum as string
+    );
+
+    const { tx, datum, fees } = await this.swap({
+      ...swapA,
+      swapType: {
+        type: ESwapType.LIMIT,
+        minReceivable: swapA.minReceivable,
+      },
+      orderAddresses: {
+        ...swapA.orderAddresses,
+        DestinationAddress: {
+          ...swapA.orderAddresses.DestinationAddress,
+          datum: {
+            type: EDatumType.HASH,
+            value: datumHash,
+          },
+        },
+        AlternateAddress: args.ownerAddress,
+      },
+      referralFee: mergedReferralFee,
+    });
+
+    tx.attachMetadataWithConversion(103251, {
+      [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
+        secondSwapData.datum as string,
+        "0x"
+      ),
+    });
+
+    return this.completeTx({
+      tx,
+      datum,
+      deposit: ORDER_DEPOSIT_DEFAULT,
+      referralFee: mergedReferralFee?.payment,
+      scooperFee: fees.scooperFee.add(secondSwapData.fees.scooperFee).amount,
+    });
+  }
+
+  /**
    * Executes a cancel transaction based on the provided configuration arguments.
    * Validates the datum and datumHash, retrieves the necessary UTXO data,
    * sets up the transaction, and completes it.
    *
    * @param {ICancelConfigArgs} cancelArgs - The configuration arguments for the cancel transaction.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the cancel transaction.
+   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A promise that resolves to the result of the cancel transaction.
    *
    * @async
    * @example
@@ -337,7 +495,6 @@ export class TxBuilderLucidV1 extends TxBuilder {
     ).attachSpendingValidator(scriptValidator);
 
     const details = getAddressDetails(ownerAddress);
-    console.log(details);
 
     const spendingDatum =
       utxoToSpend[0]?.datumHash &&
@@ -379,7 +536,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
    *
    * @param {{ cancelArgs: ICancelConfigArgs, swapArgs: ISwapConfigArgs }}
    *        The arguments for cancel and swap configurations.
-   * @returns {Promise<TransactionResult>} A promise that resolves to the result of the updated transaction.
+   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A promise that resolves to the result of the updated transaction.
    *
    * @throws
    * @async
