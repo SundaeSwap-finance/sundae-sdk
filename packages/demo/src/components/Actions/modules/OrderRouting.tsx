@@ -1,7 +1,6 @@
 import { AssetAmount } from "@sundaeswap/asset";
 import {
   EContractVersion,
-  EDatumType,
   ESwapType,
   IOrderRouteSwapArgs,
   QueryProviderSundaeSwap,
@@ -75,20 +74,13 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       console.log(swapAPool, swapBPool);
 
       const args: IOrderRouteSwapArgs = {
+        ownerAddress: activeWalletAddr,
         swapA: {
           swapType: {
             type: ESwapType.MARKET,
             slippage: 0.03,
           },
           pool: direction === "forward" ? swapAPool : swapBPool,
-          orderAddresses: {
-            DestinationAddress: {
-              address: activeWalletAddr,
-              datum: {
-                type: EDatumType.NONE,
-              },
-            },
-          },
           suppliedAsset: new AssetAmount(
             25000000n,
             direction === "forward" ? swapAPool.assetB : swapBPool.assetB
@@ -100,14 +92,6 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
             slippage: 0.03,
           },
           pool: direction === "forward" ? swapBPool : swapAPool,
-          orderAddresses: {
-            DestinationAddress: {
-              address: activeWalletAddr,
-              datum: {
-                type: EDatumType.NONE,
-              },
-            },
-          },
         },
       };
 
