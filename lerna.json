@@ -3,14 +3,14 @@
   "useNx": true,
   "useWorkspaces": true,
   "version": "independent",
-  "npmClient": "yarn",
+  "npmClient": "bun",
   "ignoreChanges": [
     "**/__tests__/**",
     "**/__fixtures__/**",
     "**/*.test.js",
     "**/*.md"
   ],
-  "ignore": "demo",
+  "ignore": "demo|core",
   "command": {
     "version": {
       "message": "chore(release): publish %s",

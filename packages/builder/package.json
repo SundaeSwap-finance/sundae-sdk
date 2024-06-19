@@ -1,0 +1,20 @@
+{
+  "name": "@sundaeswap/builder",
+  "version": "1.0.0",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "type": "module",
+  "peerDependencies": {
+    "lucid-cardano": "0.10.7",
+    "@sundaeswap/core": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "lucid-cardano": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@sundaeswap/asset": "^0.7.1"
+  }
+}
