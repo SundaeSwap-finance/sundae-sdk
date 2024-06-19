@@ -57,14 +57,14 @@ describe("BuilderLucidV3", () => {
               },
             }),
           )
-          .swap((value) => {
-            secondSwapMinReceived = value.minReceived[2].toString();
-            secondSwapOffer = value.offer[2].toString();
+          .swap((previousDatum) => {
+            secondSwapMinReceived = previousDatum.minReceived[2].toString();
+            secondSwapOffer = previousDatum.offer[2].toString();
 
             const config = new SwapConfig({
               pool: PREVIEW_DATA.pools.v1,
               suppliedAsset: new AssetAmount(
-                value.minReceived[2],
+                previousDatum.minReceived[2],
                 PREVIEW_DATA.pools.v1.assetB,
               ),
               swapType: {

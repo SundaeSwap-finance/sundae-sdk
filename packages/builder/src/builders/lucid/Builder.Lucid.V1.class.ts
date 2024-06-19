@@ -7,20 +7,20 @@ import { ESwapType, SwapConfig } from "../../configs/SwapConfig";
 import { SerializationLucidV3 } from "../../serialization/lucid/Serialization.Lucid.V3.class";
 import { Swap, TSwap } from "../../serialization/lucid/contracts/contracts.v3";
 
-export class BuilderLucidV3 extends Builder {
+export class BuilderLucidV1 extends Builder {
   tasks: ITask[] = [];
   serializationLibrary: SerializationLucidV3;
   txSigned?: string | undefined;
   txUnsigned?: string | undefined;
 
-  constructor(public finalDestinationAddress: string) {
+  constructor() {
     super();
     this.serializationLibrary = new SerializationLucidV3();
   }
 
   swap(
     config: SwapConfig | ((prevDatum: TSwap) => SwapConfig),
-  ): BuilderLucidV3 {
+  ): BuilderLucidV1 {
     const resolvedConfig =
       typeof config === "function"
         ? config(

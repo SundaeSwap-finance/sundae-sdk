@@ -13,7 +13,7 @@ export class BuilderLucidV3 extends Builder {
   txSigned?: string | undefined;
   txUnsigned?: string | undefined;
 
-  constructor(public finalDestinationAddress: string) {
+  constructor() {
     super();
     this.serializationLibrary = new SerializationLucidV3();
   }
