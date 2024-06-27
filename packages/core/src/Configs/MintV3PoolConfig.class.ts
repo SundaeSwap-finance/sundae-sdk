@@ -10,6 +10,7 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
   assetB?: AssetAmount<IAssetAmountMetadata>;
   fee?: bigint;
   marketTimings?: bigint;
+  lockInTreasury?: boolean;
   ownerAddress?: string;
 
   constructor(args?: IMintV3PoolConfigArgs) {
@@ -24,6 +25,7 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     marketOpen,
     ownerAddress,
     referralFee,
+    lockInTreasury,
   }: IMintV3PoolConfigArgs): void {
     referralFee && this.setReferralFee(referralFee);
     this.setAssetA(assetA);
@@ -31,6 +33,7 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     this.setFee(fee);
     this.setMarketOpen(marketOpen || 0n);
     this.setOwnerAddress(ownerAddress);
+    this.setLockInTreasury(lockInTreasury);
   }
 
   buildArgs(): IMintV3PoolConfigArgs {
@@ -42,7 +45,13 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
       marketOpen: this.marketTimings as bigint,
       ownerAddress: this.ownerAddress as string,
       referralFee: this.referralFee,
+      lockInTreasury: this.lockInTreasury,
     };
+  }
+
+  setLockInTreasury(val?: boolean) {
+    this.lockInTreasury = val;
+    return this;
   }
 
   setAssetA(assetA: AssetAmount<IAssetAmountMetadata>) {

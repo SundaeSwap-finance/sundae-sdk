@@ -287,8 +287,15 @@ export class TxBuilderLucidV3 extends TxBuilder {
   async mintPool(
     mintPoolArgs: IMintV3PoolConfigArgs
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
-    const { assetA, assetB, fee, marketOpen, ownerAddress, referralFee } =
-      new MintV3PoolConfig(mintPoolArgs).buildArgs();
+    const {
+      assetA,
+      assetB,
+      fee,
+      marketOpen,
+      ownerAddress,
+      referralFee,
+      lockInTreasury,
+    } = new MintV3PoolConfig(mintPoolArgs).buildArgs();
 
     const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       assetA,
@@ -471,11 +478,34 @@ export class TxBuilderLucidV3 extends TxBuilder {
           lovelace: ORDER_DEPOSIT_DEFAULT,
           [poolRefNameHex]: 1n,
         }
-      )
-      .payToAddress(ownerAddress, {
+      );
+
+    if (lockInTreasury) {
+      const datum = Data.from(settings[0].datum as string, SettingsDatum);
+      const realTreasuryAddress = this.lucid.utils.credentialToAddress(
+        {
+          hash: (
+            datum.treasuryAddress?.paymentCredential as V3Types.TVKeyCredential
+          ).VKeyCredential.bytes,
+          type: "Script",
+        },
+        {
+          hash: (datum.authorizedStakingKeys[0] as V3Types.TSCredential)
+            .SCredential.bytes,
+          type: "Script",
+        }
+      );
+
+      tx.payToContract(realTreasuryAddress, Data.void(), {
         lovelace: ORDER_DEPOSIT_DEFAULT,
         [poolLqNameHex]: circulatingLp,
       });
+    } else {
+      tx.payToAddress(ownerAddress, {
+        lovelace: ORDER_DEPOSIT_DEFAULT,
+        [poolLqNameHex]: circulatingLp,
+      });
+    }
 
     return this.completeTx({
       tx,
