@@ -482,19 +482,34 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
     if (lockInTreasury) {
       const datum = Data.from(settings[0].datum as string, SettingsDatum);
-      const realTreasuryAddress = this.lucid.utils.credentialToAddress(
-        {
-          hash: (
-            datum.treasuryAddress?.paymentCredential as V3Types.TVKeyCredential
-          ).VKeyCredential.bytes,
-          type: "Script",
-        },
-        {
-          hash: (datum.authorizedStakingKeys[0] as V3Types.TSCredential)
-            .SCredential.bytes,
-          type: "Script",
-        }
-      );
+      let addressHash: string;
+      let addressType: "Key" | "Script";
+      if (
+        (datum.treasuryAddress?.paymentCredential as V3Types.TVKeyCredential)
+          ?.VKeyCredential
+      ) {
+        addressType = "Key";
+        addressHash = (
+          datum.treasuryAddress?.paymentCredential as V3Types.TVKeyCredential
+        ).VKeyCredential.bytes;
+      } else if (
+        (datum.treasuryAddress?.paymentCredential as V3Types.TSCredential)
+          ?.SCredential
+      ) {
+        addressType = "Script";
+        addressHash = (
+          datum.treasuryAddress?.paymentCredential as V3Types.TSCredential
+        ).SCredential.bytes;
+      } else {
+        throw new Error(
+          "Could not determine the Treasury address type from the Settings UTXO."
+        );
+      }
+
+      const realTreasuryAddress = this.lucid.utils.credentialToAddress({
+        hash: addressHash,
+        type: addressType,
+      });
 
       tx.payToContract(realTreasuryAddress, Data.void(), {
         lovelace: ORDER_DEPOSIT_DEFAULT,

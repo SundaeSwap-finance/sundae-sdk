@@ -947,9 +947,7 @@ describe("TxBuilderLucidV3", () => {
     const lpTokensOutput = builtTx.txComplete.body().outputs().get(2);
     expect(
       Buffer.from(lpTokensOutput.address().to_bytes()).toString("hex")
-    ).toEqual(
-      "30035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
-    );
+    ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
     expect(
       Buffer.from(
         lpTokensOutput.datum()?.as_data_hash()?.to_bytes() as Uint8Array
