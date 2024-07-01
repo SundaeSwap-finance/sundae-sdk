@@ -47,14 +47,18 @@ describe("MintV3PoolConfig class", () => {
         ...defaultArgs,
         fees: 11_000n,
       }).buildArgs()
-    ).toThrowError("Fees cannot supersede the max fee of 10000.");
+    ).toThrowError(
+      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+    );
 
     expect(() =>
       new MintV3PoolConfig({
         ...defaultArgs,
         fees: 10n,
       }).buildArgs()
-    ).not.toThrowError("Fees cannot supersede the max fee of 10000.");
+    ).not.toThrowError(
+      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+    );
   });
 
   it("should fail when an ask fee surpasses the max fee", () => {
@@ -66,7 +70,9 @@ describe("MintV3PoolConfig class", () => {
           ask: 11_000n,
         },
       }).buildArgs()
-    ).toThrowError("Ask fee cannot supersede the max fee of 10000.");
+    ).toThrowError(
+      `Ask fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+    );
   });
 
   it("should fail when a take fee surpasses the max fee", () => {
@@ -78,6 +84,8 @@ describe("MintV3PoolConfig class", () => {
           ask: 10n,
         },
       }).buildArgs()
-    ).toThrowError("Take fee cannot supersede the max fee of 10000.");
+    ).toThrowError(
+      `Take fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+    );
   });
 });

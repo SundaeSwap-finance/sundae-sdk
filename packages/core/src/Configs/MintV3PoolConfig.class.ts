@@ -4,7 +4,7 @@ import { IFeesConfig, IMintV3PoolConfigArgs } from "../@types/index.js";
 import { Config } from "../Abstracts/Config.abstract.class.js";
 
 export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
-  static MAX_FEE: bigint = 10_000n;
+  static MAX_FEE: bigint = 500n;
 
   assetA?: AssetAmount<IAssetAmountMetadata>;
   assetB?: AssetAmount<IAssetAmountMetadata>;
