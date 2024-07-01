@@ -14,12 +14,14 @@
 import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
 
+import { Lucid } from "lucid-cardano";
 import { EDatumType } from "../../@types/index.js";
 import { LucidHelper } from "../../exports/lucid.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { ADA_METADATA } from "../../exports/utilities.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilder.Lucid.V3.class.js";
 import { TSignatureSchema } from "../contracts/contracts.v3.js";
+import { V3Types } from "../contracts/index.js";
 
 let builderInstance: DatumBuilderLucidV3;
 
@@ -269,5 +271,88 @@ describe("static getDestinationAddressesFromDatum()", () => {
     expect(
       DatumBuilderLucidV3.getDestinationAddressesFromDatum(exampleDatum)
     ).toMatchObject(expectedAddresses);
+  });
+});
+
+describe("static addressSchemaToCredential", () => {
+  it("should correctly convert address schemas to their Credentials", async () => {
+    const lucidInstance = await Lucid.new(undefined, "Preview");
+    const paymentAddress: V3Types.TAddressSchema = {
+      paymentCredential: {
+        VKeyCredential: {
+          bytes: "c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a",
+        },
+      },
+      stakeCredential: null,
+    };
+
+    expect(
+      DatumBuilderLucidV3.addressSchemaToBech32(paymentAddress, lucidInstance)
+    ).toEqual(
+      "addr_test1vrp8nglm8d8x9w783c5g0qa4spzaft5z5xyx0kp495p8wkswmc787"
+    );
+
+    const paymentAddressWithStakingKey: V3Types.TAddressSchema = {
+      paymentCredential: {
+        VKeyCredential: {
+          bytes: "c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a",
+        },
+      },
+      stakeCredential: {
+        keyHash: {
+          VKeyCredential: {
+            bytes: "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0",
+          },
+        },
+      },
+    };
+
+    expect(
+      DatumBuilderLucidV3.addressSchemaToBech32(
+        paymentAddressWithStakingKey,
+        lucidInstance
+      )
+    ).toEqual(
+      "addr_test1qrp8nglm8d8x9w783c5g0qa4spzaft5z5xyx0kp495p8wksjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngqtjfk6s"
+    );
+
+    const scriptAddress: V3Types.TAddressSchema = {
+      paymentCredential: {
+        SCredential: {
+          bytes: "cfad1914b599d18bffd14d2bbd696019c2899cbdd6a03325cdf680bc",
+        },
+      },
+      stakeCredential: null,
+    };
+
+    expect(
+      DatumBuilderLucidV3.addressSchemaToBech32(scriptAddress, lucidInstance)
+    ).toEqual(
+      "addr_test1wr866xg5kkvarzll69xjh0tfvqvu9zvuhht2qve9ehmgp0qfgf3wc"
+    );
+
+    const scriptAddressWithStakingKey: V3Types.TAddressSchema = {
+      paymentCredential: {
+        SCredential: {
+          bytes: "cfad1914b599d18bffd14d2bbd696019c2899cbdd6a03325cdf680bc",
+        },
+      },
+      stakeCredential: {
+        keyHash: {
+          VKeyCredential: {
+            bytes: "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0",
+          },
+        },
+      },
+    };
+
+    expect(
+      DatumBuilderLucidV3.addressSchemaToBech32(
+        scriptAddressWithStakingKey,
+        lucidInstance
+      )
+    ).toEqual(
+      "addr_test1zr866xg5kkvarzll69xjh0tfvqvu9zvuhht2qve9ehmgp0qjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngq4qar8t"
+    );
   });
 });

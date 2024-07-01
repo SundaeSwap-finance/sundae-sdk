@@ -1941,15 +1941,22 @@
   dependencies:
     "@sundaeswap/fraction" "^0.5.9"
 
-"@sundaeswap/bigint-math@^0.5.9":
-  version "0.5.9"
-  resolved "https://registry.yarnpkg.com/@sundaeswap/bigint-math/-/bigint-math-0.5.9.tgz#b7bec95324f8caa202794f8efd907990b5ac2a84"
-  integrity sha512-TYZwvgpA+aZFAroO0qYQSOn1c1h/IdmCuqS0PZ1mbF8wBdJ7JjDV0wu6onIzXZ3O6SZHlthyN3m6F2PjeYrQfA==
+"@sundaeswap/asset@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/asset/-/asset-1.0.3.tgz#920bcad43dd51ee9da231a975b5c9f5e321e8bea"
+  integrity sha512-IENGr6cDum3MKtq6cYdlrbkhs8uC3CbJKYKyv1oihUQtNT+yRxMMkkmJtnPp0lzMkW0BW+zHHPVeqKJrqOeAsA==
+  dependencies:
+    "@sundaeswap/fraction" "1.0.3"
 
-"@sundaeswap/cpp@^0.6.7":
-  version "0.6.12"
-  resolved "https://registry.yarnpkg.com/@sundaeswap/cpp/-/cpp-0.6.12.tgz#9588320d93eab931734fd79b16a2b30419608bb6"
-  integrity sha512-0C2JzZ+aiz3Mdr0hcIggqg6zg63HNahl/UWM9KUZq+gKaXd1lF3eHPXT1/UMFU5E70RLj3KvytNLJsKR9GUkPw==
+"@sundaeswap/bigint-math@^0.6.3":
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/bigint-math/-/bigint-math-0.6.3.tgz#1cd63baab1838a4d14e8dc6df0ece774c386390e"
+  integrity sha512-FTXBd8F9LAvZsTZII7SBbZTEnjJc4JOSHp0XM+byAMsIDXglrYKotZT8z4QnYBxq1EcuhONsKdutibTfst4sgg==
+
+"@sundaeswap/cpp@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/cpp/-/cpp-1.0.3.tgz#c840ad5c3ce1674f9eabe007d5812f67708bd189"
+  integrity sha512-bK5Jui/1a/4behnVef19MtNz808tFY631edhZpJ++BShmFvu8qzVV1gVmlVHsIaVYJZdNaytJNO2YZ0dVdBruA==
 
 "@sundaeswap/docgen@^0.1.2":
   version "0.1.2"
@@ -1963,6 +1970,11 @@
     typedoc "^0.25.7"
     typedoc-plugin-frontmatter "^0.0.2"
     typedoc-plugin-markdown "^3.17.1"
+
+"@sundaeswap/fraction@1.0.3", "@sundaeswap/fraction@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@sundaeswap/fraction/-/fraction-1.0.3.tgz#bfc51923da05581e3122eee0d4802275878349e3"
+  integrity sha512-LP4ag3R8nIHQo99ijNsWLYzun9k4sFvvTVt4swFeGwCntPQVXxGyHLqT98kV5/KT1Ny9w9XH6fdWqZsxMcv4aQ==
 
 "@sundaeswap/fraction@^0.5.9":
   version "0.5.9"

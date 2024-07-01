@@ -76,9 +76,9 @@
     "docs:ci": "yarn docs --unsafe"
   },
   "devDependencies": {
-    "@sundaeswap/bigint-math": "^0.5.9",
-    "@sundaeswap/cpp": "^0.6.7",
-    "@sundaeswap/fraction": "^0.5.9",
+    "@sundaeswap/bigint-math": "^0.6.3",
+    "@sundaeswap/cpp": "^1.0.3",
+    "@sundaeswap/fraction": "^1.0.3",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^14.3.0",
     "@types/jest": "^28.1.3",
@@ -94,10 +94,10 @@
     "typescript": "^4.6.4"
   },
   "peerDependencies": {
-    "@sundaeswap/asset": "^0.7.1",
-    "@sundaeswap/bigint-math": "^0.5.9",
-    "@sundaeswap/cpp": "^0.6.9",
-    "@sundaeswap/fraction": "^0.5.9",
+    "@sundaeswap/asset": "^1.0.3",
+    "@sundaeswap/bigint-math": "^0.6.3",
+    "@sundaeswap/cpp": "^1.0.3",
+    "@sundaeswap/fraction": "^1.0.3",
     "lucid-cardano": "^0.10.7"
   },
   "gitHead": "ddc937102065a5a581fe7affe02474c0e68ad9a0"

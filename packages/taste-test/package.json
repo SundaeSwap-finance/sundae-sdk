@@ -59,8 +59,8 @@
     "typescript": "^4.6.4"
   },
   "peerDependencies": {
-    "@sundaeswap/asset": "^0.7.1",
-    "@sundaeswap/core": "^1.0.0",
+    "@sundaeswap/asset": "^1.0.3",
+    "@sundaeswap/core": "^1.1.12",
     "lucid-cardano": "^0.10.7"
   }
 }

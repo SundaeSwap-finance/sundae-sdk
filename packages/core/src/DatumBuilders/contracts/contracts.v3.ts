@@ -145,6 +145,8 @@ export const AddressSchema = Data.Object({
     })
   ),
 });
+export type TAddressSchema = Data.Static<typeof AddressSchema>;
+export const Address = AddressSchema as unknown as TAddressSchema;
 
 export const DestinationSchema = Data.Object({
   address: AddressSchema,
