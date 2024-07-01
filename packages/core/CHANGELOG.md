@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.1.12...@sundaeswap/core@1.2.0) (2024-07-01)
+
+### Features
+
+- the ability to send LP tokens to the treasury ([0558941](https://github.com/SundaeSwap-finance/sundae-sdk/commit/0558941dc0c7eeefeb881b608d12faaec5ef81ef))
+
 ## [1.1.12](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.1.11...@sundaeswap/core@1.1.12) (2024-06-11)
 
 **Note:** Version bump only for package @sundaeswap/core
