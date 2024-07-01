@@ -98,6 +98,11 @@ export interface IWithdrawConfigArgs extends IOrderConfigArgs {
   suppliedLPAsset: AssetAmount<IAssetAmountMetadata>;
 }
 
+export interface IFeesConfig {
+  ask: bigint;
+  bid: bigint;
+}
+
 /**
  * Interface describing the method arguments for creating a pool
  * in the V3 Pool Contract.
@@ -105,7 +110,7 @@ export interface IWithdrawConfigArgs extends IOrderConfigArgs {
 export interface IMintV3PoolConfigArgs extends IBaseConfig {
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
-  fee: bigint;
+  fees: bigint | IFeesConfig;
   ownerAddress: string;
   // Defaults to immediately.
   marketOpen?: bigint;

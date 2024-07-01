@@ -737,7 +737,7 @@ describe("TxBuilderLucidV3", () => {
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tada,
       assetB: PREVIEW_DATA.assets.tindy,
-      fee: 5n,
+      fees: 5n,
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
     });
@@ -856,7 +856,7 @@ describe("TxBuilderLucidV3", () => {
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tada,
       assetB: PREVIEW_DATA.assets.tindy,
-      fee: 5n,
+      fees: 5n,
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
       donateToTreasury: 100n,
@@ -979,7 +979,7 @@ describe("TxBuilderLucidV3", () => {
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tada,
       assetB: PREVIEW_DATA.assets.tindy,
-      fee: 5n,
+      fees: 5n,
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
       donateToTreasury: 43n,
@@ -1127,7 +1127,7 @@ describe("TxBuilderLucidV3", () => {
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tindy,
       assetB: PREVIEW_DATA.assets.usdc,
-      fee: 5n,
+      fees: 5n,
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
     });
@@ -1254,7 +1254,7 @@ describe("TxBuilderLucidV3", () => {
       await builder.mintPool({
         assetA: PREVIEW_DATA.assets.tada.withAmount(500_000n),
         assetB: PREVIEW_DATA.assets.usdc,
-        fee: 5n,
+        fees: 5n,
         marketOpen: 5n,
         ownerAddress: PREVIEW_DATA.addresses.current,
       });
@@ -1272,7 +1272,7 @@ describe("TxBuilderLucidV3", () => {
       await builder.mintPool({
         assetA: PREVIEW_DATA.assets.tada,
         assetB: PREVIEW_DATA.assets.tindy,
-        fee: 5n,
+        fees: 5n,
         marketOpen: 5n,
         ownerAddress: PREVIEW_DATA.addresses.current,
       });

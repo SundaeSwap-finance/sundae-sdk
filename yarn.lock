@@ -1934,13 +1934,6 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@sundaeswap/asset@^0.7.1":
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/@sundaeswap/asset/-/asset-0.7.1.tgz#5a05c67fc0badf2a08a1f1f22260377c5039a44f"
-  integrity sha512-V6DZiLr5WTRA1J/6tBDBZGOq74Szl+dtnfinubhaIHSgqByM9EAN3ech9R8gp9zTRwBIO5puXp9UuQCO4KhOVQ==
-  dependencies:
-    "@sundaeswap/fraction" "^0.5.9"
-
 "@sundaeswap/asset@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@sundaeswap/asset/-/asset-1.0.3.tgz#920bcad43dd51ee9da231a975b5c9f5e321e8bea"
@@ -1975,11 +1968,6 @@
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@sundaeswap/fraction/-/fraction-1.0.3.tgz#bfc51923da05581e3122eee0d4802275878349e3"
   integrity sha512-LP4ag3R8nIHQo99ijNsWLYzun9k4sFvvTVt4swFeGwCntPQVXxGyHLqT98kV5/KT1Ny9w9XH6fdWqZsxMcv4aQ==
-
-"@sundaeswap/fraction@^0.5.9":
-  version "0.5.9"
-  resolved "https://registry.yarnpkg.com/@sundaeswap/fraction/-/fraction-0.5.9.tgz#cd97f453bee9b9933ec98d1287fdeca28ea6cdb8"
-  integrity sha512-3KamPkKlXj6oLY1NNb4QjwKc0p+2MUthEGbFl4S9hf7qdxH5HWE4itcbsMpLOmEHWWy1N3fzUffuVkPWsyddZg==
 
 "@swc/core-darwin-arm64@1.4.1":
   version "1.4.1"

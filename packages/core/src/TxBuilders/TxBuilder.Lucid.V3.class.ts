@@ -290,7 +290,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const {
       assetA,
       assetB,
-      fee,
+      fees,
       marketOpen,
       ownerAddress,
       referralFee,
@@ -348,7 +348,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     } = this.datumBuilder.buildMintPoolDatum({
       assetA: sortedAssets[0],
       assetB: sortedAssets[1],
-      fee,
+      fees,
       marketOpen,
       depositFee: POOL_MIN_ADA,
       seedUtxo: userUtxos[0],

@@ -1,5 +1,5 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { IMintV3PoolConfigArgs } from "../@types/index.js";
+import { IFeesConfig, IMintV3PoolConfigArgs } from "../@types/index.js";
 
 import { Config } from "../Abstracts/Config.abstract.class.js";
 
@@ -8,7 +8,7 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
 
   assetA?: AssetAmount<IAssetAmountMetadata>;
   assetB?: AssetAmount<IAssetAmountMetadata>;
-  fee?: bigint;
+  fees?: IFeesConfig;
   marketTimings?: bigint;
   donateToTreasury?: bigint;
   ownerAddress?: string;
@@ -21,7 +21,7 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
   setFromObject({
     assetA,
     assetB,
-    fee,
+    fees,
     marketOpen,
     ownerAddress,
     referralFee,
@@ -30,18 +30,18 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     referralFee && this.setReferralFee(referralFee);
     this.setAssetA(assetA);
     this.setAssetB(assetB);
-    this.setFee(fee);
+    this.setFees(fees);
     this.setMarketOpen(marketOpen || 0n);
     this.setOwnerAddress(ownerAddress);
     this.setDonateToTreasury(donateToTreasury);
   }
 
-  buildArgs(): IMintV3PoolConfigArgs {
+  buildArgs(): Omit<IMintV3PoolConfigArgs, "fees"> & { fees: IFeesConfig } {
     this.validate();
     return {
       assetA: this.assetA as AssetAmount<IAssetAmountMetadata>,
       assetB: this.assetB as AssetAmount<IAssetAmountMetadata>,
-      fee: this.fee as bigint,
+      fees: this.fees as IFeesConfig,
       marketOpen: this.marketTimings as bigint,
       ownerAddress: this.ownerAddress as string,
       referralFee: this.referralFee,
@@ -64,8 +64,15 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     return this;
   }
 
-  setFee(fee: bigint) {
-    this.fee = fee;
+  setFees(fees: bigint | IFeesConfig) {
+    this.fees =
+      typeof fees === "bigint"
+        ? {
+            ask: fees,
+            bid: fees,
+          }
+        : fees;
+
     return this;
   }
 
@@ -82,14 +89,31 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
   validate(): void {
     super.validate();
 
-    if (!this.fee) {
-      throw new Error(`No fee was set, but is required.`);
+    if (!this.fees) {
+      throw new Error(`No fees were set, but are required.`);
     }
 
-    if (this.fee > MintV3PoolConfig.MAX_FEE) {
-      throw new Error(
-        `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
-      );
+    if (this.fees.ask === this.fees.bid) {
+      if (
+        this.fees.ask > MintV3PoolConfig.MAX_FEE ||
+        this.fees.bid > MintV3PoolConfig.MAX_FEE
+      ) {
+        throw new Error(
+          `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+        );
+      }
+    } else {
+      if (this.fees.ask > MintV3PoolConfig.MAX_FEE) {
+        throw new Error(
+          `Ask fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+        );
+      }
+
+      if (this.fees.bid > MintV3PoolConfig.MAX_FEE) {
+        throw new Error(
+          `Take fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+        );
+      }
     }
 
     if (
