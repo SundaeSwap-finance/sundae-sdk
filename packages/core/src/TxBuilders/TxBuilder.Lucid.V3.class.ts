@@ -294,7 +294,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       marketOpen,
       ownerAddress,
       referralFee,
-      lockInTreasury,
+      donateToTreasury,
     } = new MintV3PoolConfig(mintPoolArgs).buildArgs();
 
     const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
@@ -413,17 +413,30 @@ export class TxBuilderLucidV3 extends TxBuilder {
         }
       );
 
-    if (lockInTreasury) {
+    if (donateToTreasury) {
       const datum = Data.from(settings[0].datum as string, SettingsDatum);
       const realTreasuryAddress = DatumBuilderLucidV3.addressSchemaToBech32(
         datum.treasuryAddress,
         this.lucid
       );
 
-      tx.payToContract(realTreasuryAddress, Data.void(), {
-        lovelace: ORDER_DEPOSIT_DEFAULT,
-        [poolLqNameHex]: circulatingLp,
-      });
+      if (donateToTreasury === 100n) {
+        tx.payToContract(realTreasuryAddress, Data.void(), {
+          lovelace: ORDER_DEPOSIT_DEFAULT,
+          [poolLqNameHex]: circulatingLp,
+        });
+      } else {
+        const donation = (circulatingLp * donateToTreasury) / 100n;
+        tx.payToContract(realTreasuryAddress, Data.void(), {
+          lovelace: ORDER_DEPOSIT_DEFAULT,
+          [poolLqNameHex]: donation,
+        });
+
+        tx.payToAddress(ownerAddress, {
+          lovelace: ORDER_DEPOSIT_DEFAULT,
+          [poolLqNameHex]: circulatingLp - donation,
+        });
+      }
     } else {
       tx.payToAddress(ownerAddress, {
         lovelace: ORDER_DEPOSIT_DEFAULT,
