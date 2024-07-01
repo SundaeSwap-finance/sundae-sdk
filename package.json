@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@semantic-release/git": "^10.0.1",
-    "@sundaeswap/asset": "^0.7.1",
+    "@sundaeswap/asset": "^1.0.3",
     "@sundaeswap/docgen": "^0.1.2",
     "@types/node": "^18.11.18",
     "@types/node-fetch": "^2.6.11",

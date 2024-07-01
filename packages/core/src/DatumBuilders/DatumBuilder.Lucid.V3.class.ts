@@ -1,6 +1,6 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { sqrt } from "@sundaeswap/bigint-math";
-import { C, Constr, Data, UTxO } from "lucid-cardano";
+import { C, Constr, Credential, Data, Lucid, UTxO } from "lucid-cardano";
 
 import {
   EDatumType,
@@ -605,5 +605,65 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     }
 
     return undefined;
+  }
+
+  static addressSchemaToBech32(
+    datum: V3Types.TAddressSchema,
+    lucid: Lucid
+  ): string {
+    let paymentKeyHash: string;
+    let paymentAddressType: "Key" | "Script";
+    if ((datum.paymentCredential as V3Types.TVKeyCredential)?.VKeyCredential) {
+      paymentAddressType = "Key";
+      paymentKeyHash = (datum.paymentCredential as V3Types.TVKeyCredential)
+        .VKeyCredential.bytes;
+    } else if ((datum.paymentCredential as V3Types.TSCredential)?.SCredential) {
+      paymentAddressType = "Script";
+      paymentKeyHash = (datum.paymentCredential as V3Types.TSCredential)
+        .SCredential.bytes;
+    } else {
+      throw new Error(
+        "Could not determine the address type from supplied payment credential."
+      );
+    }
+
+    const result: Record<string, Credential> = {
+      paymentCredential: {
+        hash: paymentKeyHash,
+        type: paymentAddressType,
+      },
+    };
+
+    if (datum.stakeCredential?.keyHash) {
+      let stakingKeyHash: string | undefined;
+      let stakingAddressType: "Key" | "Script" | undefined;
+      if (
+        (datum.stakeCredential.keyHash as V3Types.TVKeyCredential)
+          ?.VKeyCredential
+      ) {
+        stakingAddressType = "Key";
+        stakingKeyHash = (
+          datum.stakeCredential.keyHash as V3Types.TVKeyCredential
+        ).VKeyCredential.bytes;
+      } else if (
+        (datum.stakeCredential.keyHash as V3Types.TSCredential)?.SCredential
+      ) {
+        stakingAddressType = "Script";
+        stakingKeyHash = (datum.stakeCredential.keyHash as V3Types.TSCredential)
+          .SCredential.bytes;
+      }
+
+      if (stakingKeyHash && stakingAddressType) {
+        result.stakeCredential = {
+          hash: stakingKeyHash,
+          type: stakingAddressType,
+        };
+      }
+    }
+
+    return lucid.utils.credentialToAddress(
+      result.paymentCredential,
+      result.stakeCredential
+    );
   }
 }

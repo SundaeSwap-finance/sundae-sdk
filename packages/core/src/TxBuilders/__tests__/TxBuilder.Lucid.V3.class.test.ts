@@ -849,6 +849,277 @@ describe("TxBuilderLucidV3", () => {
     fetchMock.disableMocks();
   });
 
+  test("mintPool() should build a transaction correctly when including ADA and donating Treasury", async () => {
+    fetchMock.enableMocks();
+    fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
+
+    const { fees, build } = await builder.mintPool({
+      assetA: PREVIEW_DATA.assets.tada,
+      assetB: PREVIEW_DATA.assets.tindy,
+      fee: 5n,
+      marketOpen: 5n,
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      donateToTreasury: 100n,
+    });
+
+    // Since we are depositing ADA, we only need ADA for the metadata and settings utxos.
+    expect(fees.deposit.amount.toString()).toEqual(
+      (ORDER_DEPOSIT_DEFAULT * 2n).toString()
+    );
+
+    const { builtTx } = await build();
+
+    const poolBalanceDatum = builtTx.txComplete
+      .witness_set()
+      .redeemers()
+      ?.get(0);
+    expect(poolBalanceDatum).not.toBeUndefined();
+    expect(
+      Buffer.from(poolBalanceDatum?.to_bytes() as Uint8Array).toString("hex")
+    ).toEqual(
+      "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a000b4af51a121ba48c"
+    );
+
+    /**
+     * The pool output should be the first in the outputs.
+     */
+    const poolOutput = builtTx.txComplete.body().outputs().get(0);
+    expect(
+      Buffer.from(poolOutput.address().to_bytes()).toString("hex")
+    ).toEqual(
+      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
+    );
+    const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
+    const poolDepositedAssetA = poolOutput.amount().coin().to_str();
+    const poolDepositedAssetB =
+      poolDepositAssets[
+        PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[0]
+      ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]];
+    const poolDepositedNFT =
+      poolDepositAssets[
+        "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
+      ]["000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"];
+
+    [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(
+      (val) => expect(val).not.toBeUndefined()
+    );
+    // Should deposit assets without additional ADA.
+    expect(poolDepositedAssetA).toEqual(
+      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString()
+    );
+    expect(poolDepositedAssetB).toEqual("20000000");
+    expect(poolDepositedNFT).toEqual("1");
+    // Should have datum attached.
+    expect(
+      Buffer.from(
+        poolOutput.datum()?.as_data()?.to_bytes() as Uint8Array
+      ).toString("hex")
+    ).toEqual(
+      "d818585ed8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+    );
+
+    /**
+     * The metadata output should be the second in the outputs.
+     */
+    const metadataOutput = builtTx.txComplete.body().outputs().get(1);
+    expect(
+      Buffer.from(metadataOutput.address().to_bytes()).toString("hex")
+    ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
+    const metadataDepositAssets = metadataOutput
+      .amount()
+      .multiasset()
+      ?.to_js_value();
+    const metadataDepositedAssetA = metadataOutput.amount().coin().to_str();
+    const metadataDepositedNFT =
+      metadataDepositAssets[params.blueprint.validators[1].hash][
+        "000643b09e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
+      ];
+
+    [metadataDepositedAssetA, metadataDepositedNFT].forEach((val) =>
+      expect(val).not.toBeUndefined()
+    );
+    expect(metadataDepositedAssetA).toEqual("2000000");
+    expect(metadataDepositedNFT).toEqual("1");
+
+    /**
+     * The lp tokens output should be the third in the outputs.
+     */
+    const lpTokensOutput = builtTx.txComplete.body().outputs().get(2);
+    expect(
+      Buffer.from(lpTokensOutput.address().to_bytes()).toString("hex")
+    ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
+    expect(
+      Buffer.from(
+        lpTokensOutput.datum()?.as_data_hash()?.to_bytes() as Uint8Array
+      ).toString("hex")
+    ).toEqual(builder.lucid.utils.datumToHash(Data.void()));
+    const lpTokensDepositAssets = lpTokensOutput
+      .amount()
+      .multiasset()
+      ?.to_js_value();
+    const lpTokensReturnedADA = lpTokensOutput.amount().coin().to_str();
+    const lpTokensReturned =
+      lpTokensDepositAssets[params.blueprint.validators[1].hash][
+        "0014df109e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
+      ];
+
+    [lpTokensReturnedADA, lpTokensReturned].forEach((val) =>
+      expect(val).not.toBeUndefined()
+    );
+    expect(lpTokensReturnedADA).toEqual("2000000");
+    expect(lpTokensReturned).toEqual("20000000");
+
+    fetchMock.disableMocks();
+  });
+
+  test("mintPool() should build a transaction correctly when including ADA and donating a percentage to the Treasury", async () => {
+    fetchMock.enableMocks();
+    fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
+
+    const { fees, build } = await builder.mintPool({
+      assetA: PREVIEW_DATA.assets.tada,
+      assetB: PREVIEW_DATA.assets.tindy,
+      fee: 5n,
+      marketOpen: 5n,
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      donateToTreasury: 43n,
+    });
+
+    // Since we are depositing ADA, we only need ADA for the metadata and settings utxos.
+    expect(fees.deposit.amount.toString()).toEqual(
+      (ORDER_DEPOSIT_DEFAULT * 2n).toString()
+    );
+
+    const { builtTx } = await build();
+
+    const poolBalanceDatum = builtTx.txComplete
+      .witness_set()
+      .redeemers()
+      ?.get(0);
+    expect(poolBalanceDatum).not.toBeUndefined();
+    expect(
+      Buffer.from(poolBalanceDatum?.to_bytes() as Uint8Array).toString("hex")
+    ).toEqual(
+      "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a000b4af51a121ba48c"
+    );
+
+    /**
+     * The pool output should be the first in the outputs.
+     */
+    const poolOutput = builtTx.txComplete.body().outputs().get(0);
+    expect(
+      Buffer.from(poolOutput.address().to_bytes()).toString("hex")
+    ).toEqual(
+      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
+    );
+    const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
+    const poolDepositedAssetA = poolOutput.amount().coin().to_str();
+    const poolDepositedAssetB =
+      poolDepositAssets[
+        PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[0]
+      ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]];
+    const poolDepositedNFT =
+      poolDepositAssets[
+        "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
+      ]["000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"];
+
+    [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(
+      (val) => expect(val).not.toBeUndefined()
+    );
+    // Should deposit assets without additional ADA.
+    expect(poolDepositedAssetA).toEqual(
+      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString()
+    );
+    expect(poolDepositedAssetB).toEqual("20000000");
+    expect(poolDepositedNFT).toEqual("1");
+    // Should have datum attached.
+    expect(
+      Buffer.from(
+        poolOutput.datum()?.as_data()?.to_bytes() as Uint8Array
+      ).toString("hex")
+    ).toEqual(
+      "d818585ed8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+    );
+
+    /**
+     * The metadata output should be the second in the outputs.
+     */
+    const metadataOutput = builtTx.txComplete.body().outputs().get(1);
+    expect(
+      Buffer.from(metadataOutput.address().to_bytes()).toString("hex")
+    ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
+    const metadataDepositAssets = metadataOutput
+      .amount()
+      .multiasset()
+      ?.to_js_value();
+    const metadataDepositedAssetA = metadataOutput.amount().coin().to_str();
+    const metadataDepositedNFT =
+      metadataDepositAssets[params.blueprint.validators[1].hash][
+        "000643b09e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
+      ];
+
+    [metadataDepositedAssetA, metadataDepositedNFT].forEach((val) =>
+      expect(val).not.toBeUndefined()
+    );
+    expect(metadataDepositedAssetA).toEqual("2000000");
+    expect(metadataDepositedNFT).toEqual("1");
+
+    /**
+     * The lp tokens donation output should be the third in the outputs.
+     */
+    const lpTokensDonation = builtTx.txComplete.body().outputs().get(2);
+    expect(
+      Buffer.from(lpTokensDonation.address().to_bytes()).toString("hex")
+    ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
+    expect(
+      Buffer.from(
+        lpTokensDonation.datum()?.as_data_hash()?.to_bytes() as Uint8Array
+      ).toString("hex")
+    ).toEqual(builder.lucid.utils.datumToHash(Data.void()));
+    const lpTokensDonationAssets = lpTokensDonation
+      .amount()
+      .multiasset()
+      ?.to_js_value();
+    const lpTokensDonatedADA = lpTokensDonation.amount().coin().to_str();
+    const lpTokensDonated =
+      lpTokensDonationAssets[params.blueprint.validators[1].hash][
+        "0014df109e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
+      ];
+
+    [lpTokensDonatedADA, lpTokensDonated].forEach((val) =>
+      expect(val).not.toBeUndefined()
+    );
+    expect(lpTokensDonatedADA).toEqual("2000000");
+    expect(lpTokensDonated).toEqual("8600000");
+
+    /**
+     * The lp tokens returned output should be the fourth in the outputs.
+     */
+    const lpTokensOutput = builtTx.txComplete.body().outputs().get(3);
+    expect(
+      Buffer.from(lpTokensOutput.address().to_bytes()).toString("hex")
+    ).toEqual(
+      "00c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0"
+    );
+    const lpTokensDepositAssets = lpTokensOutput
+      .amount()
+      .multiasset()
+      ?.to_js_value();
+    const lpTokensReturnedADA = lpTokensOutput.amount().coin().to_str();
+    const lpTokensReturned =
+      lpTokensDepositAssets[params.blueprint.validators[1].hash][
+        "0014df109e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
+      ];
+
+    [lpTokensReturnedADA, lpTokensReturned].forEach((val) =>
+      expect(val).not.toBeUndefined()
+    );
+    expect(lpTokensReturnedADA).toEqual("2000000");
+    expect(lpTokensReturned).toEqual("11400000");
+
+    fetchMock.disableMocks();
+  });
+
   test("mintPool() should build a transaction correctly when using exotic pairs", async () => {
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));

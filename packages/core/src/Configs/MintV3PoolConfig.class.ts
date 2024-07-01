@@ -10,6 +10,7 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
   assetB?: AssetAmount<IAssetAmountMetadata>;
   fee?: bigint;
   marketTimings?: bigint;
+  donateToTreasury?: bigint;
   ownerAddress?: string;
 
   constructor(args?: IMintV3PoolConfigArgs) {
@@ -24,6 +25,7 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     marketOpen,
     ownerAddress,
     referralFee,
+    donateToTreasury,
   }: IMintV3PoolConfigArgs): void {
     referralFee && this.setReferralFee(referralFee);
     this.setAssetA(assetA);
@@ -31,6 +33,7 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     this.setFee(fee);
     this.setMarketOpen(marketOpen || 0n);
     this.setOwnerAddress(ownerAddress);
+    this.setDonateToTreasury(donateToTreasury);
   }
 
   buildArgs(): IMintV3PoolConfigArgs {
@@ -42,7 +45,13 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
       marketOpen: this.marketTimings as bigint,
       ownerAddress: this.ownerAddress as string,
       referralFee: this.referralFee,
+      donateToTreasury: this.donateToTreasury,
     };
+  }
+
+  setDonateToTreasury(val?: bigint) {
+    this.donateToTreasury = val;
+    return this;
   }
 
   setAssetA(assetA: AssetAmount<IAssetAmountMetadata>) {
@@ -80,6 +89,15 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     if (this.fee > MintV3PoolConfig.MAX_FEE) {
       throw new Error(
         `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+      );
+    }
+
+    if (
+      this.donateToTreasury &&
+      (this.donateToTreasury > 100n || this.donateToTreasury < 0n)
+    ) {
+      throw new Error(
+        `Donation value is determined as a percentage between 0 and 100`
       );
     }
   }

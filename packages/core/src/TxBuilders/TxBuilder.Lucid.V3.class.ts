@@ -287,8 +287,15 @@ export class TxBuilderLucidV3 extends TxBuilder {
   async mintPool(
     mintPoolArgs: IMintV3PoolConfigArgs
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
-    const { assetA, assetB, fee, marketOpen, ownerAddress, referralFee } =
-      new MintV3PoolConfig(mintPoolArgs).buildArgs();
+    const {
+      assetA,
+      assetB,
+      fee,
+      marketOpen,
+      ownerAddress,
+      referralFee,
+      donateToTreasury,
+    } = new MintV3PoolConfig(mintPoolArgs).buildArgs();
 
     const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       assetA,
@@ -358,99 +365,32 @@ export class TxBuilderLucidV3 extends TxBuilder {
       });
 
     const {
-      metadataAdmin: { paymentCredential },
+      metadataAdmin: { paymentCredential, stakeCredential },
       authorizedStakingKeys: [poolStakingCredential],
     } = Data.from(settings[0].datum as string, V3Types.SettingsDatum);
+    const metadataAddress = DatumBuilderLucidV3.addressSchemaToBech32(
+      { paymentCredential, stakeCredential },
+      this.lucid
+    );
 
-    let metadataAddress: string;
-    if ((paymentCredential as V3Types.TVKeyCredential)?.VKeyCredential) {
-      metadataAddress = C.EnterpriseAddress.new(
-        this.network === "preview" ? 0 : 1,
-        C.StakeCredential.from_keyhash(
-          C.Ed25519KeyHash.from_hex(
-            (paymentCredential as V3Types.TVKeyCredential).VKeyCredential.bytes
-          )
-        )
-      )
-        .to_address()
-        .to_bech32(this.network === "preview" ? "addr_test" : "addr");
-    } else if ((paymentCredential as V3Types.TSCredential)?.SCredential) {
-      metadataAddress = C.EnterpriseAddress.new(
-        this.network === "preview" ? 0 : 1,
-        C.StakeCredential.from_scripthash(
-          C.ScriptHash.from_hex(
-            (paymentCredential as V3Types.TSCredential).SCredential.bytes
-          )
-        )
-      )
-        .to_address()
-        .to_bech32(this.network === "preview" ? "addr_test" : "addr");
-    } else {
-      throw new Error(
-        "Could not derive metadata address from the settings UTXO. Please try again."
-      );
-    }
-
-    let sundaeStakeAddress: string | undefined;
     const { blueprint } = await this.getProtocolParams();
     const poolContract = blueprint.validators.find(
       ({ title }) => title === "pool.mint"
     );
 
-    let stakeContractHash: string | undefined;
-    if ((poolStakingCredential as V3Types.TVKeyCredential)?.VKeyCredential) {
-      stakeContractHash = C.EnterpriseAddress.new(
-        this.network === "preview" ? 0 : 1,
-        C.StakeCredential.from_keyhash(
-          C.Ed25519KeyHash.from_hex(
-            (poolStakingCredential as V3Types.TVKeyCredential).VKeyCredential
-              .bytes
-          )
-        )
-      )
-        ?.payment_cred()
-        .to_keyhash()
-        ?.to_hex();
-    } else if ((poolStakingCredential as V3Types.TSCredential)?.SCredential) {
-      stakeContractHash = C.EnterpriseAddress.new(
-        this.network === "preview" ? 0 : 1,
-        C.StakeCredential.from_scripthash(
-          C.ScriptHash.from_hex(
-            (poolStakingCredential as V3Types.TSCredential).SCredential.bytes
-          )
-        )
-      )
-        ?.payment_cred()
-        .to_scripthash()
-        ?.to_hex();
-    }
-
-    if (!stakeContractHash) {
-      throw new Error(
-        "Could not derive metadata address from the settings UTXO. Please try again."
-      );
-    }
-
-    if (stakeContractHash && poolContract?.hash) {
-      const paymentCred = C.StakeCredential.from_scripthash(
-        C.ScriptHash.from_hex(poolContract.hash)
-      );
-      const stakingCred = C.StakeCredential.from_scripthash(
-        C.ScriptHash.from_hex(stakeContractHash)
-      );
-
-      sundaeStakeAddress = C.BaseAddress.new(
-        this.network === "mainnet" ? 1 : 0,
-        paymentCred,
-        stakingCred
-      )
-        .to_address()
-        .to_bech32(this.network === "mainnet" ? "addr" : "addr_test");
-    } else {
-      throw new Error(
-        "Could not generate a valid pool address. Please try again."
-      );
-    }
+    const sundaeStakeAddress = DatumBuilderLucidV3.addressSchemaToBech32(
+      {
+        paymentCredential: {
+          SCredential: {
+            bytes: poolContract?.hash as string,
+          },
+        },
+        stakeCredential: {
+          keyHash: poolStakingCredential,
+        },
+      },
+      this.lucid
+    );
 
     const tx = this.newTxInstance(referralFee)
       .mintAssets(
@@ -471,11 +411,38 @@ export class TxBuilderLucidV3 extends TxBuilder {
           lovelace: ORDER_DEPOSIT_DEFAULT,
           [poolRefNameHex]: 1n,
         }
-      )
-      .payToAddress(ownerAddress, {
+      );
+
+    if (donateToTreasury) {
+      const datum = Data.from(settings[0].datum as string, SettingsDatum);
+      const realTreasuryAddress = DatumBuilderLucidV3.addressSchemaToBech32(
+        datum.treasuryAddress,
+        this.lucid
+      );
+
+      if (donateToTreasury === 100n) {
+        tx.payToContract(realTreasuryAddress, Data.void(), {
+          lovelace: ORDER_DEPOSIT_DEFAULT,
+          [poolLqNameHex]: circulatingLp,
+        });
+      } else {
+        const donation = (circulatingLp * donateToTreasury) / 100n;
+        tx.payToContract(realTreasuryAddress, Data.void(), {
+          lovelace: ORDER_DEPOSIT_DEFAULT,
+          [poolLqNameHex]: donation,
+        });
+
+        tx.payToAddress(ownerAddress, {
+          lovelace: ORDER_DEPOSIT_DEFAULT,
+          [poolLqNameHex]: circulatingLp - donation,
+        });
+      }
+    } else {
+      tx.payToAddress(ownerAddress, {
         lovelace: ORDER_DEPOSIT_DEFAULT,
         [poolLqNameHex]: circulatingLp,
       });
+    }
 
     return this.completeTx({
       tx,
