@@ -111,7 +111,7 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
 
       if (this.fees.bid > MintV3PoolConfig.MAX_FEE) {
         throw new Error(
-          `Take fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+          `Bid fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
         );
       }
     }
