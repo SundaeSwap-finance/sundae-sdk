@@ -4,6 +4,7 @@ import { C, Constr, Credential, Data, Lucid, UTxO } from "lucid-cardano";
 
 import {
   EDatumType,
+  IFeesConfig,
   TDatumResult,
   TDestinationAddress,
   TSupportedNetworks,
@@ -64,7 +65,7 @@ export interface IDatumBuilderMintPoolV3Args {
   seedUtxo: UTxO;
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
-  fee: bigint;
+  fees: IFeesConfig;
   depositFee: bigint;
   marketOpen?: bigint;
 }
@@ -249,7 +250,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
   public buildMintPoolDatum({
     assetA,
     assetB,
-    fee,
+    fees,
     marketOpen,
     depositFee,
     seedUtxo,
@@ -265,8 +266,8 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     const newPoolDatum: V3Types.TPoolDatum = {
       assets: assetsPair,
       circulatingLp: liquidity,
-      bidFeePer10Thousand: fee,
-      askFeePer10Thousand: fee,
+      bidFeePer10Thousand: fees.bid,
+      askFeePer10Thousand: fees.ask,
       feeManager: null,
       identifier: ident,
       marketOpen: marketOpen || 0n,

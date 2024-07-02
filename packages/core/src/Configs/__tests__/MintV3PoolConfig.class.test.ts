@@ -5,7 +5,7 @@ import { MintV3PoolConfig } from "../MintV3PoolConfig.class.js";
 const defaultArgs: IMintV3PoolConfigArgs = {
   assetA: PREVIEW_DATA.assets.tada,
   assetB: PREVIEW_DATA.assets.tindy,
-  fee: 20n,
+  fees: 20n,
   marketOpen: 0n,
   ownerAddress: "addr_test",
 };
@@ -32,7 +32,10 @@ describe("MintV3PoolConfig class", () => {
       assetB: expect.objectContaining({
         amount: PREVIEW_DATA.assets.tindy.amount,
       }),
-      fee: 20n,
+      fees: {
+        bid: 20n,
+        ask: 20n,
+      },
       marketOpen: 0n,
       ownerAddress: "addr_test",
     });
@@ -42,15 +45,47 @@ describe("MintV3PoolConfig class", () => {
     expect(() =>
       new MintV3PoolConfig({
         ...defaultArgs,
-        fee: 11_000n,
+        fees: 11_000n,
       }).buildArgs()
-    ).toThrowError("Fees cannot supersede the max fee of 10000.");
+    ).toThrowError(
+      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+    );
 
     expect(() =>
       new MintV3PoolConfig({
         ...defaultArgs,
-        fee: 10n,
+        fees: 10n,
       }).buildArgs()
-    ).not.toThrowError("Fees cannot supersede the max fee of 10000.");
+    ).not.toThrowError(
+      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+    );
+  });
+
+  it("should fail when an ask fee surpasses the max fee", () => {
+    expect(() =>
+      new MintV3PoolConfig({
+        ...defaultArgs,
+        fees: {
+          bid: 10n,
+          ask: 11_000n,
+        },
+      }).buildArgs()
+    ).toThrowError(
+      `Ask fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+    );
+  });
+
+  it("should fail when a take fee surpasses the max fee", () => {
+    expect(() =>
+      new MintV3PoolConfig({
+        ...defaultArgs,
+        fees: {
+          bid: 11_000n,
+          ask: 10n,
+        },
+      }).buildArgs()
+    ).toThrowError(
+      `Take fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+    );
   });
 });
