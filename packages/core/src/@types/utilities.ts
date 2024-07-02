@@ -23,7 +23,8 @@ export type TSupportedWallets =
   | "gerowallet"
   | "cardwallet"
   | "nufi"
-  | "begin";
+  | "begin"
+  | "lace";
 
 /**
  * An interface to describe a utility function's arguments in SundaeUtils.
