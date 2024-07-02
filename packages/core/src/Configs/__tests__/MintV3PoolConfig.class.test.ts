@@ -75,7 +75,7 @@ describe("MintV3PoolConfig class", () => {
     );
   });
 
-  it("should fail when a take fee surpasses the max fee", () => {
+  it("should fail when a bid fee surpasses the max fee", () => {
     expect(() =>
       new MintV3PoolConfig({
         ...defaultArgs,
@@ -85,7 +85,7 @@ describe("MintV3PoolConfig class", () => {
         },
       }).buildArgs()
     ).toThrowError(
-      `Take fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+      `Bid fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
     );
   });
 });
