@@ -237,8 +237,14 @@ export class SundaeUtils {
       ? pool.assetB
       : pool.assetA;
 
+    const amount = BigInt(Math.ceil(Number(output.output) * (1 - slippage)));
+
+    if (amount < 0n) {
+      throw new Error("Cannot have a negative minimum receivable amount.");
+    }
+
     return new AssetAmount<IAssetAmountMetadata>(
-      BigInt(Math.ceil(Number(output.output) * (1 - slippage))),
+      amount,
       receivableAssetMetadata
     );
   }

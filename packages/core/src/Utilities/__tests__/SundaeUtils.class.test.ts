@@ -132,6 +132,21 @@ describe("SundaeUtils class", () => {
         decimals: 0,
       })
     );
+
+    /**
+     * It should throw if the calculated minReceivable is less than 0.
+     */
+    try {
+      SundaeUtils.getMinReceivableFromSlippage(
+        mockPoolData,
+        mockSuppliedAsset,
+        2
+      );
+    } catch (e) {
+      expect((e as Error).message).toStrictEqual(
+        "Cannot have a negative minimum receivable amount."
+      );
+    }
   });
 
   it("getSwapDirection()", () => {
