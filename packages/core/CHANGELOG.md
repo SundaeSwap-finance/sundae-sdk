@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.4](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.2.3...@sundaeswap/core@1.2.4) (2024-07-03)
+
+### Bug Fixes
+
+- should throw errors if minReceivable is negative ([dcb03b2](https://github.com/SundaeSwap-finance/sundae-sdk/commit/dcb03b2fb0b4454a986fd2b64c471cc0816b4476))
+
 ## [1.2.3](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.2.2...@sundaeswap/core@1.2.3) (2024-07-02)
 
 ### Bug Fixes
