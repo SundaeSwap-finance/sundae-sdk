@@ -132,5 +132,11 @@ export class SwapConfig extends OrderConfig<
         "A minimum receivable amount was not found. This is usually because an invalid swapType was not supplied in the config."
       );
     }
+
+    if (this.minReceivable.amount < 0n) {
+      throw new Error(
+        "Cannot use a negative minimum receivable amount. Please try again."
+      );
+    }
   }
 }

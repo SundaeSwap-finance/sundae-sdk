@@ -321,5 +321,28 @@ describe("SwapConfig class", () => {
         "A minimum receivable amount was not found. This is usually because an invalid swapType was not supplied in the config."
       );
     }
+
+    try {
+      new SwapConfig({
+        orderAddresses: {
+          DestinationAddress: {
+            address: PREVIEW_DATA.addresses.current,
+            datum: {
+              type: EDatumType.NONE,
+            },
+          },
+        },
+        pool: PREVIEW_DATA.pools.v1,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+        swapType: {
+          type: ESwapType.LIMIT,
+          minReceivable: PREVIEW_DATA.assets.tada.withAmount(-100n),
+        },
+      }).validate();
+    } catch (e) {
+      expect((e as Error).message).toStrictEqual(
+        "Cannot use a negative minimum receivable amount. Please try again."
+      );
+    }
   });
 });
