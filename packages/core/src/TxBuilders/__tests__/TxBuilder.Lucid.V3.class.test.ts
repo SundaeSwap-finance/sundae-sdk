@@ -385,13 +385,13 @@ describe("TxBuilderLucidV3", () => {
       },
     });
 
-    // Deposit carried over = 2 ADA
-    expect(fees.deposit.amount.toString()).toEqual("2000000");
+    // Deposit carried over = 3 ADA
+    expect(fees.deposit.amount.toString()).toEqual("3000000");
 
     // Two swaps = .5 + .5
     expect(fees.scooperFee.amount.toString()).toEqual("1000000");
 
-    const { builtTx, cbor } = await build();
+    const { builtTx } = await build();
 
     let swapOutput: C.TransactionOutput | undefined;
     [...Array(builtTx.txComplete.body().outputs().len()).keys()].forEach(
@@ -408,8 +408,8 @@ describe("TxBuilderLucidV3", () => {
             PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[0]
           ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]] ===
             "20000000" &&
-          // deposit (2) + v3 scooper fee (.5) + v3 scooper fee (.5) + 133370 inline datum = 3.133370
-          output.amount().coin().to_str() === "3133370"
+          // deposit (3) + v3 scooper fee (.5) + v3 scooper fee (.5)
+          output.amount().coin().to_str() === "4000000"
         ) {
           swapOutput = output;
         }
@@ -460,8 +460,8 @@ describe("TxBuilderLucidV3", () => {
       },
     });
 
-    // Deposit carried over = 2 ADA
-    expect(fees.deposit.amount.toString()).toEqual("2000000");
+    // Deposit carried over = 3 ADA
+    expect(fees.deposit.amount.toString()).toEqual("3000000");
 
     // Two swaps = .5 + 2.5
     expect(fees.scooperFee.amount.toString()).toEqual("3000000");
@@ -483,8 +483,8 @@ describe("TxBuilderLucidV3", () => {
             PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[0]
           ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]] ===
             "20000000" &&
-          // deposit (2) + v3 scooper fee (.5) + v1 scooper fee (2.5) = 5
-          output.amount().coin().to_str() === "5000000"
+          // deposit (3) + v3 scooper fee (.5) + v1 scooper fee (2.5) = 5
+          output.amount().coin().to_str() === "6000000"
         ) {
           swapOutput = output;
         }

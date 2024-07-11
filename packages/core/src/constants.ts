@@ -49,4 +49,5 @@ export const ADA_METADATA = {
 
 export const POOL_MIN_ADA = 3_000_000n;
 export const ORDER_DEPOSIT_DEFAULT = 2_000_000n;
+export const ORDER_ROUTE_DEPOSIT_DEFAULT = 3_000_000n;
 export const VOID_REDEEMER = "d87a80";

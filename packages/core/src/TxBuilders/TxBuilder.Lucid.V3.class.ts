@@ -49,6 +49,7 @@ import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
   ORDER_DEPOSIT_DEFAULT,
+  ORDER_ROUTE_DEPOSIT_DEFAULT,
   POOL_MIN_ADA,
   VOID_REDEEMER,
 } from "../constants.js";
@@ -522,9 +523,15 @@ export class TxBuilderLucidV3 extends TxBuilder {
       scooperFee += await this.getMaxScooperFeeAmount();
     }
 
+    const isOrderRoute = [v1Address, v3Address].includes(
+      orderAddresses.DestinationAddress.address
+    );
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: [suppliedAsset],
       scooperFee,
+      orderDeposit: isOrderRoute
+        ? ORDER_ROUTE_DEPOSIT_DEFAULT
+        : ORDER_DEPOSIT_DEFAULT,
     });
 
     txInstance.payToContract(v3Address, { inline }, payment);
@@ -533,6 +540,9 @@ export class TxBuilderLucidV3 extends TxBuilder {
       tx: txInstance,
       datum: inline,
       referralFee: referralFee?.payment,
+      deposit: isOrderRoute
+        ? ORDER_ROUTE_DEPOSIT_DEFAULT
+        : ORDER_DEPOSIT_DEFAULT,
     });
   }
 
@@ -670,7 +680,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     return this.completeTx({
       tx,
       datum,
-      deposit: ORDER_DEPOSIT_DEFAULT,
+      deposit: ORDER_ROUTE_DEPOSIT_DEFAULT,
       referralFee: mergedReferralFee?.payment,
       scooperFee: fees.scooperFee.add(secondSwapData.fees.scooperFee).amount,
     });
