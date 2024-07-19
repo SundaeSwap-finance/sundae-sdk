@@ -457,16 +457,35 @@ export class TxBuilderLucidV1 extends TxBuilder {
     ).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
-    const utxoToSpend = await this.lucid.provider.getUtxosByOutRef([
+    const utxosToSpend = await this.lucid.provider.getUtxosByOutRef([
       { outputIndex: utxo.index, txHash: utxo.hash },
     ]);
+
+    if (!utxosToSpend) {
+      throw new Error(
+        `UTXO data was not found with the following parameters: ${JSON.stringify(
+          utxo
+        )}`
+      );
+    }
+
+    const spendingDatum =
+      utxosToSpend[0]?.datum ||
+      (utxosToSpend[0]?.datumHash &&
+        (await this.lucid.provider.getDatum(utxosToSpend[0].datumHash)));
+
+    if (!spendingDatum) {
+      throw new Error(
+        "Failed trying to cancel an order that doesn't include a datum!"
+      );
+    }
 
     /**
      * If we can properly deserialize the order datum using a V3 type, then it's a V3 order.
      * If not, then we can assume it is a normal V1 order.
      */
     try {
-      Data.from(utxoToSpend?.[0]?.datum as string, OrderDatum);
+      Data.from(spendingDatum as string, OrderDatum);
       console.log("This is a V3 order! Calling appropriate builder...");
       const v3Builder = new TxBuilderLucidV3(
         this.lucid,
@@ -475,14 +494,6 @@ export class TxBuilderLucidV1 extends TxBuilder {
       return v3Builder.cancel({ ...cancelArgs });
     } catch (e) {}
 
-    if (!utxoToSpend) {
-      throw new Error(
-        `UTXO data was not found with the following parameters: ${JSON.stringify(
-          utxo
-        )}`
-      );
-    }
-
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
     const scriptValidator: Script = {
       type: "PlutusV1",
@@ -490,21 +501,11 @@ export class TxBuilderLucidV1 extends TxBuilder {
     };
 
     tx.collectFrom(
-      utxoToSpend,
+      utxosToSpend,
       this.__getParam("cancelRedeemer")
     ).attachSpendingValidator(scriptValidator);
 
     const details = getAddressDetails(ownerAddress);
-
-    const spendingDatum =
-      utxoToSpend[0]?.datumHash &&
-      (await this.lucid.provider.getDatum(utxoToSpend[0].datumHash));
-
-    if (!spendingDatum) {
-      throw new Error(
-        "Failed trying to cancel an order that doesn't include a datum!"
-      );
-    }
 
     if (
       details?.stakeCredential?.hash &&
@@ -522,7 +523,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
 
     return this.completeTx({
       tx,
-      datum: utxoToSpend[0]?.datum as string,
+      datum: spendingDatum as string,
       deposit: 0n,
       scooperFee: 0n,
       referralFee: referralFee?.payment,

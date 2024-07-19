@@ -704,27 +704,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       { outputIndex: utxo.index, txHash: utxo.hash },
     ]);
 
-    /**
-     * If we can properly deserialize the order datum using a V3 type, then it's a V3 order.
-     * If not, then we can assume it is a normal V1 order, and call accordingly.
-     */
-    try {
-      Data.from(utxosToSpend?.[0]?.datum as string, OrderDatum);
-    } catch (e) {
-      console.log("This is a V1 order! Calling appropriate builder...");
-      const v1Builder = new TxBuilderLucidV1(
-        this.lucid,
-        new DatumBuilderLucidV1(this.network)
-      );
-      return v1Builder.cancel({ ...cancelArgs });
-    }
-
-    const orderUtxo = utxosToSpend.find(
-      ({ txHash, outputIndex }) =>
-        utxo.hash === txHash && utxo.index === outputIndex
-    );
-
-    if (!orderUtxo) {
+    if (!utxosToSpend) {
       throw new Error(
         `UTXO data was not found with the following parameters: ${JSON.stringify(
           utxo
@@ -732,13 +712,30 @@ export class TxBuilderLucidV3 extends TxBuilder {
       );
     }
 
-    if (!orderUtxo.datum) {
+    const spendingDatum =
+      utxosToSpend[0]?.datum ||
+      (utxosToSpend[0]?.datumHash &&
+        (await this.lucid.provider.getDatum(utxosToSpend[0].datumHash)));
+
+    if (!spendingDatum) {
       throw new Error(
-        `There was no datum attached to the order UTXO: ${JSON.stringify({
-          txHash: orderUtxo.txHash,
-          index: orderUtxo.outputIndex,
-        })}`
+        "Failed trying to cancel an order that doesn't include a datum!"
       );
+    }
+
+    /**
+     * If we can properly deserialize the order datum using a V3 type, then it's a V3 order.
+     * If not, then we can assume it is a normal V1 order, and call accordingly.
+     */
+    try {
+      Data.from(spendingDatum as string, OrderDatum);
+    } catch (e) {
+      console.log("This is a V1 order! Calling appropriate builder...");
+      const v1Builder = new TxBuilderLucidV1(
+        this.lucid,
+        new DatumBuilderLucidV1(this.network)
+      );
+      return v1Builder.cancel({ ...cancelArgs });
     }
 
     const cancelReferenceInput = await this.getReferenceScript("order.spend");
@@ -751,16 +748,14 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
     tx.collectFrom(utxosToSpend, VOID_REDEEMER).readFrom(cancelReadFrom);
 
-    const signerKey = DatumBuilderLucidV3.getSignerKeyFromDatum(
-      orderUtxo.datum
-    );
+    const signerKey = DatumBuilderLucidV3.getSignerKeyFromDatum(spendingDatum);
     if (signerKey) {
       tx.addSignerKey(signerKey);
     }
 
     return this.completeTx({
       tx,
-      datum: orderUtxo.datum as string,
+      datum: spendingDatum as string,
       deposit: 0n,
       scooperFee: 0n,
       referralFee: referralFee?.payment,
