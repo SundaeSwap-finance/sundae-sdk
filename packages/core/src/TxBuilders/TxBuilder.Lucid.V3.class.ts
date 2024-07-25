@@ -18,6 +18,7 @@ import type {
   IDepositConfigArgs,
   IMintV3PoolConfigArgs,
   IOrderRouteSwapArgs,
+  IStrategyConfigArgs,
   ISundaeProtocolParamsFull,
   ISundaeProtocolReference,
   ISundaeProtocolValidatorFull,
@@ -34,6 +35,7 @@ import { TxBuilder } from "../Abstracts/TxBuilder.abstract.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { MintV3PoolConfig } from "../Configs/MintV3PoolConfig.class.js";
+import { StrategyConfig } from "../Configs/StrategyConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
@@ -1143,6 +1145,43 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
 
     return sortedUtxos;
+  }
+
+  /**
+   * @rrruko This is where we will expose the method to the user for building a listing order.
+   * The StrategyConfig class handles validation of the arguments, so adjust as needed there.
+   */
+  async listStrategyOrder(args: IStrategyConfigArgs) {
+    // The difference between orderAddresses and ownerAddress is:
+    // orderAddresses tell you where the result is going next (possibly chained).
+    // the ownerAddress tells you who should always be able to cancel the order at any step.
+
+    const { orderAddresses, suppliedAssets, ownerAddress, referralFee } =
+      new StrategyConfig(args).buildArgs();
+
+    const { inline } = this.datumBuilder.buildListStrategyDatum();
+
+    const tx = this.newTxInstance(referralFee);
+
+    const payment = SundaeUtils.accumulateSuppliedAssets({
+      scooperFee: await this.getMaxScooperFeeAmount(),
+      suppliedAssets,
+    });
+
+    tx.payToContract(
+      // This might need to be a different script address, not sure.
+      await this.generateScriptAddress(
+        "order.spend",
+        orderAddresses.DestinationAddress.address
+      ),
+      { inline },
+      payment
+    );
+
+    return this.completeTx({
+      tx,
+      datum: inline,
+    });
   }
 
   private async completeTx({

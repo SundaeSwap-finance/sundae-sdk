@@ -108,6 +108,9 @@ export const DonationSchema = Data.Object({
 });
 
 export const OrderSchema = Data.Enum([
+  /**
+   * @rrruko The strategies type needs to be built out before we can use it in the DatumBuilder.Lucid.V3.class.ts file.
+   */
   Data.Object({ Strategies: Data.Nullable(Data.Literal("TODO")) }),
   Data.Object({ Swap: SwapSchema }),
   Data.Object({ Deposit: DepositSchema }),

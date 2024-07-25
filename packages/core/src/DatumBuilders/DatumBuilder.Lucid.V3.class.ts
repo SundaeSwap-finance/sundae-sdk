@@ -284,6 +284,22 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
   }
 
   /**
+   * @rrruko Build your datum here using an arguments interface (just copy at the top for reference).
+   * This will be used in the TxBuilder.Lucid.V3.class.ts file when building the transaction.
+   */
+  buildListStrategyDatum() {
+    // const listStrategyDatum: V3Types.StrategyOrderDatum = {
+    //   ...data
+    // }
+    // const inline = Data.to(listStrategyDatum, V3Types.StrategyOrderDatum);
+    // return {
+    //   hash: LucidHelper.inlineDatumToHash(inline),
+    //   inline,
+    //   schmea: listStrategyDatum
+    // }
+  }
+
+  /**
    * Creates a redeemer datum for minting a new pool. This is attached to the new assets that
    * creating a new pool mints on the blockchain. See {@link Lucid.TxBuilderLucidV3} for more
    * details.
