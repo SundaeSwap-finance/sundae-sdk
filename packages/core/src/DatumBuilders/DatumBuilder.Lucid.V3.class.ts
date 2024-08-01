@@ -304,7 +304,9 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
       order: {
         Strategy: {
           auth: {
-            Signature: ownerPublicKey,
+            Signature: {
+              bytes: ownerPublicKey,
+            },
           },
         },
       },

@@ -89,8 +89,8 @@ export const SingletonValue =
   SingletonValueSchema as unknown as TSingletonValue;
 
 export const StrategyAuthorizationSchema = Data.Enum([
-  Data.Object({ Signature: Data.Bytes() }),
-  Data.Object({ Script: Data.Bytes() }),
+  Data.Object({ Signature: Data.Object({ bytes: Data.Bytes() }) }),
+  Data.Object({ Script: Data.Object({ bytes: Data.Bytes() }) }),
 ]);
 
 export const StrategySchema = Data.Object({
