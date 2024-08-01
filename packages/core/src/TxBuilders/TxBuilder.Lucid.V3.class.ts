@@ -1147,10 +1147,6 @@ export class TxBuilderLucidV3 extends TxBuilder {
     return sortedUtxos;
   }
 
-  /**
-   * @rrruko This is where we will expose the method to the user for building a listing order.
-   * The StrategyConfig class handles validation of the arguments, so adjust as needed there.
-   */
   async strategy(args: IStrategyConfigArgs) {
     // The difference between orderAddresses and ownerAddress is:
     // orderAddresses tell you where the result is going next (possibly chained).

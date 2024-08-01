@@ -291,10 +291,6 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     };
   }
 
-  /**
-   * @rrruko Build your datum here using an arguments interface (just copy at the top for reference).
-   * This will be used in the TxBuilder.Lucid.V3.class.ts file when building the transaction.
-   */
   buildStrategyDatum({
     destinationAddress,
     ident,
