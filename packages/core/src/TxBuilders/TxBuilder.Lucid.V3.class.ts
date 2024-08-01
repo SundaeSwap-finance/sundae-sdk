@@ -1156,10 +1156,17 @@ export class TxBuilderLucidV3 extends TxBuilder {
     // orderAddresses tell you where the result is going next (possibly chained).
     // the ownerAddress tells you who should always be able to cancel the order at any step.
 
-    const { orderAddresses, suppliedAssets, ownerAddress, referralFee } =
+    const { orderAddresses, suppliedAssets, ownerAddress, ownerPublicKey, referralFee } =
       new StrategyConfig(args).buildArgs();
 
-    const { inline } = this.datumBuilder.buildListStrategyDatum();
+    const { inline } = this.datumBuilder.buildListStrategyDatum({
+      ident: pool.ident,
+      destinationAddress: orderAddresses.DestinationAddress,
+      order: {
+        lpToken: suppliedLPAsset,
+      },
+      scooperFee: await this.getMaxScooperFeeAmount(),
+    });
 
     const tx = this.newTxInstance(referralFee);
 

@@ -287,16 +287,34 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
    * @rrruko Build your datum here using an arguments interface (just copy at the top for reference).
    * This will be used in the TxBuilder.Lucid.V3.class.ts file when building the transaction.
    */
-  buildListStrategyDatum() {
-    // const listStrategyDatum: V3Types.StrategyOrderDatum = {
-    //   ...data
-    // }
-    // const inline = Data.to(listStrategyDatum, V3Types.StrategyOrderDatum);
-    // return {
-    //   hash: LucidHelper.inlineDatumToHash(inline),
-    //   inline,
-    //   schmea: listStrategyDatum
-    // }
+  buildListStrategyDatum({
+    destinationAddress,
+    ident,
+    order,
+    ownerAddress,
+    ownerPublicKey,
+  }: IDatumBuilderListStrategyV3Args): TDatumResult<V3Types.TOrderDatum> {
+    const listStrategyDatum: V3Types.TOrderDatum = {
+      destination: this.buildDestinationAddresses(destinationAddress).schema,
+      extension: Data.void(),
+      order: {
+        Strategy: {
+          auth: {
+            Signature: ownerPublicKey,
+          },
+        },
+      },
+      owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
+        .schema,
+      poolIdent: this.buildPoolIdent(ident),
+      scooperFee: scooperFee,
+    };
+    const inline = Data.to(listStrategyDatum, V3Types.StrategyOrderDatum);
+    return {
+      hash: LucidHelper.inlineDatumToHash(inline),
+      inline,
+      schmea: listStrategyDatum
+    }
   }
 
   /**

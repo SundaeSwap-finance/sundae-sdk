@@ -97,6 +97,7 @@ export interface IZapConfigArgs extends IOrderConfigArgs {
 export interface IStrategyConfigArgs extends IBaseConfig {
   suppliedAssets: AssetAmount<IAssetAmountMetadata>[];
   orderAddresses: TOrderAddresses;
+  ownerPublicKey: string;
   ownerAddress?: string;
 }
 
