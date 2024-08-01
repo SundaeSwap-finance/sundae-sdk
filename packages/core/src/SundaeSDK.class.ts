@@ -95,7 +95,7 @@ export class SundaeSDK {
           const extension = window.cardano?.[this.options.wallet.name];
           if (!extension) {
             throw new Error(
-              `Could not connect to wallet extension: ${this.options.wallet.name}`
+              `Could not find wallet extension: ${this.options.wallet.name}`
             );
           }
 
