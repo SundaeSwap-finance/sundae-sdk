@@ -1,14 +1,16 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { IStrategyConfigArgs, TOrderAddresses } from "../@types/index.js";
+import { IPoolData, IStrategyConfigArgs, TOrderAddresses } from "../@types/index.js";
 import { Config } from "../Abstracts/Config.abstract.class.js";
+import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
 
 /**
  * The main config class for building valid arguments for listing a strategy order.
  */
-export class StrategyConfig extends Config<IStrategyConfigArgs> {
+export class StrategyConfig extends OrderConfig<IStrategyConfigArgs> {
   suppliedAssets?: AssetAmount<IAssetAmountMetadata>[];
-  orderAddresses?: TOrderAddresses;
+
+  ownerPublicKey?: string;
 
   constructor(args?: IStrategyConfigArgs) {
     super();
@@ -16,18 +18,14 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
     args && this.setFromObject(args);
   }
 
-  /**
-   * Set the {@link Core.TOrderAddresses} for a listed strategy's datum.
-   * @param {TOrderAddresses} orderAddresses - The addresses for the order.
-   * @returns {OrderConfig} The current instance of the class.
-   */
-  setOrderAddresses(orderAddresses: TOrderAddresses): StrategyConfig {
-    this.orderAddresses = orderAddresses;
-    return this;
-  }
 
   setSuppliedAssets(assets: AssetAmount<IAssetAmountMetadata>[]) {
     this.suppliedAssets = assets;
+    return this;
+  }
+
+  setOwnerPublicKey(publicKey: string) {
+    this.ownerPublicKey = publicKey;
     return this;
   }
 
@@ -35,7 +33,9 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
     this.validate();
 
     return {
+      pool: this.pool as IPoolData,
       orderAddresses: this.orderAddresses as TOrderAddresses,
+      ownerPublicKey: this.ownerPublicKey as string,
       suppliedAssets: this
         .suppliedAssets as AssetAmount<IAssetAmountMetadata>[],
       referralFee: this.referralFee,

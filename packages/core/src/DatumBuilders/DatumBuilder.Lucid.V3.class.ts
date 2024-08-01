@@ -26,6 +26,14 @@ export interface IDatumBuilderBaseV3Args {
 }
 
 /**
+ * The arguments from building a strategy transaction against
+ * a V3 pool contract.
+ */
+export interface IDatumBuilderStrategyV3Args extends IDatumBuilderBaseV3Args {
+  ownerPublicKey: string;
+}
+
+/**
  * The arguments from building a swap transaction against
  * a V3 pool contract.
  */
@@ -287,14 +295,14 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
    * @rrruko Build your datum here using an arguments interface (just copy at the top for reference).
    * This will be used in the TxBuilder.Lucid.V3.class.ts file when building the transaction.
    */
-  buildListStrategyDatum({
+  buildStrategyDatum({
     destinationAddress,
     ident,
-    order,
     ownerAddress,
     ownerPublicKey,
-  }: IDatumBuilderListStrategyV3Args): TDatumResult<V3Types.TOrderDatum> {
-    const listStrategyDatum: V3Types.TOrderDatum = {
+    scooperFee,
+  }: IDatumBuilderStrategyV3Args): TDatumResult<V3Types.TOrderDatum> {
+    const strategyDatum: V3Types.TOrderDatum = {
       destination: this.buildDestinationAddresses(destinationAddress).schema,
       extension: Data.void(),
       order: {
@@ -309,11 +317,11 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
       poolIdent: this.buildPoolIdent(ident),
       scooperFee: scooperFee,
     };
-    const inline = Data.to(listStrategyDatum, V3Types.StrategyOrderDatum);
+    const inline = Data.to(strategyDatum, V3Types.OrderDatum);
     return {
       hash: LucidHelper.inlineDatumToHash(inline),
       inline,
-      schmea: listStrategyDatum
+      schema: strategyDatum
     }
   }
 

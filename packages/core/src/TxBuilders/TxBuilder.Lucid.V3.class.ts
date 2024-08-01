@@ -1151,20 +1151,18 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * @rrruko This is where we will expose the method to the user for building a listing order.
    * The StrategyConfig class handles validation of the arguments, so adjust as needed there.
    */
-  async listStrategyOrder(args: IStrategyConfigArgs) {
+  async strategy(args: IStrategyConfigArgs) {
     // The difference between orderAddresses and ownerAddress is:
     // orderAddresses tell you where the result is going next (possibly chained).
     // the ownerAddress tells you who should always be able to cancel the order at any step.
 
-    const { orderAddresses, suppliedAssets, ownerAddress, ownerPublicKey, referralFee } =
+    const { pool, orderAddresses, suppliedAssets, ownerAddress, ownerPublicKey, referralFee } =
       new StrategyConfig(args).buildArgs();
 
-    const { inline } = this.datumBuilder.buildListStrategyDatum({
+    const { inline } = this.datumBuilder.buildStrategyDatum({
       ident: pool.ident,
       destinationAddress: orderAddresses.DestinationAddress,
-      order: {
-        lpToken: suppliedLPAsset,
-      },
+      ownerPublicKey: args.ownerPublicKey,
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 

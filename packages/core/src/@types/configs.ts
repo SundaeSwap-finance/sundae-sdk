@@ -92,9 +92,9 @@ export interface IZapConfigArgs extends IOrderConfigArgs {
 }
 
 /**
- * The arguments configuration for listing a strategy order.
+ * The arguments configuration for building a valid Strategy.
  */
-export interface IStrategyConfigArgs extends IBaseConfig {
+export interface IStrategyConfigArgs extends IOrderConfigArgs {
   suppliedAssets: AssetAmount<IAssetAmountMetadata>[];
   orderAddresses: TOrderAddresses;
   ownerPublicKey: string;
