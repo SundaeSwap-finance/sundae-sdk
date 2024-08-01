@@ -1152,8 +1152,14 @@ export class TxBuilderLucidV3 extends TxBuilder {
     // orderAddresses tell you where the result is going next (possibly chained).
     // the ownerAddress tells you who should always be able to cancel the order at any step.
 
-    const { pool, orderAddresses, suppliedAssets, ownerAddress, ownerPublicKey, referralFee } =
-      new StrategyConfig(args).buildArgs();
+    const {
+      pool,
+      orderAddresses,
+      suppliedAssets,
+      ownerAddress,
+      ownerPublicKey,
+      referralFee,
+    } = new StrategyConfig(args).buildArgs();
 
     const { inline } = this.datumBuilder.buildStrategyDatum({
       ident: pool.ident,

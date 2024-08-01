@@ -1,6 +1,10 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { IPoolData, IStrategyConfigArgs, TOrderAddresses } from "../@types/index.js";
+import {
+  IPoolData,
+  IStrategyConfigArgs,
+  TOrderAddresses,
+} from "../@types/index.js";
 import { Config } from "../Abstracts/Config.abstract.class.js";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
 
@@ -17,7 +21,6 @@ export class StrategyConfig extends OrderConfig<IStrategyConfigArgs> {
 
     args && this.setFromObject(args);
   }
-
 
   setSuppliedAssets(assets: AssetAmount<IAssetAmountMetadata>[]) {
     this.suppliedAssets = assets;

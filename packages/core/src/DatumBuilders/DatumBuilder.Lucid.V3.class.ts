@@ -317,8 +317,8 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     return {
       hash: LucidHelper.inlineDatumToHash(inline),
       inline,
-      schema: strategyDatum
-    }
+      schema: strategyDatum,
+    };
   }
 
   /**
