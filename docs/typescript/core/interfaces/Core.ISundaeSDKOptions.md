@@ -14,7 +14,7 @@ An optional custom QueryProvider for general protocol queries.
 
 #### Defined in
 
-[packages/core/src/@types/index.ts:10](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L10)
+[packages/core/src/@types/index.ts:9](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L9)
 
 ___
 
@@ -26,7 +26,7 @@ Whether to allow debugging console logs.
 
 #### Defined in
 
-[packages/core/src/@types/index.ts:12](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L12)
+[packages/core/src/@types/index.ts:11](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L11)
 
 ___
 
@@ -38,7 +38,7 @@ The minimum amount of ADA required for a locking position.
 
 #### Defined in
 
-[packages/core/src/@types/index.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L14)
+[packages/core/src/@types/index.ts:13](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L13)
 
 ___
 
@@ -53,9 +53,9 @@ The wallet options.
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `builder` | [`ILucidBuilder`](Core.ILucidBuilder.md) | The type of builder to use. Currently only supports Lucid. |
-| `name` | [`TSupportedWallets`](../modules/Core.md#tsupportedwallets) | A CIP-30 compatible wallet. |
+| `name` | `string` | A CIP-30 compatible wallet. |
 | `network` | ``"mainnet"`` \| ``"preview"`` | The desired network. |
 
 #### Defined in
 
-[packages/core/src/@types/index.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L16)
+[packages/core/src/@types/index.ts:15](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L15)
