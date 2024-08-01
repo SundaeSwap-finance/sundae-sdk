@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/taste-test",
-  "version": "1.0.41",
+  "version": "1.0.42",
   "description": "The official SundaeSwap Taste Test SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {
@@ -45,7 +45,7 @@
     "docs:ci": "yarn docs --unsafe"
   },
   "devDependencies": {
-    "@sundaeswap/core": "^1.2.7",
+    "@sundaeswap/core": "^1.2.8",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^14.3.0",
     "@types/jest": "^28.1.3",
