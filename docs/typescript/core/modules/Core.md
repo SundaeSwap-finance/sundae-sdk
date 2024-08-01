@@ -435,15 +435,3 @@ A type constant used for determining valid Cardano Network values.
 #### Defined in
 
 [packages/core/src/@types/utilities.ts:8](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L8)
-
-___
-
-### TSupportedWallets
-
-Ƭ **TSupportedWallets**: ``"nami"`` \| ``"eternl"`` \| ``"typhoncip30"`` \| ``"ccvault"`` \| ``"typhon"`` \| ``"yoroi"`` \| ``"flint"`` \| ``"gerowallet"`` \| ``"cardwallet"`` \| ``"nufi"`` \| ``"begin"`` \| ``"lace"`` \| ``"sorbet"``
-
-A type constant used for determining valid CIP-30 compliant Web3 Wallets for Cardano.
-
-#### Defined in
-
-[packages/core/src/@types/utilities.ts:15](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/utilities.ts#L15)

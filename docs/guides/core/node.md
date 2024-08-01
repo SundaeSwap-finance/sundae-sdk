@@ -56,3 +56,14 @@ const txBuilder = new TxBuilderLucidV3(
 // Do your swap like normal.
 const result = await txBuilder.swap({ ...args });
 ```
+
+### Query Providers
+
+To access a QueryProvider, use this:
+
+```ts
+import { QueryProviderSundaeSwap } from "@sundaeswap/core";
+const queryProvider = new QueryProviderSundaeSwap("preview");
+const ident = "...uniqueIdent...";
+const result = await queryProvider.findPoolData({ ident });
+```

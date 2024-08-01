@@ -92,7 +92,14 @@ export class SundaeSDK {
 
         // Helper: initialize wallet if not already done so.
         if (!this.options.wallet.builder.lucid.wallet) {
-          window.cardano[this.options.wallet.name]
+          const extension = window.cardano?.[this.options.wallet.name];
+          if (!extension) {
+            throw new Error(
+              `Could not find wallet extension: ${this.options.wallet.name}`
+            );
+          }
+
+          extension
             .enable()
             .then((api) => this.options.wallet.builder.lucid.selectWallet(api));
         }
