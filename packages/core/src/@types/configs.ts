@@ -92,6 +92,16 @@ export interface IZapConfigArgs extends IOrderConfigArgs {
 }
 
 /**
+ * The arguments configuration for building a valid Strategy.
+ */
+export interface IStrategyConfigArgs extends IOrderConfigArgs {
+  suppliedAssets: AssetAmount<IAssetAmountMetadata>[];
+  orderAddresses: TOrderAddresses;
+  ownerPublicKey: string;
+  ownerAddress?: string;
+}
+
+/**
  * The arguments configuration for building a valid Withdraw.
  */
 export interface IWithdrawConfigArgs extends IOrderConfigArgs {

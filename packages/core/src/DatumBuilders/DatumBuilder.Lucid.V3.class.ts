@@ -26,6 +26,14 @@ export interface IDatumBuilderBaseV3Args {
 }
 
 /**
+ * The arguments from building a strategy transaction against
+ * a V3 pool contract.
+ */
+export interface IDatumBuilderStrategyV3Args extends IDatumBuilderBaseV3Args {
+  ownerPublicKey: string;
+}
+
+/**
  * The arguments from building a swap transaction against
  * a V3 pool contract.
  */
@@ -280,6 +288,38 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
       hash: LucidHelper.inlineDatumToHash(inline),
       inline,
       schema: newPoolDatum,
+    };
+  }
+
+  buildStrategyDatum({
+    destinationAddress,
+    ident,
+    ownerAddress,
+    ownerPublicKey,
+    scooperFee,
+  }: IDatumBuilderStrategyV3Args): TDatumResult<V3Types.TOrderDatum> {
+    const strategyDatum: V3Types.TOrderDatum = {
+      destination: this.buildDestinationAddresses(destinationAddress).schema,
+      extension: Data.void(),
+      order: {
+        Strategy: {
+          auth: {
+            Signature: {
+              bytes: ownerPublicKey,
+            },
+          },
+        },
+      },
+      owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
+        .schema,
+      poolIdent: this.buildPoolIdent(ident),
+      scooperFee: scooperFee,
+    };
+    const inline = Data.to(strategyDatum, V3Types.OrderDatum);
+    return {
+      hash: LucidHelper.inlineDatumToHash(inline),
+      inline,
+      schema: strategyDatum,
     };
   }
 
