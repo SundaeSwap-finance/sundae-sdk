@@ -82,7 +82,7 @@ describe("TxBuilderLucidV3", () => {
 
   it("should get the correct maxScooperFee", async () => {
     const result = await builder.getMaxScooperFeeAmount();
-    expect(result.toString()).toEqual("500000");
+    expect(result.toString()).toEqual("1000000");
 
     const oldSettingsDatum = Data.from(
       settingsUtxos[0].datum as string,
@@ -104,7 +104,7 @@ describe("TxBuilderLucidV3", () => {
       ]);
 
     const result2 = await builder.getMaxScooperFeeAmount();
-    expect(result2.toString()).toEqual("332000");
+    expect(result2.toString()).toEqual("1000000");
 
     // Reset scooper fee
     jest
@@ -279,7 +279,7 @@ describe("TxBuilderLucidV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a010cd3b9ffff43d87980ff"
+      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a010cd3b9ffff43d87980ff"
     );
     expect(fees).toMatchObject<ITxBuilderFees>({
       deposit: expect.objectContaining({
@@ -287,7 +287,7 @@ describe("TxBuilderLucidV3", () => {
         metadata: ADA_METADATA,
       }),
       scooperFee: expect.objectContaining({
-        amount: 500_000n,
+        amount: 1_000_000n,
         metadata: ADA_METADATA,
       }),
     });
@@ -303,8 +303,8 @@ describe("TxBuilderLucidV3", () => {
         if (
           getPaymentAddressFromOutput(output) ===
             "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
-          // Supplied asset (20) + deposit (2) + scooper fee (.5) = 22.5
-          output.amount().coin().to_str() === "22500000"
+          // Supplied asset (20) + deposit (2) + scooper fee (1) = 23
+          output.amount().coin().to_str() === "23000000"
         ) {
           depositOutput = output;
         }
@@ -388,8 +388,8 @@ describe("TxBuilderLucidV3", () => {
     // Deposit carried over = 3 ADA
     expect(fees.deposit.amount.toString()).toEqual("3000000");
 
-    // Two swaps = .5 + .5
-    expect(fees.scooperFee.amount.toString()).toEqual("1000000");
+    // Two swaps = 1 + 1
+    expect(fees.scooperFee.amount.toString()).toEqual("2000000");
 
     const { builtTx } = await build();
 
@@ -408,8 +408,8 @@ describe("TxBuilderLucidV3", () => {
             PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[0]
           ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]] ===
             "20000000" &&
-          // deposit (3) + v3 scooper fee (.5) + v3 scooper fee (.5)
-          output.amount().coin().to_str() === "4000000"
+          // deposit (3) + v3 scooper fee (1) + v3 scooper fee (1)
+          output.amount().coin().to_str() === "5000000"
         ) {
           swapOutput = output;
         }
@@ -422,7 +422,7 @@ describe("TxBuilderLucidV3", () => {
 
     expect(inlineDatum).not.toBeUndefined();
     expect(Buffer.from(inlineDatum as Uint8Array).toString("hex")).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
+      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
     );
   });
 
@@ -463,8 +463,8 @@ describe("TxBuilderLucidV3", () => {
     // Deposit carried over = 3 ADA
     expect(fees.deposit.amount.toString()).toEqual("3000000");
 
-    // Two swaps = .5 + 2.5
-    expect(fees.scooperFee.amount.toString()).toEqual("3000000");
+    // Two swaps = 1 + 2.5
+    expect(fees.scooperFee.amount.toString()).toEqual("3500000");
 
     const { builtTx } = await build();
 
@@ -483,8 +483,8 @@ describe("TxBuilderLucidV3", () => {
             PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[0]
           ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]] ===
             "20000000" &&
-          // deposit (3) + v3 scooper fee (.5) + v1 scooper fee (2.5) = 5
-          output.amount().coin().to_str() === "6000000"
+          // deposit (3) + v3 scooper fee (1) + v1 scooper fee (2.5) = 5
+          output.amount().coin().to_str() === "6500000"
         ) {
           swapOutput = output;
         }
@@ -497,7 +497,7 @@ describe("TxBuilderLucidV3", () => {
 
     expect(inlineDatum).not.toBeUndefined();
     expect(Buffer.from(inlineDatum as Uint8Array).toString("hex")).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd87a9f581c730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977effd87a80ffd87a9f58208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fbffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
+      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977effd87a80ffd87a9f58208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fbffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
     );
 
     const transactionMetadata = builtTx.txComplete
@@ -551,7 +551,7 @@ describe("TxBuilderLucidV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87b9f9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ffffff43d87980ff"
+      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87b9f9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ffffff43d87980ff"
     );
     expect(fees).toMatchObject<ITxBuilderFees>({
       deposit: expect.objectContaining({
@@ -559,7 +559,7 @@ describe("TxBuilderLucidV3", () => {
         metadata: ADA_METADATA,
       }),
       scooperFee: expect.objectContaining({
-        amount: 500_000n,
+        amount: 1_000_000n,
         metadata: ADA_METADATA,
       }),
     });
@@ -574,8 +574,8 @@ describe("TxBuilderLucidV3", () => {
         if (
           getPaymentAddressFromOutput(output) ===
             "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
-          // Supplied asset (20) + deposit (2) + scooper fee (.5) = 22.5
-          output.amount().coin().to_str() === "22500000" &&
+          // Supplied asset (20) + deposit (2) + scooper fee (1) = 23
+          output.amount().coin().to_str() === "23000000" &&
           output.amount().multiasset() &&
           output.amount().multiasset()?.to_js_value()[
             "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183"
@@ -657,7 +657,7 @@ describe("TxBuilderLucidV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87c9f9f581c633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d928958200014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e21a05f5e100ffff43d87980ff"
+      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87c9f9f581c633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d928958200014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e21a05f5e100ffff43d87980ff"
     );
     expect(fees).toMatchObject<ITxBuilderFees>({
       deposit: expect.objectContaining({
@@ -665,7 +665,7 @@ describe("TxBuilderLucidV3", () => {
         metadata: ADA_METADATA,
       }),
       scooperFee: expect.objectContaining({
-        amount: 500_000n,
+        amount: 1_000_000n,
         metadata: ADA_METADATA,
       }),
     });
@@ -680,8 +680,8 @@ describe("TxBuilderLucidV3", () => {
         if (
           getPaymentAddressFromOutput(output) ===
             "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
-          // deposit (2) + scooper fee (.5) = 2.5
-          output.amount().coin().to_str() === "2500000" &&
+          // deposit (2) + scooper fee (1) = 3
+          output.amount().coin().to_str() === "3000000" &&
           output.amount().multiasset() &&
           output.amount().multiasset()?.to_js_value()[
             PREVIEW_DATA.assets.v3LpToken.metadata.assetId.split(".")[0]

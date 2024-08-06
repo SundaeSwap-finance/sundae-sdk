@@ -195,6 +195,9 @@ export class TxBuilderLucidV3 extends TxBuilder {
    * @returns {bigint} The maxScooperFee as defined by the settings UTXO.
    */
   public async getMaxScooperFeeAmount(): Promise<bigint> {
+    // Patch to set the max scooper fee to 1ADA to avoid out of range orders being stuck after Wednesday.
+    return 1_000_000n;
+
     const [settings] = await this.getAllSettingsUtxos();
     if (!settings) {
       return 1_000_000n;
