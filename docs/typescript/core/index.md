@@ -1,14 +1,14 @@
 ---
-title: "core"
+title: "components"
 has_children: true
 parent: "Packages"
 nav_order: 1
 ---
 
-# Getting Started with Core
+# Getting Started with Components
 
 ```bash
-$ yarn add @sundaeswap/core lucid-cardano
+$ yarn add @sundaeswap/components @sundaeswap/core lucid-cardano
 ```
 
 For more instructions see [Overview](/)
