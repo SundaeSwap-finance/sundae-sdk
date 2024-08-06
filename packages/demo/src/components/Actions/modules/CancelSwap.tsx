@@ -3,9 +3,13 @@ import { FC, useCallback, useState } from "react";
 import { EContractVersion } from "@sundaeswap/core";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs } from "../Actions";
+import { IActionModuleArgs } from "../Actions";
 
-export const CancelSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+export const CancelSwap: FC<IActionModuleArgs> = ({
+  setCBOR,
+  setFees,
+  submit,
+}) => {
   const {
     SDK,
     ready,

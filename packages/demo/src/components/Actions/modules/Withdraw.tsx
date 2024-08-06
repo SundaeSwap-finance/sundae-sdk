@@ -5,9 +5,13 @@ import { EContractVersion, EDatumType } from "@sundaeswap/core";
 
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
+import { IActionModuleArgs, newPoolQuery, poolQuery } from "../Actions";
 
-export const Withdraw: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+export const Withdraw: FC<IActionModuleArgs> = ({
+  setCBOR,
+  setFees,
+  submit,
+}) => {
   const {
     SDK,
     ready,

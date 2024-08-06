@@ -5,9 +5,13 @@ import { FC, useCallback, useState } from "react";
 import { getSwapOutput } from "@sundaeswap/cpp";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
+import { IActionModuleArgs, newPoolQuery, poolQuery } from "../Actions";
 
-export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+export const Deposit: FC<IActionModuleArgs> = ({
+  setCBOR,
+  setFees,
+  submit,
+}) => {
   const {
     SDK,
     ready,

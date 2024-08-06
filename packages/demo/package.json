@@ -59,6 +59,7 @@
   "dependencies": {
     "@sundaeswap/asset": "^1.0.3",
     "@sundaeswap/bigint-math": "^0.6.3",
+    "@sundaeswap/components": "^1.0.0",
     "@sundaeswap/core": "^1.1.12",
     "@sundaeswap/cpp": "^1.0.3",
     "@sundaeswap/fraction": "^1.0.3",
@@ -77,6 +78,7 @@
     "react-json-view": "^1.21.3",
     "react-syntax-highlighter": "^15.5.0",
     "stream-browserify": "^3.0.0",
+    "styled-components": "^6.1.12",
     "tailwindcss": "^3.2.4"
   }
 }

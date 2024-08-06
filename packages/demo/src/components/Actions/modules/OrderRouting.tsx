@@ -7,7 +7,7 @@ import {
   QueryProviderSundaeSwapLegacy,
 } from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
-import { IActionArgs, poolQuery } from "../Actions";
+import { IActionModuleArgs, poolQuery } from "../Actions";
 
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
@@ -21,7 +21,11 @@ enum ERoute {
 
 type TDirection = "forward" | "backward";
 
-export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+export const OrderRouting: FC<IActionModuleArgs> = ({
+  setCBOR,
+  setFees,
+  submit,
+}) => {
   const { SDK, ready, activeWalletAddr, useReferral } = useAppState();
 
   const [direction, setDirection] = useState<TDirection>("forward");

@@ -6,11 +6,11 @@ import {
 import { FC, useCallback, useState } from "react";
 
 import { useAppState } from "../../../state/context";
-import { IActionArgs } from "../Actions";
+import { IActionModuleArgs } from "../Actions";
 
 import Button from "../../Button";
 
-export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+export const Lock: FC<IActionModuleArgs> = ({ setCBOR, setFees, submit }) => {
   const {
     SDK,
     ready,

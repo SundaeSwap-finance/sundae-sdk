@@ -4,9 +4,9 @@ import { FC, useCallback, useState } from "react";
 
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs } from "../Actions";
+import { IActionModuleArgs } from "../Actions";
 
-export const DepositTasteTest: FC<IActionArgs> = ({
+export const DepositTasteTest: FC<IActionModuleArgs> = ({
   setCBOR,
   setFees,
   submit,

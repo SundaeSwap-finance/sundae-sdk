@@ -3,9 +3,9 @@ import { EContractVersion, EDatumType, ESwapType } from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
+import { IActionModuleArgs, newPoolQuery, poolQuery } from "../Actions";
 
-export const SwapBA: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+export const SwapBA: FC<IActionModuleArgs> = ({ setCBOR, setFees, submit }) => {
   const {
     SDK,
     ready,

@@ -1,9 +1,9 @@
 import { FC, StrictMode } from "react";
 
-import { AppStateProvider } from "./state/context";
+import { Home } from "./components/Actions/Home";
 import Settings from "./components/Settings";
 import SettingsViewer from "./components/SettingsViewer";
-import Actions from "./components/Actions";
+import { AppStateProvider } from "./state/context";
 
 export const App: FC = () => {
   return (
@@ -16,7 +16,7 @@ export const App: FC = () => {
           <SettingsViewer />
         </div>
         <div className="w-2/3">
-          <Actions />
+          <Home />
         </div>
       </div>
     </div>

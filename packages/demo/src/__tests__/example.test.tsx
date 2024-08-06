@@ -12,7 +12,7 @@ setupLucid((lucid) => {
   lucidInstance = lucid;
 });
 
-import Actions from "../components/Actions";
+import { Home } from "../components/Actions/Home";
 import { AppStateProvider } from "../state/context";
 
 describe("Example testing", () => {
@@ -30,7 +30,7 @@ describe("Example testing", () => {
 
     const { container, getByText } = render(
       <AppStateProvider defaultValue={{ SDK: MockedSDK }}>
-        <Actions />
+        <Home />
       </AppStateProvider>
     );
 

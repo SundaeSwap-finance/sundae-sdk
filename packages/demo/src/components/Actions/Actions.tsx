@@ -2,15 +2,15 @@ import {
   ADA_ASSET_ID,
   IPoolByIdentQuery,
   type IPoolByPairQuery,
-  type ITxBuilderFees,
 } from "@sundaeswap/core";
 import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 import type { TTasteTestFees } from "@sundaeswap/taste-test";
-import { Dispatch, FC, SetStateAction, useState } from "react";
+import { FC } from "react";
 import ReactJson from "react-json-view";
 
 import { V3_CONTRACT_POOL_TINDY } from "../../constants";
 import { useAppState } from "../../state/context";
+import { IActionArgs } from "./Home";
 import { CancelSwap } from "./modules/CancelSwap";
 import { CreatePool } from "./modules/CreatePool";
 import { Deposit } from "./modules/Deposit";
@@ -36,20 +36,17 @@ export const newPoolQuery: IPoolByIdentQuery = {
   ident: V3_CONTRACT_POOL_TINDY.ident,
 };
 
-interface ICBOR {
-  cbor: string;
-  hash?: string;
-}
+export interface IActionModuleArgs
+  extends Pick<IActionArgs, "setCBOR" | "setFees" | "submit"> {}
 
-export interface IActionArgs {
-  submit?: boolean;
-  setCBOR: Dispatch<SetStateAction<ICBOR>>;
-  setFees: Dispatch<
-    SetStateAction<ITxBuilderFees | TTasteTestFees | undefined>
-  >;
-}
-
-export const Actions: FC = () => {
+const Actions: FC<IActionArgs> = ({
+  setCBOR,
+  setFees,
+  setSubmit,
+  cbor,
+  fees,
+  submit,
+}) => {
   const {
     SDK,
     useReferral,
@@ -57,11 +54,6 @@ export const Actions: FC = () => {
     useV3Contracts,
     setUseV3Contracts,
   } = useAppState();
-  const [cbor, setCBOR] = useState<ICBOR>({
-    cbor: "",
-  });
-  const [fees, setFees] = useState<ITxBuilderFees | TTasteTestFees>();
-  const [submit, setSubmit] = useState(false);
 
   if (!SDK) {
     return null;

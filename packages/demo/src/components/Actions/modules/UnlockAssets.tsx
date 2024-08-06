@@ -4,9 +4,9 @@ import { FC, useCallback, useState } from "react";
 import { YieldFarmingLucid } from "@sundaeswap/yield-farming";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs } from "../Actions";
+import { IActionModuleArgs } from "../Actions";
 
-export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+export const Unlock: FC<IActionModuleArgs> = ({ setCBOR, setFees, submit }) => {
   const {
     SDK,
     ready,

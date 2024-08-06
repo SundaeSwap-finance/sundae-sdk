@@ -13,9 +13,13 @@ import {
 } from "../../../constants";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs, poolQuery } from "../Actions";
+import { IActionModuleArgs, poolQuery } from "../Actions";
 
-export const Migrate: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+export const Migrate: FC<IActionModuleArgs> = ({
+  setCBOR,
+  setFees,
+  submit,
+}) => {
   const {
     SDK,
     ready,

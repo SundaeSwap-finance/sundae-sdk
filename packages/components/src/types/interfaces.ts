@@ -1,3 +1,3 @@
 export interface IThemeSettings {
-  primaryColor: string;
+  backgroundColor: string;
 }

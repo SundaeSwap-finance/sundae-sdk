@@ -5,9 +5,13 @@ import { FC, useCallback, useState } from "react";
 
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs } from "../Actions";
+import { IActionModuleArgs } from "../Actions";
 
-export const CreatePool: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+export const CreatePool: FC<IActionModuleArgs> = ({
+  setCBOR,
+  setFees,
+  submit,
+}) => {
   const { SDK, ready, activeWalletAddr, useReferral, useV3Contracts } =
     useAppState();
   const [createPooling, setCreatePooling] = useState(false);
@@ -23,7 +27,7 @@ export const CreatePool: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         .mintPool({
           assetA: PREVIEW_DATA.assets.tada,
           assetB: PREVIEW_DATA.assets.tindy,
-          fee: 5n,
+          fees: 5n,
           ownerAddress: activeWalletAddr,
           ...(useReferral
             ? {

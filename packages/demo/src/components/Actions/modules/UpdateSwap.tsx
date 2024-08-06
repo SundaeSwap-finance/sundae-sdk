@@ -10,9 +10,13 @@ import { FC, useCallback, useState } from "react";
 
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
+import { IActionModuleArgs, newPoolQuery, poolQuery } from "../Actions";
 
-export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
+export const UpdateSwap: FC<IActionModuleArgs> = ({
+  setCBOR,
+  setFees,
+  submit,
+}) => {
   const {
     SDK,
     ready,
