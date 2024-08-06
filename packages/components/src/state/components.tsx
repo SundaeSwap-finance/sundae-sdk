@@ -8,6 +8,7 @@ const defaultContext: IComponentsContextState = {
     darkTheme: DEFAULT_DARK_THEME,
     lightTheme: DEFAULT_LIGHT_THEME,
   },
+  sdk: null,
 };
 
 export const ComponentsContext = createContext(defaultContext);

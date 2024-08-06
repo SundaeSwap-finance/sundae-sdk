@@ -1,6 +1,6 @@
 import { useContext } from "react";
 
-import { ComponentsContext } from "../state/context.js";
+import { ComponentsContext } from "../state/components.js";
 
 export const useComponentsContext = () => {
   try {

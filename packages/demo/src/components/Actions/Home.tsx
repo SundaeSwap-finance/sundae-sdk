@@ -6,6 +6,7 @@ import {
   SundaeComponentsProvider,
   SwapComponent,
 } from "@sundaeswap/components";
+import { useAppState } from "../../state/context";
 import Button from "../Button";
 import Actions from "./Actions";
 
@@ -26,6 +27,7 @@ export interface IActionArgs {
 }
 
 export const Home: FC = () => {
+  const { SDK } = useAppState();
   const [cbor, setCBOR] = useState<ICBOR>({
     cbor: "",
   });
@@ -40,9 +42,11 @@ export const Home: FC = () => {
       </Button>
       {useWidgets ? (
         <div className="flex justify-between">
-          <SundaeComponentsProvider>
-            <SwapComponent />
-          </SundaeComponentsProvider>
+          {SDK && (
+            <SundaeComponentsProvider sdk={SDK}>
+              <SwapComponent />
+            </SundaeComponentsProvider>
+          )}
         </div>
       ) : (
         <Actions
