@@ -71,7 +71,9 @@ describe("SundaeSDK", () => {
     });
 
     expect(sdk.builder()).toBeInstanceOf(TxBuilderLucidV1);
-    expect(sdk.builder(EContractVersion.V3)).toBeInstanceOf(TxBuilderLucidV3);
+    expect(
+      sdk.builder(EContractVersion.V3, ETxBuilderType.LUCID)
+    ).toBeInstanceOf(TxBuilderLucidV3);
   });
 
   it("should populate correct QueryProvider", () => {

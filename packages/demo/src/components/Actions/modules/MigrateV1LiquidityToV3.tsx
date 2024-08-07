@@ -22,6 +22,7 @@ export const Migrate: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     activeWalletAddr: walletAddress,
     useReferral,
     useV3Contracts,
+    builderLib,
   } = useAppState();
   const [migrating, setMigrating] = useState(false);
 
@@ -46,26 +47,58 @@ export const Migrate: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         ident: "00",
       });
 
-      const balance = await SDK.builder(
-        EContractVersion.V1
-      ).lucid.wallet.getUtxos();
-
       let tINdyLpBalance: bigint = 0n;
       let rRberryLpBalance: bigint = 0n;
-      balance?.forEach(({ assets }) => {
-        const matchingTindyAsset =
-          assets[v1PoolTIndy.assetLP.assetId.replace(".", "")];
-        const matchingRberryAsset =
-          assets[v1PoolRberry.assetLP.assetId.replace(".", "")];
 
-        if (matchingTindyAsset) {
-          tINdyLpBalance += matchingTindyAsset;
+      const lucid = SDK.lucid();
+      if (lucid) {
+        const balance = await lucid.wallet.getUtxos();
+
+        balance?.forEach(({ assets }) => {
+          const matchingTindyAsset =
+            assets[v1PoolTIndy.assetLP.assetId.replace(".", "")];
+          const matchingRberryAsset =
+            assets[v1PoolRberry.assetLP.assetId.replace(".", "")];
+
+          if (matchingTindyAsset) {
+            tINdyLpBalance += matchingTindyAsset;
+          }
+
+          if (matchingRberryAsset) {
+            rRberryLpBalance += matchingRberryAsset;
+          }
+        });
+      } else {
+        const blaze = SDK.blaze();
+        if (!blaze) {
+          return;
         }
 
-        if (matchingRberryAsset) {
-          rRberryLpBalance += matchingRberryAsset;
-        }
-      });
+        const balance = await blaze.wallet.getUnspentOutputs();
+        const { Core } = await import("@blaze-cardano/sdk");
+
+        balance.forEach((utxo) => {
+          const assets = utxo.output().amount().multiasset();
+          if (!assets) {
+            return;
+          }
+
+          const matchingTindyAsset = assets.get(
+            Core.AssetId(v1PoolTIndy.assetLP.assetId.replace(".", ""))
+          );
+          const matchingRberryAsset = assets.get(
+            Core.AssetId(v1PoolRberry.assetLP.assetId.replace(".", ""))
+          );
+
+          if (matchingTindyAsset) {
+            tINdyLpBalance += matchingTindyAsset;
+          }
+
+          if (matchingRberryAsset) {
+            rRberryLpBalance += matchingRberryAsset;
+          }
+        });
+      }
 
       if (!tINdyLpBalance && !rRberryLpBalance) {
         throw new Error("You don't have any LP tokens to migrate!");
@@ -155,7 +188,7 @@ export const Migrate: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         throw new Error("Nothing to migrate!");
       }
 
-      await SDK.builder(EContractVersion.V1)
+      await SDK.builder(EContractVersion.V1, builderLib)
         .migrateLiquidityToV3(migrations)
         .then(async ({ build, fees }) => {
           setFees(fees);
@@ -177,7 +210,15 @@ export const Migrate: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setMigrating(false);
-  }, [SDK, submit, walletAddress, useReferral, useV3Contracts, poolQuery]);
+  }, [
+    SDK,
+    submit,
+    walletAddress,
+    useReferral,
+    useV3Contracts,
+    poolQuery,
+    builderLib,
+  ]);
 
   if (!SDK || useV3Contracts) {
     return null;

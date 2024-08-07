@@ -62,7 +62,7 @@ export interface IDatumBuilderWithdrawV3Args extends IDatumBuilderBaseV3Args {
  * the V3 pool contract.
  */
 export interface IDatumBuilderMintPoolV3Args {
-  seedUtxo: UTxO;
+  seedUtxo: Pick<UTxO, "txHash" | "outputIndex">;
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
   fees: IFeesConfig;
@@ -518,7 +518,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
    * @param {UTxO} seed The UTxO txHash and index.
    * @returns {string}
    */
-  static computePoolId(seed: UTxO): string {
+  static computePoolId(seed: Pick<UTxO, "txHash" | "outputIndex">): string {
     const poolInputTxHash = Buffer.from(seed.txHash, "hex");
     const numberSign = new Uint8Array([0x23]);
     const poolInputTxIx = new Uint8Array([seed.outputIndex]);

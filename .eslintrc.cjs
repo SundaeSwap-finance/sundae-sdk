@@ -30,7 +30,7 @@ module.exports = {
     "no-delete-var": "warn",
     "no-debugger": "error",
     "no-dupe-args": "warn",
-    "no-dupe-class-members": "warn",
+    "no-dupe-class-members": "off",
     "no-dupe-keys": "warn",
     "no-duplicate-case": "warn",
     "no-empty-character-class": "warn",

@@ -20,7 +20,12 @@ export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       return;
     }
 
-    const YF = new YieldFarmingLucid(SDK.builder().lucid);
+    const lucid = SDK.lucid();
+    if (!lucid) {
+      return;
+    }
+
+    const YF = new YieldFarmingLucid(lucid);
 
     setUnlocking(true);
     try {

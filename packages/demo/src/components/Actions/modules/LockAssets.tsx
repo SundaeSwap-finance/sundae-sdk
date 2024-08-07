@@ -31,7 +31,12 @@ export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         { Delegation: [Buffer.from("DJED").toString("hex"), "02", 2n] },
       ];
 
-      const YF = new YieldFarmingLucid(SDK.builder().lucid);
+      const lucid = SDK.lucid();
+      if (!lucid) {
+        return;
+      }
+
+      const YF = new YieldFarmingLucid(lucid);
 
       await YF.lock({
         ownerAddress: walletAddress,

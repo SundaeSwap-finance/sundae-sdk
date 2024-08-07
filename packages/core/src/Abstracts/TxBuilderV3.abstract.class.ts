@@ -12,7 +12,7 @@ import { QueryProvider } from "./QueryProvider.abstract.class.js";
  *
  * @group Exported TxBuilders
  */
-export abstract class TxBuilder {
+export abstract class TxBuilderV3 {
   abstract queryProvider: QueryProvider;
   abstract datumBuilder: DatumBuilder;
   abstract network: TSupportedNetworks;
@@ -31,4 +31,5 @@ export abstract class TxBuilder {
   abstract update(args: unknown): Promise<IComposedTx>;
   abstract cancel(args: unknown): Promise<IComposedTx>;
   abstract zap(args: unknown): Promise<IComposedTx>;
+  abstract mintPool(args: unknown): Promise<IComposedTx>;
 }

@@ -14,6 +14,7 @@ export const Withdraw: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     activeWalletAddr: walletAddress,
     useReferral,
     useV3Contracts,
+    builderLib,
   } = useAppState();
   const [withdrawing, setWithdrawing] = useState(false);
 
@@ -28,24 +29,50 @@ export const Withdraw: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         useV3Contracts ? newPoolQuery : poolQuery
       );
 
-      const balance = await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
-      ).lucid.wallet.getUtxos();
       let lpBalance: bigint = 0n;
 
-      balance?.forEach((bal) => {
-        const matchingAsset = bal.assets[pool.assetLP.assetId.replace(".", "")];
-        if (matchingAsset) {
-          lpBalance += matchingAsset;
+      const lucid = SDK.lucid();
+      if (lucid) {
+        const balance = await lucid.wallet.getUtxos();
+
+        balance?.forEach((bal) => {
+          const matchingAsset =
+            bal.assets[pool.assetLP.assetId.replace(".", "")];
+          if (matchingAsset) {
+            lpBalance += matchingAsset;
+          }
+        });
+      } else {
+        const blaze = SDK.blaze();
+        if (!blaze) {
+          return;
         }
-      });
+
+        const balance = await blaze.wallet.getUnspentOutputs();
+        const { Core } = await import("@blaze-cardano/sdk");
+
+        balance.forEach((utxo) => {
+          const assets = utxo.output().amount().multiasset();
+          if (!assets) {
+            return;
+          }
+
+          const matchingAsset = assets.get(
+            Core.AssetId(pool.assetLP.assetId.replace(".", ""))
+          );
+          if (matchingAsset) {
+            lpBalance += matchingAsset;
+          }
+        });
+      }
 
       if (lpBalance === 0n) {
         throw new Error("You don't have any LP tokens! Deposit some to start.");
       }
 
       await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
+        builderLib
       )
         .withdraw({
           orderAddresses: {
@@ -92,7 +119,7 @@ export const Withdraw: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setWithdrawing(false);
-  }, [SDK, submit, walletAddress, useReferral, useV3Contracts]);
+  }, [SDK, submit, walletAddress, useReferral, useV3Contracts, builderLib]);
 
   if (!SDK) {
     return null;

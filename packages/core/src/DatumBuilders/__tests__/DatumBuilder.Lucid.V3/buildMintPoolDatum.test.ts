@@ -18,15 +18,15 @@ const defaultArgs: IDatumBuilderMintPoolV3Args = {
   marketOpen: 123n,
   depositFee: 2_000_000n,
   seedUtxo: {
-    address:
-      "addr_test1qrp8nglm8d8x9w783c5g0qa4spzaft5z5xyx0kp495p8wksjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngqtjfk6s",
+    // address:
+    //   "addr_test1qrp8nglm8d8x9w783c5g0qa4spzaft5z5xyx0kp495p8wksjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngqtjfk6s",
     txHash: "598d48e74d2aec716c1c8c889b34d77b9e0f5240dbee805c23267c2f1f97cc11",
     outputIndex: 1,
-    assets: {
-      lovelace: 3679167n,
-      fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459:
-        645575242n,
-    },
+    // assets: {
+    //   lovelace: 3679167n,
+    //   fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459:
+    //     645575242n,
+    // },
   },
 };
 

@@ -24,7 +24,12 @@ export const WithdrawTasteTest: FC<IActionArgs> = ({
       return;
     }
 
-    const tt = new TasteTestLucid(SDK.builder().lucid);
+    const lucid = SDK.lucid();
+    if (!lucid) {
+      return;
+    }
+
+    const tt = new TasteTestLucid(lucid);
     setWithdrawing(true);
     try {
       await tt

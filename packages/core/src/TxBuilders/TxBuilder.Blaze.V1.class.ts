@@ -1,14 +1,15 @@
+import {
+  Blaze,
+  TxBuilder as BlazeTx,
+  Blockfrost,
+  Core,
+  Data,
+  makeValue,
+  WebWallet,
+} from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getTokensForLp } from "@sundaeswap/cpp";
-import type {
-  Assets,
-  Datum,
-  Lucid,
-  Script,
-  Tx,
-  TxComplete,
-} from "lucid-cardano";
-import { Data, getAddressDetails } from "lucid-cardano";
+import type { Assets, Datum } from "lucid-cardano";
 
 import {
   EContractVersion,
@@ -47,13 +48,13 @@ import {
   ORDER_DEPOSIT_DEFAULT,
   VOID_REDEEMER,
 } from "../constants.js";
-import { TxBuilderLucidV3 } from "./TxBuilder.Lucid.V3.class.js";
+import { TxBuilderBlazeV3 } from "./TxBuilder.Blaze.V3.class.js";
 
 /**
  * Object arguments for completing a transaction.
  */
 interface ITxBuilderLucidCompleteTxArgs {
-  tx: Tx;
+  tx: BlazeTx;
   referralFee?: AssetAmount<IAssetAmountMetadata>;
   datum?: string;
   deposit?: bigint;
@@ -77,7 +78,7 @@ interface ITxBuilderV1Params {
  *
  * @implements {TxBuilderV1}
  */
-export class TxBuilderLucidV1 extends TxBuilderV1 {
+export class TxBuilderBlazeV1 extends TxBuilderV1 {
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
@@ -98,14 +99,14 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    * @param {DatumBuilderLucidV1} datumBuilder A valid V1 DatumBuilder class that will build valid datums.
    */
   constructor(
-    public lucid: Lucid,
+    public blaze: Blaze<Blockfrost, WebWallet>,
+    network: TSupportedNetworks,
     public datumBuilder: DatumBuilderLucidV1,
     queryProvider?: QueryProviderSundaeSwap
   ) {
     super();
-    this.network = lucid.network === "Mainnet" ? "mainnet" : "preview";
-    this.queryProvider =
-      queryProvider ?? new QueryProviderSundaeSwap(this.network);
+    this.network = network;
+    this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
   }
 
   /**
@@ -164,7 +165,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     param: K,
     network: TSupportedNetworks
   ): ITxBuilderV1Params[K] {
-    return TxBuilderLucidV1.PARAMS[network][param];
+    return TxBuilderBlazeV1.PARAMS[network][param];
   }
 
   /**
@@ -176,41 +177,66 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
   public __getParam<K extends keyof ITxBuilderV1Params>(
     param: K
   ): ITxBuilderV1Params[K] {
-    return TxBuilderLucidV1.getParam(param, this.network);
+    return TxBuilderBlazeV1.getParam(param, this.network);
   }
 
   /**
    * Returns a new Tx instance from Lucid. Throws an error if not ready.
    * @returns
    */
-  newTxInstance(fee?: ITxBuilderReferralFee): Tx {
-    const instance = this.lucid.newTx();
+  newTxInstance(fee?: ITxBuilderReferralFee): BlazeTx {
+    const instance = this.blaze.newTransaction();
 
     if (fee) {
-      const payment: Assets = {};
-      payment[
-        SundaeUtils.isAdaAsset(fee.payment.metadata)
-          ? "lovelace"
-          : fee.payment.metadata.assetId
-      ] = fee.payment.amount;
-      instance.payToAddress(fee.destination, payment);
-
-      if (fee?.feeLabel) {
-        instance.attachMetadataWithConversion(
-          674,
-          `${fee.feeLabel}: ${fee.payment.value.toString()} ${
-            !SundaeUtils.isAdaAsset(fee.payment.metadata)
-              ? Buffer.from(
-                  fee.payment.metadata.assetId.split(".")[1],
-                  "hex"
-                ).toString("utf-8")
-              : "ADA"
-          }`
-        );
-      }
+      this.attachReferralFees(instance, fee);
     }
 
     return instance;
+  }
+
+  /**
+   * Helper function to attache referral fees to a tx instance.
+   *
+   * @param instance Blaze TxBuilder instance.
+   * @param fee The referral fees to add.
+   */
+  private attachReferralFees(instance: BlazeTx, fee: ITxBuilderReferralFee) {
+    const tokenMap = new Map<Core.AssetId, bigint>();
+    const payment: Core.Value = new Core.Value(0n, tokenMap);
+    if (SundaeUtils.isAdaAsset(fee.payment.metadata)) {
+      payment.setCoin(fee.payment.amount);
+      instance.payLovelace(
+        Core.addressFromBech32(fee.destination),
+        fee.payment.amount
+      );
+    } else {
+      tokenMap.set(
+        Core.AssetId(fee.payment.metadata.assetId),
+        fee.payment.amount
+      );
+      instance.payAssets(Core.addressFromBech32(fee.destination), payment);
+    }
+
+    if (fee?.feeLabel) {
+      /**
+       * @todo Ensure metadata is correctly attached.
+       */
+      const data = new Core.AuxiliaryData();
+      const map = new Map();
+      map.set(
+        674n,
+        `${fee.feeLabel}: ${fee.payment.value.toString()} ${
+          !SundaeUtils.isAdaAsset(fee.payment.metadata)
+            ? Buffer.from(
+                fee.payment.metadata.assetId.split(".")[1],
+                "hex"
+              ).toString("utf-8")
+            : "ADA"
+        }`
+      );
+      data.metadata()?.setMetadata(map);
+      instance.setAuxiliaryData(data);
+    }
   }
 
   /**
@@ -231,7 +257,9 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    *   .then(({ submit }) => submit())
    * ```
    */
-  async swap(swapArgs: ISwapConfigArgs): Promise<IComposedTx<Tx, TxComplete>> {
+  async swap(
+    swapArgs: ISwapConfigArgs
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const config = new SwapConfig(swapArgs);
 
     const {
@@ -244,7 +272,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
 
     const txInstance = this.newTxInstance(referralFee);
 
-    const { inline: cbor } = this.datumBuilder.buildSwapDatum({
+    const { inline } = this.datumBuilder.buildSwapDatum({
       ident,
       swap: {
         SuppliedCoin: SundaeUtils.getAssetSwapDirection(
@@ -259,8 +287,9 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     });
 
     let scooperFee = this.__getParam("maxScooperFee");
-    const v3TxBuilder = new TxBuilderLucidV3(
-      this.lucid,
+    const v3TxBuilder = new TxBuilderBlazeV3(
+      this.blaze,
+      this.network,
       new DatumBuilderLucidV3(this.network)
     );
 
@@ -271,10 +300,14 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     );
 
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
-    const scriptAddress = this.lucid.utils.validatorToAddress({
-      type: "PlutusV1",
-      script: compiledCode,
-    });
+    const scriptAddress = Core.addressFromValidator(
+      this.network === "mainnet" ? 1 : 0,
+      Core.Script.newPlutusV1Script(
+        new Core.PlutusV1Script(
+          Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex"))
+        )
+      )
+    ).toBech32();
 
     // Adjust scooper fee supply based on destination address.
     if (orderAddresses.DestinationAddress.address === v3Address) {
@@ -288,10 +321,22 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       scooperFee,
     });
 
-    txInstance.payToContract(scriptAddress, cbor, payment);
+    const newPayment = makeValue(
+      payment.lovelace,
+      ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+    );
+
+    const datum = Core.PlutusData.fromCbor(Core.HexBlob(inline));
+
+    txInstance.lockAssets(
+      Core.addressFromBech32(scriptAddress),
+      newPayment,
+      datum.hash()
+    );
+
     return this.completeTx({
       tx: txInstance,
-      datum: cbor,
+      datum: datum.toCbor(),
       referralFee: referralFee?.payment,
     });
   }
@@ -306,22 +351,30 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    */
   async orderRouteSwap(
     args: IOrderRouteSwapArgs
-  ): Promise<IComposedTx<Tx, TxComplete>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const isSecondSwapV3 = args.swapB.pool.version === EContractVersion.V3;
 
     const secondSwapBuilder = isSecondSwapV3
-      ? new TxBuilderLucidV3(this.lucid, new DatumBuilderLucidV3(this.network))
+      ? new TxBuilderBlazeV3(
+          this.blaze,
+          this.network,
+          new DatumBuilderLucidV3(this.network)
+        )
       : this;
     const secondSwapAddress = isSecondSwapV3
-      ? await (secondSwapBuilder as TxBuilderLucidV3).generateScriptAddress(
+      ? await (secondSwapBuilder as TxBuilderBlazeV3).generateScriptAddress(
           "order.spend",
           args.ownerAddress
         )
       : await this.getValidatorScript("escrow.spend").then(({ compiledCode }) =>
-          this.lucid.utils.validatorToAddress({
-            type: "PlutusV1",
-            script: compiledCode,
-          })
+          Core.addressFromValidator(
+            this.network === "mainnet" ? 1 : 0,
+            Core.Script.newPlutusV1Script(
+              new Core.PlutusV1Script(
+                Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex"))
+              )
+            )
+          ).toBech32()
         );
 
     const swapA = new SwapConfig({
@@ -393,9 +446,9 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       };
     }
 
-    const datumHash = this.lucid.utils.datumToHash(
-      secondSwapData.datum as string
-    );
+    const datumHash = Core.PlutusData.fromCbor(
+      Core.HexBlob(secondSwapData.datum as string)
+    ).hash();
 
     const { tx, datum, fees } = await this.swap({
       ...swapA,
@@ -417,12 +470,16 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       referralFee: mergedReferralFee,
     });
 
-    tx.attachMetadataWithConversion(103251, {
+    const data = new Core.AuxiliaryData();
+    const map = new Map();
+    map.set(103251n, {
       [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
         secondSwapData.datum as string,
         "0x"
       ),
     });
+    data.metadata()?.setMetadata(map);
+    tx.setAuxiliaryData(data);
 
     return this.completeTx({
       tx,
@@ -451,14 +508,19 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    *   .then(({ submit }) => submit());
    * ```
    */
-  async cancel(cancelArgs: ICancelConfigArgs) {
+  async cancel(
+    cancelArgs: ICancelConfigArgs
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const { utxo, referralFee, ownerAddress } = new CancelConfig(
       cancelArgs
     ).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
-    const utxosToSpend = await this.lucid.provider.getUtxosByOutRef([
-      { outputIndex: utxo.index, txHash: utxo.hash },
+    const utxosToSpend = await this.blaze.provider.resolveUnspentOutputs([
+      new Core.TransactionInput(
+        Core.TransactionId(utxo.hash),
+        BigInt(utxo.index)
+      ),
     ]);
 
     if (!utxosToSpend) {
@@ -470,9 +532,13 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     }
 
     const spendingDatum =
-      utxosToSpend[0]?.datum ||
-      (utxosToSpend[0]?.datumHash &&
-        (await this.lucid.provider.getDatum(utxosToSpend[0].datumHash)));
+      utxosToSpend[0]?.output().datum()?.asInlineData() ||
+      (utxosToSpend[0]?.output().datum()?.asDataHash() &&
+        (await this.blaze.provider.resolveDatum(
+          Core.DatumHash(
+            utxosToSpend[0]?.output().datum()?.asDataHash() as string
+          )
+        )));
 
     if (!spendingDatum) {
       throw new Error(
@@ -485,45 +551,52 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
      * If not, then we can assume it is a normal V1 order.
      */
     try {
-      Data.from(spendingDatum as string, OrderDatum);
+      Data.from(spendingDatum, OrderDatum);
       console.log("This is a V3 order! Calling appropriate builder...");
-      const v3Builder = new TxBuilderLucidV3(
-        this.lucid,
+      const v3Builder = new TxBuilderBlazeV3(
+        this.blaze,
+        this.network,
         new DatumBuilderLucidV3(this.network)
       );
       return v3Builder.cancel({ ...cancelArgs });
     } catch (e) {}
 
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
-    const scriptValidator: Script = {
-      type: "PlutusV1",
-      script: compiledCode,
-    };
+    const scriptValidator = Core.Script.newPlutusV1Script(
+      new Core.PlutusV1Script(Core.HexBlob(compiledCode))
+    );
 
-    tx.collectFrom(
-      utxosToSpend,
-      this.__getParam("cancelRedeemer")
-    ).attachSpendingValidator(scriptValidator);
+    utxosToSpend.forEach((utxo) => {
+      tx.addInput(
+        utxo,
+        Core.PlutusData.fromCbor(
+          Core.HexBlob(this.__getParam("cancelRedeemer"))
+        )
+      );
+    });
 
-    const details = getAddressDetails(ownerAddress);
+    tx.provideScript(scriptValidator);
+    const details = Core.Address.fromBech32(ownerAddress);
+    const paymentCred = details.asBase()?.getPaymentCredential();
+    const stakingCred = details.asBase()?.getStakeCredential();
 
     if (
-      details?.stakeCredential?.hash &&
-      spendingDatum.includes(details.stakeCredential.hash)
+      paymentCred?.hash &&
+      spendingDatum.toCbor().includes(paymentCred.hash)
     ) {
-      tx.addSignerKey(details.stakeCredential.hash);
+      tx.addRequiredSigner(Core.Ed25519KeyHashHex(paymentCred.hash));
     }
 
     if (
-      details?.paymentCredential?.hash &&
-      spendingDatum.includes(details.paymentCredential.hash)
+      stakingCred?.hash &&
+      spendingDatum.toCbor().includes(stakingCred.hash)
     ) {
-      tx.addSignerKey(details.paymentCredential.hash);
+      tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingCred.hash));
     }
 
     return this.completeTx({
       tx,
-      datum: spendingDatum as string,
+      datum: spendingDatum.toCbor(),
       deposit: 0n,
       scooperFee: 0n,
       referralFee: referralFee?.payment,
@@ -561,7 +634,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
   }: {
     cancelArgs: ICancelConfigArgs;
     swapArgs: ISwapConfigArgs;
-  }) {
+  }): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     /**
      * First, build the cancel transaction.
      */
@@ -595,18 +668,23 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     }
 
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
-    const scriptAddress = this.lucid.utils.validatorToAddress({
-      type: "PlutusV1",
-      script: compiledCode,
+    const scriptAddress = Core.addressFromValidator(
+      this.network === "mainnet" ? 1 : 0,
+      Core.Script.fromCbor(Core.HexBlob(compiledCode))
+    );
+
+    const payment = SundaeUtils.accumulateSuppliedAssets({
+      suppliedAssets: [suppliedAsset],
+      scooperFee: this.__getParam("maxScooperFee"),
     });
 
-    cancelTx.payToContract(
+    cancelTx.lockAssets(
       scriptAddress,
-      swapDatum.inline,
-      SundaeUtils.accumulateSuppliedAssets({
-        suppliedAssets: [suppliedAsset],
-        scooperFee: this.__getParam("maxScooperFee"),
-      })
+      makeValue(
+        payment.lovelace,
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+      ),
+      Core.PlutusData.fromCbor(Core.HexBlob(swapDatum.inline))
     );
 
     /**
@@ -625,12 +703,15 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       }
 
       // Add to the transaction.
-      cancelTx.payToAddress(swapArgs.referralFee.destination, {
-        [SundaeUtils.isAdaAsset(swapArgs.referralFee.payment.metadata)
-          ? "lovelace"
-          : swapArgs.referralFee.payment.metadata.assetId]:
-          swapArgs.referralFee.payment.amount,
-      });
+      cancelTx.payAssets(
+        Core.addressFromBech32(swapArgs.referralFee.destination),
+        SundaeUtils.isAdaAsset(swapArgs.referralFee.payment.metadata)
+          ? makeValue(swapArgs.referralFee.payment.amount)
+          : makeValue(0n, [
+              swapArgs.referralFee.payment.metadata.assetId,
+              swapArgs.referralFee.payment.amount,
+            ])
+      );
     }
 
     return this.completeTx({
@@ -640,7 +721,9 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     });
   }
 
-  async deposit(depositArgs: IDepositConfigArgs) {
+  async deposit(
+    depositArgs: IDepositConfigArgs
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const { suppliedAssets, pool, orderAddresses, referralFee } =
       new DepositConfig(depositArgs).buildArgs();
 
@@ -664,12 +747,20 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     });
 
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
-    const scriptAddress = this.lucid.utils.validatorToAddress({
-      type: "PlutusV1",
-      script: compiledCode,
-    });
+    const scriptAddress = Core.addressFromValidator(
+      this.network === "mainnet" ? 1 : 0,
+      Core.Script.fromCbor(Core.HexBlob(compiledCode))
+    );
 
-    tx.payToContract(scriptAddress, cbor, payment);
+    tx.lockAssets(
+      scriptAddress,
+      makeValue(
+        payment.lovelace,
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+      ),
+      Core.PlutusData.fromCbor(Core.HexBlob(cbor))
+    );
+
     return this.completeTx({
       tx,
       datum: cbor,
@@ -697,7 +788,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    */
   async withdraw(
     withdrawArgs: IWithdrawConfigArgs
-  ): Promise<IComposedTx<Tx, TxComplete>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const { suppliedLPAsset, pool, orderAddresses, referralFee } =
       new WithdrawConfig(withdrawArgs).buildArgs();
 
@@ -716,12 +807,20 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     });
 
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
-    const scriptAddress = this.lucid.utils.validatorToAddress({
-      type: "PlutusV1",
-      script: compiledCode,
-    });
+    const scriptAddress = Core.addressFromValidator(
+      this.network === "mainnet" ? 1 : 0,
+      Core.Script.fromCbor(Core.HexBlob(compiledCode))
+    );
 
-    tx.payToContract(scriptAddress, cbor, payment);
+    tx.lockAssets(
+      scriptAddress,
+      makeValue(
+        payment.lovelace,
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+      ),
+      Core.PlutusData.fromCbor(Core.HexBlob(cbor))
+    );
+
     return this.completeTx({
       tx,
       datum: cbor,
@@ -749,7 +848,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    */
   async zap(
     zapArgs: Omit<IZapConfigArgs, "zapDirection">
-  ): Promise<IComposedTx<Tx, TxComplete>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const zapDirection = SundaeUtils.getAssetSwapDirection(
       zapArgs.suppliedAsset.metadata,
       [zapArgs.pool.assetA, zapArgs.pool.assetB]
@@ -819,10 +918,10 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     }
 
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
-    const scriptAddress = this.lucid.utils.validatorToAddress({
-      type: "PlutusV1",
-      script: compiledCode,
-    });
+    const scriptAddress = Core.addressFromValidator(
+      this.network === "mainnet" ? 1 : 0,
+      Core.Script.fromCbor(Core.HexBlob(compiledCode))
+    );
 
     /**
      * We then build the swap datum based using 50% of the supplied asset. A few things
@@ -837,7 +936,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       fundedAsset: halfSuppliedAmount,
       orderAddresses: {
         DestinationAddress: {
-          address: scriptAddress,
+          address: scriptAddress.toBech32(),
           datum: {
             type: EDatumType.HASH,
             value: depositHash,
@@ -855,14 +954,26 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       scooperFee: this.__getParam("maxScooperFee"),
     });
 
-    tx.attachMetadataWithConversion(103251, {
+    const data = new Core.AuxiliaryData();
+    const map = new Map();
+    map.set(103251n, {
       [`0x${depositHash}`]: SundaeUtils.splitMetadataString(
         depositInline,
         "0x"
       ),
     });
+    data.metadata()?.setMetadata(map);
+    tx.setAuxiliaryData(data);
 
-    tx.payToContract(scriptAddress, swapData.inline, payment);
+    tx.lockAssets(
+      scriptAddress,
+      makeValue(
+        payment.lovelace,
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+      ),
+      Core.PlutusData.fromCbor(Core.HexBlob(swapData.inline))
+    );
+
     return this.completeTx({
       tx,
       datum: swapData.inline,
@@ -920,19 +1031,20 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     yieldFarming?: IMigrateYieldFarmingLiquidityConfig
   ): Promise<
     IComposedTx<
-      Tx,
-      TxComplete,
+      BlazeTx,
+      Core.Transaction,
       string | undefined,
       Record<string, AssetAmount<IAssetAmountMetadata>>
     >
   > {
-    const finalTx = this.lucid.newTx();
+    const finalTx = this.blaze.newTransaction();
     let totalScooper = 0n;
     let totalDeposit = 0n;
     let totalReferralFees = new AssetAmount(0n, ADA_METADATA);
     const metadataDatums: Record<string, string[]> = {};
-    const v3TxBuilderInstance = new TxBuilderLucidV3(
-      this.lucid,
+    const v3TxBuilderInstance = new TxBuilderBlazeV3(
+      this.blaze,
+      this.network,
       new DatumBuilderLucidV3(this.network),
       this.queryProvider
     );
@@ -940,10 +1052,10 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       await v3TxBuilderInstance.generateScriptAddress("order.spend");
     const v3MaxScooperFee = await v3TxBuilderInstance.getMaxScooperFeeAmount();
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
-    const scriptAddress = this.lucid.utils.validatorToAddress({
-      type: "PlutusV1",
-      script: compiledCode,
-    });
+    const scriptAddress = Core.addressFromValidator(
+      this.network === "mainnet" ? 1 : 0,
+      Core.Script.fromCbor(Core.HexBlob(compiledCode))
+    );
 
     const YF_V2_PARAMS = {
       mainnet: {
@@ -962,35 +1074,34 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       },
     };
 
-    const yfRefInput =
+    const yfRefInputs =
       yieldFarming &&
-      (await this.lucid.provider.getUtxosByOutRef([
-        {
-          txHash: YF_V2_PARAMS[this.network].referenceInput.split("#")[0],
-          outputIndex: Number(
-            YF_V2_PARAMS[this.network].referenceInput.split("#")[1]
+      (await this.blaze.provider.resolveUnspentOutputs([
+        new Core.TransactionInput(
+          Core.TransactionId(
+            YF_V2_PARAMS[this.network].referenceInput.split("#")[0]
           ),
-        },
+          BigInt(YF_V2_PARAMS[this.network].referenceInput.split("#")[1])
+        ),
       ]));
 
     const existingPositionsData =
       yieldFarming?.existingPositions &&
-      (await this.lucid.provider.getUtxosByOutRef(
-        yieldFarming.existingPositions.map(({ hash, index }) => ({
-          outputIndex: index,
-          txHash: hash,
-        }))
+      (await this.blaze.provider.resolveUnspentOutputs(
+        yieldFarming.existingPositions.map(
+          ({ hash, index }) =>
+            new Core.TransactionInput(Core.TransactionId(hash), BigInt(index))
+        )
       ));
 
-    const lockContractAddress = this.lucid.utils.credentialToAddress(
-      {
-        hash: YF_V2_PARAMS[this.network].scriptHash,
-        type: "Script",
-      },
-      {
-        hash: YF_V2_PARAMS[this.network].stakeKeyHash,
-        type: "Key",
-      }
+    const lockContractAddress = Core.addressFromCredentials(
+      this.network === "mainnet" ? 1 : 0,
+      Core.Credential.fromCbor(
+        Core.HexBlob(YF_V2_PARAMS[this.network].scriptHash)
+      ),
+      Core.Credential.fromCbor(
+        Core.HexBlob(YF_V2_PARAMS[this.network].stakeKeyHash)
+      )
     );
 
     const returnedYFAssets: Record<
@@ -1012,13 +1123,17 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
      */
     if (
       yieldFarming &&
-      yfRefInput &&
+      yfRefInputs &&
       existingPositionsData &&
       existingPositionsData.length > 0
     ) {
-      finalTx
-        .readFrom(yfRefInput)
-        .collectFrom(existingPositionsData, VOID_REDEEMER);
+      yfRefInputs.forEach((input) => finalTx.addReferenceInput(input));
+      existingPositionsData.forEach((input) =>
+        finalTx.addInput(
+          input,
+          Core.PlutusData.fromCbor(Core.HexBlob(VOID_REDEEMER))
+        )
+      );
 
       const withdrawAssetsList = yieldFarming.migrations.reduce(
         (list, { withdrawPool }) => {
@@ -1028,8 +1143,14 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
         [] as string[]
       );
 
-      existingPositionsData.forEach(({ assets }) => {
-        for (const [id, amount] of Object.entries(assets)) {
+      existingPositionsData.forEach(({ output }) => {
+        const assets =
+          output().amount().multiasset() || new Map<Core.AssetId, bigint>();
+
+        for (const [id, amount] of Object.entries(assets) as [
+          Core.AssetId,
+          bigint
+        ][]) {
           if (withdrawAssetsList.includes(id)) {
             if (!migrationAssets[id]) {
               migrationAssets[id] = {
@@ -1060,9 +1181,16 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
         );
       }
 
-      yieldFarming.migrations.forEach(({ withdrawPool, depositPool }) => {
-        const oldDelegation = existingPositionsData.find(({ assets }) => {
-          if (assets[withdrawPool.assetLP.assetId.replace(".", "")]) {
+      yieldFarming.migrations.forEach(async ({ withdrawPool, depositPool }) => {
+        const oldDelegation = existingPositionsData.find(({ output }) => {
+          const assets =
+            output().amount().multiasset() || new Map<Core.AssetId, bigint>();
+
+          if (
+            assets.has(
+              Core.AssetId(withdrawPool.assetLP.assetId.replace(".", ""))
+            )
+          ) {
             return true;
           }
         });
@@ -1071,16 +1199,20 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
           throw new Error("Could not find a matching delegation!");
         }
 
+        const oldDelegationDatum = await this.blaze.provider.resolveDatum(
+          Core.DatumHash(oldDelegation.output().datum()?.asDataHash() as string)
+        );
+
         const config = {
           newLockedAssets: returnedYFAssets,
           depositPool,
           withdrawConfig: {
             orderAddresses: {
               DestinationAddress: {
-                address: lockContractAddress,
+                address: lockContractAddress.toBech32(),
                 datum: {
                   type: EDatumType.INLINE,
-                  value: oldDelegation.datum as string,
+                  value: oldDelegationDatum.toCbor(),
                 },
               },
               AlternateAddress: yieldFarming.ownerAddress.address,
@@ -1105,8 +1237,6 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
      */
     migrations.forEach(({ withdrawConfig, depositPool }) => {
       const withdrawArgs = new WithdrawConfig(withdrawConfig).buildArgs();
-
-      const tx = this.newTxInstance(withdrawArgs.referralFee);
       const scooperFee = this.__getParam("maxScooperFee") + v3MaxScooperFee;
 
       const payment = SundaeUtils.accumulateSuppliedAssets({
@@ -1169,9 +1299,18 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
         "0x"
       );
 
-      tx.payToContract(scriptAddress, withdrawInline, payment);
+      finalTx.lockAssets(
+        scriptAddress,
+        makeValue(
+          payment.lovelace,
+          ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+        ),
+        Core.PlutusData.fromCbor(Core.HexBlob(withdrawInline))
+      );
 
-      finalTx.compose(tx);
+      if (withdrawArgs.referralFee) {
+        this.attachReferralFees(finalTx, withdrawArgs.referralFee);
+      }
     });
 
     /**
@@ -1192,20 +1331,47 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
         yieldFarming.ownerAddress.address
       );
 
-      finalTx.addSignerKey(signerKey.paymentCredentials);
+      finalTx.addRequiredSigner(
+        Core.Ed25519KeyHashHex(signerKey.paymentCredentials)
+      );
 
       if (signerKey?.stakeCredentials) {
-        finalTx.addSignerKey(signerKey.stakeCredentials);
+        finalTx.addRequiredSigner(
+          Core.Ed25519KeyHashHex(signerKey.stakeCredentials)
+        );
       }
 
-      finalTx.payToContract(
+      const existingDatum =
+        existingPositionsData[0]?.output().datum()?.asInlineData() ||
+        (existingPositionsData[0]?.output().datum()?.asDataHash() &&
+          (await this.blaze.provider.resolveDatum(
+            Core.DatumHash(
+              existingPositionsData[0]?.output().datum()?.asDataHash() as string
+            )
+          )));
+
+      if (!existingDatum) {
+        throw new Error(
+          "Failed trying to migrate a position that doesn't have a datum!"
+        );
+      }
+
+      finalTx.lockAssets(
         lockContractAddress,
-        { inline: existingPositionsData[0].datum as string },
-        returningPayment
+        makeValue(
+          returningPayment.lovelace,
+          ...Object.entries(returningPayment).filter(
+            ([key]) => key !== "lovelace"
+          )
+        ),
+        existingDatum
       );
     }
 
-    finalTx.attachMetadataWithConversion(103251, metadataDatums);
+    const data = new Core.AuxiliaryData();
+    const map = new Map();
+    map.set(103251n, metadataDatums);
+    finalTx.setAuxiliaryData(data);
 
     return this.completeTx({
       tx: finalTx,
@@ -1221,9 +1387,8 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     referralFee,
     deposit,
     scooperFee,
-    coinSelection,
   }: ITxBuilderLucidCompleteTxArgs): Promise<
-    IComposedTx<Tx, TxComplete, Datum | undefined>
+    IComposedTx<BlazeTx, Core.Transaction, Datum | undefined>
   > {
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
@@ -1234,30 +1399,33 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       referral: referralFee,
     };
 
-    const txFee = tx.txBuilder.get_fee_if_set();
-    let finishedTx: TxComplete | undefined;
+    let finishedTx: Core.Transaction | undefined;
+    const that = this;
 
-    const thisTx: IComposedTx<Tx, TxComplete, Datum | undefined> = {
+    const thisTx: IComposedTx<BlazeTx, Core.Transaction> = {
       tx,
       datum,
       fees: baseFees,
       async build() {
         if (!finishedTx) {
-          finishedTx = await tx.complete({ coinSelection });
+          finishedTx = await tx.complete();
           thisTx.fees.cardanoTxFee = new AssetAmount(
-            BigInt(txFee?.to_str() ?? finishedTx?.fee?.toString() ?? "0"),
+            BigInt(finishedTx?.body().fee()?.toString() ?? "0"),
             ADA_METADATA
           );
         }
 
         return {
-          cbor: Buffer.from(finishedTx.txComplete.to_bytes()).toString("hex"),
+          cbor: finishedTx.body().toCbor(),
           builtTx: finishedTx,
           sign: async () => {
-            const signedTx = await (finishedTx as TxComplete).sign().complete();
+            const signedTx = await that.blaze.signTransaction(
+              finishedTx as Core.Transaction
+            );
+
             return {
-              cbor: Buffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
-              submit: async () => await signedTx.submit(),
+              cbor: signedTx.toCbor(),
+              submit: async () => that.blaze.submitTransaction(signedTx),
             };
           },
         };

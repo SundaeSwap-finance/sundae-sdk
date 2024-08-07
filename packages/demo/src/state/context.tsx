@@ -1,4 +1,4 @@
-import { SundaeSDK } from "@sundaeswap/core";
+import { ETxBuilderType, SundaeSDK } from "@sundaeswap/core";
 import { C, getAddressDetails } from "lucid-cardano";
 import {
   Dispatch,
@@ -17,6 +17,8 @@ interface IAppState {
   activeWalletAddr: string;
   nonStakedWalletAddr: string;
   ready: boolean;
+  builderLib: ETxBuilderType;
+  setBuilderLib: Dispatch<SetStateAction<ETxBuilderType>>;
   setReady: Dispatch<SetStateAction<boolean>>;
   useReferral: boolean;
   setUseReferral: Dispatch<SetStateAction<boolean>>;
@@ -29,6 +31,8 @@ const defaultState: IAppState = {
   activeWalletAddr: "",
   nonStakedWalletAddr: "",
   ready: false,
+  builderLib: ETxBuilderType.LUCID,
+  setBuilderLib: () => {},
   setReady: () => {},
   useReferral: false,
   setUseReferral: () => {},
@@ -50,6 +54,9 @@ export const AppStateProvider: FC<
   const [nonStakedWalletAddr, setNonStakedWalletAddr] = useState("");
   const [useReferral, setUseReferral] = useState(false);
   const [useV3Contracts, setUseV3Contracts] = useState(false);
+  const [builderLib, setBuilderLib] = useState<ETxBuilderType>(
+    ETxBuilderType.LUCID
+  );
 
   useEffect(() => {
     (async () => {
@@ -87,6 +94,8 @@ export const AppStateProvider: FC<
     <AppState.Provider
       value={{
         activeWalletAddr,
+        builderLib,
+        setBuilderLib,
         nonStakedWalletAddr,
         SDK,
         setSDK,

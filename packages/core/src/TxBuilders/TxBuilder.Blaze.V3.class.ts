@@ -1,16 +1,14 @@
-import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
-  C,
+  Blaze,
+  TxBuilder as BlazeTx,
+  Blockfrost,
+  Core,
   Data,
-  OutRef,
-  UTxO,
-  toUnit,
-  type Assets,
-  type Datum,
-  type Lucid,
-  type Tx,
-  type TxComplete,
-} from "lucid-cardano";
+  makeValue,
+  WebWallet,
+} from "@blaze-cardano/sdk";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { Lucid, OutRef, toUnit, type Datum } from "lucid-cardano";
 
 import type {
   ICancelConfigArgs,
@@ -53,13 +51,13 @@ import {
   POOL_MIN_ADA,
   VOID_REDEEMER,
 } from "../constants.js";
-import { TxBuilderLucidV1 } from "./TxBuilder.Lucid.V1.class.js";
+import { TxBuilderBlazeV1 } from "./TxBuilder.Blaze.V1.class.js";
 
 /**
  * Object arguments for completing a transaction.
  */
 interface ITxBuilderLucidCompleteTxArgs {
-  tx: Tx;
+  tx: BlazeTx;
   referralFee?: AssetAmount<IAssetAmountMetadata>;
   datum?: string;
   deposit?: bigint;
@@ -75,12 +73,12 @@ interface ITxBuilderLucidCompleteTxArgs {
  *
  * @implements {TxBuilderV3}
  */
-export class TxBuilderLucidV3 extends TxBuilderV3 {
+export class TxBuilderBlazeV3 extends TxBuilderV3 {
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
-  referenceUtxos: UTxO[] | undefined;
-  settingsUtxos: UTxO[] | undefined;
+  referenceUtxos: Core.TransactionUnspentOutput[] | undefined;
+  settingsUtxos: Core.TransactionUnspentOutput[] | undefined;
   validatorScripts: Record<string, ISundaeProtocolValidatorFull> = {};
 
   static MIN_ADA_POOL_MINT_ERROR =
@@ -92,14 +90,14 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    * @param {DatumBuilderLucidV3} datumBuilder A valid V3 DatumBuilder class that will build valid datums.
    */
   constructor(
-    public lucid: Lucid,
+    public blaze: Blaze<Blockfrost, WebWallet>,
+    network: TSupportedNetworks,
     public datumBuilder: DatumBuilderLucidV3,
     queryProvider?: QueryProviderSundaeSwap
   ) {
     super();
-    this.network = lucid.network === "Mainnet" ? "mainnet" : "preview";
-    this.queryProvider =
-      queryProvider ?? new QueryProviderSundaeSwap(this.network);
+    this.network = network;
+    this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
   }
 
   /**
@@ -130,14 +128,23 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    *
    * @returns {Promise<UTxO[]>}
    */
-  public async getAllReferenceUtxos(): Promise<UTxO[]> {
+  public async getAllReferenceUtxos(): Promise<
+    Core.TransactionUnspentOutput[]
+  > {
     if (!this.referenceUtxos) {
       const utxos: OutRef[] = [];
       const { references } = await this.getProtocolParams();
       references.forEach(({ txIn }) =>
         utxos.push({ outputIndex: txIn.index, txHash: txIn.hash })
       );
-      this.referenceUtxos = await this.lucid.provider.getUtxosByOutRef(utxos);
+      this.referenceUtxos = await this.blaze.provider.resolveUnspentOutputs(
+        references.map(({ txIn }) => {
+          return new Core.TransactionInput(
+            Core.TransactionId(txIn.hash),
+            BigInt(txIn.index)
+          );
+        })
+      );
     }
 
     return this.referenceUtxos;
@@ -167,12 +174,12 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    *
    * @returns {Promise<UTxO[]>}
    */
-  public async getAllSettingsUtxos(): Promise<UTxO[]> {
+  public async getAllSettingsUtxos(): Promise<Core.TransactionUnspentOutput[]> {
     if (!this.settingsUtxos) {
       const { hash } = await this.getValidatorScript("settings.mint");
       this.settingsUtxos = [
-        await this.lucid.provider.getUtxoByUnit(
-          `${hash}${this.SETTINGS_NFT_NAME}`
+        await this.blaze.provider.getUnspentOutputByNFT(
+          Core.AssetId(`${hash}${this.SETTINGS_NFT_NAME}`)
         ),
       ];
     }
@@ -191,17 +198,17 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     // Patch to set the max scooper fee to 1ADA to avoid out of range orders being stuck after Wednesday.
     return 1_000_000n;
 
-    const [settings] = await this.getAllSettingsUtxos();
-    if (!settings) {
-      return 1_000_000n;
-    }
+    // const [settings] = await this.getAllSettingsUtxos();
+    // if (!settings) {
+    //   return 1_000_000n;
+    // }
 
-    const { baseFee, simpleFee } = Data.from(
-      settings.datum as string,
-      SettingsDatum
-    );
+    // const { baseFee, simpleFee } = Data.from(
+    //   settings.datum as string,
+    //   SettingsDatum
+    // );
 
-    return baseFee + simpleFee;
+    // return baseFee + simpleFee;
   }
 
   /**
@@ -229,26 +236,36 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
   }
 
   /**
-   * Returns a new Tx instance from Lucid and pre-applies the referral
-   * fee payment if a {@link ITxBuilderReferralFee} config is passed in.
-   *
-   * @param {ITxBuilderReferralFee | undefined} fee The optional referral fee configuration.
-   * @returns {Tx}
+   * Returns a new Tx instance from Lucid. Throws an error if not ready.
+   * @returns
    */
-  newTxInstance(fee?: ITxBuilderReferralFee): Tx {
-    const instance = this.lucid.newTx();
+  newTxInstance(fee?: ITxBuilderReferralFee): BlazeTx {
+    const instance = this.blaze.newTransaction();
 
     if (fee) {
-      const payment: Assets = {};
-      payment[
-        SundaeUtils.isAdaAsset(fee.payment.metadata)
-          ? "lovelace"
-          : fee.payment.metadata.assetId
-      ] = fee.payment.amount;
-      instance.payToAddress(fee.destination, payment);
+      const tokenMap = new Map<Core.AssetId, bigint>();
+      const payment: Core.Value = new Core.Value(0n, tokenMap);
+      if (SundaeUtils.isAdaAsset(fee.payment.metadata)) {
+        payment.setCoin(fee.payment.amount);
+        instance.payLovelace(
+          Core.addressFromBech32(fee.destination),
+          fee.payment.amount
+        );
+      } else {
+        tokenMap.set(
+          Core.AssetId(fee.payment.metadata.assetId),
+          fee.payment.amount
+        );
+        instance.payAssets(Core.addressFromBech32(fee.destination), payment);
+      }
 
       if (fee?.feeLabel) {
-        instance.attachMetadataWithConversion(
+        /**
+         * @todo Ensure metadata is correctly attached.
+         */
+        const data = new Core.AuxiliaryData();
+        const map = new Map();
+        map.set(
           674,
           `${fee.feeLabel}: ${fee.payment.value.toString()} ${
             !SundaeUtils.isAdaAsset(fee.payment.metadata)
@@ -259,6 +276,8 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
               : "ADA"
           }`
         );
+        data.metadata()?.setMetadata(map);
+        instance.setAuxiliaryData(data);
       }
     }
 
@@ -283,7 +302,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    */
   async mintPool(
     mintPoolArgs: IMintV3PoolConfigArgs
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction, Datum | undefined>> {
     const {
       assetA,
       assetB,
@@ -309,24 +328,23 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
         this.getAllSettingsUtxos(),
       ]);
 
-    const newPoolIdent = DatumBuilderLucidV3.computePoolId(userUtxos[0]);
+    const newPoolIdent = DatumBuilderLucidV3.computePoolId({
+      outputIndex: Number(userUtxos[0].input().index().toString()),
+      txHash: userUtxos[0].input().transactionId(),
+    });
 
-    const poolNftNameHex = toUnit(
-      poolPolicyId,
-      DatumBuilderLucidV3.computePoolNftName(newPoolIdent)
-    );
-    const poolRefNameHex = toUnit(
-      poolPolicyId,
-      DatumBuilderLucidV3.computePoolRefName(newPoolIdent)
-    );
-    const poolLqNameHex = toUnit(
-      poolPolicyId,
-      DatumBuilderLucidV3.computePoolLqName(newPoolIdent)
-    );
+    const nftAssetName = DatumBuilderLucidV3.computePoolNftName(newPoolIdent);
+    const poolNftAssetIdHex = toUnit(poolPolicyId, nftAssetName);
+
+    const refAssetName = DatumBuilderLucidV3.computePoolRefName(newPoolIdent);
+    const poolRefAssetIdHex = toUnit(poolPolicyId, refAssetName);
+
+    const poolLqAssetName = DatumBuilderLucidV3.computePoolLqName(newPoolIdent);
+    const poolLqAssetIdHex = toUnit(poolPolicyId, poolLqAssetName);
 
     const poolAssets = {
       lovelace: POOL_MIN_ADA,
-      [poolNftNameHex]: 1n,
+      [poolNftAssetIdHex]: 1n,
       [sortedAssets[1].metadata.assetId.replace(".", "")]:
         sortedAssets[1].amount,
     };
@@ -348,7 +366,10 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       fees,
       marketOpen,
       depositFee: POOL_MIN_ADA,
-      seedUtxo: userUtxos[0],
+      seedUtxo: {
+        outputIndex: Number(userUtxos[0].input().index().toString()),
+        txHash: userUtxos[0].input().transactionId(),
+      },
     });
 
     const { inline: mintRedeemerDatum } =
@@ -361,13 +382,21 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
         poolOutput: 0n,
       });
 
+    const settingsDatum = settings[0].output().datum()?.asInlineData();
+    if (!settingsDatum) {
+      throw new Error("Could not retrieve the datum from the settings UTXO.");
+    }
+
     const {
       metadataAdmin: { paymentCredential, stakeCredential },
       authorizedStakingKeys: [poolStakingCredential],
-    } = Data.from(settings[0].datum as string, V3Types.SettingsDatum);
+    } = Data.from(settingsDatum, V3Types.SettingsDatum);
     const metadataAddress = DatumBuilderLucidV3.addressSchemaToBech32(
       { paymentCredential, stakeCredential },
-      this.lucid
+      await Lucid.new(
+        undefined,
+        this.network === "mainnet" ? "Mainnet" : "Preview"
+      )
     );
 
     const { blueprint } = await this.getProtocolParams();
@@ -386,59 +415,89 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
           keyHash: poolStakingCredential,
         },
       },
-      this.lucid
+      await Lucid.new(
+        undefined,
+        this.network === "mainnet" ? "Mainnet" : "Preview"
+      )
     );
 
-    const tx = this.newTxInstance(referralFee)
-      .mintAssets(
-        {
-          [poolNftNameHex]: 1n,
-          [poolRefNameHex]: 1n,
-          [poolLqNameHex]: circulatingLp,
-        },
-        mintRedeemerDatum
+    const tx = this.newTxInstance(referralFee);
+
+    const mints = new Map<Core.AssetName, bigint>();
+    mints.set(Core.AssetName(nftAssetName), 1n);
+    mints.set(Core.AssetName(refAssetName), 1n);
+    mints.set(Core.AssetName(poolLqAssetName), circulatingLp);
+
+    tx.addMint(
+      Core.PolicyId(poolPolicyId),
+      mints,
+      Core.PlutusData.fromCbor(
+        Core.HexBlob.fromBytes(Buffer.from(mintRedeemerDatum, "hex"))
       )
-      .readFrom([...references, ...settings])
-      .collectFrom(userUtxos)
-      .payToContract(sundaeStakeAddress, { inline: mintPoolDatum }, poolAssets)
-      .payToAddressWithData(
-        metadataAddress,
-        { inline: Data.void() },
-        {
-          lovelace: ORDER_DEPOSIT_DEFAULT,
-          [poolRefNameHex]: 1n,
-        }
-      );
+    );
+    [...references, ...settings].forEach((utxo) => tx.addReferenceInput(utxo));
+    userUtxos.forEach((utxo) => tx.addInput(utxo));
+
+    tx.lockAssets(
+      Core.addressFromBech32(sundaeStakeAddress),
+      makeValue(
+        poolAssets.lovelace,
+        ...Object.entries(poolAssets).filter(([key]) => key !== "lovelace")
+      ),
+      Core.PlutusData.fromCbor(
+        Core.HexBlob.fromBytes(Buffer.from(mintPoolDatum))
+      )
+    );
+
+    tx.lockAssets(
+      Core.addressFromBech32(metadataAddress),
+      makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
+      Data.Void()
+    );
 
     if (donateToTreasury) {
-      const datum = Data.from(settings[0].datum as string, SettingsDatum);
+      const settingsDatum = settings[0].output().datum()?.asInlineData();
+      if (!settingsDatum) {
+        throw new Error("Could not retrieve datum from settings UTXO.");
+      }
+
+      const datum = Data.from(settingsDatum, SettingsDatum);
       const realTreasuryAddress = DatumBuilderLucidV3.addressSchemaToBech32(
         datum.treasuryAddress,
-        this.lucid
+        await Lucid.new(
+          undefined,
+          this.network === "mainnet" ? "Mainnet" : "Preview"
+        )
       );
 
       if (donateToTreasury === 100n) {
-        tx.payToContract(realTreasuryAddress, Data.void(), {
-          lovelace: ORDER_DEPOSIT_DEFAULT,
-          [poolLqNameHex]: circulatingLp,
-        });
+        tx.lockAssets(
+          Core.addressFromBech32(realTreasuryAddress),
+          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, circulatingLp]),
+          Data.Void()
+        );
       } else {
         const donation = (circulatingLp * donateToTreasury) / 100n;
-        tx.payToContract(realTreasuryAddress, Data.void(), {
-          lovelace: ORDER_DEPOSIT_DEFAULT,
-          [poolLqNameHex]: donation,
-        });
+        tx.lockAssets(
+          Core.addressFromBech32(realTreasuryAddress),
+          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, donation]),
+          Data.Void()
+        );
 
-        tx.payToAddress(ownerAddress, {
-          lovelace: ORDER_DEPOSIT_DEFAULT,
-          [poolLqNameHex]: circulatingLp - donation,
-        });
+        tx.lockAssets(
+          Core.addressFromBech32(ownerAddress),
+          makeValue(ORDER_DEPOSIT_DEFAULT, [
+            poolLqAssetIdHex,
+            circulatingLp - donation,
+          ]),
+          Data.Void()
+        );
       }
     } else {
-      tx.payToAddress(ownerAddress, {
-        lovelace: ORDER_DEPOSIT_DEFAULT,
-        [poolLqNameHex]: circulatingLp,
-      });
+      tx.payAssets(
+        Core.addressFromBech32(ownerAddress),
+        makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, circulatingLp])
+      );
     }
 
     return this.completeTx({
@@ -470,7 +529,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    */
   async swap(
     swapArgs: ISwapConfigArgs
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction, Datum | undefined>> {
     const config = new SwapConfig(swapArgs);
 
     const {
@@ -495,17 +554,22 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     });
 
     let scooperFee = await this.getMaxScooperFeeAmount();
-    const v1TxBUilder = new TxBuilderLucidV1(
-      this.lucid,
+    const v1TxBUilder = new TxBuilderBlazeV1(
+      this.blaze,
+      this.network,
       new DatumBuilderLucidV1(this.network)
     );
     const v1Address = await v1TxBUilder
       .getValidatorScript("escrow.spend")
       .then(({ compiledCode }) =>
-        this.lucid.utils.validatorToAddress({
-          type: "PlutusV1",
-          script: compiledCode,
-        })
+        Core.addressFromValidator(
+          this.network === "mainnet" ? 1 : 0,
+          Core.Script.newPlutusV1Script(
+            new Core.PlutusV1Script(
+              Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex"))
+            )
+          )
+        ).toBech32()
       );
     const v3Address = await this.generateScriptAddress(
       "order.spend",
@@ -530,7 +594,14 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
         : ORDER_DEPOSIT_DEFAULT,
     });
 
-    txInstance.payToContract(v3Address, { inline }, payment);
+    txInstance.lockAssets(
+      Core.addressFromBech32(v3Address),
+      makeValue(
+        payment.lovelace,
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+      ),
+      Core.PlutusData.fromCbor(Core.HexBlob.fromBytes(Buffer.from(inline)))
+    );
 
     return this.completeTx({
       tx: txInstance,
@@ -551,20 +622,28 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    */
   async orderRouteSwap(
     args: IOrderRouteSwapArgs
-  ): Promise<IComposedTx<Tx, TxComplete>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const isSecondSwapV1 = args.swapB.pool.version === EContractVersion.V1;
 
     const secondSwapBuilder = isSecondSwapV1
-      ? new TxBuilderLucidV1(this.lucid, new DatumBuilderLucidV1(this.network))
+      ? new TxBuilderBlazeV1(
+          this.blaze,
+          this.network,
+          new DatumBuilderLucidV1(this.network)
+        )
       : this;
     const secondSwapAddress = isSecondSwapV1
-      ? await (secondSwapBuilder as TxBuilderLucidV1)
+      ? await (secondSwapBuilder as TxBuilderBlazeV1)
           .getValidatorScript("escrow.spend")
           .then(({ compiledCode }) =>
-            this.lucid.utils.validatorToAddress({
-              type: "PlutusV1",
-              script: compiledCode,
-            })
+            Core.addressFromValidator(
+              this.network === "mainnet" ? 1 : 0,
+              Core.Script.newPlutusV1Script(
+                new Core.PlutusV1Script(
+                  Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex"))
+                )
+              )
+            ).toBech32()
           )
       : await this.generateScriptAddress("order.spend", args.ownerAddress);
 
@@ -637,9 +716,9 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       };
     }
 
-    const datumHash = this.lucid.utils.datumToHash(
-      secondSwapData.datum as string
-    );
+    const datumHash = Core.PlutusData.fromCbor(
+      Core.HexBlob(secondSwapData.datum as string)
+    ).hash();
 
     const { tx, datum, fees } = await this.swap({
       ...swapA,
@@ -665,12 +744,16 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     });
 
     if (isSecondSwapV1) {
-      tx.attachMetadataWithConversion(103251, {
+      const data = new Core.AuxiliaryData();
+      const map = new Map();
+      map.set(103251n, {
         [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
           secondSwapData.datum as string,
           "0x"
         ),
       });
+      data.metadata()?.setMetadata(map);
+      tx.setAuxiliaryData(data);
     }
 
     return this.completeTx({
@@ -692,12 +775,15 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    */
   async cancel(
     cancelArgs: ICancelConfigArgs
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const { utxo, referralFee } = new CancelConfig(cancelArgs).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
-    const utxosToSpend = await this.lucid.provider.getUtxosByOutRef([
-      { outputIndex: utxo.index, txHash: utxo.hash },
+    const utxosToSpend = await this.blaze.provider.resolveUnspentOutputs([
+      new Core.TransactionInput(
+        Core.TransactionId(utxo.hash),
+        BigInt(utxo.index)
+      ),
     ]);
 
     if (!utxosToSpend) {
@@ -709,9 +795,13 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     }
 
     const spendingDatum =
-      utxosToSpend[0]?.datum ||
-      (utxosToSpend[0]?.datumHash &&
-        (await this.lucid.provider.getDatum(utxosToSpend[0].datumHash)));
+      utxosToSpend[0]?.output().datum()?.asInlineData() ||
+      (utxosToSpend[0]?.output().datum()?.asDataHash() &&
+        (await this.blaze.provider.resolveDatum(
+          Core.DatumHash(
+            utxosToSpend[0]?.output().datum()?.asDataHash() as string
+          )
+        )));
 
     if (!spendingDatum) {
       throw new Error(
@@ -724,34 +814,41 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
      * If not, then we can assume it is a normal V1 order, and call accordingly.
      */
     try {
-      Data.from(spendingDatum as string, OrderDatum);
+      Data.from(spendingDatum, OrderDatum);
     } catch (e) {
       console.log("This is a V1 order! Calling appropriate builder...");
-      const v1Builder = new TxBuilderLucidV1(
-        this.lucid,
+      const v1Builder = new TxBuilderBlazeV1(
+        this.blaze,
+        this.network,
         new DatumBuilderLucidV1(this.network)
       );
       return v1Builder.cancel({ ...cancelArgs });
     }
 
     const cancelReferenceInput = await this.getReferenceScript("order.spend");
-    const cancelReadFrom = await this.lucid.provider.getUtxosByOutRef([
-      {
-        outputIndex: cancelReferenceInput.txIn.index,
-        txHash: cancelReferenceInput.txIn.hash,
-      },
+    const cancelReadFrom = await this.blaze.provider.resolveUnspentOutputs([
+      new Core.TransactionInput(
+        Core.TransactionId(cancelReferenceInput.txIn.hash),
+        BigInt(cancelReferenceInput.txIn.index)
+      ),
     ]);
 
-    tx.collectFrom(utxosToSpend, VOID_REDEEMER).readFrom(cancelReadFrom);
+    utxosToSpend.forEach((utxo) => {
+      tx.addInput(utxo, Core.PlutusData.fromCbor(Core.HexBlob(VOID_REDEEMER)));
+    });
+    cancelReadFrom.forEach((utxo) => tx.addReferenceInput(utxo));
 
-    const signerKey = DatumBuilderLucidV3.getSignerKeyFromDatum(spendingDatum);
+    const signerKey = DatumBuilderLucidV3.getSignerKeyFromDatum(
+      spendingDatum.toCbor()
+    );
+
     if (signerKey) {
-      tx.addSignerKey(signerKey);
+      tx.addRequiredSigner(Core.Ed25519KeyHashHex(signerKey));
     }
 
     return this.completeTx({
       tx,
-      datum: spendingDatum as string,
+      datum: spendingDatum.toCbor(),
       deposit: 0n,
       scooperFee: 0n,
       referralFee: referralFee?.payment,
@@ -773,7 +870,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
   }: {
     cancelArgs: ICancelConfigArgs;
     swapArgs: ISwapConfigArgs;
-  }): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
+  }): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     /**
      * First, build the cancel transaction.
      */
@@ -802,16 +899,23 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       throw new Error("Swap datum is required.");
     }
 
-    cancelTx.payToContract(
-      await this.generateScriptAddress(
-        "order.spend",
-        orderAddresses.DestinationAddress.address
+    const payment = SundaeUtils.accumulateSuppliedAssets({
+      suppliedAssets: [suppliedAsset],
+      scooperFee: await this.getMaxScooperFeeAmount(),
+    });
+
+    cancelTx.lockAssets(
+      Core.addressFromBech32(
+        await this.generateScriptAddress(
+          "order.spend",
+          orderAddresses.DestinationAddress.address
+        )
       ),
-      { inline: swapDatum.inline },
-      SundaeUtils.accumulateSuppliedAssets({
-        suppliedAssets: [suppliedAsset],
-        scooperFee: await this.getMaxScooperFeeAmount(),
-      })
+      makeValue(
+        payment.lovelace,
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+      ),
+      Core.PlutusData.fromCbor(Core.HexBlob(swapDatum.inline))
     );
 
     /**
@@ -830,12 +934,15 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       }
 
       // Add to the transaction.
-      cancelTx.payToAddress(swapArgs.referralFee.destination, {
-        [SundaeUtils.isAdaAsset(swapArgs.referralFee.payment.metadata)
-          ? "lovelace"
-          : swapArgs.referralFee.payment.metadata.assetId]:
-          swapArgs.referralFee.payment.amount,
-      });
+      cancelTx.payAssets(
+        Core.addressFromBech32(swapArgs.referralFee.destination),
+        SundaeUtils.isAdaAsset(swapArgs.referralFee.payment.metadata)
+          ? makeValue(swapArgs.referralFee.payment.amount)
+          : makeValue(0n, [
+              swapArgs.referralFee.payment.metadata.assetId,
+              swapArgs.referralFee.payment.amount,
+            ])
+      );
     }
 
     return this.completeTx({
@@ -855,7 +962,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    */
   async deposit(
     depositArgs: IDepositConfigArgs
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const { suppliedAssets, pool, orderAddresses, referralFee } =
       new DepositConfig(depositArgs).buildArgs();
 
@@ -878,14 +985,20 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
-    tx.payToContract(
-      await this.generateScriptAddress(
-        "order.spend",
-        orderAddresses.DestinationAddress.address
+    tx.lockAssets(
+      Core.addressFromBech32(
+        await this.generateScriptAddress(
+          "order.spend",
+          orderAddresses.DestinationAddress.address
+        )
       ),
-      { inline },
-      payment
+      makeValue(
+        payment.lovelace,
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+      ),
+      Core.PlutusData.fromCbor(Core.HexBlob(inline))
     );
+
     return this.completeTx({
       tx,
       datum: inline,
@@ -903,7 +1016,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    */
   async withdraw(
     withdrawArgs: IWithdrawConfigArgs
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const { suppliedLPAsset, pool, orderAddresses, referralFee } =
       new WithdrawConfig(withdrawArgs).buildArgs();
 
@@ -923,14 +1036,20 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
-    tx.payToContract(
-      await this.generateScriptAddress(
-        "order.spend",
-        orderAddresses.DestinationAddress.address
+    tx.lockAssets(
+      Core.addressFromBech32(
+        await this.generateScriptAddress(
+          "order.spend",
+          orderAddresses.DestinationAddress.address
+        )
       ),
-      { inline },
-      payment
+      makeValue(
+        payment.lovelace,
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+      ),
+      Core.PlutusData.fromCbor(Core.HexBlob(inline))
     );
+
     return this.completeTx({
       tx,
       datum: inline,
@@ -948,7 +1067,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    */
   async zap(
     zapArgs: Omit<IZapConfigArgs, "zapDirection">
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const zapDirection = SundaeUtils.getAssetSwapDirection(
       zapArgs.suppliedAsset.metadata,
       [zapArgs.pool.assetA, zapArgs.pool.assetB]
@@ -1052,20 +1171,29 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
-    tx.attachMetadataWithConversion(103251, {
+    const data = new Core.AuxiliaryData();
+    const map = new Map();
+    map.set(103251n, {
       [`0x${depositData.hash}`]: SundaeUtils.splitMetadataString(
         depositData.inline,
         "0x"
       ),
     });
+    data.metadata()?.setMetadata(map);
+    tx.setAuxiliaryData(data);
 
-    tx.payToContract(
-      await this.generateScriptAddress(
-        "order.spend",
-        orderAddresses.DestinationAddress.address
+    tx.lockAssets(
+      Core.addressFromBech32(
+        await this.generateScriptAddress(
+          "order.spend",
+          orderAddresses.DestinationAddress.address
+        )
       ),
-      { inline },
-      payment
+      makeValue(
+        payment.lovelace,
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+      ),
+      Core.PlutusData.fromCbor(Core.HexBlob(inline))
     );
 
     return this.completeTx({
@@ -1089,33 +1217,39 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     ownerAddress?: string
   ): Promise<string> {
     const { hash } = await this.getValidatorScript(type);
-    const paymentCred = this.lucid.utils.scriptHashToCredential(hash);
-    const orderAddress = this.lucid.utils.credentialToAddress(paymentCred);
+
+    const orderAddress = Core.addressFromCredential(
+      this.network === "mainnet" ? 1 : 0,
+      Core.Credential.fromCore({
+        hash: Core.Hash28ByteBase16(hash),
+        type: Core.CredentialType.ScriptHash,
+      })
+    ).toBech32();
 
     if (!ownerAddress) {
       return orderAddress;
     }
 
-    const paymentStakeCred = C.StakeCredential.from_scripthash(
-      C.ScriptHash.from_hex(hash)
-    );
-    const ownerStakeCred =
-      ownerAddress &&
-      C.Address.from_bech32(ownerAddress).as_base()?.stake_cred();
+    const paymentStakeCred = Core.Hash28ByteBase16(hash);
+    const ownerStakeCred = ownerAddress
+      ? Core.addressFromBech32(ownerAddress).asBase()?.getStakeCredential()
+      : undefined;
 
     if (!ownerStakeCred) {
       return orderAddress;
     }
 
-    const newAddress = C.BaseAddress.new(
-      this.network === "mainnet" ? 1 : 0,
-      paymentStakeCred,
-      ownerStakeCred
-    ).to_address();
+    const newAddress = new Core.Address({
+      type: Core.AddressType.BasePaymentKeyStakeKey,
+      paymentPart: {
+        hash: paymentStakeCred,
+        type: Core.CredentialType.ScriptHash,
+      },
+      delegationPart: ownerStakeCred,
+      networkId: this.network === "mainnet" ? 1 : 0,
+    }).toBech32();
 
-    return newAddress.to_bech32(
-      this.network === "mainnet" ? "addr" : "addr_test"
-    );
+    return newAddress;
   }
 
   /**
@@ -1127,15 +1261,18 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    * because the first UTXO in the sorted list is the seed (used for generating a unique pool ident, etc).
    * @throws {Error} Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
    */
-  public async getUtxosForPoolMint(): Promise<UTxO[]> {
-    const utxos = await this.lucid.wallet.getUtxos();
+  public async getUtxosForPoolMint(): Promise<Core.TransactionUnspentOutput[]> {
+    const utxos = await this.blaze.wallet.getUnspentOutputs();
     const sortedUtxos = utxos.sort((a, b) => {
       // Sort by txHash first.
-      if (a.txHash < b.txHash) return -1;
-      if (a.txHash > b.txHash) return 1;
+      if (a.input().transactionId() < b.input().transactionId()) return -1;
+      if (a.input().transactionId() > b.input().transactionId()) return 1;
 
       // Sort by their index.
-      return a.outputIndex - b.outputIndex;
+      return (
+        Number(a.input().index().toString()) -
+        Number(b.input().index().toString())
+      );
     });
 
     return sortedUtxos;
@@ -1147,10 +1284,10 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     referralFee,
     deposit,
     scooperFee,
-    coinSelection = true,
-    nativeUplc = true,
-  }: ITxBuilderLucidCompleteTxArgs): Promise<
-    IComposedTx<Tx, TxComplete, Datum | undefined>
+  }: // coinSelection = true,
+  // nativeUplc = true,
+  ITxBuilderLucidCompleteTxArgs): Promise<
+    IComposedTx<BlazeTx, Core.Transaction, Datum | undefined>
   > {
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
@@ -1161,37 +1298,40 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       referral: referralFee,
     };
 
-    const txFee = tx.txBuilder.get_fee_if_set();
-    let finishedTx: TxComplete | undefined;
+    let finishedTx: Core.Transaction | undefined;
+    const that = this;
 
-    const thisTx: IComposedTx<Tx, TxComplete, Datum | undefined> = {
+    const thisTx: IComposedTx<BlazeTx, Core.Transaction, Datum | undefined> = {
       tx,
       datum,
       fees: baseFees,
       async build() {
         if (!finishedTx) {
-          finishedTx = await tx.complete({ coinSelection, nativeUplc });
+          finishedTx = await tx.complete();
           thisTx.fees.cardanoTxFee = new AssetAmount(
-            BigInt(txFee?.to_str() ?? finishedTx?.fee?.toString() ?? "0"),
+            BigInt(finishedTx?.body().fee()?.toString() ?? "0"),
             ADA_METADATA
           );
         }
 
         return {
-          cbor: Buffer.from(finishedTx.txComplete.to_bytes()).toString("hex"),
+          cbor: finishedTx.toCbor(),
           builtTx: finishedTx,
           sign: async () => {
-            const signedTx = await (finishedTx as TxComplete).sign().complete();
+            const signedTx = await that.blaze.signTransaction(
+              finishedTx as Core.Transaction
+            );
+
             return {
-              cbor: Buffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
+              cbor: signedTx.toCbor(),
               submit: async () => {
                 try {
-                  return await signedTx.submit();
+                  return await that.blaze.submitTransaction(signedTx);
                 } catch (e) {
                   console.log(
-                    `Could not submit order. Signed transaction CBOR: ${Buffer.from(
-                      signedTx.txSigned.body().to_bytes()
-                    ).toString("hex")}`
+                    `Could not submit order. Signed transaction CBOR: ${signedTx
+                      .body()
+                      .toCbor()}`
                   );
                   throw e;
                 }
