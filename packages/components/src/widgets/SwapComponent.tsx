@@ -6,6 +6,7 @@ import {
 import type { EContractVersion, IPoolData } from "@sundaeswap/core";
 import { useMemo, type FC } from "react";
 
+import { SundaeUtils } from "@sundaeswap/core/utilities";
 import { ErrorWrap } from "../components/ErrorWrap.js";
 import { WidgetContainer } from "../components/WidgetContainer.js";
 import { OrderContextProvider } from "../state/OrderContext/context.js";
@@ -15,27 +16,41 @@ export interface ISwapWidgetProps {
   settings: {
     // Defaults to ADA
     givenAssetMetadata?: IAssetAmountMetadata;
-    takenAssetMetadata: IAssetAmountMetadata;
     pool: IPoolData;
   };
 }
 
 export const SwapComponent: FC<ISwapWidgetProps> = ({ settings }) => {
   const seed: IOrderContextProviderProps["seed"] = useMemo(() => {
+    let givenAssetMetadata: IAssetAmountMetadata = settings.pool.assetA;
+    let takenAssetMetadata: IAssetAmountMetadata = settings.pool.assetB;
+
+    if (
+      settings.givenAssetMetadata &&
+      SundaeUtils.isAssetIdsEqual(
+        settings.givenAssetMetadata.assetId,
+        settings.pool.assetB.assetId
+      )
+    ) {
+      givenAssetMetadata = settings.pool.assetB;
+      takenAssetMetadata = settings.pool.assetA;
+    }
+
     return {
       assets: {
-        given: new AssetAmount(0n, settings.givenAssetMetadata),
-        taken: new AssetAmount(0n, settings.takenAssetMetadata),
+        given: new AssetAmount(0n, givenAssetMetadata),
+        taken: new AssetAmount(0n, takenAssetMetadata),
       },
       ratio: new AssetRatio(
         new AssetAmount(
           settings.pool.liquidity.aReserve,
-          settings.givenAssetMetadata
+          settings.pool.assetA as IAssetAmountMetadata
         ),
         new AssetAmount(
           settings.pool.liquidity.bReserve,
-          settings.takenAssetMetadata
-        )
+          settings.pool.assetB as IAssetAmountMetadata
+        ),
+        settings.pool
       ),
       flowData: {
         contractVersion: settings.pool.version as EContractVersion,

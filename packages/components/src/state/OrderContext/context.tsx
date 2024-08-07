@@ -1,3 +1,4 @@
+import { EContractVersion } from "@sundaeswap/core";
 import merge from "lodash/merge";
 import {
   Context,
@@ -9,15 +10,14 @@ import {
   useReducer,
 } from "react";
 
-import { EContractVersion } from "@sundaeswap/core";
-import { useOrderEffects } from "./hooks/useOrderEffects";
-import { reducer } from "./reducer";
+import { useOrderEffects } from "./hooks/useOrderEffects.js";
+import { reducer } from "./reducer.js";
 import {
   EOrderFlowState,
   IOrderContext,
   IOrderContextProviderProps,
   IOrderState,
-} from "./types";
+} from "./types.js";
 
 export const defaultOrderState: IOrderState = {
   assets: {},

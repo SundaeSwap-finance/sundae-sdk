@@ -65,6 +65,7 @@
     "@sundaeswap/asset": "^1.0.6",
     "@sundaeswap/cpp": "^1.0.7",
     "@sundaeswap/core": "^1.2.9",
+    "@sundaeswap/fraction": "^1.0.5",
     "lucid-cardano": "^0.10.7",
     "react": "18.3.1",
     "react-dom": "18.3.1",

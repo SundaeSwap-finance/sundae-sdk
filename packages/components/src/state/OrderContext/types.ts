@@ -1,4 +1,8 @@
-import { AssetAmount, AssetRatio } from "@sundaeswap/asset";
+import {
+  AssetAmount,
+  AssetRatio,
+  IAssetAmountMetadata,
+} from "@sundaeswap/asset";
 import {
   EContractVersion,
   IComposedTx,
@@ -8,7 +12,6 @@ import { TSwapOutcome } from "@sundaeswap/cpp";
 import type { Tx, TxComplete } from "lucid-cardano";
 import { Dispatch, ReactNode } from "react";
 
-import { IAssetMetadata } from "../../types/assets.js";
 import { TDeepPartial } from "../../types/misc.js";
 
 export enum EOrderActions {
@@ -81,11 +84,11 @@ export interface IOrderFlowConsent {
 
 export interface IOrderState {
   assets: {
-    given?: AssetAmount<IAssetMetadata>;
-    taken?: AssetAmount<IAssetMetadata>;
+    given?: AssetAmount<IAssetAmountMetadata>;
+    taken?: AssetAmount<IAssetAmountMetadata>;
   };
   derived: {
-    adaAfterSwap?: AssetAmount<IAssetMetadata>;
+    adaAfterSwap?: AssetAmount<IAssetAmountMetadata>;
     givenExceedsBalance: boolean;
     swapOutcome?: TSwapOutcome[];
     takenExceedsReserves: boolean;
@@ -96,7 +99,7 @@ export interface IOrderState {
     orderConsent: IOrderFlowConsent;
     contractVersion: EContractVersion; // TODO: remove
   };
-  ratio?: AssetRatio<IAssetMetadata>;
+  ratio?: AssetRatio<IAssetAmountMetadata>;
 }
 
 export interface IOrderContext {

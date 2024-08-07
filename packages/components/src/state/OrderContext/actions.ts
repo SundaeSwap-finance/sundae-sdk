@@ -2,7 +2,7 @@ import { AssetAmount, AssetRatio } from "@sundaeswap/asset";
 import { EContractVersion } from "@sundaeswap/core";
 import { Dispatch } from "react";
 
-import { IAssetMetadata } from "../../types/assets";
+import { IAssetMetadata } from "../../types/assets.js";
 import {
   EOrderActions,
   EOrderFlowState,
@@ -10,7 +10,7 @@ import {
   IOrderAction,
   IOrderFlowConsent,
   IOrderStateTransaction,
-} from "./types";
+} from "./types.js";
 
 type TActionFunc<T> = (
   value: T,

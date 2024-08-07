@@ -1,27 +1,18 @@
-import { AssetAmount, AssetRatio } from "@sundaeswap/asset";
+import { AssetAmount } from "@sundaeswap/asset";
+import { ADA_METADATA, IPoolData } from "@sundaeswap/core";
+import { SundaeUtils } from "@sundaeswap/core/utilities";
 import { TSwapOutcome, getSwapOutput } from "@sundaeswap/cpp";
 
-import { ADA_METADATA } from "../../constants/cardano.constants";
-import { IAssetMetaData } from "../../types/Asset.types";
-import { TPool } from "../../types/Pool.types";
-import { isSameAsset } from "../../utils/assets.utils";
-import {
-  calculateRouteRatio,
-  getApplicableFee,
-  getAssetReserve,
-  getPoolPairAssetIds,
-} from "../../utils/pool.utils";
 import {
   EOrderActions,
   EOrderFlowState,
-  EOrderType,
   IOrderAction,
   IOrderState,
-} from "./types";
+} from "./types.js";
 import {
   calculateGivenAmountFromTaken,
   calculateTakenAmountFromGiven,
-} from "./utils/calculateAssetAmounts";
+} from "./utils.js";
 
 /**
  * Reducer function for managing state in the application. It takes the current state and an action,
@@ -34,7 +25,7 @@ import {
  */
 export const reducer = (
   prevState: IOrderState,
-  action: IOrderAction,
+  action: IOrderAction
 ): IOrderState => {
   let newState: IOrderState;
 
@@ -51,8 +42,11 @@ export const reducer = (
         prevState?.assets?.taken?.metadata?.assetId,
       ].sort();
       const prevPoolIds =
-        prevState?.orderRoute &&
-        getPoolPairAssetIds(prevState.orderRoute).sort();
+        prevState?.ratio?.pool &&
+        [
+          prevState.ratio.pool.assetA.assetId,
+          prevState.ratio.pool.assetB.assetId,
+        ].sort();
 
       newState = {
         ...prevState,
@@ -62,26 +56,11 @@ export const reducer = (
             newGroupIds?.toString() === prevPoolIds?.toString()
               ? calculateTakenAmountFromGiven({
                   given: action.payload.given,
-                  orderRoute: prevState?.orderRoute,
-                  ratio: prevState?.ratio,
                   taken: prevState.assets?.taken,
-                  isLimitOrder:
-                    prevState?.flowData?.orderType === EOrderType.limit,
+                  pool: prevState?.ratio?.pool as IPoolData,
                 })
               : prevState.assets?.taken?.withAmount(0n),
         },
-      };
-      break;
-    }
-
-    /**
-     * In case we are spending a UTXO that is not our wallet,
-     * we need an easy way to retrieve this throughout the UI.
-     */
-    case EOrderActions.SET_GIVEN_UTXO_AMOUNT: {
-      newState = {
-        ...prevState,
-        givenUtxoAmount: action.payload.givenUtxoAmount,
       };
       break;
     }
@@ -98,8 +77,11 @@ export const reducer = (
         prevState?.assets?.given?.metadata?.assetId,
       ].sort();
       const prevPoolIds =
-        prevState?.orderRoute &&
-        getPoolPairAssetIds(prevState.orderRoute).sort();
+        prevState?.ratio?.pool &&
+        [
+          prevState.ratio.pool.assetA.assetId,
+          prevState.ratio.pool.assetB.assetId,
+        ].sort();
 
       newState = {
         ...prevState,
@@ -109,11 +91,8 @@ export const reducer = (
             newGroupIds?.toString() === prevPoolIds?.toString()
               ? calculateGivenAmountFromTaken({
                   given: prevState.assets?.given,
-                  orderRoute: prevState?.orderRoute,
-                  ratio: prevState?.ratio,
                   taken: action.payload.taken,
-                  isLimitOrder:
-                    prevState?.flowData?.orderType === EOrderType.limit,
+                  pool: prevState?.ratio?.pool as IPoolData,
                 })
               : prevState.assets?.given,
         },
@@ -128,10 +107,8 @@ export const reducer = (
     case EOrderActions.SET_RATIO: {
       const calculatedTakenAmount = calculateTakenAmountFromGiven({
         given: prevState.assets?.given,
-        orderRoute: prevState?.orderRoute,
-        ratio: action.payload.ratio,
+        pool: prevState?.ratio?.pool as IPoolData,
         taken: prevState.assets?.taken,
-        isLimitOrder: true,
       });
 
       newState = {
@@ -141,72 +118,6 @@ export const reducer = (
           ...prevState.assets,
           taken: calculatedTakenAmount,
         },
-      };
-      break;
-    }
-
-    case EOrderActions.UNSET_ORDER_ROUTE: {
-      newState = {
-        ...prevState,
-        orderRoute: undefined,
-        ratio:
-          prevState?.ratio &&
-          new AssetRatio(
-            prevState.ratio.numerator,
-            prevState.ratio.denominator,
-          ),
-      };
-      break;
-    }
-
-    case EOrderActions.SET_ORDER_ROUTE: {
-      const orderRoute = action.payload.orderRoute as TPool[];
-
-      let assets = prevState.assets;
-      if (orderRoute?.length === 1) {
-        const pool = orderRoute[0];
-
-        if (!assets?.given && !assets?.taken) {
-          assets = {
-            given: new AssetAmount<IAssetMetaData>(0n, pool.assetA),
-            taken: new AssetAmount<IAssetMetaData>(0n, pool.assetB),
-          };
-        } else {
-          // Ensure new asset metadata is updated if required.
-          if (
-            assets.given &&
-            ![pool.assetA.assetId, pool.assetB.assetId].includes(
-              assets.given.metadata.assetId,
-            )
-          ) {
-            assets.given = assets.given.withMetadata(pool.assetA);
-          }
-
-          if (
-            assets.taken &&
-            ![pool.assetA.assetId, pool.assetB.assetId].includes(
-              assets.taken.metadata.assetId,
-            )
-          ) {
-            assets.taken = assets.taken.withMetadata(pool.assetB);
-          }
-        }
-      }
-
-      const { given, taken } = assets;
-
-      const calculatedRatio = calculateRouteRatio({
-        given: given?.metadata.assetId,
-        inputAmount: given?.amount,
-        orderRoute,
-        taken: taken?.metadata.assetId,
-      });
-
-      newState = {
-        ...prevState,
-        assets,
-        orderRoute,
-        ratio: calculatedRatio,
       };
       break;
     }
@@ -321,52 +232,9 @@ export const reducer = (
         ...prevState,
         assets: { given: new AssetAmount(0n, ADA_METADATA), taken: undefined },
         ratio: undefined,
-        orderRoute: undefined,
         flowData: {
           ...prevState.flowData,
           flowState: EOrderFlowState.reset,
-        },
-      };
-      break;
-    }
-
-    /**
-     * Sets the order type to either `limit` or `market`.
-     */
-    case EOrderActions.SET_ORDER_TYPE: {
-      const calculatedTaken = calculateTakenAmountFromGiven({
-        given: prevState?.assets?.given,
-        orderRoute: prevState?.orderRoute,
-        ratio: prevState?.ratio,
-        taken: prevState?.assets?.taken,
-        isLimitOrder: action.payload.orderType === EOrderType.limit,
-      });
-
-      newState = {
-        ...prevState,
-        assets: {
-          ...prevState.assets,
-          taken: calculatedTaken || prevState.assets?.taken,
-        },
-        flowData: {
-          ...prevState.flowData,
-          orderType: action.payload.orderType,
-        },
-      };
-      break;
-    }
-
-    /**
-     * Sets the fetching pool boolean. This is usually used
-     * when new order information is received and we have to
-     * fetch pool data in response.
-     */
-    case EOrderActions.SET_FETCHING_POOL: {
-      newState = {
-        ...prevState,
-        flowData: {
-          ...prevState.flowData,
-          fetchingPool: action.payload.fetchingPool,
         },
       };
       break;
@@ -379,10 +247,8 @@ export const reducer = (
       const newTaken = prevState.assets?.given
         ? calculateTakenAmountFromGiven({
             given: prevState.assets?.taken,
-            isLimitOrder: prevState?.flowData?.orderType === EOrderType.limit,
             taken: prevState.assets?.given,
-            orderRoute: prevState?.orderRoute,
-            ratio: prevState?.ratio,
+            pool: prevState?.ratio?.pool as IPoolData,
           })
         : prevState.assets?.taken;
 
@@ -432,114 +298,37 @@ export const reducer = (
   let takenExceedsReserves: boolean = false;
 
   if (
-    newState.orderRoute &&
+    newState.ratio?.pool &&
     newState.assets?.given &&
     newState.assets.given.amount > 0n
   ) {
-    if (newState.orderRoute.length === 1) {
-      const pool = newState.orderRoute[0];
-      if (
-        typeof pool.quantityA === "string" &&
-        typeof pool.quantityB === "string"
-      ) {
-        const givenReserve = isSameAsset(
-          newState.assets.given.metadata,
-          pool.assetA,
-        )
-          ? BigInt(pool.quantityA)
-          : BigInt(pool.quantityB);
-        const takenReserve = isSameAsset(
-          newState.assets.given.metadata,
-          pool.assetA,
-        )
-          ? BigInt(pool.quantityB)
-          : BigInt(pool.quantityA);
+    const pool = newState.ratio.pool as IPoolData;
+    if (pool.liquidity.aReserve && pool.liquidity.bReserve) {
+      const givenReserve = SundaeUtils.isAssetIdsEqual(
+        newState.assets.given.metadata.assetId,
+        pool.assetA.assetId
+      )
+        ? pool.liquidity.aReserve
+        : pool.liquidity.bReserve;
+      const takenReserve = SundaeUtils.isAssetIdsEqual(
+        newState.assets.given.metadata.assetId,
+        pool.assetA.assetId
+      )
+        ? pool.liquidity.bReserve
+        : pool.liquidity.aReserve;
 
-        const newSwapOutcome = getSwapOutput(
-          newState.assets.given.amount,
-          givenReserve,
-          takenReserve,
-          getApplicableFee({
-            pool,
-            givenAssetId: newState.assets.given.metadata.assetId,
-          }).toNumber(),
-        );
-
-        swapOutcome = [newSwapOutcome];
-        if (newState.assets?.taken) {
-          takenExceedsReserves =
-            newSwapOutcome.output > takenReserve ||
-            newState.assets.taken.amount > takenReserve;
-        }
-      }
-    } else {
-      const firstPool = newState.orderRoute[0];
-      const { firstInputAsset, firstOutputAsset } =
-        newState.assets.given.metadata.assetId === firstPool.assetA.assetId
-          ? {
-              firstInputAsset: firstPool.assetA,
-              firstOutputAsset: firstPool.assetB,
-            }
-          : {
-              firstInputAsset: firstPool.assetB,
-              firstOutputAsset: firstPool.assetA,
-            };
-
-      const firstInputReserve = getAssetReserve(
-        new AssetAmount(1, firstInputAsset),
-        firstPool,
-      );
-      const firstOutputReserve = getAssetReserve(
-        new AssetAmount(1, firstOutputAsset),
-        firstPool,
-      );
-
-      const firstSwapOutcome = getSwapOutput(
+      const newSwapOutcome = getSwapOutput(
         newState.assets.given.amount,
-        firstInputReserve,
-        firstOutputReserve,
-        getApplicableFee({
-          pool: firstPool,
-          givenAssetId: firstInputAsset.assetId,
-        }).toNumber(),
+        givenReserve,
+        takenReserve,
+        pool.currentFee
       );
 
-      const secondPool = newState.orderRoute[1];
-      const { secondInputAsset, secondOutputAsset } =
-        newState.assets.taken?.metadata.assetId === secondPool.assetA.assetId
-          ? {
-              secondOutputAsset: secondPool.assetA,
-              secondInputAsset: secondPool.assetB,
-            }
-          : {
-              secondOutputAsset: secondPool.assetB,
-              secondInputAsset: secondPool.assetA,
-            };
-
-      const secondInputReserve = getAssetReserve(
-        new AssetAmount(1, secondInputAsset),
-        secondPool,
-      );
-      const secondOutputReserve = getAssetReserve(
-        new AssetAmount(1, secondOutputAsset),
-        secondPool,
-      );
-      const secondSwapOutcome = getSwapOutput(
-        firstSwapOutcome.output,
-        secondInputReserve,
-        secondOutputReserve,
-        getApplicableFee({
-          pool: secondPool,
-          givenAssetId: secondInputAsset.assetId,
-        }).toNumber(),
-      );
-
-      swapOutcome = [firstSwapOutcome, secondSwapOutcome];
+      swapOutcome = [newSwapOutcome];
       if (newState.assets?.taken) {
         takenExceedsReserves =
-          firstSwapOutcome.output > firstOutputReserve ||
-          secondSwapOutcome.output > secondOutputReserve ||
-          newState.assets.taken.amount > secondOutputReserve;
+          newSwapOutcome.output > takenReserve ||
+          newState.assets.taken.amount > takenReserve;
       }
     }
   }

@@ -1,5 +1,5 @@
-import { useAdaAfterSwap } from "./useAdaAfterSwap";
-import { useGivenExceedsBalance } from "./useGivenExceedsBalance";
+import { useAdaAfterSwap } from "./useAdaAfterSwap.js";
+import { useGivenExceedsBalance } from "./useGivenExceedsBalance.js";
 // import { useOrderConsentI18nKey } from "./useOrderConsentI18nKey";
 
 /**

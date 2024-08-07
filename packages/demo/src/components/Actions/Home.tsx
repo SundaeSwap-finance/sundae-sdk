@@ -1,6 +1,6 @@
-import { ITxBuilderFees } from "@sundaeswap/core";
+import { IPoolData, ITxBuilderFees } from "@sundaeswap/core";
 import { TTasteTestFees } from "@sundaeswap/taste-test";
-import { Dispatch, FC, SetStateAction, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 
 import {
   SundaeComponentsProvider,
@@ -8,7 +8,7 @@ import {
 } from "@sundaeswap/components";
 import { useAppState } from "../../state/context";
 import Button from "../Button";
-import Actions from "./Actions";
+import Actions, { poolQuery } from "./Actions";
 
 interface ICBOR {
   cbor: string;
@@ -34,6 +34,18 @@ export const Home: FC = () => {
   const [fees, setFees] = useState<ITxBuilderFees | TTasteTestFees>();
   const [submit, setSubmit] = useState(false);
   const [useWidgets, setUseWidgets] = useState(false);
+  const [pool, setPool] = useState<IPoolData>();
+
+  useEffect(() => {
+    if (!SDK) {
+      return;
+    }
+
+    (async () => {
+      const pool = await SDK.query().findPoolData(poolQuery);
+      pool && setPool(pool);
+    })();
+  }, [SDK, setPool]);
 
   return (
     <div className="p-4">
@@ -42,9 +54,13 @@ export const Home: FC = () => {
       </Button>
       {useWidgets ? (
         <div className="flex justify-between">
-          {SDK && (
+          {SDK && pool && (
             <SundaeComponentsProvider sdk={SDK}>
-              <SwapComponent />
+              <SwapComponent
+                settings={{
+                  pool,
+                }}
+              />
             </SundaeComponentsProvider>
           )}
         </div>
