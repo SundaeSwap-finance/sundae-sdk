@@ -6,11 +6,12 @@ import {
   ETxBuilderType,
   ISundaeSDKOptions,
 } from "../@types/index.js";
+import { windowCardano } from "../exports/testing.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeSDK } from "../SundaeSDK.class.js";
+import { setupLucid } from "../TestUtilities/setupLucid.js";
 import { TxBuilderLucidV1 } from "../TxBuilders/TxBuilder.Lucid.V1.class.js";
 import { TxBuilderLucidV3 } from "../TxBuilders/TxBuilder.Lucid.V3.class.js";
-import { setupLucid, windowCardano } from "../exports/testing.js";
 
 let lucidInstance: Lucid;
 let defaultWallet: ISundaeSDKOptions["wallet"];

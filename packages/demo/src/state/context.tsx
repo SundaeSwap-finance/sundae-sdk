@@ -55,7 +55,7 @@ export const AppStateProvider: FC<
   const [useReferral, setUseReferral] = useState(false);
   const [useV3Contracts, setUseV3Contracts] = useState(false);
   const [builderLib, setBuilderLib] = useState<ETxBuilderType>(
-    ETxBuilderType.LUCID
+    ETxBuilderType.BLAZE
   );
 
   useEffect(() => {

@@ -3,7 +3,7 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   IDepositConfigArgs,
   IPoolData,
-  TOrderAddresses,
+  TOrderAddressesArgs,
 } from "../@types/index.js";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
 
@@ -36,7 +36,7 @@ export class DepositConfig extends OrderConfig<IDepositConfigArgs> {
     this.validate();
 
     return {
-      orderAddresses: this.orderAddresses as TOrderAddresses,
+      orderAddresses: this.orderAddresses as TOrderAddressesArgs,
       pool: this.pool as IPoolData,
       suppliedAssets: this.suppliedAssets as [
         AssetAmount<IAssetAmountMetadata>,

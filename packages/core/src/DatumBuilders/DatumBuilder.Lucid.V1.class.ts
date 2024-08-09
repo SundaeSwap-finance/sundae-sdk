@@ -10,7 +10,7 @@ import {
   TDatumResult,
   TDepositMixed,
   TDepositSingle,
-  TOrderAddresses,
+  TOrderAddressesArgs,
   TSupportedNetworks,
   TSwap,
 } from "../@types/index.js";
@@ -233,7 +233,7 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
     };
   }
 
-  buildOrderAddresses(addresses: TOrderAddresses): TDatumResult<Data> {
+  buildOrderAddresses(addresses: TOrderAddressesArgs): TDatumResult<Data> {
     LucidHelper.validateAddressAndDatumAreValid({
       ...addresses.DestinationAddress,
       network: this.network,
@@ -252,6 +252,12 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
     const destination = LucidHelper.getAddressHashes(
       DestinationAddress.address
     );
+
+    if (DestinationAddress.datum.type === EDatumType.INLINE) {
+      throw new Error(
+        "Inline datum types are not supported in V1 contracts! Convert this to a hash."
+      );
+    }
 
     const destinationDatum = new Constr(0, [
       new Constr(0, [

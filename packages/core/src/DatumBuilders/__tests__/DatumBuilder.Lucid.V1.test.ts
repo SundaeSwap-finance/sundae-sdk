@@ -1,11 +1,11 @@
 import { jest } from "@jest/globals";
 
-import { EDatumType, TOrderAddresses } from "../../@types/datumbuilder.js";
+import { EDatumType, TOrderAddressesArgs } from "../../@types/datumbuilder.js";
 import { PREVIEW_DATA } from "../../TestUtilities/mockData.js";
 import { LucidHelper } from "../../exports/lucid.js";
 import { DatumBuilderLucidV1 } from "../DatumBuilder.Lucid.V1.class.js";
 
-const DEFAULT_ORDER_ADDRESSES: TOrderAddresses = {
+const DEFAULT_ORDER_ADDRESSES: TOrderAddressesArgs = {
   DestinationAddress: {
     datum: {
       type: EDatumType.NONE,

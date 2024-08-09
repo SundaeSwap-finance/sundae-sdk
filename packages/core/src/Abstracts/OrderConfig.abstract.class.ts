@@ -1,4 +1,4 @@
-import { IPoolData, TOrderAddresses } from "../@types/index.js";
+import { IPoolData, TOrderAddressesArgs } from "../@types/index.js";
 import { Config } from "./Config.abstract.class.js";
 
 /**
@@ -16,14 +16,14 @@ export abstract class OrderConfig<Args = {}> extends Config<Args> {
   /**
    * The addresses for the order.
    */
-  orderAddresses?: TOrderAddresses;
+  orderAddresses?: TOrderAddressesArgs;
 
   /**
    * Set the {@link Core.TOrderAddresses} for a swap's required datum.
-   * @param {TOrderAddresses} orderAddresses - The addresses for the order.
+   * @param {TOrderAddressesArgs} orderAddresses - The addresses for the order.
    * @returns {OrderConfig} The current instance of the class.
    */
-  setOrderAddresses(orderAddresses: TOrderAddresses) {
+  setOrderAddresses(orderAddresses: TOrderAddressesArgs) {
     this.orderAddresses = orderAddresses;
     return this;
   }

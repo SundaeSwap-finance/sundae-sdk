@@ -4,7 +4,7 @@ import {
   ESwapType,
   IPoolData,
   ISwapConfigArgs,
-  TOrderAddresses,
+  TOrderAddressesArgs,
 } from "../@types/index.js";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
@@ -79,7 +79,7 @@ export class SwapConfig extends OrderConfig<
     return {
       pool: this.pool as IPoolData,
       suppliedAsset: this.suppliedAsset as AssetAmount<IAssetAmountMetadata>,
-      orderAddresses: this.orderAddresses as TOrderAddresses,
+      orderAddresses: this.orderAddresses as TOrderAddressesArgs,
       minReceivable: this.minReceivable as AssetAmount<IAssetAmountMetadata>,
       referralFee: this.referralFee,
     };

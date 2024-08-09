@@ -3,7 +3,7 @@ import {
   EPoolCoin,
   IPoolData,
   IZapConfigArgs,
-  TOrderAddresses,
+  TOrderAddressesArgs,
 } from "../@types/index.js";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
 
@@ -40,7 +40,7 @@ export class ZapConfig extends OrderConfig<IZapConfigArgs> {
     this.validate();
 
     return {
-      orderAddresses: this.orderAddresses as TOrderAddresses,
+      orderAddresses: this.orderAddresses as TOrderAddressesArgs,
       pool: this.pool as IPoolData,
       suppliedAsset: this.suppliedAsset as AssetAmount<IAssetAmountMetadata>,
       zapDirection: this.zapDirection as EPoolCoin,

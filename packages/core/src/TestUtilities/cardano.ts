@@ -3,7 +3,7 @@
 import { jest } from "@jest/globals";
 import type { ProtocolParameters, WalletApi } from "lucid-cardano";
 
-import { TSupportedNetworks } from "../@types/utilities.js";
+import type { TSupportedNetworks } from "../@types/utilities.js";
 
 export interface WalletAPIResponses {
   balance: string;

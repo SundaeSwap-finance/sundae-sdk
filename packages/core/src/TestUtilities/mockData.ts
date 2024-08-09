@@ -1,7 +1,7 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { Assets, UTxO } from "lucid-cardano";
+import type { Assets, UTxO } from "lucid-cardano";
 
-import { EDatumType, TOrderAddresses } from "../@types/datumbuilder.js";
+import { EDatumType, TOrderAddressesArgs } from "../@types/datumbuilder.js";
 import { IPoolData } from "../@types/queryprovider.js";
 import { EContractVersion } from "../@types/txbuilders.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
@@ -23,7 +23,7 @@ interface INetworkData {
     v1LpToken: AssetAmount<IAssetAmountMetadata>;
     v3LpToken: AssetAmount<IAssetAmountMetadata>;
   };
-  orderAddresses: TOrderAddresses;
+  orderAddresses: TOrderAddressesArgs;
   wallet: {
     assets: Assets;
     utxos: UTxO[];

@@ -3,6 +3,7 @@ import { AssetAmount } from "@sundaeswap/asset";
 import { C, Lucid, Tx } from "lucid-cardano";
 
 import { DatumBuilderLucidV1 } from "../../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
+import { setupLucid } from "../../TestUtilities/setupLucid.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../../constants.js";
 import {
   EContractVersion,
@@ -12,7 +13,7 @@ import {
   ITxBuilderFees,
   QueryProviderSundaeSwap,
 } from "../../exports/core.js";
-import { PREVIEW_DATA, setupLucid } from "../../exports/testing.js";
+import { PREVIEW_DATA } from "../../exports/testing.js";
 import { TxBuilderLucidV1 } from "../TxBuilder.Lucid.V1.class.js";
 import { TxBuilderLucidV3 } from "../TxBuilder.Lucid.V3.class.js";
 import { params, settingsUtxos } from "./data/mockData.js";

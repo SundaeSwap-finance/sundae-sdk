@@ -14,7 +14,6 @@ import { useAppState } from "../../state/context";
 import { CancelSwap } from "./modules/CancelSwap";
 import { CreatePool } from "./modules/CreatePool";
 import { Deposit } from "./modules/Deposit";
-import { DepositTasteTest } from "./modules/DepositTasteTest";
 import { Lock } from "./modules/LockAssets";
 import { Migrate } from "./modules/MigrateV1LiquidityToV3";
 import { OrderRouting } from "./modules/OrderRouting";
@@ -22,9 +21,7 @@ import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
 import { Unlock } from "./modules/UnlockAssets";
 import { UpdateSwap } from "./modules/UpdateSwap";
-import { UpdateTasteTest } from "./modules/UpdateTasteTest";
 import { Withdraw } from "./modules/Withdraw";
-import { WithdrawTasteTest } from "./modules/WithdrawTasteTest";
 import { Zap } from "./modules/Zap";
 
 export const poolQuery: IPoolByPairQuery = {
@@ -122,13 +119,13 @@ export const Actions: FC = () => {
           <h4 className="w-24">Taste Tests</h4>
           <hr className="my-10 w-full" />
         </div>
-        <DepositTasteTest setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        {/* <DepositTasteTest setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <UpdateTasteTest setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <WithdrawTasteTest
           setFees={setFees}
           setCBOR={setCBOR}
           submit={submit}
-        />
+        /> */}
         <div className="col-span-2 flex items-center justify-between gap-2">
           <h4 className="w-32">Order Routing</h4>
           <hr className="my-10 w-full" />

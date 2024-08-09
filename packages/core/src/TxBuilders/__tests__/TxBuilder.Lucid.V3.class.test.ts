@@ -10,12 +10,13 @@ import {
   TSettingsDatum,
 } from "../../DatumBuilders/contracts/contracts.v3.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
+import { setupLucid } from "../../TestUtilities/setupLucid.js";
 import {
   ADA_METADATA,
   ORDER_DEPOSIT_DEFAULT,
   POOL_MIN_ADA,
 } from "../../constants.js";
-import { PREVIEW_DATA, setupLucid } from "../../exports/testing.js";
+import { PREVIEW_DATA } from "../../exports/testing.js";
 import { TxBuilderLucidV1 } from "../TxBuilder.Lucid.V1.class.js";
 import { TxBuilderLucidV3 } from "../TxBuilder.Lucid.V3.class.js";
 import {
