@@ -233,14 +233,9 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
     const datum: TSwapDirection = {
       amount: amount.amount,
       minReceivable: swap.MinimumReceivable
-        ? {
-            amount: [swap.MinimumReceivable.amount],
-          }
+        ? swap.MinimumReceivable.amount
         : null,
-      suppliedAssetIndex:
-        swap.SuppliedCoin === EPoolCoin.A
-          ? { AssetA: { value: 0n } }
-          : { AssetB: { value: 1n } },
+      suppliedAssetIndex: swap.SuppliedCoin === EPoolCoin.A ? "A" : "B",
     };
 
     const data = Data.to(datum, SwapDirection);

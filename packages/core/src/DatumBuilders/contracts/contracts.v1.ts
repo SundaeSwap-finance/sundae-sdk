@@ -44,20 +44,9 @@ export const OrderAddresses =
   OrderAddressesSchema as unknown as TOrderAddresses;
 
 export const SwapDirectionSchema = Data.Object({
-  suppliedAssetIndex: Data.Enum([
-    Data.Object({
-      AssetA: Data.Object({ value: Data.Integer({ minimum: 0, maximum: 0 }) }),
-    }),
-    Data.Object({
-      AssetB: Data.Object({ value: Data.Integer({ maximum: 1, minimum: 1 }) }),
-    }),
-  ]),
+  suppliedAssetIndex: Data.Enum([Data.Literal("A"), Data.Literal("B")]),
   amount: Data.Integer(),
-  minReceivable: Data.Nullable(
-    Data.Object({
-      amount: Data.Tuple([Data.Integer()]),
-    })
-  ),
+  minReceivable: Data.Nullable(Data.Integer()),
 });
 export type TSwapDirection = Static<typeof SwapDirectionSchema>;
 export const SwapDirection = SwapDirectionSchema as unknown as TSwapDirection;
