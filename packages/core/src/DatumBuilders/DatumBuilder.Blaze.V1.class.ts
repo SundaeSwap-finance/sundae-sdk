@@ -4,6 +4,7 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   EDatumType,
   EPoolCoin,
+  IDepositArguments,
   // IDepositArguments,
   ISwapArguments,
   // IWithdrawArguments,
@@ -17,9 +18,11 @@ import { DatumBuilder } from "../Abstracts/DatumBuilder.abstract.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { V1_MAX_POOL_IDENT_LENGTH } from "../constants.js";
 import {
+  DepositOrder,
   OrderAddresses,
   SwapDirection,
   SwapOrder,
+  TDepositOrder,
   TDestination,
   TOrderAddresses,
   TSwapDirection,
@@ -66,12 +69,6 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
       scooperFee: scooperFee,
       swapDirection: this.buildSwapDirection(swap, fundedAsset).schema,
     };
-    // const datum = new Constr(0, [
-    //   this.buildPoolIdent(ident),
-    //   this.buildOrderAddresses(orderAddresses).schema,
-    //   scooperFee,
-    //   this.buildSwapDirection(swap, fundedAsset).schema,
-    // ]);
 
     const data = Data.to(datum, SwapOrder);
 
@@ -93,27 +90,38 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
    * @returns {TDatumResult<Data>} An object containing the hash of the inline datum, the inline datum itself,
    *                               and the schema of the original datum.
    */
-  // buildDepositDatum({
-  //   ident,
-  //   orderAddresses,
-  //   deposit,
-  //   scooperFee,
-  // }: IDepositArguments): TDatumResult<Data> {
-  //   const datum = new Constr(0, [
-  //     this.buildPoolIdent(ident),
-  //     this.buildOrderAddresses(orderAddresses).schema,
-  //     scooperFee,
-  //     this.buildDepositPair(deposit).schema,
-  //   ]);
+  buildDepositDatum({
+    ident,
+    orderAddresses,
+    deposit,
+    scooperFee,
+  }: IDepositArguments): TDatumResult<TDepositOrder> {
+    const datum: TDepositOrder = {
+      ident: this.buildPoolIdent(ident),
+      orderAddresses: this.buildOrderAddresses(orderAddresses).schema,
+      scooperFee,
+      DepositPair: {
+        Parent: {
+          Child: {
+            Value: {
+              pair: {
+                a: deposit.CoinAAmount.amount,
+                b: deposit.CoinBAmount.amount,
+              },
+            },
+          },
+        },
+      },
+    };
 
-  //   const inline = Data.to(datum);
+    const data = Data.to(datum, DepositOrder);
 
-  //   return {
-  //     hash: BlazeHelper.inlineDatumToHash(inline),
-  //     inline,
-  //     schema: datum,
-  //   };
-  // }
+    return {
+      hash: data.hash(),
+      inline: data.toCbor(),
+      schema: datum,
+    };
+  }
 
   /**
    * Constructs a zap datum object from provided zap arguments. This function creates a new datum with

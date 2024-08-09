@@ -51,6 +51,36 @@ export const SwapDirectionSchema = Data.Object({
 export type TSwapDirection = Static<typeof SwapDirectionSchema>;
 export const SwapDirection = SwapDirectionSchema as unknown as TSwapDirection;
 
+// const datum = new Constr(2, [
+//   new Constr(1, [
+//     new Constr(0, [deposit.CoinAAmount.amount, deposit.CoinBAmount.amount]),
+//   ]),
+// ]);
+export const DepositPairSchema = Data.Enum([
+  Data.Literal("VOID"),
+  Data.Literal("VOID"),
+  // 123
+  Data.Object({
+    Parent: Data.Object({
+      Child: Data.Enum([
+        Data.Literal("VOID"),
+        // 122
+        Data.Object({
+          Value: Data.Object({
+            // 121
+            pair: Data.Object({
+              a: Data.Integer(),
+              b: Data.Integer(),
+            }),
+          }),
+        }),
+      ]),
+    }),
+  }),
+]);
+export type TDepositPair = Static<typeof DepositPairSchema>;
+export const DepositPair = DepositPairSchema as unknown as TDepositPair;
+
 export const SwapOrderSchema = Data.Object({
   ident: Data.Bytes(),
   orderAddresses: OrderAddressesSchema,
@@ -59,3 +89,12 @@ export const SwapOrderSchema = Data.Object({
 });
 export type TSwapOrder = Static<typeof SwapOrderSchema>;
 export const SwapOrder = SwapOrderSchema as unknown as TSwapOrder;
+
+export const DepositOrderSchema = Data.Object({
+  ident: Data.Bytes(),
+  orderAddresses: OrderAddressesSchema,
+  scooperFee: Data.Integer(),
+  DepositPair: DepositPairSchema,
+});
+export type TDepositOrder = Static<typeof DepositOrderSchema>;
+export const DepositOrder = DepositOrderSchema as unknown as TDepositOrder;
