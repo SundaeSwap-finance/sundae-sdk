@@ -128,18 +128,17 @@ export class SundaeSDK {
         const [
           { TxBuilderBlazeV1 },
           { TxBuilderBlazeV3 },
-          { DatumBuilderLucidV1, DatumBuilderLucidV3 },
+          { DatumBuilderLucidV3 },
         ] = await Promise.all([
           import("./TxBuilders/TxBuilder.Blaze.V1.class.js"),
           import("./TxBuilders/TxBuilder.Blaze.V3.class.js"),
-          import("./DatumBuilders"),
+          import("./DatumBuilders/DatumBuilder.Lucid.V3.class.js"),
         ]);
 
         this.builders.set(ETxBuilderType.BLAZE, {
           [EContractVersion.V1]: new TxBuilderBlazeV1(
             this.options.wallet.builder.blaze,
-            this.options.wallet.network,
-            new DatumBuilderLucidV1(this.options.wallet.network)
+            this.options.wallet.network
           ),
           [EContractVersion.V3]: new TxBuilderBlazeV3(
             this.options.wallet.builder.blaze,

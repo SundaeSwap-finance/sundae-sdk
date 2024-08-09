@@ -57,8 +57,17 @@ export class LucidHelper {
     network: TSupportedNetworks;
   }): void | never {
     LucidHelper.validateAddressNetwork(address, network);
-    const isScript = LucidHelper.isScriptAddress(address);
+    if (
+      ![EDatumType.NONE, EDatumType.HASH, EDatumType.INLINE].includes(
+        datum.type
+      )
+    ) {
+      throw new Error(
+        "Could not find a matching datum type for the destination address. Aborting."
+      );
+    }
 
+    const isScript = LucidHelper.isScriptAddress(address);
     if (isScript) {
       if (datum.type === EDatumType.NONE) {
         LucidHelper.throwInvalidOrderAddressesError(

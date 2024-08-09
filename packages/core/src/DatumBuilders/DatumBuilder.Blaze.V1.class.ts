@@ -1,5 +1,5 @@
+import { Data } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { Data } from "lucid-cardano";
 
 import {
   EDatumType,
@@ -61,10 +61,10 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
     scooperFee,
   }: ISwapArguments): TDatumResult<TSwapOrder> {
     const datum: TSwapOrder = {
-      Ident: this.buildPoolIdent(ident),
-      OrderAddresses: this.buildOrderAddresses(orderAddresses).schema,
-      ScooperFee: scooperFee,
-      SwapDirection: this.buildSwapDirection(swap, fundedAsset).schema,
+      ident: this.buildPoolIdent(ident),
+      orderAddresses: this.buildOrderAddresses(orderAddresses).schema,
+      scooperFee: scooperFee,
+      swapDirection: this.buildSwapDirection(swap, fundedAsset).schema,
     };
     // const datum = new Constr(0, [
     //   this.buildPoolIdent(ident),
@@ -73,11 +73,11 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
     //   this.buildSwapDirection(swap, fundedAsset).schema,
     // ]);
 
-    const inline = Data.to(datum, SwapOrder);
+    const data = Data.to(datum, SwapOrder);
 
     return {
-      hash: BlazeHelper.inlineDatumToHash(inline),
-      inline,
+      hash: data.hash(),
+      inline: data.toCbor(),
       schema: datum,
     };
   }
@@ -231,23 +231,23 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
     amount: AssetAmount<IAssetAmountMetadata>
   ): TDatumResult<TSwapDirection> {
     const datum: TSwapDirection = {
-      Amount: amount.amount,
-      MinReceivable: swap.MinimumReceivable
+      amount: amount.amount,
+      minReceivable: swap.MinimumReceivable
         ? {
             amount: [swap.MinimumReceivable.amount],
           }
         : null,
-      SuppliedAssetIndex:
+      suppliedAssetIndex:
         swap.SuppliedCoin === EPoolCoin.A
           ? { AssetA: { value: 0n } }
           : { AssetB: { value: 1n } },
     };
 
-    const inline = Data.to(datum, SwapDirection);
+    const data = Data.to(datum, SwapDirection);
 
     return {
-      hash: BlazeHelper.inlineDatumToHash(inline),
-      inline,
+      hash: data.hash(),
+      inline: data.toCbor(),
       schema: datum,
     };
   }
@@ -274,57 +274,69 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
       DestinationAddress.address
     );
 
+    if (DestinationAddress.datum.type === EDatumType.INLINE) {
+      throw new Error(
+        "Inline datum types are not supported in V1 contracts! Convert this to a hash."
+      );
+    }
+
+    const destinationAddressCredentialType = BlazeHelper.isScriptAddress(
+      DestinationAddress.address
+    )
+      ? ("ScriptHash" as keyof TDestination["credentials"]["paymentKey"])
+      : "KeyHash";
+
     const destination: TDestination = {
-      PaymentCredentials: {
-        [BlazeHelper.isScriptAddress(DestinationAddress.address)
-          ? "KeyHash"
-          : ("ScriptHash" as keyof TDestination["PaymentCredentials"])]: {
-          value: destinationHashes.paymentCredentials,
+      credentials: {
+        paymentKey: {
+          [destinationAddressCredentialType]: {
+            value: destinationHashes.paymentCredentials,
+          },
         },
-      },
-      StakeCredentials: destinationHashes.stakeCredentials
-        ? {
-            DelegationHash: {
-              hash: {
-                [BlazeHelper.isScriptAddress(DestinationAddress.address)
-                  ? "KeyHash"
-                  : ("ScriptHash" as keyof TDestination["PaymentCredentials"])]:
-                  { value: destinationHashes.stakeCredentials },
-              },
-            },
-          }
-        : null,
-      Datum:
-        DestinationAddress.datum.type !== EDatumType.NONE
+        stakingKey: destinationHashes.stakeCredentials
           ? {
-              Value: [DestinationAddress.datum.value],
+              value: {
+                [destinationAddressCredentialType]: {
+                  value: destinationHashes.stakeCredentials,
+                },
+              },
             }
+          : null,
+      },
+      datum:
+        DestinationAddress.datum.type !== EDatumType.NONE
+          ? DestinationAddress.datum.value
           : null,
     };
 
     const alternateHashes =
       AlternateAddress && BlazeHelper.getAddressHashes(AlternateAddress);
+    const alternateAddressCredentialType =
+      AlternateAddress && BlazeHelper.isScriptAddress(AlternateAddress)
+        ? ("ScriptHash" as keyof TDestination["credentials"]["paymentKey"])
+        : "KeyHash";
 
     const datum: TOrderAddresses = {
-      Destination: destination,
-      Alternate: alternateHashes
+      destination,
+      alternate: alternateHashes
         ? {
-            [BlazeHelper.isScriptAddress(DestinationAddress.address)
-              ? "KeyHash"
-              : ("ScriptHash" as keyof TDestination["PaymentCredentials"])]: {
-              value:
-                alternateHashes.stakeCredentials ??
-                alternateHashes.paymentCredentials,
+            paymentKey: {
+              [alternateAddressCredentialType]: {
+                value:
+                  alternateHashes.stakeCredentials ??
+                  alternateHashes.paymentCredentials,
+              },
             },
+            stakingKey: null,
           }
         : null,
     };
 
-    const inline = Data.to(datum, OrderAddresses);
+    const data = Data.to<TOrderAddresses>(datum, OrderAddresses);
 
     return {
-      hash: BlazeHelper.inlineDatumToHash(inline),
-      inline,
+      hash: data.hash(),
+      inline: data.toCbor(),
       schema: datum,
     };
   }

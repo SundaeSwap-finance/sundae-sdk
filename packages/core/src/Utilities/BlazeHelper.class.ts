@@ -14,34 +14,83 @@ import { EDatumType, TDatum, TSupportedNetworks } from "../@types/index.js";
  *
  * @example
  * ```typescript
- *  const hashes = LucidHelper.getAddressHashes("addr_test...")
- *  LucidHelper.validateAddressAndDatumAreValid({ address: "addr_test...", network: "mainnet" });
- *  const isScript = LucidHelper.isScriptAddress("addr_test...");
+ *  const hashes = BlazeHelper.getAddressHashes("addr_test...")
+ *  BlazeHelper.validateAddressAndDatumAreValid({ address: "addr_test...", network: "mainnet" });
+ *  const isScript = BlazeHelper.isScriptAddress("addr_test...");
  * ```
  */
 export class BlazeHelper {
   /**
-   * Helper function to parse addresses hashes from a Bech32 or hex encoded address.
+   * Helper function to parse addresses hashes from a Bech32 encoded address.
    * @param address
    * @returns
    */
   static getAddressHashes(address: string): {
-    paymentCredentials: string;
+    paymentCredentials: Core.Hash28ByteBase16;
     stakeCredentials?: string;
   } {
     const details = Core.Address.fromBech32(address);
+    const addressType = details.getType();
+    switch (addressType) {
+      case Core.AddressType.BasePaymentKeyStakeKey:
+      case Core.AddressType.BasePaymentKeyStakeScript:
+      case Core.AddressType.BasePaymentScriptStakeKey:
+      case Core.AddressType.BasePaymentScriptStakeScript: {
+        const paymentCredentials = details
+          .asBase()
+          ?.getPaymentCredential().hash;
+        if (!paymentCredentials) {
+          BlazeHelper.throwNoPaymentKeyError();
+        }
 
-    const paymentCred = details.asBase()?.getPaymentCredential();
-    if (!paymentCred) {
-      throw new Error(
-        "Invalid address. Make sure you are using a Bech32 or Hex encoded address that includes the payment key."
-      );
+        return {
+          paymentCredentials,
+          stakeCredentials: details.asBase()?.getStakeCredential()?.hash,
+        };
+      }
+      case Core.AddressType.EnterpriseKey:
+      case Core.AddressType.EnterpriseScript: {
+        const paymentCredentials = details
+          .asEnterprise()
+          ?.getPaymentCredential().hash;
+        if (!paymentCredentials) {
+          BlazeHelper.throwNoPaymentKeyError();
+        }
+
+        return {
+          paymentCredentials,
+        };
+      }
+      case Core.AddressType.PointerKey:
+      case Core.AddressType.PointerScript: {
+        const paymentCredentials = details
+          .asPointer()
+          ?.getPaymentCredential().hash;
+        if (!paymentCredentials) {
+          BlazeHelper.throwNoPaymentKeyError();
+        }
+
+        return {
+          paymentCredentials,
+        };
+      }
+      case Core.AddressType.RewardKey:
+      case Core.AddressType.RewardScript: {
+        const paymentCredentials = details
+          .asReward()
+          ?.getPaymentCredential().hash;
+        if (!paymentCredentials) {
+          BlazeHelper.throwNoPaymentKeyError();
+        }
+
+        return {
+          paymentCredentials,
+        };
+      }
+      case Core.AddressType.Byron:
+      default:
+        BlazeHelper.throwNoPaymentKeyError();
     }
-
-    return {
-      paymentCredentials: paymentCred.hash,
-      stakeCredentials: details.asBase()?.getStakeCredential()?.hash,
-    };
   }
 
   /**
@@ -58,8 +107,17 @@ export class BlazeHelper {
     network: TSupportedNetworks;
   }): void | never {
     BlazeHelper.validateAddressNetwork(address, network);
-    const isScript = BlazeHelper.isScriptAddress(address);
+    if (
+      ![EDatumType.NONE, EDatumType.HASH, EDatumType.INLINE].includes(
+        datum.type
+      )
+    ) {
+      throw new Error(
+        "Could not find a matching datum type for the destination address. Aborting."
+      );
+    }
 
+    const isScript = BlazeHelper.isScriptAddress(address);
     if (isScript) {
       if (datum.type === EDatumType.NONE) {
         BlazeHelper.throwInvalidOrderAddressesError(
@@ -131,6 +189,12 @@ export class BlazeHelper {
     );
   }
 
+  static throwNoPaymentKeyError(): never {
+    throw new Error(
+      "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key."
+    );
+  }
+
   /**
    * Throws a useful error if the address, network, and instance network are on the wrong network.
    * @param addressNetwork
@@ -156,8 +220,8 @@ export class BlazeHelper {
     }
   }
 
-  static inlineDatumToHash(inline: string): string {
-    return Core.PlutusData.fromCbor(Core.HexBlob(inline)).hash();
+  static inlineDatumToHash(data: Core.PlutusData): string {
+    return Core.PlutusData.fromCbor(data.toCbor()).hash();
   }
 
   /**
@@ -168,7 +232,7 @@ export class BlazeHelper {
     errorMessage: string
   ): never {
     throw new Error(
-      `You supplied an invalid address: ${address}. Please check your arguments and try again. Error message from LucidHelper: ${errorMessage}`
+      `You supplied an invalid address: ${address}. Please check your arguments and try again. Error message from BlazeHelper: ${errorMessage}`
     );
   }
 }

@@ -37,7 +37,7 @@ import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
-import { DatumBuilderLucidV1 } from "../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
+import { DatumBuilderBlazeV1 } from "../DatumBuilders/DatumBuilder.Blaze.V1.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import { OrderDatum } from "../DatumBuilders/contracts/contracts.v3.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
@@ -82,6 +82,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
+  datumBuilder: DatumBuilderBlazeV1;
 
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV1Params> = {
     mainnet: {
@@ -101,12 +102,12 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   constructor(
     public blaze: Blaze<Blockfrost, WebWallet>,
     network: TSupportedNetworks,
-    public datumBuilder: DatumBuilderLucidV1,
     queryProvider?: QueryProviderSundaeSwap
   ) {
     super();
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
+    this.datumBuilder = new DatumBuilderBlazeV1(network);
   }
 
   /**
