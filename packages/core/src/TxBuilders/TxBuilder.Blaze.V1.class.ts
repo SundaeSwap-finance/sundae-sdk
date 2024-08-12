@@ -37,9 +37,9 @@ import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
+import { OrderDatum } from "../DatumBuilders/Contracts/Contracts.Lucid.v3.js";
 import { DatumBuilderBlazeV1 } from "../DatumBuilders/DatumBuilder.Blaze.V1.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
-import { OrderDatum } from "../DatumBuilders/contracts/contracts.v3.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
@@ -327,7 +327,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       ...Object.entries(payment).filter(([key]) => key !== "lovelace")
     );
 
-    const datum = Core.DatumHash(Core.HexBlob(hash));
+    const datum = Core.DatumHash(hash);
 
     txInstance.lockAssets(
       Core.addressFromBech32(scriptAddress),

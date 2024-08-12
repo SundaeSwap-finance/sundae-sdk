@@ -1,15 +1,13 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { Constr, Data } from "lucid-cardano";
+import { Data } from "lucid-cardano";
 
 import {
   EDatumType,
+  EPoolCoin,
   IDepositArguments,
   ISwapArguments,
   IWithdrawArguments,
-  IZapArguments,
   TDatumResult,
-  TDepositMixed,
-  TDepositSingle,
   TOrderAddressesArgs,
   TSupportedNetworks,
   TSwap,
@@ -17,6 +15,19 @@ import {
 import { DatumBuilder } from "../Abstracts/DatumBuilder.abstract.class.js";
 import { LucidHelper } from "../Utilities/LucidHelper.class.js";
 import { V1_MAX_POOL_IDENT_LENGTH } from "../constants.js";
+import {
+  DepositOrder,
+  OrderAddresses,
+  SwapDirection,
+  SwapOrder,
+  TDepositOrder,
+  TDestination,
+  TOrderAddresses,
+  TSwapDirection,
+  TSwapOrder,
+  TWithdrawOrder,
+  WithdrawOrder,
+} from "./Contracts/Contracts.Lucid.v1.js";
 
 /**
  * The Lucid implementation for building valid Datums for
@@ -51,15 +62,15 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
     fundedAsset,
     swap,
     scooperFee,
-  }: ISwapArguments): TDatumResult<Data> {
-    const datum = new Constr(0, [
-      this.buildPoolIdent(ident),
-      this.buildOrderAddresses(orderAddresses).schema,
+  }: ISwapArguments): TDatumResult<TSwapOrder> {
+    const datum: TSwapOrder = {
+      ident: this.buildPoolIdent(ident),
+      orderAddresses: this.buildOrderAddresses(orderAddresses).schema,
       scooperFee,
-      this.buildSwapDirection(swap, fundedAsset).schema,
-    ]);
+      swapDirection: this.buildSwapDirection(swap, fundedAsset).schema,
+    };
 
-    const inline = Data.to(datum);
+    const inline = Data.to(datum, SwapOrder);
 
     return {
       hash: LucidHelper.inlineDatumToHash(inline),
@@ -84,48 +95,26 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
     orderAddresses,
     deposit,
     scooperFee,
-  }: IDepositArguments): TDatumResult<Data> {
-    const datum = new Constr(0, [
-      this.buildPoolIdent(ident),
-      this.buildOrderAddresses(orderAddresses).schema,
+  }: IDepositArguments): TDatumResult<TDepositOrder> {
+    const datum: TDepositOrder = {
+      ident: this.buildPoolIdent(ident),
+      orderAddresses: this.buildOrderAddresses(orderAddresses).schema,
       scooperFee,
-      this.buildDepositPair(deposit).schema,
-    ]);
-
-    const inline = Data.to(datum);
-
-    return {
-      hash: LucidHelper.inlineDatumToHash(inline),
-      inline,
-      schema: datum,
+      DepositPair: {
+        Parent: {
+          Child: {
+            Value: {
+              pair: {
+                a: deposit.CoinAAmount.amount,
+                b: deposit.CoinBAmount.amount,
+              },
+            },
+          },
+        },
+      },
     };
-  }
 
-  /**
-   * Constructs a zap datum object from provided zap arguments. This function creates a new datum with
-   * specific attributes such as the pool ident, order addresses, scooper fee, and deposit zap schema.
-   * The datum is then converted to an inline format, and its hash is computed using {@link Lucid.LucidHelper}. The function
-   * returns an object that includes the hash of the inline datum, the inline datum itself, and the original
-   * datum schema, facilitating the integration of the zap operation within a larger transaction framework.
-   *
-   * @param {IZapArguments} params - The arguments necessary for constructing the zap datum.
-   * @returns {TDatumResult<Data>} An object containing the hash of the inline datum, the inline datum itself,
-   *                               and the schema of the original datum, which are essential for the zap transaction's execution.
-   */
-  experimental_buildZapDatum({
-    ident,
-    orderAddresses,
-    zap,
-    scooperFee,
-  }: IZapArguments): TDatumResult<Data> {
-    const datum = new Constr(0, [
-      this.buildPoolIdent(ident),
-      this.buildOrderAddresses(orderAddresses).schema,
-      scooperFee,
-      this.experimental_buildDepositZap(zap).schema,
-    ]);
-
-    const inline = Data.to(datum);
+    const inline = Data.to(datum, DepositOrder);
 
     return {
       hash: LucidHelper.inlineDatumToHash(inline),
@@ -151,59 +140,19 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
     orderAddresses,
     suppliedLPAsset,
     scooperFee,
-  }: IWithdrawArguments): TDatumResult<Data> {
-    const datum = new Constr(0, [
-      this.buildPoolIdent(ident),
-      this.buildOrderAddresses(orderAddresses).schema,
+  }: IWithdrawArguments): TDatumResult<TWithdrawOrder> {
+    const datum: TWithdrawOrder = {
+      ident: this.buildPoolIdent(ident),
+      orderAddresses: this.buildOrderAddresses(orderAddresses).schema,
       scooperFee,
-      this.buildWithdrawAsset(suppliedLPAsset).schema,
-    ]);
-
-    const inline = Data.to(datum);
-
-    return {
-      hash: LucidHelper.inlineDatumToHash(inline),
-      inline,
-      schema: datum,
+      WithdrawAsset: {
+        LPToken: {
+          value: suppliedLPAsset.amount,
+        },
+      },
     };
-  }
 
-  buildDepositPair(deposit: TDepositMixed): TDatumResult<Data> {
-    const datum = new Constr(2, [
-      new Constr(1, [
-        new Constr(0, [deposit.CoinAAmount.amount, deposit.CoinBAmount.amount]),
-      ]),
-    ]);
-
-    const inline = Data.to(datum);
-
-    return {
-      hash: LucidHelper.inlineDatumToHash(inline),
-      inline,
-      schema: datum,
-    };
-  }
-
-  experimental_buildDepositZap(zap: TDepositSingle): TDatumResult<Data> {
-    const datum = new Constr(2, [
-      new Constr(zap.ZapDirection, [zap.CoinAmount.amount]),
-    ]);
-
-    const inline = Data.to(datum);
-
-    return {
-      hash: LucidHelper.inlineDatumToHash(inline),
-      inline,
-      schema: datum,
-    };
-  }
-
-  buildWithdrawAsset(
-    fundedLPAsset: AssetAmount<IAssetAmountMetadata>
-  ): TDatumResult<Data> {
-    const datum = new Constr(1, [fundedLPAsset.amount]);
-
-    const inline = Data.to(datum);
+    const inline = Data.to(datum, WithdrawOrder);
 
     return {
       hash: LucidHelper.inlineDatumToHash(inline),
@@ -215,16 +164,16 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
   buildSwapDirection(
     swap: TSwap,
     amount: AssetAmount<IAssetAmountMetadata>
-  ): TDatumResult<Data> {
-    const datum = new Constr(0, [
-      new Constr(swap.SuppliedCoin, []),
-      amount.amount,
-      swap.MinimumReceivable
-        ? new Constr(0, [swap.MinimumReceivable.amount])
-        : new Constr(1, []),
-    ]);
+  ): TDatumResult<TSwapDirection> {
+    const datum: TSwapDirection = {
+      amount: amount.amount,
+      minReceivable: swap.MinimumReceivable
+        ? swap.MinimumReceivable.amount
+        : null,
+      suppliedAssetIndex: swap.SuppliedCoin === EPoolCoin.A ? "A" : "B",
+    };
 
-    const inline = Data.to(datum);
+    const inline = Data.to(datum, SwapDirection);
 
     return {
       hash: LucidHelper.inlineDatumToHash(inline),
@@ -233,7 +182,9 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
     };
   }
 
-  buildOrderAddresses(addresses: TOrderAddressesArgs): TDatumResult<Data> {
+  buildOrderAddresses(
+    addresses: TOrderAddressesArgs
+  ): TDatumResult<TOrderAddresses> {
     LucidHelper.validateAddressAndDatumAreValid({
       ...addresses.DestinationAddress,
       network: this.network,
@@ -249,7 +200,7 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
       });
 
     const { DestinationAddress, AlternateAddress } = addresses;
-    const destination = LucidHelper.getAddressHashes(
+    const destinationHashes = LucidHelper.getAddressHashes(
       DestinationAddress.address
     );
 
@@ -259,42 +210,59 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
       );
     }
 
-    const destinationDatum = new Constr(0, [
-      new Constr(0, [
-        new Constr(
-          LucidHelper.isScriptAddress(DestinationAddress.address) ? 1 : 0,
-          [destination.paymentCredentials]
-        ),
-        destination?.stakeCredentials
-          ? new Constr(0, [
-              new Constr(0, [
-                new Constr(
-                  LucidHelper.isScriptAddress(DestinationAddress.address)
-                    ? 1
-                    : 0,
-                  [destination?.stakeCredentials]
-                ),
-              ]),
-            ])
-          : new Constr(1, []),
-      ]),
-      DestinationAddress.datum.type !== EDatumType.NONE
-        ? new Constr(0, [DestinationAddress.datum.value])
-        : new Constr(1, []),
-    ]);
+    const destinationAddressCredentialType = LucidHelper.isScriptAddress(
+      DestinationAddress.address
+    )
+      ? ("ScriptHash" as keyof TDestination["credentials"]["paymentKey"])
+      : "KeyHash";
 
-    const alternate =
+    const destination: TDestination = {
+      credentials: {
+        paymentKey: {
+          [destinationAddressCredentialType]: {
+            value: destinationHashes.paymentCredentials,
+          },
+        },
+        stakingKey: destinationHashes.stakeCredentials
+          ? {
+              value: {
+                [destinationAddressCredentialType]: {
+                  value: destinationHashes.stakeCredentials,
+                },
+              },
+            }
+          : null,
+      },
+      datum:
+        DestinationAddress.datum.type !== EDatumType.NONE
+          ? DestinationAddress.datum.value
+          : null,
+    };
+
+    const alternateHashes =
       AlternateAddress && LucidHelper.getAddressHashes(AlternateAddress);
-    const alternateDatum = new Constr(
-      alternate ? 0 : 1,
-      alternate
-        ? [alternate.stakeCredentials ?? alternate.paymentCredentials]
-        : []
-    );
+    const alternateAddressCredentialType =
+      AlternateAddress && LucidHelper.isScriptAddress(AlternateAddress)
+        ? ("ScriptHash" as keyof TDestination["credentials"]["paymentKey"])
+        : "KeyHash";
 
-    const datum = new Constr(0, [destinationDatum, alternateDatum]);
+    const datum: TOrderAddresses = {
+      destination,
+      alternate: alternateHashes
+        ? {
+            paymentKey: {
+              [alternateAddressCredentialType]: {
+                value:
+                  alternateHashes.stakeCredentials ??
+                  alternateHashes.paymentCredentials,
+              },
+            },
+            stakingKey: null,
+          }
+        : null,
+    };
 
-    const inline = Data.to(datum);
+    const inline = Data.to(datum, OrderAddresses);
 
     return {
       hash: LucidHelper.inlineDatumToHash(inline),

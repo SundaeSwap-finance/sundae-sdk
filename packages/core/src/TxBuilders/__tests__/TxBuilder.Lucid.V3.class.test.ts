@@ -4,11 +4,11 @@ import fetchMock from "jest-fetch-mock";
 import { C, Data, Lucid, Tx } from "lucid-cardano";
 
 import { EDatumType, ESwapType, ITxBuilderFees } from "../../@types/index.js";
-import { DatumBuilderLucidV3 } from "../../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import {
   SettingsDatum,
   TSettingsDatum,
-} from "../../DatumBuilders/contracts/contracts.v3.js";
+} from "../../DatumBuilders/Contracts/Contracts.Lucid.v3.js";
+import { DatumBuilderLucidV3 } from "../../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { setupLucid } from "../../TestUtilities/setupLucid.js";
 import {

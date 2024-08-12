@@ -2,8 +2,8 @@ import { jest } from "@jest/globals";
 
 import { LucidHelper } from "../../../Utilities/LucidHelper.class.js";
 import { PREVIEW_DATA } from "../../../exports/testing.js";
+import { TSignatureSchema } from "../../Contracts/Contracts.Lucid.v3.js";
 import { DatumBuilderLucidV3 } from "../../DatumBuilder.Lucid.V3.class.js";
-import { TSignatureSchema } from "../../contracts/contracts.v3.js";
 
 let builderInstance: DatumBuilderLucidV3;
 

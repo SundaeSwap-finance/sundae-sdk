@@ -13,7 +13,7 @@ import { DatumBuilder } from "../Abstracts/DatumBuilder.abstract.class.js";
 import { LucidHelper } from "../Utilities/LucidHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { V3_POOL_IDENT_LENGTH } from "../constants.js";
-import * as V3Types from "./contracts/contracts.v3.js";
+import * as V3Types from "./Contracts/Contracts.Lucid.v3.js";
 
 /**
  * The base arguments for the V3 DatumBuilder.

@@ -19,9 +19,9 @@ import { EDatumType } from "../../@types/index.js";
 import { LucidHelper } from "../../exports/lucid.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { ADA_METADATA } from "../../exports/utilities.js";
+import { TSignatureSchema } from "../Contracts/Contracts.Lucid.v3.js";
+import { V3Types } from "../Contracts/index.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilder.Lucid.V3.class.js";
-import { TSignatureSchema } from "../contracts/contracts.v3.js";
-import { V3Types } from "../contracts/index.js";
 
 let builderInstance: DatumBuilderLucidV3;
 

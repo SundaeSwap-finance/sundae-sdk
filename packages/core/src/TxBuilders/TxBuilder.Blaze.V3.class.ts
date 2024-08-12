@@ -35,12 +35,12 @@ import { MintV3PoolConfig } from "../Configs/MintV3PoolConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
-import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import {
   OrderDatum,
   SettingsDatum,
-} from "../DatumBuilders/contracts/contracts.v3.js";
-import { V3Types } from "../DatumBuilders/contracts/index.js";
+} from "../DatumBuilders/Contracts/Contracts.Lucid.v3.js";
+import { V3Types } from "../DatumBuilders/Contracts/index.js";
+import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
