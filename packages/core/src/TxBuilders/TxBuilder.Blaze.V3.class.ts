@@ -35,7 +35,6 @@ import { MintV3PoolConfig } from "../Configs/MintV3PoolConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
-import { DatumBuilderLucidV1 } from "../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import {
   OrderDatum,
@@ -554,11 +553,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     });
 
     let scooperFee = await this.getMaxScooperFeeAmount();
-    const v1TxBUilder = new TxBuilderBlazeV1(
-      this.blaze,
-      this.network,
-      new DatumBuilderLucidV1(this.network)
-    );
+    const v1TxBUilder = new TxBuilderBlazeV1(this.blaze, this.network);
     const v1Address = await v1TxBUilder
       .getValidatorScript("escrow.spend")
       .then(({ compiledCode }) =>
@@ -626,11 +621,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     const isSecondSwapV1 = args.swapB.pool.version === EContractVersion.V1;
 
     const secondSwapBuilder = isSecondSwapV1
-      ? new TxBuilderBlazeV1(
-          this.blaze,
-          this.network,
-          new DatumBuilderLucidV1(this.network)
-        )
+      ? new TxBuilderBlazeV1(this.blaze, this.network)
       : this;
     const secondSwapAddress = isSecondSwapV1
       ? await (secondSwapBuilder as TxBuilderBlazeV1)
@@ -817,11 +808,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       Data.from(spendingDatum, OrderDatum);
     } catch (e) {
       console.log("This is a V1 order! Calling appropriate builder...");
-      const v1Builder = new TxBuilderBlazeV1(
-        this.blaze,
-        this.network,
-        new DatumBuilderLucidV1(this.network)
-      );
+      const v1Builder = new TxBuilderBlazeV1(this.blaze, this.network);
       return v1Builder.cancel({ ...cancelArgs });
     }
 

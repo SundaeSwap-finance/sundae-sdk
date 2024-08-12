@@ -7,6 +7,7 @@ import {
   IDepositArguments,
   // IDepositArguments,
   ISwapArguments,
+  IWithdrawArguments,
   // IWithdrawArguments,
   // IZapArguments,
   TDatumResult,
@@ -27,6 +28,8 @@ import {
   TOrderAddresses,
   TSwapDirection,
   TSwapOrder,
+  TWithdrawOrder,
+  WithdrawOrder,
 } from "./contracts/contracts.v1.js";
 
 /**
@@ -124,39 +127,6 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
   }
 
   /**
-   * Constructs a zap datum object from provided zap arguments. This function creates a new datum with
-   * specific attributes such as the pool ident, order addresses, scooper fee, and deposit zap schema.
-   * The datum is then converted to an inline format, and its hash is computed using {@link Lucid.BlazeHelper}. The function
-   * returns an object that includes the hash of the inline datum, the inline datum itself, and the original
-   * datum schema, facilitating the integration of the zap operation within a larger transaction framework.
-   *
-   * @param {IZapArguments} params - The arguments necessary for constructing the zap datum.
-   * @returns {TDatumResult<Data>} An object containing the hash of the inline datum, the inline datum itself,
-   *                               and the schema of the original datum, which are essential for the zap transaction's execution.
-   */
-  // experimental_buildZapDatum({
-  //   ident,
-  //   orderAddresses,
-  //   zap,
-  //   scooperFee,
-  // }: IZapArguments): TDatumResult<Data> {
-  //   const datum = new Constr(0, [
-  //     this.buildPoolIdent(ident),
-  //     this.buildOrderAddresses(orderAddresses).schema,
-  //     scooperFee,
-  //     this.experimental_buildDepositZap(zap).schema,
-  //   ]);
-
-  //   const inline = Data.to(datum);
-
-  //   return {
-  //     hash: BlazeHelper.inlineDatumToHash(inline),
-  //     inline,
-  //     schema: datum,
-  //   };
-  // }
-
-  /**
    * Generates a withdraw datum object from the specified withdraw arguments. This function constructs
    * a new datum with defined attributes such as the pool ident, order addresses, scooper fee, and
    * the schema for the supplied LP (Liquidity Provider) asset for withdrawal. After constructing the datum,
@@ -168,71 +138,31 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
    * @returns {TDatumResult<Data>} An object comprising the hash of the inline datum, the inline datum itself,
    *                               and the schema of the original datum, facilitating the withdrawal operation's integration into the transactional process.
    */
-  // buildWithdrawDatum({
-  //   ident,
-  //   orderAddresses,
-  //   suppliedLPAsset,
-  //   scooperFee,
-  // }: IWithdrawArguments): TDatumResult<Data> {
-  //   const datum = new Constr(0, [
-  //     this.buildPoolIdent(ident),
-  //     this.buildOrderAddresses(orderAddresses).schema,
-  //     scooperFee,
-  //     this.buildWithdrawAsset(suppliedLPAsset).schema,
-  //   ]);
+  buildWithdrawDatum({
+    ident,
+    orderAddresses,
+    suppliedLPAsset,
+    scooperFee,
+  }: IWithdrawArguments): TDatumResult<TWithdrawOrder> {
+    const datum: TWithdrawOrder = {
+      ident: this.buildPoolIdent(ident),
+      orderAddresses: this.buildOrderAddresses(orderAddresses).schema,
+      scooperFee,
+      WithdrawAsset: {
+        LPToken: {
+          value: suppliedLPAsset.amount,
+        },
+      },
+    };
 
-  //   const inline = Data.to(datum);
+    const data = Data.to(datum, WithdrawOrder);
 
-  //   return {
-  //     hash: BlazeHelper.inlineDatumToHash(inline),
-  //     inline,
-  //     schema: datum,
-  //   };
-  // }
-
-  // buildDepositPair(deposit: TDepositMixed): TDatumResult<Data> {
-  //   const datum = new Constr(2, [
-  //     new Constr(1, [
-  //       new Constr(0, [deposit.CoinAAmount.amount, deposit.CoinBAmount.amount]),
-  //     ]),
-  //   ]);
-
-  //   const inline = Data.to(datum);
-
-  //   return {
-  //     hash: BlazeHelper.inlineDatumToHash(inline),
-  //     inline,
-  //     schema: datum,
-  //   };
-  // }
-
-  // experimental_buildDepositZap(zap: TDepositSingle): TDatumResult<Data> {
-  //   const datum = new Constr(2, [
-  //     new Constr(zap.ZapDirection, [zap.CoinAmount.amount]),
-  //   ]);
-
-  //   const inline = Data.to(datum);
-
-  //   return {
-  //     hash: BlazeHelper.inlineDatumToHash(inline),
-  //     inline,
-  //     schema: datum,
-  //   };
-  // }
-
-  // buildWithdrawAsset(
-  //   fundedLPAsset: AssetAmount<IAssetAmountMetadata>
-  // ): TDatumResult<Data> {
-  //   const datum = new Constr(1, [fundedLPAsset.amount]);
-
-  //   const inline = Data.to(datum);
-
-  //   return {
-  //     hash: BlazeHelper.inlineDatumToHash(inline),
-  //     inline,
-  //     schema: datum,
-  //   };
-  // }
+    return {
+      hash: data.hash(),
+      inline: data.toCbor(),
+      schema: datum,
+    };
+  }
 
   buildSwapDirection(
     swap: TSwap,

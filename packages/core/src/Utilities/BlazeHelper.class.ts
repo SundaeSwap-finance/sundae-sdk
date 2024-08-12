@@ -61,32 +61,12 @@ export class BlazeHelper {
           paymentCredentials,
         };
       }
+
+      // Not supporting for now, but possible.
       case Core.AddressType.PointerKey:
-      case Core.AddressType.PointerScript: {
-        const paymentCredentials = details
-          .asPointer()
-          ?.getPaymentCredential().hash;
-        if (!paymentCredentials) {
-          BlazeHelper.throwNoPaymentKeyError();
-        }
-
-        return {
-          paymentCredentials,
-        };
-      }
+      case Core.AddressType.PointerScript:
       case Core.AddressType.RewardKey:
-      case Core.AddressType.RewardScript: {
-        const paymentCredentials = details
-          .asReward()
-          ?.getPaymentCredential().hash;
-        if (!paymentCredentials) {
-          BlazeHelper.throwNoPaymentKeyError();
-        }
-
-        return {
-          paymentCredentials,
-        };
-      }
+      case Core.AddressType.RewardScript:
       case Core.AddressType.Byron:
       default:
         BlazeHelper.throwNoPaymentKeyError();
@@ -232,7 +212,7 @@ export class BlazeHelper {
     errorMessage: string
   ): never {
     throw new Error(
-      `You supplied an invalid address: ${address}. Please check your arguments and try again. Error message from BlazeHelper: ${errorMessage}`
+      `You supplied an invalid address: ${address}. Please check your arguments and try again. Error message: ${errorMessage}`
     );
   }
 }

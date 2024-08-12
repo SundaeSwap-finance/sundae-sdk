@@ -1,9 +1,10 @@
 import { jest } from "@jest/globals";
 
-import { PREVIEW_DATA } from "../../../TestUtilities/mockData.js";
 import { DatumBuilderBlazeV1 } from "../../DatumBuilder.Blaze.V1.class.js";
+import { V1_EXPECTATIONS } from "../../__data__/v1.expectations.js";
 
 let builderInstance: DatumBuilderBlazeV1;
+const expectations = V1_EXPECTATIONS.buildPoolIdent;
 
 beforeEach(() => {
   builderInstance = new DatumBuilderBlazeV1("preview");
@@ -16,13 +17,10 @@ afterEach(() => {
 describe("buildPoolIdent", () => {
   it("should correctly build and validate a pool ident", () => {
     expect(() =>
-      builderInstance.buildPoolIdent(PREVIEW_DATA.pools.v3.ident)
-    ).toThrowError(DatumBuilderBlazeV1.INVALID_POOL_IDENT);
+      builderInstance.buildPoolIdent(expectations[0].args)
+    ).toThrowError(expectations[0].expectations.error);
 
-    const validIdent = builderInstance.buildPoolIdent(
-      PREVIEW_DATA.pools.v1.ident
-    );
-
-    expect(validIdent).toEqual(PREVIEW_DATA.pools.v1.ident);
+    const validIdent = builderInstance.buildPoolIdent(expectations[1].args);
+    expect(validIdent).toEqual(expectations[1].expectations.value);
   });
 });

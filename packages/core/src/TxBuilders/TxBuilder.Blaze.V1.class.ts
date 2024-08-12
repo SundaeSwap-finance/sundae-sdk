@@ -41,7 +41,7 @@ import { DatumBuilderBlazeV1 } from "../DatumBuilders/DatumBuilder.Blaze.V1.clas
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import { OrderDatum } from "../DatumBuilders/contracts/contracts.v3.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
-import { LucidHelper } from "../Utilities/LucidHelper.class.js";
+import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
@@ -273,7 +273,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
 
     const txInstance = this.newTxInstance(referralFee);
 
-    const { inline } = this.datumBuilder.buildSwapDatum({
+    const { inline, hash } = this.datumBuilder.buildSwapDatum({
       ident,
       swap: {
         SuppliedCoin: SundaeUtils.getAssetSwapDirection(
@@ -327,17 +327,17 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       ...Object.entries(payment).filter(([key]) => key !== "lovelace")
     );
 
-    const datum = Core.PlutusData.fromCbor(Core.HexBlob(inline));
+    const datum = Core.DatumHash(Core.HexBlob(hash));
 
     txInstance.lockAssets(
       Core.addressFromBech32(scriptAddress),
       newPayment,
-      datum.hash()
+      datum
     );
 
     return this.completeTx({
       tx: txInstance,
-      datum: datum.toCbor(),
+      datum: inline,
       referralFee: referralFee?.payment,
     });
   }
@@ -1328,7 +1328,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
         }
       });
 
-      const signerKey = LucidHelper.getAddressHashes(
+      const signerKey = BlazeHelper.getAddressHashes(
         yieldFarming.ownerAddress.address
       );
 

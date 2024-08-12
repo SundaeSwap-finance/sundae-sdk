@@ -1,12 +1,17 @@
 import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
 
-import { EDatumType, EPoolCoin } from "../../../@types/datumbuilder.js";
-import { ADA_METADATA } from "../../../constants.js";
+import {
+  EDatumType,
+  EPoolCoin,
+  ISwapArguments,
+} from "../../../@types/datumbuilder.js";
 import { PREVIEW_DATA } from "../../../exports/testing.js";
 import { DatumBuilderBlazeV1 } from "../../DatumBuilder.Blaze.V1.class.js";
+import { V1_EXPECTATIONS } from "../../__data__/v1.expectations.js";
 
 let builderInstance: DatumBuilderBlazeV1;
+const expectations = V1_EXPECTATIONS.buildSwapDatum;
 
 beforeEach(() => {
   builderInstance = new DatumBuilderBlazeV1("preview");
@@ -18,36 +23,12 @@ afterEach(() => {
 
 describe("buildSwapDatum()", () => {
   it("should correctly build the datum, variation 1", () => {
-    const result = builderInstance.buildSwapDatum({
-      orderAddresses: {
-        DestinationAddress: {
-          address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          },
-        },
-      },
-      ident: PREVIEW_DATA.pools.v1.ident,
-      fundedAsset: new AssetAmount(
-        10_000_000n,
-        PREVIEW_DATA.assets.tada.metadata
-      ),
-      swap: {
-        SuppliedCoin: EPoolCoin.A,
-        MinimumReceivable: new AssetAmount(100n, {
-          ...ADA_METADATA,
-          assetId: PREVIEW_DATA.assets.tindy.metadata.assetId,
-        }),
-      },
-      scooperFee: 1_000_000n,
-    });
+    const result = builderInstance.buildSwapDatum(
+      expectations[0].args as ISwapArguments
+    );
 
-    expect(result.inline).toEqual(
-      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a000f4240d8799fd879801a00989680d8799f1864ffffff"
-    );
-    expect(result.hash).toEqual(
-      "a05ea9ede761983134b23116cc28ab676dbd417077f0b2e1ce47ff01a9d32933"
-    );
+    expect(result.inline).toEqual(expectations[0].expectations.inline);
+    expect(result.hash).toEqual(expectations[0].expectations.hash);
   });
 
   it("should correctly build the datum, variation 2", () => {
