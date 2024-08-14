@@ -23,7 +23,7 @@ export const CreatePool: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         .mintPool({
           assetA: PREVIEW_DATA.assets.tada,
           assetB: PREVIEW_DATA.assets.tindy,
-          fee: 5n,
+          fees: 5n,
           ownerAddress: activeWalletAddr,
           ...(useReferral
             ? {
