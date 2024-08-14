@@ -327,13 +327,11 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       ...Object.entries(payment).filter(([key]) => key !== "lovelace")
     );
 
-    const datum = Core.DatumHash(hash);
+    const datum = Core.DatumHash(Core.HexBlob(hash));
+    const script = Core.addressFromBech32(scriptAddress);
 
-    txInstance.lockAssets(
-      Core.addressFromBech32(scriptAddress),
-      newPayment,
-      datum
-    );
+    txInstance.provideDatum(Core.PlutusData.fromCbor(Core.HexBlob(inline)));
+    txInstance.lockAssets(script, newPayment, datum);
 
     return this.completeTx({
       tx: txInstance,
@@ -1417,12 +1415,14 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
         }
 
         return {
-          cbor: finishedTx.body().toCbor(),
+          cbor: finishedTx.toCbor(),
           builtTx: finishedTx,
           sign: async () => {
             const signedTx = await that.blaze.signTransaction(
               finishedTx as Core.Transaction
             );
+
+            console.log(signedTx.toCbor());
 
             return {
               cbor: signedTx.toCbor(),

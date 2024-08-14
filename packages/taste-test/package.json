@@ -61,7 +61,7 @@
   "peerDependencies": {
     "@sundaeswap/asset": "^1.0.3",
     "@sundaeswap/core": "^1.1.12",
-    "@blaze-cardano/sdk": "^0.1.4",
+    "@blaze-cardano/sdk": "^0.1.6",
     "lucid-cardano": "^0.10.7"
   }
 }

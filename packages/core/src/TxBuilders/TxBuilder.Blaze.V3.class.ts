@@ -8,7 +8,7 @@ import {
   WebWallet,
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { Lucid, OutRef, toUnit, type Datum } from "lucid-cardano";
+import { Lucid } from "lucid-cardano";
 
 import type {
   ICancelConfigArgs,
@@ -131,11 +131,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     Core.TransactionUnspentOutput[]
   > {
     if (!this.referenceUtxos) {
-      const utxos: OutRef[] = [];
       const { references } = await this.getProtocolParams();
-      references.forEach(({ txIn }) =>
-        utxos.push({ outputIndex: txIn.index, txHash: txIn.hash })
-      );
       this.referenceUtxos = await this.blaze.provider.resolveUnspentOutputs(
         references.map(({ txIn }) => {
           return new Core.TransactionInput(
@@ -295,13 +291,13 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    *  - fee: The desired pool fee, denominated out of 10 thousand.
    *  - marketOpen: The POSIX timestamp for when the pool should allow trades (market open).
    *  - ownerAddress: Who the generated LP tokens should be sent to.
-   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A completed transaction object.
+   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A completed transaction object.
    *
    * @throws {Error} Throws an error if the transaction fails to build or submit.
    */
   async mintPool(
     mintPoolArgs: IMintV3PoolConfigArgs
-  ): Promise<IComposedTx<BlazeTx, Core.Transaction, Datum | undefined>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const {
       assetA,
       assetB,
@@ -333,13 +329,13 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     });
 
     const nftAssetName = DatumBuilderLucidV3.computePoolNftName(newPoolIdent);
-    const poolNftAssetIdHex = toUnit(poolPolicyId, nftAssetName);
+    const poolNftAssetIdHex = `${poolPolicyId + nftAssetName}`;
 
     const refAssetName = DatumBuilderLucidV3.computePoolRefName(newPoolIdent);
-    const poolRefAssetIdHex = toUnit(poolPolicyId, refAssetName);
+    const poolRefAssetIdHex = `${poolPolicyId + refAssetName}`;
 
     const poolLqAssetName = DatumBuilderLucidV3.computePoolLqName(newPoolIdent);
-    const poolLqAssetIdHex = toUnit(poolPolicyId, poolLqAssetName);
+    const poolLqAssetIdHex = `${poolPolicyId + poolLqAssetName}`;
 
     const poolAssets = {
       lovelace: POOL_MIN_ADA,
@@ -451,7 +447,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     tx.lockAssets(
       Core.addressFromBech32(metadataAddress),
       makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
-      Data.Void()
+      Data.void()
     );
 
     if (donateToTreasury) {
@@ -473,14 +469,14 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
         tx.lockAssets(
           Core.addressFromBech32(realTreasuryAddress),
           makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, circulatingLp]),
-          Data.Void()
+          Data.void()
         );
       } else {
         const donation = (circulatingLp * donateToTreasury) / 100n;
         tx.lockAssets(
           Core.addressFromBech32(realTreasuryAddress),
           makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, donation]),
-          Data.Void()
+          Data.void()
         );
 
         tx.lockAssets(
@@ -489,7 +485,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
             poolLqAssetIdHex,
             circulatingLp - donation,
           ]),
-          Data.Void()
+          Data.void()
         );
       }
     } else {
@@ -524,11 +520,11 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    * and completes the transaction by paying to the contract and finalizing the transaction details.
    *
    * @param {ISwapConfigArgs} swapArgs - The configuration arguments for the swap.
-   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the result of the completed transaction.
+   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A promise that resolves to the result of the completed transaction.
    */
   async swap(
     swapArgs: ISwapConfigArgs
-  ): Promise<IComposedTx<BlazeTx, Core.Transaction, Datum | undefined>> {
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const config = new SwapConfig(swapArgs);
 
     const {
@@ -749,7 +745,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
 
     return this.completeTx({
       tx,
-      datum,
+      datum: datum,
       deposit: ORDER_ROUTE_DEPOSIT_DEFAULT,
       referralFee: mergedReferralFee?.payment,
       scooperFee: fees.scooperFee.add(secondSwapData.fees.scooperFee).amount,
@@ -1274,7 +1270,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   }: // coinSelection = true,
   // nativeUplc = true,
   ITxBuilderLucidCompleteTxArgs): Promise<
-    IComposedTx<BlazeTx, Core.Transaction, Datum | undefined>
+    IComposedTx<BlazeTx, Core.Transaction>
   > {
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
@@ -1288,7 +1284,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     let finishedTx: Core.Transaction | undefined;
     const that = this;
 
-    const thisTx: IComposedTx<BlazeTx, Core.Transaction, Datum | undefined> = {
+    const thisTx: IComposedTx<BlazeTx, Core.Transaction> = {
       tx,
       datum,
       fees: baseFees,
