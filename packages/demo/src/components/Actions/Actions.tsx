@@ -20,6 +20,7 @@ import { OrderRouting } from "./modules/OrderRouting";
 import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
 import { Unlock } from "./modules/UnlockAssets";
+import { UnlockV1 } from "./modules/UnlockAssetsV1";
 import { UpdateSwap } from "./modules/UpdateSwap";
 import { Withdraw } from "./modules/Withdraw";
 import { Zap } from "./modules/Zap";
@@ -109,11 +110,17 @@ export const Actions: FC = () => {
         <Withdraw setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Zap setCBOR={setCBOR} setFees={setFees} submit={submit} />
         <UpdateSwap setCBOR={setCBOR} setFees={setFees} submit={submit} />
-        <Lock setFees={setFees} setCBOR={setCBOR} submit={submit} />
-        <Unlock setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <CancelSwap setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Migrate setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <CreatePool setFees={setFees} setCBOR={setCBOR} submit={submit} />
+
+        <div className="col-span-2 flex items-center justify-between gap-2">
+          <h4 className="w-32">Yield Farming</h4>
+          <hr className="my-10 w-full" />
+        </div>
+        <Lock setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        <Unlock setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        <UnlockV1 setFees={setFees} setCBOR={setCBOR} submit={submit} />
 
         <div className="col-span-2 flex items-center justify-between gap-2">
           <h4 className="w-24">Taste Tests</h4>

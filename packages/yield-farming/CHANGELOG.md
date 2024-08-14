@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.39](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.38...@sundaeswap/yield-farming@1.0.39) (2024-08-14)
+
+### Bug Fixes
+
+- missing redeemer for v1 unlock ([0ec1b74](https://github.com/SundaeSwap-finance/sundae-sdk/commit/0ec1b74686e39ebd3c57a7c29189e3096a401164))
+
+## [1.0.38](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.37...@sundaeswap/yield-farming@1.0.38) (2024-08-14)
+
+**Note:** Version bump only for package @sundaeswap/yield-farming
+
 ## [1.0.37](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.36...@sundaeswap/yield-farming@1.0.37) (2024-08-06)
 
 **Note:** Version bump only for package @sundaeswap/yield-farming
