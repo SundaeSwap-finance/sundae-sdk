@@ -10,6 +10,8 @@ import { LucidHelper } from "@sundaeswap/core/lucid";
 import { SundaeUtils } from "@sundaeswap/core/utilities";
 
 import {
+  Constr,
+  Data,
   UTxO,
   type Assets,
   type Datum,
@@ -348,7 +350,7 @@ export class YieldFarmingLucid implements YieldFarming {
       type: "PlutusV1",
     });
     tx.addSignerKey(paymentCredentials);
-    tx.collectFrom(positions);
+    tx.collectFrom(positions, Data.to(new Constr(0, [])));
 
     const allAssets: Assets = {};
     positions.forEach(({ assets }) => {
