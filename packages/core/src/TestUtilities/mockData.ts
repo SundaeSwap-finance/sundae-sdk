@@ -1,11 +1,20 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import type { Assets, UTxO } from "lucid-cardano";
 
 import { EDatumType, TOrderAddressesArgs } from "../@types/datumbuilder.js";
 import { IPoolData } from "../@types/queryprovider.js";
 import { EContractVersion } from "../@types/txbuilders.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { ADA_METADATA } from "../constants.js";
+
+export interface LocalUtxo {
+  txHash: string;
+  outputIndex: number;
+  assets: Record<string, bigint>;
+  address: string;
+  datumHash?: string | null;
+  datum?: string | null;
+  scriptRef?: { type: string; script: string } | null;
+}
 
 interface INetworkData {
   pools: {
@@ -25,14 +34,14 @@ interface INetworkData {
   };
   orderAddresses: TOrderAddressesArgs;
   wallet: {
-    assets: Assets;
-    utxos: UTxO[];
+    assets: Record<string, bigint>;
+    utxos: LocalUtxo[];
     referenceUtxos: {
-      previewTasteTest: UTxO;
+      previewTasteTest: LocalUtxo;
     };
     submittedOrderUtxos: {
-      swapV1: UTxO;
-      swapV3: UTxO;
+      swapV1: LocalUtxo;
+      swapV3: LocalUtxo;
     };
   };
 }

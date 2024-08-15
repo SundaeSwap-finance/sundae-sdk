@@ -4,7 +4,7 @@ import {
   QueryProviderSundaeSwapLegacy,
   SundaeSDK,
 } from "@sundaeswap/core";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 
 import { useAppState } from "../../state/context";
 
@@ -14,13 +14,8 @@ const SelectBuilderOption: FC<{
 }> = ({ builder, name }) => <option value={builder}>{name}</option>;
 
 const SelectBuilder: FC = () => {
-<<<<<<< HEAD
   const { setSDK, setBuilderLib, builderLib, useV3Contracts } = useAppState();
-=======
-  const { setSDK, useV3Contracts } = useAppState();
-  const [builderLib, setBuilderLib] = useState<TSupportedTxBuilders>("lucid");
   const [network, setNetwork] = useState<0 | 1>(0);
->>>>>>> f79bdb010346a6b2b7fb57a4dbbd70054c785826
 
   const handleTxBuilderLoaderSelect = (key: ETxBuilderType) => {
     setBuilderLib(key);
@@ -37,20 +32,25 @@ const SelectBuilder: FC = () => {
           const api = await window.cardano.eternl.enable();
           const blazeInstance = await Blaze.from(
             new Blockfrost({
-              network: "cardano-preview",
-              // @ts-ignore
-              projectId: window.__APP_CONFIG.blockfrostAPI,
+              network: network ? "cardano-mainnet" : "cardano-preview",
+              projectId: network
+                ? // @ts-ignore
+                  window.__APP_CONFIG.blockfrostAPIMainnet
+                : // @ts-ignore
+                  window.__APP_CONFIG.blockfrostAPIPreview,
             }),
             new WebWallet(api)
           );
 
           const options: ISundaeSDKOptions = {
             customQueryProvider: !useV3Contracts
-              ? new QueryProviderSundaeSwapLegacy("preview")
+              ? new QueryProviderSundaeSwapLegacy(
+                  network ? "mainnet" : "preview"
+                )
               : undefined,
             wallet: {
               name: "eternl",
-              network: "preview",
+              network: network ? "mainnet" : "preview",
               builder: {
                 blaze: blazeInstance,
                 type: ETxBuilderType.BLAZE,
@@ -67,8 +67,11 @@ const SelectBuilder: FC = () => {
           const lucidInstance = await Lucid.new(
             new Blockfrost(
               "https://cardano-mainnet.blockfrost.io/api/v0/",
-              // @ts-ignore
-              window.__APP_CONFIG.blockfrostAPI
+              network
+                ? // @ts-ignore
+                  window.__APP_CONFIG.blockfrostAPIMainnet
+                : // @ts-ignore
+                  window.__APP_CONFIG.blockfrostAPIPreview
             ),
             network ? "Mainnet" : "Preview"
           );

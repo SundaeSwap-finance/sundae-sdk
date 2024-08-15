@@ -94,7 +94,8 @@ const config = {
         appConfig: {
           envName: "local",
           apiUrls: {},
-          blockfrostAPI: process.env.BLOCKFROST_API_KEY,
+          blockfrostAPIPreview: process.env.BLOCKFROST_API_KEY_PREVIEW,
+          blockfrostAPIMainnet: process.env.BLOCKFROST_API_KEY_MAINNET,
         },
       },
     }),

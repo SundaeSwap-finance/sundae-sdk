@@ -12,7 +12,7 @@ import { SundaeUtils } from "@sundaeswap/core/utilities";
 import {
   Constr,
   Data,
-  UTxO,
+  UTXO,
   type Assets,
   type Datum,
   type Lucid,
@@ -337,7 +337,7 @@ export class YieldFarmingLucid implements YieldFarming {
     referralFee,
   }: {
     destination: string;
-    positions: UTxO[];
+    positions: UTXO[];
     referralFee?: ITxBuilderReferralFee;
   }) {
     const tx = this.lucid.newTx();

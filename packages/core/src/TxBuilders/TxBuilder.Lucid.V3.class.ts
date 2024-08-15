@@ -42,7 +42,6 @@ import {
   SettingsDatum,
 } from "../DatumBuilders/Contracts/Contracts.Lucid.v3.js";
 import { V3Types } from "../DatumBuilders/Contracts/index.js";
-import { DatumBuilderLucidV1 } from "../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
@@ -76,6 +75,7 @@ interface ITxBuilderLucidCompleteTxArgs {
  * @implements {TxBuilderV3}
  */
 export class TxBuilderLucidV3 extends TxBuilderV3 {
+  datumBuilder: DatumBuilderLucidV3;
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
@@ -89,15 +89,16 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
 
   /**
    * @param {Lucid} lucid A configured Lucid instance to use.
-   * @param {DatumBuilderLucidV3} datumBuilder A valid V3 DatumBuilder class that will build valid datums.
+   * @param {TSupportedNetworks} network The network to build transactions on.
    */
   constructor(
     public lucid: Lucid,
-    public datumBuilder: DatumBuilderLucidV3,
+    network: TSupportedNetworks,
     queryProvider?: QueryProviderSundaeSwap
   ) {
     super();
     this.network = lucid.network === "Mainnet" ? "mainnet" : "preview";
+    this.datumBuilder = new DatumBuilderLucidV3(network);
     this.queryProvider =
       queryProvider ?? new QueryProviderSundaeSwap(this.network);
   }
@@ -495,10 +496,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     });
 
     let scooperFee = await this.getMaxScooperFeeAmount();
-    const v1TxBUilder = new TxBuilderLucidV1(
-      this.lucid,
-      new DatumBuilderLucidV1(this.network)
-    );
+    const v1TxBUilder = new TxBuilderLucidV1(this.lucid, this.network);
     const v1Address = await v1TxBUilder
       .getValidatorScript("escrow.spend")
       .then(({ compiledCode }) =>
@@ -555,7 +553,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     const isSecondSwapV1 = args.swapB.pool.version === EContractVersion.V1;
 
     const secondSwapBuilder = isSecondSwapV1
-      ? new TxBuilderLucidV1(this.lucid, new DatumBuilderLucidV1(this.network))
+      ? new TxBuilderLucidV1(this.lucid, this.network)
       : this;
     const secondSwapAddress = isSecondSwapV1
       ? await (secondSwapBuilder as TxBuilderLucidV1)
@@ -727,10 +725,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       Data.from(spendingDatum as string, OrderDatum);
     } catch (e) {
       console.log("This is a V1 order! Calling appropriate builder...");
-      const v1Builder = new TxBuilderLucidV1(
-        this.lucid,
-        new DatumBuilderLucidV1(this.network)
-      );
+      const v1Builder = new TxBuilderLucidV1(this.lucid, this.network);
       return v1Builder.cancel({ ...cancelArgs });
     }
 

@@ -1,16 +1,18 @@
 import { jest } from "@jest/globals";
-import { Lucid, OutRef, Provider, UTxO } from "lucid-cardano";
+import { Lucid, OutRef, Provider } from "lucid-cardano";
 
 import { getBlockfrostProtocolParameters, windowCardano } from "./cardano.js";
-import { PREVIEW_DATA } from "./mockData.js";
+import { LocalUtxo, PREVIEW_DATA } from "./mockData.js";
 
-type TGetUtxosByOutRefMock = (outRefs: OutRef[]) => Promise<UTxO[] | undefined>;
-type TGetUtxosMock = () => Promise<UTxO[]>;
+type TGetUtxosByOutRefMock = (
+  outRefs: OutRef[]
+) => Promise<LocalUtxo[] | undefined>;
+type TGetUtxosMock = () => Promise<LocalUtxo[]>;
 
 export const setupLucid = (
   useLucid?: (lucid: Lucid) => void,
   options?: {
-    customUtxos?: UTxO[];
+    customUtxos?: LocalUtxo[];
     beforeAll?: () => void;
   }
 ): {
@@ -50,6 +52,7 @@ export const setupLucid = (
     const lucid = await Lucid.new(provider, "Preview");
     lucid.selectWalletFrom({
       address: PREVIEW_DATA.addresses.current,
+      // @ts-ignore
       utxos: options?.customUtxos ?? PREVIEW_DATA.wallet.utxos,
     });
     useLucid?.(lucid);

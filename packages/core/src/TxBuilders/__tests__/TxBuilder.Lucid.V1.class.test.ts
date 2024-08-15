@@ -23,7 +23,7 @@ let datumBuilder: DatumBuilderLucidV1;
 
 const { getUtxosByOutRefMock } = setupLucid((lucid) => {
   datumBuilder = new DatumBuilderLucidV1("preview");
-  builder = new TxBuilderLucidV1(lucid, datumBuilder);
+  builder = new TxBuilderLucidV1(lucid, "preview");
 });
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];

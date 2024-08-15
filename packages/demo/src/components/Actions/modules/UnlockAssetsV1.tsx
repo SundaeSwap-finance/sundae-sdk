@@ -20,7 +20,12 @@ export const UnlockV1: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       return;
     }
 
-    const YF = new YieldFarmingLucid(SDK.builder().lucid);
+    const lucid = SDK.lucid();
+    if (!lucid) {
+      throw new Error("Not using lucid.");
+    }
+
+    const YF = new YieldFarmingLucid(lucid);
 
     const hash = prompt("Transaction hash:");
     const index = prompt("Transaction index:");
@@ -29,7 +34,7 @@ export const UnlockV1: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       throw new Error("No hash or index.");
     }
 
-    const utxos = await SDK.builder().lucid.provider.getUtxosByOutRef([
+    const utxos = await lucid.provider.getUtxosByOutRef([
       {
         outputIndex: Number(index),
         txHash: hash,

@@ -51,7 +51,7 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
    * Constructs a swap datum object based on the provided swap arguments.
    * The function initializes a new datum with specific properties such as the pool ident,
    * order addresses, scooper fee, and swap direction schema. It then converts this datum
-   * into an inline format and computes its hash using {@link Lucid.BlazeHelper}. The function returns an
+   * into an inline format and computes its hash using {@link Blaze.BlazeHelper}. The function returns an
    * object containing the hash of the inline datum, the inline datum itself, and the original
    * datum schema.
    *
@@ -86,7 +86,7 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
    * Creates a deposit datum object from the given deposit arguments. The function initializes
    * a new datum with specific properties such as the pool ident, order addresses, scooper fee,
    * and deposit pair schema. It then converts this datum into an inline format and calculates
-   * its hash using {@link Lucid.BlazeHelper}. The function returns an object containing the hash of the inline
+   * its hash using {@link Blaze.BlazeHelper}. The function returns an object containing the hash of the inline
    * datum, the inline datum itself, and the original datum schema.
    *
    * @param {IDepositArguments} params - The deposit arguments required to construct the deposit datum.
@@ -130,7 +130,7 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
    * Generates a withdraw datum object from the specified withdraw arguments. This function constructs
    * a new datum with defined attributes such as the pool ident, order addresses, scooper fee, and
    * the schema for the supplied LP (Liquidity Provider) asset for withdrawal. After constructing the datum,
-   * it is converted into an inline format, and its hash is calculated using {@link Lucid.BlazeHelper}. The function returns
+   * it is converted into an inline format, and its hash is calculated using {@link Blaze.BlazeHelper}. The function returns
    * an object containing the hash of the inline datum, the inline datum itself, and the schema of the original
    * datum, which are crucial for executing the withdrawal operation within a transactional framework.
    *

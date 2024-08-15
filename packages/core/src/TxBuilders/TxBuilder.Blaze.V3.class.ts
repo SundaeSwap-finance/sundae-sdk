@@ -8,7 +8,6 @@ import {
   WebWallet,
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { Lucid } from "lucid-cardano";
 
 import type {
   ICancelConfigArgs,
@@ -38,9 +37,8 @@ import { ZapConfig } from "../Configs/ZapConfig.class.js";
 import {
   OrderDatum,
   SettingsDatum,
-} from "../DatumBuilders/Contracts/Contracts.Lucid.v3.js";
-import { V3Types } from "../DatumBuilders/Contracts/index.js";
-import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
+} from "../DatumBuilders/Contracts/Contracts.Blaze.v3.js";
+import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
@@ -55,7 +53,7 @@ import { TxBuilderBlazeV1 } from "./TxBuilder.Blaze.V1.class.js";
 /**
  * Object arguments for completing a transaction.
  */
-interface ITxBuilderLucidCompleteTxArgs {
+interface ITxBuilderBlazeCompleteTxArgs {
   tx: BlazeTx;
   referralFee?: AssetAmount<IAssetAmountMetadata>;
   datum?: string;
@@ -66,13 +64,14 @@ interface ITxBuilderLucidCompleteTxArgs {
 }
 
 /**
- * `TxBuilderLucidV3` is a class extending `TxBuilder` to support transaction construction
- * for Lucid against the V3 SundaeSwap protocol. It includes capabilities to build and execute various transaction types
+ * `TxBuilderBlazeV3` is a class extending `TxBuilder` to support transaction construction
+ * for Blaze against the V3 SundaeSwap protocol. It includes capabilities to build and execute various transaction types
  * such as swaps, cancellations, updates, deposits, withdrawals, and zaps.
  *
  * @implements {TxBuilderV3}
  */
 export class TxBuilderBlazeV3 extends TxBuilderV3 {
+  datumBuilder: DatumBuilderBlazeV3;
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
@@ -85,18 +84,58 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   private SETTINGS_NFT_NAME = "73657474696e6773";
 
   /**
-   * @param {Lucid} lucid A configured Lucid instance to use.
-   * @param {DatumBuilderLucidV3} datumBuilder A valid V3 DatumBuilder class that will build valid datums.
+   * @param {Blaze<Blockfrost, WebWallet>} blaze A configured Blaze instance to use.
+   * @param {TSupportedNetworks} network The Network identifier for this TxBuilder instance.
    */
   constructor(
     public blaze: Blaze<Blockfrost, WebWallet>,
     network: TSupportedNetworks,
-    public datumBuilder: DatumBuilderLucidV3,
     queryProvider?: QueryProviderSundaeSwap
   ) {
     super();
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
+    this.datumBuilder = new DatumBuilderBlazeV3(network);
+
+    if (this.network === "preview") {
+      this.blaze.params.costModels.set(
+        Core.PlutusLanguageVersion.V1,
+        Core.CostModel.newPlutusV1([
+          100788, 420, 1, 1, 1000, 173, 0, 1, 1000, 59957, 4, 1, 11183, 32,
+          201305, 8356, 4, 16000, 100, 16000, 100, 16000, 100, 16000, 100,
+          16000, 100, 16000, 100, 100, 100, 16000, 100, 94375, 32, 132994, 32,
+          61462, 4, 72010, 178, 0, 1, 22151, 32, 91189, 769, 4, 2, 85848,
+          228465, 122, 0, 1, 1, 1000, 42921, 4, 2, 24548, 29498, 38, 1, 898148,
+          27279, 1, 51775, 558, 1, 39184, 1000, 60594, 1, 141895, 32, 83150, 32,
+          15299, 32, 76049, 1, 13169, 4, 22100, 10, 28999, 74, 1, 28999, 74, 1,
+          43285, 552, 1, 44749, 541, 1, 33852, 32, 68246, 32, 72362, 32, 7243,
+          32, 7391, 32, 11546, 32, 85848, 228465, 122, 0, 1, 1, 90434, 519, 0,
+          1, 74433, 32, 85848, 228465, 122, 0, 1, 1, 85848, 228465, 122, 0, 1,
+          1, 270652, 22588, 4, 1457325, 64566, 4, 20467, 1, 4, 0, 141992, 32,
+          100788, 420, 1, 1, 81663, 32, 59498, 32, 20142, 32, 24588, 32, 20744,
+          32, 25933, 32, 24623, 32, 53384111, 14333, 10,
+        ]).costs()
+      );
+      this.blaze.params.costModels.set(
+        Core.PlutusLanguageVersion.V2,
+        Core.CostModel.newPlutusV2([
+          100788, 420, 1, 1, 1000, 173, 0, 1, 1000, 59957, 4, 1, 11183, 32,
+          201305, 8356, 4, 16000, 100, 16000, 100, 16000, 100, 16000, 100,
+          16000, 100, 16000, 100, 100, 100, 16000, 100, 94375, 32, 132994, 32,
+          61462, 4, 72010, 178, 0, 1, 22151, 32, 91189, 769, 4, 2, 85848,
+          228465, 122, 0, 1, 1, 1000, 42921, 4, 2, 24548, 29498, 38, 1, 898148,
+          27279, 1, 51775, 558, 1, 39184, 1000, 60594, 1, 141895, 32, 83150, 32,
+          15299, 32, 76049, 1, 13169, 4, 22100, 10, 28999, 74, 1, 28999, 74, 1,
+          43285, 552, 1, 44749, 541, 1, 33852, 32, 68246, 32, 72362, 32, 7243,
+          32, 7391, 32, 11546, 32, 85848, 228465, 122, 0, 1, 1, 90434, 519, 0,
+          1, 74433, 32, 85848, 228465, 122, 0, 1, 1, 85848, 228465, 122, 0, 1,
+          1, 955506, 213312, 0, 2, 270652, 22588, 4, 1457325, 64566, 4, 20467,
+          1, 4, 0, 141992, 32, 100788, 420, 1, 1, 81663, 32, 59498, 32, 20142,
+          32, 24588, 32, 20744, 32, 25933, 32, 24623, 32, 43053543, 10,
+          53384111, 14333, 10, 43574283, 26308, 10,
+        ]).costs()
+      );
+    }
   }
 
   /**
@@ -104,7 +143,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    * and fills in a place-holder for the compiled code of any validators.
    *
    * This is to keep things lean until we really need to attach a validator,
-   * in which case, a subsequent method call to {@link TxBuilderLucidV3#getValidatorScript}
+   * in which case, a subsequent method call to {@link TxBuilderBlazeV3#getValidatorScript}
    * will re-populate with real data.
    *
    * @returns {Promise<ISundaeProtocolParamsFull>}
@@ -123,9 +162,9 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   /**
    * Gets the reference UTxOs based on the transaction data
    * stored in the reference scripts of the protocol parameters
-   * using the Lucid provider.
+   * using the Blaze provider.
    *
-   * @returns {Promise<UTxO[]>}
+   * @returns {Promise<Core.TransactionUnspentOutput[]>}
    */
   public async getAllReferenceUtxos(): Promise<
     Core.TransactionUnspentOutput[]
@@ -165,9 +204,9 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   /**
    * Gets the settings UTxOs based on the transaction data
    * stored in the settings scripts of the protocol parameters
-   * using the Lucid provider.
+   * using the Blaze provider.
    *
-   * @returns {Promise<UTxO[]>}
+   * @returns {Promise<Core.TransactionUnspentOutput[]>}
    */
   public async getAllSettingsUtxos(): Promise<Core.TransactionUnspentOutput[]> {
     if (!this.settingsUtxos) {
@@ -231,7 +270,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   }
 
   /**
-   * Returns a new Tx instance from Lucid. Throws an error if not ready.
+   * Returns a new Tx instance from Blaze. Throws an error if not ready.
    * @returns
    */
   newTxInstance(fee?: ITxBuilderReferralFee): BlazeTx {
@@ -291,7 +330,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    *  - fee: The desired pool fee, denominated out of 10 thousand.
    *  - marketOpen: The POSIX timestamp for when the pool should allow trades (market open).
    *  - ownerAddress: Who the generated LP tokens should be sent to.
-   * @returns {Promise<IComposedTx<Tx, TxComplete>>} A completed transaction object.
+   * @returns {Promise<IComposedTx<BlazeTx, Core.Transaction>>} A completed transaction object.
    *
    * @throws {Error} Throws an error if the transaction fails to build or submit.
    */
@@ -323,18 +362,18 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
         this.getAllSettingsUtxos(),
       ]);
 
-    const newPoolIdent = DatumBuilderLucidV3.computePoolId({
+    const newPoolIdent = DatumBuilderBlazeV3.computePoolId({
       outputIndex: Number(userUtxos[0].input().index().toString()),
       txHash: userUtxos[0].input().transactionId(),
     });
 
-    const nftAssetName = DatumBuilderLucidV3.computePoolNftName(newPoolIdent);
+    const nftAssetName = DatumBuilderBlazeV3.computePoolNftName(newPoolIdent);
     const poolNftAssetIdHex = `${poolPolicyId + nftAssetName}`;
 
-    const refAssetName = DatumBuilderLucidV3.computePoolRefName(newPoolIdent);
+    const refAssetName = DatumBuilderBlazeV3.computePoolRefName(newPoolIdent);
     const poolRefAssetIdHex = `${poolPolicyId + refAssetName}`;
 
-    const poolLqAssetName = DatumBuilderLucidV3.computePoolLqName(newPoolIdent);
+    const poolLqAssetName = DatumBuilderBlazeV3.computePoolLqName(newPoolIdent);
     const poolLqAssetIdHex = `${poolPolicyId + poolLqAssetName}`;
 
     const poolAssets = {
@@ -385,13 +424,12 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     const {
       metadataAdmin: { paymentCredential, stakeCredential },
       authorizedStakingKeys: [poolStakingCredential],
-    } = Data.from(settingsDatum, V3Types.SettingsDatum);
-    const metadataAddress = DatumBuilderLucidV3.addressSchemaToBech32(
+    } = Data.from(settingsDatum, SettingsDatum);
+    const metadataAddress = DatumBuilderBlazeV3.addressSchemaToBech32(
       { paymentCredential, stakeCredential },
-      await Lucid.new(
-        undefined,
-        this.network === "mainnet" ? "Mainnet" : "Preview"
-      )
+      this.network === "mainnet"
+        ? Core.NetworkId.Mainnet
+        : Core.NetworkId.Testnet
     );
 
     const { blueprint } = await this.getProtocolParams();
@@ -399,7 +437,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       ({ title }) => title === "pool.mint"
     );
 
-    const sundaeStakeAddress = DatumBuilderLucidV3.addressSchemaToBech32(
+    const sundaeStakeAddress = DatumBuilderBlazeV3.addressSchemaToBech32(
       {
         paymentCredential: {
           SCredential: {
@@ -410,10 +448,9 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
           keyHash: poolStakingCredential,
         },
       },
-      await Lucid.new(
-        undefined,
-        this.network === "mainnet" ? "Mainnet" : "Preview"
-      )
+      this.network === "mainnet"
+        ? Core.NetworkId.Mainnet
+        : Core.NetworkId.Testnet
     );
 
     const tx = this.newTxInstance(referralFee);
@@ -457,12 +494,11 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       }
 
       const datum = Data.from(settingsDatum, SettingsDatum);
-      const realTreasuryAddress = DatumBuilderLucidV3.addressSchemaToBech32(
+      const realTreasuryAddress = DatumBuilderBlazeV3.addressSchemaToBech32(
         datum.treasuryAddress,
-        await Lucid.new(
-          undefined,
-          this.network === "mainnet" ? "Mainnet" : "Preview"
-        )
+        this.network === "mainnet"
+          ? Core.NetworkId.Mainnet
+          : Core.NetworkId.Testnet
       );
 
       if (donateToTreasury === 100n) {
@@ -501,13 +537,13 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       referralFee: referralFee?.payment,
       deposit: ORDER_DEPOSIT_DEFAULT * (exoticPair ? 3n : 2n),
       /**
-       * We avoid Lucid's version of coinSelection because we need to ensure
+       * We avoid Blaze's version of coinSelection because we need to ensure
        * that the first input is also the seed input for determining the pool
        * ident.
        */
       coinSelection: false,
       /**
-       * There are some issues with the way Lucid evaluates scripts sometimes,
+       * There are some issues with the way Blaze evaluates scripts sometimes,
        * so we just use the Haskell Plutus core engine since we use Blockfrost.
        */
       nativeUplc: false,
@@ -591,7 +627,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
         payment.lovelace,
         ...Object.entries(payment).filter(([key]) => key !== "lovelace")
       ),
-      Core.PlutusData.fromCbor(Core.HexBlob.fromBytes(Buffer.from(inline)))
+      Core.PlutusData.fromCbor(Core.HexBlob(inline))
     );
 
     return this.completeTx({
@@ -821,7 +857,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     });
     cancelReadFrom.forEach((utxo) => tx.addReferenceInput(utxo));
 
-    const signerKey = DatumBuilderLucidV3.getSignerKeyFromDatum(
+    const signerKey = DatumBuilderBlazeV3.getSignerKeyFromDatum(
       spendingDatum.toCbor()
     );
 
@@ -1223,7 +1259,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     }
 
     const newAddress = new Core.Address({
-      type: Core.AddressType.BasePaymentKeyStakeKey,
+      type: Core.AddressType.BasePaymentScriptStakeKey,
       paymentPart: {
         hash: paymentStakeCred,
         type: Core.CredentialType.ScriptHash,
@@ -1237,7 +1273,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
 
   /**
    * Retrieves the list of UTXOs associated with the wallet, sorts them first by transaction hash (`txHash`)
-   * in ascending order and then by output index (`outputIndex`) in ascending order, and returns them for Lucid
+   * in ascending order and then by output index (`outputIndex`) in ascending order, and returns them for Blaze
    * to collect from.
    *
    * @returns {Promise<UTxO[]>} A promise that resolves to an array of UTXOs for the transaction. Sorting is required
@@ -1269,7 +1305,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     scooperFee,
   }: // coinSelection = true,
   // nativeUplc = true,
-  ITxBuilderLucidCompleteTxArgs): Promise<
+  ITxBuilderBlazeCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
@@ -1283,6 +1319,12 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
 
     let finishedTx: Core.Transaction | undefined;
     const that = this;
+
+    // Apply coinSelection argument.
+    // tx.useCoinSelector()
+
+    // Apply nativeUplc argument.
+    // tx.useEvaluator()
 
     const thisTx: IComposedTx<BlazeTx, Core.Transaction> = {
       tx,

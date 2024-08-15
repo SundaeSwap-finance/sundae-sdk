@@ -60,6 +60,11 @@
       "import": "./dist/esm/exports/lucid.js",
       "require": "./dist/cjs/exports/lucid.js",
       "types": "./dist/types/exports/lucid.d.ts"
+    },
+    "./blaze": {
+      "import": "./dist/esm/exports/blaze.js",
+      "require": "./dist/cjs/exports/blaze.js",
+      "types": "./dist/types/exports/blaze.d.ts"
     }
   },
   "scripts": {
@@ -76,6 +81,7 @@
     "docs:ci": "yarn docs --unsafe"
   },
   "devDependencies": {
+    "@blaze-cardano/emulator": "^0.1.46",
     "@sundaeswap/bigint-math": "^0.6.3",
     "@sundaeswap/cpp": "^1.0.3",
     "@sundaeswap/fraction": "^1.0.3",

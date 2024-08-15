@@ -9,7 +9,6 @@ import type { TTasteTestFees } from "@sundaeswap/taste-test";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import ReactJson from "react-json-view";
 
-import { V3_CONTRACT_POOL_TINDY } from "../../constants";
 import { useAppState } from "../../state/context";
 import { CancelSwap } from "./modules/CancelSwap";
 import { CreatePool } from "./modules/CreatePool";
@@ -31,7 +30,7 @@ export const poolQuery: IPoolByPairQuery = {
 };
 
 export const newPoolQuery: IPoolByIdentQuery = {
-  ident: V3_CONTRACT_POOL_TINDY.ident,
+  ident: "2e74e6af9739616dd021f547bca1f68c937b566bb6ca2e4782e76001",
 };
 
 interface ICBOR {

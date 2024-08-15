@@ -68,7 +68,7 @@ const getPaymentAddressFromOutput = (output: C.TransactionOutput) => {
 
 const { getUtxosByOutRefMock } = setupLucid((lucid) => {
   datumBuilder = new DatumBuilderLucidV3("preview");
-  builder = new TxBuilderLucidV3(lucid, datumBuilder);
+  builder = new TxBuilderLucidV3(lucid, "preview");
 });
 
 afterAll(() => {

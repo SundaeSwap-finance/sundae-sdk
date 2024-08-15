@@ -94,8 +94,6 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
   static INVALID_POOL_IDENT =
     "You supplied a pool ident of an invalid length! The will prevent the scooper from processing this order.";
 
-  public V3_POOL_PARAMS = {};
-
   constructor(network: TSupportedNetworks) {
     this.network = network;
   }
@@ -315,20 +313,6 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
       hash: LucidHelper.inlineDatumToHash(inline),
       inline,
       schema: poolMintRedeemer,
-    };
-  }
-
-  public buildWithdrawAsset(
-    fundedLPAsset: AssetAmount<IAssetAmountMetadata>
-  ): TDatumResult<Data> {
-    const datum = new Constr(1, [fundedLPAsset.amount]);
-
-    const inline = Data.to(datum);
-
-    return {
-      hash: LucidHelper.inlineDatumToHash(inline),
-      inline,
-      schema: datum,
     };
   }
 

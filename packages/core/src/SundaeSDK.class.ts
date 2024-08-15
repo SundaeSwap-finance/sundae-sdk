@@ -83,24 +83,19 @@ export class SundaeSDK {
   private async registerTxBuilders() {
     switch (this.options.wallet.builder.type) {
       case ETxBuilderType.LUCID: {
-        const [
-          { TxBuilderLucidV1 },
-          { TxBuilderLucidV3 },
-          { DatumBuilderLucidV1, DatumBuilderLucidV3 },
-        ] = await Promise.all([
+        const [{ TxBuilderLucidV1 }, { TxBuilderLucidV3 }] = await Promise.all([
           import("./TxBuilders/TxBuilder.Lucid.V1.class.js"),
           import("./TxBuilders/TxBuilder.Lucid.V3.class.js"),
-          import("./DatumBuilders"),
         ]);
 
         this.builders.set(ETxBuilderType.LUCID, {
           [EContractVersion.V1]: new TxBuilderLucidV1(
             this.options.wallet.builder.lucid,
-            new DatumBuilderLucidV1(this.options.wallet.network)
+            this.options.wallet.network
           ),
           [EContractVersion.V3]: new TxBuilderLucidV3(
             this.options.wallet.builder.lucid,
-            new DatumBuilderLucidV3(this.options.wallet.network)
+            this.options.wallet.network
           ),
         });
 
@@ -125,14 +120,9 @@ export class SundaeSDK {
         break;
       }
       case ETxBuilderType.BLAZE: {
-        const [
-          { TxBuilderBlazeV1 },
-          { TxBuilderBlazeV3 },
-          { DatumBuilderLucidV3 },
-        ] = await Promise.all([
+        const [{ TxBuilderBlazeV1 }, { TxBuilderBlazeV3 }] = await Promise.all([
           import("./TxBuilders/TxBuilder.Blaze.V1.class.js"),
           import("./TxBuilders/TxBuilder.Blaze.V3.class.js"),
-          import("./DatumBuilders/DatumBuilder.Lucid.V3.class.js"),
         ]);
 
         this.builders.set(ETxBuilderType.BLAZE, {
@@ -142,8 +132,7 @@ export class SundaeSDK {
           ),
           [EContractVersion.V3]: new TxBuilderBlazeV3(
             this.options.wallet.builder.blaze,
-            this.options.wallet.network,
-            new DatumBuilderLucidV3(this.options.wallet.network)
+            this.options.wallet.network
           ),
         });
 

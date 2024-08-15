@@ -9,7 +9,6 @@ import {
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getTokensForLp } from "@sundaeswap/cpp";
-import type { Assets, Datum } from "lucid-cardano";
 
 import {
   EContractVersion,
@@ -37,9 +36,9 @@ import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
-import { OrderDatum } from "../DatumBuilders/Contracts/Contracts.Lucid.v3.js";
+import { OrderDatum } from "../DatumBuilders/Contracts/Contracts.Blaze.v3.js";
 import { DatumBuilderBlazeV1 } from "../DatumBuilders/DatumBuilder.Blaze.V1.class.js";
-import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
+import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
@@ -53,7 +52,7 @@ import { TxBuilderBlazeV3 } from "./TxBuilder.Blaze.V3.class.js";
 /**
  * Object arguments for completing a transaction.
  */
-interface ITxBuilderLucidCompleteTxArgs {
+interface ITxBuilderBlazeCompleteTxArgs {
   tx: BlazeTx;
   referralFee?: AssetAmount<IAssetAmountMetadata>;
   datum?: string;
@@ -71,10 +70,10 @@ interface ITxBuilderV1Params {
 }
 
 /**
- * `TxBuilderLucidV1` is a class extending `TxBuilder` to support transaction construction
- * for Lucid against the V1 SundaeSwap protocol. It includes capabilities to build and execute various transaction types
+ * `TxBuilderBlazeV1` is a class extending `TxBuilder` to support transaction construction
+ * for Blaze against the V1 SundaeSwap protocol. It includes capabilities to build and execute various transaction types
  * such as swaps, cancellations, updates, deposits, withdrawals, zaps, and liquidity migrations to
- * the V3 contracts (it is recommended to utilize V3 contracts if possible: {@link Lucid.TxBuilderLucidV3}).
+ * the V3 contracts (it is recommended to utilize V3 contracts if possible: {@link Blaze.TxBuilderBlazeV3}).
  *
  * @implements {TxBuilderV1}
  */
@@ -96,8 +95,8 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   };
 
   /**
-   * @param {Lucid} lucid A configured Lucid instance to use.
-   * @param {DatumBuilderLucidV1} datumBuilder A valid V1 DatumBuilder class that will build valid datums.
+   * @param {Blaze<Blockfrost, WebWallet>} blaze A configured Blaze instance to use.
+   * @param {TSupportedNetworks} network The network id to use when building the transaction.
    */
   constructor(
     public blaze: Blaze<Blockfrost, WebWallet>,
@@ -108,6 +107,72 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
     this.datumBuilder = new DatumBuilderBlazeV1(network);
+
+    if (this.network === "preview") {
+      this.blaze.params.costModels.set(
+        Core.PlutusLanguageVersion.V1,
+        Core.CostModel.newPlutusV1([
+          100788, 420, 1, 1, 1000, 173, 0, 1, 1000, 59957, 4, 1, 11183, 32,
+          201305, 8356, 4, 16000, 100, 16000, 100, 16000, 100, 16000, 100,
+          16000, 100, 16000, 100, 100, 100, 16000, 100, 94375, 32, 132994, 32,
+          61462, 4, 72010, 178, 0, 1, 22151, 32, 91189, 769, 4, 2, 85848,
+          228465, 122, 0, 1, 1, 1000, 42921, 4, 2, 24548, 29498, 38, 1, 898148,
+          27279, 1, 51775, 558, 1, 39184, 1000, 60594, 1, 141895, 32, 83150, 32,
+          15299, 32, 76049, 1, 13169, 4, 22100, 10, 28999, 74, 1, 28999, 74, 1,
+          43285, 552, 1, 44749, 541, 1, 33852, 32, 68246, 32, 72362, 32, 7243,
+          32, 7391, 32, 11546, 32, 85848, 228465, 122, 0, 1, 1, 90434, 519, 0,
+          1, 74433, 32, 85848, 228465, 122, 0, 1, 1, 85848, 228465, 122, 0, 1,
+          1, 270652, 22588, 4, 1457325, 64566, 4, 20467, 1, 4, 0, 141992, 32,
+          100788, 420, 1, 1, 81663, 32, 59498, 32, 20142, 32, 24588, 32, 20744,
+          32, 25933, 32, 24623, 32, 53384111, 14333, 10,
+        ]).costs()
+      );
+      this.blaze.params.costModels.set(
+        Core.PlutusLanguageVersion.V2,
+        Core.CostModel.newPlutusV2([
+          100788, 420, 1, 1, 1000, 173, 0, 1, 1000, 59957, 4, 1, 11183, 32,
+          201305, 8356, 4, 16000, 100, 16000, 100, 16000, 100, 16000, 100,
+          16000, 100, 16000, 100, 100, 100, 16000, 100, 94375, 32, 132994, 32,
+          61462, 4, 72010, 178, 0, 1, 22151, 32, 91189, 769, 4, 2, 85848,
+          228465, 122, 0, 1, 1, 1000, 42921, 4, 2, 24548, 29498, 38, 1, 898148,
+          27279, 1, 51775, 558, 1, 39184, 1000, 60594, 1, 141895, 32, 83150, 32,
+          15299, 32, 76049, 1, 13169, 4, 22100, 10, 28999, 74, 1, 28999, 74, 1,
+          43285, 552, 1, 44749, 541, 1, 33852, 32, 68246, 32, 72362, 32, 7243,
+          32, 7391, 32, 11546, 32, 85848, 228465, 122, 0, 1, 1, 90434, 519, 0,
+          1, 74433, 32, 85848, 228465, 122, 0, 1, 1, 85848, 228465, 122, 0, 1,
+          1, 955506, 213312, 0, 2, 270652, 22588, 4, 1457325, 64566, 4, 20467,
+          1, 4, 0, 141992, 32, 100788, 420, 1, 1, 81663, 32, 59498, 32, 20142,
+          32, 24588, 32, 20744, 32, 25933, 32, 24623, 32, 43053543, 10,
+          53384111, 14333, 10, 43574283, 26308, 10,
+        ]).costs()
+      );
+      this.blaze.params.costModels.delete(
+        Core.PlutusLanguageVersion.V3
+        // Core.CostModel.newPlutusV3([
+        //   100788, 420, 1, 1, 1000, 173, 0, 1, 1000, 59957, 4, 1, 11183, 32,
+        //   201305, 8356, 4, 16000, 100, 16000, 100, 16000, 100, 16000, 100,
+        //   16000, 100, 16000, 100, 100, 100, 16000, 100, 94375, 32, 132994, 32,
+        //   61462, 4, 72010, 178, 0, 1, 22151, 32, 91189, 769, 4, 2, 85848,
+        //   123203, 7305, -900, 1716, 549, 57, 85848, 0, 1, 1, 1000, 42921, 4, 2,
+        //   24548, 29498, 38, 1, 898148, 27279, 1, 51775, 558, 1, 39184, 1000,
+        //   60594, 1, 141895, 32, 83150, 32, 15299, 32, 76049, 1, 13169, 4, 22100,
+        //   10, 28999, 74, 1, 28999, 74, 1, 43285, 552, 1, 44749, 541, 1, 33852,
+        //   32, 68246, 32, 72362, 32, 7243, 32, 7391, 32, 11546, 32, 85848,
+        //   123203, 7305, -900, 1716, 549, 57, 85848, 0, 1, 90434, 519, 0, 1,
+        //   74433, 32, 85848, 123203, 7305, -900, 1716, 549, 57, 85848, 0, 1, 1,
+        //   85848, 123203, 7305, -900, 1716, 549, 57, 85848, 0, 1, 955506, 213312,
+        //   0, 2, 270652, 22588, 4, 1457325, 64566, 4, 20467, 1, 4, 0, 141992, 32,
+        //   100788, 420, 1, 1, 81663, 32, 59498, 32, 20142, 32, 24588, 32, 20744,
+        //   32, 25933, 32, 24623, 32, 43053543, 10, 53384111, 14333, 10, 43574283,
+        //   26308, 10, 16000, 100, 16000, 100, 962335, 18, 2780678, 6, 442008, 1,
+        //   52538055, 3756, 18, 267929, 18, 76433006, 8868, 18, 52948122, 18,
+        //   1995836, 36, 3227919, 12, 901022, 1, 166917843, 4307, 36, 284546, 36,
+        //   158221314, 26549, 36, 74698472, 36, 333849714, 1, 254006273, 72,
+        //   2174038, 72, 2261318, 64571, 4, 207616, 8310, 4, 1293828, 28716, 63,
+        //   0, 1, 1006041, 43623, 251, 0, 1,
+        // ]).costs()
+      );
+    }
   }
 
   /**
@@ -115,7 +180,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
    * and fills in a place-holder for the compiled code of any validators.
    *
    * This is to keep things lean until we really need to attach a validator,
-   * in which case, a subsequent method call to {@link TxBuilderLucidV3#getValidatorScript}
+   * in which case, a subsequent method call to {@link TxBuilderBlazeV3#getValidatorScript}
    * will re-populate with real data.
    *
    * @returns {Promise<ISundaeProtocolParamsFull>}
@@ -182,7 +247,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   }
 
   /**
-   * Returns a new Tx instance from Lucid. Throws an error if not ready.
+   * Returns a new Tx instance from Blaze. Throws an error if not ready.
    * @returns
    */
   newTxInstance(fee?: ITxBuilderReferralFee): BlazeTx {
@@ -288,11 +353,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     });
 
     let scooperFee = this.__getParam("maxScooperFee");
-    const v3TxBuilder = new TxBuilderBlazeV3(
-      this.blaze,
-      this.network,
-      new DatumBuilderLucidV3(this.network)
-    );
+    const v3TxBuilder = new TxBuilderBlazeV3(this.blaze, this.network);
 
     const v3Address = await v3TxBuilder.generateScriptAddress(
       "order.spend",
@@ -354,11 +415,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const isSecondSwapV3 = args.swapB.pool.version === EContractVersion.V3;
 
     const secondSwapBuilder = isSecondSwapV3
-      ? new TxBuilderBlazeV3(
-          this.blaze,
-          this.network,
-          new DatumBuilderLucidV3(this.network)
-        )
+      ? new TxBuilderBlazeV3(this.blaze, this.network)
       : this;
     const secondSwapAddress = isSecondSwapV3
       ? await (secondSwapBuilder as TxBuilderBlazeV3).generateScriptAddress(
@@ -552,11 +609,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     try {
       Data.from(spendingDatum, OrderDatum);
       console.log("This is a V3 order! Calling appropriate builder...");
-      const v3Builder = new TxBuilderBlazeV3(
-        this.blaze,
-        this.network,
-        new DatumBuilderLucidV3(this.network)
-      );
+      const v3Builder = new TxBuilderBlazeV3(this.blaze, this.network);
       return v3Builder.cancel({ ...cancelArgs });
     } catch (e) {}
 
@@ -1044,7 +1097,6 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const v3TxBuilderInstance = new TxBuilderBlazeV3(
       this.blaze,
       this.network,
-      new DatumBuilderLucidV3(this.network),
       this.queryProvider
     );
     const v3OrderScriptAddress =
@@ -1256,7 +1308,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
         withdrawArgs.pool.liquidity.lpTotal
       );
 
-      const v3DatumBuilder = new DatumBuilderLucidV3(this.network);
+      const v3DatumBuilder = new DatumBuilderBlazeV3(this.network);
       const { hash: depositHash, inline: depositInline } =
         v3DatumBuilder.buildDepositDatum({
           destinationAddress: withdrawArgs.orderAddresses.DestinationAddress,
@@ -1317,7 +1369,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
      * non-migrated assets back to the contract.
      */
     if (yieldFarming && existingPositionsData) {
-      const returningPayment: Assets = {};
+      const returningPayment: Record<string, bigint> = {};
       Object.values(returnedYFAssets).forEach(({ amount, assetId }) => {
         if (returningPayment[assetId.replace(".", "")]) {
           returningPayment[assetId.replace(".", "")] += amount;
@@ -1386,8 +1438,8 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     referralFee,
     deposit,
     scooperFee,
-  }: ITxBuilderLucidCompleteTxArgs): Promise<
-    IComposedTx<BlazeTx, Core.Transaction, Datum | undefined>
+  }: ITxBuilderBlazeCompleteTxArgs): Promise<
+    IComposedTx<BlazeTx, Core.Transaction>
   > {
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),

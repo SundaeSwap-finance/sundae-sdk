@@ -4,7 +4,7 @@ import type {
   MintingPolicy,
   OutRef,
   SpendingValidator,
-  UTxO,
+  UTXO,
 } from "lucid-cardano";
 
 /**
@@ -88,7 +88,7 @@ export interface IBaseArgs {
     validator: TScriptType;
   };
   tasteTestType?: TTasteTestType;
-  utxos?: UTxO[];
+  utxos?: UTXO[];
 }
 
 /**
