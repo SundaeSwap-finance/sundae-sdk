@@ -7,7 +7,7 @@ import {
   Datum,
   Tx,
   TxComplete,
-  UTXO,
+  UTxO,
   fromText,
   toUnit,
   type Lucid,
@@ -133,7 +133,7 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const userKey = await this.getUserKey();
 
-    let coveringNode: UTXO | undefined;
+    let coveringNode: UTxO | undefined;
     const nodeUTXOs = await this.lucid.utxosAt(args.validatorAddress);
 
     if (args.utxos) {
@@ -276,7 +276,7 @@ export class TasteTestLucid implements AbstractTasteTest {
       throw new Error("Missing wallet's payment credential hash.");
     }
 
-    let ownNode: UTXO | undefined;
+    let ownNode: UTxO | undefined;
     if (args.utxos) {
       ownNode = args.utxos[0];
     } else {
@@ -506,7 +506,7 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const userKey = await this.getUserKey();
 
-    let ownNode: UTXO | undefined;
+    let ownNode: UTxO | undefined;
     if (args.utxos) {
       ownNode = args.utxos[0];
     } else {

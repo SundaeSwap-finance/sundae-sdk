@@ -392,6 +392,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       };
     }
 
+    console.log(secondSwapData.datum);
     const datumHash = this.lucid.utils.datumToHash(
       secondSwapData.datum as string
     );

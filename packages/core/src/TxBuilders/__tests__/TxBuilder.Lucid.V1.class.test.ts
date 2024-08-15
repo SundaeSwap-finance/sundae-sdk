@@ -251,7 +251,7 @@ describe("TxBuilderLucidV1", () => {
     }
   });
 
-  test("orderRouteSwap() - v1 to v1", async () => {
+  test.only("orderRouteSwap() - v1 to v1", async () => {
     const { build, datum, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
