@@ -1,5 +1,5 @@
-import { QueryProvider } from "../Abstracts/QueryProvider.abstract.class.js";
-import { TWalletBuilder } from "./txbuilders.js";
+import type { QueryProvider } from "../Abstracts/QueryProvider.abstract.class.js";
+import type { TWalletBuilder } from "./txbuilders.js";
 
 /**
  * The SundaeSDK options argument when creating a new instance.

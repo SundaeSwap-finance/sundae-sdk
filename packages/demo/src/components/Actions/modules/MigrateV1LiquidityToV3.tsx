@@ -7,6 +7,7 @@ import {
   QueryProviderSundaeSwapLegacy,
 } from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
+
 import {
   V3_CONTRACT_POOL_RBERRY,
   V3_CONTRACT_POOL_TINDY,
@@ -25,6 +26,8 @@ export const Migrate: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     builderLib,
   } = useAppState();
   const [migrating, setMigrating] = useState(false);
+
+  console.log(SDK);
 
   const handleMigrating = useCallback(async () => {
     if (!SDK) {

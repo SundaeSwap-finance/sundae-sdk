@@ -4,7 +4,7 @@ import {
   QueryProviderSundaeSwapLegacy,
   SundaeSDK,
 } from "@sundaeswap/core";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 
 import { useAppState } from "../../state/context";
 
@@ -14,8 +14,14 @@ const SelectBuilderOption: FC<{
 }> = ({ builder, name }) => <option value={builder}>{name}</option>;
 
 const SelectBuilder: FC = () => {
-  const { setSDK, setBuilderLib, builderLib, useV3Contracts } = useAppState();
-  const [network, setNetwork] = useState<0 | 1>(0);
+  const {
+    setSDK,
+    setBuilderLib,
+    builderLib,
+    useV3Contracts,
+    network,
+    setNetwork,
+  } = useAppState();
 
   const handleTxBuilderLoaderSelect = (key: ETxBuilderType) => {
     setBuilderLib(key);
@@ -66,7 +72,9 @@ const SelectBuilder: FC = () => {
           const { Lucid, Blockfrost } = await import("lucid-cardano");
           const lucidInstance = await Lucid.new(
             new Blockfrost(
-              "https://cardano-mainnet.blockfrost.io/api/v0/",
+              `https://cardano-${
+                network ? "mainnet" : "preview"
+              }.blockfrost.io/api/v0/`,
               network
                 ? // @ts-ignore
                   window.__APP_CONFIG.blockfrostAPIMainnet

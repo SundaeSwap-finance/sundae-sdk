@@ -534,7 +534,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
         "0x"
       ),
     });
-    data.metadata()?.setMetadata(map);
+    data.setMetadata(Core.Metadata.fromCore(map));
     tx.setAuxiliaryData(data);
 
     return this.completeTx({
