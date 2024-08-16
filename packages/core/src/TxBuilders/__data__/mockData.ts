@@ -1,8 +1,9 @@
-import { UTxO, applyDoubleCborEncoding } from "lucid-cardano";
+import { Core, makeValue } from "@blaze-cardano/sdk";
+import { type UTxO, applyDoubleCborEncoding } from "lucid-cardano";
 import {
   EContractVersion,
   ISundaeProtocolParamsFull,
-} from "../../../@types/index.js";
+} from "../../@types/index.js";
 
 export const params: ISundaeProtocolParamsFull = {
   version: EContractVersion.V3,
@@ -58,7 +59,7 @@ export const params: ISundaeProtocolParamsFull = {
   ],
 };
 
-export const settingsUtxos: UTxO[] = [
+export const settingsUtxosLucid: UTxO[] = [
   {
     address: "addr_test1wzqnqgch86xj9j69zdelwdw4cy04dy9qk3g3sq7zky8ug5gmr2v4q",
     assets: {
@@ -75,6 +76,24 @@ export const settingsUtxos: UTxO[] = [
     txHash: "45ae0839622478c3ed2fbf5eea03c54ca3fd57607b7a2660445166ea8a42d98c",
   },
 ];
+
+export const settingsUtxosBlaze: Core.TransactionUnspentOutput[] =
+  settingsUtxosLucid.map(
+    (utxo) =>
+      new Core.TransactionUnspentOutput(
+        new Core.TransactionInput(
+          Core.TransactionId(utxo.txHash),
+          BigInt(utxo.outputIndex)
+        ),
+        new Core.TransactionOutput(
+          Core.addressFromBech32(utxo.address),
+          makeValue(
+            utxo.assets.lovelace,
+            ...Object.entries(utxo.assets).filter(([key]) => key !== "lovelace")
+          )
+        )
+      )
+  );
 
 export const referenceUtxos: UTxO[] = [
   {

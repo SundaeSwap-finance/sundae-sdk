@@ -2,6 +2,7 @@ import {
   Blaze,
   TxBuilder as BlazeTx,
   Blockfrost,
+  ColdWallet,
   Core,
   Data,
   makeValue,
@@ -9,6 +10,7 @@ import {
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
+import { EmulatorProvider } from "@blaze-cardano/emulator";
 import type {
   ICancelConfigArgs,
   IComposedTx,
@@ -88,7 +90,9 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    * @param {TSupportedNetworks} network The Network identifier for this TxBuilder instance.
    */
   constructor(
-    public blaze: Blaze<Blockfrost, WebWallet>,
+    public blaze:
+      | Blaze<Blockfrost, WebWallet>
+      | Blaze<EmulatorProvider, ColdWallet>,
     network: TSupportedNetworks,
     queryProvider?: QueryProviderSundaeSwap
   ) {

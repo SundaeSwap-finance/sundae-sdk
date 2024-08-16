@@ -2,6 +2,7 @@ import {
   Blaze,
   TxBuilder as BlazeTx,
   Blockfrost,
+  ColdWallet,
   Core,
   Data,
   makeValue,
@@ -10,6 +11,7 @@ import {
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getTokensForLp } from "@sundaeswap/cpp";
 
+import { EmulatorProvider } from "@blaze-cardano/emulator";
 import {
   EContractVersion,
   EDatumType,
@@ -99,7 +101,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
    * @param {TSupportedNetworks} network The network id to use when building the transaction.
    */
   constructor(
-    public blaze: Blaze<Blockfrost, WebWallet>,
+    public blaze:
+      | Blaze<Blockfrost, WebWallet>
+      | Blaze<EmulatorProvider, ColdWallet>,
     network: TSupportedNetworks,
     queryProvider?: QueryProviderSundaeSwap
   ) {
@@ -300,7 +304,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
             : "ADA"
         }`
       );
-      data.metadata()?.setMetadata(map);
+      data.setMetadata(new Core.Metadata(map));
       instance.setAuxiliaryData(data);
     }
   }
@@ -391,8 +395,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const datum = Core.DatumHash(Core.HexBlob(hash));
     const script = Core.addressFromBech32(scriptAddress);
 
-    txInstance.provideDatum(Core.PlutusData.fromCbor(Core.HexBlob(inline)));
-    txInstance.lockAssets(script, newPayment, datum);
+    txInstance
+      .provideDatum(Core.PlutusData.fromCbor(Core.HexBlob(inline)))
+      .lockAssets(script, newPayment, datum);
 
     return this.completeTx({
       tx: txInstance,

@@ -16,7 +16,7 @@ import {
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { TxBuilderLucidV1 } from "../TxBuilder.Lucid.V1.class.js";
 import { TxBuilderLucidV3 } from "../TxBuilder.Lucid.V3.class.js";
-import { params, settingsUtxos } from "./data/mockData.js";
+import { params, settingsUtxosLucid } from "../__data__/mockData.js";
 
 let builder: TxBuilderLucidV1;
 
@@ -34,7 +34,7 @@ jest
   .mockResolvedValue(params);
 jest
   .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-  .mockResolvedValue(settingsUtxos);
+  .mockResolvedValue(settingsUtxosLucid);
 
 describe("TxBuilderLucidV1", () => {
   it("should have the correct settings", () => {
