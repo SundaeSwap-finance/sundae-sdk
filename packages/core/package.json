@@ -37,6 +37,9 @@
       ],
       "lucid": [
         "./dist/types/exports/lucid.d.ts"
+      ],
+      "blaze": [
+        "./dist/types/exports/blaze.d.ts"
       ]
     }
   },

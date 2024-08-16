@@ -1,19 +1,19 @@
 import { jest } from "@jest/globals";
 
-import { DatumBuilderLucid } from "../DatumBuilder.Lucid.class.js";
+import { DatumBuilderBlaze } from "../DatumBuilder.Blaze.class.js";
 import { EXPECTATIONS } from "../__data__/datumbuilder.expectations.js";
 
-let builderInstance: DatumBuilderLucid;
+let builderInstance: DatumBuilderBlaze;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderLucid("preview");
+  builderInstance = new DatumBuilderBlaze("preview");
 });
 
 afterEach(() => {
   jest.restoreAllMocks();
 });
 
-describe("DatumBuilderLucid", () => {
+describe("DatumBuilderBlaze", () => {
   it("should build an accurate lock datum with no delegation", () => {
     const result = builderInstance.buildLockDatum(
       EXPECTATIONS.buildLockDatum[0].args

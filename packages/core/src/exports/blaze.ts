@@ -1,10 +1,10 @@
 /**
- * ## Lucid
+ * ## Blaze
  * Prebuilt classes for {@link Core.DatumBuilder} and {@link Core.TxBuilder} that use and depend
- * on the `lucid-cardano` library. Only import these if you have also installed `lucid-cardano`
+ * on the `@blaze-cardano/sdk` library. Only import these if you have also installed `@blaze-cardano/sdk`
  * in your main repository! Also includes a helper class for basic operations.
  *
- * @module Lucid
+ * @module Blaze
  * @packageDescription
  */
 export * from "../DatumBuilders/DatumBuilder.Blaze.V1.class.js";

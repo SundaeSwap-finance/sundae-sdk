@@ -5,7 +5,7 @@ import type {
   TUTXO,
 } from "@sundaeswap/core";
 
-import { TDelegation, TDelegationPrograms } from "./contracts";
+import { TDelegation, TDelegationPrograms } from "./lucid";
 
 // /** A map of pools with their associated weight. */
 // export type TDelegationProgramPools = Map<string, bigint>;
