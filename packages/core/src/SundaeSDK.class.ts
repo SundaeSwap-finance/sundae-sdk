@@ -1,4 +1,10 @@
-import type { Blaze, Blockfrost, WebWallet } from "@blaze-cardano/sdk";
+import { EmulatorProvider } from "@blaze-cardano/emulator";
+import type {
+  Blaze,
+  Blockfrost,
+  ColdWallet,
+  WebWallet,
+} from "@blaze-cardano/sdk";
 import type { Lucid } from "lucid-cardano";
 import {
   EContractVersion,
@@ -240,7 +246,10 @@ export class SundaeSDK {
    *
    * @returns {Blaze<Blockfrost, WebWallet> | undefined}
    */
-  blaze(): Blaze<Blockfrost, WebWallet> | undefined {
+  blaze():
+    | Blaze<Blockfrost, WebWallet>
+    | Blaze<EmulatorProvider, ColdWallet>
+    | undefined {
     if (this.options.wallet.builder.type !== ETxBuilderType.BLAZE) {
       return undefined;
     }
