@@ -78,7 +78,6 @@ export type TDatum = TDatumNone | TDatumHash | TDatumInline;
 export type TDestinationAddress = {
   address: string;
   datum: TDatum;
-  datumType?: unknown;
 };
 
 /**

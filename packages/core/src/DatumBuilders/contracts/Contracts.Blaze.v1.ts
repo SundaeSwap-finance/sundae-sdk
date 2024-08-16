@@ -1,6 +1,6 @@
 import { Data, Static } from "@blaze-cardano/sdk";
 
-export const PaymentHashSchema = Data.Enum([
+export const PaymentStakingHashSchema = Data.Enum([
   Data.Object({
     KeyHash: Data.Object({
       value: Data.Bytes(),
@@ -12,18 +12,13 @@ export const PaymentHashSchema = Data.Enum([
     }),
   }),
 ]);
-export type TPaymentHash = Static<typeof PaymentHashSchema>;
-export const PaymentHash = PaymentHashSchema as unknown as TPaymentHash;
-
-export const StakingHashSchema = Data.Object({
-  value: PaymentHashSchema,
-});
-export type TStakingHashSchema = Static<typeof StakingHashSchema>;
-export const StakingHash = StakingHashSchema as unknown as TStakingHashSchema;
+export type TPaymentStakingHash = Static<typeof PaymentStakingHashSchema>;
+export const PaymentStakingHash =
+  PaymentStakingHashSchema as unknown as TPaymentStakingHash;
 
 export const CredentialSchema = Data.Object({
-  paymentKey: PaymentHashSchema,
-  stakingKey: Data.Nullable(StakingHashSchema),
+  paymentKey: PaymentStakingHashSchema,
+  stakingKey: Data.Nullable(Data.Object({ value: PaymentStakingHashSchema })),
 });
 export type TCredential = Static<typeof CredentialSchema>;
 export const Credential = CredentialSchema as unknown as TCredential;
@@ -37,7 +32,7 @@ export const Destination = DestinationSchema as unknown as TDestination;
 
 export const OrderAddressesSchema = Data.Object({
   destination: DestinationSchema,
-  alternate: Data.Nullable(CredentialSchema),
+  alternate: Data.Nullable(Data.Bytes()),
 });
 export type TOrderAddresses = Static<typeof OrderAddressesSchema>;
 export const OrderAddresses =

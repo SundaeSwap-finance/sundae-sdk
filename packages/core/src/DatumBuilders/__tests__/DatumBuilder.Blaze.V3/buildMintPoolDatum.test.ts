@@ -1,15 +1,15 @@
 import { jest } from "@jest/globals";
 
 import {
-  DatumBuilderLucidV3,
+  DatumBuilderBlazeV3,
   IDatumBuilderMintPoolV3Args,
-} from "../../DatumBuilder.Lucid.V3.class.js";
+} from "../../DatumBuilder.Blaze.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
-let builderInstance: DatumBuilderLucidV3;
+let builderInstance: DatumBuilderBlazeV3;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderLucidV3("preview");
+  builderInstance = new DatumBuilderBlazeV3("preview");
 });
 
 afterEach(() => {
@@ -19,11 +19,11 @@ afterEach(() => {
 describe("builderMintPoolDatum()", () => {
   it("should build the pool mint datum properly", () => {
     const spiedOnComputePoolId = jest.spyOn(
-      DatumBuilderLucidV3,
+      DatumBuilderBlazeV3,
       "computePoolId"
     );
     const spiedOnBuildLexicographicalAssetsDatum = jest.spyOn(
-      DatumBuilderLucidV3.prototype,
+      DatumBuilderBlazeV3.prototype,
       "buildLexicographicalAssetsDatum"
     );
 
@@ -57,11 +57,11 @@ describe("builderMintPoolDatum()", () => {
 
   it("should build the pool mint datum properly with split fees", () => {
     const spiedOnComputePoolId = jest.spyOn(
-      DatumBuilderLucidV3,
+      DatumBuilderBlazeV3,
       "computePoolId"
     );
     const spiedOnBuildLexicographicalAssetsDatum = jest.spyOn(
-      DatumBuilderLucidV3.prototype,
+      DatumBuilderBlazeV3.prototype,
       "buildLexicographicalAssetsDatum"
     );
 

@@ -13,14 +13,10 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-describe("static getDestinationAddressesFromDatum()", () => {
-  it("should properly extract the addresses from the datum", () => {
+describe("static computePoolId()", () => {
+  it("should properly generate a pool id from a seed utxo", () => {
     expect(
-      DatumBuilderLucidV3.getDestinationAddressesFromDatum(
-        V3_EXPECTATIONS.getDestinationFromDatum[0].args
-      )
-    ).toMatchObject(
-      V3_EXPECTATIONS.getDestinationFromDatum[0].expectations.result
-    );
+      DatumBuilderLucidV3.computePoolId(V3_EXPECTATIONS.computePoolId[0].args)
+    ).toEqual(V3_EXPECTATIONS.computePoolId[0].expectations.result);
   });
 });

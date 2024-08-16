@@ -244,24 +244,11 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
 
     const alternateHashes =
       AlternateAddress && BlazeHelper.getAddressHashes(AlternateAddress);
-    const alternateAddressCredentialType =
-      AlternateAddress && BlazeHelper.isScriptAddress(AlternateAddress)
-        ? ("ScriptHash" as keyof TDestination["credentials"]["paymentKey"])
-        : "KeyHash";
 
     const datum: TOrderAddresses = {
       destination,
       alternate: alternateHashes
-        ? {
-            paymentKey: {
-              [alternateAddressCredentialType]: {
-                value:
-                  alternateHashes.stakeCredentials ??
-                  alternateHashes.paymentCredentials,
-              },
-            },
-            stakingKey: null,
-          }
+        ? alternateHashes.stakeCredentials ?? alternateHashes.paymentCredentials
         : null,
     };
 

@@ -50,7 +50,7 @@ export class SundaeUtils {
    * @param poolIdent The pool identifier to be checked.
    * @returns {boolean} Returns true if the pool identifier is a valid V3 pool identifier, otherwise false.
    */
-  static isV3PoolIdent(poolIdent: string) {
+  static isV3PoolIdent(poolIdent: string): boolean {
     return poolIdent.length === V3_POOL_IDENT_LENGTH;
   }
 

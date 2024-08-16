@@ -19,10 +19,8 @@ import { TxBuilderLucidV3 } from "../TxBuilder.Lucid.V3.class.js";
 import { params, settingsUtxos } from "./data/mockData.js";
 
 let builder: TxBuilderLucidV1;
-let datumBuilder: DatumBuilderLucidV1;
 
 const { getUtxosByOutRefMock } = setupLucid((lucid) => {
-  datumBuilder = new DatumBuilderLucidV1("preview");
   builder = new TxBuilderLucidV1(lucid, "preview");
 });
 
@@ -134,7 +132,10 @@ describe("TxBuilderLucidV1", () => {
 
   test("swap()", async () => {
     const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildSwapDatum = jest.spyOn(datumBuilder, "buildSwapDatum");
+    const spiedBuildSwapDatum = jest.spyOn(
+      builder.datumBuilder,
+      "buildSwapDatum"
+    );
 
     const { build, fees, datum } = await builder.swap({
       orderAddresses: {
@@ -251,7 +252,7 @@ describe("TxBuilderLucidV1", () => {
     }
   });
 
-  test.only("orderRouteSwap() - v1 to v1", async () => {
+  test("orderRouteSwap() - v1 to v1", async () => {
     const { build, datum, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
@@ -989,7 +990,7 @@ describe("TxBuilderLucidV1", () => {
 
     const spiedOnGetDatum = jest.spyOn(builder.lucid.provider, "getDatum");
     spiedOnGetDatum.mockResolvedValueOnce(
-      datumBuilder.buildOrderAddresses({
+      builder.datumBuilder.buildOrderAddresses({
         DestinationAddress: {
           address: PREVIEW_DATA.addresses.current,
           datum: {
@@ -1046,7 +1047,7 @@ describe("TxBuilderLucidV1", () => {
   test("withdraw()", async () => {
     const spiedNewTx = jest.spyOn(builder, "newTxInstance");
     const spiedBuildWithdrawDatum = jest.spyOn(
-      datumBuilder,
+      builder.datumBuilder,
       "buildWithdrawDatum"
     );
 

@@ -310,7 +310,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
 
     const secondSwapBuilder = isSecondSwapV3
       ? new TxBuilderLucidV3(this.lucid, this.network)
-      : this;
+      : new TxBuilderLucidV1(this.lucid, this.network);
     const secondSwapAddress = isSecondSwapV3
       ? await (secondSwapBuilder as TxBuilderLucidV3).generateScriptAddress(
           "order.spend",
@@ -392,7 +392,6 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       };
     }
 
-    console.log(secondSwapData.datum);
     const datumHash = this.lucid.utils.datumToHash(
       secondSwapData.datum as string
     );

@@ -148,9 +148,25 @@ export const AddressSchema = Data.Object({
 export type TAddressSchema = Data.Static<typeof AddressSchema>;
 export const Address = AddressSchema as unknown as TAddressSchema;
 
+export const DatumSchema = Data.Enum([
+  Data.Literal("VOID"),
+  Data.Object({
+    Hash: Data.Object({
+      value: Data.Bytes(),
+    }),
+  }),
+  Data.Object({
+    Inline: Data.Object({
+      value: Data.Any(),
+    }),
+  }),
+]);
+export type TDatumSchema = Data.Static<typeof DatumSchema>;
+export const Datum = DatumSchema as unknown as TDatumSchema;
+
 export const DestinationSchema = Data.Object({
   address: AddressSchema,
-  datum: Data.Any(),
+  datum: DatumSchema,
 });
 export type TDestination = Data.Static<typeof DestinationSchema>;
 export const Destination = DestinationSchema as unknown as TDestination;
@@ -163,7 +179,7 @@ export const OrderDatumSchema = Data.Object({
   scooperFee: Data.Integer(),
   destination: DestinationSchema,
   order: OrderSchema,
-  extension: Data.Any(),
+  extension: Data.Bytes(),
 });
 export type TOrderDatum = Data.Static<typeof OrderDatumSchema>;
 export const OrderDatum = OrderDatumSchema as unknown as TOrderDatum;

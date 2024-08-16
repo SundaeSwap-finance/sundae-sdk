@@ -241,24 +241,11 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
 
     const alternateHashes =
       AlternateAddress && LucidHelper.getAddressHashes(AlternateAddress);
-    const alternateAddressCredentialType =
-      AlternateAddress && LucidHelper.isScriptAddress(AlternateAddress)
-        ? ("ScriptHash" as keyof TDestination["credentials"]["paymentKey"])
-        : "KeyHash";
 
     const datum: TOrderAddresses = {
       destination,
       alternate: alternateHashes
-        ? {
-            paymentKey: {
-              [alternateAddressCredentialType]: {
-                value:
-                  alternateHashes.stakeCredentials ??
-                  alternateHashes.paymentCredentials,
-              },
-            },
-            stakingKey: null,
-          }
+        ? alternateHashes.stakeCredentials ?? alternateHashes.paymentCredentials
         : null,
     };
 

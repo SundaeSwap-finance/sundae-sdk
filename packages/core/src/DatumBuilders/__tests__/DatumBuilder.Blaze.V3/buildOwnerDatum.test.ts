@@ -1,13 +1,13 @@
 import { jest } from "@jest/globals";
 
-import { TSignatureSchema } from "../../Contracts/Contracts.Lucid.v3.js";
-import { DatumBuilderLucidV3 } from "../../DatumBuilder.Lucid.V3.class.js";
+import { TSignatureSchema } from "../../Contracts/Contracts.Blaze.v3.js";
+import { DatumBuilderBlazeV3 } from "../../DatumBuilder.Blaze.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
-let builderInstance: DatumBuilderLucidV3;
+let builderInstance: DatumBuilderBlazeV3;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderLucidV3("preview");
+  builderInstance = new DatumBuilderBlazeV3("preview");
 });
 
 afterEach(() => {

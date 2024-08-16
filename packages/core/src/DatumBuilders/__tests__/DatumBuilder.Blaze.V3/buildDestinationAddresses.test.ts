@@ -1,13 +1,13 @@
 import { jest } from "@jest/globals";
 
-import { LucidHelper } from "../../../Utilities/LucidHelper.class.js";
-import { DatumBuilderLucidV3 } from "../../DatumBuilder.Lucid.V3.class.js";
+import { BlazeHelper } from "../../../Utilities/BlazeHelper.class.js";
+import { DatumBuilderBlazeV3 } from "../../DatumBuilder.Blaze.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
-let builderInstance: DatumBuilderLucidV3;
+let builderInstance: DatumBuilderBlazeV3;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderLucidV3("preview");
+  builderInstance = new DatumBuilderBlazeV3("preview");
 });
 
 afterEach(() => {
@@ -102,7 +102,7 @@ describe("buildDestinationAddresses()", () => {
       )
     ).toThrowError(
       // @ts-expect-error
-      V3_EXPECTATIONS.buildDestinationAddresses[7].expectations.error.lucid
+      V3_EXPECTATIONS.buildDestinationAddresses[7].expectations.error.blaze
     );
   });
 
@@ -114,7 +114,7 @@ describe("buildDestinationAddresses()", () => {
       )
     ).toThrowError(
       // @ts-expect-error
-      V3_EXPECTATIONS.buildDestinationAddresses[8].expectations.error.lucid
+      V3_EXPECTATIONS.buildDestinationAddresses[8].expectations.error.blaze
     );
   });
 
@@ -125,18 +125,18 @@ describe("buildDestinationAddresses()", () => {
       )
     ).toThrowError(
       // @ts-expect-error
-      V3_EXPECTATIONS.buildDestinationAddresses[9].expectations.error.lucid
+      V3_EXPECTATIONS.buildDestinationAddresses[9].expectations.error.blaze
     );
   });
 
   it("should fail when passing a script address to DestinationAddress without a datum attached", () => {
-    jest.spyOn(LucidHelper, "throwInvalidOrderAddressesError");
+    jest.spyOn(BlazeHelper, "throwInvalidOrderAddressesError");
     try {
       builderInstance.buildDestinationAddresses(
         V3_EXPECTATIONS.buildDestinationAddresses[10].args
       );
     } catch (e) {
-      expect(LucidHelper.throwInvalidOrderAddressesError).toHaveBeenCalledWith(
+      expect(BlazeHelper.throwInvalidOrderAddressesError).toHaveBeenCalledWith(
         V3_EXPECTATIONS.buildDestinationAddresses[10].expectations.calledWith,
         V3_EXPECTATIONS.buildDestinationAddresses[10].expectations.error
       );
@@ -144,16 +144,16 @@ describe("buildDestinationAddresses()", () => {
   });
 
   it("should fail when passing an invalid datum along with a script DestinationAddress", () => {
-    jest.spyOn(LucidHelper, "throwInvalidOrderAddressesError");
+    jest.spyOn(BlazeHelper, "throwInvalidOrderAddressesError");
     try {
       builderInstance.buildDestinationAddresses(
         V3_EXPECTATIONS.buildDestinationAddresses[11].args
       );
     } catch (e) {
-      expect(LucidHelper.throwInvalidOrderAddressesError).toHaveBeenCalledWith(
+      expect(BlazeHelper.throwInvalidOrderAddressesError).toHaveBeenCalledWith(
         V3_EXPECTATIONS.buildDestinationAddresses[11].expectations.calledWith,
         // @ts-expect-error
-        V3_EXPECTATIONS.buildDestinationAddresses[11].expectations.error.lucid
+        V3_EXPECTATIONS.buildDestinationAddresses[11].expectations.error.blaze
       );
     }
   });

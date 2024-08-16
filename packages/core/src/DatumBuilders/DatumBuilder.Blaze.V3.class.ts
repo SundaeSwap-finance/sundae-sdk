@@ -12,7 +12,6 @@ import {
 import { DatumBuilder } from "../Abstracts/DatumBuilder.abstract.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
-import { V3_POOL_IDENT_LENGTH } from "../constants.js";
 import * as V3Types from "./Contracts/Contracts.Blaze.v3.js";
 
 /**
@@ -129,7 +128,7 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
           minReceived: this.buildAssetAmountDatum(order.minReceived).schema,
         },
       },
-      extension: Data.void(),
+      extension: Data.void().toCbor(),
     };
 
     const data = Data.to(datum, V3Types.OrderDatum);
@@ -175,8 +174,9 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
         .schema,
       poolIdent: this.buildPoolIdent(ident),
       scooperFee,
-      extension: Data.void(),
+      extension: Data.void().toCbor(),
     };
+
     const data = Data.to(datum, V3Types.OrderDatum);
 
     return {
@@ -208,7 +208,7 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
   }: IDatumBuilderWithdrawV3Args): TDatumResult<V3Types.TOrderDatum> {
     const datum: V3Types.TOrderDatum = {
       destination: this.buildDestinationAddresses(destinationAddress).schema,
-      extension: Data.void(),
+      extension: Data.void().toCbor(),
       order: {
         Withdrawal: {
           amount: this.buildAssetAmountDatum(order.lpToken).schema,
@@ -319,7 +319,6 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
   public buildDestinationAddresses({
     address,
     datum,
-    datumType,
   }: TDestinationAddress): TDatumResult<V3Types.TDestination> {
     BlazeHelper.validateAddressAndDatumAreValid({
       address: address,
@@ -331,26 +330,19 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
     let formattedDatum: V3Types.TDestination["datum"];
     switch (datum.type) {
       case EDatumType.NONE:
-        formattedDatum = {
-          None: {
-            value: "None",
-          },
-        };
+        formattedDatum = "VOID";
         break;
       case EDatumType.HASH:
         formattedDatum = {
           Hash: {
-            value: [datum.value],
+            value: datum.value,
           },
         };
         break;
       case EDatumType.INLINE:
         formattedDatum = {
           Inline: {
-            value: Data.from(
-              Core.PlutusData.fromCbor(Core.HexBlob(datum.value)),
-              datumType
-            ),
+            value: Core.PlutusData.fromCbor(Core.HexBlob(datum.value)),
           },
         };
         break;
@@ -469,7 +461,7 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
   }
 
   public buildPoolIdent(ident: string): string {
-    if (ident.length !== V3_POOL_IDENT_LENGTH) {
+    if (!SundaeUtils.isV3PoolIdent(ident)) {
       throw new Error(DatumBuilderBlazeV3.INVALID_POOL_IDENT);
     }
 
@@ -529,7 +521,7 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
     ]);
 
     const hash = Buffer.from(
-      Core.blake2b_256(Core.HexBlob(Buffer.from(poolInputRef).toString("hex")))
+      Core.fromHex(Core.blake2b_256(Core.HexBlob(Core.toHex(poolInputRef))))
         // Truncate first four bytes and convert to hex string.
         .slice(4)
     ).toString("hex");
