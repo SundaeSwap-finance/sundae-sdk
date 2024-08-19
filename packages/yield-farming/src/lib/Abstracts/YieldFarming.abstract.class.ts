@@ -1,5 +1,4 @@
 import type { DatumBuilder, IComposedTx } from "@sundaeswap/core";
-import type { Datum, Tx, TxComplete } from "lucid-cardano";
 
 import { ILockConfigArgs } from "../../@types/configs.js";
 
@@ -8,7 +7,7 @@ import { ILockConfigArgs } from "../../@types/configs.js";
  * the functionality of the Yield Farming features. This class provides
  * the structure for depositing, updating, and withdrawing operations.
  */
-export abstract class YieldFarming {
+export abstract class YieldFarming<Tx, TxComplete, Datum = string> {
   abstract datumBuilder: DatumBuilder;
 
   abstract lock(

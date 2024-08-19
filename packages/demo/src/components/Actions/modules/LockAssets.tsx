@@ -1,8 +1,8 @@
 import { AssetAmount } from "@sundaeswap/asset";
-import {
-  TDelegationPrograms,
-  YieldFarmingLucid,
-} from "@sundaeswap/yield-farming";
+import { ETxBuilderType } from "@sundaeswap/core";
+import { TDelegationPrograms } from "@sundaeswap/yield-farming";
+import type { YieldFarmingBlaze } from "@sundaeswap/yield-farming/blaze";
+import type { YieldFarmingLucid } from "@sundaeswap/yield-farming/lucid";
 import { FC, useCallback, useState } from "react";
 
 import { useAppState } from "../../../state/context";
@@ -16,6 +16,8 @@ export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     ready,
     activeWalletAddr: walletAddress,
     useReferral,
+    builderLib,
+    network,
   } = useAppState();
   const [locking, setLocking] = useState(false);
 
@@ -31,12 +33,36 @@ export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         { Delegation: [Buffer.from("DJED").toString("hex"), "02", 2n] },
       ];
 
-      const lucid = SDK.lucid();
-      if (!lucid) {
-        return;
-      }
+      let YF: YieldFarmingBlaze | YieldFarmingLucid | undefined;
 
-      const YF = new YieldFarmingLucid(lucid);
+      switch (builderLib) {
+        case ETxBuilderType.LUCID: {
+          const lucid = SDK.lucid();
+          if (!lucid) {
+            return;
+          }
+
+          const { YieldFarmingLucid } = await import(
+            "@sundaeswap/yield-farming/lucid"
+          );
+          YF = new YieldFarmingLucid(lucid);
+          break;
+        }
+        case ETxBuilderType.BLAZE: {
+          const blaze = SDK.blaze();
+          if (!blaze) {
+            return;
+          }
+
+          const { YieldFarmingBlaze } = await import(
+            "@sundaeswap/yield-farming/blaze"
+          );
+          YF = new YieldFarmingBlaze(blaze, network);
+          break;
+        }
+        default:
+          throw new Error("No TxBuilder type defined.");
+      }
 
       await YF.lock({
         ownerAddress: walletAddress,
@@ -77,7 +103,7 @@ export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setLocking(false);
-  }, [SDK, submit, walletAddress, useReferral]);
+  }, [SDK, submit, walletAddress, useReferral, builderLib, network]);
 
   if (!SDK) {
     return null;

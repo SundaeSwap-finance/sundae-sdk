@@ -1,4 +1,4 @@
-import { TDelegationPrograms } from "../../../@types";
+import { TDelegationPrograms } from "../../@types";
 
 const delegation: TDelegationPrograms = [
   { Delegation: [Buffer.from("tINDY").toString("hex"), "00", 100n] },

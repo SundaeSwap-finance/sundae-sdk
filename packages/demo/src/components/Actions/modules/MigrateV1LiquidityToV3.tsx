@@ -27,8 +27,6 @@ export const Migrate: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
   } = useAppState();
   const [migrating, setMigrating] = useState(false);
 
-  console.log(SDK);
-
   const handleMigrating = useCallback(async () => {
     if (!SDK) {
       return;

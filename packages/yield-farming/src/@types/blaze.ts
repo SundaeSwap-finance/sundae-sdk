@@ -25,3 +25,8 @@ export const DelegationSchema = Data.Object({
 });
 export type TDelegation = Static<typeof DelegationSchema>;
 export const Delegation = DelegationSchema as unknown as TDelegation;
+
+export const PositionRedeemerSchema = Data.Literal("EMPTY");
+export type TPositionRedeemer = Static<typeof PositionRedeemerSchema>;
+export const PositionRedeemer =
+  PositionRedeemerSchema as unknown as TPositionRedeemer;

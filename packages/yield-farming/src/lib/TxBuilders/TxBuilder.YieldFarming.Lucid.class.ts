@@ -8,7 +8,6 @@ import {
 } from "@sundaeswap/core";
 import { LucidHelper } from "@sundaeswap/core/lucid";
 import { SundaeUtils } from "@sundaeswap/core/utilities";
-
 import {
   Constr,
   Data,
@@ -23,7 +22,7 @@ import {
 import { ILockConfigArgs } from "../../@types/configs.js";
 import { YieldFarming } from "../Abstracts/YieldFarming.abstract.class.js";
 import { LockConfig } from "../Configs/LockConfig.js";
-import { DatumBuilderLucid } from "./DatumBuilder.Lucid.class.js";
+import { DatumBuilderLucid } from "../DatumBuilder/DatumBuilder.YieldFarming.Lucid.class.js";
 
 /**
  * Object arguments for completing a transaction.
@@ -63,7 +62,9 @@ interface IYieldFarmingParams {
  *
  * @implements {YieldFarming}
  */
-export class YieldFarmingLucid implements YieldFarming {
+export class YieldFarmingLucid
+  implements YieldFarming<Tx, TxComplete, Datum | undefined>
+{
   network: TSupportedNetworks;
   datumBuilder: DatumBuilderLucid;
 

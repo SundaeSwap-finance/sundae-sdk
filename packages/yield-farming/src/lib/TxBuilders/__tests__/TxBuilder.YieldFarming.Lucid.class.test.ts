@@ -6,8 +6,8 @@ import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 import { C, Data, Lucid, Tx } from "lucid-cardano";
 
 import { Delegation, TDelegation } from "../../../@types/lucid.js";
-import { YieldFarmingLucid } from "../YieldFarming.Lucid.class.js";
-import { delegation } from "../__data__/delegation.js";
+import { delegation } from "../../__data__/delegationData.js";
+import { YieldFarmingLucid } from "../TxBuilder.YieldFarming.Lucid.class.js";
 
 let YFInstance: YieldFarmingLucid;
 let lucidInstance: Lucid;

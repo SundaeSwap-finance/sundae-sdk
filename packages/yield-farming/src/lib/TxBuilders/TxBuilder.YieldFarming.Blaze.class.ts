@@ -1,3 +1,4 @@
+import { EmulatorProvider } from "@blaze-cardano/emulator";
 import {
   Blaze,
   TxBuilder as BlazeTx,
@@ -15,14 +16,15 @@ import {
   type ITxBuilderReferralFee,
   type TSupportedNetworks,
 } from "@sundaeswap/core";
+import { BlazeHelper } from "@sundaeswap/core/blaze";
 import { LucidHelper } from "@sundaeswap/core/lucid";
 import { SundaeUtils } from "@sundaeswap/core/utilities";
 
-import { EmulatorProvider } from "@blaze-cardano/emulator";
+import { PositionRedeemer } from "../../@types/blaze.js";
 import { ILockConfigArgs } from "../../@types/configs.js";
 import { YieldFarming } from "../Abstracts/YieldFarming.abstract.class.js";
 import { LockConfig } from "../Configs/LockConfig.js";
-import { DatumBuilderBlaze } from "./DatumBuilder.Blaze.class.js";
+import { DatumBuilderBlaze } from "../DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.js";
 
 /**
  * Object arguments for completing a transaction.
@@ -62,7 +64,9 @@ interface IYieldFarmingParams {
  *
  * @implements {YieldFarming}
  */
-export class YieldFarmingBlaze implements YieldFarming {
+export class YieldFarmingBlaze
+  implements YieldFarming<BlazeTx, Core.Transaction>
+{
   network: TSupportedNetworks;
   datumBuilder: DatumBuilderBlaze;
 
@@ -123,7 +127,9 @@ export class YieldFarmingBlaze implements YieldFarming {
    * @param lockArgs
    * @returns
    */
-  async lock(lockArgs: ILockConfigArgs) {
+  async lock(
+    lockArgs: ILockConfigArgs
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const {
       existingPositions,
       lockedValues,
@@ -317,7 +323,9 @@ export class YieldFarmingBlaze implements YieldFarming {
    * @param positionArgs
    * @returns
    */
-  updatePosition(positionArgs: Omit<ILockConfigArgs, "programs">) {
+  updatePosition(
+    positionArgs: Omit<ILockConfigArgs, "programs">
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     return this.lock({
       ...positionArgs,
       programs: null,
@@ -332,7 +340,9 @@ export class YieldFarmingBlaze implements YieldFarming {
    * @param delegationArgs
    * @returns
    */
-  updateDelegation(delegationArgs: Omit<ILockConfigArgs, "lockedValues">) {
+  updateDelegation(
+    delegationArgs: Omit<ILockConfigArgs, "lockedValues">
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     return this.lock({
       ...delegationArgs,
       lockedValues: null,
@@ -345,7 +355,9 @@ export class YieldFarmingBlaze implements YieldFarming {
    * @param unlockArgs
    * @returns
    */
-  unlock(unlockArgs: Omit<ILockConfigArgs, "lockedValues">) {
+  unlock(
+    unlockArgs: Omit<ILockConfigArgs, "lockedValues">
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     // We just reverse the lock process.
     return this.lock({
       ...unlockArgs,
@@ -359,33 +371,49 @@ export class YieldFarmingBlaze implements YieldFarming {
     referralFee,
   }: {
     destination: string;
-    positions: UTxO[];
+    positions: Core.TransactionUnspentOutput[];
     referralFee?: ITxBuilderReferralFee;
-  }) {
-    const tx = this.lucid.newTx();
+  }): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
+    const tx = this.blaze.newTransaction();
     const v1UnlockScript =
       "5908fe0100003233223233223233322232333222323333333322222222323332223233332222323233223233322232333222323233223322323232332233223333322222332233223322332233223322322223253353035001104b13504c35304a3357389201035054350004b498ccc888d4c06c00c88d4c02800c88d4c0380088888888888cd4c0ac480048ccd5cd19b8f00100f048047003335004232323333573466e1cd55cea8012400046603a6eb8d5d0a8011bae357426ae8940088d413cd4c134cd5ce249035054310004e49926135573ca00226ea800400ccd40108cccd5cd19b8735573a6ea80052000201923504d35304b3357389201035054310004c49926002335004232323333573466e1cd55cea8012400046601464646464646464646464646666ae68cdc39aab9d500a480008cccccccccc060cd40ac8c8c8cccd5cd19b8735573aa004900011980f181f1aba150023030357426ae8940088d417cd4c174cd5ce249035054310005e49926135573ca00226ea8004d5d0a80519a8158161aba150093335503275ca0626ae854020ccd540c9d728189aba1500733502b04735742a00c66a05666aa0b00a0eb4d5d0a8029919191999ab9a3370e6aae754009200023350203232323333573466e1cd55cea80124000466a05066a08ceb4d5d0a80118259aba135744a00446a0c66a60c266ae712401035054310006249926135573ca00226ea8004d5d0a8011919191999ab9a3370e6aae7540092000233502633504675a6ae854008c12cd5d09aba250022350633530613357389201035054310006249926135573ca00226ea8004d5d09aba2500223505f35305d3357389201035054310005e49926135573ca00226ea8004d5d0a80219a815bae35742a00666a05666aa0b0eb88004d5d0a801181e9aba135744a00446a0b66a60b266ae71241035054310005a49926135744a00226ae8940044d5d1280089aba25001135744a00226ae8940044d5d1280089aba25001135573ca00226ea8004d5d0a8011919191999ab9a3370ea00290031180e981f9aba135573ca00646666ae68cdc3a801240084603860926ae84d55cf280211999ab9a3370ea00690011180e181a1aba135573ca00a46666ae68cdc3a802240004603e6eb8d5d09aab9e50062350563530543357389201035054310005549926499264984d55cea80089baa001357426ae8940088d413cd4c134cd5ce249035054310004e49926135573ca00226ea8004004480048848cc00400c0088004888888888848cccccccccc00402c02802402001c01801401000c00880048848cc00400c008800448848cc00400c0084800448848cc00400c0084800448848cc00400c00848004848888c010014848888c00c014848888c008014848888c00401480044800480048848cc00400c0088004c8004d540d0884894cd4d4034004407c8854cd4c080c01000840884cd4c0184800401000448c88c008dd6000990009aa81a111999aab9f0012500e233500d30043574200460066ae880080c88c8c8c8cccd5cd19b8735573aa006900011998039919191999ab9a3370e6aae754009200023300d303135742a00466a02605a6ae84d5d1280111a81c1a981b19ab9c491035054310003749926135573ca00226ea8004d5d0a801999aa805bae500a35742a00466a01eeb8d5d09aba25002235034353032335738921035054310003349926135744a00226aae7940044dd50009110919980080200180110009109198008018011000899aa800bae75a224464460046eac004c8004d540b888c8cccd55cf80112804919a80419aa81898031aab9d5002300535573ca00460086ae8800c0b44d5d08008891001091091198008020018900089119191999ab9a3370ea002900011a80418029aba135573ca00646666ae68cdc3a801240044a01046a0566a605266ae712401035054310002a499264984d55cea80089baa001121223002003112200112001232323333573466e1cd55cea8012400046600c600e6ae854008dd69aba135744a00446a04a6a604666ae71241035054310002449926135573ca00226ea80048848cc00400c00880048c8cccd5cd19b8735573aa002900011bae357426aae7940088d4084d4c07ccd5ce24810350543100020499261375400224464646666ae68cdc3a800a40084a00e46666ae68cdc3a8012400446a014600c6ae84d55cf280211999ab9a3370ea00690001280511a8121a981119ab9c490103505431000234992649926135573aa00226ea8004484888c00c0104488800844888004480048c8cccd5cd19b8750014800880188cccd5cd19b8750024800080188d4070d4c068cd5ce249035054310001b499264984d55ce9baa0011220021220012001232323232323333573466e1d4005200c200b23333573466e1d4009200a200d23333573466e1d400d200823300b375c6ae854014dd69aba135744a00a46666ae68cdc3a8022400c46601a6eb8d5d0a8039bae357426ae89401c8cccd5cd19b875005480108cc048c050d5d0a8049bae357426ae8940248cccd5cd19b875006480088c050c054d5d09aab9e500b23333573466e1d401d2000230133016357426aae7940308d4084d4c07ccd5ce2481035054310002049926499264992649926135573aa00826aae79400c4d55cf280109aab9e500113754002424444444600e01044244444446600c012010424444444600a010244444440082444444400644244444446600401201044244444446600201201040024646464646666ae68cdc3a800a400446660106eb4d5d0a8021bad35742a0066eb4d5d09aba2500323333573466e1d400920002300a300b357426aae7940188d4048d4c040cd5ce2490350543100011499264984d55cea80189aba25001135573ca00226ea80048488c00800c888488ccc00401401000c80048c8c8cccd5cd19b875001480088c018dd71aba135573ca00646666ae68cdc3a80124000460106eb8d5d09aab9e500423500c35300a3357389201035054310000b499264984d55cea80089baa001212230020032122300100320011122232323333573466e1cd55cea80124000466aa016600c6ae854008c014d5d09aba25002235009353007335738921035054310000849926135573ca00226ea8004480048004498448848cc00400c008448004448c8c00400488cc00cc0080080041";
-    const { paymentCredentials } = LucidHelper.getAddressHashes(destination);
+    const { paymentCredentials } = BlazeHelper.getAddressHashes(destination);
 
-    tx.attachSpendingValidator({
-      script: v1UnlockScript,
-      type: "PlutusV1",
+    tx.provideScript(
+      Core.Script.newPlutusV1Script(
+        Core.PlutusV1Script.fromCbor(Core.HexBlob(v1UnlockScript))
+      )
+    );
+    tx.addRequiredSigner(Core.Ed25519KeyHashHex(paymentCredentials));
+    positions.forEach((p) =>
+      tx.addInput(p, Data.to("EMPTY", PositionRedeemer))
+    );
+    // tx.collectFrom(positions, Data.to(new Constr(0, [])));
+
+    const allAssets: Record<string, bigint> = {
+      lovelace: 0n,
+    };
+    positions.forEach(({ output }) => {
+      allAssets.lovelace += output().amount().coin();
+      const assets = output().amount().multiasset();
+      if (assets) {
+        Object.entries(assets).forEach(([id, amt]) => {
+          if (allAssets[id]) {
+            allAssets[id] += amt;
+          } else {
+            allAssets[id] = amt;
+          }
+        });
+      }
     });
-    tx.addSignerKey(paymentCredentials);
-    tx.collectFrom(positions, Data.to(new Constr(0, [])));
 
-    const allAssets: Assets = {};
-    positions.forEach(({ assets }) => {
-      Object.entries(assets).forEach(([id, amt]) => {
-        if (allAssets[id]) {
-          allAssets[id] += amt;
-        } else {
-          allAssets[id] = amt;
-        }
-      });
-    });
-
-    tx.payToAddress(destination, allAssets);
+    tx.payAssets(
+      Core.Address.fromBech32(destination),
+      makeValue(
+        allAssets.lovelace,
+        ...Object.entries(allAssets).filter(([key]) => key !== "lovelace")
+      )
+    );
 
     return this.completeTx({
       deposit: new AssetAmount(0n, ADA_METADATA),
@@ -413,7 +441,7 @@ export class YieldFarmingBlaze implements YieldFarming {
    *   - `deposit`: The deposit amount required for the transaction.
    *   - `referralFee`: The referral fee details, if applicable.
    *   - `tx`: The initial transaction object to be completed.
-   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object, which includes methods for finalizing, signing, and submitting the transaction.
+   * @returns {Promise<IComposedTx<BlazeTx, Core.Transaction>>} A promise that resolves to the composed transaction object, which includes methods for finalizing, signing, and submitting the transaction.
    */
   private async completeTx({
     datum,
@@ -421,38 +449,51 @@ export class YieldFarmingBlaze implements YieldFarming {
     referralFee,
     tx,
   }: IYieldFarmingCompleteTxArgs): Promise<
-    IComposedTx<Tx, TxComplete, Datum | undefined>
+    IComposedTx<BlazeTx, Core.Transaction>
   > {
     if (referralFee) {
       if (!SundaeUtils.isAdaAsset(referralFee.payment.metadata)) {
-        tx.payToAddress(referralFee.destination, {
-          [referralFee.payment.metadata.assetId.replace(".", "")]:
-            referralFee.payment.amount,
-        });
+        tx.payAssets(
+          Core.Address.fromBech32(referralFee.destination),
+          makeValue(
+            2_000_000n,
+            ...[
+              [
+                referralFee.payment.metadata.assetId.replace(".", ""),
+                referralFee.payment.amount,
+              ] as [string, bigint],
+            ]
+          )
+        );
       } else {
-        tx.payToAddress(referralFee.destination, {
-          lovelace: referralFee.payment.amount,
-        });
+        tx.payLovelace(
+          Core.Address.fromBech32(referralFee.destination),
+          referralFee.payment.amount
+        );
       }
 
       if (referralFee.feeLabel) {
-        tx.attachMetadataWithConversion(
-          674,
-          `${referralFee.feeLabel}: ${referralFee.payment.value.toString()} ${
-            !SundaeUtils.isAdaAsset(referralFee.payment.metadata)
-              ? Buffer.from(
-                  referralFee.payment.metadata.assetId.split(".")[1],
-                  "hex"
-                ).toString("utf-8")
-              : "ADA"
-          }`
-        );
+        /**
+         * @TODO Need to add metadata once fixed in blaze.
+         */
+        // tx.attachMetadataWithConversion(
+        //   674,
+        //   `${referralFee.feeLabel}: ${referralFee.payment.value.toString()} ${
+        //     !SundaeUtils.isAdaAsset(referralFee.payment.metadata)
+        //       ? Buffer.from(
+        //           referralFee.payment.metadata.assetId.split(".")[1],
+        //           "hex"
+        //         ).toString("utf-8")
+        //       : "ADA"
+        //   }`
+        // );
       }
     }
 
-    const txFee = tx.txBuilder.get_fee_if_set();
-    let finishedTx: TxComplete | undefined;
-    const thisTx: IComposedTx<Tx, TxComplete, Datum | undefined> = {
+    let finishedTx: Core.Transaction | undefined;
+    const that = this;
+
+    const thisTx: IComposedTx<BlazeTx, Core.Transaction> = {
       tx,
       fees: {
         cardanoTxFee: new AssetAmount(0n, ADA_METADATA),
@@ -470,18 +511,20 @@ export class YieldFarmingBlaze implements YieldFarming {
         }
 
         thisTx.fees.cardanoTxFee = new AssetAmount(
-          BigInt(txFee?.to_str() ?? finishedTx?.fee?.toString() ?? "0"),
+          BigInt(finishedTx.body().fee() ?? "0"),
           6
         );
 
         return {
-          cbor: Buffer.from(finishedTx.txComplete.to_bytes()).toString("hex"),
+          cbor: finishedTx.toCbor(),
           builtTx: finishedTx,
           sign: async () => {
-            const signedTx = await (finishedTx as TxComplete).sign().complete();
+            const signedTx = await that.blaze.signTransaction(
+              finishedTx as Core.Transaction
+            );
             return {
-              cbor: Buffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
-              submit: async () => await signedTx.submit(),
+              cbor: signedTx.toCbor(),
+              submit: async () => await that.blaze.submitTransaction(signedTx),
             };
           },
         };

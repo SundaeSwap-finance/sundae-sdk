@@ -23,12 +23,33 @@
     "package.json"
   ],
   "type": "module",
-  "types": "dist/types/index.d.ts",
+  "main": "dist/exports/cjs/exports/index.js",
+  "types": "dist/types/exports/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "lucid": [
+        "./dist/types/exports/lucid.d.ts"
+      ],
+      "blaze": [
+        "./dist/types/exports/blaze.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/types/index.d.ts"
+      "import": "./dist/esm/exports/index.js",
+      "require": "./dist/cjs/exports/index.js",
+      "types": "./dist/types/exports/index.d.ts"
+    },
+    "./lucid": {
+      "import": "./dist/esm/exports/lucid.js",
+      "require": "./dist/cjs/exports/lucid.js",
+      "types": "./dist/types/exports/lucid.d.ts"
+    },
+    "./blaze": {
+      "import": "./dist/esm/exports/blaze.js",
+      "require": "./dist/cjs/exports/blaze.js",
+      "types": "./dist/types/exports/blaze.d.ts"
     }
   },
   "scripts": {
