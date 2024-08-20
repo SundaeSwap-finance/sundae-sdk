@@ -85,13 +85,19 @@ export const settingsUtxosBlaze: Core.TransactionUnspentOutput[] =
           Core.TransactionId(utxo.txHash),
           BigInt(utxo.outputIndex)
         ),
-        new Core.TransactionOutput(
-          Core.addressFromBech32(utxo.address),
-          makeValue(
+        Core.TransactionOutput.fromCore({
+          address: Core.PaymentAddress(utxo.address),
+          value: makeValue(
             utxo.assets.lovelace,
             ...Object.entries(utxo.assets).filter(([key]) => key !== "lovelace")
-          )
-        )
+          ).toCore(),
+          datum: utxo.datum
+            ? Core.PlutusData.fromCbor(Core.HexBlob(utxo.datum)).toCore()
+            : undefined,
+          datumHash: utxo.datumHash
+            ? Core.Hash32ByteBase16(utxo.datumHash)
+            : undefined,
+        })
       )
   );
 
