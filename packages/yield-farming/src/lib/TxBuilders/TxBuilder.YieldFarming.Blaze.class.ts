@@ -173,10 +173,10 @@ export class YieldFarmingBlaze
      * to enforce explicit behavior.
      */
     if (lockedValues === null && existingPositionData) {
-      existingPositionData.forEach(({ output }) => {
-        payment.lovelace += output().amount().coin();
+      existingPositionData.forEach((position) => {
+        payment.lovelace += position.output().amount().coin();
 
-        const assets = output().amount().multiasset() || new Map();
+        const assets = position.output().amount().multiasset() || new Map();
         Object.entries(assets).forEach(([assetId, amount]) => {
           if (!payment[assetId]) {
             payment[assetId] = amount;
@@ -276,8 +276,8 @@ export class YieldFarmingBlaze
      * are updating a position, and not starting new.
      */
     if (programs === null && existingPositionData) {
-      for (const { output } of existingPositionData) {
-        const datum = output().datum()?.asInlineData();
+      for (const position of existingPositionData) {
+        const datum = position.output().datum()?.asInlineData();
         if (datum) {
           inline = datum.toCbor();
           break;
@@ -453,18 +453,7 @@ export class YieldFarmingBlaze
   > {
     if (referralFee) {
       if (!SundaeUtils.isAdaAsset(referralFee.payment.metadata)) {
-        tx.payAssets(
-          Core.Address.fromBech32(referralFee.destination),
-          makeValue(
-            2_000_000n,
-            ...[
-              [
-                referralFee.payment.metadata.assetId.replace(".", ""),
-                referralFee.payment.amount,
-              ] as [string, bigint],
-            ]
-          )
-        );
+        throw new Error("Only the ADA asset is supported for referral fees.");
       } else {
         tx.payLovelace(
           Core.Address.fromBech32(referralFee.destination),

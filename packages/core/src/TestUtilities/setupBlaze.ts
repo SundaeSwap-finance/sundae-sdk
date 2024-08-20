@@ -33,14 +33,22 @@ export const setupBlaze = (
     beforeAll?: () => void;
   }
 ): {
-  getUtxosByOutRefMock: jest.Mock<TGetUtxosByOutRefMock>;
-  getUtxosMock: jest.Mock<TGetUtxosMock>;
+  getUtxosByOutRefMock: jest.SpiedFunction<
+    (txIns: Core.TransactionInput[]) => Promise<Core.TransactionUnspentOutput[]>
+  >;
+  getUtxosMock: jest.SpiedFunction<
+    (address: Core.Address) => Promise<Core.TransactionUnspentOutput[]>
+  >;
   ownerAddress: string;
 } => {
-  const getUtxosByOutRefMock = jest.fn<TGetUtxosByOutRefMock>();
-  const getUtxosMock = jest
-    .fn<TGetUtxosMock>()
-    .mockResolvedValue(convertedOutputs);
+  const getUtxosByOutRefMock = jest.spyOn(
+    EmulatorProvider.prototype,
+    "resolveUnspentOutputs"
+  );
+  const getUtxosMock = jest.spyOn(
+    EmulatorProvider.prototype,
+    "getUnspentOutputs"
+  );
 
   beforeAll(async () => {
     options?.beforeAll?.();
@@ -51,9 +59,10 @@ export const setupBlaze = (
     };
 
     const emulator = new Emulator(options?.customUtxos ?? convertedOutputs);
+    const provider = new EmulatorProvider(emulator);
 
     const blaze = await Blaze.from(
-      new EmulatorProvider(emulator),
+      provider,
       new ColdWallet(
         Core.addressFromBech32(PREVIEW_DATA.addresses.current),
         Core.NetworkId.Testnet,

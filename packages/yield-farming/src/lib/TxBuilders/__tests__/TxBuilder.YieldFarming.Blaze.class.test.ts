@@ -16,6 +16,49 @@ const { getUtxosByOutRefMock, ownerAddress } = setupBlaze((Blaze) => {
   YFInstance = new YieldFarmingBlaze(Blaze, 0);
 });
 
+const referenceInputMock = new Core.TransactionUnspentOutput(
+  new Core.TransactionInput(
+    Core.TransactionId(
+      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.txHash
+    ),
+    BigInt(PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.outputIndex)
+  ),
+  new Core.TransactionOutput(
+    Core.Address.fromBech32(
+      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+    ),
+    makeValue(
+      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+      ...Object.entries(
+        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+      ).filter(([key]) => key !== "lovelace")
+    )
+  )
+);
+
+const createMockUtxoWithDatum = (datum: string) =>
+  new Core.TransactionUnspentOutput(
+    new Core.TransactionInput(
+      Core.TransactionId(
+        "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de"
+      ),
+      0n
+    ),
+    Core.TransactionOutput.fromCore({
+      address: Core.PaymentAddress(
+        "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
+      ),
+      value: makeValue(
+        5000000n,
+        ...Object.entries({
+          "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
+            10000000n,
+        })
+      ).toCore(),
+      datum: Core.PlutusData.fromCbor(Core.HexBlob(datum)).toCore(),
+    })
+  );
+
 afterEach(() => {
   getUtxosByOutRefMock.mockReset();
 });
@@ -23,20 +66,8 @@ afterEach(() => {
 describe("YieldFarmingBlaze", () => {
   it("should build an accurate transaction with an accurate datum when locking a position for the first time.", async () => {
     getUtxosByOutRefMock
-      .mockResolvedValueOnce([
-        new Core.TransactionOutput(
-          Core.Address.fromBech32(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
-          ),
-          makeValue(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
-            ...Object.entries(
-              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
-            ).filter(([key]) => key !== "lovelace")
-          )
-        ),
-      ])
-      .mockResolvedValueOnce(undefined);
+      .mockResolvedValueOnce([referenceInputMock])
+      .mockResolvedValueOnce([]);
 
     const { datum, build } = await YFInstance.lock({
       lockedValues: [
@@ -105,37 +136,11 @@ describe("YieldFarmingBlaze", () => {
 
   it("should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)", async () => {
     getUtxosByOutRefMock
+      .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
-        new Core.TransactionOutput(
-          Core.Address.fromBech32(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
-          ),
-          makeValue(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
-            ...Object.entries(
-              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
-            ).filter(([key]) => key !== "lovelace")
-          )
+        createMockUtxoWithDatum(
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
         ),
-      ])
-      .mockResolvedValueOnce([
-        Core.TransactionOutput.fromCore({
-          address: Core.PaymentAddress(
-            "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
-          ),
-          value: makeValue(
-            5000000n,
-            ...Object.entries({
-              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-                10000000n,
-            })
-          ).toCore(),
-          datum: Core.PlutusData.fromCbor(
-            Core.HexBlob(
-              "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
-            )
-          ).toCore(),
-        }),
         // {
         //   address:
         //     "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
@@ -185,19 +190,7 @@ describe("YieldFarmingBlaze", () => {
     );
 
     // Cover case where there are no existing positions with null.
-    getUtxosByOutRefMock.mockResolvedValueOnce([
-      new Core.TransactionOutput(
-        Core.Address.fromBech32(
-          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
-        ),
-        makeValue(
-          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
-          ...Object.entries(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
-          ).filter(([key]) => key !== "lovelace")
-        )
-      ),
-    ]);
+    getUtxosByOutRefMock.mockResolvedValueOnce([referenceInputMock]);
     const { datum: fallbackDatum } = await YFInstance.lock({
       lockedValues: [
         new AssetAmount(5_000_000n, ADA_METADATA),
@@ -224,51 +217,11 @@ describe("YieldFarmingBlaze", () => {
 
   it("should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)", async () => {
     getUtxosByOutRefMock
+      .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
-        new Core.TransactionOutput(
-          Core.Address.fromBech32(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
-          ),
-          makeValue(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
-            ...Object.entries(
-              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
-            ).filter(([key]) => key !== "lovelace")
-          )
+        createMockUtxoWithDatum(
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
         ),
-      ])
-      .mockResolvedValueOnce([
-        Core.TransactionOutput.fromCore({
-          address: Core.PaymentAddress(
-            "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
-          ),
-          value: makeValue(
-            5_000_000n,
-            ...Object.entries({
-              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-                10000000n,
-            })
-          ).toCore(),
-          datum: Core.PlutusData.fromCbor(
-            Core.HexBlob(
-              "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
-            )
-          ).toCore(),
-        }),
-        // {
-        //   address:
-        //     "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
-        //   assets: {
-        //     "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-        //       10000000n,
-        //     lovelace: 5000000n,
-        //   },
-        //   outputIndex: 0,
-        //   datum:
-        //     "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
-        //   txHash:
-        //     "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-        // },
       ]);
 
     const { datum } = await YFInstance.lock({
@@ -305,20 +258,8 @@ describe("YieldFarmingBlaze", () => {
 
   it("should build a delegation datum along with the transaction if set", async () => {
     getUtxosByOutRefMock
-      .mockResolvedValueOnce([
-        new Core.TransactionOutput(
-          Core.Address.fromBech32(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
-          ),
-          makeValue(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
-            ...Object.entries(
-              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
-            ).filter(([key]) => key !== "lovelace")
-          )
-        ),
-      ])
-      .mockResolvedValueOnce(undefined);
+      .mockResolvedValueOnce([referenceInputMock])
+      .mockResolvedValueOnce([]);
 
     const { build, datum } = await YFInstance.lock({
       lockedValues: [
@@ -388,51 +329,11 @@ describe("YieldFarmingBlaze", () => {
 
   it("should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)", async () => {
     getUtxosByOutRefMock
+      .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
-        new Core.TransactionOutput(
-          Core.Address.fromBech32(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
-          ),
-          makeValue(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
-            ...Object.entries(
-              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
-            ).filter(([key]) => key !== "lovelace")
-          )
+        createMockUtxoWithDatum(
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff"
         ),
-      ])
-      .mockResolvedValueOnce([
-        Core.TransactionOutput.fromCore({
-          address: Core.PaymentAddress(
-            "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
-          ),
-          value: makeValue(
-            5_000_000n,
-            ...Object.entries({
-              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-                10000000n,
-            })
-          ).toCore(),
-          datum: Core.PlutusData.fromCbor(
-            Core.HexBlob(
-              "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff"
-            )
-          ).toCore(),
-        }),
-        // {
-        //   address:
-        //     "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
-        //   assets: {
-        //     "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-        //       10000000n,
-        //     lovelace: 5000000n,
-        //   },
-        //   outputIndex: 0,
-        //   datum:
-        //     "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff",
-        //   txHash:
-        //     "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-        // },
       ]);
 
     const spiedPayToContract = jest.spyOn(TxBuilder.prototype, "lockAssets");
@@ -450,17 +351,21 @@ describe("YieldFarmingBlaze", () => {
 
     expect(spiedPayToContract).toHaveBeenNthCalledWith(
       1,
-      "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
-      {
-        inline:
-          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
-      },
-
-      {
-        "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-          10000000n,
-        lovelace: 5000000n,
-      }
+      Core.Address.fromBech32(
+        "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
+      ),
+      makeValue(
+        5000000n,
+        ...Object.entries({
+          "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
+            10000000n,
+        })
+      ),
+      Core.PlutusData.fromCbor(
+        Core.HexBlob(
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+        )
+      )
     );
     expect(datum).toEqual(
       "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
@@ -469,51 +374,11 @@ describe("YieldFarmingBlaze", () => {
 
   it("should not build a datum when unlocking assets", async () => {
     getUtxosByOutRefMock
+      .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
-        new Core.TransactionOutput(
-          Core.Address.fromBech32(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
-          ),
-          makeValue(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
-            ...Object.entries(
-              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
-            ).filter(([key]) => key !== "lovelace")
-          )
+        createMockUtxoWithDatum(
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffd87980ff"
         ),
-      ])
-      .mockResolvedValueOnce([
-        Core.TransactionOutput.fromCore({
-          address: Core.PaymentAddress(
-            "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
-          ),
-          value: makeValue(
-            5_000_000n,
-            ...Object.entries({
-              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-                10000000n,
-            })
-          ).toCore(),
-          datum: Core.PlutusData.fromCbor(
-            Core.HexBlob(
-              "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffd87980ff"
-            )
-          ).toCore(),
-        }),
-        // {
-        //   address:
-        //     "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
-        //   assets: {
-        //     "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-        //       10000000n,
-        //     lovelace: 5000000n,
-        //   },
-        //   outputIndex: 0,
-        //   datum:
-        //     "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffd87980ff",
-        //   txHash:
-        //     "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-        // },
       ]);
 
     const { datum, fees } = await YFInstance.unlock({
@@ -532,7 +397,7 @@ describe("YieldFarmingBlaze", () => {
   });
 
   it("should throw an error if the reference input cannot be found", async () => {
-    getUtxosByOutRefMock.mockResolvedValueOnce(undefined);
+    getUtxosByOutRefMock.mockResolvedValueOnce([]);
 
     expect(() =>
       YFInstance.lock({
@@ -554,19 +419,7 @@ describe("YieldFarmingBlaze", () => {
   });
 
   it("should correctly build the fees object", async () => {
-    getUtxosByOutRefMock.mockResolvedValueOnce([
-      new Core.TransactionOutput(
-        Core.Address.fromBech32(
-          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
-        ),
-        makeValue(
-          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
-          ...Object.entries(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
-          ).filter(([key]) => key !== "lovelace")
-        )
-      ),
-    ]);
+    getUtxosByOutRefMock.mockResolvedValueOnce([referenceInputMock]);
 
     const { fees, build } = await YFInstance.lock({
       lockedValues: [
@@ -604,19 +457,7 @@ describe("YieldFarmingBlaze", () => {
   it("should correctly add the referral fee", async () => {
     const referralFeeAddress =
       "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68";
-    getUtxosByOutRefMock.mockResolvedValueOnce([
-      new Core.TransactionOutput(
-        Core.Address.fromBech32(
-          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
-        ),
-        makeValue(
-          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
-          ...Object.entries(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
-          ).filter(([key]) => key !== "lovelace")
-        )
-      ),
-    ]);
+    getUtxosByOutRefMock.mockResolvedValueOnce([referenceInputMock]);
 
     const adaReferral = await YFInstance.lock({
       lockedValues: [
@@ -669,79 +510,36 @@ describe("YieldFarmingBlaze", () => {
 
     expect(hasAdaReferralFee).toBeTruthy();
 
-    getUtxosByOutRefMock.mockResolvedValueOnce([
-      new Core.TransactionOutput(
-        Core.Address.fromBech32(
-          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
-        ),
-        makeValue(
-          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
-          ...Object.entries(
-            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
-          ).filter(([key]) => key !== "lovelace")
-        )
-      ),
-    ]);
+    getUtxosByOutRefMock.mockResolvedValueOnce([referenceInputMock]);
 
-    const nonAdaReferral = await YFInstance.lock({
-      lockedValues: [
-        new AssetAmount(5_000_000n, ADA_METADATA),
-        new AssetAmount(10_000_000n, {
-          assetId:
-            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-          decimals: 6,
-        }),
-      ],
-      ownerAddress: ownerAddress,
-      programs: delegation,
-      existingPositions: [],
-      referralFee: {
-        destination: referralFeeAddress,
-        payment: new AssetAmount(1_000_000n, {
-          decimals: 6,
-          assetId:
-            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-        }),
-        feeLabel: "Non-Ada Test Label",
-      },
-    });
-
-    const { builtTx: nonAdaReferralBuiltTx } = await nonAdaReferral.build();
-    let hasNonAdaReferralFee: boolean = false;
-    [...Array(nonAdaReferralBuiltTx.body().outputs().length).keys()].forEach(
-      (index) => {
-        const output = nonAdaReferralBuiltTx
-          .body()
-          .outputs()
-          .find((_, outputIndex) => outputIndex === index);
-
-        // min-utxo
-        if (!output || output.amount().coin() !== 1155080n) {
-          return;
-        }
-
-        const asset = output
-          .amount()
-          .multiasset()
-          ?.get(
-            Core.AssetId(
-              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344"
-            )
-          );
-
-        if (!asset || asset !== 1000000n) {
-          return;
-        }
-
-        if (output.address().toBech32() !== referralFeeAddress) {
-          return;
-        }
-
-        hasNonAdaReferralFee = true;
-      }
-    );
-
-    expect(hasNonAdaReferralFee).toBeTruthy();
+    try {
+      await YFInstance.lock({
+        lockedValues: [
+          new AssetAmount(5_000_000n, ADA_METADATA),
+          new AssetAmount(10_000_000n, {
+            assetId:
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+            decimals: 6,
+          }),
+        ],
+        ownerAddress: ownerAddress,
+        programs: delegation,
+        existingPositions: [],
+        referralFee: {
+          destination: referralFeeAddress,
+          payment: new AssetAmount(1_000_000n, {
+            decimals: 6,
+            assetId:
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          }),
+          feeLabel: "Non-Ada Test Label",
+        },
+      });
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        "Only the ADA asset is supported for referral fees."
+      );
+    }
 
     // Test Labels
     /**
@@ -763,4 +561,3 @@ describe("YieldFarmingBlaze", () => {
     // ).toEqual("Non-Ada Test Label: 1 iUSD");
   });
 });
-export {};
