@@ -13,10 +13,13 @@ import { useAppState } from "../../state/context";
 import { CancelSwap } from "./modules/CancelSwap";
 import { CreatePool } from "./modules/CreatePool";
 import { Deposit } from "./modules/Deposit";
+import { Lock } from "./modules/LockAssets";
 import { Migrate } from "./modules/MigrateV1LiquidityToV3";
 import { OrderRouting } from "./modules/OrderRouting";
 import { SwapAB } from "./modules/SwapAB";
 import { SwapBA } from "./modules/SwapBA";
+import { Unlock } from "./modules/UnlockAssets";
+import { UnlockV1 } from "./modules/UnlockAssetsV1";
 import { UpdateSwap } from "./modules/UpdateSwap";
 import { Withdraw } from "./modules/Withdraw";
 import { Zap } from "./modules/Zap";
@@ -114,9 +117,9 @@ export const Actions: FC = () => {
           <h4 className="w-32">Yield Farming</h4>
           <hr className="my-10 w-full" />
         </div>
-        {/* <Lock setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        <Lock setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Unlock setFees={setFees} setCBOR={setCBOR} submit={submit} />
-        <UnlockV1 setFees={setFees} setCBOR={setCBOR} submit={submit} /> */}
+        <UnlockV1 setFees={setFees} setCBOR={setCBOR} submit={submit} />
 
         <div className="col-span-2 flex items-center justify-between gap-2">
           <h4 className="w-24">Taste Tests</h4>

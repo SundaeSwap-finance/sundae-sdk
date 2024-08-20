@@ -1,611 +1,766 @@
-// import { Blaze } from "@blaze-cardano/sdk";
-// import { jest } from "@jest/globals";
-// import { AssetAmount } from "@sundaeswap/asset";
-// import { ADA_METADATA } from "@sundaeswap/core";
-// import { setupBlaze } from "@sundaeswap/core/blaze";
-// import { PREVIEW_DATA } from "@sundaeswap/core/testing";
+import { Core, Data, makeValue, TxBuilder } from "@blaze-cardano/sdk";
+import { jest } from "@jest/globals";
+import { AssetAmount } from "@sundaeswap/asset";
+import { ADA_METADATA } from "@sundaeswap/core";
+import { setupBlaze } from "@sundaeswap/core/blaze";
+import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 
-// import { Delegation, TDelegation } from "../../../@types/Blaze.js";
-// import { YieldFarmingBlaze } from "../YieldFarming.Blaze.class.js";
-// import { delegation } from "../__data__/delegation.js";
+import { Delegation, TDelegation } from "../../../@types/blaze.js";
+import { delegation } from "../../__data__/delegationData.js";
+import { YieldFarmingBlaze } from "../TxBuilder.YieldFarming.Blaze.class.js";
+// import { delegation } from "../__data__/yieldfarming.expectations.js";
 
-// let YFInstance: YieldFarmingBlaze;
-// let BlazeInstance: Blaze;
+let YFInstance: YieldFarmingBlaze;
 
-// const { getUtxosByOutRefMock, ownerAddress } = setupBlaze((Blaze) => {
-//   YFInstance = new YieldFarmingBlaze(Blaze);
-//   BlazeInstance = Blaze;
-// });
+const { getUtxosByOutRefMock, ownerAddress } = setupBlaze((Blaze) => {
+  YFInstance = new YieldFarmingBlaze(Blaze, 0);
+});
 
-// afterEach(() => {
-//   getUtxosByOutRefMock.mockReset();
-// });
+afterEach(() => {
+  getUtxosByOutRefMock.mockReset();
+});
 
-// describe("YieldFarmingBlaze", () => {
-//   it("should build an accurate transaction with an accurate datum when locking a position for the first time.", async () => {
-//     getUtxosByOutRefMock
-//       .mockResolvedValueOnce([
-//         PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
-//       ])
-//       .mockResolvedValueOnce(undefined);
+describe("YieldFarmingBlaze", () => {
+  it("should build an accurate transaction with an accurate datum when locking a position for the first time.", async () => {
+    getUtxosByOutRefMock
+      .mockResolvedValueOnce([
+        new Core.TransactionOutput(
+          Core.Address.fromBech32(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+          ),
+          makeValue(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+            ...Object.entries(
+              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+            ).filter(([key]) => key !== "lovelace")
+          )
+        ),
+      ])
+      .mockResolvedValueOnce(undefined);
 
-//     const { datum, build } = await YFInstance.lock({
-//       lockedValues: [
-//         new AssetAmount(5_000_000n, ADA_METADATA),
-//         new AssetAmount(10_000_000n, {
-//           assetId:
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-//           decimals: 6,
-//         }),
-//       ],
-//       ownerAddress: ownerAddress,
-//       existingPositions: [],
-//     });
+    const { datum, build } = await YFInstance.lock({
+      lockedValues: [
+        new AssetAmount(5_000_000n, ADA_METADATA),
+        new AssetAmount(10_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          decimals: 6,
+        }),
+      ],
+      ownerAddress: ownerAddress,
+      existingPositions: [],
+    });
 
-//     const { builtTx } = await build();
-//     let hasLockedValuesOutput: boolean = false;
-//     let lockedValueDatum: TDelegation | undefined;
-//     [...Array(builtTx.txComplete.body().outputs().len()).keys()].forEach(
-//       (index) => {
-//         const { amount, datum } = builtTx.txComplete
-//           .body()
-//           .outputs()
-//           .get(index)
-//           .to_js_value();
+    const { builtTx } = await build();
+    let hasLockedValuesOutput: boolean = false;
+    let lockedValueDatum: TDelegation | undefined;
+    [...Array(builtTx.body().outputs().length).keys()].forEach((index) => {
+      const output = builtTx
+        .body()
+        .outputs()
+        .find((_, outputIndex) => outputIndex === index);
 
-//         if (amount.coin !== "5000000") {
-//           return;
-//         }
+      if (output && output.amount().coin() !== 5000000n) {
+        return;
+      }
 
-//         if (
-//           !amount.multiasset[
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5"
-//           ]
-//         ) {
-//           return;
-//         }
+      const asset =
+        output &&
+        output
+          .amount()
+          .multiasset()
+          ?.get(
+            Core.AssetId(
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344"
+            )
+          );
 
-//         if (
-//           amount.multiasset[
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5"
-//           ]["69555344"] !== "10000000"
-//         ) {
-//           return;
-//         }
+      if (!asset) {
+        return;
+      }
 
-//         lockedValueDatum =
-//           datum.Data.original_bytes &&
-//           Data.from(
-//             Buffer.from(datum.Data.original_bytes).toString("hex"),
-//             Delegation
-//           );
-//         hasLockedValuesOutput = true;
-//       }
-//     );
+      if (asset !== 10000000n) {
+        return;
+      }
 
-//     expect(hasLockedValuesOutput).toBeTruthy();
-//     expect(lockedValueDatum).toMatchObject<TDelegation>({
-//       owner: {
-//         address: BlazeInstance.utils.getAddressDetails(ownerAddress)
-//           .stakeCredential?.hash as string,
-//       },
-//       programs: [],
-//     });
-//     expect(datum).toEqual(
-//       "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
-//     );
-//   });
+      lockedValueDatum = datum
+        ? Data.from(Core.PlutusData.fromCbor(Core.HexBlob(datum)), Delegation)
+        : undefined;
+      hasLockedValuesOutput = true;
+    });
 
-//   it("should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)", async () => {
-//     getUtxosByOutRefMock
-//       .mockResolvedValueOnce([
-//         PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
-//       ])
-//       .mockResolvedValueOnce([
-//         {
-//           address:
-//             "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
-//           assets: {
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-//               10000000n,
-//             lovelace: 5000000n,
-//           },
-//           outputIndex: 0,
-//           datum:
-//             "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
-//           txHash:
-//             "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-//         },
-//       ]);
+    expect(hasLockedValuesOutput).toBeTruthy();
+    expect(lockedValueDatum).toMatchObject<TDelegation>({
+      owner: {
+        address: Core.addressFromBech32(ownerAddress)
+          .asBase()
+          ?.getStakeCredential().hash as string,
+      },
+      programs: [],
+    });
+    expect(datum).toEqual(
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
+    );
+  });
 
-//     const { datum } = await YFInstance.lock({
-//       lockedValues: [
-//         new AssetAmount(5_000_000n, ADA_METADATA),
-//         new AssetAmount(10_000_000n, {
-//           assetId:
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-//           decimals: 6,
-//         }),
-//         new AssetAmount(372_501_888n, {
-//           assetId:
-//             "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702003",
-//           decimals: 0,
-//         }),
-//       ],
-//       ownerAddress: ownerAddress,
-//       existingPositions: [
-//         {
-//           hash: "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-//           index: 0,
-//         },
-//       ],
-//       programs: null,
-//     });
+  it("should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)", async () => {
+    getUtxosByOutRefMock
+      .mockResolvedValueOnce([
+        new Core.TransactionOutput(
+          Core.Address.fromBech32(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+          ),
+          makeValue(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+            ...Object.entries(
+              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+            ).filter(([key]) => key !== "lovelace")
+          )
+        ),
+      ])
+      .mockResolvedValueOnce([
+        Core.TransactionOutput.fromCore({
+          address: Core.PaymentAddress(
+            "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
+          ),
+          value: makeValue(
+            5000000n,
+            ...Object.entries({
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
+                10000000n,
+            })
+          ).toCore(),
+          datum: Core.PlutusData.fromCbor(
+            Core.HexBlob(
+              "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+            )
+          ).toCore(),
+        }),
+        // {
+        //   address:
+        //     "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
+        //   assets: {
+        //     "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
+        //       10000000n,
+        //     lovelace: 5000000n,
+        //   },
+        //   outputIndex: 0,
+        //   datum:
+        //     "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
+        //   txHash:
+        //     "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
+        // },
+      ]);
 
-//     /**
-//      * @TODO Figure out why Blaze yells about max collateral inputs when spending an existing position.
-//      */
-//     // await build();
-//     expect(datum).toEqual(
-//       "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
-//     );
+    const { datum } = await YFInstance.lock({
+      lockedValues: [
+        new AssetAmount(5_000_000n, ADA_METADATA),
+        new AssetAmount(10_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          decimals: 6,
+        }),
+        new AssetAmount(372_501_888n, {
+          assetId:
+            "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702003",
+          decimals: 0,
+        }),
+      ],
+      ownerAddress: ownerAddress,
+      existingPositions: [
+        {
+          hash: "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
+          index: 0,
+        },
+      ],
+      programs: null,
+    });
 
-//     // Cover case where there are no existing positions with null.
-//     getUtxosByOutRefMock.mockResolvedValueOnce([
-//       PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
-//     ]);
-//     const { datum: fallbackDatum } = await YFInstance.lock({
-//       lockedValues: [
-//         new AssetAmount(5_000_000n, ADA_METADATA),
-//         new AssetAmount(10_000_000n, {
-//           assetId:
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-//           decimals: 6,
-//         }),
-//         new AssetAmount(372_501_888n, {
-//           assetId:
-//             "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702003",
-//           decimals: 0,
-//         }),
-//       ],
-//       ownerAddress: ownerAddress,
-//       existingPositions: [],
-//       programs: null,
-//     });
+    /**
+     * @TODO Figure out why Blaze yells about max collateral inputs when spending an existing position.
+     */
+    // await build();
+    expect(datum).toEqual(
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+    );
 
-//     expect(fallbackDatum).toEqual(
-//       "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
-//     );
-//   });
+    // Cover case where there are no existing positions with null.
+    getUtxosByOutRefMock.mockResolvedValueOnce([
+      new Core.TransactionOutput(
+        Core.Address.fromBech32(
+          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+        ),
+        makeValue(
+          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+          ...Object.entries(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+          ).filter(([key]) => key !== "lovelace")
+        )
+      ),
+    ]);
+    const { datum: fallbackDatum } = await YFInstance.lock({
+      lockedValues: [
+        new AssetAmount(5_000_000n, ADA_METADATA),
+        new AssetAmount(10_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          decimals: 6,
+        }),
+        new AssetAmount(372_501_888n, {
+          assetId:
+            "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702003",
+          decimals: 0,
+        }),
+      ],
+      ownerAddress: ownerAddress,
+      existingPositions: [],
+      programs: null,
+    });
 
-//   it("should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)", async () => {
-//     getUtxosByOutRefMock
-//       .mockResolvedValueOnce([
-//         PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
-//       ])
-//       .mockResolvedValueOnce([
-//         {
-//           address:
-//             "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
-//           assets: {
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-//               10000000n,
-//             lovelace: 5000000n,
-//           },
-//           outputIndex: 0,
-//           datum:
-//             "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
-//           txHash:
-//             "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-//         },
-//       ]);
+    expect(fallbackDatum).toEqual(
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
+    );
+  });
 
-//     const { datum } = await YFInstance.lock({
-//       lockedValues: [
-//         new AssetAmount(5_000_000n, ADA_METADATA),
-//         new AssetAmount(10_000_000n, {
-//           assetId:
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-//           decimals: 6,
-//         }),
-//         new AssetAmount(372_501_888n, {
-//           assetId:
-//             "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702003",
-//           decimals: 0,
-//         }),
-//       ],
-//       ownerAddress: ownerAddress,
-//       existingPositions: [
-//         {
-//           hash: "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-//           index: 0,
-//         },
-//       ],
-//     });
+  it("should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)", async () => {
+    getUtxosByOutRefMock
+      .mockResolvedValueOnce([
+        new Core.TransactionOutput(
+          Core.Address.fromBech32(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+          ),
+          makeValue(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+            ...Object.entries(
+              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+            ).filter(([key]) => key !== "lovelace")
+          )
+        ),
+      ])
+      .mockResolvedValueOnce([
+        Core.TransactionOutput.fromCore({
+          address: Core.PaymentAddress(
+            "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
+          ),
+          value: makeValue(
+            5_000_000n,
+            ...Object.entries({
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
+                10000000n,
+            })
+          ).toCore(),
+          datum: Core.PlutusData.fromCbor(
+            Core.HexBlob(
+              "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+            )
+          ).toCore(),
+        }),
+        // {
+        //   address:
+        //     "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
+        //   assets: {
+        //     "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
+        //       10000000n,
+        //     lovelace: 5000000n,
+        //   },
+        //   outputIndex: 0,
+        //   datum:
+        //     "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
+        //   txHash:
+        //     "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
+        // },
+      ]);
 
-//     /**
-//      * @TODO Figure out why Blaze yells about max collateral inputs when spending an existing position.
-//      */
-//     // await build();
-//     expect(datum).toEqual(
-//       "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
-//     );
-//   });
+    const { datum } = await YFInstance.lock({
+      lockedValues: [
+        new AssetAmount(5_000_000n, ADA_METADATA),
+        new AssetAmount(10_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          decimals: 6,
+        }),
+        new AssetAmount(372_501_888n, {
+          assetId:
+            "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702003",
+          decimals: 0,
+        }),
+      ],
+      ownerAddress: ownerAddress,
+      existingPositions: [
+        {
+          hash: "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
+          index: 0,
+        },
+      ],
+    });
 
-//   it("should build a delegation datum along with the transaction if set", async () => {
-//     getUtxosByOutRefMock
-//       .mockResolvedValueOnce([
-//         PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
-//       ])
-//       .mockResolvedValueOnce(undefined);
+    /**
+     * @TODO Figure out why Blaze yells about max collateral inputs when spending an existing position.
+     */
+    // await build();
+    expect(datum).toEqual(
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
+    );
+  });
 
-//     const { build, datum } = await YFInstance.lock({
-//       lockedValues: [
-//         new AssetAmount(5_000_000n, ADA_METADATA),
-//         new AssetAmount(10_000_000n, {
-//           assetId:
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-//           decimals: 6,
-//         }),
-//         // Should accumulate this duplicate value to 20
-//         new AssetAmount(10_000_000n, {
-//           assetId:
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-//           decimals: 6,
-//         }),
-//       ],
-//       ownerAddress: ownerAddress,
-//       programs: delegation,
-//       existingPositions: [],
-//     });
+  it("should build a delegation datum along with the transaction if set", async () => {
+    getUtxosByOutRefMock
+      .mockResolvedValueOnce([
+        new Core.TransactionOutput(
+          Core.Address.fromBech32(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+          ),
+          makeValue(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+            ...Object.entries(
+              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+            ).filter(([key]) => key !== "lovelace")
+          )
+        ),
+      ])
+      .mockResolvedValueOnce(undefined);
 
-//     const { builtTx } = await build();
-//     let hasLockedValuesOutput: boolean = false;
-//     let lockedValueDatum: TDelegation | undefined;
-//     [...Array(builtTx.txComplete.body().outputs().len()).keys()].forEach(
-//       (index) => {
-//         const { amount, datum } = builtTx.txComplete
-//           .body()
-//           .outputs()
-//           .get(index)
-//           .to_js_value();
+    const { build, datum } = await YFInstance.lock({
+      lockedValues: [
+        new AssetAmount(5_000_000n, ADA_METADATA),
+        new AssetAmount(10_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          decimals: 6,
+        }),
+        // Should accumulate this duplicate value to 20
+        new AssetAmount(10_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          decimals: 6,
+        }),
+      ],
+      ownerAddress: ownerAddress,
+      programs: delegation,
+      existingPositions: [],
+    });
 
-//         if (amount.coin !== "5000000") {
-//           return;
-//         }
+    const { builtTx } = await build();
+    let hasLockedValuesOutput: boolean = false;
+    let lockedValueDatum: TDelegation | undefined;
+    [...Array(builtTx.body().outputs().length).keys()].forEach((index) => {
+      const output = builtTx
+        .body()
+        .outputs()
+        .find((_, outputIndex) => outputIndex === index);
 
-//         if (
-//           !amount.multiasset[
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5"
-//           ]
-//         ) {
-//           return;
-//         }
+      if (output && output.amount().coin() !== 5000000n) {
+        return;
+      }
 
-//         if (
-//           amount.multiasset[
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5"
-//           ]["69555344"] !== "20000000"
-//         ) {
-//           return;
-//         }
+      const asset = output
+        ?.amount()
+        .multiasset()
+        ?.get(
+          Core.AssetId(
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344"
+          )
+        );
 
-//         lockedValueDatum =
-//           datum.Data.original_bytes &&
-//           Data.from(
-//             Buffer.from(datum.Data.original_bytes).toString("hex"),
-//             Delegation
-//           );
-//         hasLockedValuesOutput = true;
-//       }
-//     );
+      if (!asset || asset !== 20000000n) {
+        return;
+      }
 
-//     expect(hasLockedValuesOutput).toBeTruthy();
-//     expect(lockedValueDatum).toMatchObject<TDelegation>({
-//       owner: {
-//         address: BlazeInstance.utils.getAddressDetails(ownerAddress)
-//           .stakeCredential?.hash as string,
-//       },
-//       programs: delegation,
-//     });
-//     expect(datum).toEqual(
-//       "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
-//     );
-//   });
+      lockedValueDatum = datum
+        ? Data.from(Core.PlutusData.fromCbor(Core.HexBlob(datum)), Delegation)
+        : undefined;
+      hasLockedValuesOutput = true;
+    });
 
-//   it("should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)", async () => {
-//     getUtxosByOutRefMock
-//       .mockResolvedValueOnce([
-//         PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
-//       ])
-//       .mockResolvedValueOnce([
-//         {
-//           address:
-//             "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
-//           assets: {
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-//               10000000n,
-//             lovelace: 5000000n,
-//           },
-//           outputIndex: 0,
-//           datum:
-//             "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff",
-//           txHash:
-//             "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-//         },
-//       ]);
+    expect(hasLockedValuesOutput).toBeTruthy();
+    expect(lockedValueDatum).toMatchObject<TDelegation>({
+      owner: {
+        address: Core.addressFromBech32(ownerAddress)
+          .asBase()
+          ?.getStakeCredential().hash as string,
+      },
+      programs: delegation,
+    });
+    expect(datum).toEqual(
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+    );
+  });
 
-//     const spiedPayToContract = jest.spyOn(Tx.prototype, "payToContract");
-//     const { datum } = await YFInstance.lock({
-//       lockedValues: null,
-//       ownerAddress: ownerAddress,
-//       existingPositions: [
-//         {
-//           hash: "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-//           index: 0,
-//         },
-//       ],
-//       programs: delegation,
-//     });
+  it("should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)", async () => {
+    getUtxosByOutRefMock
+      .mockResolvedValueOnce([
+        new Core.TransactionOutput(
+          Core.Address.fromBech32(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+          ),
+          makeValue(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+            ...Object.entries(
+              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+            ).filter(([key]) => key !== "lovelace")
+          )
+        ),
+      ])
+      .mockResolvedValueOnce([
+        Core.TransactionOutput.fromCore({
+          address: Core.PaymentAddress(
+            "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
+          ),
+          value: makeValue(
+            5_000_000n,
+            ...Object.entries({
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
+                10000000n,
+            })
+          ).toCore(),
+          datum: Core.PlutusData.fromCbor(
+            Core.HexBlob(
+              "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff"
+            )
+          ).toCore(),
+        }),
+        // {
+        //   address:
+        //     "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
+        //   assets: {
+        //     "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
+        //       10000000n,
+        //     lovelace: 5000000n,
+        //   },
+        //   outputIndex: 0,
+        //   datum:
+        //     "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff",
+        //   txHash:
+        //     "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
+        // },
+      ]);
 
-//     expect(spiedPayToContract).toHaveBeenNthCalledWith(
-//       1,
-//       "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
-//       {
-//         inline:
-//           "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
-//       },
+    const spiedPayToContract = jest.spyOn(TxBuilder.prototype, "lockAssets");
+    const { datum } = await YFInstance.lock({
+      lockedValues: null,
+      ownerAddress: ownerAddress,
+      existingPositions: [
+        {
+          hash: "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
+          index: 0,
+        },
+      ],
+      programs: delegation,
+    });
 
-//       {
-//         "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-//           10000000n,
-//         lovelace: 5000000n,
-//       }
-//     );
-//     expect(datum).toEqual(
-//       "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
-//     );
-//   });
+    expect(spiedPayToContract).toHaveBeenNthCalledWith(
+      1,
+      "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
+      {
+        inline:
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
+      },
 
-//   it("should not build a datum when unlocking assets", async () => {
-//     getUtxosByOutRefMock
-//       .mockResolvedValueOnce([
-//         PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
-//       ])
-//       .mockResolvedValueOnce([
-//         {
-//           address:
-//             "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
-//           assets: {
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-//               10000000n,
-//             lovelace: 5000000n,
-//           },
-//           outputIndex: 0,
-//           datum:
-//             "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffd87980ff",
-//           txHash:
-//             "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-//         },
-//       ]);
+      {
+        "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
+          10000000n,
+        lovelace: 5000000n,
+      }
+    );
+    expect(datum).toEqual(
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+    );
+  });
 
-//     const { datum, fees } = await YFInstance.unlock({
-//       ownerAddress: ownerAddress,
-//       programs: delegation,
-//       existingPositions: [
-//         {
-//           hash: "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-//           index: 0,
-//         },
-//       ],
-//     });
+  it("should not build a datum when unlocking assets", async () => {
+    getUtxosByOutRefMock
+      .mockResolvedValueOnce([
+        new Core.TransactionOutput(
+          Core.Address.fromBech32(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+          ),
+          makeValue(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+            ...Object.entries(
+              PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+            ).filter(([key]) => key !== "lovelace")
+          )
+        ),
+      ])
+      .mockResolvedValueOnce([
+        Core.TransactionOutput.fromCore({
+          address: Core.PaymentAddress(
+            "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
+          ),
+          value: makeValue(
+            5_000_000n,
+            ...Object.entries({
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
+                10000000n,
+            })
+          ).toCore(),
+          datum: Core.PlutusData.fromCbor(
+            Core.HexBlob(
+              "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffd87980ff"
+            )
+          ).toCore(),
+        }),
+        // {
+        //   address:
+        //     "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
+        //   assets: {
+        //     "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
+        //       10000000n,
+        //     lovelace: 5000000n,
+        //   },
+        //   outputIndex: 0,
+        //   datum:
+        //     "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffd87980ff",
+        //   txHash:
+        //     "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
+        // },
+      ]);
 
-//     expect(datum).toBeUndefined();
-//     expect(fees.deposit.amount).toEqual(0n);
-//   });
+    const { datum, fees } = await YFInstance.unlock({
+      ownerAddress: ownerAddress,
+      programs: delegation,
+      existingPositions: [
+        {
+          hash: "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
+          index: 0,
+        },
+      ],
+    });
 
-//   it("should throw an error if the reference input cannot be found", async () => {
-//     getUtxosByOutRefMock.mockResolvedValueOnce(undefined);
+    expect(datum).toBeUndefined();
+    expect(fees.deposit.amount).toEqual(0n);
+  });
 
-//     expect(() =>
-//       YFInstance.lock({
-//         lockedValues: [
-//           new AssetAmount(5_000_000n, ADA_METADATA),
-//           new AssetAmount(10_000_000n, {
-//             assetId:
-//               "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-//             decimals: 6,
-//           }),
-//         ],
-//         ownerAddress: ownerAddress,
-//         programs: delegation,
-//         existingPositions: [],
-//       })
-//     ).rejects.toThrowError(
-//       "Could not fetch valid UTXO from Blockfrost based on the the Yield Farming reference input."
-//     );
-//   });
+  it("should throw an error if the reference input cannot be found", async () => {
+    getUtxosByOutRefMock.mockResolvedValueOnce(undefined);
 
-//   it("should correctly build the fees object", async () => {
-//     getUtxosByOutRefMock.mockResolvedValueOnce([
-//       PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
-//     ]);
+    expect(() =>
+      YFInstance.lock({
+        lockedValues: [
+          new AssetAmount(5_000_000n, ADA_METADATA),
+          new AssetAmount(10_000_000n, {
+            assetId:
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+            decimals: 6,
+          }),
+        ],
+        ownerAddress: ownerAddress,
+        programs: delegation,
+        existingPositions: [],
+      })
+    ).rejects.toThrowError(
+      "Could not fetch valid UTXO from Blockfrost based on the the Yield Farming reference input."
+    );
+  });
 
-//     const { fees, build } = await YFInstance.lock({
-//       lockedValues: [
-//         new AssetAmount(5_000_000n, ADA_METADATA),
-//         new AssetAmount(10_000_000n, {
-//           assetId:
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-//           decimals: 6,
-//         }),
-//       ],
-//       ownerAddress: ownerAddress,
-//       programs: delegation,
-//       existingPositions: [],
-//     });
+  it("should correctly build the fees object", async () => {
+    getUtxosByOutRefMock.mockResolvedValueOnce([
+      new Core.TransactionOutput(
+        Core.Address.fromBech32(
+          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+        ),
+        makeValue(
+          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+          ...Object.entries(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+          ).filter(([key]) => key !== "lovelace")
+        )
+      ),
+    ]);
 
-//     expect(fees).toMatchObject({
-//       cardanoTxFee: expect.objectContaining({
-//         amount: 0n,
-//         metadata: ADA_METADATA,
-//       }),
-//       deposit: expect.objectContaining({
-//         amount: 5_000_000n,
-//         metadata: ADA_METADATA,
-//       }),
-//       scooperFee: expect.objectContaining({
-//         amount: 0n,
-//         metadata: ADA_METADATA,
-//       }),
-//     });
+    const { fees, build } = await YFInstance.lock({
+      lockedValues: [
+        new AssetAmount(5_000_000n, ADA_METADATA),
+        new AssetAmount(10_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          decimals: 6,
+        }),
+      ],
+      ownerAddress: ownerAddress,
+      programs: delegation,
+      existingPositions: [],
+    });
 
-//     await build();
-//     expect(fees.cardanoTxFee?.amount).toBeGreaterThan(0n);
-//   });
+    expect(fees).toMatchObject({
+      cardanoTxFee: expect.objectContaining({
+        amount: 0n,
+        metadata: ADA_METADATA,
+      }),
+      deposit: expect.objectContaining({
+        amount: 5_000_000n,
+        metadata: ADA_METADATA,
+      }),
+      scooperFee: expect.objectContaining({
+        amount: 0n,
+        metadata: ADA_METADATA,
+      }),
+    });
 
-//   it("should correctly add the referral fee", async () => {
-//     const referralFeeAddress =
-//       "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68";
-//     getUtxosByOutRefMock.mockResolvedValueOnce([
-//       PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
-//     ]);
+    await build();
+    expect(fees.cardanoTxFee?.amount).toBeGreaterThan(0n);
+  });
 
-//     const adaReferral = await YFInstance.lock({
-//       lockedValues: [
-//         new AssetAmount(5_000_000n, ADA_METADATA),
-//         new AssetAmount(10_000_000n, {
-//           assetId:
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-//           decimals: 6,
-//         }),
-//       ],
-//       ownerAddress: ownerAddress,
-//       programs: delegation,
-//       existingPositions: [],
-//       referralFee: {
-//         destination: referralFeeAddress,
-//         payment: new AssetAmount(1_000_000n, ADA_METADATA),
-//         feeLabel: "Test Label",
-//       },
-//     });
+  it("should correctly add the referral fee", async () => {
+    const referralFeeAddress =
+      "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68";
+    getUtxosByOutRefMock.mockResolvedValueOnce([
+      new Core.TransactionOutput(
+        Core.Address.fromBech32(
+          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+        ),
+        makeValue(
+          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+          ...Object.entries(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+          ).filter(([key]) => key !== "lovelace")
+        )
+      ),
+    ]);
 
-//     expect(adaReferral.fees.referral).toMatchObject({
-//       amount: 1_000_000n,
-//       metadata: ADA_METADATA,
-//     });
+    const adaReferral = await YFInstance.lock({
+      lockedValues: [
+        new AssetAmount(5_000_000n, ADA_METADATA),
+        new AssetAmount(10_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          decimals: 6,
+        }),
+      ],
+      ownerAddress: ownerAddress,
+      programs: delegation,
+      existingPositions: [],
+      referralFee: {
+        destination: referralFeeAddress,
+        payment: new AssetAmount(1_000_000n, ADA_METADATA),
+        feeLabel: "Test Label",
+      },
+    });
 
-//     const { builtTx: adaReferralBuiltTx } = await adaReferral.build();
-//     let hasAdaReferralFee: boolean = false;
-//     [
-//       ...Array(adaReferralBuiltTx.txComplete.body().outputs().len()).keys(),
-//     ].forEach((index) => {
-//       const { amount, address } = adaReferralBuiltTx.txComplete
-//         .body()
-//         .outputs()
-//         .get(index)
-//         .to_js_value();
+    expect(adaReferral.fees.referral).toMatchObject({
+      amount: 1_000_000n,
+      metadata: ADA_METADATA,
+    });
 
-//       if (amount.coin !== "1000000") {
-//         return;
-//       }
+    const { builtTx: adaReferralBuiltTx } = await adaReferral.build();
+    let hasAdaReferralFee: boolean = false;
+    [...Array(adaReferralBuiltTx.body().outputs().length).keys()].forEach(
+      (index) => {
+        const output = adaReferralBuiltTx
+          .body()
+          .outputs()
+          .find((_, outputIndex) => outputIndex === index);
 
-//       if (amount.multiasset) {
-//         return;
-//       }
+        if (!output || output.amount().coin() !== 1000000n) {
+          return;
+        }
 
-//       if (address !== referralFeeAddress) {
-//         return;
-//       }
+        if (output.amount().multiasset()?.size === 0) {
+          return;
+        }
 
-//       hasAdaReferralFee = true;
-//     });
+        if (output.address().toBech32() !== referralFeeAddress) {
+          return;
+        }
 
-//     expect(hasAdaReferralFee).toBeTruthy();
+        hasAdaReferralFee = true;
+      }
+    );
 
-//     getUtxosByOutRefMock.mockResolvedValueOnce([
-//       PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
-//     ]);
+    expect(hasAdaReferralFee).toBeTruthy();
 
-//     const nonAdaReferral = await YFInstance.lock({
-//       lockedValues: [
-//         new AssetAmount(5_000_000n, ADA_METADATA),
-//         new AssetAmount(10_000_000n, {
-//           assetId:
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-//           decimals: 6,
-//         }),
-//       ],
-//       ownerAddress: ownerAddress,
-//       programs: delegation,
-//       existingPositions: [],
-//       referralFee: {
-//         destination: referralFeeAddress,
-//         payment: new AssetAmount(1_000_000n, {
-//           decimals: 6,
-//           assetId:
-//             "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-//         }),
-//         feeLabel: "Non-Ada Test Label",
-//       },
-//     });
+    getUtxosByOutRefMock.mockResolvedValueOnce([
+      new Core.TransactionOutput(
+        Core.Address.fromBech32(
+          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+        ),
+        makeValue(
+          PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+          ...Object.entries(
+            PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+          ).filter(([key]) => key !== "lovelace")
+        )
+      ),
+    ]);
 
-//     const { builtTx: nonAdaReferralBuiltTx } = await nonAdaReferral.build();
-//     let hasNonAdaReferralFee: boolean = false;
-//     [
-//       ...Array(nonAdaReferralBuiltTx.txComplete.body().outputs().len()).keys(),
-//     ].forEach((index) => {
-//       const { amount, address } = nonAdaReferralBuiltTx.txComplete
-//         .body()
-//         .outputs()
-//         .get(index)
-//         .to_js_value();
+    const nonAdaReferral = await YFInstance.lock({
+      lockedValues: [
+        new AssetAmount(5_000_000n, ADA_METADATA),
+        new AssetAmount(10_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+          decimals: 6,
+        }),
+      ],
+      ownerAddress: ownerAddress,
+      programs: delegation,
+      existingPositions: [],
+      referralFee: {
+        destination: referralFeeAddress,
+        payment: new AssetAmount(1_000_000n, {
+          decimals: 6,
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+        }),
+        feeLabel: "Non-Ada Test Label",
+      },
+    });
 
-//       // min-utxo
-//       if (amount.coin !== "1155080") {
-//         return;
-//       }
+    const { builtTx: nonAdaReferralBuiltTx } = await nonAdaReferral.build();
+    let hasNonAdaReferralFee: boolean = false;
+    [...Array(nonAdaReferralBuiltTx.body().outputs().length).keys()].forEach(
+      (index) => {
+        const output = nonAdaReferralBuiltTx
+          .body()
+          .outputs()
+          .find((_, outputIndex) => outputIndex === index);
 
-//       if (
-//         !amount.multiasset?.[
-//           "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5"
-//         ]
-//       ) {
-//         return;
-//       }
+        // min-utxo
+        if (!output || output.amount().coin() !== 1155080n) {
+          return;
+        }
 
-//       if (
-//         amount.multiasset?.[
-//           "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5"
-//         ]["69555344"] !== "1000000"
-//       ) {
-//         return;
-//       }
+        const asset = output
+          .amount()
+          .multiasset()
+          ?.get(
+            Core.AssetId(
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344"
+            )
+          );
 
-//       if (address !== referralFeeAddress) {
-//         return;
-//       }
+        if (!asset || asset !== 1000000n) {
+          return;
+        }
 
-//       hasNonAdaReferralFee = true;
-//     });
+        if (output.address().toBech32() !== referralFeeAddress) {
+          return;
+        }
 
-//     expect(hasNonAdaReferralFee).toBeTruthy();
+        hasNonAdaReferralFee = true;
+      }
+    );
 
-//     // Test Labels
-//     expect(
-//       adaReferralBuiltTx.txComplete
-//         .auxiliary_data()
-//         ?.metadata()
-//         ?.get(C.BigNum.from_str("674"))
-//         ?.as_text()
-//     ).toEqual("Test Label: 1 ADA");
-//     expect(
-//       nonAdaReferralBuiltTx.txComplete
-//         .auxiliary_data()
-//         ?.metadata()
-//         ?.get(C.BigNum.from_str("674"))
-//         ?.as_text()
-//     ).toEqual("Non-Ada Test Label: 1 iUSD");
-//   });
-// });
+    expect(hasNonAdaReferralFee).toBeTruthy();
+
+    // Test Labels
+    /**
+     * @TODO fix when metadata is fixed
+     */
+    // expect(
+    //   adaReferralBuiltTx.txComplete
+    //     .auxiliary_data()
+    //     ?.metadata()
+    //     ?.get(C.BigNum.from_str("674"))
+    //     ?.as_text()
+    // ).toEqual("Test Label: 1 ADA");
+    // expect(
+    //   nonAdaReferralBuiltTx.txComplete
+    //     .auxiliary_data()
+    //     ?.metadata()
+    //     ?.get(C.BigNum.from_str("674"))
+    //     ?.as_text()
+    // ).toEqual("Non-Ada Test Label: 1 iUSD");
+  });
+});
 export {};
