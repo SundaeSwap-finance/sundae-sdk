@@ -39,6 +39,9 @@ export const setupBlaze = (
   getUtxosMock: jest.SpiedFunction<
     (address: Core.Address) => Promise<Core.TransactionUnspentOutput[]>
   >;
+  resolveDatumMock: jest.SpiedFunction<
+    (datumHash: Core.DatumHash) => Promise<Core.PlutusData>
+  >;
   ownerAddress: string;
 } => {
   const getUtxosByOutRefMock = jest.spyOn(
@@ -48,6 +51,10 @@ export const setupBlaze = (
   const getUtxosMock = jest.spyOn(
     EmulatorProvider.prototype,
     "getUnspentOutputs"
+  );
+  const resolveDatumMock = jest.spyOn(
+    EmulatorProvider.prototype,
+    "resolveDatum"
   );
 
   beforeAll(async () => {
@@ -80,6 +87,7 @@ export const setupBlaze = (
   return {
     getUtxosByOutRefMock,
     getUtxosMock,
+    resolveDatumMock,
     ownerAddress: PREVIEW_DATA.addresses.current,
   };
 };

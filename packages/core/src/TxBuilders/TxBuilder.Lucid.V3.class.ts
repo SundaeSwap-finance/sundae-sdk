@@ -666,7 +666,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       tx.attachMetadataWithConversion(103251, {
         [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
           secondSwapData.datum as string,
-          "0x"
+          true
         ),
       });
     }
@@ -1050,7 +1050,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     tx.attachMetadataWithConversion(103251, {
       [`0x${depositData.hash}`]: SundaeUtils.splitMetadataString(
         depositData.inline,
-        "0x"
+        true
       ),
     });
 

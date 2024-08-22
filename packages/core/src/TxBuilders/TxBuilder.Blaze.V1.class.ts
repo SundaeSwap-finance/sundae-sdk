@@ -292,17 +292,21 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
        * @todo Ensure metadata is correctly attached.
        */
       const data = new Core.AuxiliaryData();
-      const map = new Map();
+      const map = new Map<bigint, Core.Metadatum>();
       map.set(
         674n,
-        `${fee.feeLabel}: ${fee.payment.value.toString()} ${
-          !SundaeUtils.isAdaAsset(fee.payment.metadata)
-            ? Buffer.from(
-                fee.payment.metadata.assetId.split(".")[1],
-                "hex"
-              ).toString("utf-8")
-            : "ADA"
-        }`
+        Core.Metadatum.fromCore(
+          Core.Metadatum.newText(
+            `${fee.feeLabel}: ${fee.payment.value.toString()} ${
+              !SundaeUtils.isAdaAsset(fee.payment.metadata)
+                ? Buffer.from(
+                    fee.payment.metadata.assetId.split(".")[1],
+                    "hex"
+                  ).toString("utf-8")
+                : "ADA"
+            }`
+          ).toCore()
+        )
       );
       data.setMetadata(new Core.Metadata(map));
       instance.setAuxiliaryData(data);
@@ -532,14 +536,21 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     });
 
     const data = new Core.AuxiliaryData();
-    const map = new Map();
-    map.set(103251n, {
-      [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
-        secondSwapData.datum as string,
-        "0x"
-      ),
-    });
-    data.setMetadata(Core.Metadata.fromCore(map));
+    const metadata = new Map<bigint, Core.Metadatum>();
+    metadata.set(
+      103251n,
+      Core.Metadatum.fromCore(
+        new Map([
+          [
+            Buffer.from(datumHash, "hex"),
+            SundaeUtils.splitMetadataString(secondSwapData.datum as string).map(
+              (v) => Buffer.from(v, "hex")
+            ),
+          ],
+        ])
+      )
+    );
+    data.setMetadata(new Core.Metadata(metadata));
     tx.setAuxiliaryData(data);
 
     return this.completeTx({
@@ -577,14 +588,14 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     ).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
-    const utxosToSpend = await this.blaze.provider.resolveUnspentOutputs([
+    const [utxoToSpend] = await this.blaze.provider.resolveUnspentOutputs([
       new Core.TransactionInput(
         Core.TransactionId(utxo.hash),
         BigInt(utxo.index)
       ),
     ]);
 
-    if (!utxosToSpend) {
+    if (!utxoToSpend) {
       throw new Error(
         `UTXO data was not found with the following parameters: ${JSON.stringify(
           utxo
@@ -593,12 +604,10 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     }
 
     const spendingDatum =
-      utxosToSpend[0]?.output().datum()?.asInlineData() ||
-      (utxosToSpend[0]?.output().datum()?.asDataHash() &&
+      utxoToSpend?.output().datum()?.asInlineData() ||
+      (utxoToSpend?.output().datum()?.asDataHash() &&
         (await this.blaze.provider.resolveDatum(
-          Core.DatumHash(
-            utxosToSpend[0]?.output().datum()?.asDataHash() as string
-          )
+          Core.DatumHash(utxoToSpend?.output().datum()?.asDataHash() as string)
         )));
 
     if (!spendingDatum) {
@@ -623,14 +632,11 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       new Core.PlutusV1Script(Core.HexBlob(compiledCode))
     );
 
-    utxosToSpend.forEach((utxo) => {
-      tx.addInput(
-        utxo,
-        Core.PlutusData.fromCbor(
-          Core.HexBlob(this.__getParam("cancelRedeemer"))
-        )
-      );
-    });
+    tx.addInput(
+      utxoToSpend,
+      Core.PlutusData.fromCbor(Core.HexBlob(this.__getParam("cancelRedeemer"))),
+      spendingDatum
+    );
 
     tx.provideScript(scriptValidator);
     const details = Core.Address.fromBech32(ownerAddress);
@@ -727,7 +733,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
     const scriptAddress = Core.addressFromValidator(
       this.network === "mainnet" ? 1 : 0,
-      Core.Script.fromCbor(Core.HexBlob(compiledCode))
+      Core.Script.newPlutusV1Script(
+        Core.PlutusV1Script.fromCbor(Core.HexBlob(compiledCode))
+      )
     );
 
     const payment = SundaeUtils.accumulateSuppliedAssets({
@@ -806,7 +814,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
     const scriptAddress = Core.addressFromValidator(
       this.network === "mainnet" ? 1 : 0,
-      Core.Script.fromCbor(Core.HexBlob(compiledCode))
+      Core.Script.newPlutusV1Script(
+        Core.PlutusV1Script.fromCbor(Core.HexBlob(compiledCode))
+      )
     );
 
     tx.lockAssets(
@@ -866,7 +876,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
     const scriptAddress = Core.addressFromValidator(
       this.network === "mainnet" ? 1 : 0,
-      Core.Script.fromCbor(Core.HexBlob(compiledCode))
+      Core.Script.newPlutusV1Script(
+        Core.PlutusV1Script.fromCbor(Core.HexBlob(compiledCode))
+      )
     );
 
     tx.lockAssets(
@@ -977,7 +989,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
     const scriptAddress = Core.addressFromValidator(
       this.network === "mainnet" ? 1 : 0,
-      Core.Script.fromCbor(Core.HexBlob(compiledCode))
+      Core.Script.newPlutusV1Script(
+        Core.PlutusV1Script.fromCbor(Core.HexBlob(compiledCode))
+      )
     );
 
     /**
@@ -1014,10 +1028,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const data = new Core.AuxiliaryData();
     const map = new Map();
     map.set(103251n, {
-      [`0x${depositHash}`]: SundaeUtils.splitMetadataString(
-        depositInline,
-        "0x"
-      ),
+      [`0x${depositHash}`]: SundaeUtils.splitMetadataString(depositInline),
     });
     data.metadata()?.setMetadata(map);
     tx.setAuxiliaryData(data);
@@ -1098,7 +1109,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     let totalScooper = 0n;
     let totalDeposit = 0n;
     let totalReferralFees = new AssetAmount(0n, ADA_METADATA);
-    const metadataDatums: Record<string, string[]> = {};
+    const metadataDatums = new Core.MetadatumMap();
     const v3TxBuilderInstance = new TxBuilderBlazeV3(
       this.blaze,
       this.network,
@@ -1110,7 +1121,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
     const scriptAddress = Core.addressFromValidator(
       this.network === "mainnet" ? 1 : 0,
-      Core.Script.fromCbor(Core.HexBlob(compiledCode))
+      Core.Script.newPlutusV1Script(
+        new Core.PlutusV1Script(Core.HexBlob(compiledCode))
+      )
     );
 
     const YF_V2_PARAMS = {
@@ -1152,12 +1165,14 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
 
     const lockContractAddress = Core.addressFromCredentials(
       this.network === "mainnet" ? 1 : 0,
-      Core.Credential.fromCbor(
-        Core.HexBlob(YF_V2_PARAMS[this.network].scriptHash)
-      ),
-      Core.Credential.fromCbor(
-        Core.HexBlob(YF_V2_PARAMS[this.network].stakeKeyHash)
-      )
+      Core.Credential.fromCore({
+        type: Core.CredentialType.ScriptHash,
+        hash: Core.Hash28ByteBase16(YF_V2_PARAMS[this.network].scriptHash),
+      }),
+      Core.Credential.fromCore({
+        type: Core.CredentialType.KeyHash,
+        hash: Core.Hash28ByteBase16(YF_V2_PARAMS[this.network].stakeKeyHash),
+      })
     );
 
     const returnedYFAssets: Record<
@@ -1184,12 +1199,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       existingPositionsData.length > 0
     ) {
       yfRefInputs.forEach((input) => finalTx.addReferenceInput(input));
-      existingPositionsData.forEach((input) =>
-        finalTx.addInput(
-          input,
-          Core.PlutusData.fromCbor(Core.HexBlob(VOID_REDEEMER))
-        )
-      );
+      existingPositionsData.forEach((input) => {
+        finalTx.addInput(input, Data.void());
+      });
 
       const withdrawAssetsList = yieldFarming.migrations.reduce(
         (list, { withdrawPool }) => {
@@ -1199,36 +1211,46 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
         [] as string[]
       );
 
-      existingPositionsData.forEach(({ output }) => {
-        const assets =
-          output().amount().multiasset() || new Map<Core.AssetId, bigint>();
-
-        for (const [id, amount] of Object.entries(assets) as [
-          Core.AssetId,
-          bigint
-        ][]) {
-          if (withdrawAssetsList.includes(id)) {
-            if (!migrationAssets[id]) {
-              migrationAssets[id] = {
-                amount,
-                assetId: id,
-                decimals: 0, // Decimals aren't required since we just use the raw amount.
-              };
-            } else {
-              migrationAssets[id].amount += amount;
-            }
-          } else {
-            if (!returnedYFAssets[id]) {
-              returnedYFAssets[id] = {
-                amount,
-                assetId: id,
-                decimals: 0, // Decimals aren't required since we just use the raw amount.
-              };
-            } else {
-              returnedYFAssets[id].amount += amount;
-            }
-          }
+      existingPositionsData.forEach((position) => {
+        const lovelace = position.output().amount().coin();
+        if (!returnedYFAssets.lovelace) {
+          returnedYFAssets.lovelace = {
+            amount: lovelace,
+            // These don't matter, just for types.
+            assetId: "lovelace",
+            decimals: 0,
+          };
+        } else {
+          returnedYFAssets.lovelace.amount += lovelace;
         }
+
+        position
+          .output()
+          .amount()
+          .multiasset()
+          ?.forEach((amount, id) => {
+            if (withdrawAssetsList.includes(id)) {
+              if (!migrationAssets[id]) {
+                migrationAssets[id] = {
+                  amount,
+                  assetId: id,
+                  decimals: 0, // Decimals aren't required since we just use the raw amount.
+                };
+              } else {
+                migrationAssets[id].amount += amount;
+              }
+            } else {
+              if (!returnedYFAssets[id]) {
+                returnedYFAssets[id] = {
+                  amount,
+                  assetId: id,
+                  decimals: 0, // Decimals aren't required since we just use the raw amount.
+                };
+              } else {
+                returnedYFAssets[id].amount += amount;
+              }
+            }
+          });
       });
 
       if (Object.keys(migrationAssets).length === 0) {
@@ -1237,27 +1259,25 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
         );
       }
 
-      yieldFarming.migrations.forEach(async ({ withdrawPool, depositPool }) => {
-        const oldDelegation = existingPositionsData.find(({ output }) => {
-          const assets =
-            output().amount().multiasset() || new Map<Core.AssetId, bigint>();
+      yieldFarming.migrations.map(({ withdrawPool, depositPool }) => {
+        const oldDelegation = existingPositionsData.find((position) => {
+          const hasLpAsset = position
+            .output()
+            .amount()
+            .multiasset()
+            ?.has(Core.AssetId(withdrawPool.assetLP.assetId.replace(".", "")));
 
-          if (
-            assets.has(
-              Core.AssetId(withdrawPool.assetLP.assetId.replace(".", ""))
-            )
-          ) {
-            return true;
-          }
+          return hasLpAsset;
         });
 
         if (!oldDelegation) {
           throw new Error("Could not find a matching delegation!");
         }
 
-        const oldDelegationDatum = await this.blaze.provider.resolveDatum(
-          Core.DatumHash(oldDelegation.output().datum()?.asDataHash() as string)
-        );
+        const oldDelegationDatum = oldDelegation
+          .output()
+          .datum()
+          ?.asInlineData();
 
         const config = {
           newLockedAssets: returnedYFAssets,
@@ -1268,7 +1288,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
                 address: lockContractAddress.toBech32(),
                 datum: {
                   type: EDatumType.INLINE,
-                  value: oldDelegationDatum.toCbor(),
+                  value: oldDelegationDatum?.toCbor() as string,
                 },
               },
               AlternateAddress: yieldFarming.ownerAddress.address,
@@ -1332,37 +1352,46 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
           scooperFee: v3MaxScooperFee,
         });
 
-      const { inline: withdrawInline } = this.datumBuilder.buildWithdrawDatum({
-        ident: withdrawArgs.pool.ident,
-        orderAddresses: {
-          DestinationAddress: {
-            address: v3OrderScriptAddress,
-            datum: {
-              type: EDatumType.HASH,
-              value: depositHash,
+      const { inline: withdrawInline, hash: withdrawHash } =
+        this.datumBuilder.buildWithdrawDatum({
+          ident: withdrawArgs.pool.ident,
+          orderAddresses: {
+            DestinationAddress: {
+              address: v3OrderScriptAddress,
+              datum: {
+                type: EDatumType.HASH,
+                value: depositHash,
+              },
             },
+            AlternateAddress:
+              withdrawArgs.orderAddresses.AlternateAddress ??
+              withdrawArgs.orderAddresses.DestinationAddress.address,
           },
-          AlternateAddress:
-            withdrawArgs.orderAddresses.AlternateAddress ??
-            withdrawArgs.orderAddresses.DestinationAddress.address,
-        },
-        scooperFee: this.__getParam("maxScooperFee"),
-        suppliedLPAsset: withdrawArgs.suppliedLPAsset,
-      });
+          scooperFee: this.__getParam("maxScooperFee"),
+          suppliedLPAsset: withdrawArgs.suppliedLPAsset,
+        });
 
-      metadataDatums[`0x${depositHash}`] = SundaeUtils.splitMetadataString(
-        depositInline,
-        "0x"
+      metadataDatums?.insert(
+        Core.Metadatum.fromCore(Buffer.from(depositHash, "hex")),
+        Core.Metadatum.fromCore(
+          SundaeUtils.splitMetadataString(depositInline).map((v) =>
+            Buffer.from(v, "hex")
+          )
+        )
       );
 
-      finalTx.lockAssets(
-        scriptAddress,
-        makeValue(
-          payment.lovelace,
-          ...Object.entries(payment).filter(([key]) => key !== "lovelace")
-        ),
-        Core.PlutusData.fromCbor(Core.HexBlob(withdrawInline))
+      const withdrawPayment = makeValue(
+        payment.lovelace,
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
       );
+
+      finalTx
+        .provideDatum(Core.PlutusData.fromCbor(Core.HexBlob(withdrawInline)))
+        .lockAssets(
+          scriptAddress,
+          withdrawPayment,
+          Core.DatumHash(withdrawHash)
+        );
 
       if (withdrawArgs.referralFee) {
         this.attachReferralFees(finalTx, withdrawArgs.referralFee);
@@ -1412,21 +1441,30 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
         );
       }
 
-      finalTx.lockAssets(
-        lockContractAddress,
-        makeValue(
-          returningPayment.lovelace,
-          ...Object.entries(returningPayment).filter(
-            ([key]) => key !== "lovelace"
-          )
-        ),
-        existingDatum
+      const orderPayment = makeValue(
+        returningPayment.lovelace ||
+          BigInt(migrations.length) * ORDER_DEPOSIT_DEFAULT,
+        ...Object.entries(returningPayment).filter(
+          ([key]) => key !== "lovelace"
+        )
       );
+
+      const outputData = existingPositionsData[0]?.output().datum();
+      const datum = outputData?.asInlineData();
+
+      if (!datum) {
+        throw new Error(
+          "Could not find a matching datum from the original Yield Farming positions."
+        );
+      }
+
+      finalTx.lockAssets(lockContractAddress, orderPayment, datum);
     }
 
     const data = new Core.AuxiliaryData();
-    const map = new Map();
-    map.set(103251n, metadataDatums);
+    const map = new Map<bigint, Core.Metadatum>();
+    map.set(103251n, Core.Metadatum.newMap(metadataDatums));
+    data.setMetadata(new Core.Metadata(map));
     finalTx.setAuxiliaryData(data);
 
     return this.completeTx({

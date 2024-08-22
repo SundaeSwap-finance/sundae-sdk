@@ -775,8 +775,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       const map = new Map();
       map.set(103251n, {
         [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
-          secondSwapData.datum as string,
-          "0x"
+          secondSwapData.datum as string
         ),
       });
       data.metadata()?.setMetadata(map);
@@ -1198,8 +1197,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     const map = new Map();
     map.set(103251n, {
       [`0x${depositData.hash}`]: SundaeUtils.splitMetadataString(
-        depositData.inline,
-        "0x"
+        depositData.inline
       ),
     });
     data.metadata()?.setMetadata(map);

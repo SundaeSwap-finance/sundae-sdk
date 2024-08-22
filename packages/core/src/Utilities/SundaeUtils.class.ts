@@ -397,12 +397,13 @@ export class SundaeUtils {
    * @param str Full string that you wish to split by chunks of 64.
    * @param prefix Optional prefix to add to each chunk. This is useful if your transaction builder has helper functions to convert strings to CBOR bytestrings (i.e. Lucid will convert strings with a `0x` prefix).
    */
-  static splitMetadataString(str: string, prefix?: string): string[] {
+  static splitMetadataString(str: string, prefix?: boolean): string[] {
     const result: string[] = [];
-    const chunk = prefix ? 64 - prefix.length : 64;
+    const chunk = 62;
+
     for (let i = 0; i < str.length; i += chunk) {
       const slicedStr = str.slice(i, i + chunk);
-      result.push(`${prefix ?? ""}${slicedStr}`);
+      result.push(prefix ? `0x${slicedStr}` : slicedStr);
     }
     return result;
   }

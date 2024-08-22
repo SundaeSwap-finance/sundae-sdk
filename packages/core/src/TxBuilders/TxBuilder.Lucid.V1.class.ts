@@ -419,7 +419,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     tx.attachMetadataWithConversion(103251, {
       [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
         secondSwapData.datum as string,
-        "0x"
+        true
       ),
     });
 
@@ -854,7 +854,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     tx.attachMetadataWithConversion(103251, {
       [`0x${depositHash}`]: SundaeUtils.splitMetadataString(
         depositInline,
-        "0x"
+        true
       ),
     });
 
@@ -1162,7 +1162,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
 
       metadataDatums[`0x${depositHash}`] = SundaeUtils.splitMetadataString(
         depositInline,
-        "0x"
+        true
       );
 
       tx.payToContract(scriptAddress, withdrawInline, payment);
