@@ -734,7 +734,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const scriptAddress = Core.addressFromValidator(
       this.network === "mainnet" ? 1 : 0,
       Core.Script.newPlutusV1Script(
-        Core.PlutusV1Script.fromCbor(Core.HexBlob(compiledCode))
+        new Core.PlutusV1Script(Core.HexBlob(compiledCode))
       )
     );
 
@@ -801,7 +801,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const [coinA, coinB] =
       SundaeUtils.sortSwapAssetsWithAmounts(suppliedAssets);
 
-    const { inline: cbor } = this.datumBuilder.buildDepositDatum({
+    const depositDatum = this.datumBuilder.buildDepositDatum({
       ident: pool.ident,
       orderAddresses: orderAddresses,
       deposit: {
@@ -815,22 +815,24 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const scriptAddress = Core.addressFromValidator(
       this.network === "mainnet" ? 1 : 0,
       Core.Script.newPlutusV1Script(
-        Core.PlutusV1Script.fromCbor(Core.HexBlob(compiledCode))
+        new Core.PlutusV1Script(Core.HexBlob(compiledCode))
       )
     );
 
-    tx.lockAssets(
+    tx.provideDatum(
+      Core.PlutusData.fromCbor(Core.HexBlob(depositDatum.inline))
+    ).lockAssets(
       scriptAddress,
       makeValue(
         payment.lovelace,
         ...Object.entries(payment).filter(([key]) => key !== "lovelace")
       ),
-      Core.PlutusData.fromCbor(Core.HexBlob(cbor))
+      Core.DatumHash(depositDatum.hash)
     );
 
     return this.completeTx({
       tx,
-      datum: cbor,
+      datum: depositDatum.inline,
       referralFee: referralFee?.payment,
     });
   }
@@ -866,7 +868,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       scooperFee: this.__getParam("maxScooperFee"),
     });
 
-    const { inline: cbor } = this.datumBuilder.buildWithdrawDatum({
+    const withdrawDatum = this.datumBuilder.buildWithdrawDatum({
       ident: pool.ident,
       orderAddresses: orderAddresses,
       suppliedLPAsset: suppliedLPAsset,
@@ -877,22 +879,24 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const scriptAddress = Core.addressFromValidator(
       this.network === "mainnet" ? 1 : 0,
       Core.Script.newPlutusV1Script(
-        Core.PlutusV1Script.fromCbor(Core.HexBlob(compiledCode))
+        new Core.PlutusV1Script(Core.HexBlob(compiledCode))
       )
     );
 
-    tx.lockAssets(
+    tx.provideDatum(
+      Core.PlutusData.fromCbor(Core.HexBlob(withdrawDatum.inline))
+    ).lockAssets(
       scriptAddress,
       makeValue(
         payment.lovelace,
         ...Object.entries(payment).filter(([key]) => key !== "lovelace")
       ),
-      Core.PlutusData.fromCbor(Core.HexBlob(cbor))
+      Core.DatumHash(withdrawDatum.hash)
     );
 
     return this.completeTx({
       tx,
-      datum: cbor,
+      datum: withdrawDatum.inline,
       referralFee: referralFee?.payment,
     });
   }
@@ -990,7 +994,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const scriptAddress = Core.addressFromValidator(
       this.network === "mainnet" ? 1 : 0,
       Core.Script.newPlutusV1Script(
-        Core.PlutusV1Script.fromCbor(Core.HexBlob(compiledCode))
+        new Core.PlutusV1Script(Core.HexBlob(compiledCode))
       )
     );
 
@@ -1033,13 +1037,15 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     data.metadata()?.setMetadata(map);
     tx.setAuxiliaryData(data);
 
-    tx.lockAssets(
+    tx.provideDatum(
+      Core.PlutusData.fromCbor(Core.HexBlob(swapData.inline))
+    ).lockAssets(
       scriptAddress,
       makeValue(
         payment.lovelace,
         ...Object.entries(payment).filter(([key]) => key !== "lovelace")
       ),
-      Core.PlutusData.fromCbor(Core.HexBlob(swapData.inline))
+      Core.DatumHash(swapData.hash)
     );
 
     return this.completeTx({

@@ -1138,121 +1138,114 @@ describe("TxBuilderBlazeV1", () => {
     }
   });
 
-  // test("withdraw()", async () => {
-  //   const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-  //   const spiedBuildWithdrawDatum = jest.spyOn(
-  //     builder.datumBuilder,
-  //     "buildWithdrawDatum"
-  //   );
+  test("withdraw()", async () => {
+    const spiedNewTx = jest.spyOn(builder, "newTxInstance");
+    const spiedBuildWithdrawDatum = jest.spyOn(
+      builder.datumBuilder,
+      "buildWithdrawDatum"
+    );
 
-  //   const { build, fees, datum } = await builder.withdraw({
-  //     orderAddresses: {
-  //       DestinationAddress: {
-  //         address: PREVIEW_DATA.addresses.current,
-  //         datum: {
-  //           type: EDatumType.NONE,
-  //         },
-  //       },
-  //     },
-  //     pool: PREVIEW_DATA.pools.v1,
-  //     suppliedLPAsset: PREVIEW_DATA.assets.v1LpToken,
-  //   });
+    const { build, fees, datum } = await builder.withdraw({
+      orderAddresses: {
+        DestinationAddress: {
+          address: PREVIEW_DATA.addresses.current,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+      },
+      pool: PREVIEW_DATA.pools.v1,
+      suppliedLPAsset: PREVIEW_DATA.assets.v1LpToken,
+    });
 
-  //   expect(spiedNewTx).toHaveBeenNthCalledWith(1, undefined);
-  //   expect(spiedBuildWithdrawDatum).toHaveBeenNthCalledWith(
-  //     1,
-  //     expect.objectContaining({
-  //       ident: PREVIEW_DATA.pools.v1.ident,
-  //       suppliedLPAsset: expect.objectContaining({
-  //         amount: 100_000_000n,
-  //       }),
-  //     })
-  //   );
+    expect(spiedNewTx).toHaveBeenNthCalledWith(1, undefined);
+    expect(spiedBuildWithdrawDatum).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        ident: PREVIEW_DATA.pools.v1.ident,
+        suppliedLPAsset: expect.objectContaining({
+          amount: 100_000_000n,
+        }),
+      })
+    );
 
-  //   expect(datum).toEqual(
-  //     "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d87a9f1a05f5e100ffff"
-  //   );
-  //   expect(fees).toMatchObject<ITxBuilderFees>({
-  //     deposit: expect.objectContaining({
-  //       amount: ORDER_DEPOSIT_DEFAULT,
-  //       metadata: ADA_METADATA,
-  //     }),
-  //     scooperFee: expect.objectContaining({
-  //       amount: 2_500_000n,
-  //       metadata: ADA_METADATA,
-  //     }),
-  //   });
+    expect(datum).toEqual(
+      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d87a9f1a05f5e100ffff"
+    );
+    expect(fees).toMatchObject<ITxBuilderFees>({
+      deposit: expect.objectContaining({
+        amount: ORDER_DEPOSIT_DEFAULT,
+        metadata: ADA_METADATA,
+      }),
+      scooperFee: expect.objectContaining({
+        amount: 2_500_000n,
+        metadata: ADA_METADATA,
+      }),
+    });
 
-  //   const { builtTx } = await build();
-  //   expect(fees.cardanoTxFee).not.toBeUndefined();
+    const { builtTx } = await build();
+    expect(fees.cardanoTxFee).not.toBeUndefined();
 
-  //   let withdrawOutput: C.TransactionOutput | undefined;
-  //   [...Array(builtTx.txComplete.body().outputs().len()).keys()].forEach(
-  //     (index) => {
-  //       const output = builtTx.txComplete.body().outputs().get(index);
-  //       const outputHex = output
-  //         .address()
-  //         .as_enterprise()
-  //         ?.payment_cred()
-  //         .to_scripthash()
-  //         ?.to_hex();
+    let withdrawOutput: Core.TransactionOutput | undefined;
+    [...Array(builtTx.body().outputs().length).keys()].forEach((index) => {
+      const output = builtTx.body().outputs()[index];
+      const outputHex = output
+        .address()
+        .asEnterprise()
+        ?.getPaymentCredential().hash;
 
-  //       if (
-  //         outputHex ===
-  //           "730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977e" &&
-  //         // deposit (2) + scooper fee (2.5) = 4.5
-  //         output.amount().coin().to_str() === "4500000" &&
-  //         output.amount().multiasset() &&
-  //         output.amount().multiasset()?.to_js_value()[
-  //           PREVIEW_DATA.assets.v1LpToken.metadata.assetId.split(".")[0]
-  //         ][PREVIEW_DATA.assets.v1LpToken.metadata.assetId.split(".")[1]] ===
-  //           PREVIEW_DATA.assets.v1LpToken.amount.toString()
-  //       ) {
-  //         withdrawOutput = output;
-  //       }
-  //     }
-  //   );
+      if (
+        outputHex ===
+          "730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977e" &&
+        // deposit (2) + scooper fee (2.5) = 4.5
+        output.amount().coin().toString() === "4500000" &&
+        output
+          .amount()
+          .multiasset()
+          ?.get(
+            Core.AssetId(
+              PREVIEW_DATA.assets.v1LpToken.metadata.assetId.replace(".", "")
+            )
+          )
+      ) {
+        withdrawOutput = output;
+      }
+    });
 
-  //   expect(withdrawOutput).not.toBeUndefined();
-  //   const inlineDatum = withdrawOutput?.datum()?.as_data()?.get().to_bytes();
+    expect(withdrawOutput).not.toBeUndefined();
+    const inlineDatum = withdrawOutput?.datum()?.asInlineData();
 
-  //   expect(inlineDatum).toBeUndefined();
-  //   expect(withdrawOutput?.datum()?.as_data_hash()?.to_hex()).toEqual(
-  //     "cfc0f78bf969f77692696fc06c20e605187e7c77a13168e42c8ec121e79e51bd"
-  //   );
+    expect(inlineDatum).toBeUndefined();
+    expect(withdrawOutput?.datum()?.asDataHash()).toEqual(
+      "cfc0f78bf969f77692696fc06c20e605187e7c77a13168e42c8ec121e79e51bd"
+    );
 
-  //   const datumBytes = builtTx.txComplete
-  //     .witness_set()
-  //     .plutus_data()
-  //     ?.get(0)
-  //     .to_bytes();
-  //   expect(datumBytes).not.toBeUndefined();
-  //   expect(Buffer.from(datumBytes as Uint8Array).toString("hex")).toEqual(
-  //     datum
-  //   );
-  // });
+    const datumBytes = builtTx.witnessSet().plutusData()?.values()?.[0];
+    expect(datumBytes).not.toBeUndefined();
+    expect(datumBytes?.toCbor()).toEqual(datum);
+  });
 
-  // test("withdraw() incorrect idents throw", async () => {
-  //   try {
-  //     await builder.withdraw({
-  //       orderAddresses: {
-  //         DestinationAddress: {
-  //           address: PREVIEW_DATA.addresses.current,
-  //           datum: {
-  //             type: EDatumType.NONE,
-  //           },
-  //         },
-  //       },
-  //       pool: {
-  //         ...PREVIEW_DATA.pools.v1,
-  //         ident: PREVIEW_DATA.pools.v3.ident,
-  //       },
-  //       suppliedLPAsset: PREVIEW_DATA.assets.v3LpToken,
-  //     });
-  //   } catch (e) {
-  //     expect((e as Error).message).toEqual(
-  //       DatumBuilderLucidV1.INVALID_POOL_IDENT
-  //     );
-  //   }
-  // });
+  test("withdraw() incorrect idents throw", async () => {
+    try {
+      await builder.withdraw({
+        orderAddresses: {
+          DestinationAddress: {
+            address: PREVIEW_DATA.addresses.current,
+            datum: {
+              type: EDatumType.NONE,
+            },
+          },
+        },
+        pool: {
+          ...PREVIEW_DATA.pools.v1,
+          ident: PREVIEW_DATA.pools.v3.ident,
+        },
+        suppliedLPAsset: PREVIEW_DATA.assets.v3LpToken,
+      });
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        DatumBuilderBlazeV1.INVALID_POOL_IDENT
+      );
+    }
+  });
 });
