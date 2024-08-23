@@ -12,7 +12,7 @@ import {
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   ADA_METADATA,
-  VOID_REDEEMER,
+  CANCEL_REDEEMER,
   type IComposedTx,
   type ITxBuilderReferralFee,
   type TSupportedNetworks,
@@ -240,7 +240,7 @@ export class YieldFarmingBlaze
     }
 
     if (existingPositionData) {
-      const redeemer = Core.PlutusData.fromCbor(Core.HexBlob(VOID_REDEEMER));
+      const redeemer = Core.PlutusData.fromCbor(Core.HexBlob(CANCEL_REDEEMER));
       await Promise.all(
         existingPositionData.map(async (utxo) => {
           const hash = utxo.output().datum()?.asDataHash();

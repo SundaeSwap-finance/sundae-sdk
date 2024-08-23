@@ -1,7 +1,7 @@
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   ADA_METADATA,
-  VOID_REDEEMER,
+  CANCEL_REDEEMER,
   type IComposedTx,
   type ITxBuilderReferralFee,
   type TSupportedNetworks,
@@ -222,7 +222,7 @@ export class YieldFarmingLucid
     }
 
     if (existingPositionData) {
-      txInstance.collectFrom(existingPositionData, VOID_REDEEMER);
+      txInstance.collectFrom(existingPositionData, CANCEL_REDEEMER);
     }
 
     const deposit = new AssetAmount(
