@@ -45,10 +45,10 @@ import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSw
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
+  CANCEL_REDEEMER,
   ORDER_DEPOSIT_DEFAULT,
   ORDER_ROUTE_DEPOSIT_DEFAULT,
   POOL_MIN_ADA,
-  VOID_REDEEMER,
 } from "../constants.js";
 import { TxBuilderBlazeV1 } from "./TxBuilder.Blaze.V1.class.js";
 
@@ -874,7 +874,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
 
     tx.addInput(
       utxoToSpend,
-      Core.PlutusData.fromCbor(Core.HexBlob(VOID_REDEEMER))
+      Core.PlutusData.fromCbor(Core.HexBlob(CANCEL_REDEEMER))
     );
     cancelReadFrom.forEach((utxo) => tx.addReferenceInput(utxo));
 

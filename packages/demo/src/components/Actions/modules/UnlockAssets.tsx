@@ -56,13 +56,20 @@ export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setUnlocking(true);
+    const hash = prompt("Hash:");
+    const id = prompt("Index:");
+
+    if (!hash || !id) {
+      throw new Error("Need a position to withdraw.");
+    }
+
     try {
       await YF.unlock({
         ownerAddress: walletAddress,
         existingPositions: [
           {
-            hash: "d211adc4de0633448eab33aa5292a97d4dc0815ce4d17114c9d850959800d6b3",
-            index: 0,
+            hash,
+            index: Number(id),
           },
         ],
         ...(useReferral

@@ -12,6 +12,7 @@ import {
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   ADA_METADATA,
+  VOID_REDEEMER,
   type IComposedTx,
   type ITxBuilderReferralFee,
   type TSupportedNetworks,
@@ -239,8 +240,19 @@ export class YieldFarmingBlaze
     }
 
     if (existingPositionData) {
-      existingPositionData.forEach((utxo) =>
-        txInstance.addInput(utxo, Data.void())
+      const redeemer = Core.PlutusData.fromCbor(Core.HexBlob(VOID_REDEEMER));
+      await Promise.all(
+        existingPositionData.map(async (utxo) => {
+          const hash = utxo.output().datum()?.asDataHash();
+          if (!hash) {
+            txInstance.addInput(utxo, redeemer);
+          } else {
+            const datum = await this.blaze.provider.resolveDatum(
+              Core.DatumHash(hash)
+            );
+            txInstance.addInput(utxo, redeemer, datum);
+          }
+        })
       );
     }
 
@@ -260,6 +272,8 @@ export class YieldFarmingBlaze
       lockedValues === undefined ||
       (lockedValues && lockedValues.length === 0)
     ) {
+      const draft = await txInstance.complete();
+      txInstance.setMinimumFee(draft.body().fee() + 10_000n);
       return this.completeTx({
         tx: txInstance,
         deposit,
@@ -307,6 +321,10 @@ export class YieldFarmingBlaze
       ),
       Core.PlutusData.fromCbor(Core.HexBlob(inline))
     );
+
+    const draft = await txInstance.complete();
+    txInstance.setMinimumFee(draft.body().fee() + 10_000n);
+
     return this.completeTx({
       tx: txInstance,
       datum: inline,

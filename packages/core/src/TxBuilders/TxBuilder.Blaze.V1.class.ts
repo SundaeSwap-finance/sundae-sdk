@@ -46,8 +46,8 @@ import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
+  CANCEL_REDEEMER,
   ORDER_DEPOSIT_DEFAULT,
-  VOID_REDEEMER,
 } from "../constants.js";
 import { TxBuilderBlazeV3 } from "./TxBuilder.Blaze.V3.class.js";
 
@@ -87,11 +87,11 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
 
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV1Params> = {
     mainnet: {
-      cancelRedeemer: VOID_REDEEMER,
+      cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
     preview: {
-      cancelRedeemer: VOID_REDEEMER,
+      cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
   };

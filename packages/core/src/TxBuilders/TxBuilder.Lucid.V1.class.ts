@@ -44,8 +44,8 @@ import { LucidHelper } from "../Utilities/LucidHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
+  CANCEL_REDEEMER,
   ORDER_DEPOSIT_DEFAULT,
-  VOID_REDEEMER,
 } from "../constants.js";
 import { TxBuilderLucidV3 } from "./TxBuilder.Lucid.V3.class.js";
 
@@ -85,11 +85,11 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
 
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV1Params> = {
     mainnet: {
-      cancelRedeemer: VOID_REDEEMER,
+      cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
     preview: {
-      cancelRedeemer: VOID_REDEEMER,
+      cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
   };
@@ -496,7 +496,6 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       script: compiledCode,
     };
 
-    console.log(utxosToSpend);
     tx.collectFrom(
       utxosToSpend,
       this.__getParam("cancelRedeemer")
@@ -1015,7 +1014,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     ) {
       finalTx
         .readFrom(yfRefInput)
-        .collectFrom(existingPositionsData, VOID_REDEEMER);
+        .collectFrom(existingPositionsData, CANCEL_REDEEMER);
 
       const withdrawAssetsList = yieldFarming.migrations.reduce(
         (list, { withdrawPool }) => {

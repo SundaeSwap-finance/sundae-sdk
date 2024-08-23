@@ -47,10 +47,10 @@ import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSw
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
+  CANCEL_REDEEMER,
   ORDER_DEPOSIT_DEFAULT,
   ORDER_ROUTE_DEPOSIT_DEFAULT,
   POOL_MIN_ADA,
-  VOID_REDEEMER,
 } from "../constants.js";
 import { TxBuilderLucidV1 } from "./TxBuilder.Lucid.V1.class.js";
 
@@ -737,7 +737,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       },
     ]);
 
-    tx.collectFrom(utxosToSpend, VOID_REDEEMER).readFrom(cancelReadFrom);
+    tx.collectFrom(utxosToSpend, CANCEL_REDEEMER).readFrom(cancelReadFrom);
 
     const signerKey = DatumBuilderLucidV3.getSignerKeyFromDatum(spendingDatum);
     if (signerKey) {
