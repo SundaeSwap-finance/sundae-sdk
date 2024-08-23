@@ -66,7 +66,7 @@
     "docs:ci": "yarn docs --unsafe"
   },
   "devDependencies": {
-    "@blaze-cardano/emulator": "^0.1.46",
+    "@blaze-cardano/emulator": "^0.1.50",
     "@sundaeswap/core": "^1.2.9",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^14.3.0",

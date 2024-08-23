@@ -419,13 +419,13 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       );
 
       if (donateToTreasury === 100n) {
-        tx.payToContract(realTreasuryAddress, Data.void(), {
+        tx.payToAddressWithData(realTreasuryAddress, Data.void(), {
           lovelace: ORDER_DEPOSIT_DEFAULT,
           [poolLqNameHex]: circulatingLp,
         });
       } else {
         const donation = (circulatingLp * donateToTreasury) / 100n;
-        tx.payToContract(realTreasuryAddress, Data.void(), {
+        tx.payToAddressWithData(realTreasuryAddress, Data.void(), {
           lovelace: ORDER_DEPOSIT_DEFAULT,
           [poolLqNameHex]: donation,
         });

@@ -117,7 +117,7 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
     scooperFee,
   }: IDatumBuilderSwapV3Args): TDatumResult<V3Types.TOrderDatum> {
     const datum: V3Types.TOrderDatum = {
-      poolIdent: this.buildPoolIdent(ident),
+      poolIdent: this.validatePoolIdent(ident),
       destination: this.buildDestinationAddresses(destinationAddress).schema,
       owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
         .schema,
@@ -172,7 +172,7 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
       },
       owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
         .schema,
-      poolIdent: this.buildPoolIdent(ident),
+      poolIdent: this.validatePoolIdent(ident),
       scooperFee,
       extension: Data.void().toCbor(),
     };
@@ -216,7 +216,7 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
       },
       owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
         .schema,
-      poolIdent: this.buildPoolIdent(ident),
+      poolIdent: this.validatePoolIdent(ident),
       scooperFee: scooperFee,
     };
 
@@ -460,7 +460,7 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
     };
   }
 
-  public buildPoolIdent(ident: string): string {
+  public validatePoolIdent(ident: string): string {
     if (!SundaeUtils.isV3PoolIdent(ident)) {
       throw new Error(DatumBuilderBlazeV3.INVALID_POOL_IDENT);
     }
@@ -633,10 +633,9 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
       }),
     };
 
-    let stakingKeyHash: string | undefined;
-    let stakingAddressType: Core.CredentialType | undefined;
-
     if (datum.stakeCredential?.keyHash) {
+      let stakingKeyHash: string | undefined;
+      let stakingAddressType: Core.CredentialType | undefined;
       if (
         (datum.stakeCredential.keyHash as V3Types.TVKeyCredential)
           ?.VKeyCredential

@@ -496,6 +496,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       script: compiledCode,
     };
 
+    console.log(utxosToSpend);
     tx.collectFrom(
       utxosToSpend,
       this.__getParam("cancelRedeemer")

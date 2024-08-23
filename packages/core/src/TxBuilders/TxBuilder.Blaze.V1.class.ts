@@ -38,7 +38,7 @@ import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
-import { OrderDatum } from "../DatumBuilders/Contracts/Contracts.Blaze.v3.js";
+import { OrderDatum as V3OrderDatum } from "../DatumBuilders/Contracts/Contracts.Blaze.v3.js";
 import { DatumBuilderBlazeV1 } from "../DatumBuilders/DatumBuilder.Blaze.V1.class.js";
 import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
@@ -621,7 +621,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
      * If not, then we can assume it is a normal V1 order.
      */
     try {
-      Data.from(spendingDatum, OrderDatum);
+      Data.from(spendingDatum, V3OrderDatum);
       console.log("This is a V3 order! Calling appropriate builder...");
       const v3Builder = new TxBuilderBlazeV3(this.blaze, this.network);
       return v3Builder.cancel({ ...cancelArgs });
@@ -640,22 +640,19 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
 
     tx.provideScript(scriptValidator);
     const details = Core.Address.fromBech32(ownerAddress);
-    const paymentCred = details.asBase()?.getPaymentCredential();
-    const stakingCred = details.asBase()?.getStakeCredential();
+    const paymentCred = details.asBase()?.getPaymentCredential().hash;
+    const stakingCred = details.asBase()?.getStakeCredential().hash;
 
-    if (
-      paymentCred?.hash &&
-      spendingDatum.toCbor().includes(paymentCred.hash)
-    ) {
-      tx.addRequiredSigner(Core.Ed25519KeyHashHex(paymentCred.hash));
+    if (paymentCred && spendingDatum.toCbor().includes(paymentCred)) {
+      tx.addRequiredSigner(Core.Ed25519KeyHashHex(paymentCred));
     }
 
-    if (
-      stakingCred?.hash &&
-      spendingDatum.toCbor().includes(stakingCred.hash)
-    ) {
-      tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingCred.hash));
+    if (stakingCred && spendingDatum.toCbor().includes(stakingCred)) {
+      tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingCred));
     }
+
+    const completed = await tx.complete();
+    tx.setMinimumFee(completed.body().fee() + 10_000n);
 
     return this.completeTx({
       tx,
@@ -743,14 +740,16 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       scooperFee: this.__getParam("maxScooperFee"),
     });
 
-    cancelTx.lockAssets(
-      scriptAddress,
-      makeValue(
-        payment.lovelace,
-        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
-      ),
-      Core.PlutusData.fromCbor(Core.HexBlob(swapDatum.inline))
-    );
+    cancelTx
+      .provideDatum(Core.PlutusData.fromCbor(Core.HexBlob(swapDatum.inline)))
+      .lockAssets(
+        scriptAddress,
+        makeValue(
+          payment.lovelace,
+          ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+        ),
+        Core.DatumHash(swapDatum.hash)
+      );
 
     /**
      * Accumulate any referral fees.
@@ -772,12 +771,15 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
         Core.addressFromBech32(swapArgs.referralFee.destination),
         SundaeUtils.isAdaAsset(swapArgs.referralFee.payment.metadata)
           ? makeValue(swapArgs.referralFee.payment.amount)
-          : makeValue(0n, [
+          : makeValue(ORDER_DEPOSIT_DEFAULT, [
               swapArgs.referralFee.payment.metadata.assetId,
               swapArgs.referralFee.payment.amount,
             ])
       );
     }
+
+    // const draft = await cancelTx.complete();
+    // cancelTx.setMinimumFee(draft.body().fee() + 100_000n);
 
     return this.completeTx({
       tx: cancelTx,
@@ -1030,11 +1032,21 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     });
 
     const data = new Core.AuxiliaryData();
-    const map = new Map();
-    map.set(103251n, {
-      [`0x${depositHash}`]: SundaeUtils.splitMetadataString(depositInline),
-    });
-    data.metadata()?.setMetadata(map);
+    const metadata = new Map<bigint, Core.Metadatum>();
+    metadata.set(
+      103251n,
+      Core.Metadatum.fromCore(
+        new Map([
+          [
+            Buffer.from(depositHash, "hex"),
+            SundaeUtils.splitMetadataString(depositInline).map((v) =>
+              Buffer.from(v, "hex")
+            ),
+          ],
+        ])
+      )
+    );
+    data.setMetadata(new Core.Metadata(metadata));
     tx.setAuxiliaryData(data);
 
     tx.provideDatum(

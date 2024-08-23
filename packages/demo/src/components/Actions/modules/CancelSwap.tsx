@@ -1,6 +1,6 @@
+import { EContractVersion } from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
 
-import { EContractVersion } from "@sundaeswap/core";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs } from "../Actions";
@@ -12,6 +12,7 @@ export const CancelSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     activeWalletAddr: walletAddress,
     useReferral,
     useV3Contracts,
+    builderLib,
   } = useAppState();
   const [updating, setUpdating] = useState(false);
 
@@ -30,7 +31,10 @@ export const CancelSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         return;
       }
 
-      await SDK.builder(EContractVersion.V1)
+      await SDK.builder(
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
+        builderLib
+      )
         .cancel({
           utxo: {
             hash,
@@ -59,7 +63,7 @@ export const CancelSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setUpdating(false);
-  }, [SDK, submit, walletAddress, useReferral, useV3Contracts]);
+  }, [SDK, submit, walletAddress, useReferral, useV3Contracts, builderLib]);
 
   if (!SDK) {
     return null;

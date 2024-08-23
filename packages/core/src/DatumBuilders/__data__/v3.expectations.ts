@@ -313,7 +313,7 @@ export const V3_EXPECTATIONS = {
       },
     },
   ],
-  buildPoolIdent: [
+  validatePoolIdent: [
     {
       args: PREVIEW_DATA.pools.v1.ident,
       expectations: {

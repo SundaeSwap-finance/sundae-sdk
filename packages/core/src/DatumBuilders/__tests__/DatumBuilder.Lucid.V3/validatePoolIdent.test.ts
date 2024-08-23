@@ -16,15 +16,15 @@ afterEach(() => {
 describe("buildPoolIdent", () => {
   it("should correctly build and validate a pool ident", () => {
     expect(() =>
-      builderInstance.buildPoolIdent(V3_EXPECTATIONS.buildPoolIdent[0].args)
-    ).toThrowError(V3_EXPECTATIONS.buildPoolIdent[0].expectations.error);
+      builderInstance.buildPoolIdent(V3_EXPECTATIONS.validatePoolIdent[0].args)
+    ).toThrowError(V3_EXPECTATIONS.validatePoolIdent[0].expectations.error);
 
     const validIdent = builderInstance.buildPoolIdent(
-      V3_EXPECTATIONS.buildPoolIdent[1].args
+      V3_EXPECTATIONS.validatePoolIdent[1].args
     );
 
     expect(validIdent).toEqual(
-      V3_EXPECTATIONS.buildPoolIdent[1].expectations.result
+      V3_EXPECTATIONS.validatePoolIdent[1].expectations.result
     );
   });
 });

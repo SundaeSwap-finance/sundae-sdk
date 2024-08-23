@@ -302,19 +302,21 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
          * @todo Ensure metadata is correctly attached.
          */
         const data = new Core.AuxiliaryData();
-        const map = new Map();
+        const map = new Map<bigint, Core.Metadatum>();
         map.set(
-          674,
-          `${fee.feeLabel}: ${fee.payment.value.toString()} ${
-            !SundaeUtils.isAdaAsset(fee.payment.metadata)
-              ? Buffer.from(
-                  fee.payment.metadata.assetId.split(".")[1],
-                  "hex"
-                ).toString("utf-8")
-              : "ADA"
-          }`
+          674n,
+          Core.Metadatum.newText(
+            `${fee.feeLabel}: ${fee.payment.value.toString()} ${
+              !SundaeUtils.isAdaAsset(fee.payment.metadata)
+                ? Buffer.from(
+                    fee.payment.metadata.assetId.split(".")[1],
+                    "hex"
+                  ).toString("utf-8")
+                : "ADA"
+            }`
+          )
         );
-        data.metadata()?.setMetadata(map);
+        data.setMetadata(new Core.Metadata(map));
         instance.setAuxiliaryData(data);
       }
     }
@@ -358,18 +360,24 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
 
     const exoticPair = !SundaeUtils.isAdaAsset(sortedAssets[0].metadata);
 
-    const [userUtxos, { hash: poolPolicyId }, references, settings] =
-      await Promise.all([
-        this.getUtxosForPoolMint(),
-        this.getValidatorScript("pool.mint"),
-        this.getAllReferenceUtxos(),
-        this.getAllSettingsUtxos(),
-      ]);
+    const [
+      userUtxos,
+      { hash: poolPolicyId, compiledCode },
+      references,
+      settings,
+    ] = await Promise.all([
+      this.getUtxosForPoolMint(),
+      this.getValidatorScript("pool.mint"),
+      this.getAllReferenceUtxos(),
+      this.getAllSettingsUtxos(),
+    ]);
 
-    const newPoolIdent = DatumBuilderBlazeV3.computePoolId({
+    const seedUtxo = {
       outputIndex: Number(userUtxos[0].input().index().toString()),
       txHash: userUtxos[0].input().transactionId(),
-    });
+    };
+
+    const newPoolIdent = DatumBuilderBlazeV3.computePoolId(seedUtxo);
 
     const nftAssetName = DatumBuilderBlazeV3.computePoolNftName(newPoolIdent);
     const poolNftAssetIdHex = `${poolPolicyId + nftAssetName}`;
@@ -404,10 +412,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       fees,
       marketOpen,
       depositFee: POOL_MIN_ADA,
-      seedUtxo: {
-        outputIndex: Number(userUtxos[0].input().index().toString()),
-        txHash: userUtxos[0].input().transactionId(),
-      },
+      seedUtxo,
     });
 
     const { inline: mintRedeemerDatum } =
@@ -420,7 +425,14 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
         poolOutput: 0n,
       });
 
-    const settingsDatum = settings[0].output().datum()?.asInlineData();
+    let settingsDatum = settings[0].output().datum()?.asInlineData();
+    if (!settingsDatum) {
+      const hash = settings[0].output().datum()?.asDataHash();
+      settingsDatum = hash
+        ? await this.blaze.provider.resolveDatum(Core.DatumHash(hash))
+        : undefined;
+    }
+
     if (!settingsDatum) {
       throw new Error("Could not retrieve the datum from the settings UTXO.");
     }
@@ -459,6 +471,11 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
 
     const tx = this.newTxInstance(referralFee);
 
+    const script = Core.Script.newPlutusV2Script(
+      new Core.PlutusV2Script(Core.HexBlob(compiledCode))
+    );
+    tx.provideScript(script);
+
     const mints = new Map<Core.AssetName, bigint>();
     mints.set(Core.AssetName(nftAssetName), 1n);
     mints.set(Core.AssetName(refAssetName), 1n);
@@ -467,11 +484,12 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     tx.addMint(
       Core.PolicyId(poolPolicyId),
       mints,
-      Core.PlutusData.fromCbor(
-        Core.HexBlob.fromBytes(Buffer.from(mintRedeemerDatum, "hex"))
-      )
+      Core.PlutusData.fromCbor(Core.HexBlob(mintRedeemerDatum))
     );
-    [...references, ...settings].forEach((utxo) => tx.addReferenceInput(utxo));
+
+    [...references, ...settings].forEach((utxo) => {
+      tx.addReferenceInput(utxo);
+    });
     userUtxos.forEach((utxo) => tx.addInput(utxo));
 
     tx.lockAssets(
@@ -480,15 +498,12 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
         poolAssets.lovelace,
         ...Object.entries(poolAssets).filter(([key]) => key !== "lovelace")
       ),
-      Core.PlutusData.fromCbor(
-        Core.HexBlob.fromBytes(Buffer.from(mintPoolDatum))
-      )
+      Core.PlutusData.fromCbor(Core.HexBlob(mintPoolDatum))
     );
 
-    tx.lockAssets(
+    tx.provideDatum(Data.void()).payAssets(
       Core.addressFromBech32(metadataAddress),
-      makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
-      Data.void()
+      makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n])
     );
 
     if (donateToTreasury) {
@@ -506,26 +521,23 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       );
 
       if (donateToTreasury === 100n) {
-        tx.lockAssets(
+        tx.provideDatum(Data.void()).payAssets(
           Core.addressFromBech32(realTreasuryAddress),
-          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, circulatingLp]),
-          Data.void()
+          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, circulatingLp])
         );
       } else {
         const donation = (circulatingLp * donateToTreasury) / 100n;
-        tx.lockAssets(
+        tx.provideDatum(Data.void()).payAssets(
           Core.addressFromBech32(realTreasuryAddress),
-          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, donation]),
-          Data.void()
+          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, donation])
         );
 
-        tx.lockAssets(
+        tx.payAssets(
           Core.addressFromBech32(ownerAddress),
           makeValue(ORDER_DEPOSIT_DEFAULT, [
             poolLqAssetIdHex,
             circulatingLp - donation,
-          ]),
-          Data.void()
+          ])
         );
       }
     } else {
@@ -666,9 +678,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
             Core.addressFromValidator(
               this.network === "mainnet" ? 1 : 0,
               Core.Script.newPlutusV1Script(
-                new Core.PlutusV1Script(
-                  Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex"))
-                )
+                new Core.PlutusV1Script(Core.HexBlob(compiledCode))
               )
             ).toBech32()
           )
@@ -772,13 +782,21 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
 
     if (isSecondSwapV1) {
       const data = new Core.AuxiliaryData();
-      const map = new Map();
-      map.set(103251n, {
-        [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
-          secondSwapData.datum as string
-        ),
-      });
-      data.metadata()?.setMetadata(map);
+      const metadata = new Map<bigint, Core.Metadatum>();
+      metadata.set(
+        103251n,
+        Core.Metadatum.fromCore(
+          new Map([
+            [
+              Buffer.from(datumHash, "hex"),
+              SundaeUtils.splitMetadataString(
+                secondSwapData.datum as string
+              ).map((v) => Buffer.from(v, "hex")),
+            ],
+          ])
+        )
+      );
+      data.setMetadata(new Core.Metadata(metadata));
       tx.setAuxiliaryData(data);
     }
 
@@ -812,7 +830,8 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       ),
     ]);
 
-    if (!utxosToSpend) {
+    const utxoToSpend = utxosToSpend?.[0];
+    if (!utxoToSpend) {
       throw new Error(
         `UTXO data was not found with the following parameters: ${JSON.stringify(
           utxo
@@ -821,12 +840,10 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     }
 
     const spendingDatum =
-      utxosToSpend[0]?.output().datum()?.asInlineData() ||
-      (utxosToSpend[0]?.output().datum()?.asDataHash() &&
+      utxoToSpend?.output().datum()?.asInlineData() ||
+      (utxoToSpend?.output().datum()?.asDataHash() &&
         (await this.blaze.provider.resolveDatum(
-          Core.DatumHash(
-            utxosToSpend[0]?.output().datum()?.asDataHash() as string
-          )
+          Core.DatumHash(utxoToSpend?.output().datum()?.asDataHash() as string)
         )));
 
     if (!spendingDatum) {
@@ -855,9 +872,10 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       ),
     ]);
 
-    utxosToSpend.forEach((utxo) => {
-      tx.addInput(utxo, Core.PlutusData.fromCbor(Core.HexBlob(VOID_REDEEMER)));
-    });
+    tx.addInput(
+      utxoToSpend,
+      Core.PlutusData.fromCbor(Core.HexBlob(VOID_REDEEMER))
+    );
     cancelReadFrom.forEach((utxo) => tx.addReferenceInput(utxo));
 
     const signerKey = DatumBuilderBlazeV3.getSignerKeyFromDatum(
@@ -867,6 +885,9 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     if (signerKey) {
       tx.addRequiredSigner(Core.Ed25519KeyHashHex(signerKey));
     }
+
+    const completed = await tx.complete();
+    tx.setMinimumFee(completed.body().fee() + 50_000n);
 
     return this.completeTx({
       tx,
@@ -1305,9 +1326,8 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     referralFee,
     deposit,
     scooperFee,
-  }: // coinSelection = true,
-  // nativeUplc = true,
-  ITxBuilderBlazeCompleteTxArgs): Promise<
+    coinSelection = true,
+  }: ITxBuilderBlazeCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
@@ -1323,10 +1343,35 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     const that = this;
 
     // Apply coinSelection argument.
-    // tx.useCoinSelector()
+    if (!coinSelection) {
+      tx.useCoinSelector((inputs, dearth) => {
+        if (dearth.coin() || dearth.multiasset()?.size) {
+          throw Error("Dearth should be empty.");
+        }
 
-    // Apply nativeUplc argument.
-    // tx.useEvaluator()
+        const value = new Core.Value(0n);
+        inputs.forEach((output) => {
+          value.setCoin(value.coin() + output.output().amount().coin());
+          const assets = value.multiasset();
+          if (assets) {
+            const tokenMap = new Map<Core.AssetId, bigint>();
+            for (const [, [key, amt]] of Object.entries([...assets])) {
+              tokenMap.set(key, amt);
+            }
+
+            if (tokenMap.size) {
+              value.setMultiasset(tokenMap);
+            }
+          }
+        });
+
+        return {
+          inputs,
+          selectedInputs: [],
+          selectedValue: value,
+        };
+      });
+    }
 
     const thisTx: IComposedTx<BlazeTx, Core.Transaction> = {
       tx,

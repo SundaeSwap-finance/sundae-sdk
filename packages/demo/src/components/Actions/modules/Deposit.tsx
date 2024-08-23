@@ -14,6 +14,7 @@ export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     activeWalletAddr: walletAddress,
     useReferral,
     useV3Contracts,
+    builderLib,
   } = useAppState();
   const [depositing, setDepositing] = useState(false);
 
@@ -36,7 +37,8 @@ export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       ).output;
 
       await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
+        builderLib
       )
         .deposit({
           orderAddresses: {
@@ -92,7 +94,7 @@ export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setDepositing(false);
-  }, [SDK, submit, walletAddress, useReferral, useV3Contracts]);
+  }, [SDK, submit, walletAddress, useReferral, useV3Contracts, builderLib]);
 
   if (!SDK) {
     return null;
