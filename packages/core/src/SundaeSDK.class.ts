@@ -87,7 +87,6 @@ export class SundaeSDK {
    * software stack.
    */
   private async registerTxBuilders() {
-    console.log(this.options.wallet.builder);
     switch (this.options.wallet.builder.type) {
       case ETxBuilderType.LUCID: {
         const [{ TxBuilderLucidV1 }, { TxBuilderLucidV3 }] = await Promise.all([
@@ -162,6 +161,22 @@ export class SundaeSDK {
   }
 
   // Overloads
+  builder(
+    contractVersion: EContractVersion.V1,
+    txBuilderType: ETxBuilderType.BLAZE
+  ): TxBuilderBlazeV1;
+  builder(
+    contractVersion: EContractVersion.V3,
+    txBuilderType: ETxBuilderType.BLAZE
+  ): TxBuilderBlazeV3;
+  builder(
+    contractVersion: EContractVersion.V1,
+    txBuilderType: ETxBuilderType.LUCID
+  ): TxBuilderLucidV1;
+  builder(
+    contractVersion: EContractVersion.V3,
+    txBuilderType: ETxBuilderType.LUCID
+  ): TxBuilderLucidV3;
   builder(contractVersion: EContractVersion.V1): TxBuilderV1;
   builder(contractVersion: EContractVersion.V3): TxBuilderV3;
   builder(

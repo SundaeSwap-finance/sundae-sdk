@@ -233,20 +233,15 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    * @returns {bigint} The maxScooperFee as defined by the settings UTXO.
    */
   public async getMaxScooperFeeAmount(): Promise<bigint> {
-    // Patch to set the max scooper fee to 1ADA to avoid out of range orders being stuck after Wednesday.
-    return 1_000_000n;
+    const [settings] = await this.getAllSettingsUtxos();
+    const datum = settings.output().datum()?.asInlineData();
+    if (!datum) {
+      return 1_000_000n;
+    }
 
-    // const [settings] = await this.getAllSettingsUtxos();
-    // if (!settings) {
-    //   return 1_000_000n;
-    // }
+    const { baseFee, simpleFee } = Data.from(datum, SettingsDatum);
 
-    // const { baseFee, simpleFee } = Data.from(
-    //   settings.datum as string,
-    //   SettingsDatum
-    // );
-
-    // return baseFee + simpleFee;
+    return baseFee + simpleFee;
   }
 
   /**

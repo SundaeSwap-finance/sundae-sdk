@@ -72,7 +72,7 @@ export const settingsUtxosLucid: UTxO[] = [
     datumHash:
       "f3e8fdd6ae16e82b01bd86c099fa36327a7fc86dfa30bc1533216f7874c7f788",
     datum:
-      "d8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ffd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ff9f010affd8799f9f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffff9fd87a9f581c7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808ffff1a000510e01a000290401a000290400000ff",
+      "d8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ffd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ff9f010affd8799f9f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffff9fd87a9f581c7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808ffff1a000510e01a000a31601a000290400000ff",
     scriptRef: null,
     txHash: "45ae0839622478c3ed2fbf5eea03c54ca3fd57607b7a2660445166ea8a42d98c",
   },
@@ -95,9 +95,6 @@ export const settingsUtxosBlaze: Core.TransactionUnspentOutput[] =
           datum: utxo.datum
             ? Core.PlutusData.fromCbor(Core.HexBlob(utxo.datum)).toCore()
             : undefined,
-          // datumHash: utxo.datumHash
-          //   ? Core.Hash32ByteBase16(utxo.datumHash)
-          //   : undefined,
         })
       )
   );

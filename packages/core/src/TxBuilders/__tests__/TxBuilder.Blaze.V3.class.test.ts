@@ -29,10 +29,6 @@ import { AssetAmount } from "@sundaeswap/asset";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
-import {
-  SettingsDatum,
-  TSettingsDatum,
-} from "../../DatumBuilders/ContractTypes/Contract.Blaze.v3.js";
 import { DatumBuilderBlazeV3 } from "../../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
 import {
   ADA_METADATA,
@@ -103,36 +99,6 @@ describe("TxBuilderBlazeV3", () => {
   it("should get the correct maxScooperFee", async () => {
     const result = await builder.getMaxScooperFeeAmount();
     expect(result.toString()).toEqual("1000000");
-
-    const oldSettingsDatum = Data.from(
-      settingsUtxosBlaze[0].output().datum()?.asInlineData() as Core.PlutusData,
-      SettingsDatum
-    );
-    const newSettingsDatum: TSettingsDatum = {
-      ...oldSettingsDatum,
-      simpleFee: 0n,
-    };
-
-    jest
-      .spyOn(TxBuilderBlazeV3.prototype, "getAllSettingsUtxos")
-      .mockResolvedValue([
-        Core.TransactionUnspentOutput.fromCore([
-          settingsUtxosBlaze[0].input().toCore(),
-          {
-            ...settingsUtxosBlaze[0].output().toCore(),
-            datum: Data.to(newSettingsDatum, SettingsDatum).toCore(),
-          },
-        ]),
-        ...settingsUtxosBlaze.slice(1),
-      ]);
-
-    const result2 = await builder.getMaxScooperFeeAmount();
-    expect(result2.toString()).toEqual("1000000");
-
-    // Reset scooper fee
-    jest
-      .spyOn(TxBuilderBlazeV3.prototype, "getAllSettingsUtxos")
-      .mockResolvedValue(settingsUtxosBlaze);
   });
 
   it("should create a new transaction instance correctly", async () => {
