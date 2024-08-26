@@ -787,32 +787,32 @@ describe("TxBuilderBlazeV3", () => {
 
     const poolBalanceDatum = builtTx.witnessSet().redeemers()?.values()?.[0];
 
-    // expect(poolBalanceDatum).not.toBeUndefined();
-    // expect(poolBalanceDatum?.toCbor()).toEqual(
-    //   "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a000b4af51a121ba48c"
-    // );
+    expect(poolBalanceDatum).not.toBeUndefined();
+    expect(poolBalanceDatum?.toCbor()).toEqual(
+      "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0009c4751a0cc6beab"
+    );
 
-    // /**
-    //  * The pool output should be the first in the outputs.
-    //  */
-    // const poolOutput = builtTx.body().outputs()[0];
-    // expect(poolOutput.toCbor()).toEqual(
-    //   "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
-    // );
-    // const poolDepositAssets = poolOutput.amount().multiasset();
-    // const poolDepositedAssetA = poolOutput.amount().coin().toString();
-    // const poolDepositedAssetB = poolDepositAssets?.get(
-    //   Core.AssetId(PREVIEW_DATA.assets.tindy.metadata.assetId.replace(".", ""))
-    // );
-    // const poolDepositedNFT = poolDepositAssets?.get(
-    //   Core.AssetId(
-    //     "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
-    //   )
-    // );
+    /**
+     * The pool output should be the first in the outputs.
+     */
+    const poolOutput = builtTx.body().outputs()[0];
+    expect(poolOutput.toCbor()).toEqual(
+      "a30058393044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f880801821a015ef3c0a2581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a01312d00028201d818585ed8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+    );
+    const poolDepositAssets = poolOutput.amount().multiasset();
+    const poolDepositedAssetA = poolOutput.amount().coin().toString();
+    const poolDepositedAssetB = poolDepositAssets?.get(
+      Core.AssetId(PREVIEW_DATA.assets.tindy.metadata.assetId.replace(".", ""))
+    );
+    const poolDepositedNFT = poolDepositAssets?.get(
+      Core.AssetId(
+        "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
+      )
+    );
 
-    // [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(
-    //   (val) => expect(val).not.toBeUndefined()
-    // );
+    [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(
+      (val) => expect(val).not.toBeUndefined()
+    );
     // // Should deposit assets without additional ADA.
     // expect(poolDepositedAssetA).toEqual(
     //   (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString()

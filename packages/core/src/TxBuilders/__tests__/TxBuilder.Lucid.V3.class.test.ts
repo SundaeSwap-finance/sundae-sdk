@@ -769,7 +769,7 @@ describe("TxBuilderLucidV3", () => {
     expect(
       Buffer.from(poolOutput.address().to_bytes()).toString("hex")
     ).toEqual(
-      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
+      "3044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
     );
     const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
     const poolDepositedAssetA = poolOutput.amount().coin().to_str();
@@ -779,7 +779,7 @@ describe("TxBuilderLucidV3", () => {
       ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]];
     const poolDepositedNFT =
       poolDepositAssets[
-        "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
+        "44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414"
       ]["000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"];
 
     [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(
@@ -889,7 +889,7 @@ describe("TxBuilderLucidV3", () => {
     expect(
       Buffer.from(poolOutput.address().to_bytes()).toString("hex")
     ).toEqual(
-      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
+      "3044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
     );
     const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
     const poolDepositedAssetA = poolOutput.amount().coin().to_str();
@@ -899,7 +899,7 @@ describe("TxBuilderLucidV3", () => {
       ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]];
     const poolDepositedNFT =
       poolDepositAssets[
-        "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
+        "44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414"
       ]["000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"];
 
     [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(
@@ -1012,7 +1012,7 @@ describe("TxBuilderLucidV3", () => {
     expect(
       Buffer.from(poolOutput.address().to_bytes()).toString("hex")
     ).toEqual(
-      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
+      "3044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
     );
     const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
     const poolDepositedAssetA = poolOutput.amount().coin().to_str();
@@ -1022,7 +1022,7 @@ describe("TxBuilderLucidV3", () => {
       ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]];
     const poolDepositedNFT =
       poolDepositAssets[
-        "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
+        "44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414"
       ]["000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"];
 
     [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(
@@ -1162,7 +1162,7 @@ describe("TxBuilderLucidV3", () => {
     expect(
       Buffer.from(poolOutput.address().to_bytes()).toString("hex")
     ).toEqual(
-      "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
+      "3044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
     );
     const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
     // const poolDepositedAssetA = poolOutput.amount().coin().to_str();
@@ -1176,7 +1176,7 @@ describe("TxBuilderLucidV3", () => {
       ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]];
     const poolDepositedNFT =
       poolDepositAssets[
-        "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
+        "44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414"
       ]["000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"];
 
     [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(

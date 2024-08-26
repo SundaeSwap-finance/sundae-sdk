@@ -461,7 +461,6 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     );
 
     const tx = this.newTxInstance(referralFee);
-
     const mints = new Map<Core.AssetName, bigint>();
     mints.set(Core.AssetName(nftAssetName), 1n);
     mints.set(Core.AssetName(refAssetName), 1n);
@@ -471,13 +470,6 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       tx.addReferenceInput(utxo);
     });
     userUtxos.forEach((utxo) => tx.addInput(utxo));
-
-    /**
-     * @TODO adds the reference script for minting.
-     */
-    // const input = this.blaze.provider.resolveUnspentOutputs([
-    //   new Core.TransactionInput(Core.TransactionId())
-    // ])
 
     // Mint our assets.
     tx.addMint(
