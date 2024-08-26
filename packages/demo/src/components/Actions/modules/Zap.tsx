@@ -7,8 +7,14 @@ import Button from "../../Button";
 import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
 
 export const Zap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, ready, activeWalletAddr, useReferral, useV3Contracts } =
-    useAppState();
+  const {
+    SDK,
+    ready,
+    builderLib,
+    activeWalletAddr,
+    useReferral,
+    useV3Contracts,
+  } = useAppState();
   const [zapping, setZapping] = useState(false);
 
   const handleZap = useCallback(async () => {
@@ -23,7 +29,8 @@ export const Zap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       );
 
       await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
+        builderLib
       )
         .zap({
           pool,

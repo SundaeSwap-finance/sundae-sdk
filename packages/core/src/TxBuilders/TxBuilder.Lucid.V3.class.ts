@@ -30,28 +30,27 @@ import type {
   TSupportedNetworks,
 } from "../@types/index.js";
 import { EContractVersion, EDatumType, ESwapType } from "../@types/index.js";
-import { TxBuilder } from "../Abstracts/TxBuilder.abstract.class.js";
+import { TxBuilderV3 } from "../Abstracts/TxBuilderV3.abstract.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { MintV3PoolConfig } from "../Configs/MintV3PoolConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
-import { DatumBuilderLucidV1 } from "../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
-import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import {
   OrderDatum,
   SettingsDatum,
-} from "../DatumBuilders/contracts/contracts.v3.js";
-import { V3Types } from "../DatumBuilders/contracts/index.js";
+} from "../DatumBuilders/ContractTypes/Contract.Lucid.v3.js";
+import { V3Types } from "../DatumBuilders/ContractTypes/index.js";
+import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
+  CANCEL_REDEEMER,
   ORDER_DEPOSIT_DEFAULT,
   ORDER_ROUTE_DEPOSIT_DEFAULT,
   POOL_MIN_ADA,
-  VOID_REDEEMER,
 } from "../constants.js";
 import { TxBuilderLucidV1 } from "./TxBuilder.Lucid.V1.class.js";
 
@@ -69,20 +68,14 @@ interface ITxBuilderLucidCompleteTxArgs {
 }
 
 /**
- * Interface describing the parameter names for the transaction builder.
- */
-export interface ITxBuilderV3Params {
-  cancelRedeemer: string;
-}
-
-/**
  * `TxBuilderLucidV3` is a class extending `TxBuilder` to support transaction construction
  * for Lucid against the V3 SundaeSwap protocol. It includes capabilities to build and execute various transaction types
  * such as swaps, cancellations, updates, deposits, withdrawals, and zaps.
  *
- * @implements {TxBuilder}
+ * @implements {TxBuilderV3}
  */
-export class TxBuilderLucidV3 extends TxBuilder {
+export class TxBuilderLucidV3 extends TxBuilderV3 {
+  datumBuilder: DatumBuilderLucidV3;
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
@@ -96,15 +89,16 @@ export class TxBuilderLucidV3 extends TxBuilder {
 
   /**
    * @param {Lucid} lucid A configured Lucid instance to use.
-   * @param {DatumBuilderLucidV3} datumBuilder A valid V3 DatumBuilder class that will build valid datums.
+   * @param {TSupportedNetworks} network The network to build transactions on.
    */
   constructor(
     public lucid: Lucid,
-    public datumBuilder: DatumBuilderLucidV3,
+    network: TSupportedNetworks,
     queryProvider?: QueryProviderSundaeSwap
   ) {
     super();
     this.network = lucid.network === "Mainnet" ? "mainnet" : "preview";
+    this.datumBuilder = new DatumBuilderLucidV3(network);
     this.queryProvider =
       queryProvider ?? new QueryProviderSundaeSwap(this.network);
   }
@@ -425,13 +419,13 @@ export class TxBuilderLucidV3 extends TxBuilder {
       );
 
       if (donateToTreasury === 100n) {
-        tx.payToContract(realTreasuryAddress, Data.void(), {
+        tx.payToAddressWithData(realTreasuryAddress, Data.void(), {
           lovelace: ORDER_DEPOSIT_DEFAULT,
           [poolLqNameHex]: circulatingLp,
         });
       } else {
         const donation = (circulatingLp * donateToTreasury) / 100n;
-        tx.payToContract(realTreasuryAddress, Data.void(), {
+        tx.payToAddressWithData(realTreasuryAddress, Data.void(), {
           lovelace: ORDER_DEPOSIT_DEFAULT,
           [poolLqNameHex]: donation,
         });
@@ -502,10 +496,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     });
 
     let scooperFee = await this.getMaxScooperFeeAmount();
-    const v1TxBUilder = new TxBuilderLucidV1(
-      this.lucid,
-      new DatumBuilderLucidV1(this.network)
-    );
+    const v1TxBUilder = new TxBuilderLucidV1(this.lucid, this.network);
     const v1Address = await v1TxBUilder
       .getValidatorScript("escrow.spend")
       .then(({ compiledCode }) =>
@@ -562,7 +553,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     const isSecondSwapV1 = args.swapB.pool.version === EContractVersion.V1;
 
     const secondSwapBuilder = isSecondSwapV1
-      ? new TxBuilderLucidV1(this.lucid, new DatumBuilderLucidV1(this.network))
+      ? new TxBuilderLucidV1(this.lucid, this.network)
       : this;
     const secondSwapAddress = isSecondSwapV1
       ? await (secondSwapBuilder as TxBuilderLucidV1)
@@ -675,7 +666,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       tx.attachMetadataWithConversion(103251, {
         [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
           secondSwapData.datum as string,
-          "0x"
+          true
         ),
       });
     }
@@ -734,10 +725,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       Data.from(spendingDatum as string, OrderDatum);
     } catch (e) {
       console.log("This is a V1 order! Calling appropriate builder...");
-      const v1Builder = new TxBuilderLucidV1(
-        this.lucid,
-        new DatumBuilderLucidV1(this.network)
-      );
+      const v1Builder = new TxBuilderLucidV1(this.lucid, this.network);
       return v1Builder.cancel({ ...cancelArgs });
     }
 
@@ -749,7 +737,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
       },
     ]);
 
-    tx.collectFrom(utxosToSpend, VOID_REDEEMER).readFrom(cancelReadFrom);
+    tx.collectFrom(utxosToSpend, CANCEL_REDEEMER).readFrom(cancelReadFrom);
 
     const signerKey = DatumBuilderLucidV3.getSignerKeyFromDatum(spendingDatum);
     if (signerKey) {
@@ -1062,7 +1050,7 @@ export class TxBuilderLucidV3 extends TxBuilder {
     tx.attachMetadataWithConversion(103251, {
       [`0x${depositData.hash}`]: SundaeUtils.splitMetadataString(
         depositData.inline,
-        "0x"
+        true
       ),
     });
 

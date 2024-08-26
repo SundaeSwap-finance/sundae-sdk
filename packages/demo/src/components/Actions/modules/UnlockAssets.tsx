@@ -1,7 +1,9 @@
 import { AssetAmount } from "@sundaeswap/asset";
+import type { YieldFarmingBlaze } from "@sundaeswap/yield-farming/blaze";
+import type { YieldFarmingLucid } from "@sundaeswap/yield-farming/lucid";
 import { FC, useCallback, useState } from "react";
 
-import { YieldFarmingLucid } from "@sundaeswap/yield-farming";
+import { ETxBuilderType } from "@sundaeswap/core";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs } from "../Actions";
@@ -12,6 +14,8 @@ export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     ready,
     activeWalletAddr: walletAddress,
     useReferral,
+    builderLib,
+    network,
   } = useAppState();
   const [unlocking, setUnlocking] = useState(false);
 
@@ -20,16 +24,52 @@ export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       return;
     }
 
-    const YF = new YieldFarmingLucid(SDK.builder().lucid);
+    let YF: YieldFarmingBlaze | YieldFarmingLucid | undefined;
+
+    switch (builderLib) {
+      case ETxBuilderType.LUCID: {
+        const lucid = SDK.lucid();
+        if (!lucid) {
+          return;
+        }
+
+        const { YieldFarmingLucid } = await import(
+          "@sundaeswap/yield-farming/lucid"
+        );
+        YF = new YieldFarmingLucid(lucid);
+        break;
+      }
+      case ETxBuilderType.BLAZE: {
+        const blaze = SDK.blaze();
+        if (!blaze) {
+          return;
+        }
+
+        const { YieldFarmingBlaze } = await import(
+          "@sundaeswap/yield-farming/blaze"
+        );
+        YF = new YieldFarmingBlaze(blaze, network);
+        break;
+      }
+      default:
+        throw new Error("No TxBuilder type defined.");
+    }
 
     setUnlocking(true);
+    const hash = prompt("Hash:");
+    const id = prompt("Index:");
+
+    if (!hash || !id) {
+      throw new Error("Need a position to withdraw.");
+    }
+
     try {
       await YF.unlock({
         ownerAddress: walletAddress,
         existingPositions: [
           {
-            hash: "d211adc4de0633448eab33aa5292a97d4dc0815ce4d17114c9d850959800d6b3",
-            index: 0,
+            hash,
+            index: Number(id),
           },
         ],
         ...(useReferral
@@ -67,7 +107,7 @@ export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setUnlocking(false);
-  }, [SDK, submit, walletAddress, useReferral]);
+  }, [SDK, submit, walletAddress, useReferral, builderLib, network]);
 
   if (!SDK) {
     return null;

@@ -1,3 +1,4 @@
+import type { Blaze, Blockfrost, WebWallet } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { Lucid } from "lucid-cardano";
 
@@ -59,6 +60,7 @@ export interface ITxBuilderReferralFee {
  */
 export enum ETxBuilderType {
   LUCID = "lucid",
+  BLAZE = "blaze",
 }
 
 /**
@@ -70,9 +72,17 @@ export interface ILucidBuilder {
 }
 
 /**
+ * The interface to describe a Blaze builder type.
+ */
+export interface IBlazeBuilder {
+  type: ETxBuilderType.BLAZE;
+  blaze: Blaze<Blockfrost, WebWallet>;
+}
+
+/**
  * The union type to hold all possible builder types.
  */
-export type TWalletBuilder = ILucidBuilder;
+export type TWalletBuilder = ILucidBuilder | IBlazeBuilder;
 
 /**
  * The contract version to be used when building transactions

@@ -30,22 +30,22 @@ import {
   TDepositMixed,
   TSupportedNetworks,
 } from "../@types/index.js";
-import { TxBuilder } from "../Abstracts/TxBuilder.abstract.class.js";
+import { TxBuilderV1 } from "../Abstracts/TxBuilderV1.abstract.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
+import { OrderDatum } from "../DatumBuilders/ContractTypes/Contract.Lucid.v3.js";
 import { DatumBuilderLucidV1 } from "../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
-import { OrderDatum } from "../DatumBuilders/contracts/contracts.v3.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { LucidHelper } from "../Utilities/LucidHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
+  CANCEL_REDEEMER,
   ORDER_DEPOSIT_DEFAULT,
-  VOID_REDEEMER,
 } from "../constants.js";
 import { TxBuilderLucidV3 } from "./TxBuilder.Lucid.V3.class.js";
 
@@ -64,7 +64,7 @@ export interface ITxBuilderLucidCompleteTxArgs {
 /**
  * Interface describing the parameter names for the transaction builder.
  */
-export interface ITxBuilderV1Params {
+export interface ITxBuilderV1LucidParams {
   cancelRedeemer: string;
   maxScooperFee: bigint;
 }
@@ -75,35 +75,37 @@ export interface ITxBuilderV1Params {
  * such as swaps, cancellations, updates, deposits, withdrawals, zaps, and liquidity migrations to
  * the V3 contracts (it is recommended to utilize V3 contracts if possible: {@link Lucid.TxBuilderLucidV3}).
  *
- * @implements {TxBuilder}
+ * @implements {TxBuilderV1}
  */
-export class TxBuilderLucidV1 extends TxBuilder {
+export class TxBuilderLucidV1 extends TxBuilderV1 {
+  datumBuilder: DatumBuilderLucidV1;
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
 
-  static PARAMS: Record<TSupportedNetworks, ITxBuilderV1Params> = {
+  static PARAMS: Record<TSupportedNetworks, ITxBuilderV1LucidParams> = {
     mainnet: {
-      cancelRedeemer: VOID_REDEEMER,
+      cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
     preview: {
-      cancelRedeemer: VOID_REDEEMER,
+      cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
   };
 
   /**
    * @param {Lucid} lucid A configured Lucid instance to use.
-   * @param {DatumBuilderLucidV1} datumBuilder A valid V1 DatumBuilder class that will build valid datums.
+   * @param {TSupportedNetworks} network The network to build transactions on.
    */
   constructor(
     public lucid: Lucid,
-    public datumBuilder: DatumBuilderLucidV1,
+    network: TSupportedNetworks,
     queryProvider?: QueryProviderSundaeSwap
   ) {
     super();
-    this.network = lucid.network === "Mainnet" ? "mainnet" : "preview";
+    this.network = network;
+    this.datumBuilder = new DatumBuilderLucidV1(network);
     this.queryProvider =
       queryProvider ?? new QueryProviderSundaeSwap(this.network);
   }
@@ -156,14 +158,14 @@ export class TxBuilderLucidV1 extends TxBuilder {
   /**
    * Helper method to get a specific parameter of the transaction builder.
    *
-   * @param {K extends keyof ITxBuilderV1Params} param The parameter you want to retrieve.
+   * @param {K extends keyof ITxBuilderV1LucidParams} param The parameter you want to retrieve.
    * @param {TSupportedNetworks} network The protocol network.
-   * @returns {ITxBuilderV1Params[K]}
+   * @returns {ITxBuilderV1LucidParams[K]}
    */
-  static getParam<K extends keyof ITxBuilderV1Params>(
+  static getParam<K extends keyof ITxBuilderV1LucidParams>(
     param: K,
     network: TSupportedNetworks
-  ): ITxBuilderV1Params[K] {
+  ): ITxBuilderV1LucidParams[K] {
     return TxBuilderLucidV1.PARAMS[network][param];
   }
 
@@ -171,11 +173,11 @@ export class TxBuilderLucidV1 extends TxBuilder {
    * An internal shortcut method to avoid having to pass in the network all the time.
    *
    * @param param The parameter you want to retrieve.
-   * @returns {ITxBuilderV1Params}
+   * @returns {ITxBuilderV1LucidParams}
    */
-  public __getParam<K extends keyof ITxBuilderV1Params>(
+  public __getParam<K extends keyof ITxBuilderV1LucidParams>(
     param: K
-  ): ITxBuilderV1Params[K] {
+  ): ITxBuilderV1LucidParams[K] {
     return TxBuilderLucidV1.getParam(param, this.network);
   }
 
@@ -259,10 +261,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
     });
 
     let scooperFee = this.__getParam("maxScooperFee");
-    const v3TxBuilder = new TxBuilderLucidV3(
-      this.lucid,
-      new DatumBuilderLucidV3(this.network)
-    );
+    const v3TxBuilder = new TxBuilderLucidV3(this.lucid, this.network);
 
     const v3Address = await v3TxBuilder.generateScriptAddress(
       "order.spend",
@@ -310,8 +309,8 @@ export class TxBuilderLucidV1 extends TxBuilder {
     const isSecondSwapV3 = args.swapB.pool.version === EContractVersion.V3;
 
     const secondSwapBuilder = isSecondSwapV3
-      ? new TxBuilderLucidV3(this.lucid, new DatumBuilderLucidV3(this.network))
-      : this;
+      ? new TxBuilderLucidV3(this.lucid, this.network)
+      : new TxBuilderLucidV1(this.lucid, this.network);
     const secondSwapAddress = isSecondSwapV3
       ? await (secondSwapBuilder as TxBuilderLucidV3).generateScriptAddress(
           "order.spend",
@@ -420,7 +419,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
     tx.attachMetadataWithConversion(103251, {
       [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
         secondSwapData.datum as string,
-        "0x"
+        true
       ),
     });
 
@@ -487,10 +486,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
     try {
       Data.from(spendingDatum as string, OrderDatum);
       console.log("This is a V3 order! Calling appropriate builder...");
-      const v3Builder = new TxBuilderLucidV3(
-        this.lucid,
-        new DatumBuilderLucidV3(this.network)
-      );
+      const v3Builder = new TxBuilderLucidV3(this.lucid, this.network);
       return v3Builder.cancel({ ...cancelArgs });
     } catch (e) {}
 
@@ -858,7 +854,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
     tx.attachMetadataWithConversion(103251, {
       [`0x${depositHash}`]: SundaeUtils.splitMetadataString(
         depositInline,
-        "0x"
+        true
       ),
     });
 
@@ -933,7 +929,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
     const metadataDatums: Record<string, string[]> = {};
     const v3TxBuilderInstance = new TxBuilderLucidV3(
       this.lucid,
-      new DatumBuilderLucidV3(this.network),
+      this.network,
       this.queryProvider
     );
     const v3OrderScriptAddress =
@@ -1018,7 +1014,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
     ) {
       finalTx
         .readFrom(yfRefInput)
-        .collectFrom(existingPositionsData, VOID_REDEEMER);
+        .collectFrom(existingPositionsData, CANCEL_REDEEMER);
 
       const withdrawAssetsList = yieldFarming.migrations.reduce(
         (list, { withdrawPool }) => {
@@ -1166,7 +1162,7 @@ export class TxBuilderLucidV1 extends TxBuilder {
 
       metadataDatums[`0x${depositHash}`] = SundaeUtils.splitMetadataString(
         depositInline,
-        "0x"
+        true
       );
 
       tx.payToContract(scriptAddress, withdrawInline, payment);

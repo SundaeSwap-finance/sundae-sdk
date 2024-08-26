@@ -2,7 +2,7 @@
 
 [Core](../modules/Core.md).SwapConfig
 
-The `SwapConfig` class helps to properly format your swap arguments for use within [Core.TxBuilder](Core.TxBuilder.md).
+The `SwapConfig` class helps to properly format your swap arguments for use within [Core.TxBuilderV1](Core.TxBuilderV1.md) or [Core.TxBuilderV3](Core.TxBuilderV3.md).
 
 **`Example`**
 
@@ -32,7 +32,7 @@ const { submit, cbor } = await SDK.swap(config);
 
 ### orderAddresses
 
-• `Optional` **orderAddresses**: [`TOrderAddresses`](../modules/Core.md#torderaddresses)
+• `Optional` **orderAddresses**: [`TOrderAddressesArgs`](../modules/Core.md#torderaddressesargs)
 
 The addresses for the order.
 
@@ -92,14 +92,14 @@ Useful for when building Transactions directly from the builder instance.
 | Name | Type |
 | :------ | :------ |
 | `minReceivable` | `AssetAmount`\<`IAssetAmountMetadata`\> |
-| `orderAddresses` | [`TOrderAddresses`](../modules/Core.md#torderaddresses) |
+| `orderAddresses` | [`TOrderAddressesArgs`](../modules/Core.md#torderaddressesargs) |
 | `pool` | [`IPoolData`](../interfaces/Core.IPoolData.md) |
 | `referralFee` | `undefined` \| [`ITxBuilderReferralFee`](../interfaces/Core.ITxBuilderReferralFee.md) |
 | `suppliedAsset` | `AssetAmount`\<`IAssetAmountMetadata`\> |
 
 **`See`**
 
-[Core.TxBuilder](Core.TxBuilder.md)
+[Core.TxBuilderV1](Core.TxBuilderV1.md) or [Core.TxBuilderV3](Core.TxBuilderV3.md)
 
 #### Overrides
 
@@ -163,13 +163,13 @@ ___
 
 ▸ **setOrderAddresses**(`orderAddresses`): [`SwapConfig`](Core.SwapConfig.md)
 
-Set the [Core.TOrderAddresses](../modules/Core.md#torderaddresses) for a swap's required datum.
+Set the addresses for a swap's required datum.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `orderAddresses` | [`TOrderAddresses`](../modules/Core.md#torderaddresses) | The addresses for the order. |
+| `orderAddresses` | [`TOrderAddressesArgs`](../modules/Core.md#torderaddressesargs) | The addresses for the order. |
 
 #### Returns
 

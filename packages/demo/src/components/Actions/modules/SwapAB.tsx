@@ -17,6 +17,7 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     activeWalletAddr: walletAddress,
     useReferral,
     useV3Contracts,
+    builderLib,
   } = useAppState();
   const [reverseSwapping, setReverseSwapping] = useState(false);
 
@@ -32,8 +33,9 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       );
       const args: ISwapConfigArgs = {
         swapType: {
-          type: ESwapType.MARKET,
-          slippage: 0.03,
+          type: ESwapType.LIMIT,
+          // slippage: 0.03,
+          minReceivable: new AssetAmount(9_000_000n, pool.assetB),
         },
         pool,
         orderAddresses: {
@@ -60,7 +62,8 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       }
 
       await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
+        builderLib
       )
         .swap(args)
         .then(async ({ build, fees }) => {
@@ -83,7 +86,15 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setReverseSwapping(false);
-  }, [SDK, submit, walletAddress, useReferral, useV3Contracts, poolQuery]);
+  }, [
+    SDK,
+    submit,
+    walletAddress,
+    useReferral,
+    useV3Contracts,
+    poolQuery,
+    builderLib,
+  ]);
 
   if (!SDK) {
     return null;

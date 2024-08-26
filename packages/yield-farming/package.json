@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/yield-farming",
-  "version": "1.0.39",
+  "version": "1.1.0",
   "description": "The official SundaeSwap Yield Farming SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {
@@ -23,12 +23,33 @@
     "package.json"
   ],
   "type": "module",
-  "types": "dist/types/index.d.ts",
+  "main": "dist/exports/cjs/exports/index.js",
+  "types": "dist/types/exports/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "lucid": [
+        "./dist/types/exports/lucid.d.ts"
+      ],
+      "blaze": [
+        "./dist/types/exports/blaze.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/types/index.d.ts"
+      "import": "./dist/esm/exports/index.js",
+      "require": "./dist/cjs/exports/index.js",
+      "types": "./dist/types/exports/index.d.ts"
+    },
+    "./lucid": {
+      "import": "./dist/esm/exports/lucid.js",
+      "require": "./dist/cjs/exports/lucid.js",
+      "types": "./dist/types/exports/lucid.d.ts"
+    },
+    "./blaze": {
+      "import": "./dist/esm/exports/blaze.js",
+      "require": "./dist/cjs/exports/blaze.js",
+      "types": "./dist/types/exports/blaze.d.ts"
     }
   },
   "scripts": {
@@ -45,6 +66,7 @@
     "docs:ci": "yarn docs --unsafe"
   },
   "devDependencies": {
+    "@blaze-cardano/emulator": "^0.1.50",
     "@sundaeswap/core": "^1.2.9",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^14.3.0",
@@ -59,6 +81,7 @@
     "typescript": "^4.6.4"
   },
   "peerDependencies": {
+    "@blaze-cardano/sdk": "^0.1.7",
     "@sundaeswap/asset": "^1.0.2",
     "@sundaeswap/core": "^1.1.12",
     "lucid-cardano": "^0.10.7"

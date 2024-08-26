@@ -67,7 +67,7 @@ export class GummiWormLucid implements GummiWorm {
   };
 
   constructor(public sdk: SundaeSDK) {
-    const lucid = sdk.builder().lucid;
+    const lucid = sdk.lucid();
     if (!lucid) {
       throw new Error(
         "A lucid instance is required. Ensure that you have a builder set up in your SDK."
@@ -119,14 +119,21 @@ export class GummiWormLucid implements GummiWorm {
       orderDeposit: this.getParam("minLockAda"),
     });
 
-    const wallet = this.sdk.builder().lucid.wallet;
+    const lucid = this.sdk.lucid();
+    if (!lucid) {
+      throw new Error(
+        "Lucid is not available. Are you using a different builder?"
+      );
+    }
+
+    const wallet = lucid.wallet;
     if (!wallet) {
       throw new Error(
         "A wallet was not initialized in your Lucid instance. Please select a wallet, and then try again."
       );
     }
 
-    const txInstance = this.sdk.builder().lucid.newTx();
+    const txInstance = lucid.newTx();
     const { inline } = this.datumBuilder.buildDepositDatum({
       address: depositArgs.address ?? (await wallet.address()),
     });

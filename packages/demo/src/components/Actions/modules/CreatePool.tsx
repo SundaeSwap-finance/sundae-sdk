@@ -8,8 +8,14 @@ import Button from "../../Button";
 import { IActionArgs } from "../Actions";
 
 export const CreatePool: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, ready, activeWalletAddr, useReferral, useV3Contracts } =
-    useAppState();
+  const {
+    SDK,
+    builderLib,
+    ready,
+    activeWalletAddr,
+    useReferral,
+    useV3Contracts,
+  } = useAppState();
   const [createPooling, setCreatePooling] = useState(false);
 
   const handleCreatePool = useCallback(async () => {
@@ -19,7 +25,7 @@ export const CreatePool: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
 
     setCreatePooling(true);
     try {
-      await SDK.builder(EContractVersion.V3)
+      await SDK.builder(EContractVersion.V3, builderLib)
         .mintPool({
           assetA: PREVIEW_DATA.assets.tada,
           assetB: PREVIEW_DATA.assets.tindy,

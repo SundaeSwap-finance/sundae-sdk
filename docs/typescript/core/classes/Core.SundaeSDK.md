@@ -43,13 +43,29 @@ Builds a class instance using the arguments specified.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:55](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L55)
+[packages/core/src/SundaeSDK.class.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L70)
 
 ## Methods
 
+### blaze
+
+▸ **blaze**(): `undefined` \| `Blaze`\<`Blockfrost`, `WebWallet`\> \| `Blaze`\<`EmulatorProvider`, `ColdWallet`\>
+
+Helper method to retrieve a blaze instance.
+
+#### Returns
+
+`undefined` \| `Blaze`\<`Blockfrost`, `WebWallet`\> \| `Blaze`\<`EmulatorProvider`, `ColdWallet`\>
+
+#### Defined in
+
+[packages/core/src/SundaeSDK.class.ts:250](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L250)
+
+___
+
 ### builder
 
-▸ **builder**(`contractVersion`): [`TxBuilderLucidV1`](Lucid.TxBuilderLucidV1.md)
+▸ **builder**(`contractVersion`): [`TxBuilderV1`](Core.TxBuilderV1.md)
 
 Creates the appropriate transaction builder by which you can create valid transactions.
 
@@ -61,13 +77,13 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Returns
 
-[`TxBuilderLucidV1`](Lucid.TxBuilderLucidV1.md)
+[`TxBuilderV1`](Core.TxBuilderV1.md)
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:124](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L124)
+[packages/core/src/SundaeSDK.class.ts:165](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L165)
 
-▸ **builder**(`contractVersion`): [`TxBuilderLucidV3`](Lucid.TxBuilderLucidV3.md)
+▸ **builder**(`contractVersion`): [`TxBuilderV3`](Core.TxBuilderV3.md)
 
 Creates the appropriate transaction builder by which you can create valid transactions.
 
@@ -79,13 +95,82 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Returns
 
-[`TxBuilderLucidV3`](Lucid.TxBuilderLucidV3.md)
+[`TxBuilderV3`](Core.TxBuilderV3.md)
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:125](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L125)
+[packages/core/src/SundaeSDK.class.ts:166](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L166)
 
-▸ **builder**(`contractVersion?`): [`TxBuilderLucidV3`](Lucid.TxBuilderLucidV3.md) \| [`TxBuilderLucidV1`](Lucid.TxBuilderLucidV1.md)
+▸ **builder**(`contractVersion`, `txBuilderType?`): [`TxBuilderV1`](Core.TxBuilderV1.md)
+
+Creates the appropriate transaction builder by which you can create valid transactions.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `contractVersion` | [`V1`](../enums/Core.EContractVersion.md#v1) |
+| `txBuilderType?` | [`ETxBuilderType`](../enums/Core.ETxBuilderType.md) |
+
+#### Returns
+
+[`TxBuilderV1`](Core.TxBuilderV1.md)
+
+#### Defined in
+
+[packages/core/src/SundaeSDK.class.ts:167](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L167)
+
+▸ **builder**(`contractVersion`, `txBuilderType?`): [`TxBuilderV3`](Core.TxBuilderV3.md)
+
+Creates the appropriate transaction builder by which you can create valid transactions.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `contractVersion` | [`V3`](../enums/Core.EContractVersion.md#v3) |
+| `txBuilderType?` | [`ETxBuilderType`](../enums/Core.ETxBuilderType.md) |
+
+#### Returns
+
+[`TxBuilderV3`](Core.TxBuilderV3.md)
+
+#### Defined in
+
+[packages/core/src/SundaeSDK.class.ts:171](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L171)
+
+▸ **builder**(`contractVersion`, `txBuilderType`): [`TxBuilderV3`](Core.TxBuilderV3.md)
+
+Creates the appropriate transaction builder by which you can create valid transactions.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `contractVersion` | [`V3`](../enums/Core.EContractVersion.md#v3) |
+| `txBuilderType` | [`ETxBuilderType`](../enums/Core.ETxBuilderType.md) |
+
+#### Returns
+
+[`TxBuilderV3`](Core.TxBuilderV3.md)
+
+#### Defined in
+
+[packages/core/src/SundaeSDK.class.ts:175](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L175)
+
+▸ **builder**(): [`TxBuilderV3`](Core.TxBuilderV3.md)
+
+Creates the appropriate transaction builder by which you can create valid transactions.
+
+#### Returns
+
+[`TxBuilderV3`](Core.TxBuilderV3.md)
+
+#### Defined in
+
+[packages/core/src/SundaeSDK.class.ts:179](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L179)
+
+▸ **builder**(`contractVersion?`, `txBuilderType?`): [`TxBuilderV1`](Core.TxBuilderV1.md) \| [`TxBuilderV3`](Core.TxBuilderV3.md)
 
 Creates the appropriate transaction builder by which you can create valid transactions.
 
@@ -94,14 +179,15 @@ Creates the appropriate transaction builder by which you can create valid transa
 | Name | Type |
 | :------ | :------ |
 | `contractVersion?` | [`EContractVersion`](../enums/Core.EContractVersion.md) |
+| `txBuilderType?` | [`ETxBuilderType`](../enums/Core.ETxBuilderType.md) |
 
 #### Returns
 
-[`TxBuilderLucidV3`](Lucid.TxBuilderLucidV3.md) \| [`TxBuilderLucidV1`](Lucid.TxBuilderLucidV1.md)
+[`TxBuilderV1`](Core.TxBuilderV1.md) \| [`TxBuilderV3`](Core.TxBuilderV3.md)
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:126](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L126)
+[packages/core/src/SundaeSDK.class.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L180)
 
 ___
 
@@ -117,7 +203,23 @@ Utility method to retrieve the SDK options object.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:119](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L119)
+[packages/core/src/SundaeSDK.class.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L160)
+
+___
+
+### lucid
+
+▸ **lucid**(): `undefined` \| `Lucid`
+
+Helper method to retrieve a Lucid instance.
+
+#### Returns
+
+`undefined` \| `Lucid`
+
+#### Defined in
+
+[packages/core/src/SundaeSDK.class.ts:233](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L233)
 
 ___
 
@@ -135,13 +237,13 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:159](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L159)
+[packages/core/src/SundaeSDK.class.ts:224](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L224)
 
 ___
 
 ### registerTxBuilders
 
-▸ **registerTxBuilders**(): `void`
+▸ **registerTxBuilders**(): `Promise`\<`void`\>
 
 Registers TxBuilders depending on the TxBuilder
 type. Currently we only support Lucid, but plan on adding
@@ -151,8 +253,8 @@ software stack.
 
 #### Returns
 
-`void`
+`Promise`\<`void`\>
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:74](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L74)
+[packages/core/src/SundaeSDK.class.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L89)

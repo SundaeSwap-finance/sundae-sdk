@@ -19,6 +19,7 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     activeWalletAddr: walletAddress,
     useReferral,
     useV3Contracts,
+    builderLib,
   } = useAppState();
   const [updating, setUpdating] = useState(false);
 
@@ -84,7 +85,8 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       };
 
       await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
+        builderLib
       )
         .update({
           cancelArgs: cancelConfig,
@@ -111,7 +113,7 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setUpdating(false);
-  }, [SDK, submit, walletAddress, useReferral, useV3Contracts]);
+  }, [SDK, submit, walletAddress, useReferral, useV3Contracts, builderLib]);
 
   if (!SDK) {
     return null;

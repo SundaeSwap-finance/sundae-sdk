@@ -4,13 +4,13 @@ import {
   ESwapType,
   IPoolData,
   ISwapConfigArgs,
-  TOrderAddresses,
+  TOrderAddressesArgs,
 } from "../@types/index.js";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 
 /**
- * The `SwapConfig` class helps to properly format your swap arguments for use within {@link Core.TxBuilder}.
+ * The `SwapConfig` class helps to properly format your swap arguments for use within {@link Core.TxBuilderV1} or {@link Core.TxBuilderV3}.
  *
  * @example
  *
@@ -70,7 +70,7 @@ export class SwapConfig extends OrderConfig<
    * Used for building a swap where you already know the pool data.
    * Useful for when building Transactions directly from the builder instance.
    *
-   * @see {@link Core.TxBuilder}
+   * @see {@link Core.TxBuilderV1} or {@link Core.TxBuilderV3}
    *
    * @returns
    */
@@ -79,7 +79,7 @@ export class SwapConfig extends OrderConfig<
     return {
       pool: this.pool as IPoolData,
       suppliedAsset: this.suppliedAsset as AssetAmount<IAssetAmountMetadata>,
-      orderAddresses: this.orderAddresses as TOrderAddresses,
+      orderAddresses: this.orderAddresses as TOrderAddressesArgs,
       minReceivable: this.minReceivable as AssetAmount<IAssetAmountMetadata>,
       referralFee: this.referralFee,
     };

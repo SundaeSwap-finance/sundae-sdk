@@ -1,13 +1,15 @@
 {
-    "$schema": "https://typedoc.org/schema.json",
-    "out": "../../docs/typescript/yield-farming",
-    "entryPoints": [
-        "./src/index.ts"
-    ],
-    "hideBreadcrumbs": true,
-    "hideInPageTOC": true,
-    "excludeNotDocumented": true,
-    "githubPages": false,
-    "gitRevision": "main",
-    "treatWarningsAsErrors": true
+  "$schema": "https://typedoc.org/schema.json",
+  "out": "../../docs/typescript/yield-farming",
+  "entryPoints": [
+    "./src/exports/index.ts",
+    "./src/exports/lucid.ts",
+    "./src/exports/blaze.ts"
+  ],
+  "hideBreadcrumbs": true,
+  "hideInPageTOC": true,
+  "excludeNotDocumented": true,
+  "githubPages": false,
+  "gitRevision": "main",
+  "treatWarningsAsErrors": true
 }

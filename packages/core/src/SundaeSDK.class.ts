@@ -1,15 +1,27 @@
+import { EmulatorProvider } from "@blaze-cardano/emulator";
+import type {
+  Blaze,
+  Blockfrost,
+  ColdWallet,
+  WebWallet,
+} from "@blaze-cardano/sdk";
+import type { Lucid } from "lucid-cardano";
 import {
   EContractVersion,
   ETxBuilderType,
+  ILucidBuilder,
   ISundaeSDKOptions,
 } from "./@types/index.js";
 import { QueryProvider } from "./Abstracts/QueryProvider.abstract.class.js";
-import { TxBuilder } from "./Abstracts/TxBuilder.abstract.class.js";
-import { DatumBuilderLucidV1 } from "./DatumBuilders/DatumBuilder.Lucid.V1.class.js";
-import { DatumBuilderLucidV3 } from "./DatumBuilders/DatumBuilder.Lucid.V3.class.js";
+import { TxBuilderV1 } from "./Abstracts/TxBuilderV1.abstract.class.js";
+import { TxBuilderV3 } from "./Abstracts/TxBuilderV3.abstract.class.js";
 import { QueryProviderSundaeSwap } from "./QueryProviders/QueryProviderSundaeSwap.js";
-import { TxBuilderLucidV1 } from "./TxBuilders/TxBuilder.Lucid.V1.class.js";
-import { TxBuilderLucidV3 } from "./TxBuilders/TxBuilder.Lucid.V3.class.js";
+import type {
+  TxBuilderBlazeV1,
+  TxBuilderBlazeV3,
+  TxBuilderLucidV1,
+  TxBuilderLucidV3,
+} from "./TxBuilders/index.js";
 
 export const SDK_OPTIONS_DEFAULTS: Pick<
   ISundaeSDKOptions,
@@ -42,7 +54,10 @@ export const SDK_OPTIONS_DEFAULTS: Pick<
  * ```
  */
 export class SundaeSDK {
-  private builders: Map<EContractVersion | string, TxBuilder> = new Map();
+  private builders: Map<
+    ETxBuilderType,
+    Record<EContractVersion, TxBuilderV1 | TxBuilderV3>
+  > = new Map();
   private queryProvider: QueryProvider;
   private options: ISundaeSDKOptions;
 
@@ -71,24 +86,25 @@ export class SundaeSDK {
    * client in which they can utilize the SDK according to their
    * software stack.
    */
-  private registerTxBuilders() {
+  private async registerTxBuilders() {
+    console.log(this.options.wallet.builder);
     switch (this.options.wallet.builder.type) {
-      case ETxBuilderType.LUCID:
-        this.builders.set(
-          EContractVersion.V1,
-          new TxBuilderLucidV1(
-            this.options.wallet.builder.lucid,
-            new DatumBuilderLucidV1(this.options.wallet.network)
-          )
-        );
+      case ETxBuilderType.LUCID: {
+        const [{ TxBuilderLucidV1 }, { TxBuilderLucidV3 }] = await Promise.all([
+          import("./TxBuilders/TxBuilder.Lucid.V1.class.js"),
+          import("./TxBuilders/TxBuilder.Lucid.V3.class.js"),
+        ]);
 
-        this.builders.set(
-          EContractVersion.V3,
-          new TxBuilderLucidV3(
+        this.builders.set(ETxBuilderType.LUCID, {
+          [EContractVersion.V1]: new TxBuilderLucidV1(
             this.options.wallet.builder.lucid,
-            new DatumBuilderLucidV3(this.options.wallet.network)
-          )
-        );
+            this.options.wallet.network
+          ),
+          [EContractVersion.V3]: new TxBuilderLucidV3(
+            this.options.wallet.builder.lucid,
+            this.options.wallet.network
+          ),
+        });
 
         // Helper: initialize wallet if not already done so.
         if (!this.options.wallet.builder.lucid.wallet) {
@@ -101,9 +117,34 @@ export class SundaeSDK {
 
           extension
             .enable()
-            .then((api) => this.options.wallet.builder.lucid.selectWallet(api));
+            .then((api) =>
+              (this.options.wallet.builder as ILucidBuilder).lucid.selectWallet(
+                api
+              )
+            );
         }
+
         break;
+      }
+      case ETxBuilderType.BLAZE: {
+        const [{ TxBuilderBlazeV1 }, { TxBuilderBlazeV3 }] = await Promise.all([
+          import("./TxBuilders/TxBuilder.Blaze.V1.class.js"),
+          import("./TxBuilders/TxBuilder.Blaze.V3.class.js"),
+        ]);
+
+        this.builders.set(ETxBuilderType.BLAZE, {
+          [EContractVersion.V1]: new TxBuilderBlazeV1(
+            this.options.wallet.builder.blaze,
+            this.options.wallet.network
+          ),
+          [EContractVersion.V3]: new TxBuilderBlazeV3(
+            this.options.wallet.builder.blaze,
+            this.options.wallet.network
+          ),
+        });
+
+        break;
+      }
       default:
         throw new Error(
           "A valid wallet provider type must be defined in your options object."
@@ -121,33 +162,57 @@ export class SundaeSDK {
   }
 
   // Overloads
-  builder(contractVersion: EContractVersion.V1): TxBuilderLucidV1;
-  builder(contractVersion: EContractVersion.V3): TxBuilderLucidV3;
+  builder(contractVersion: EContractVersion.V1): TxBuilderV1;
+  builder(contractVersion: EContractVersion.V3): TxBuilderV3;
   builder(
-    contractVersion?: EContractVersion
-  ): TxBuilderLucidV1 | TxBuilderLucidV3;
+    contractVersion: EContractVersion.V1,
+    txBuilderType?: ETxBuilderType
+  ): TxBuilderV1;
+  builder(
+    contractVersion: EContractVersion.V3,
+    txBuilderType?: ETxBuilderType
+  ): TxBuilderV3;
+  builder(
+    contractVersion: EContractVersion.V3,
+    txBuilderType: ETxBuilderType
+  ): TxBuilderV3;
+  builder(): TxBuilderV3;
+  builder(
+    contractVersion?: EContractVersion,
+    txBuilderType?: ETxBuilderType
+  ): TxBuilderV1 | TxBuilderV3;
   /**
    * Creates the appropriate transaction builder by which you can create valid transactions.
    *
-   * @returns {TxBuilder}
+   * @returns {TxBuilderV1}
    */
   builder(
-    contractVersion: EContractVersion = EContractVersion.V1
-  ): TxBuilderLucidV1 | TxBuilderLucidV3 {
-    if (!this.builders.has(contractVersion)) {
+    contractVersion: EContractVersion = EContractVersion.V3,
+    txBuilderType: ETxBuilderType = ETxBuilderType.LUCID
+  ): TxBuilderV1 | TxBuilderV3 {
+    const contextBuilders = this.builders.get(txBuilderType);
+    if (!contextBuilders) {
       throw new Error(
-        "Could not find a matching TxBuilder for this version. Please register a custom builder with `.registerBuilder()` first, then try again."
+        "Could not find a matching TxBuilder for this builder type. Please register a custom builder with `.registerBuilder()` first, then try again."
       );
     }
 
-    switch (contractVersion) {
-      case EContractVersion.V3: {
-        return this.builders.get(contractVersion) as TxBuilderLucidV3;
-      }
+    const builder = contextBuilders[contractVersion];
+
+    switch (txBuilderType) {
+      case ETxBuilderType.BLAZE:
+        if (contractVersion === EContractVersion.V1) {
+          return builder as TxBuilderBlazeV1;
+        } else {
+          return builder as TxBuilderBlazeV3;
+        }
+      case ETxBuilderType.LUCID:
       default:
-      case EContractVersion.V1: {
-        return this.builders.get(contractVersion) as TxBuilderLucidV1;
-      }
+        if (contractVersion === EContractVersion.V1) {
+          return builder as TxBuilderLucidV1;
+        } else {
+          return builder as TxBuilderLucidV3;
+        }
     }
   }
 
@@ -158,5 +223,43 @@ export class SundaeSDK {
    */
   query(): QueryProvider {
     return this.queryProvider;
+  }
+
+  /**
+   * Helper method to retrieve a Lucid instance.
+   *
+   * @returns {Lucid | undefined}
+   */
+  lucid(): Lucid | undefined {
+    if (this.options.wallet.builder.type !== ETxBuilderType.LUCID) {
+      return undefined;
+    }
+
+    const builder = this.builder(
+      EContractVersion.V3,
+      ETxBuilderType.LUCID
+    ) as TxBuilderLucidV3;
+    return builder.lucid;
+  }
+
+  /**
+   * Helper method to retrieve a blaze instance.
+   *
+   * @returns {Blaze<Blockfrost, WebWallet> | undefined}
+   */
+  blaze():
+    | Blaze<Blockfrost, WebWallet>
+    | Blaze<EmulatorProvider, ColdWallet>
+    | undefined {
+    if (this.options.wallet.builder.type !== ETxBuilderType.BLAZE) {
+      return undefined;
+    }
+
+    const builder = this.builder(
+      EContractVersion.V3,
+      ETxBuilderType.BLAZE
+    ) as TxBuilderBlazeV3;
+
+    return builder.blaze;
   }
 }

@@ -7,7 +7,7 @@ global.BigInt.prototype.toJSON = function () {
 
 import { AssetAmount } from "@sundaeswap/asset";
 import { ADA_METADATA } from "@sundaeswap/core";
-import { TDelegationPrograms } from "../../../@types/contracts.js";
+import { TDelegationPrograms } from "../../../@types/lucid.js";
 import { LockConfig } from "../LockConfig.js";
 
 let config: LockConfig;

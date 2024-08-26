@@ -3,12 +3,12 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   IPoolData,
   IWithdrawConfigArgs,
-  TOrderAddresses,
+  TOrderAddressesArgs,
 } from "../@types/index.js";
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
 
 /**
- * The `WithdrawConfig` class helps to properly format your withdraw arguments for use within {@link Core.TxBuilder}.
+ * The `WithdrawConfig` class helps to properly format your withdraw arguments for use within {@link Core.TxBuilderV1} or {@link Core.TxBuilderV3}.
  *
  * @example
  *
@@ -69,7 +69,7 @@ export class WithdrawConfig extends OrderConfig<IWithdrawConfigArgs> {
   buildArgs(): IWithdrawConfigArgs {
     return {
       pool: this.pool as IPoolData,
-      orderAddresses: this.orderAddresses as TOrderAddresses,
+      orderAddresses: this.orderAddresses as TOrderAddressesArgs,
       suppliedLPAsset: this
         .suppliedLPAsset as AssetAmount<IAssetAmountMetadata>,
       referralFee: this.referralFee,

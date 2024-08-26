@@ -22,7 +22,8 @@ enum ERoute {
 type TDirection = "forward" | "backward";
 
 export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, ready, activeWalletAddr, useReferral } = useAppState();
+  const { SDK, ready, activeWalletAddr, useReferral, builderLib } =
+    useAppState();
 
   const [direction, setDirection] = useState<TDirection>("forward");
   const [route, setRoute] = useState<ERoute>(ERoute.V1TOV1);
@@ -71,8 +72,6 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
           ? v3PoolRberry
           : v1PoolRberry;
 
-      console.log(swapAPool, swapBPool);
-
       const args: IOrderRouteSwapArgs = {
         ownerAddress: activeWalletAddr,
         swapA: {
@@ -120,7 +119,8 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       await SDK.builder(
         route === ERoute.V3TOV1 || route === ERoute.V3TOV3
           ? EContractVersion.V3
-          : EContractVersion.V1
+          : EContractVersion.V1,
+        builderLib
       )
         .orderRouteSwap(args)
         .then(async ({ build, fees }) => {
@@ -143,7 +143,15 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setSwapping(false);
-  }, [SDK, submit, activeWalletAddr, useReferral, route, direction]);
+  }, [
+    SDK,
+    submit,
+    activeWalletAddr,
+    useReferral,
+    route,
+    direction,
+    builderLib,
+  ]);
 
   if (!SDK) {
     return null;

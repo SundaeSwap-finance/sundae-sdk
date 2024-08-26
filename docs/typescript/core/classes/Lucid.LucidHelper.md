@@ -66,7 +66,7 @@ Helper function to check if an address is a script address.
 
 #### Defined in
 
-[packages/core/src/Utilities/LucidHelper.class.ts:95](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/LucidHelper.class.ts#L95)
+[packages/core/src/Utilities/LucidHelper.class.ts:104](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/LucidHelper.class.ts#L104)
 
 ___
 
@@ -90,7 +90,7 @@ Throws a useful error if the address, network, and instance network are on the w
 
 #### Defined in
 
-[packages/core/src/Utilities/LucidHelper.class.ts:130](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/LucidHelper.class.ts#L130)
+[packages/core/src/Utilities/LucidHelper.class.ts:139](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/LucidHelper.class.ts#L139)
 
 ___
 
@@ -113,7 +113,7 @@ Throws an error describing the address and contextual information.
 
 #### Defined in
 
-[packages/core/src/Utilities/LucidHelper.class.ts:159](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/LucidHelper.class.ts#L159)
+[packages/core/src/Utilities/LucidHelper.class.ts:168](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/LucidHelper.class.ts#L168)
 
 ___
 
@@ -162,4 +162,4 @@ Validates that an address matches the provided network.
 
 #### Defined in
 
-[packages/core/src/Utilities/LucidHelper.class.ts:108](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/LucidHelper.class.ts#L108)
+[packages/core/src/Utilities/LucidHelper.class.ts:117](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/LucidHelper.class.ts#L117)

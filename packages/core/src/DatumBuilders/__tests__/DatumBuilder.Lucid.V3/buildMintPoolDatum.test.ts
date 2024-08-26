@@ -1,34 +1,12 @@
 import { jest } from "@jest/globals";
 
-import { PREVIEW_DATA } from "../../../exports/testing.js";
 import {
   DatumBuilderLucidV3,
   IDatumBuilderMintPoolV3Args,
 } from "../../DatumBuilder.Lucid.V3.class.js";
+import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
 let builderInstance: DatumBuilderLucidV3;
-
-const defaultArgs: IDatumBuilderMintPoolV3Args = {
-  assetA: PREVIEW_DATA.assets.tada,
-  assetB: PREVIEW_DATA.assets.tindy,
-  fees: {
-    bid: 5n,
-    ask: 5n,
-  },
-  marketOpen: 123n,
-  depositFee: 2_000_000n,
-  seedUtxo: {
-    address:
-      "addr_test1qrp8nglm8d8x9w783c5g0qa4spzaft5z5xyx0kp495p8wksjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngqtjfk6s",
-    txHash: "598d48e74d2aec716c1c8c889b34d77b9e0f5240dbee805c23267c2f1f97cc11",
-    outputIndex: 1,
-    assets: {
-      lovelace: 3679167n,
-      fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459:
-        645575242n,
-    },
-  },
-};
 
 beforeEach(() => {
   builderInstance = new DatumBuilderLucidV3("preview");
@@ -48,19 +26,32 @@ describe("builderMintPoolDatum()", () => {
       DatumBuilderLucidV3.prototype,
       "buildLexicographicalAssetsDatum"
     );
-    const expectedIdent =
-      "82f70fd1663b2b6f4250d6054fe4cac8c815d9eef8b38f68bbe22c92";
 
-    const { inline } = builderInstance.buildMintPoolDatum(defaultArgs);
+    const { inline, hash } = builderInstance.buildMintPoolDatum(
+      V3_EXPECTATIONS.buildMintPoolDatum[0].args
+    );
 
     expect(spiedOnComputePoolId).toHaveBeenNthCalledWith(
-      1,
-      defaultArgs.seedUtxo
+      ...(V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.calledWith as [
+        number,
+        IDatumBuilderMintPoolV3Args["seedUtxo"]
+      ])
     );
-    expect(spiedOnComputePoolId).toHaveNthReturnedWith(1, expectedIdent);
-    expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(1);
+    expect(spiedOnComputePoolId).toHaveNthReturnedWith(
+      ...(V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.returnedWith as [
+        number,
+        string
+      ])
+    );
+    expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(
+      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations
+        .buildLexicographicalAssetsDatumCalls
+    );
     expect(inline).toEqual(
-      "d8799f581c82f70fd1663b2b6f4250d6054fe4cac8c815d9eef8b38f68bbe22c929f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80187b1a001e8480ff"
+      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.inline
+    );
+    expect(hash).toEqual(
+      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.hash
     );
   });
 
@@ -73,25 +64,26 @@ describe("builderMintPoolDatum()", () => {
       DatumBuilderLucidV3.prototype,
       "buildLexicographicalAssetsDatum"
     );
-    const expectedIdent =
-      "82f70fd1663b2b6f4250d6054fe4cac8c815d9eef8b38f68bbe22c92";
 
-    const { inline } = builderInstance.buildMintPoolDatum({
-      ...defaultArgs,
-      fees: {
-        ask: 87n,
-        bid: 100n,
-      },
-    });
-
-    expect(spiedOnComputePoolId).toHaveBeenNthCalledWith(
-      1,
-      defaultArgs.seedUtxo
+    const { inline, hash } = builderInstance.buildMintPoolDatum(
+      V3_EXPECTATIONS.buildMintPoolDatum[1].args
     );
-    expect(spiedOnComputePoolId).toHaveNthReturnedWith(1, expectedIdent);
-    expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(1);
+
+    expect(spiedOnComputePoolId).toHaveNthReturnedWith(
+      ...(V3_EXPECTATIONS.buildMintPoolDatum[1].expectations.returnedWith as [
+        number,
+        string
+      ])
+    );
+    expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(
+      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations
+        .buildLexicographicalAssetsDatumCalls
+    );
     expect(inline).toEqual(
-      "d8799f581c82f70fd1663b2b6f4250d6054fe4cac8c815d9eef8b38f68bbe22c929f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d0018641857d87a80187b1a001e8480ff"
+      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations.inline
+    );
+    expect(hash).toEqual(
+      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations.hash
     );
   });
 });

@@ -7,7 +7,7 @@
  * For example, rather than loading the entire SundaeSDK library, you can mock it and just confirm that a method
  * from the SDK was actually called within your app.
  *
- * In addition, for those who build custom {@link Core.TxBuilder} and {@link Core.DatumBuilder} classes, we've added
+ * In addition, for those who build custom {@link Core.TxBuilderV1} or {@link Core.TxBuilderV3} and {@link Core.DatumBuilder} classes, we've added
  * base tests that you can run on these classes to ensure that your Order builds output the expected
  * hex-encoded CBOR when writing your own unit tests on them.
  *
@@ -18,4 +18,3 @@ export * from "../TestUtilities/cardano.js";
 
 export { PREVIEW_DATA } from "../TestUtilities/mockData.js";
 export { MockAll } from "../TestUtilities/mocks.js";
-export { setupLucid } from "../TestUtilities/setupLucid.js";

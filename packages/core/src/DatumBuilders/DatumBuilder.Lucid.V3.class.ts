@@ -1,6 +1,6 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { sqrt } from "@sundaeswap/bigint-math";
-import { C, Constr, Credential, Data, Lucid, UTxO } from "lucid-cardano";
+import { C, Credential, Data, Lucid, UTxO } from "lucid-cardano";
 
 import {
   EDatumType,
@@ -12,8 +12,7 @@ import {
 import { DatumBuilder } from "../Abstracts/DatumBuilder.abstract.class.js";
 import { LucidHelper } from "../Utilities/LucidHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
-import { V3_POOL_IDENT_LENGTH } from "../constants.js";
-import * as V3Types from "./contracts/contracts.v3.js";
+import * as V3Types from "./ContractTypes/Contract.Lucid.v3.js";
 
 /**
  * The base arguments for the V3 DatumBuilder.
@@ -62,7 +61,7 @@ export interface IDatumBuilderWithdrawV3Args extends IDatumBuilderBaseV3Args {
  * the V3 pool contract.
  */
 export interface IDatumBuilderMintPoolV3Args {
-  seedUtxo: UTxO;
+  seedUtxo: Pick<UTxO, "txHash" | "outputIndex">;
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
   fees: IFeesConfig;
@@ -93,8 +92,6 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
   /** The error to throw when the pool ident does not match V1 constraints. */
   static INVALID_POOL_IDENT =
     "You supplied a pool ident of an invalid length! The will prevent the scooper from processing this order.";
-
-  public V3_POOL_PARAMS = {};
 
   constructor(network: TSupportedNetworks) {
     this.network = network;
@@ -179,6 +176,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
       scooperFee,
       extension: Data.void(),
     };
+
     const inline = Data.to(datum, V3Types.OrderDatum);
 
     return {
@@ -318,20 +316,6 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     };
   }
 
-  public buildWithdrawAsset(
-    fundedLPAsset: AssetAmount<IAssetAmountMetadata>
-  ): TDatumResult<Data> {
-    const datum = new Constr(1, [fundedLPAsset.amount]);
-
-    const inline = Data.to(datum);
-
-    return {
-      hash: LucidHelper.inlineDatumToHash(inline),
-      inline,
-      schema: datum,
-    };
-  }
-
   public buildDestinationAddresses({
     address,
     datum,
@@ -346,13 +330,21 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     let formattedDatum: V3Types.TDestination["datum"];
     switch (datum.type) {
       case EDatumType.NONE:
-        formattedDatum = new Constr(0, []);
+        formattedDatum = "VOID";
         break;
       case EDatumType.HASH:
-        formattedDatum = new Constr(1, [datum.value]);
+        formattedDatum = {
+          Hash: {
+            value: datum.value,
+          },
+        };
         break;
       case EDatumType.INLINE:
-        formattedDatum = new Constr(2, [Data.from(datum.value)]);
+        formattedDatum = {
+          Inline: {
+            value: Data.from(datum.value),
+          },
+        };
         break;
       default:
         throw new Error(
@@ -469,7 +461,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
   }
 
   public buildPoolIdent(ident: string): string {
-    if (ident.length !== V3_POOL_IDENT_LENGTH) {
+    if (!SundaeUtils.isV3PoolIdent(ident)) {
       throw new Error(DatumBuilderLucidV3.INVALID_POOL_IDENT);
     }
 
@@ -518,7 +510,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
    * @param {UTxO} seed The UTxO txHash and index.
    * @returns {string}
    */
-  static computePoolId(seed: UTxO): string {
+  static computePoolId(seed: Pick<UTxO, "txHash" | "outputIndex">): string {
     const poolInputTxHash = Buffer.from(seed.txHash, "hex");
     const numberSign = new Uint8Array([0x23]);
     const poolInputTxIx = new Uint8Array([seed.outputIndex]);

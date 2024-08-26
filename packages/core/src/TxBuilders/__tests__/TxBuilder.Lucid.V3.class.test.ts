@@ -4,18 +4,19 @@ import fetchMock from "jest-fetch-mock";
 import { C, Data, Lucid, Tx } from "lucid-cardano";
 
 import { EDatumType, ESwapType, ITxBuilderFees } from "../../@types/index.js";
-import { DatumBuilderLucidV3 } from "../../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import {
   SettingsDatum,
   TSettingsDatum,
-} from "../../DatumBuilders/contracts/contracts.v3.js";
+} from "../../DatumBuilders/ContractTypes/Contract.Lucid.v3.js";
+import { DatumBuilderLucidV3 } from "../../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
+import { setupLucid } from "../../TestUtilities/setupLucid.js";
 import {
   ADA_METADATA,
   ORDER_DEPOSIT_DEFAULT,
   POOL_MIN_ADA,
 } from "../../constants.js";
-import { PREVIEW_DATA, setupLucid } from "../../exports/testing.js";
+import { PREVIEW_DATA } from "../../exports/testing.js";
 import { TxBuilderLucidV1 } from "../TxBuilder.Lucid.V1.class.js";
 import { TxBuilderLucidV3 } from "../TxBuilder.Lucid.V3.class.js";
 import {
@@ -23,8 +24,8 @@ import {
   mockOrderToCancel,
   params,
   referenceUtxos,
-  settingsUtxos,
-} from "./data/mockData.js";
+  settingsUtxosLucid,
+} from "../__data__/mockData.js";
 
 jest
   .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScriptHashes")
@@ -36,14 +37,13 @@ jest
 
 jest
   .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-  .mockResolvedValue(settingsUtxos);
+  .mockResolvedValue(settingsUtxosLucid);
 
 jest
   .spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos")
   .mockResolvedValue(referenceUtxos);
 
 let builder: TxBuilderLucidV3;
-let datumBuilder: DatumBuilderLucidV3;
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
 
@@ -66,8 +66,7 @@ const getPaymentAddressFromOutput = (output: C.TransactionOutput) => {
 };
 
 const { getUtxosByOutRefMock } = setupLucid((lucid) => {
-  datumBuilder = new DatumBuilderLucidV3("preview");
-  builder = new TxBuilderLucidV3(lucid, datumBuilder);
+  builder = new TxBuilderLucidV3(lucid, "preview");
 });
 
 afterAll(() => {
@@ -85,7 +84,7 @@ describe("TxBuilderLucidV3", () => {
     expect(result.toString()).toEqual("1000000");
 
     const oldSettingsDatum = Data.from(
-      settingsUtxos[0].datum as string,
+      settingsUtxosLucid[0].datum as string,
       SettingsDatum
     );
     const newSettingsDatum: TSettingsDatum = {
@@ -97,10 +96,10 @@ describe("TxBuilderLucidV3", () => {
       .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
       .mockResolvedValue([
         {
-          ...settingsUtxos[0],
+          ...settingsUtxosLucid[0],
           datum: Data.to(newSettingsDatum, SettingsDatum),
         },
-        ...settingsUtxos.slice(1),
+        ...settingsUtxosLucid.slice(1),
       ]);
 
     const result2 = await builder.getMaxScooperFeeAmount();
@@ -109,7 +108,7 @@ describe("TxBuilderLucidV3", () => {
     // Reset scooper fee
     jest
       .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-      .mockResolvedValue(settingsUtxos);
+      .mockResolvedValue(settingsUtxosLucid);
   });
 
   it("should create a new transaction instance correctly", async () => {
@@ -242,7 +241,10 @@ describe("TxBuilderLucidV3", () => {
 
   test("swap()", async () => {
     const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildSwapDatum = jest.spyOn(datumBuilder, "buildSwapDatum");
+    const spiedBuildSwapDatum = jest.spyOn(
+      builder.datumBuilder,
+      "buildSwapDatum"
+    );
 
     // Ensure that our tests are running at a consistent date due to decaying fees.
     const spiedDate = jest.spyOn(Date, "now");
@@ -427,7 +429,7 @@ describe("TxBuilderLucidV3", () => {
   });
 
   test("orderRouteSwap() - v3 to v1", async () => {
-    const { build, fees, datum } = await builder.orderRouteSwap({
+    const { build, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
         swapType: {
@@ -517,7 +519,7 @@ describe("TxBuilderLucidV3", () => {
   test("deposit()", async () => {
     const spiedNewTx = jest.spyOn(builder, "newTxInstance");
     const spiedBuildDepositDatum = jest.spyOn(
-      datumBuilder,
+      builder.datumBuilder,
       "buildDepositDatum"
     );
 
@@ -626,7 +628,7 @@ describe("TxBuilderLucidV3", () => {
   test("withdraw()", async () => {
     const spiedNewTx = jest.spyOn(builder, "newTxInstance");
     const spiedBuildWithdrawDatum = jest.spyOn(
-      datumBuilder,
+      builder.datumBuilder,
       "buildWithdrawDatum"
     );
 

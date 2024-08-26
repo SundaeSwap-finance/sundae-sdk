@@ -3,7 +3,7 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   EPoolCoin,
   TDestinationAddress,
-  TOrderAddresses,
+  TOrderAddressesArgs,
   TUTXO,
 } from "./datumbuilder.js";
 import { IPoolData } from "./queryprovider.js";
@@ -21,7 +21,7 @@ export interface IBaseConfig {
  */
 export interface IOrderConfigArgs extends IBaseConfig {
   pool: IPoolData;
-  orderAddresses: TOrderAddresses;
+  orderAddresses: TOrderAddressesArgs;
   ownerAddress?: string;
 }
 

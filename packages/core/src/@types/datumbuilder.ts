@@ -91,7 +91,7 @@ export type TCancelerAddress = string;
 /**
  * An Escrow address defines the destination address and an optional PubKeyHash
  */
-export type TOrderAddresses = {
+export type TOrderAddressesArgs = {
   DestinationAddress: TDestinationAddress;
   AlternateAddress?: TCancelerAddress;
 };
@@ -137,7 +137,7 @@ export interface IArguments {
   /** The unique pool identifier. */
   ident: string;
   /** The addresses that are allowed to cancel the Order. */
-  orderAddresses: TOrderAddresses;
+  orderAddresses: TOrderAddressesArgs;
   /** The fee paid to scoopers. */
   scooperFee: bigint;
 }

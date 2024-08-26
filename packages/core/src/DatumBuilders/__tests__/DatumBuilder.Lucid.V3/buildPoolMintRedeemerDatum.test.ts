@@ -1,19 +1,9 @@
 import { jest } from "@jest/globals";
 
-import { PREVIEW_DATA } from "../../../exports/testing.js";
-import {
-  DatumBuilderLucidV3,
-  IDatumBuilderPoolMintRedeemerV3Args,
-} from "../../DatumBuilder.Lucid.V3.class.js";
+import { DatumBuilderLucidV3 } from "../../DatumBuilder.Lucid.V3.class.js";
+import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
 let builderInstance: DatumBuilderLucidV3;
-
-const defaultArgs: IDatumBuilderPoolMintRedeemerV3Args = {
-  assetA: PREVIEW_DATA.assets.tada,
-  assetB: PREVIEW_DATA.assets.tindy,
-  metadataOutput: 2n,
-  poolOutput: 0n,
-};
 
 beforeEach(() => {
   builderInstance = new DatumBuilderLucidV3("preview");
@@ -30,11 +20,18 @@ describe("buildPoolMintRedeemerDatum()", () => {
       "buildLexicographicalAssetsDatum"
     );
 
-    const { inline } = builderInstance.buildPoolMintRedeemerDatum(defaultArgs);
+    const { inline, hash } = builderInstance.buildPoolMintRedeemerDatum(
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].args
+    );
 
-    expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(1);
+    expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.called
+    );
     expect(inline).toEqual(
-      "d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0002ff"
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.inline
+    );
+    expect(hash).toEqual(
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.hash
     );
   });
 });

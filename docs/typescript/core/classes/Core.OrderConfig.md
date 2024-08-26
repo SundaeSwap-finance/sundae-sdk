@@ -31,7 +31,7 @@ It includes settings such as the pool and order addresses.
 
 ### orderAddresses
 
-• `Optional` **orderAddresses**: [`TOrderAddresses`](../modules/Core.md#torderaddresses)
+• `Optional` **orderAddresses**: [`TOrderAddressesArgs`](../modules/Core.md#torderaddressesargs)
 
 The addresses for the order.
 
@@ -131,13 +131,13 @@ ___
 
 ▸ **setOrderAddresses**(`orderAddresses`): [`OrderConfig`](Core.OrderConfig.md)\<`Args`\>
 
-Set the [Core.TOrderAddresses](../modules/Core.md#torderaddresses) for a swap's required datum.
+Set the addresses for a swap's required datum.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `orderAddresses` | [`TOrderAddresses`](../modules/Core.md#torderaddresses) | The addresses for the order. |
+| `orderAddresses` | [`TOrderAddressesArgs`](../modules/Core.md#torderaddressesargs) | The addresses for the order. |
 
 #### Returns
 

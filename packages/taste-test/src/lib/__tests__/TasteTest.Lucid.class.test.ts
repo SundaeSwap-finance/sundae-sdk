@@ -1,4 +1,4 @@
-import { setupLucid } from "@sundaeswap/core/testing";
+import { setupLucid } from "@sundaeswap/core/lucid";
 import { Lucid } from "lucid-cardano";
 
 import { TasteTestLucid } from "../classes/TasteTest.Lucid.class.js";
