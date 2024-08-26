@@ -5,5 +5,5 @@
  *
  * @module Blaze
  */
-export * from "../lib/DatumBuilder/DatumBuilder.YieldFarming.Blaze.class";
+export * from "../lib/DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.js";
 export * from "../lib/TxBuilders/TxBuilder.YieldFarming.Blaze.class.js";
