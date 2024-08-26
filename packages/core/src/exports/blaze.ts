@@ -1,6 +1,6 @@
 /**
  * ## Blaze
- * Prebuilt classes for {@link Core.DatumBuilder} and {@link Core.TxBuilder} that use and depend
+ * Prebuilt classes for {@link Core.DatumBuilder} and {@link Core.TxBuilderV1} or {@link Core.TxBuilderV3} that use and depend
  * on the `@blaze-cardano/sdk` library. Only import these if you have also installed `@blaze-cardano/sdk`
  * in your main repository! Also includes a helper class for basic operations.
  *

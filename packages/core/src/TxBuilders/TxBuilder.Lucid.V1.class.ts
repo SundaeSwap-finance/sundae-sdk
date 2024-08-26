@@ -52,7 +52,7 @@ import { TxBuilderLucidV3 } from "./TxBuilder.Lucid.V3.class.js";
 /**
  * Object arguments for completing a transaction.
  */
-interface ITxBuilderLucidCompleteTxArgs {
+export interface ITxBuilderLucidCompleteTxArgs {
   tx: Tx;
   referralFee?: AssetAmount<IAssetAmountMetadata>;
   datum?: string;
@@ -64,7 +64,7 @@ interface ITxBuilderLucidCompleteTxArgs {
 /**
  * Interface describing the parameter names for the transaction builder.
  */
-interface ITxBuilderV1Params {
+export interface ITxBuilderV1LucidParams {
   cancelRedeemer: string;
   maxScooperFee: bigint;
 }
@@ -83,7 +83,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
 
-  static PARAMS: Record<TSupportedNetworks, ITxBuilderV1Params> = {
+  static PARAMS: Record<TSupportedNetworks, ITxBuilderV1LucidParams> = {
     mainnet: {
       cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
@@ -158,14 +158,14 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
   /**
    * Helper method to get a specific parameter of the transaction builder.
    *
-   * @param {K extends keyof ITxBuilderV1Params} param The parameter you want to retrieve.
+   * @param {K extends keyof ITxBuilderV1LucidParams} param The parameter you want to retrieve.
    * @param {TSupportedNetworks} network The protocol network.
-   * @returns {ITxBuilderV1Params[K]}
+   * @returns {ITxBuilderV1LucidParams[K]}
    */
-  static getParam<K extends keyof ITxBuilderV1Params>(
+  static getParam<K extends keyof ITxBuilderV1LucidParams>(
     param: K,
     network: TSupportedNetworks
-  ): ITxBuilderV1Params[K] {
+  ): ITxBuilderV1LucidParams[K] {
     return TxBuilderLucidV1.PARAMS[network][param];
   }
 
@@ -173,11 +173,11 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    * An internal shortcut method to avoid having to pass in the network all the time.
    *
    * @param param The parameter you want to retrieve.
-   * @returns {ITxBuilderV1Params}
+   * @returns {ITxBuilderV1LucidParams}
    */
-  public __getParam<K extends keyof ITxBuilderV1Params>(
+  public __getParam<K extends keyof ITxBuilderV1LucidParams>(
     param: K
-  ): ITxBuilderV1Params[K] {
+  ): ITxBuilderV1LucidParams[K] {
     return TxBuilderLucidV1.getParam(param, this.network);
   }
 

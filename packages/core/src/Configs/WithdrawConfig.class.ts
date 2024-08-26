@@ -8,7 +8,7 @@ import {
 import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
 
 /**
- * The `WithdrawConfig` class helps to properly format your withdraw arguments for use within {@link Core.TxBuilder}.
+ * The `WithdrawConfig` class helps to properly format your withdraw arguments for use within {@link Core.TxBuilderV1} or {@link Core.TxBuilderV3}.
  *
  * @example
  *

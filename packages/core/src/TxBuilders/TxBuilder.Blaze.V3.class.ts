@@ -360,17 +360,13 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
 
     const exoticPair = !SundaeUtils.isAdaAsset(sortedAssets[0].metadata);
 
-    const [
-      userUtxos,
-      { hash: poolPolicyId, compiledCode },
-      references,
-      settings,
-    ] = await Promise.all([
-      this.getUtxosForPoolMint(),
-      this.getValidatorScript("pool.mint"),
-      this.getAllReferenceUtxos(),
-      this.getAllSettingsUtxos(),
-    ]);
+    const [userUtxos, { hash: poolPolicyId }, references, settings] =
+      await Promise.all([
+        this.getUtxosForPoolMint(),
+        this.getValidatorScript("pool.mint"),
+        this.getAllReferenceUtxos(),
+        this.getAllSettingsUtxos(),
+      ]);
 
     const seedUtxo = {
       outputIndex: Number(userUtxos[0].input().index().toString()),
@@ -471,27 +467,31 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
 
     const tx = this.newTxInstance(referralFee);
 
-    const script = Core.Script.newPlutusV2Script(
-      new Core.PlutusV2Script(Core.HexBlob(compiledCode))
-    );
-    tx.provideScript(script);
-
     const mints = new Map<Core.AssetName, bigint>();
     mints.set(Core.AssetName(nftAssetName), 1n);
     mints.set(Core.AssetName(refAssetName), 1n);
     mints.set(Core.AssetName(poolLqAssetName), circulatingLp);
-
-    tx.addMint(
-      Core.PolicyId(poolPolicyId),
-      mints,
-      Core.PlutusData.fromCbor(Core.HexBlob(mintRedeemerDatum))
-    );
 
     [...references, ...settings].forEach((utxo) => {
       tx.addReferenceInput(utxo);
     });
     userUtxos.forEach((utxo) => tx.addInput(utxo));
 
+    /**
+     * @TODO adds the reference script for minting.
+     */
+    // const input = this.blaze.provider.resolveUnspentOutputs([
+    //   new Core.TransactionInput(Core.TransactionId())
+    // ])
+
+    // Mint our assets.
+    tx.addMint(
+      Core.PolicyId(poolPolicyId),
+      mints,
+      Core.PlutusData.fromCbor(Core.HexBlob(mintRedeemerDatum))
+    );
+
+    // Lock the pool assets at the pool script.
     tx.lockAssets(
       Core.addressFromBech32(sundaeStakeAddress),
       makeValue(
@@ -501,9 +501,11 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       Core.PlutusData.fromCbor(Core.HexBlob(mintPoolDatum))
     );
 
-    tx.provideDatum(Data.void()).payAssets(
+    // Send the metadata reference NFT to the metadata address.
+    tx.payAssets(
       Core.addressFromBech32(metadataAddress),
-      makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n])
+      makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
+      Data.void()
     );
 
     if (donateToTreasury) {
@@ -521,15 +523,17 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       );
 
       if (donateToTreasury === 100n) {
-        tx.provideDatum(Data.void()).payAssets(
+        tx.payAssets(
           Core.addressFromBech32(realTreasuryAddress),
-          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, circulatingLp])
+          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, circulatingLp]),
+          Data.void()
         );
       } else {
         const donation = (circulatingLp * donateToTreasury) / 100n;
         tx.provideDatum(Data.void()).payAssets(
           Core.addressFromBech32(realTreasuryAddress),
-          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, donation])
+          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, donation]),
+          Data.void()
         );
 
         tx.payAssets(

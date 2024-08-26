@@ -2,7 +2,7 @@
 
 [Core](../modules/Core.md).WithdrawConfig
 
-The `WithdrawConfig` class helps to properly format your withdraw arguments for use within [Core.TxBuilder](Core.TxBuilder.md).
+The `WithdrawConfig` class helps to properly format your withdraw arguments for use within [Core.TxBuilderV1](Core.TxBuilderV1.md) or [Core.TxBuilderV3](Core.TxBuilderV3.md).
 
 **`Example`**
 
@@ -32,7 +32,7 @@ const { submit, cbor } = await SDK.swap(config);
 
 ### orderAddresses
 
-• `Optional` **orderAddresses**: [`TOrderAddresses`](../modules/Core.md#torderaddresses)
+• `Optional` **orderAddresses**: [`TOrderAddressesArgs`](../modules/Core.md#torderaddressesargs)
 
 The addresses for the order.
 
@@ -128,13 +128,13 @@ ___
 
 ▸ **setOrderAddresses**(`orderAddresses`): [`WithdrawConfig`](Core.WithdrawConfig.md)
 
-Set the [Core.TOrderAddresses](../modules/Core.md#torderaddresses) for a swap's required datum.
+Set the addresses for a swap's required datum.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `orderAddresses` | [`TOrderAddresses`](../modules/Core.md#torderaddresses) | The addresses for the order. |
+| `orderAddresses` | [`TOrderAddressesArgs`](../modules/Core.md#torderaddressesargs) | The addresses for the order. |
 
 #### Returns
 

@@ -1,7 +1,7 @@
 # Module: Lucid
 
 ## Lucid
-Prebuilt classes for [Core.DatumBuilder](../classes/Core.DatumBuilder.md) and [Core.TxBuilder](../classes/Core.TxBuilder.md) that use and depend
+Prebuilt classes for [Core.DatumBuilder](../classes/Core.DatumBuilder.md) and [Core.TxBuilderV1](../classes/Core.TxBuilderV1.md) or [Core.TxBuilderV3](../classes/Core.TxBuilderV3.md) that use and depend
 on the `lucid-cardano` library. Only import these if you have also installed `lucid-cardano`
 in your main repository! Also includes a helper class for basic operations.
 
@@ -24,5 +24,4 @@ in your main repository! Also includes a helper class for basic operations.
 - [IDatumBuilderSwapV3Args](../interfaces/Lucid.IDatumBuilderSwapV3Args.md)
 - [IDatumBuilderWithdrawV3Args](../interfaces/Lucid.IDatumBuilderWithdrawV3Args.md)
 - [ITxBuilderLucidCompleteTxArgs](../interfaces/Lucid.ITxBuilderLucidCompleteTxArgs.md)
-- [ITxBuilderV1Params](../interfaces/Lucid.ITxBuilderV1Params.md)
-- [ITxBuilderV3Params](../interfaces/Lucid.ITxBuilderV3Params.md)
+- [ITxBuilderV1LucidParams](../interfaces/Lucid.ITxBuilderV1LucidParams.md)

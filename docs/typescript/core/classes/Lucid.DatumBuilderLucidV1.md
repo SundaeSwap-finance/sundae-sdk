@@ -19,7 +19,7 @@ The current network id.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L27)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:38](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L38)
 
 ___
 
@@ -31,13 +31,13 @@ The error to throw when the pool ident does not match V1 constraints.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:29](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L29)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L40)
 
 ## Methods
 
 ### buildDepositDatum
 
-▸ **buildDepositDatum**(`params`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<`Data`\>
+▸ **buildDepositDatum**(`params`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `DepositPair`: ``"VOID"`` \| \{ `Parent`: \{ `Child`: ``"VOID"`` \| \{ `Value`: \{ `pair`: \{ `a`: `bigint` ; `b`: `bigint`  }  }  }  }  } ; `ident`: `string` ; `orderAddresses`: \{ `alternate`: ``null`` \| `string` ; `destination`: \{ `credentials`: \{ `paymentKey`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  } ; `stakingKey`: ``null`` \| \{ `value`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  }  }  } ; `datum`: ``null`` \| `string`  }  } ; `scooperFee`: `bigint`  }\>
 
 Creates a deposit datum object from the given deposit arguments. The function initializes
 a new datum with specific properties such as the pool ident, order addresses, scooper fee,
@@ -53,20 +53,20 @@ datum, the inline datum itself, and the original datum schema.
 
 #### Returns
 
-[`TDatumResult`](../modules/Core.md#tdatumresult)\<`Data`\>
+[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `DepositPair`: ``"VOID"`` \| \{ `Parent`: \{ `Child`: ``"VOID"`` \| \{ `Value`: \{ `pair`: \{ `a`: `bigint` ; `b`: `bigint`  }  }  }  }  } ; `ident`: `string` ; `orderAddresses`: \{ `alternate`: ``null`` \| `string` ; `destination`: \{ `credentials`: \{ `paymentKey`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  } ; `stakingKey`: ``null`` \| \{ `value`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  }  }  } ; `datum`: ``null`` \| `string`  }  } ; `scooperFee`: `bigint`  }\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                               and the schema of the original datum.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L82)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:93](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L93)
 
 ___
 
 ### buildSwapDatum
 
-▸ **buildSwapDatum**(`params`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<`Data`\>
+▸ **buildSwapDatum**(`params`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `ident`: `string` ; `orderAddresses`: \{ `alternate`: ``null`` \| `string` ; `destination`: \{ `credentials`: \{ `paymentKey`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  } ; `stakingKey`: ``null`` \| \{ `value`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  }  }  } ; `datum`: ``null`` \| `string`  }  } ; `scooperFee`: `bigint` ; `swapDirection`: \{ `amount`: `bigint` ; `minReceivable`: ``null`` \| `bigint` ; `suppliedAssetIndex`: ``"A"`` \| ``"B"``  }  }\>
 
 Constructs a swap datum object based on the provided swap arguments.
 The function initializes a new datum with specific properties such as the pool ident,
@@ -83,20 +83,20 @@ datum schema.
 
 #### Returns
 
-[`TDatumResult`](../modules/Core.md#tdatumresult)\<`Data`\>
+[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `ident`: `string` ; `orderAddresses`: \{ `alternate`: ``null`` \| `string` ; `destination`: \{ `credentials`: \{ `paymentKey`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  } ; `stakingKey`: ``null`` \| \{ `value`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  }  }  } ; `datum`: ``null`` \| `string`  }  } ; `scooperFee`: `bigint` ; `swapDirection`: \{ `amount`: `bigint` ; `minReceivable`: ``null`` \| `bigint` ; `suppliedAssetIndex`: ``"A"`` \| ``"B"``  }  }\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                               and the schema of the original datum.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:48](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L48)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L59)
 
 ___
 
 ### buildWithdrawDatum
 
-▸ **buildWithdrawDatum**(`params`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<`Data`\>
+▸ **buildWithdrawDatum**(`params`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `WithdrawAsset`: ``"VOID"`` \| \{ `LPToken`: \{ `value`: `bigint`  }  } ; `ident`: `string` ; `orderAddresses`: \{ `alternate`: ``null`` \| `string` ; `destination`: \{ `credentials`: \{ `paymentKey`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  } ; `stakingKey`: ``null`` \| \{ `value`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  }  }  } ; `datum`: ``null`` \| `string`  }  } ; `scooperFee`: `bigint`  }\>
 
 Generates a withdraw datum object from the specified withdraw arguments. This function constructs
 a new datum with defined attributes such as the pool ident, order addresses, scooper fee, and
@@ -113,40 +113,11 @@ datum, which are crucial for executing the withdrawal operation within a transac
 
 #### Returns
 
-[`TDatumResult`](../modules/Core.md#tdatumresult)\<`Data`\>
+[`TDatumResult`](../modules/Core.md#tdatumresult)\<\{ `WithdrawAsset`: ``"VOID"`` \| \{ `LPToken`: \{ `value`: `bigint`  }  } ; `ident`: `string` ; `orderAddresses`: \{ `alternate`: ``null`` \| `string` ; `destination`: \{ `credentials`: \{ `paymentKey`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  } ; `stakingKey`: ``null`` \| \{ `value`: \{ `KeyHash`: \{ `value`: `string`  }  } \| \{ `ScriptHash`: \{ `value`: `string`  }  }  }  } ; `datum`: ``null`` \| `string`  }  } ; `scooperFee`: `bigint`  }\>
 
 An object comprising the hash of the inline datum, the inline datum itself,
                               and the schema of the original datum, facilitating the withdrawal operation's integration into the transactional process.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:149](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L149)
-
-___
-
-### experimental\_buildZapDatum
-
-▸ **experimental_buildZapDatum**(`params`): [`TDatumResult`](../modules/Core.md#tdatumresult)\<`Data`\>
-
-Constructs a zap datum object from provided zap arguments. This function creates a new datum with
-specific attributes such as the pool ident, order addresses, scooper fee, and deposit zap schema.
-The datum is then converted to an inline format, and its hash is computed using [Lucid.LucidHelper](Lucid.LucidHelper.md). The function
-returns an object that includes the hash of the inline datum, the inline datum itself, and the original
-datum schema, facilitating the integration of the zap operation within a larger transaction framework.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `params` | [`IZapArguments`](../interfaces/Core.IZapArguments.md) | The arguments necessary for constructing the zap datum. |
-
-#### Returns
-
-[`TDatumResult`](../modules/Core.md#tdatumresult)\<`Data`\>
-
-An object containing the hash of the inline datum, the inline datum itself,
-                              and the schema of the original datum, which are essential for the zap transaction's execution.
-
-#### Defined in
-
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:115](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L115)
+[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:138](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L138)

@@ -87,6 +87,7 @@ export class SundaeSDK {
    * software stack.
    */
   private async registerTxBuilders() {
+    console.log(this.options.wallet.builder);
     switch (this.options.wallet.builder.type) {
       case ETxBuilderType.LUCID: {
         const [{ TxBuilderLucidV1 }, { TxBuilderLucidV3 }] = await Promise.all([

@@ -54,7 +54,7 @@ import { TxBuilderBlazeV3 } from "./TxBuilder.Blaze.V3.class.js";
 /**
  * Object arguments for completing a transaction.
  */
-interface ITxBuilderBlazeCompleteTxArgs {
+export interface ITxBuilderBlazeCompleteTxArgs {
   tx: BlazeTx;
   referralFee?: AssetAmount<IAssetAmountMetadata>;
   datum?: string;
@@ -66,7 +66,7 @@ interface ITxBuilderBlazeCompleteTxArgs {
 /**
  * Interface describing the parameter names for the transaction builder.
  */
-interface ITxBuilderV1Params {
+export interface ITxBuilderV1BlazeParams {
   cancelRedeemer: string;
   maxScooperFee: bigint;
 }
@@ -85,7 +85,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   protocolParams: ISundaeProtocolParamsFull | undefined;
   datumBuilder: DatumBuilderBlazeV1;
 
-  static PARAMS: Record<TSupportedNetworks, ITxBuilderV1Params> = {
+  static PARAMS: Record<TSupportedNetworks, ITxBuilderV1BlazeParams> = {
     mainnet: {
       cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
@@ -227,14 +227,14 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   /**
    * Helper method to get a specific parameter of the transaction builder.
    *
-   * @param {K extends keyof ITxBuilderV1Params} param The parameter you want to retrieve.
+   * @param {K extends keyof ITxBuilderV1BlazeParams} param The parameter you want to retrieve.
    * @param {TSupportedNetworks} network The protocol network.
-   * @returns {ITxBuilderV1Params[K]}
+   * @returns {ITxBuilderV1BlazeParams[K]}
    */
-  static getParam<K extends keyof ITxBuilderV1Params>(
+  static getParam<K extends keyof ITxBuilderV1BlazeParams>(
     param: K,
     network: TSupportedNetworks
-  ): ITxBuilderV1Params[K] {
+  ): ITxBuilderV1BlazeParams[K] {
     return TxBuilderBlazeV1.PARAMS[network][param];
   }
 
@@ -242,11 +242,11 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
    * An internal shortcut method to avoid having to pass in the network all the time.
    *
    * @param param The parameter you want to retrieve.
-   * @returns {ITxBuilderV1Params}
+   * @returns {ITxBuilderV1BlazeParams}
    */
-  public __getParam<K extends keyof ITxBuilderV1Params>(
+  public __getParam<K extends keyof ITxBuilderV1BlazeParams>(
     param: K
-  ): ITxBuilderV1Params[K] {
+  ): ITxBuilderV1BlazeParams[K] {
     return TxBuilderBlazeV1.getParam(param, this.network);
   }
 

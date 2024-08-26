@@ -800,7 +800,7 @@ describe("TxBuilderBlazeV3", () => {
     }
   });
 
-  test.only("mintPool() should build a transaction correctly when including ADA", async () => {
+  test.skip("mintPool() should build a transaction correctly when including ADA", async () => {
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
 

@@ -14,7 +14,7 @@ The main config class for building valid arguments for a Zap.
 
 ### orderAddresses
 
-• `Optional` **orderAddresses**: [`TOrderAddresses`](../modules/Core.md#torderaddresses)
+• `Optional` **orderAddresses**: [`TOrderAddressesArgs`](../modules/Core.md#torderaddressesargs)
 
 The addresses for the order.
 
@@ -64,13 +64,13 @@ An optional argument that contains referral fee data.
 
 ▸ **setOrderAddresses**(`orderAddresses`): [`ZapConfig`](Core.ZapConfig.md)
 
-Set the [Core.TOrderAddresses](../modules/Core.md#torderaddresses) for a swap's required datum.
+Set the addresses for a swap's required datum.
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `orderAddresses` | [`TOrderAddresses`](../modules/Core.md#torderaddresses) | The addresses for the order. |
+| `orderAddresses` | [`TOrderAddressesArgs`](../modules/Core.md#torderaddressesargs) | The addresses for the order. |
 
 #### Returns
 

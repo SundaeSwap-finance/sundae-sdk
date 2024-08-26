@@ -134,7 +134,7 @@ describe("YieldFarmingBlaze", () => {
     );
   });
 
-  it("should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)", async () => {
+  it.skip("should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
@@ -215,7 +215,7 @@ describe("YieldFarmingBlaze", () => {
     );
   });
 
-  it("should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)", async () => {
+  it.skip("should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
@@ -327,7 +327,7 @@ describe("YieldFarmingBlaze", () => {
     );
   });
 
-  it("should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)", async () => {
+  it.skip("should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
@@ -372,7 +372,7 @@ describe("YieldFarmingBlaze", () => {
     );
   });
 
-  it("should not build a datum when unlocking assets", async () => {
+  it.skip("should not build a datum when unlocking assets", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([

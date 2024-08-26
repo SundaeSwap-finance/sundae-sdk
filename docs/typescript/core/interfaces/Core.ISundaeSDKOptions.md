@@ -52,7 +52,7 @@ The wallet options.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `builder` | [`ILucidBuilder`](Core.ILucidBuilder.md) | The type of builder to use. Currently only supports Lucid. |
+| `builder` | [`TWalletBuilder`](../modules/Core.md#twalletbuilder) | The type of builder to use. Currently only supports Lucid. |
 | `name` | `string` | A CIP-30 compatible wallet. |
 | `network` | ``"mainnet"`` \| ``"preview"`` | The desired network. |
 

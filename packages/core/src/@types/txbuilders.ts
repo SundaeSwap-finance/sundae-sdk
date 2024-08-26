@@ -71,6 +71,9 @@ export interface ILucidBuilder {
   lucid: Lucid;
 }
 
+/**
+ * The interface to describe a Blaze builder type.
+ */
 export interface IBlazeBuilder {
   type: ETxBuilderType.BLAZE;
   blaze: Blaze<Blockfrost, WebWallet>;

@@ -32,7 +32,7 @@ ___
 
 ### orderAddresses
 
-• **orderAddresses**: [`TOrderAddresses`](../modules/Core.md#torderaddresses)
+• **orderAddresses**: [`TOrderAddressesArgs`](../modules/Core.md#torderaddressesargs)
 
 The addresses that are allowed to cancel the Order.
 

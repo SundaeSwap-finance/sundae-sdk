@@ -1,6 +1,6 @@
-# Class: TxBuilder
+# Class: TxBuilderV1
 
-[Core](../modules/Core.md).TxBuilder
+[Core](../modules/Core.md).TxBuilderV1
 
 The main class by which TxBuilder classes are extended.
 
@@ -18,11 +18,11 @@ The transaction interface type that will be returned from Lib when building a ne
 
 ## Hierarchy
 
-- **`TxBuilder`**
+- **`TxBuilderV1`**
 
   ↳ [`TxBuilderLucidV1`](Lucid.TxBuilderLucidV1.md)
 
-  ↳ [`TxBuilderLucidV3`](Lucid.TxBuilderLucidV3.md)
+  ↳ [`TxBuilderBlazeV1`](Blaze.TxBuilderBlazeV1.md)
 
 ## Methods
 
@@ -38,4 +38,4 @@ Should create a new transaction instance from the supplied transaction library.
 
 #### Defined in
 
-[packages/core/src/Abstracts/TxBuilder.abstract.class.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/TxBuilder.abstract.class.ts#L25)
+[packages/core/src/Abstracts/TxBuilderV1.abstract.class.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/TxBuilderV1.abstract.class.ts#L25)

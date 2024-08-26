@@ -19,7 +19,7 @@ export abstract class OrderConfig<Args = {}> extends Config<Args> {
   orderAddresses?: TOrderAddressesArgs;
 
   /**
-   * Set the {@link Core.TOrderAddresses} for a swap's required datum.
+   * Set the addresses for a swap's required datum.
    * @param {TOrderAddressesArgs} orderAddresses - The addresses for the order.
    * @returns {OrderConfig} The current instance of the class.
    */

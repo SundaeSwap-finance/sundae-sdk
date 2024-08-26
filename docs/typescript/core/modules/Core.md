@@ -25,6 +25,7 @@
 
 - [IArguments](../interfaces/Core.IArguments.md)
 - [IBaseConfig](../interfaces/Core.IBaseConfig.md)
+- [IBlazeBuilder](../interfaces/Core.IBlazeBuilder.md)
 - [ICancelConfigArgs](../interfaces/Core.ICancelConfigArgs.md)
 - [IComposedTx](../interfaces/Core.IComposedTx.md)
 - [ICurrentFeeFromDecayingFeeArgs](../interfaces/Core.ICurrentFeeFromDecayingFeeArgs.md)
@@ -60,7 +61,8 @@
 
 ## Exported TxBuilders
 
-- [TxBuilder](../classes/Core.TxBuilder.md)
+- [TxBuilderV1](../classes/Core.TxBuilderV1.md)
+- [TxBuilderV3](../classes/Core.TxBuilderV3.md)
 
 ## Extension Builders
 
@@ -266,9 +268,9 @@ The unique identifier of a pool, defined as a string.
 
 ___
 
-### TOrderAddresses
+### TOrderAddressesArgs
 
-Ƭ **TOrderAddresses**: `Object`
+Ƭ **TOrderAddressesArgs**: `Object`
 
 An Escrow address defines the destination address and an optional PubKeyHash
 
@@ -350,13 +352,13 @@ ___
 
 ### TWalletBuilder
 
-Ƭ **TWalletBuilder**: [`ILucidBuilder`](../interfaces/Core.ILucidBuilder.md)
+Ƭ **TWalletBuilder**: [`ILucidBuilder`](../interfaces/Core.ILucidBuilder.md) \| [`IBlazeBuilder`](../interfaces/Core.IBlazeBuilder.md)
 
 The union type to hold all possible builder types.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L75)
+[packages/core/src/@types/txbuilders.ts:85](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L85)
 
 ___
 
