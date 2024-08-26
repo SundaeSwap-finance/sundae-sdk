@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.39...@sundaeswap/yield-farming@1.1.1) (2024-08-26)
+
+### Bug Fixes
+
+- wrong import in yf ([98350e7](https://github.com/SundaeSwap-finance/sundae-sdk/commit/98350e7217f41b541ae3eda2d44940ee7846dfd6))
+- yf txbuilder test ([922d962](https://github.com/SundaeSwap-finance/sundae-sdk/commit/922d962f7da436febbaabcbe2ae27c2128459aae))
+- yield farming blaze test ([a25c531](https://github.com/SundaeSwap-finance/sundae-sdk/commit/a25c531389c9dde9f6aaf04be47f1451991ca36b))
+
 ## [1.0.39](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.0.38...@sundaeswap/yield-farming@1.0.39) (2024-08-14)
 
 ### Bug Fixes

@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.1](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.2.9...@sundaeswap/core@1.3.1) (2024-08-26)
+
+### Bug Fixes
+
+- casing issue ([857f864](https://github.com/SundaeSwap-finance/sundae-sdk/commit/857f8649b143f0b062eab825fbdfbcf573224e3b))
+- migrate and cancel tests in v1 ([1ad34b8](https://github.com/SundaeSwap-finance/sundae-sdk/commit/1ad34b805be3013342713f4f61ed6abbc105c2fd))
+- type ([2825a9f](https://github.com/SundaeSwap-finance/sundae-sdk/commit/2825a9fc69e412c2accae48a34366ddad65ba595))
+- v1 and v3 datum builder tests ([82d789b](https://github.com/SundaeSwap-finance/sundae-sdk/commit/82d789b06856f945a3ef654007f04f44b13b0153))
+- yield farming blaze test ([a25c531](https://github.com/SundaeSwap-finance/sundae-sdk/commit/a25c531389c9dde9f6aaf04be47f1451991ca36b))
+
 ## [1.2.9](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.2.8...@sundaeswap/core@1.2.9) (2024-08-06)
 
 **Note:** Version bump only for package @sundaeswap/core
