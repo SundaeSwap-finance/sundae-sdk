@@ -32,7 +32,7 @@ import { ITxBuilderFees } from "../../@types/txbuilders.js";
 import {
   SettingsDatum,
   TSettingsDatum,
-} from "../../DatumBuilders/Contracts/Contracts.Blaze.v3.js";
+} from "../../DatumBuilders/ContractTypes/Contract.Blaze.v3.js";
 import { DatumBuilderBlazeV3 } from "../../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
 import {
   ADA_METADATA,

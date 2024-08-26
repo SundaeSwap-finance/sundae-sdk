@@ -38,7 +38,7 @@ import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
-import { OrderDatum as V3OrderDatum } from "../DatumBuilders/Contracts/Contracts.Blaze.v3.js";
+import { OrderDatum as V3OrderDatum } from "../DatumBuilders/ContractTypes/Contract.Blaze.v3.js";
 import { DatumBuilderBlazeV1 } from "../DatumBuilders/DatumBuilder.Blaze.V1.class.js";
 import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";

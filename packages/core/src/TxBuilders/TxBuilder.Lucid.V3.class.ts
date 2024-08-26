@@ -40,8 +40,8 @@ import { ZapConfig } from "../Configs/ZapConfig.class.js";
 import {
   OrderDatum,
   SettingsDatum,
-} from "../DatumBuilders/Contracts/Contracts.Lucid.v3.js";
-import { V3Types } from "../DatumBuilders/Contracts/index.js";
+} from "../DatumBuilders/ContractTypes/Contract.Lucid.v3.js";
+import { V3Types } from "../DatumBuilders/ContractTypes/index.js";
 import { DatumBuilderLucidV3 } from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";

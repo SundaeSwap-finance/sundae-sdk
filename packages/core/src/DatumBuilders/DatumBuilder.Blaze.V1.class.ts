@@ -30,7 +30,7 @@ import {
   TSwapOrder,
   TWithdrawOrder,
   WithdrawOrder,
-} from "./Contracts/Contracts.Blaze.v1.js";
+} from "./ContractTypes/Contract.Blaze.v1.js";
 
 /**
  * The Blaze implementation for building valid Datums for

@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
 
-import { TSignatureSchema } from "../../Contracts/Contracts.Blaze.v3.js";
+import { TSignatureSchema } from "../../ContractTypes/Contract.Blaze.v3.js";
 import { DatumBuilderBlazeV3 } from "../../DatumBuilder.Blaze.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 

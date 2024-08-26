@@ -39,7 +39,7 @@ import { ZapConfig } from "../Configs/ZapConfig.class.js";
 import {
   OrderDatum,
   SettingsDatum,
-} from "../DatumBuilders/Contracts/Contracts.Blaze.v3.js";
+} from "../DatumBuilders/ContractTypes/Contract.Blaze.v3.js";
 import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";

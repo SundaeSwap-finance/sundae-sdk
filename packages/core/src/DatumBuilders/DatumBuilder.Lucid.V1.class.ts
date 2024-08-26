@@ -27,7 +27,7 @@ import {
   TSwapOrder,
   TWithdrawOrder,
   WithdrawOrder,
-} from "./Contracts/Contracts.Lucid.v1.js";
+} from "./ContractTypes/Contract.Lucid.v1.js";
 
 /**
  * The Lucid implementation for building valid Datums for

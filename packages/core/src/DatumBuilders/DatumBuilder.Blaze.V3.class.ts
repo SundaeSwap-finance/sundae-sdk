@@ -12,7 +12,7 @@ import {
 import { DatumBuilder } from "../Abstracts/DatumBuilder.abstract.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
-import * as V3Types from "./Contracts/Contracts.Blaze.v3.js";
+import * as V3Types from "./ContractTypes/Contract.Blaze.v3.js";
 
 /**
  * The base arguments for the V3 DatumBuilder.

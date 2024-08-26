@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
 
-import { TSignatureSchema } from "../../Contracts/Contracts.Lucid.v3.js";
+import { TSignatureSchema } from "../../ContractTypes/Contract.Lucid.v3.js";
 import { DatumBuilderLucidV3 } from "../../DatumBuilder.Lucid.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
