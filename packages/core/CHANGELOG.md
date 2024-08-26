@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.2](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.1...@sundaeswap/core@1.3.2) (2024-08-26)
+
+### Bug Fixes
+
+- tests ([f8711dd](https://github.com/SundaeSwap-finance/sundae-sdk/commit/f8711ddf168262bdd2eac5a0c4d67efb9f3a0eb9))
+- type overload and remove maxScooperFee patch ([149fb8c](https://github.com/SundaeSwap-finance/sundae-sdk/commit/149fb8c817522151b76e50c6825359fe9e902e05))
+
 ## [1.3.1](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.2.9...@sundaeswap/core@1.3.1) (2024-08-26)
 
 ### Bug Fixes
