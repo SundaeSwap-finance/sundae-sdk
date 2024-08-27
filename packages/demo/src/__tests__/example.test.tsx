@@ -18,7 +18,7 @@ import { AppStateProvider } from "../state/context";
 
 describe("Example testing", () => {
   it("should use the mocked SundaeSDK", async () => {
-    const MockedSDK = new SundaeSDK({
+    const MockedSDK = await SundaeSDK.new({
       wallet: {
         builder: {
           type: ETxBuilderType.LUCID,

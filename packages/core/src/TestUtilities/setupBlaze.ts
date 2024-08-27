@@ -5,11 +5,6 @@ import { Blaze, ColdWallet, Core, makeValue } from "@blaze-cardano/sdk";
 import { windowCardano } from "./cardano.js";
 import { PREVIEW_DATA } from "./mockData.js";
 
-type TGetUtxosByOutRefMock = (
-  outRefs: { txHash: string; outputIndex: number }[]
-) => Promise<Core.TransactionOutput[] | undefined>;
-type TGetUtxosMock = () => Promise<Core.TransactionOutput[]>;
-
 const convertedOutputs = PREVIEW_DATA.wallet.utxos.map((utxo) => {
   return Core.TransactionOutput.fromCore({
     address: Core.PaymentAddress(utxo.address),
@@ -27,7 +22,7 @@ const convertedOutputs = PREVIEW_DATA.wallet.utxos.map((utxo) => {
 });
 
 export const setupBlaze = (
-  useBlaze?: (blaze: Blaze<EmulatorProvider, ColdWallet>) => void,
+  useBlaze?: (blaze: Blaze<EmulatorProvider, ColdWallet>) => Promise<void>,
   options?: {
     customUtxos?: Core.TransactionOutput[];
     beforeAll?: () => void;
@@ -77,7 +72,7 @@ export const setupBlaze = (
       )
     );
 
-    useBlaze?.(blaze);
+    await useBlaze?.(blaze);
   });
 
   afterEach(() => {

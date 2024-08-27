@@ -12,7 +12,7 @@ import { YieldFarmingLucid } from "../TxBuilder.YieldFarming.Lucid.class.js";
 let YFInstance: YieldFarmingLucid;
 let lucidInstance: Lucid;
 
-const { getUtxosByOutRefMock, ownerAddress } = setupLucid((lucid) => {
+const { getUtxosByOutRefMock, ownerAddress } = setupLucid(async (lucid) => {
   YFInstance = new YieldFarmingLucid(lucid);
   lucidInstance = lucid;
 });

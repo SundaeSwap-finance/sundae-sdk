@@ -82,7 +82,7 @@ const getPaymentAddressFromOutput = (output: Core.TransactionOutput) => {
   return Core.addressFromCredential(0, Core.Credential.fromCore(credential));
 };
 
-const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze((lucid) => {
+const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (lucid) => {
   builder = new TxBuilderBlazeV3(lucid, "preview");
 });
 

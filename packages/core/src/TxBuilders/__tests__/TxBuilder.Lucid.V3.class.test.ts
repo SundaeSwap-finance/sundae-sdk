@@ -65,7 +65,7 @@ const getPaymentAddressFromOutput = (output: C.TransactionOutput) => {
   return paymentAddress;
 };
 
-const { getUtxosByOutRefMock } = setupLucid((lucid) => {
+const { getUtxosByOutRefMock } = setupLucid(async (lucid) => {
   builder = new TxBuilderLucidV3(lucid, "preview");
 });
 

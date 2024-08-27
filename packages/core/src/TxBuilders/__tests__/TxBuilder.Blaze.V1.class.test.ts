@@ -22,7 +22,7 @@ import { TxBuilderBlazeV3 } from "../TxBuilder.Blaze.V3.class.js";
 
 let builder: TxBuilderBlazeV1;
 
-const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze((blaze) => {
+const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (blaze) => {
   builder = new TxBuilderBlazeV1(blaze, "preview");
 });
 

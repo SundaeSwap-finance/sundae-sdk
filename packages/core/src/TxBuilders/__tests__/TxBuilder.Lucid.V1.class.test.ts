@@ -20,7 +20,7 @@ import { params, settingsUtxosLucid } from "../__data__/mockData.js";
 
 let builder: TxBuilderLucidV1;
 
-const { getUtxosByOutRefMock } = setupLucid((lucid) => {
+const { getUtxosByOutRefMock } = setupLucid(async (lucid) => {
   builder = new TxBuilderLucidV1(lucid, "preview");
 });
 

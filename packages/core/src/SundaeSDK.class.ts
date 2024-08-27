@@ -36,7 +36,7 @@ export const SDK_OPTIONS_DEFAULTS: Pick<
  * interacting with the SundaeSwap protocol.
  *
  * ```ts
- * const sdk = new SundaeSDK({
+ * const sdk = await SundaeSDK.new({
  *   baseType: EBasePrototype.Lucid,
  *   network: "preview"
  * });
@@ -67,7 +67,7 @@ export class SundaeSDK {
    * @param {ISundaeSDKOptions} args - The primary arguments object for the SDK.
    * @returns {SundaeSDK}
    */
-  public constructor(args: ISundaeSDKOptions) {
+  private constructor(args: ISundaeSDKOptions) {
     this.queryProvider =
       args.customQueryProvider ||
       new QueryProviderSundaeSwap(args.wallet.network);
@@ -75,8 +75,18 @@ export class SundaeSDK {
       ...args,
       ...SDK_OPTIONS_DEFAULTS,
     };
+  }
 
-    this.registerTxBuilders();
+  /**
+   * Sets up TxBuilders based on the selected builder type. This is async
+   * because we only import them after consuming the arguments.
+   * @param {ISundaeSDKOptions} args The SundaeSDK arguments.
+   * @returns {Promise<SundaeSDK>}
+   */
+  static async new(args: ISundaeSDKOptions): Promise<SundaeSDK> {
+    const instance = new this(args);
+    await instance.registerTxBuilders();
+    return instance;
   }
 
   /**

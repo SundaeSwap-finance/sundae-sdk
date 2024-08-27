@@ -5,7 +5,7 @@ import { TasteTestLucid } from "../classes/TasteTest.Lucid.class.js";
 
 let TT: TasteTestLucid;
 
-const { getUtxosByOutRefMock } = setupLucid((lucid) => {
+setupLucid(async (lucid) => {
   TT = new TasteTestLucid(lucid);
 });
 

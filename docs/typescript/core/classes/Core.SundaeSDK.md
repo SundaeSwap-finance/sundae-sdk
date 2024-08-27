@@ -6,7 +6,7 @@ The main SundaeSDK class that contains all the necessary sub-classes for
 interacting with the SundaeSwap protocol.
 
 ```ts
-const sdk = new SundaeSDK({
+const sdk = await SundaeSDK.new({
   baseType: EBasePrototype.Lucid,
   network: "preview"
 });
@@ -59,7 +59,7 @@ Helper method to retrieve a blaze instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:265](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L265)
+[packages/core/src/SundaeSDK.class.ts:275](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L275)
 
 ___
 
@@ -82,7 +82,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:164](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L164)
+[packages/core/src/SundaeSDK.class.ts:174](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L174)
 
 ▸ **builder**(`contractVersion`, `txBuilderType`): [`TxBuilderBlazeV3`](Blaze.TxBuilderBlazeV3.md)
 
@@ -101,7 +101,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:168](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L168)
+[packages/core/src/SundaeSDK.class.ts:178](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L178)
 
 ▸ **builder**(`contractVersion`, `txBuilderType`): [`TxBuilderLucidV1`](Lucid.TxBuilderLucidV1.md)
 
@@ -120,7 +120,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:172](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L172)
+[packages/core/src/SundaeSDK.class.ts:182](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L182)
 
 ▸ **builder**(`contractVersion`, `txBuilderType`): [`TxBuilderLucidV3`](Lucid.TxBuilderLucidV3.md)
 
@@ -139,7 +139,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:176](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L176)
+[packages/core/src/SundaeSDK.class.ts:186](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L186)
 
 ▸ **builder**(`contractVersion`): [`TxBuilderV1`](Core.TxBuilderV1.md)
 
@@ -157,7 +157,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L180)
+[packages/core/src/SundaeSDK.class.ts:190](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L190)
 
 ▸ **builder**(`contractVersion`): [`TxBuilderV3`](Core.TxBuilderV3.md)
 
@@ -175,7 +175,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:181](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L181)
+[packages/core/src/SundaeSDK.class.ts:191](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L191)
 
 ▸ **builder**(`contractVersion`, `txBuilderType?`): [`TxBuilderV1`](Core.TxBuilderV1.md)
 
@@ -194,7 +194,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:182](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L182)
+[packages/core/src/SundaeSDK.class.ts:192](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L192)
 
 ▸ **builder**(`contractVersion`, `txBuilderType?`): [`TxBuilderV3`](Core.TxBuilderV3.md)
 
@@ -213,7 +213,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:186](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L186)
+[packages/core/src/SundaeSDK.class.ts:196](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L196)
 
 ▸ **builder**(`contractVersion`, `txBuilderType`): [`TxBuilderV3`](Core.TxBuilderV3.md)
 
@@ -232,7 +232,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:190](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L190)
+[packages/core/src/SundaeSDK.class.ts:200](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L200)
 
 ▸ **builder**(): [`TxBuilderV3`](Core.TxBuilderV3.md)
 
@@ -244,7 +244,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:194](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L194)
+[packages/core/src/SundaeSDK.class.ts:204](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L204)
 
 ▸ **builder**(`contractVersion?`, `txBuilderType?`): [`TxBuilderV1`](Core.TxBuilderV1.md) \| [`TxBuilderV3`](Core.TxBuilderV3.md)
 
@@ -263,7 +263,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:195](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L195)
+[packages/core/src/SundaeSDK.class.ts:205](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L205)
 
 ___
 
@@ -279,7 +279,7 @@ Utility method to retrieve the SDK options object.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:159](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L159)
+[packages/core/src/SundaeSDK.class.ts:169](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L169)
 
 ___
 
@@ -295,7 +295,7 @@ Helper method to retrieve a Lucid instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:248](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L248)
+[packages/core/src/SundaeSDK.class.ts:258](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L258)
 
 ___
 
@@ -313,7 +313,7 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:239](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L239)
+[packages/core/src/SundaeSDK.class.ts:249](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L249)
 
 ___
 
@@ -333,4 +333,27 @@ software stack.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L89)
+[packages/core/src/SundaeSDK.class.ts:99](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L99)
+
+___
+
+### new
+
+▸ **new**(`args`): `Promise`\<[`SundaeSDK`](Core.SundaeSDK.md)\>
+
+Sets up TxBuilders based on the selected builder type. This is async
+because we only import them after consuming the arguments.
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `args` | [`ISundaeSDKOptions`](../interfaces/Core.ISundaeSDKOptions.md) | The SundaeSDK arguments. |
+
+#### Returns
+
+`Promise`\<[`SundaeSDK`](Core.SundaeSDK.md)\>
+
+#### Defined in
+
+[packages/core/src/SundaeSDK.class.ts:86](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L86)

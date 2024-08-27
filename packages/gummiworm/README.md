@@ -17,7 +17,7 @@ Next, configure the instance in your app:
 import { SundaeSDK } from "@sundaeswap/core";
 import { GummiWormLucid } from "@sundaeswap/gummiworm";
 
-const sdk: SundaeSDK = new SundaeSDK({
+const sdk: SundaeSDK = await SundaeSDK.new({
   ...args,
 });
 

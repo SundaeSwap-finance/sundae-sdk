@@ -116,6 +116,7 @@ const config = {
       crypto: require.resolve("crypto-browserify"),
       vm: require.resolve("vm-browserify"),
       path: require.resolve("path-browserify"),
+      fs: false,
     },
   },
   experiments: {

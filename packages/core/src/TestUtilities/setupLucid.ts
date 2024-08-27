@@ -10,7 +10,7 @@ type TGetUtxosByOutRefMock = (
 type TGetUtxosMock = () => Promise<LocalUtxo[]>;
 
 export const setupLucid = (
-  useLucid?: (lucid: Lucid) => void,
+  useLucid?: (lucid: Lucid) => Promise<void>,
   options?: {
     customUtxos?: LocalUtxo[];
     beforeAll?: () => void;
@@ -55,7 +55,7 @@ export const setupLucid = (
       // @ts-ignore
       utxos: options?.customUtxos ?? PREVIEW_DATA.wallet.utxos,
     });
-    useLucid?.(lucid);
+    await useLucid?.(lucid);
   });
 
   afterEach(() => {

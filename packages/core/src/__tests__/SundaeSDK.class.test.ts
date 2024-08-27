@@ -16,7 +16,7 @@ import { TxBuilderLucidV3 } from "../TxBuilders/TxBuilder.Lucid.V3.class.js";
 let lucidInstance: Lucid;
 let defaultWallet: ISundaeSDKOptions["wallet"];
 
-setupLucid((lucid) => {
+setupLucid(async (lucid) => {
   lucidInstance = lucid;
   defaultWallet = {
     name: "eternl",
@@ -39,9 +39,9 @@ afterAll(() => {
   jest.resetModules();
 });
 
-describe.skip("SundaeSDK", () => {
-  it("should build settings with correct defaults", () => {
-    const sdk = new SundaeSDK({
+describe("SundaeSDK", () => {
+  it("should build settings with correct defaults", async () => {
+    const sdk = await SundaeSDK.new({
       wallet: defaultWallet,
     });
 
@@ -52,8 +52,8 @@ describe.skip("SundaeSDK", () => {
     });
   });
 
-  it("should build settings with correct overrides", () => {
-    const sdk = new SundaeSDK({
+  it("should build settings with correct overrides", async () => {
+    const sdk = await SundaeSDK.new({
       debug: true,
       minLockAda: 10_000_000n,
       wallet: defaultWallet,
@@ -66,28 +66,28 @@ describe.skip("SundaeSDK", () => {
     });
   });
 
-  it("should populate correct TxBuilders", () => {
-    const sdk = new SundaeSDK({
+  it("should populate correct TxBuilders", async () => {
+    const sdk = await SundaeSDK.new({
       wallet: defaultWallet,
     });
 
-    expect(sdk.builder()).toBeInstanceOf(TxBuilderLucidV1);
+    expect(sdk.builder()).toBeInstanceOf(TxBuilderLucidV3);
     expect(
-      sdk.builder(EContractVersion.V3, ETxBuilderType.LUCID)
-    ).toBeInstanceOf(TxBuilderLucidV3);
+      sdk.builder(EContractVersion.V1, ETxBuilderType.LUCID)
+    ).toBeInstanceOf(TxBuilderLucidV1);
   });
 
-  it("should populate correct QueryProvider", () => {
-    const sdk = new SundaeSDK({
+  it("should populate correct QueryProvider", async () => {
+    const sdk = await SundaeSDK.new({
       wallet: defaultWallet,
     });
 
     expect(sdk.query()).toBeInstanceOf(QueryProviderSundaeSwap);
   });
 
-  it("should throw an error if given an invalid provider type", () => {
+  it("should throw an error if given an invalid provider type", async () => {
     try {
-      new SundaeSDK({
+      await SundaeSDK.new({
         wallet: {
           builder: {
             // @ts-ignore

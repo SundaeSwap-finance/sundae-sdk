@@ -13,8 +13,8 @@ import { GummiWormLucid } from "../GummiWorm.Lucid.class.js";
 
 let GWInstance: GummiWormLucid;
 
-const { getUtxosByOutRefMock } = setupLucid((lucid) => {
-  const sdk = new SundaeSDK({
+const { getUtxosByOutRefMock } = setupLucid(async (lucid) => {
+  const sdk = await SundaeSDK.new({
     wallet: {
       builder: {
         lucid,

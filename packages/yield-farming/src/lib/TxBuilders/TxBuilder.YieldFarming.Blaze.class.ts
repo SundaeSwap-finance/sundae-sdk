@@ -1,13 +1,13 @@
-import { EmulatorProvider } from "@blaze-cardano/emulator";
+import type { EmulatorProvider } from "@blaze-cardano/emulator";
 import {
-  Blaze,
-  TxBuilder as BlazeTx,
-  Blockfrost,
-  ColdWallet,
+  type Blaze,
+  type TxBuilder as BlazeTx,
+  type Blockfrost,
+  type ColdWallet,
   Core,
   Data,
   makeValue,
-  WebWallet,
+  type WebWallet,
 } from "@blaze-cardano/sdk";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
@@ -18,7 +18,6 @@ import {
   type TSupportedNetworks,
 } from "@sundaeswap/core";
 import { BlazeHelper } from "@sundaeswap/core/blaze";
-import { LucidHelper } from "@sundaeswap/core/lucid";
 import { SundaeUtils } from "@sundaeswap/core/utilities";
 
 import { PositionRedeemer } from "../../@types/blaze.js";
@@ -224,7 +223,7 @@ export class YieldFarmingBlaze
       throw new Error("Could not generate a valid contract address.");
     }
 
-    const signerKey = LucidHelper.getAddressHashes(ownerAddress);
+    const signerKey = BlazeHelper.getAddressHashes(ownerAddress);
     const txInstance = this.blaze.newTransaction();
 
     referenceInputs.forEach((input) => txInstance.addReferenceInput(input));

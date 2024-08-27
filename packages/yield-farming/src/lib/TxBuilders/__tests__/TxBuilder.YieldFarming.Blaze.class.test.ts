@@ -8,11 +8,10 @@ import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 import { Delegation, TDelegation } from "../../../@types/blaze.js";
 import { delegation } from "../../__data__/delegationData.js";
 import { YieldFarmingBlaze } from "../TxBuilder.YieldFarming.Blaze.class.js";
-// import { delegation } from "../__data__/yieldfarming.expectations.js";
 
 let YFInstance: YieldFarmingBlaze;
 
-const { getUtxosByOutRefMock, ownerAddress } = setupBlaze((Blaze) => {
+const { getUtxosByOutRefMock, ownerAddress } = setupBlaze(async (Blaze) => {
   YFInstance = new YieldFarmingBlaze(Blaze, 0);
 });
 

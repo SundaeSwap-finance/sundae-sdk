@@ -64,7 +64,7 @@ const SelectBuilder: FC = () => {
             },
           };
 
-          sdk = new SundaeSDK(options);
+          sdk = await SundaeSDK.new(options);
           break;
         }
         default:
@@ -100,7 +100,7 @@ const SelectBuilder: FC = () => {
             },
           };
 
-          sdk = new SundaeSDK(options);
+          sdk = await SundaeSDK.new(options);
           break;
         }
       }
