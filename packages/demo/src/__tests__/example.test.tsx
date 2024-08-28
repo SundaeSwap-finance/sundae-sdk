@@ -9,7 +9,7 @@ MockAll();
 
 let lucidInstance: Lucid;
 
-setupLucid((lucid) => {
+setupLucid(async (lucid) => {
   lucidInstance = lucid;
 });
 

@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
 
-import { EXPECTATIONS } from "../__data__/datumbuilder.expectations.js";
+import { EXPECTATIONS } from "../__data__/datumbuilder.expectations.lucid.js";
 import { DatumBuilderLucid } from "../DatumBuilder.YieldFarming.Lucid.class.js";
 
 let builderInstance: DatumBuilderLucid;

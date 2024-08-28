@@ -33,9 +33,8 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       );
       const args: ISwapConfigArgs = {
         swapType: {
-          type: ESwapType.LIMIT,
-          // slippage: 0.03,
-          minReceivable: new AssetAmount(9_000_000n, pool.assetB),
+          type: ESwapType.MARKET,
+          slippage: 0.03,
         },
         pool,
         orderAddresses: {

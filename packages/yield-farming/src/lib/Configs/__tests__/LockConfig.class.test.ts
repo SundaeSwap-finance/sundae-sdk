@@ -1,3 +1,5 @@
+import { AssetAmount } from "@sundaeswap/asset";
+import { ADA_METADATA } from "@sundaeswap/core";
 import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 
 // @ts-ignore
@@ -5,12 +7,10 @@ global.BigInt.prototype.toJSON = function () {
   return this.toString();
 };
 
-import { AssetAmount } from "@sundaeswap/asset";
-import { ADA_METADATA } from "@sundaeswap/core";
 import { TDelegationPrograms } from "../../../@types/lucid.js";
 import { LockConfig } from "../LockConfig.js";
 
-let config: LockConfig;
+let config: LockConfig<any>;
 beforeEach(() => {
   config = new LockConfig();
 });

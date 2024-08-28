@@ -1,18 +1,18 @@
 import { AssetAmount } from "@sundaeswap/asset";
 import { Config } from "@sundaeswap/core";
 
-import { ILockConfigArgs } from "../../@types/index.js";
+import { ILockConfigArgs } from "../../@types/configs.js";
 
 /**
  * The main config class for building valid arguments for a Lock transaction.
  */
-export class LockConfig extends Config<ILockConfigArgs> {
-  ownerAddress?: ILockConfigArgs["ownerAddress"];
-  existingPositions?: ILockConfigArgs["existingPositions"];
-  lockedValues?: ILockConfigArgs["lockedValues"];
-  programs?: ILockConfigArgs["programs"];
+export class LockConfig<Programs> extends Config<ILockConfigArgs<Programs>> {
+  ownerAddress?: ILockConfigArgs<Programs>["ownerAddress"];
+  existingPositions?: ILockConfigArgs<Programs>["existingPositions"];
+  lockedValues?: ILockConfigArgs<Programs>["lockedValues"];
+  programs?: ILockConfigArgs<Programs>["programs"];
 
-  constructor(args?: ILockConfigArgs) {
+  constructor(args?: ILockConfigArgs<Programs>) {
     super();
 
     args && this.setFromObject(args);
@@ -24,7 +24,7 @@ export class LockConfig extends Config<ILockConfigArgs> {
     ownerAddress,
     programs,
     referralFee,
-  }: ILockConfigArgs): void {
+  }: ILockConfigArgs<Programs>): void {
     this.setLockedValues(lockedValues);
     this.setPrograms(programs);
     this.setOwnerAddress(ownerAddress);
@@ -32,35 +32,39 @@ export class LockConfig extends Config<ILockConfigArgs> {
     referralFee && this.setReferralFee(referralFee);
   }
 
-  buildArgs(): ILockConfigArgs | never {
+  buildArgs(): ILockConfigArgs<Programs> | never {
     this.validate();
 
     return {
       existingPositions: this
-        .existingPositions as ILockConfigArgs["existingPositions"],
-      lockedValues: this.lockedValues as ILockConfigArgs["lockedValues"],
-      programs: this.programs as ILockConfigArgs["programs"],
-      ownerAddress: this.ownerAddress as ILockConfigArgs["ownerAddress"],
+        .existingPositions as ILockConfigArgs<Programs>["existingPositions"],
+      lockedValues: this
+        .lockedValues as ILockConfigArgs<Programs>["lockedValues"],
+      programs: this.programs as ILockConfigArgs<Programs>["programs"],
+      ownerAddress: this
+        .ownerAddress as ILockConfigArgs<Programs>["ownerAddress"],
       referralFee: this.referralFee,
     };
   }
 
-  setOwnerAddress(ownerAddress: ILockConfigArgs["ownerAddress"]) {
+  setOwnerAddress(ownerAddress: ILockConfigArgs<Programs>["ownerAddress"]) {
     this.ownerAddress = ownerAddress;
     return this;
   }
 
-  setExistingPositions(positions: ILockConfigArgs["existingPositions"]) {
+  setExistingPositions(
+    positions: ILockConfigArgs<Programs>["existingPositions"]
+  ) {
     this.existingPositions = positions;
     return this;
   }
 
-  setLockedValues(values: ILockConfigArgs["lockedValues"]) {
+  setLockedValues(values: ILockConfigArgs<Programs>["lockedValues"]) {
     this.lockedValues = values;
     return this;
   }
 
-  setPrograms(programs: ILockConfigArgs["programs"]) {
+  setPrograms(programs: ILockConfigArgs<Programs>["programs"]) {
     this.programs = programs;
     return this;
   }

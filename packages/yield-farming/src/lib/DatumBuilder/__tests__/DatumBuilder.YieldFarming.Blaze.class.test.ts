@@ -1,6 +1,6 @@
 import { jest } from "@jest/globals";
 
-import { EXPECTATIONS } from "../__data__/datumbuilder.expectations.js";
+import { EXPECTATIONS } from "../__data__/datumbuilder.expectations.blaze.js";
 import { DatumBuilderBlaze } from "../DatumBuilder.YieldFarming.Blaze.class.js";
 
 let builderInstance: DatumBuilderBlaze;

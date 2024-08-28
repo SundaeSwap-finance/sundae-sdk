@@ -6,7 +6,7 @@ import {
 import { LucidHelper } from "@sundaeswap/core/lucid";
 import { Data } from "lucid-cardano";
 
-import { ILockArguments } from "../../@types/index.js";
+import { ILockArguments } from "../../@types/configs.js";
 import { Delegation, TDelegation } from "../../@types/lucid.js";
 
 /**
@@ -17,7 +17,11 @@ import { Delegation, TDelegation } from "../../@types/lucid.js";
  * specs as defined in the SundaeSwap smart contracts.
  */
 export class DatumBuilderLucid implements DatumBuilder {
-  constructor(public network: TSupportedNetworks) {}
+  public network: TSupportedNetworks;
+
+  constructor(network: TSupportedNetworks) {
+    this.network = network;
+  }
 
   /**
    * Builds the datum for asset locking, including LP tokens and other
@@ -28,7 +32,7 @@ export class DatumBuilderLucid implements DatumBuilder {
   buildLockDatum({
     owner,
     programs,
-  }: ILockArguments["delegation"]): TDatumResult<TDelegation> {
+  }: ILockArguments<TDelegation>["delegation"]): TDatumResult<TDelegation> {
     LucidHelper.validateAddressNetwork(owner.address, this.network);
     const addressDetails = LucidHelper.getAddressHashes(owner.address);
     const delegationData: TDelegation = {

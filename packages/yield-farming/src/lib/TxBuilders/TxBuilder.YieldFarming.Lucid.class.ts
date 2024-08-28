@@ -20,6 +20,7 @@ import {
 } from "lucid-cardano";
 
 import { ILockConfigArgs } from "../../@types/configs.js";
+import { TDelegationPrograms } from "../../@types/lucid.js";
 import { YieldFarming } from "../Abstracts/YieldFarming.abstract.class.js";
 import { LockConfig } from "../Configs/LockConfig.js";
 import { DatumBuilderLucid } from "../DatumBuilder/DatumBuilder.YieldFarming.Lucid.class.js";
@@ -122,14 +123,14 @@ export class YieldFarmingLucid
    * @param lockArgs
    * @returns
    */
-  async lock(lockArgs: ILockConfigArgs) {
+  async lock(lockArgs: ILockConfigArgs<TDelegationPrograms>) {
     const {
       existingPositions,
       lockedValues,
       ownerAddress,
       programs,
       referralFee,
-    } = new LockConfig(lockArgs).buildArgs();
+    } = new LockConfig<TDelegationPrograms>(lockArgs).buildArgs();
 
     const [referenceInput, existingPositionData] = await Promise.all([
       this.lucid.provider.getUtxosByOutRef([
@@ -296,7 +297,9 @@ export class YieldFarmingLucid
    * @param positionArgs
    * @returns
    */
-  updatePosition(positionArgs: Omit<ILockConfigArgs, "programs">) {
+  updatePosition(
+    positionArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "programs">
+  ) {
     return this.lock({
       ...positionArgs,
       programs: null,
@@ -311,7 +314,9 @@ export class YieldFarmingLucid
    * @param delegationArgs
    * @returns
    */
-  updateDelegation(delegationArgs: Omit<ILockConfigArgs, "lockedValues">) {
+  updateDelegation(
+    delegationArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">
+  ) {
     return this.lock({
       ...delegationArgs,
       lockedValues: null,
@@ -324,7 +329,9 @@ export class YieldFarmingLucid
    * @param unlockArgs
    * @returns
    */
-  unlock(unlockArgs: Omit<ILockConfigArgs, "lockedValues">) {
+  unlock(
+    unlockArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">
+  ) {
     // We just reverse the lock process.
     return this.lock({
       ...unlockArgs,

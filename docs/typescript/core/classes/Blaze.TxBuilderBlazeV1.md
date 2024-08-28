@@ -255,7 +255,7 @@ TxBuilderV1.migrateLiquidityToV3
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:1115](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L1115)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:1113](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L1113)
 
 ___
 
@@ -404,7 +404,7 @@ TxBuilderV1.update
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:691](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L691)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:690](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L690)
 
 ___
 
@@ -446,7 +446,7 @@ TxBuilderV1.withdraw
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:860](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L860)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:858](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L858)
 
 ___
 
@@ -488,7 +488,7 @@ TxBuilderV1.zap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:924](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L924)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:922](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L922)
 
 ___
 

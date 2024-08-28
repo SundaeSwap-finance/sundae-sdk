@@ -20,7 +20,7 @@ import {
 import { BlazeHelper } from "@sundaeswap/core/blaze";
 import { SundaeUtils } from "@sundaeswap/core/utilities";
 
-import { PositionRedeemer } from "../../@types/blaze.js";
+import { PositionRedeemer, TDelegationPrograms } from "../../@types/blaze.js";
 import { ILockConfigArgs } from "../../@types/configs.js";
 import { YieldFarming } from "../Abstracts/YieldFarming.abstract.class.js";
 import { LockConfig } from "../Configs/LockConfig.js";
@@ -128,7 +128,7 @@ export class YieldFarmingBlaze
    * @returns
    */
   async lock(
-    lockArgs: ILockConfigArgs
+    lockArgs: ILockConfigArgs<TDelegationPrograms>
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const {
       existingPositions,
@@ -136,7 +136,7 @@ export class YieldFarmingBlaze
       ownerAddress,
       programs,
       referralFee,
-    } = new LockConfig(lockArgs).buildArgs();
+    } = new LockConfig<TDelegationPrograms>(lockArgs).buildArgs();
 
     const [referenceInputs, existingPositionData] = await Promise.all([
       this.blaze.provider.resolveUnspentOutputs([
@@ -341,7 +341,7 @@ export class YieldFarmingBlaze
    * @returns
    */
   updatePosition(
-    positionArgs: Omit<ILockConfigArgs, "programs">
+    positionArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "programs">
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     return this.lock({
       ...positionArgs,
@@ -358,7 +358,7 @@ export class YieldFarmingBlaze
    * @returns
    */
   updateDelegation(
-    delegationArgs: Omit<ILockConfigArgs, "lockedValues">
+    delegationArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     return this.lock({
       ...delegationArgs,
@@ -373,7 +373,7 @@ export class YieldFarmingBlaze
    * @returns
    */
   unlock(
-    unlockArgs: Omit<ILockConfigArgs, "lockedValues">
+    unlockArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     // We just reverse the lock process.
     return this.lock({

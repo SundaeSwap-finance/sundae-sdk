@@ -5,5 +5,5 @@
  * @module YieldFarming
  */
 export type { IComposedTx } from "@sundaeswap/core";
-export * from "../@types/index.js";
+export * from "../@types/configs.js";
 export * from "../lib/Abstracts/YieldFarming.abstract.class.js";

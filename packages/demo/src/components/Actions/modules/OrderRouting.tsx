@@ -77,7 +77,7 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         swapA: {
           swapType: {
             type: ESwapType.MARKET,
-            slippage: 0.03,
+            slippage: 0.3,
           },
           pool: direction === "forward" ? swapAPool : swapBPool,
           suppliedAsset: new AssetAmount(
@@ -88,7 +88,7 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         swapB: {
           swapType: {
             type: ESwapType.MARKET,
-            slippage: 0.03,
+            slippage: 0.3,
           },
           pool: direction === "forward" ? swapBPool : swapAPool,
         },

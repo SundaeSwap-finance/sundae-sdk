@@ -23,7 +23,7 @@
     "package.json"
   ],
   "type": "module",
-  "main": "dist/exports/cjs/exports/index.js",
+  "main": "dist/cjs/exports/index.js",
   "types": "dist/types/exports/index.d.ts",
   "typesVersions": {
     "*": {

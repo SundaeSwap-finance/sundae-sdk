@@ -863,9 +863,19 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       ),
     ]);
 
+    let datum: Core.PlutusData | undefined = undefined;
+    const datumHash = utxoToSpend.output().datum()?.asDataHash();
+    if (datumHash) {
+      const resolvedDatum = await this.blaze.provider.resolveDatum(
+        Core.DatumHash(datumHash)
+      );
+      datum = Core.PlutusData.fromCbor(resolvedDatum.toCbor());
+    }
+
     tx.addInput(
       utxoToSpend,
-      Core.PlutusData.fromCbor(Core.HexBlob(CANCEL_REDEEMER))
+      Core.PlutusData.fromCbor(Core.HexBlob(CANCEL_REDEEMER)),
+      datum
     );
     cancelReadFrom.forEach((utxo) => tx.addReferenceInput(utxo));
 
@@ -876,9 +886,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     if (signerKey) {
       tx.addRequiredSigner(Core.Ed25519KeyHashHex(signerKey));
     }
-
-    const completed = await tx.complete();
-    tx.setMinimumFee(completed.body().fee() + 50_000n);
+    tx.setMinimumFee(500_000n);
 
     return this.completeTx({
       tx,
@@ -1070,6 +1078,11 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
+    const assets = makeValue(
+      payment.lovelace,
+      ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+    );
+
     tx.lockAssets(
       Core.addressFromBech32(
         await this.generateScriptAddress(
@@ -1077,10 +1090,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
           orderAddresses.DestinationAddress.address
         )
       ),
-      makeValue(
-        payment.lovelace,
-        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
-      ),
+      assets,
       Core.PlutusData.fromCbor(Core.HexBlob(inline))
     );
 
@@ -1206,13 +1216,21 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     });
 
     const data = new Core.AuxiliaryData();
-    const map = new Map();
-    map.set(103251n, {
-      [`0x${depositData.hash}`]: SundaeUtils.splitMetadataString(
-        depositData.inline
-      ),
-    });
-    data.metadata()?.setMetadata(map);
+    const metadata = new Map<bigint, Core.Metadatum>();
+    metadata.set(
+      103251n,
+      Core.Metadatum.fromCore(
+        new Map([
+          [
+            Buffer.from(depositData.hash, "hex"),
+            SundaeUtils.splitMetadataString(depositData.inline as string).map(
+              (v) => Buffer.from(v, "hex")
+            ),
+          ],
+        ])
+      )
+    );
+    data.setMetadata(new Core.Metadata(metadata));
     tx.setAuxiliaryData(data);
 
     tx.lockAssets(

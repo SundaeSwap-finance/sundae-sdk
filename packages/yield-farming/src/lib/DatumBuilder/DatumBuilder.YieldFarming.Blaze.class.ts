@@ -7,7 +7,7 @@ import {
 import { BlazeHelper } from "@sundaeswap/core/blaze";
 
 import { Delegation, TDelegation } from "../../@types/blaze.js";
-import { ILockArguments } from "../../@types/index.js";
+import { ILockArguments } from "../../@types/configs.js";
 
 /**
  * The Blaze representation of a DatumBuilder. The primary purpose of this class
@@ -17,7 +17,11 @@ import { ILockArguments } from "../../@types/index.js";
  * specs as defined in the SundaeSwap smart contracts.
  */
 export class DatumBuilderBlaze implements DatumBuilder {
-  constructor(public network: TSupportedNetworks) {}
+  public network: TSupportedNetworks;
+
+  constructor(network: TSupportedNetworks) {
+    this.network = network;
+  }
 
   /**
    * Builds the datum for asset locking, including LP tokens and other
@@ -28,7 +32,7 @@ export class DatumBuilderBlaze implements DatumBuilder {
   buildLockDatum({
     owner,
     programs,
-  }: ILockArguments["delegation"]): TDatumResult<TDelegation> {
+  }: ILockArguments<TDelegation>["delegation"]): TDatumResult<TDelegation> {
     BlazeHelper.validateAddressNetwork(owner.address, this.network);
     const addressDetails = BlazeHelper.getAddressHashes(owner.address);
     const delegationData: TDelegation = {

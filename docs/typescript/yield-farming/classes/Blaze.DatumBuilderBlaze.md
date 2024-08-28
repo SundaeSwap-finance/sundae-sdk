@@ -38,4 +38,4 @@ funds.
 
 #### Defined in
 
-[packages/yield-farming/src/lib/DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.ts:28](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/yield-farming/src/lib/DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.ts#L28)
+[packages/yield-farming/src/lib/DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/yield-farming/src/lib/DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.ts#L32)

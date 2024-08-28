@@ -6,7 +6,7 @@ import { setupBlaze } from "@sundaeswap/core/blaze";
 import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 
 import { Delegation, TDelegation } from "../../../@types/blaze.js";
-import { delegation } from "../../__data__/delegationData.js";
+import { delegation } from "../../__data__/delegationData.blaze.js";
 import { YieldFarmingBlaze } from "../TxBuilder.YieldFarming.Blaze.class.js";
 
 let YFInstance: YieldFarmingBlaze;

@@ -651,8 +651,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingCred));
     }
 
-    const completed = await tx.complete();
-    tx.setMinimumFee(completed.body().fee() + 10_000n);
+    tx.setMinimumFee(500_000n);
 
     return this.completeTx({
       tx,
@@ -778,8 +777,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       );
     }
 
-    // const draft = await cancelTx.complete();
-    // cancelTx.setMinimumFee(draft.body().fee() + 100_000n);
+    cancelTx.setMinimumFee(500_000n);
 
     return this.completeTx({
       tx: cancelTx,
