@@ -1,8 +1,7 @@
 import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
 import { ADA_METADATA } from "@sundaeswap/core";
-import { setupLucid } from "@sundaeswap/core/lucid";
-import { PREVIEW_DATA } from "@sundaeswap/core/testing";
+import { PREVIEW_DATA, setupLucid } from "@sundaeswap/core/testing";
 import { C, Data, Lucid, Tx } from "lucid-cardano";
 
 import { Delegation, TDelegation } from "../../../@types/lucid.js";

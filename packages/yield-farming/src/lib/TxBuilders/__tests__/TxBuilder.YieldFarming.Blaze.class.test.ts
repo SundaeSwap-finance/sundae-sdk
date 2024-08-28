@@ -2,8 +2,7 @@ import { Core, Data, makeValue, TxBuilder } from "@blaze-cardano/sdk";
 import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
 import { ADA_METADATA } from "@sundaeswap/core";
-import { setupBlaze } from "@sundaeswap/core/blaze";
-import { PREVIEW_DATA } from "@sundaeswap/core/testing";
+import { PREVIEW_DATA, setupBlaze } from "@sundaeswap/core/testing";
 
 import { Delegation, TDelegation } from "../../../@types/blaze.js";
 import { delegation } from "../../__data__/delegationData.blaze.js";

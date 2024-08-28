@@ -9,7 +9,6 @@
  */
 export * from "../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
 export * from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
-export { setupLucid } from "../TestUtilities/setupLucid.js";
 export * from "../TxBuilders/TxBuilder.Lucid.V1.class.js";
 export * from "../TxBuilders/TxBuilder.Lucid.V3.class.js";
 export * from "../Utilities/LucidHelper.class.js";
