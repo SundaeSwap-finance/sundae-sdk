@@ -17,21 +17,31 @@ const { getUtxosByOutRefMock, ownerAddress } = setupBlaze(async (Blaze) => {
 const referenceInputMock = new Core.TransactionUnspentOutput(
   new Core.TransactionInput(
     Core.TransactionId(
-      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.txHash
+      PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.txHash
     ),
-    BigInt(PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.outputIndex)
+    BigInt(PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.outputIndex)
   ),
-  new Core.TransactionOutput(
-    Core.Address.fromBech32(
-      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.address
+  Core.TransactionOutput.fromCore({
+    address: Core.getPaymentAddress(
+      Core.Address.fromBech32(
+        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.address
+      )
     ),
-    makeValue(
-      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets.lovelace,
+    value: makeValue(
+      PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.assets.lovelace,
       ...Object.entries(
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest.assets
+        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.assets
       ).filter(([key]) => key !== "lovelace")
-    )
-  )
+    ).toCore(),
+    scriptReference: Core.Script.newPlutusV2Script(
+      new Core.PlutusV2Script(
+        Core.HexBlob(
+          PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.scriptRef
+            ?.script as string
+        )
+      )
+    ).toCore(),
+  })
 );
 
 const createMockUtxoWithDatum = (datum: string) =>
@@ -47,10 +57,10 @@ const createMockUtxoWithDatum = (datum: string) =>
         "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
       ),
       value: makeValue(
-        5000000n,
+        5_000_000n,
         ...Object.entries({
           "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-            10000000n,
+            10_000_000n,
         })
       ).toCore(),
       datum: Core.PlutusData.fromCbor(Core.HexBlob(datum)).toCore(),
@@ -132,27 +142,13 @@ describe("YieldFarmingBlaze", () => {
     );
   });
 
-  it.skip("should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)", async () => {
+  it("should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
         createMockUtxoWithDatum(
           "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
         ),
-        // {
-        //   address:
-        //     "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
-        //   assets: {
-        //     "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
-        //       10000000n,
-        //     lovelace: 5000000n,
-        //   },
-        //   outputIndex: 0,
-        //   datum:
-        //     "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
-        //   txHash:
-        //     "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
-        // },
       ]);
 
     const { datum } = await YFInstance.lock({
@@ -213,7 +209,7 @@ describe("YieldFarmingBlaze", () => {
     );
   });
 
-  it.skip("should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)", async () => {
+  it("should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
@@ -325,7 +321,7 @@ describe("YieldFarmingBlaze", () => {
     );
   });
 
-  it.skip("should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)", async () => {
+  it("should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
@@ -370,7 +366,7 @@ describe("YieldFarmingBlaze", () => {
     );
   });
 
-  it.skip("should not build a datum when unlocking assets", async () => {
+  it("should not build a datum when unlocking assets", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
@@ -379,7 +375,7 @@ describe("YieldFarmingBlaze", () => {
         ),
       ]);
 
-    const { datum, fees } = await YFInstance.unlock({
+    const { datum, fees, build } = await YFInstance.unlock({
       ownerAddress: ownerAddress,
       programs: delegation,
       existingPositions: [
@@ -392,6 +388,39 @@ describe("YieldFarmingBlaze", () => {
 
     expect(datum).toBeUndefined();
     expect(fees.deposit.amount).toEqual(0n);
+
+    const tx = await build();
+
+    expect(tx.builtTx.body().inputs().values()[0].index()).toEqual(0n);
+    expect(tx.builtTx.body().inputs().values()[0].transactionId()).toEqual(
+      "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de"
+    );
+
+    const outputWithAssets = tx.builtTx
+      .body()
+      .outputs()
+      .find((output) => {
+        const matchingAsset = output
+          .amount()
+          .multiasset()
+          ?.get(
+            Core.AssetId(
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344"
+            )
+          );
+
+        if (
+          matchingAsset &&
+          matchingAsset >= 10_000_000n &&
+          output.amount().coin() > 5_000_000n
+        ) {
+          return true;
+        }
+
+        return false;
+      });
+
+    expect(outputWithAssets).not.toBeUndefined();
   });
 
   it("should throw an error if the reference input cannot be found", async () => {

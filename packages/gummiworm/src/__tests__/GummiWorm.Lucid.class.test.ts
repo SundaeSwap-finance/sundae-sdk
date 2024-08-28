@@ -31,7 +31,7 @@ afterEach(() => {
   getUtxosByOutRefMock.mockReset();
 });
 
-describe.skip("GummiWormLucid", () => {
+describe("GummiWormLucid", () => {
   it("should initiate with correct parameters", () => {
     expect(GWInstance.network).toEqual("preview");
     expect(GWInstance.getParam("contractAddress")).toEqual(

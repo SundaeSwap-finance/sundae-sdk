@@ -1,6 +1,5 @@
 import { ETxBuilderType, SundaeSDK } from "@sundaeswap/core";
-import { setupLucid } from "@sundaeswap/core/lucid";
-import { MockAll } from "@sundaeswap/core/testing";
+import { MockAll, setupLucid } from "@sundaeswap/core/testing";
 import "@testing-library/jest-dom";
 import { fireEvent, render, waitFor } from "@testing-library/react";
 import { Lucid } from "lucid-cardano";

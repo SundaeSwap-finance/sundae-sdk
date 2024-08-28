@@ -115,7 +115,7 @@ export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
 
   return (
     <Button disabled={!ready} onClick={handleUnlock} loading={unlocking}>
-      Unlock 5 tADA
+      Unlock Position
     </Button>
   );
 };

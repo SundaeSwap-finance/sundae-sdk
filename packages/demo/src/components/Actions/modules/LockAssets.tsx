@@ -1,7 +1,9 @@
 import { AssetAmount } from "@sundaeswap/asset";
 import { ETxBuilderType } from "@sundaeswap/core";
-import { TDelegationPrograms } from "@sundaeswap/yield-farming";
-import type { YieldFarmingBlaze } from "@sundaeswap/yield-farming/blaze";
+import type {
+  TDelegationPrograms,
+  YieldFarmingBlaze,
+} from "@sundaeswap/yield-farming/blaze";
 import type { YieldFarmingLucid } from "@sundaeswap/yield-farming/lucid";
 import { FC, useCallback, useState } from "react";
 

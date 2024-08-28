@@ -24,7 +24,7 @@ describe("YieldFarmingLucid", () => {
   it("should build an accurate transaction with an accurate datum when locking a position for the first time.", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming,
       ])
       .mockResolvedValueOnce(undefined);
 
@@ -98,7 +98,7 @@ describe("YieldFarmingLucid", () => {
   it("should build an accurate datum when updating a position but the delegation is null (i.e. it updates the positions and reuses the existing delegation)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming,
       ])
       .mockResolvedValueOnce([
         {
@@ -151,7 +151,7 @@ describe("YieldFarmingLucid", () => {
 
     // Cover case where there are no existing positions with null.
     getUtxosByOutRefMock.mockResolvedValueOnce([
-      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+      PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming,
     ]);
     const { datum: fallbackDatum } = await YFInstance.lock({
       lockedValues: [
@@ -180,7 +180,7 @@ describe("YieldFarmingLucid", () => {
   it("should build an accurate datum when updating a position but the delegation is possibly defined (i.e. it updates the positions and the delegation)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming,
       ])
       .mockResolvedValueOnce([
         {
@@ -234,7 +234,7 @@ describe("YieldFarmingLucid", () => {
   it("should build a delegation datum along with the transaction if set", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming,
       ])
       .mockResolvedValueOnce(undefined);
 
@@ -315,7 +315,7 @@ describe("YieldFarmingLucid", () => {
   it("should build an accurate datum when updating a delegation but the lockedValues is null (i.e. it updates the delegations and reuses the existing positions)", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming,
       ])
       .mockResolvedValueOnce([
         {
@@ -369,7 +369,7 @@ describe("YieldFarmingLucid", () => {
   it("should not build a datum when unlocking assets", async () => {
     getUtxosByOutRefMock
       .mockResolvedValueOnce([
-        PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming,
       ])
       .mockResolvedValueOnce([
         {
@@ -427,7 +427,7 @@ describe("YieldFarmingLucid", () => {
 
   it("should correctly build the fees object", async () => {
     getUtxosByOutRefMock.mockResolvedValueOnce([
-      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+      PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming,
     ]);
 
     const { fees, build } = await YFInstance.lock({
@@ -467,7 +467,7 @@ describe("YieldFarmingLucid", () => {
     const referralFeeAddress =
       "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68";
     getUtxosByOutRefMock.mockResolvedValueOnce([
-      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+      PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming,
     ]);
 
     const adaReferral = await YFInstance.lock({
@@ -523,7 +523,7 @@ describe("YieldFarmingLucid", () => {
     expect(hasAdaReferralFee).toBeTruthy();
 
     getUtxosByOutRefMock.mockResolvedValueOnce([
-      PREVIEW_DATA.wallet.referenceUtxos.previewTasteTest,
+      PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming,
     ]);
 
     const nonAdaReferral = await YFInstance.lock({
