@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.7](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.1.6...@sundaeswap/yield-farming@1.1.7) (2024-08-28)
+
+### Bug Fixes
+
+- jest imports making it into non-testing export paths ([87dfde7](https://github.com/SundaeSwap-finance/sundae-sdk/commit/87dfde7525c09c60f649543d22cc397a9a8bbe91))
+
 ## [1.1.6](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.1.5...@sundaeswap/yield-farming@1.1.6) (2024-08-28)
 
 **Note:** Version bump only for package @sundaeswap/yield-farming
