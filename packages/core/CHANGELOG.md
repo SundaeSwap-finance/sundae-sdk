@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.10](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.9...@sundaeswap/core@1.3.10) (2024-08-29)
+
+### Bug Fixes
+
+- attempt to resolve a private class instance error ([7146d41](https://github.com/SundaeSwap-finance/sundae-sdk/commit/7146d413e36ba4476b09f7ec2324085ccc799452))
+
 ## [1.3.9](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.8...@sundaeswap/core@1.3.9) (2024-08-29)
 
 ### Bug Fixes
