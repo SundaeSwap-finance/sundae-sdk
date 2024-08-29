@@ -218,11 +218,34 @@ describe("TxBuilderBlazeV3", () => {
     expect(fees.referral).toBeUndefined();
     expect(fees.cardanoTxFee).toBeUndefined();
 
-    const { cbor } = await build();
-    expect(cbor).toEqual(
-      "84a90081825820b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c00018282583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01a015d6d2082583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01a003ed5e0021a000efc000b5820badfab8185435ab413b8c1a5a7b275ba6f620b798a6fd1cc19f7e0a7a104e7e30d818258200000000000000000000000000000000000000000000000000000000000000000050e81581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01082583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d01b00000003bea07731111a00167a001288825820b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c00825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394700825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394701825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394702825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f243947038258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828008258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828018258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b82802a10581840000d87a80821a0001bb671a01f97c4af5f6"
+    const { builtTx } = await build();
+    const txFee = builtTx.body().fee();
+    expect(builtTx.body().inputs().size()).toEqual(1);
+    expect(builtTx.body().inputs().values()[0].transactionId()).toEqual(
+      "b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c"
     );
-    expect(fees.cardanoTxFee?.amount.toString()).toEqual("982016");
+    expect(builtTx.body().inputs().values()[0].index().toString()).toEqual("0");
+    expect(builtTx.body().outputs().length).toEqual(1);
+    expect(
+      Number(builtTx.body().outputs()[0].amount().coin())
+    ).toBeGreaterThanOrEqual(
+      Number(mockOrderToCancel[0].assets.lovelace - txFee)
+    );
+    for (const [id, amt] of Object.entries(mockOrderToCancel[0].assets)) {
+      if (id === "lovelace") {
+        continue;
+      }
+
+      const outputAmount = builtTx
+        .body()
+        .outputs()[0]
+        .amount()
+        .multiasset()
+        ?.get(Core.AssetId(id));
+      expect(outputAmount).not.toBeUndefined();
+      expect(outputAmount?.toString()).toEqual(amt.toString());
+    }
+    expect(fees.cardanoTxFee?.amount.toString()).toEqual(txFee.toString());
   });
 
   test("cancel() v1 order", async () => {

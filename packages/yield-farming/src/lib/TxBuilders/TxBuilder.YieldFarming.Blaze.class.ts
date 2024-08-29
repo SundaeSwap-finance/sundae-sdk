@@ -364,7 +364,6 @@ export class YieldFarmingBlaze
     const signerKey = BlazeHelper.getAddressHashes(ownerAddress);
     const txInstance = this.blaze.newTransaction();
     txInstance.setMinimumFee(500_000n);
-
     signerKey?.paymentCredentials &&
       txInstance.addRequiredSigner(
         Core.Ed25519KeyHashHex(signerKey.paymentCredentials)
@@ -381,25 +380,25 @@ export class YieldFarmingBlaze
       ADA_METADATA
     );
 
-    const referenceInputs = await this.blaze.provider.resolveUnspentOutputs([
-      new Core.TransactionInput(
-        Core.TransactionId(this.__getParam("referenceInput").split("#")[0]),
-        BigInt(this.__getParam("referenceInput").split("#")[1])
-      ),
+    const [referenceInputs, existingPositionData] = await Promise.all([
+      this.blaze.provider.resolveUnspentOutputs([
+        new Core.TransactionInput(
+          Core.TransactionId(this.__getParam("referenceInput").split("#")[0]),
+          BigInt(this.__getParam("referenceInput").split("#")[1])
+        ),
+      ]),
+      (() =>
+        existingPositions &&
+        existingPositions.length > 0 &&
+        this.blaze.provider.resolveUnspentOutputs(
+          existingPositions.map(
+            ({ hash, index }) =>
+              new Core.TransactionInput(Core.TransactionId(hash), BigInt(index))
+          )
+        ))(),
     ]);
 
     referenceInputs.forEach((input) => txInstance.addReferenceInput(input));
-
-    const existingPositionData =
-      await this.blaze.provider.resolveUnspentOutputs(
-        existingPositions.map(
-          (v) =>
-            new Core.TransactionInput(
-              Core.TransactionId(v.hash),
-              BigInt(v.index)
-            )
-        )
-      );
 
     if (existingPositionData) {
       const redeemer = Core.PlutusData.fromCbor(Core.HexBlob(CANCEL_REDEEMER));
@@ -525,17 +524,23 @@ export class YieldFarmingBlaze
         /**
          * @TODO Need to add metadata once fixed in blaze.
          */
-        // tx.attachMetadataWithConversion(
-        //   674,
-        //   `${referralFee.feeLabel}: ${referralFee.payment.value.toString()} ${
-        //     !SundaeUtils.isAdaAsset(referralFee.payment.metadata)
-        //       ? Buffer.from(
-        //           referralFee.payment.metadata.assetId.split(".")[1],
-        //           "hex"
-        //         ).toString("utf-8")
-        //       : "ADA"
-        //   }`
-        // );
+        const data = new Core.AuxiliaryData();
+        const map = new Map<bigint, Core.Metadatum>();
+        map.set(
+          674n,
+          Core.Metadatum.newText(
+            `${referralFee.feeLabel}: ${referralFee.payment.value.toString()} ${
+              !SundaeUtils.isAdaAsset(referralFee.payment.metadata)
+                ? Buffer.from(
+                    referralFee.payment.metadata.assetId.split(".")[1],
+                    "hex"
+                  ).toString("utf-8")
+                : "ADA"
+            }`
+          )
+        );
+        data.setMetadata(new Core.Metadata(map));
+        tx.setAuxiliaryData(data);
       }
     }
 

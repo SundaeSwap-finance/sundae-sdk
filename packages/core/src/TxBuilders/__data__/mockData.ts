@@ -239,6 +239,8 @@ export const mockOrderToCancel: UTxO[] = [
       "addr_test1zpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92sjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngqm78cm4",
     assets: {
       lovelace: 28_000_000n,
+      "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15524245525259":
+        100_000_000n,
     },
     outputIndex: 0,
     txHash: "b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c",

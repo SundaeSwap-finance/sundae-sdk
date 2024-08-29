@@ -569,22 +569,13 @@ describe("YieldFarmingBlaze", () => {
     }
 
     // Test Labels
-    /**
-     * @TODO fix when metadata is fixed
-     */
-    // expect(
-    //   adaReferralBuiltTx.txComplete
-    //     .auxiliary_data()
-    //     ?.metadata()
-    //     ?.get(C.BigNum.from_str("674"))
-    //     ?.as_text()
-    // ).toEqual("Test Label: 1 ADA");
-    // expect(
-    //   nonAdaReferralBuiltTx.txComplete
-    //     .auxiliary_data()
-    //     ?.metadata()
-    //     ?.get(C.BigNum.from_str("674"))
-    //     ?.as_text()
-    // ).toEqual("Non-Ada Test Label: 1 iUSD");
+    expect(
+      adaReferralBuiltTx
+        .auxiliaryData()
+        ?.metadata()
+        ?.metadata()
+        ?.get(674n)
+        ?.asText()
+    ).toEqual("Test Label: 1 ADA");
   });
 });
