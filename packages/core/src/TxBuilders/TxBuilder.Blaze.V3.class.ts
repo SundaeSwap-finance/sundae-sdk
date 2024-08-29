@@ -233,8 +233,8 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    * @returns {bigint} The maxScooperFee as defined by the settings UTXO.
    */
   public async getMaxScooperFeeAmount(): Promise<bigint> {
-    const [settings] = await this.getAllSettingsUtxos();
-    const datum = settings.output().datum()?.asInlineData();
+    const settings = await this.getAllSettingsUtxos();
+    const datum = settings[0].output().datum()?.asInlineData();
     if (!datum) {
       return 1_000_000n;
     }
