@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.9](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.1.8...@sundaeswap/yield-farming@1.1.9) (2024-08-29)
+
+### Bug Fixes
+
+- output issue and tests ([24aec24](https://github.com/SundaeSwap-finance/sundae-sdk/commit/24aec24bba5d994b4c44460270e20b58901d8585))
+
 ## [1.1.8](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.1.7...@sundaeswap/yield-farming@1.1.8) (2024-08-28)
 
 ### Bug Fixes
