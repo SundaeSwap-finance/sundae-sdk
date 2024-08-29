@@ -57,7 +57,7 @@ jest
 
 jest
   .spyOn(TxBuilderBlazeV3.prototype, "getAllSettingsUtxos")
-  .mockResolvedValue(settingsUtxosBlaze);
+  .mockResolvedValue(settingsUtxosBlaze[0]);
 
 jest
   .spyOn(TxBuilderBlazeV3.prototype, "getAllReferenceUtxos")

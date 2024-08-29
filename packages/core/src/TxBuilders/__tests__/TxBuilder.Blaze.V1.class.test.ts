@@ -36,7 +36,7 @@ jest
   .mockResolvedValue(params);
 jest
   .spyOn(TxBuilderBlazeV3.prototype, "getAllSettingsUtxos")
-  .mockResolvedValue(settingsUtxosBlaze);
+  .mockResolvedValue(settingsUtxosBlaze[0]);
 
 describe("TxBuilderBlazeV1", () => {
   it("should have the correct settings", () => {

@@ -78,7 +78,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
   referenceUtxos: Core.TransactionUnspentOutput[] | undefined;
-  settingsUtxos: Core.TransactionUnspentOutput[] | undefined;
+  settingsUtxo: Core.TransactionUnspentOutput | undefined;
   validatorScripts: Record<string, ISundaeProtocolValidatorFull> = {};
 
   static MIN_ADA_POOL_MINT_ERROR =
@@ -210,19 +210,21 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    * stored in the settings scripts of the protocol parameters
    * using the Blaze provider.
    *
-   * @returns {Promise<Core.TransactionUnspentOutput[]>}
+   * @returns {Promise<Core.TransactionUnspentOutput>}
    */
-  public async getAllSettingsUtxos(): Promise<Core.TransactionUnspentOutput[]> {
-    if (!this.settingsUtxos) {
+  public async getAllSettingsUtxos(): Promise<Core.TransactionUnspentOutput> {
+    if (!this.settingsUtxo) {
       const { hash } = await this.getValidatorScript("settings.mint");
-      this.settingsUtxos = [
-        await this.blaze.provider.getUnspentOutputByNFT(
-          Core.AssetId(`${hash}${this.SETTINGS_NFT_NAME}`)
-        ),
-      ];
+      const instance = await this.blaze.provider.getUnspentOutputByNFT(
+        Core.AssetId(`${hash}${this.SETTINGS_NFT_NAME}`)
+      );
+      // Required or it will sometimes throw a private method error.
+      instance.output.bind(instance);
+
+      this.settingsUtxo = instance;
     }
 
-    return this.settingsUtxos;
+    return this.settingsUtxo;
   }
 
   /**
@@ -234,7 +236,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    */
   public async getMaxScooperFeeAmount(): Promise<bigint> {
     const settings = await this.getAllSettingsUtxos();
-    const datum = settings[0].output().datum()?.asInlineData();
+    const datum = settings.output().datum()?.asInlineData();
     if (!datum) {
       return 1_000_000n;
     }
@@ -416,9 +418,9 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
         poolOutput: 0n,
       });
 
-    let settingsDatum = settings[0].output().datum()?.asInlineData();
+    let settingsDatum = settings.output().datum()?.asInlineData();
     if (!settingsDatum) {
-      const hash = settings[0].output().datum()?.asDataHash();
+      const hash = settings.output().datum()?.asDataHash();
       settingsDatum = hash
         ? await this.blaze.provider.resolveDatum(Core.DatumHash(hash))
         : undefined;
@@ -466,7 +468,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     mints.set(Core.AssetName(refAssetName), 1n);
     mints.set(Core.AssetName(poolLqAssetName), circulatingLp);
 
-    [...references, ...settings].forEach((utxo) => {
+    [...references, settings].forEach((utxo) => {
       tx.addReferenceInput(utxo);
     });
     userUtxos.forEach((utxo) => tx.addInput(utxo));
@@ -496,7 +498,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     );
 
     if (donateToTreasury) {
-      const settingsDatum = settings[0].output().datum()?.asInlineData();
+      const settingsDatum = settings.output().datum()?.asInlineData();
       if (!settingsDatum) {
         throw new Error("Could not retrieve datum from settings UTXO.");
       }
