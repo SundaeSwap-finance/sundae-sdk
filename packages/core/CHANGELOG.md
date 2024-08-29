@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.9](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.8...@sundaeswap/core@1.3.9) (2024-08-29)
+
+### Bug Fixes
+
+- destructured output throws blaze error ([2eab046](https://github.com/SundaeSwap-finance/sundae-sdk/commit/2eab046490549daed7b8e30dd077cfd2425bf85b))
+
 ## [1.3.8](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.7...@sundaeswap/core@1.3.8) (2024-08-29)
 
 ### Bug Fixes
