@@ -79,6 +79,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   protocolParams: ISundaeProtocolParamsFull | undefined;
   referenceUtxos: Core.TransactionUnspentOutput[] | undefined;
   settingsUtxo: Core.TransactionUnspentOutput | undefined;
+  settingsUtxoOutput: Core.TransactionOutput | undefined;
   validatorScripts: Record<string, ISundaeProtocolValidatorFull> = {};
 
   static MIN_ADA_POOL_MINT_ERROR =
@@ -214,14 +215,16 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    */
   public async getAllSettingsUtxos(): Promise<Core.TransactionUnspentOutput> {
     if (!this.settingsUtxo) {
+      console.log("using new version");
       const { hash } = await this.getValidatorScript("settings.mint");
       const instance = await this.blaze.provider.getUnspentOutputByNFT(
         Core.AssetId(`${hash}${this.SETTINGS_NFT_NAME}`)
       );
-      // Required or it will sometimes throw a private method error.
-      instance.output.bind(instance);
 
-      this.settingsUtxo = instance;
+      this.settingsUtxo = new Core.TransactionUnspentOutput(
+        instance.input(),
+        instance.output()
+      );
     }
 
     return this.settingsUtxo;
