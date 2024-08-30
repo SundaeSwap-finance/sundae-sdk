@@ -215,7 +215,6 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    */
   public async getAllSettingsUtxos(): Promise<Core.TransactionUnspentOutput> {
     if (!this.settingsUtxo) {
-      console.log("using new version");
       const { hash } = await this.getValidatorScript("settings.mint");
       const instance = await this.blaze.provider.getUnspentOutputByNFT(
         Core.AssetId(`${hash}${this.SETTINGS_NFT_NAME}`)
