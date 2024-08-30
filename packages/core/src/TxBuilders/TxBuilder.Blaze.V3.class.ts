@@ -78,8 +78,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
   referenceUtxos: Core.TransactionUnspentOutput[] | undefined;
-  settingsUtxo: Core.TransactionUnspentOutput | undefined;
-  settingsUtxoOutput: Core.TransactionOutput | undefined;
+  settingsUtxoDatum: string | undefined;
   validatorScripts: Record<string, ISundaeProtocolValidatorFull> = {};
 
   static MIN_ADA_POOL_MINT_ERROR =
@@ -207,26 +206,33 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   }
 
   /**
-   * Gets the settings UTxOs based on the transaction data
-   * stored in the settings scripts of the protocol parameters
-   * using the Blaze provider.
+   * Gets the settings UTxO.
    *
    * @returns {Promise<Core.TransactionUnspentOutput>}
    */
-  public async getAllSettingsUtxos(): Promise<Core.TransactionUnspentOutput> {
-    if (!this.settingsUtxo) {
-      const { hash } = await this.getValidatorScript("settings.mint");
-      const instance = await this.blaze.provider.getUnspentOutputByNFT(
-        Core.AssetId(`${hash}${this.SETTINGS_NFT_NAME}`)
-      );
+  public async getSettingsUtxo(): Promise<Core.TransactionUnspentOutput> {
+    const { hash } = await this.getValidatorScript("settings.mint");
+    return this.blaze.provider.getUnspentOutputByNFT(
+      Core.AssetId(`${hash}${this.SETTINGS_NFT_NAME}`)
+    );
+  }
 
-      this.settingsUtxo = new Core.TransactionUnspentOutput(
-        instance.input(),
-        instance.output()
-      );
+  /**
+   * Gets the setting utxo's datum CBOR.
+   *
+   * @returns {string}
+   */
+  public async getSettingsUtxoDatum(): Promise<string> {
+    if (!this.settingsUtxoDatum) {
+      const instance = await this.getSettingsUtxo();
+      this.settingsUtxoDatum = instance
+        .output()
+        .datum()
+        ?.asInlineData()
+        ?.toCbor() as string;
     }
 
-    return this.settingsUtxo;
+    return this.settingsUtxoDatum;
   }
 
   /**
@@ -237,13 +243,15 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    * @returns {bigint} The maxScooperFee as defined by the settings UTXO.
    */
   public async getMaxScooperFeeAmount(): Promise<bigint> {
-    const settings = await this.getAllSettingsUtxos();
-    const datum = settings.output().datum()?.asInlineData();
-    if (!datum) {
+    const settings = await this.getSettingsUtxoDatum();
+    if (!settings) {
       return 1_000_000n;
     }
 
-    const { baseFee, simpleFee } = Data.from(datum, SettingsDatum);
+    const { baseFee, simpleFee } = Data.from(
+      Core.PlutusData.fromCbor(Core.HexBlob(settings)),
+      SettingsDatum
+    );
 
     return baseFee + simpleFee;
   }
@@ -364,7 +372,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
         this.getUtxosForPoolMint(),
         this.getValidatorScript("pool.mint"),
         this.getAllReferenceUtxos(),
-        this.getAllSettingsUtxos(),
+        this.getSettingsUtxo(),
       ]);
 
     const seedUtxo = {
@@ -420,14 +428,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
         poolOutput: 0n,
       });
 
-    let settingsDatum = settings.output().datum()?.asInlineData();
-    if (!settingsDatum) {
-      const hash = settings.output().datum()?.asDataHash();
-      settingsDatum = hash
-        ? await this.blaze.provider.resolveDatum(Core.DatumHash(hash))
-        : undefined;
-    }
-
+    const settingsDatum = await this.getSettingsUtxoDatum();
     if (!settingsDatum) {
       throw new Error("Could not retrieve the datum from the settings UTXO.");
     }
@@ -435,7 +436,10 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     const {
       metadataAdmin: { paymentCredential, stakeCredential },
       authorizedStakingKeys: [poolStakingCredential],
-    } = Data.from(settingsDatum, SettingsDatum);
+    } = Data.from(
+      Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
+      SettingsDatum
+    );
     const metadataAddress = DatumBuilderBlazeV3.addressSchemaToBech32(
       { paymentCredential, stakeCredential },
       this.network === "mainnet"
@@ -500,12 +504,10 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     );
 
     if (donateToTreasury) {
-      const settingsDatum = settings.output().datum()?.asInlineData();
-      if (!settingsDatum) {
-        throw new Error("Could not retrieve datum from settings UTXO.");
-      }
-
-      const datum = Data.from(settingsDatum, SettingsDatum);
+      const datum = Data.from(
+        Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
+        SettingsDatum
+      );
       const realTreasuryAddress = DatumBuilderBlazeV3.addressSchemaToBech32(
         datum.treasuryAddress,
         this.network === "mainnet"
