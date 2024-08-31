@@ -103,7 +103,7 @@
     "typescript": "^4.6.4"
   },
   "peerDependencies": {
-    "@blaze-cardano/sdk": "^0.1.16",
+    "@blaze-cardano/sdk": "^0.1.17",
     "@sundaeswap/asset": "^1.0.3",
     "@sundaeswap/bigint-math": "^0.6.3",
     "@sundaeswap/cpp": "^1.0.3",
