@@ -324,10 +324,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@blaze-cardano/core@0.4.1":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/core/-/core-0.4.1.tgz#ea20e507b0e3c24164ec3b88a695290e8db9e64b"
-  integrity sha512-p9I9lKYdri2JNMWXDHDfDK0aO6mIGUe0uphCia4aXE9UoSRO4mfy+1TcAFfDf2ltKjcsJYAaUBBZ376oa0v68A==
+"@blaze-cardano/core@0.4.2":
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/core/-/core-0.4.2.tgz#0207596e49095e776de005bc787d7a8129c401e1"
+  integrity sha512-IXTKdmKsWAVGJXGO+aVxIRNthIHyq21C6zwns3c2dKmiGNKRNtAz/HpF8Tkl+jfES+0qLeSCsRAhiR+UO6oQqw==
   dependencies:
     "@cardano-sdk/core" "^0.35.4"
     "@cardano-sdk/crypto" "^0.1.28"
@@ -338,16 +338,16 @@
     "@scure/bip39" "^1.3.0"
     blakejs "^1.2.1"
 
-"@blaze-cardano/emulator@^0.1.50":
-  version "0.1.50"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/emulator/-/emulator-0.1.50.tgz#74ae4af7775fed45b83687145cf76c40d98ad5e7"
-  integrity sha512-D05SolPBWaUzfgrBj/jtY+iZO/P3PsPBP1fx79o7qAGWlNZWTFaU4ZJMnJTrfWssaWtyIoa+CL3AXcoQVCx2Dg==
+"@blaze-cardano/emulator@^0.1.59":
+  version "0.1.59"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/emulator/-/emulator-0.1.59.tgz#690ad39cc2c7f5dfbd12f4179399d2b28b96db09"
+  integrity sha512-1wjpAKg5Sgf94xDsgcZrhBa+Ps86eW0go44XhQMFApdrWn1h6we1uMIPDrRxXpUsGb+FlBVL+t0nxx7eRFoYfg==
   dependencies:
-    "@blaze-cardano/core" "0.4.1"
-    "@blaze-cardano/query" "0.2.8"
-    "@blaze-cardano/tx" "0.3.4"
-    "@blaze-cardano/vm" "0.0.34"
-    "@blaze-cardano/wallet" "0.1.30"
+    "@blaze-cardano/core" "0.4.2"
+    "@blaze-cardano/query" "0.2.11"
+    "@blaze-cardano/tx" "0.5.3"
+    "@blaze-cardano/vm" "0.0.35"
+    "@blaze-cardano/wallet" "0.1.39"
 
 "@blaze-cardano/jest-config@0.0.1":
   version "0.0.1"
@@ -362,87 +362,76 @@
     "@cardano-ogmios/schema" "^6.4.0"
     isomorphic-ws "^5.0.0"
 
-"@blaze-cardano/query@0.2.10":
-  version "0.2.10"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/query/-/query-0.2.10.tgz#72abcba93148075fe438a041e06c94dfef07e545"
-  integrity sha512-3DCs9sSSCORk+GUW5+CkZTS9zGJdRuwmqH+vYyTORfZ6q+dDMwi3Q2oq1vI0jMRPAd+FY7INZSCReHXS1smLCQ==
+"@blaze-cardano/query@0.2.11":
+  version "0.2.11"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/query/-/query-0.2.11.tgz#cb6b5872e849bc19678a3b9ba2db4c81e1a400e3"
+  integrity sha512-Ry/Fh3/ybXu1G/wrzZnNDydXD+6BiY/cASssuidVpwLfw9KlUOAOIv6QR9ja1BrHOCuq9kBgHiSvZceX+mP9hw==
   dependencies:
-    "@blaze-cardano/core" "0.4.1"
+    "@blaze-cardano/core" "0.4.2"
     "@blaze-cardano/jest-config" "0.0.1"
     "@blaze-cardano/ogmios" "0.0.4"
     "@cardano-ogmios/schema" "^6.4.0"
     ws "^8.17.1"
 
-"@blaze-cardano/query@0.2.8":
-  version "0.2.8"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/query/-/query-0.2.8.tgz#706d31143e14eea3f9e8145382639c91b699e159"
-  integrity sha512-SmE9YYXpUeJksvm4gtLpUJVQywoAp+EVaw9/7cOWLvjmgWGchjJip7NngNCLVn54OHsUkY/4UFYgc3/0SfbjfA==
+"@blaze-cardano/sdk@0.1.18":
+  version "0.1.18"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/sdk/-/sdk-0.1.18.tgz#2c277e67afc1a01c56afd69c2d8bba454d743ebd"
+  integrity sha512-E1ceDuJQGC0cp5JLFFdk03lllb4ro+RXVUYOSYn9rmPT1xvryyVVTIn+Uem2PWsXOwYnk6zExOQeb4+E59ZgmA==
   dependencies:
-    "@blaze-cardano/core" "0.4.1"
-    "@blaze-cardano/jest-config" "0.0.1"
-    "@blaze-cardano/ogmios" "0.0.4"
-    "@cardano-ogmios/schema" "^6.4.0"
-    ws "^8.17.1"
+    "@blaze-cardano/core" "0.4.2"
+    "@blaze-cardano/query" "0.2.11"
+    "@blaze-cardano/tx" "0.5.1"
+    "@blaze-cardano/uplc" "0.1.12"
+    "@blaze-cardano/wallet" "0.1.37"
 
-"@blaze-cardano/sdk@^0.1.17":
-  version "0.1.17"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/sdk/-/sdk-0.1.17.tgz#854189b18dc29c241738e8e4e2ace3e146b4d1f3"
-  integrity sha512-L2/8vkJJhloHXvBnQze2yjcF4WtdjE1+1TDZWJ4/0kmpcoo7+PKvRxvuFJwdvCY33E5vP8xTL/va9dNUIsnWBQ==
+"@blaze-cardano/tx@0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/tx/-/tx-0.5.1.tgz#79b4b229b44c29b2c86c4aa50d0c59c6371f79aa"
+  integrity sha512-Y6KeQRi/4B+8Zc7vvfDhzO+aIUDo351pTS81NxQJ54tzNa15pKtI9IH7ukRXyHA9Lm60Ov0tSS+ssRUI+TMKhw==
   dependencies:
-    "@blaze-cardano/core" "0.4.1"
-    "@blaze-cardano/query" "0.2.10"
-    "@blaze-cardano/tx" "0.5.0"
-    "@blaze-cardano/uplc" "0.1.11"
-    "@blaze-cardano/wallet" "0.1.36"
+    "@blaze-cardano/core" "0.4.2"
 
-"@blaze-cardano/tx@0.3.4":
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/tx/-/tx-0.3.4.tgz#4ee65d7e1f30dc50cac125c8d1cda8c3e8ec467b"
-  integrity sha512-/5ijBM56GGbBp/bg4kWrSRY0MSVLh8JoQHM9u8iqC3LJlenXM524qHPO7Lfpt9OLPy3WzelmjrDj1IJ/AVe/7g==
+"@blaze-cardano/tx@0.5.3":
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/tx/-/tx-0.5.3.tgz#d7a2e8c00a7726c8333ca13141abf92f6d50b48f"
+  integrity sha512-+9FHrclPHEvEc1N5Fjxu75QtbWvDovwAngp3biRzTexUV/rYD3MLnTQHb/09tLPTUk6qPGBW3jYxyB6O7+Yx0Q==
   dependencies:
-    "@blaze-cardano/core" "0.4.1"
+    "@blaze-cardano/core" "0.4.2"
 
-"@blaze-cardano/tx@0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/tx/-/tx-0.5.0.tgz#83a11af0c29098f56e488277c10057de00b2e588"
-  integrity sha512-hnf53CulDLXzSvVZmQO/1f0F6SjcGYGHxl2u5S+WkheK66qxxvjJZ7/pmaGFX8/ZmkSh4QwfaYbvs3YWh4mYJw==
+"@blaze-cardano/uplc@0.1.12":
+  version "0.1.12"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/uplc/-/uplc-0.1.12.tgz#5355691c26c1574479803cd72bfd664758ad7a3b"
+  integrity sha512-UEQU6uI8mUO1SK/7zxoBY3mDfmRpOREudhLlr1q8oyvWT2x5A0jijgS5/NBKbvU3FlvyyyKvbeMcUpQ0gIQEqA==
   dependencies:
-    "@blaze-cardano/core" "0.4.1"
-
-"@blaze-cardano/uplc@0.1.11":
-  version "0.1.11"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/uplc/-/uplc-0.1.11.tgz#d9b650698caa79f7a76f062900f988f3e32e6afe"
-  integrity sha512-stTYkVt+bskwsaLzFru559o8lTaURNTUyE1dRRIl638WhfipJePeariLweSei6MSzRmxCcWEquPsiomW4SN3tQ==
-  dependencies:
-    "@blaze-cardano/core" "0.4.1"
-    "@blaze-cardano/tx" "0.5.0"
+    "@blaze-cardano/core" "0.4.2"
+    "@blaze-cardano/tx" "0.5.1"
     hex-encoding "^2.0.2"
 
-"@blaze-cardano/vm@0.0.34":
-  version "0.0.34"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/vm/-/vm-0.0.34.tgz#282354d45eb16364f3c19d8551523c8efae164ad"
-  integrity sha512-atH4SSkIMwq50xduecMhkwakiMZOC25B8Rvlt6iG3IQK5EqUrLn15YB0IGBuagCUZEt0EBWaH81Eymq26ye+Hw==
+"@blaze-cardano/vm@0.0.35":
+  version "0.0.35"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/vm/-/vm-0.0.35.tgz#801709bec921ce089746fb8388e607984d257754"
+  integrity sha512-PeouXpfgfS+1E41kmaDWx0Pfx3L2qp8/e8PshtA3mgCRBZ68swgqTJfaeBzZ/0vzd5ziYSQw3zNwLIfv3+cA0A==
   dependencies:
-    "@blaze-cardano/core" "0.4.1"
+    "@blaze-cardano/core" "0.4.2"
     uplc-node "^0.0.3"
 
-"@blaze-cardano/wallet@0.1.30":
-  version "0.1.30"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/wallet/-/wallet-0.1.30.tgz#f7696330575fae63e6a739c49c2296187a6e2f7e"
-  integrity sha512-q853X7tbPw/cCJ/eqcXrk1lQDDL+NIWVrKJxL+5EpZbBxF/vBtSI+Vatf+Bg91HDwk+3O4RIrDfq8cSS6h/uMQ==
+"@blaze-cardano/wallet@0.1.37":
+  version "0.1.37"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/wallet/-/wallet-0.1.37.tgz#b6ddeb33ec6b47ebd73ff472d27be868ab98b5b3"
+  integrity sha512-uPliz5I0kuW68g5ck5/VO81lsB7Y9qKDN9N96EityxPzq+vIMRc1VE1cxKDelF9xvnCUSNdrj4Ge6wc6jKvnzw==
   dependencies:
-    "@blaze-cardano/core" "0.4.1"
-    "@blaze-cardano/query" "0.2.8"
-    "@blaze-cardano/tx" "0.3.4"
+    "@blaze-cardano/core" "0.4.2"
+    "@blaze-cardano/query" "0.2.11"
+    "@blaze-cardano/tx" "0.5.1"
 
-"@blaze-cardano/wallet@0.1.36":
-  version "0.1.36"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/wallet/-/wallet-0.1.36.tgz#3b54d166463b30dbabf056406bdedfeb73548c53"
-  integrity sha512-7D6biTuN/9EtK98z+Urhu90Ox4Ru6Fk5HZDrkmh2nOIaqhi57U4/aIPFOCa76dFqpS3N0zIXl5gRMAd6cWJBVw==
+"@blaze-cardano/wallet@0.1.39":
+  version "0.1.39"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/wallet/-/wallet-0.1.39.tgz#34952a052323a62e85662f9aec9011bf828aa10a"
+  integrity sha512-jAb1G9YqrmnytCUr940IPMQJ+YTw/Ukyec6v/MtxVS9WrAMLzCWOPxXeTGKjUKD3MHajYuyqxEvoiyBKgVhfeg==
   dependencies:
-    "@blaze-cardano/core" "0.4.1"
-    "@blaze-cardano/query" "0.2.10"
-    "@blaze-cardano/tx" "0.5.0"
+    "@blaze-cardano/core" "0.4.2"
+    "@blaze-cardano/query" "0.2.11"
+    "@blaze-cardano/tx" "0.5.3"
 
 "@cardano-ogmios/client@6.3.0":
   version "6.3.0"
