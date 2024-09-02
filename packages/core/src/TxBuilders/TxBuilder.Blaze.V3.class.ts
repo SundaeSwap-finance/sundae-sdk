@@ -892,7 +892,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     if (signerKey) {
       tx.addRequiredSigner(Core.Ed25519KeyHashHex(signerKey));
     }
-    tx.setMinimumFee(100_000n);
+    tx.setMinimumFee(250_000n);
 
     return this.completeTx({
       tx,
