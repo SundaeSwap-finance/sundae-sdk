@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.16](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.15...@sundaeswap/core@1.3.16) (2024-09-03)
+
+### Bug Fixes
+
+- minfee for deposit/withdraw ([76e0f54](https://github.com/SundaeSwap-finance/sundae-sdk/commit/76e0f540602e27d564ea856763ea577df57170e6))
+
 ## [1.3.15](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.14...@sundaeswap/core@1.3.15) (2024-09-03)
 
 **Note:** Version bump only for package @sundaeswap/core
