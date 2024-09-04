@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { EXPECTATIONS } from "../__data__/datumbuilder.expectations.lucid.js";
 import { DatumBuilderLucid } from "../DatumBuilder.YieldFarming.Lucid.class.js";
@@ -10,7 +10,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("DatumBuilderLucid", () => {

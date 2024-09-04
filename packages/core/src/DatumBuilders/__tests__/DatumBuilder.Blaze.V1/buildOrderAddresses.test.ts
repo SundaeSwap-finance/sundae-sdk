@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import {
   EDatumType,
@@ -19,7 +19,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildDestinationAddresses()", () => {
@@ -28,23 +28,35 @@ describe("buildDestinationAddresses()", () => {
     const result = builderInstance.buildOrderAddresses(
       expectations[0].args as TOrderAddressesArgs
     );
-    expect(result.inline).toStrictEqual(expectations[0].expectations.inline);
-    expect(result.hash).toStrictEqual(expectations[0].expectations.hash);
+    expect(result.inline).toStrictEqual(
+      expectations[0].expectations.inline as string
+    );
+    expect(result.hash).toStrictEqual(
+      expectations[0].expectations.hash as string
+    );
 
     // Without staking credential.
     const result2 = builderInstance.buildOrderAddresses(
       expectations[1].args as TOrderAddressesArgs
     );
 
-    expect(result2.inline).toStrictEqual(expectations[1].expectations.inline);
-    expect(result2.hash).toStrictEqual(expectations[1].expectations.hash);
+    expect(result2.inline).toStrictEqual(
+      expectations[1].expectations.inline as string
+    );
+    expect(result2.hash).toStrictEqual(
+      expectations[1].expectations.hash as string
+    );
 
     // With hash included in destination address.
     const result3 = builderInstance.buildOrderAddresses(
       expectations[2].args as TOrderAddressesArgs
     );
-    expect(result3.inline).toStrictEqual(expectations[2].expectations.inline);
-    expect(result3.hash).toStrictEqual(expectations[2].expectations.hash);
+    expect(result3.inline).toStrictEqual(
+      expectations[2].expectations.inline as string
+    );
+    expect(result3.hash).toStrictEqual(
+      expectations[2].expectations.hash as string
+    );
 
     const resultWithScriptDestination = builderInstance.buildOrderAddresses(
       expectations[3].args as TOrderAddressesArgs
@@ -56,10 +68,10 @@ describe("buildDestinationAddresses()", () => {
       )
     ).toBeTruthy();
     expect(resultWithScriptDestination.inline).toEqual(
-      expectations[3].expectations.inline
+      expectations[3].expectations.inline as string
     );
     expect(resultWithScriptDestination.hash).toEqual(
-      expectations[3].expectations.hash
+      expectations[3].expectations.hash as string
     );
   });
 

@@ -1,8 +1,8 @@
 import { Core, Data, makeValue, TxBuilder } from "@blaze-cardano/sdk";
-import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
 import { ADA_METADATA } from "@sundaeswap/core";
 import { PREVIEW_DATA, setupBlaze } from "@sundaeswap/core/testing";
+import { afterEach, describe, expect, it, spyOn } from "bun:test";
 
 import { Delegation, TDelegation } from "../../../@types/blaze.js";
 import { delegation } from "../../__data__/delegationData.blaze.js";
@@ -129,7 +129,7 @@ describe("YieldFarmingBlaze", () => {
     });
 
     expect(hasLockedValuesOutput).toBeTruthy();
-    expect(lockedValueDatum).toMatchObject<TDelegation>({
+    expect(lockedValueDatum).toMatchObject({
       owner: {
         address: Core.addressFromBech32(ownerAddress)
           .asBase()
@@ -308,14 +308,14 @@ describe("YieldFarmingBlaze", () => {
     });
 
     expect(hasLockedValuesOutput).toBeTruthy();
-    expect(lockedValueDatum).toMatchObject<TDelegation>({
+    expect(lockedValueDatum).toMatchObject({
       owner: {
         address: Core.addressFromBech32(ownerAddress)
           .asBase()
           ?.getStakeCredential().hash as string,
       },
       programs: delegation,
-    });
+    } as TDelegation);
     expect(datum).toEqual(
       "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
     );
@@ -330,7 +330,7 @@ describe("YieldFarmingBlaze", () => {
         ),
       ]);
 
-    const spiedPayToContract = jest.spyOn(TxBuilder.prototype, "lockAssets");
+    const spiedPayToContract = spyOn(TxBuilder.prototype, "lockAssets");
     const { datum } = await YFInstance.lock({
       lockedValues: null,
       ownerAddress: ownerAddress,
@@ -393,7 +393,9 @@ describe("YieldFarmingBlaze", () => {
 
     expect(tx.builtTx.body().inputs().values()[0].index()).toEqual(0n);
     expect(tx.builtTx.body().inputs().values()[0].transactionId()).toEqual(
-      "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de"
+      Core.TransactionId(
+        "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de"
+      )
     );
 
     const outputWithAssets = tx.builtTx
@@ -426,7 +428,7 @@ describe("YieldFarmingBlaze", () => {
   it("should throw an error if the reference input cannot be found", async () => {
     getUtxosByOutRefMock.mockResolvedValueOnce([]);
 
-    expect(() =>
+    expect(
       YFInstance.lock({
         lockedValues: [
           new AssetAmount(5_000_000n, ADA_METADATA),

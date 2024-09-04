@@ -7,8 +7,9 @@
     "packages/*"
   ],
   "scripts": {
-    "postinstall": "lerna bootstrap",
-    "test": "yarn node --max-old-space-size=6000 --no-warnings --experimental-vm-modules $(yarn bin jest)",
+    "postinstall": "lerna bootstrap && bun run build",
+    "test": "bun jest",
+    "test:old": "node --max-old-space-size=6000 --no-warnings --experimental-vm-modules $(bun jest)",
     "lint": "eslint ./packages --ext js,jsx,ts,tsx",
     "lint:fix": "yarn lint --fix",
     "prepare": "husky install",
@@ -30,7 +31,9 @@
   "devDependencies": {
     "@semantic-release/git": "^10.0.1",
     "@sundaeswap/asset": "^1.0.3",
+    "@sundaeswap/babel-preset": "^2.0.15",
     "@sundaeswap/docgen": "^0.1.2",
+    "@types/bun": "^1.1.8",
     "@types/node": "^18.11.18",
     "@types/node-fetch": "^2.6.11",
     "@typescript-eslint/eslint-plugin": "^5",
@@ -53,7 +56,7 @@
     "lerna": "^5.6.2",
     "lint-staged": "^15.1.0",
     "log-update": "^6.0.0",
-    "lucid-cardano": "^0.10.7",
+    "lucid-cardano": "^0.10.10",
     "prettier": "^2",
     "ts-jest": "^29.0.4",
     "ts-node": "^10.9.1"

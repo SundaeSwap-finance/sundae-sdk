@@ -1,6 +1,5 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
-import { TSignatureSchema } from "../../ContractTypes/Contract.Lucid.v3.js";
 import { DatumBuilderLucidV3 } from "../../DatumBuilder.Lucid.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
@@ -11,7 +10,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildOwnerDatum()", () => {
@@ -26,7 +25,7 @@ describe("buildOwnerDatum()", () => {
     expect(result.hash).toEqual(
       V3_EXPECTATIONS.buildOwnerDatum[0].expectations.hash
     );
-    expect(result.schema).toMatchObject<TSignatureSchema>(
+    expect(result.schema).toMatchObject(
       V3_EXPECTATIONS.buildOwnerDatum[0].expectations.schemaMatch
     );
   });

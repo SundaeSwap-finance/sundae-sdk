@@ -72,6 +72,8 @@ export class GummiProvider implements Provider {
         PlutusV1: PROTOCOL_PARAMETERS_DEFAULT.costModels.PlutusV1,
         PlutusV2: PROTOCOL_PARAMETERS_DEFAULT.costModels.PlutusV2,
       },
+      minfeeRefscriptCostPerByte:
+        PROTOCOL_PARAMETERS_DEFAULT.minfeeRefscriptCostPerByte,
     };
   }
 

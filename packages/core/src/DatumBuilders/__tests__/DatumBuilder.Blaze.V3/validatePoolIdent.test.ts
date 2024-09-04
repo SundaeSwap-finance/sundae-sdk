@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { DatumBuilderBlazeV3 } from "../../DatumBuilder.Blaze.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
@@ -10,7 +10,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildPoolIdent", () => {
@@ -26,7 +26,7 @@ describe("buildPoolIdent", () => {
     );
 
     expect(validIdent).toEqual(
-      V3_EXPECTATIONS.validatePoolIdent[1].expectations.result
+      V3_EXPECTATIONS.validatePoolIdent[1].expectations.result as string
     );
   });
 });

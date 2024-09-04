@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeAll, mock, type Mock } from "bun:test";
 import { Lucid, OutRef, Provider } from "lucid-cardano";
 
 import { getBlockfrostProtocolParameters, windowCardano } from "./cardano.js";
@@ -16,28 +16,28 @@ export const setupLucid = (
     beforeAll?: () => void;
   }
 ): {
-  getUtxosByOutRefMock: jest.Mock<TGetUtxosByOutRefMock>;
-  getUtxosMock: jest.Mock<TGetUtxosMock>;
-  mockProvider: jest.Mock;
+  getUtxosByOutRefMock: Mock<TGetUtxosByOutRefMock>;
+  getUtxosMock: Mock<TGetUtxosMock>;
+  mockProvider: Mock<any>;
   ownerAddress: string;
 } => {
-  const getUtxosByOutRefMock = jest.fn<TGetUtxosByOutRefMock>();
-  const getUtxosMock = jest
-    .fn<TGetUtxosMock>()
-    .mockResolvedValue(PREVIEW_DATA.wallet.utxos);
+  const getUtxosByOutRefMock = mock<TGetUtxosByOutRefMock>();
+  const getUtxosMock = mock<TGetUtxosMock>().mockResolvedValue(
+    PREVIEW_DATA.wallet.utxos
+  );
 
-  const mockProvider = jest.fn().mockImplementation(() => ({
+  const mockProvider = mock().mockImplementation(() => ({
     url: "https://cardano-preview.blockfrost.io/",
     // All fetch requests get mocked anyway.
     projectId: "test-project-id",
 
     // Required for collecting UTXOs for some reason.
     getUtxos: getUtxosMock,
-    getProtocolParameters: jest
-      .fn()
-      .mockImplementation(() => getBlockfrostProtocolParameters("preview")),
+    getProtocolParameters: mock().mockImplementation(() =>
+      getBlockfrostProtocolParameters("preview")
+    ),
     getUtxosByOutRef: getUtxosByOutRefMock,
-    getDatum: jest.fn(),
+    getDatum: mock(),
   }));
 
   beforeAll(async () => {
@@ -48,6 +48,7 @@ export const setupLucid = (
       cardano: windowCardano,
     };
 
+    // @ts-ignore
     const provider = new mockProvider() as unknown as Provider;
     const lucid = await Lucid.new(provider, "Preview");
     lucid.selectWalletFrom({

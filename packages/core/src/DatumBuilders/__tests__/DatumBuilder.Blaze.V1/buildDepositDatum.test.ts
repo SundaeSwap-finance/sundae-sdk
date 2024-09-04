@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { DatumBuilderBlazeV1 } from "../../DatumBuilder.Blaze.V1.class.js";
 import { V1_EXPECTATIONS } from "../../__data__/v1.expectations.js";
@@ -10,7 +10,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildDepositDatum()", () => {

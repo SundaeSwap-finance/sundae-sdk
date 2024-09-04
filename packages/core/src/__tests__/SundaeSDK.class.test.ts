@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterAll, beforeAll, describe, expect, it, mock } from "bun:test";
 import { type Lucid } from "lucid-cardano";
 
 import {
@@ -36,7 +36,7 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  jest.resetModules();
+  mock.restore();
 });
 
 describe("SundaeSDK", () => {
@@ -45,11 +45,11 @@ describe("SundaeSDK", () => {
       wallet: defaultWallet,
     });
 
-    expect(sdk.getOptions()).toMatchObject<ISundaeSDKOptions>({
+    expect(sdk.getOptions()).toMatchObject({
       debug: false,
       minLockAda: 5_000_000n,
       wallet: defaultWallet,
-    });
+    } as ISundaeSDKOptions);
   });
 
   it("should build settings with correct overrides", async () => {
@@ -59,11 +59,11 @@ describe("SundaeSDK", () => {
       wallet: defaultWallet,
     });
 
-    expect(sdk.getOptions()).toMatchObject<ISundaeSDKOptions>({
+    expect(sdk.getOptions()).toMatchObject({
       debug: false,
       minLockAda: 5_000_000n,
       wallet: defaultWallet,
-    });
+    } as ISundaeSDKOptions);
   });
 
   it("should populate correct TxBuilders", async () => {

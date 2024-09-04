@@ -6,34 +6,37 @@
  * @packageDescription
  */
 
-import { jest } from "@jest/globals";
+import { mock } from "bun:test";
+import * as Core from "../exports/core";
 
 export const MockAll = () => {
-  const mockSwap: any = jest.fn(async () => ({
-    submit: jest.fn(() => "hex"),
+  const mockSwap: any = mock(async () => ({
+    submit: mock(() => "hex"),
     cbor: "cbor",
   }));
-  const mockBuild: any = jest.fn();
-  const mockQuery: any = jest.fn(() => new MockedProviderSundaeSwap());
-  const MockedSundaeSDK = jest.fn().mockImplementation(() => ({
+
+  const MockedProviderSundaeSwap = mock().mockImplementation(() => {
+    return {
+      findPoolData: mock(() => "findPoolData"),
+      findPoolIdent: mock(() => "findPoolIdent"),
+    };
+  });
+  const MockedTxBuilderLucid = mock().mockImplementation(() => {
+    return {};
+  });
+
+  const MockedDatumBuilderLucid = mock().mockImplementation(() => {
+    return {};
+  });
+
+  const mockBuild: any = mock();
+  // @ts-ignore
+  const mockQuery: any = mock(() => new MockedProviderSundaeSwap());
+  const MockedSundaeSDK = mock().mockImplementation(() => ({
     build: mockBuild,
     swap: mockSwap,
     query: mockQuery,
   }));
-
-  const MockedProviderSundaeSwap = jest.fn().mockImplementation(() => {
-    return {
-      findPoolData: jest.fn(() => "findPoolData"),
-      findPoolIdent: jest.fn(() => "findPoolIdent"),
-    };
-  });
-  const MockedTxBuilderLucid = jest.fn().mockImplementation(() => {
-    return {};
-  });
-
-  const MockedDatumBuilderLucid = jest.fn().mockImplementation(() => {
-    return {};
-  });
 
   beforeEach(() => {
     MockedDatumBuilderLucid.mockClear();
@@ -45,13 +48,13 @@ export const MockAll = () => {
     mockQuery.mockClear();
   });
 
-  jest.mock("@sundaeswap/core", () => ({
-    ...(jest.requireActual("@sundaeswap/core") as any),
+  mock.module("@sundaeswap/core", () => ({
+    ...Core,
     SundaeSDK: MockedSundaeSDK,
     ProviderSundaeSwap: MockedProviderSundaeSwap,
   }));
 
-  jest.mock("@sundaeswap/core/lucid", () => ({
+  mock.module("@sundaeswap/core/lucid", () => ({
     TxBuilderLucid: MockedTxBuilderLucid,
     DatumBuilderLucid: MockedDatumBuilderLucid,
   }));

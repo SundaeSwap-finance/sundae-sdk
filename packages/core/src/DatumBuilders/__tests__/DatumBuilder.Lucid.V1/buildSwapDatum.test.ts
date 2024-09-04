@@ -1,5 +1,5 @@
-import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import {
   EDatumType,
@@ -18,7 +18,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildSwapDatum()", () => {

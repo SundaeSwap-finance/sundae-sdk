@@ -1,5 +1,5 @@
-import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
+import { describe, it } from "bun:test";
 
 import {
   EContractVersion,
@@ -25,8 +25,6 @@ const mockedProtocols: ISundaeProtocolParams[] = [
     version: EContractVersion.V1,
   },
 ];
-
-jest.useFakeTimers();
 
 describe("SundaeUtils class", () => {
   it("getMinReceivableFromSlippage", () => {

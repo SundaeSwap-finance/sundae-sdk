@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeAll, spyOn, type Mock } from "bun:test";
 
 import { Emulator, EmulatorProvider } from "@blaze-cardano/emulator";
 import { Blaze, ColdWallet, Core, makeValue } from "@blaze-cardano/sdk";
@@ -28,29 +28,23 @@ export const setupBlaze = (
     beforeAll?: () => void;
   }
 ): {
-  getUtxosByOutRefMock: jest.SpiedFunction<
+  getUtxosByOutRefMock: Mock<
     (txIns: Core.TransactionInput[]) => Promise<Core.TransactionUnspentOutput[]>
   >;
-  getUtxosMock: jest.SpiedFunction<
+  getUtxosMock: Mock<
     (address: Core.Address) => Promise<Core.TransactionUnspentOutput[]>
   >;
-  resolveDatumMock: jest.SpiedFunction<
+  resolveDatumMock: Mock<
     (datumHash: Core.DatumHash) => Promise<Core.PlutusData>
   >;
   ownerAddress: string;
 } => {
-  const getUtxosByOutRefMock = jest.spyOn(
+  const getUtxosByOutRefMock = spyOn(
     EmulatorProvider.prototype,
     "resolveUnspentOutputs"
   );
-  const getUtxosMock = jest.spyOn(
-    EmulatorProvider.prototype,
-    "getUnspentOutputs"
-  );
-  const resolveDatumMock = jest.spyOn(
-    EmulatorProvider.prototype,
-    "resolveDatum"
-  );
+  const getUtxosMock = spyOn(EmulatorProvider.prototype, "getUnspentOutputs");
+  const resolveDatumMock = spyOn(EmulatorProvider.prototype, "resolveDatum");
 
   beforeAll(async () => {
     options?.beforeAll?.();

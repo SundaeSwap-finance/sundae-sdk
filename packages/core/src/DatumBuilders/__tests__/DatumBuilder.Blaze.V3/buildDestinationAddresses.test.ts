@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { BlazeHelper } from "../../../Utilities/BlazeHelper.class.js";
 import { DatumBuilderBlazeV3 } from "../../DatumBuilder.Blaze.V3.class.js";
@@ -11,7 +11,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildDestinationAddresses()", () => {
@@ -21,10 +21,10 @@ describe("buildDestinationAddresses()", () => {
       V3_EXPECTATIONS.buildDestinationAddresses[0].args
     );
     expect(result.inline).toStrictEqual(
-      V3_EXPECTATIONS.buildDestinationAddresses[0].expectations.inline
+      V3_EXPECTATIONS.buildDestinationAddresses[0].expectations.inline as string
     );
     expect(result.hash).toStrictEqual(
-      V3_EXPECTATIONS.buildDestinationAddresses[0].expectations.hash
+      V3_EXPECTATIONS.buildDestinationAddresses[0].expectations.hash as string
     );
 
     // Without staking credential.
@@ -33,20 +33,20 @@ describe("buildDestinationAddresses()", () => {
     );
 
     expect(result2.inline).toStrictEqual(
-      V3_EXPECTATIONS.buildDestinationAddresses[1].expectations.inline
+      V3_EXPECTATIONS.buildDestinationAddresses[1].expectations.inline as string
     );
     expect(result2.hash).toStrictEqual(
-      V3_EXPECTATIONS.buildDestinationAddresses[1].expectations.hash
+      V3_EXPECTATIONS.buildDestinationAddresses[1].expectations.hash as string
     );
 
     const result3 = builderInstance.buildDestinationAddresses(
       V3_EXPECTATIONS.buildDestinationAddresses[2].args
     );
     expect(result3.inline).toStrictEqual(
-      V3_EXPECTATIONS.buildDestinationAddresses[2].expectations.inline
+      V3_EXPECTATIONS.buildDestinationAddresses[2].expectations.inline as string
     );
     expect(result3.hash).toStrictEqual(
-      V3_EXPECTATIONS.buildDestinationAddresses[2].expectations.hash
+      V3_EXPECTATIONS.buildDestinationAddresses[2].expectations.hash as string
     );
 
     const result4 = builderInstance.buildDestinationAddresses(
@@ -54,10 +54,10 @@ describe("buildDestinationAddresses()", () => {
     );
 
     expect(result4.inline).toEqual(
-      V3_EXPECTATIONS.buildDestinationAddresses[3].expectations.inline
+      V3_EXPECTATIONS.buildDestinationAddresses[3].expectations.inline as string
     );
     expect(result4.hash).toEqual(
-      V3_EXPECTATIONS.buildDestinationAddresses[3].expectations.hash
+      V3_EXPECTATIONS.buildDestinationAddresses[3].expectations.hash as string
     );
 
     const resultWithScriptDestination =
@@ -66,10 +66,10 @@ describe("buildDestinationAddresses()", () => {
       );
 
     expect(resultWithScriptDestination.inline).toEqual(
-      V3_EXPECTATIONS.buildDestinationAddresses[4].expectations.inline
+      V3_EXPECTATIONS.buildDestinationAddresses[4].expectations.inline as string
     );
     expect(resultWithScriptDestination.hash).toEqual(
-      V3_EXPECTATIONS.buildDestinationAddresses[4].expectations.hash
+      V3_EXPECTATIONS.buildDestinationAddresses[4].expectations.hash as string
     );
   });
 
@@ -90,7 +90,8 @@ describe("buildDestinationAddresses()", () => {
       );
     } catch (e) {
       expect((e as Error).message).toStrictEqual(
-        V3_EXPECTATIONS.buildDestinationAddresses[6].expectations.error
+        V3_EXPECTATIONS.buildDestinationAddresses[6].expectations
+          .error as string
       );
     }
   });

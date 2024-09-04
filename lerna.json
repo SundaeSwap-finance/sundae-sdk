@@ -3,7 +3,7 @@
   "useNx": true,
   "useWorkspaces": true,
   "version": "independent",
-  "npmClient": "yarn",
+  "npmClient": "bun",
   "ignoreChanges": [
     "**/__tests__/**",
     "**/__fixtures__/**",

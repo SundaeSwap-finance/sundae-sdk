@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { IWithdrawArguments } from "../../../@types/datumbuilder.js";
 import { DatumBuilderBlazeV1 } from "../../DatumBuilder.Blaze.V1.class.js";
@@ -12,7 +12,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildWithdrawDatum()", () => {

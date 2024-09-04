@@ -71,17 +71,16 @@
     }
   },
   "scripts": {
-    "clean": "rm -rf ./dist",
     "typecheck": "tsc --noEmit",
-    "compile:esm": "tsc --outDir dist/esm",
-    "compile:cjs": "tsc --outDir dist/cjs --module commonjs",
-    "compile:types": "tsc --outDir dist/types --emitDeclarationOnly --declarationMap --declaration",
-    "compile": "yarn compile:cjs && yarn compile:esm && yarn compile:types",
-    "build": "yarn clean && yarn compile",
-    "prepare": "yarn build",
-    "watch": "yarn compile:cjs && yarn compile:types && yarn compile:esm --watch",
+    "clean": "rm -rf ./dist",
+    "build:esm": "cross-env BABEL_ENV=esmUnbundled babel src --extensions '.ts,.tsx' --out-dir './dist/esm' --source-maps",
+    "build:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts,.tsx' --out-dir 'dist/cjs' --source-maps",
+    "types": "tsc --project ./tsconfig.build.json",
+    "build": "bun clean && bun types && bun build:esm && bun build:cjs && bun set-cjs",
+    "watch": "bun clean && bun run build && bun build:esm --watch",
+    "set-cjs": "echo '{ \"type\": \"commonjs\" }' > ./dist/cjs/package.json",
     "docs": "docgen generate --typedoc-options ./typedoc.json",
-    "docs:ci": "yarn docs --unsafe"
+    "docs:ci": "bun docs --unsafe"
   },
   "devDependencies": {
     "@blaze-cardano/emulator": "^0.1.59",
@@ -108,7 +107,7 @@
     "@sundaeswap/bigint-math": "^0.6.3",
     "@sundaeswap/cpp": "^1.0.3",
     "@sundaeswap/fraction": "^1.0.3",
-    "lucid-cardano": "^0.10.7"
+    "lucid-cardano": "^0.10.10"
   },
   "gitHead": "ddc937102065a5a581fe7affe02474c0e68ad9a0"
 }

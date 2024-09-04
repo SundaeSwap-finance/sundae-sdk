@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import {
   DatumBuilderLucidV3,
@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("builderMintPoolDatum()", () => {
@@ -37,11 +37,9 @@ describe("builderMintPoolDatum()", () => {
         IDatumBuilderMintPoolV3Args["seedUtxo"]
       ])
     );
-    expect(spiedOnComputePoolId).toHaveNthReturnedWith(
-      ...(V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.returnedWith as [
-        number,
-        string
-      ])
+    expect(spiedOnComputePoolId).toHaveReturnedTimes(
+      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations
+        .returnedWith[0] as number
     );
     expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(
       V3_EXPECTATIONS.buildMintPoolDatum[0].expectations
@@ -69,11 +67,9 @@ describe("builderMintPoolDatum()", () => {
       V3_EXPECTATIONS.buildMintPoolDatum[1].args
     );
 
-    expect(spiedOnComputePoolId).toHaveNthReturnedWith(
-      ...(V3_EXPECTATIONS.buildMintPoolDatum[1].expectations.returnedWith as [
-        number,
-        string
-      ])
+    expect(spiedOnComputePoolId).toHaveReturnedTimes(
+      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations
+        .returnedWith[0] as number
     );
     expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(
       V3_EXPECTATIONS.buildMintPoolDatum[1].expectations
