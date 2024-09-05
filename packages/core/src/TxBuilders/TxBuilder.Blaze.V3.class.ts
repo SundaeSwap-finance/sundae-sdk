@@ -497,11 +497,21 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     );
 
     // Send the metadata reference NFT to the metadata address.
-    tx.payAssets(
-      Core.addressFromBech32(metadataAddress),
-      makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
-      Data.void()
-    );
+    const address = Core.addressFromBech32(metadataAddress);
+    const type = address.getProps().paymentPart?.type;
+    if (type === Core.CredentialType.ScriptHash) {
+      tx.lockAssets(
+        address,
+        makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
+        Data.void()
+      );
+    } else {
+      tx.payAssets(
+        address,
+        makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
+        Data.void()
+      );
+    }
 
     if (donateToTreasury) {
       const datum = Data.from(
