@@ -338,16 +338,16 @@
     "@scure/bip39" "^1.3.0"
     blakejs "^1.2.1"
 
-"@blaze-cardano/emulator@^0.1.59":
-  version "0.1.59"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/emulator/-/emulator-0.1.59.tgz#690ad39cc2c7f5dfbd12f4179399d2b28b96db09"
-  integrity sha512-1wjpAKg5Sgf94xDsgcZrhBa+Ps86eW0go44XhQMFApdrWn1h6we1uMIPDrRxXpUsGb+FlBVL+t0nxx7eRFoYfg==
+"@blaze-cardano/emulator@^0.1.60":
+  version "0.1.60"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/emulator/-/emulator-0.1.60.tgz#fc3a1c2b56493018bf77dadc7dcc742e539e2d33"
+  integrity sha512-o66lUncyAKIBJPLS3W/6euE1dM2JYLByVQX5IFrhaPKUHYj/d63NBihO4O/7P71blPNQcXdQNaWfpf1GtJNySA==
   dependencies:
     "@blaze-cardano/core" "0.4.2"
     "@blaze-cardano/query" "0.2.11"
-    "@blaze-cardano/tx" "0.5.3"
+    "@blaze-cardano/tx" "0.5.4"
     "@blaze-cardano/vm" "0.0.35"
-    "@blaze-cardano/wallet" "0.1.39"
+    "@blaze-cardano/wallet" "0.1.40"
 
 "@blaze-cardano/jest-config@0.0.1":
   version "0.0.1"
@@ -373,31 +373,31 @@
     "@cardano-ogmios/schema" "^6.4.0"
     ws "^8.17.1"
 
-"@blaze-cardano/sdk@^0.1.20":
-  version "0.1.20"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/sdk/-/sdk-0.1.20.tgz#9ef0b9c4b1fcd207113f5452c3f43e83a22347c1"
-  integrity sha512-z0LIgNqP1aigq0PPXRsbwkmfJ7D2v6LNt/J2wmhQdNyin2UcJjiZ45AXafBphu+etUR5R8AhhrhIujDnfMs8jA==
+"@blaze-cardano/sdk@^0.1.21":
+  version "0.1.21"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/sdk/-/sdk-0.1.21.tgz#2958f9d8fb04158cf2d59b072693fd8552dd79ff"
+  integrity sha512-WTQ8mdanY8gWSMkYB/THGDM/dFCUFDunXG+ge1eqAlj9oBvSqIICgss9/WJvKq9LbJpqcoF+vP1eujLqlDVKoQ==
   dependencies:
     "@blaze-cardano/core" "0.4.2"
     "@blaze-cardano/query" "0.2.11"
-    "@blaze-cardano/tx" "0.5.3"
-    "@blaze-cardano/uplc" "0.1.14"
-    "@blaze-cardano/wallet" "0.1.39"
+    "@blaze-cardano/tx" "0.5.4"
+    "@blaze-cardano/uplc" "0.1.15"
+    "@blaze-cardano/wallet" "0.1.40"
 
-"@blaze-cardano/tx@0.5.3":
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/tx/-/tx-0.5.3.tgz#d7a2e8c00a7726c8333ca13141abf92f6d50b48f"
-  integrity sha512-+9FHrclPHEvEc1N5Fjxu75QtbWvDovwAngp3biRzTexUV/rYD3MLnTQHb/09tLPTUk6qPGBW3jYxyB6O7+Yx0Q==
+"@blaze-cardano/tx@0.5.4":
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/tx/-/tx-0.5.4.tgz#3869eebf6bd8747930d4a2292dc91d2c9b9d8e75"
+  integrity sha512-GVV0DlKkWxvJVzI1PN/UOspMOClv3FSjXnmWBbMoBZ1VZr8Nx91FcAvODDQceTWyoY1vsbGyyf9xMGqqVGndIQ==
   dependencies:
     "@blaze-cardano/core" "0.4.2"
 
-"@blaze-cardano/uplc@0.1.14":
-  version "0.1.14"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/uplc/-/uplc-0.1.14.tgz#689737f68bdd08037e79ba396de87f2a9e2435b6"
-  integrity sha512-vkO6tsRo9WBZbF7w8h3gI+jDHkXe1gICMUGXVB8sfVI8qkPyV6HZVS5ttFgGVUQ42WFNL3bArwhswY6OLOMpew==
+"@blaze-cardano/uplc@0.1.15":
+  version "0.1.15"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/uplc/-/uplc-0.1.15.tgz#019ac226e77c28b1971a59dc69aea08a51ba5119"
+  integrity sha512-c9w0dfdtHQSfgFTBGhgJZ+dklhO+fHsEJ5wIjoiuTtWAUXzqj8T7i2fNCujht6qcZ6+vvelWYd1Cmc6JsDTDYw==
   dependencies:
     "@blaze-cardano/core" "0.4.2"
-    "@blaze-cardano/tx" "0.5.3"
+    "@blaze-cardano/tx" "0.5.4"
     hex-encoding "^2.0.2"
 
 "@blaze-cardano/vm@0.0.35":
@@ -408,14 +408,14 @@
     "@blaze-cardano/core" "0.4.2"
     uplc-node "^0.0.3"
 
-"@blaze-cardano/wallet@0.1.39":
-  version "0.1.39"
-  resolved "https://registry.yarnpkg.com/@blaze-cardano/wallet/-/wallet-0.1.39.tgz#34952a052323a62e85662f9aec9011bf828aa10a"
-  integrity sha512-jAb1G9YqrmnytCUr940IPMQJ+YTw/Ukyec6v/MtxVS9WrAMLzCWOPxXeTGKjUKD3MHajYuyqxEvoiyBKgVhfeg==
+"@blaze-cardano/wallet@0.1.40":
+  version "0.1.40"
+  resolved "https://registry.yarnpkg.com/@blaze-cardano/wallet/-/wallet-0.1.40.tgz#c361438c66b6e32110d9dcd30e65c01818af3514"
+  integrity sha512-XANKYbbCArEpKr1GHxDjps/wmFs/UURk0h6A/Jnr3qd5tto3cTSCgj01nHRpFf85DKxyznfB2bpqcukMkFjs4Q==
   dependencies:
     "@blaze-cardano/core" "0.4.2"
     "@blaze-cardano/query" "0.2.11"
-    "@blaze-cardano/tx" "0.5.3"
+    "@blaze-cardano/tx" "0.5.4"
 
 "@cardano-ogmios/client@6.3.0":
   version "6.3.0"
