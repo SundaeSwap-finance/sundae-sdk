@@ -1257,6 +1257,8 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       Core.PlutusData.fromCbor(Core.HexBlob(inline))
     );
 
+    tx.setMinimumFee(250_000n);
+
     return this.completeTx({
       tx,
       datum: inline,
