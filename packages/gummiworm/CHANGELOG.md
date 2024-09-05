@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.54](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/gummiworm@0.0.53...@sundaeswap/gummiworm@0.0.54) (2024-09-05)
+
+**Note:** Version bump only for package @sundaeswap/gummiworm
+
 ## [0.0.53](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/gummiworm@0.0.52...@sundaeswap/gummiworm@0.0.53) (2024-09-05)
 
 **Note:** Version bump only for package @sundaeswap/gummiworm
