@@ -110,7 +110,7 @@ TxBuilderV3.deposit
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1011](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1011)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1010](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1010)
 
 ___
 
@@ -135,7 +135,7 @@ The generated Bech32 address.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1276](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1276)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1271](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1271)
 
 ___
 
@@ -271,7 +271,7 @@ Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1325](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1325)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1320](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1320)
 
 ___
 
@@ -447,7 +447,7 @@ TxBuilderV3.update
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:915](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L915)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:914](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L914)
 
 ___
 
@@ -477,7 +477,7 @@ TxBuilderV3.withdraw
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1067](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1067)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1064](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1064)
 
 ___
 
@@ -507,4 +507,4 @@ TxBuilderV3.zap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1122](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1122)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1117](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1117)
