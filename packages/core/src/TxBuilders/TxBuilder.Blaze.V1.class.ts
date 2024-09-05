@@ -403,8 +403,6 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       .provideDatum(Core.PlutusData.fromCbor(Core.HexBlob(inline)))
       .lockAssets(script, newPayment, datum);
 
-    txInstance.setMinimumFee(200_000n);
-
     return this.completeTx({
       tx: txInstance,
       datum: inline,
@@ -653,8 +651,6 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingCred));
     }
 
-    tx.setMinimumFee(500_000n);
-
     return this.completeTx({
       tx,
       datum: spendingDatum.toCbor(),
@@ -778,8 +774,6 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
             ])
       );
     }
-
-    cancelTx.setMinimumFee(500_000n);
 
     return this.completeTx({
       tx: cancelTx,
