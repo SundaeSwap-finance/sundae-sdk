@@ -1,17 +1,15 @@
 import {
   Blaze,
   TxBuilder as BlazeTx,
-  Blockfrost,
-  ColdWallet,
   Core,
   Data,
   makeValue,
-  WebWallet,
+  Provider,
+  Wallet,
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getTokensForLp } from "@sundaeswap/cpp";
 
-import { EmulatorProvider } from "@blaze-cardano/emulator";
 import {
   EContractVersion,
   EDatumType,
@@ -97,13 +95,11 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   };
 
   /**
-   * @param {Blaze<Blockfrost, WebWallet>} blaze A configured Blaze instance to use.
+   * @param {Blaze<Provider, Wallet>} blaze A configured Blaze instance to use.
    * @param {TSupportedNetworks} network The network id to use when building the transaction.
    */
   constructor(
-    public blaze:
-      | Blaze<Blockfrost, WebWallet>
-      | Blaze<EmulatorProvider, ColdWallet>,
+    public blaze: Blaze<Provider, Wallet>,
     network: TSupportedNetworks,
     queryProvider?: QueryProviderSundaeSwap
   ) {
@@ -650,6 +646,8 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     if (stakingCred && spendingDatum.toCbor().includes(stakingCred)) {
       tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingCred));
     }
+
+    tx.setMinimumFee(310_000n);
 
     return this.completeTx({
       tx,

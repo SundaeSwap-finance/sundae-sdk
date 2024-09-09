@@ -1,16 +1,14 @@
 import {
   Blaze,
   TxBuilder as BlazeTx,
-  Blockfrost,
-  ColdWallet,
   Core,
   Data,
   makeValue,
-  WebWallet,
+  Provider,
+  Wallet,
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { EmulatorProvider } from "@blaze-cardano/emulator";
 import type {
   ICancelConfigArgs,
   IComposedTx,
@@ -86,13 +84,11 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   private SETTINGS_NFT_NAME = "73657474696e6773";
 
   /**
-   * @param {Blaze<Blockfrost, WebWallet>} blaze A configured Blaze instance to use.
+   * @param {Blaze<Provider, Wallet>} blaze A configured Blaze instance to use.
    * @param {TSupportedNetworks} network The Network identifier for this TxBuilder instance.
    */
   constructor(
-    public blaze:
-      | Blaze<Blockfrost, WebWallet>
-      | Blaze<EmulatorProvider, ColdWallet>,
+    public blaze: Blaze<Provider, Wallet>,
     network: TSupportedNetworks,
     queryProvider?: QueryProviderSundaeSwap
   ) {
@@ -902,6 +898,8 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     if (signerKey) {
       tx.addRequiredSigner(Core.Ed25519KeyHashHex(signerKey));
     }
+
+    tx.setMinimumFee(230_000n);
 
     return this.completeTx({
       tx,
