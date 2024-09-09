@@ -253,6 +253,26 @@ export class YieldFarmingBlaze
       ADA_METADATA
     );
 
+    /**
+     * If there is no lockedValues defined, or it is an empty
+     * array, then we can assume we are withdrawing all of our
+     * existing positions. Since those are already collected,
+     * we can just submit the transaction now and spend the
+     * existing positions back to our change address.
+     */
+    if (
+      lockedValues === undefined ||
+      (lockedValues && lockedValues.length === 0)
+    ) {
+      const draft = await txInstance.complete();
+      txInstance.setMinimumFee(draft.body().fee() + 10_000n);
+      return this.completeTx({
+        tx: txInstance,
+        deposit,
+        referralFee: referralFee,
+      });
+    }
+
     let inline: string | undefined;
 
     /**
@@ -347,73 +367,9 @@ export class YieldFarmingBlaze
   async unlock(
     unlockArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const { existingPositions, referralFee, ownerAddress } =
-      new LockConfig<TDelegationPrograms>(unlockArgs).buildArgs();
-
-    if (!existingPositions) {
-      throw new Error("No existing positions to unlock!");
-    }
-
-    const signerKey = BlazeHelper.getAddressHashes(ownerAddress);
-    const txInstance = this.blaze.newTransaction();
-    txInstance.setMinimumFee(500_000n);
-    signerKey?.paymentCredentials &&
-      txInstance.addRequiredSigner(
-        Core.Ed25519KeyHashHex(signerKey.paymentCredentials)
-      );
-
-    if (signerKey?.stakeCredentials) {
-      txInstance.addRequiredSigner(
-        Core.Ed25519KeyHashHex(signerKey.stakeCredentials)
-      );
-    }
-
-    const deposit = new AssetAmount(
-      (existingPositions?.length ?? 0) > 0 ? 0n : this.__getParam("minLockAda"),
-      ADA_METADATA
-    );
-
-    const [referenceInputs, existingPositionData] = await Promise.all([
-      this.blaze.provider.resolveUnspentOutputs([
-        new Core.TransactionInput(
-          Core.TransactionId(this.__getParam("referenceInput").split("#")[0]),
-          BigInt(this.__getParam("referenceInput").split("#")[1])
-        ),
-      ]),
-      (() =>
-        existingPositions &&
-        existingPositions.length > 0 &&
-        this.blaze.provider.resolveUnspentOutputs(
-          existingPositions.map(
-            ({ hash, index }) =>
-              new Core.TransactionInput(Core.TransactionId(hash), BigInt(index))
-          )
-        ))(),
-    ]);
-
-    referenceInputs.forEach((input) => txInstance.addReferenceInput(input));
-
-    if (existingPositionData) {
-      const redeemer = Core.PlutusData.fromCbor(Core.HexBlob(CANCEL_REDEEMER));
-      await Promise.all(
-        existingPositionData.map(async (utxo) => {
-          const hash = utxo.output().datum()?.asDataHash();
-          if (!hash) {
-            txInstance.addInput(utxo, redeemer);
-          } else {
-            const datum = await this.blaze.provider.resolveDatum(
-              Core.DatumHash(hash)
-            );
-            txInstance.addInput(utxo, redeemer, datum);
-          }
-        })
-      );
-    }
-
-    return this.completeTx({
-      tx: txInstance,
-      deposit,
-      referralFee: referralFee,
+    return this.lock({
+      ...unlockArgs,
+      lockedValues: [],
     });
   }
 
