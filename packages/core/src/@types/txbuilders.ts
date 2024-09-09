@@ -1,4 +1,4 @@
-import type { Blaze, Blockfrost, WebWallet } from "@blaze-cardano/sdk";
+import type { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { Lucid } from "lucid-cardano";
 
@@ -76,7 +76,7 @@ export interface ILucidBuilder {
  */
 export interface IBlazeBuilder {
   type: ETxBuilderType.BLAZE;
-  blaze: Blaze<Blockfrost, WebWallet>;
+  blaze: Blaze<Provider, Wallet>;
 }
 
 /**
