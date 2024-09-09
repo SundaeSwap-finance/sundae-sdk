@@ -94,7 +94,7 @@ export interface IZapConfigArgs extends IOrderConfigArgs {
 /**
  * The arguments configuration for building a valid Withdraw.
  */
-export interface IWithdrawConfigArgs extends IOrderConfigArgs {
+export interface IWithdrawConfigArgs extends Omit<IOrderConfigArgs, "pool"> {
   suppliedLPAsset: AssetAmount<IAssetAmountMetadata>;
 }
 
@@ -126,7 +126,7 @@ export interface IMintV3PoolConfigArgs extends IBaseConfig {
  * positions in a user's wallet.
  */
 export interface IMigrateLiquidityConfig {
-  withdrawConfig: IWithdrawConfigArgs;
+  withdrawConfig: IWithdrawConfigArgs & { pool: IPoolData };
   depositPool: IPoolData;
   newLockedAssets?: Record<string, IAssetAmountMetadata & { amount: bigint }>;
 }
