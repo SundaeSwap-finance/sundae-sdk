@@ -647,6 +647,8 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingCred));
     }
 
+    tx.setMinimumFee(310_000n);
+
     return this.completeTx({
       tx,
       datum: spendingDatum.toCbor(),
