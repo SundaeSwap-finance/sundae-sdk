@@ -1209,8 +1209,6 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
 
     finalTx.attachMetadataWithConversion(103251, metadataDatums);
 
-    console.log(metadataDatums);
-
     return this.completeTx({
       tx: finalTx,
       deposit: totalDeposit,

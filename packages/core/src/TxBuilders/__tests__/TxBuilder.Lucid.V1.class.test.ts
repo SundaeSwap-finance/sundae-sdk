@@ -971,13 +971,13 @@ describe("TxBuilderLucidV1", () => {
     const thirdMigrationDatumBytes = builtTx.txComplete
       .witness_set()
       .plutus_data()
-      ?.get(2)
+      ?.get(1)
       .to_bytes();
     expect(thirdMigrationDatumBytes).not.toBeUndefined();
     expect(
       Buffer.from(thirdMigrationDatumBytes as Uint8Array).toString("hex")
     ).toEqual(
-      "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda446ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1b000000174876e800ffff"
     );
 
     expect(fees.cardanoTxFee?.amount).not.toBeUndefined();

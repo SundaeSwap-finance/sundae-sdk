@@ -232,7 +232,7 @@ TxBuilderV1.migrateLiquidityToV3
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:914](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L914)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:920](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L920)
 
 ___
 
@@ -465,7 +465,7 @@ TxBuilderV1.zap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:746](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L746)
+[packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts:752](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Lucid.V1.class.ts#L752)
 
 ___
 

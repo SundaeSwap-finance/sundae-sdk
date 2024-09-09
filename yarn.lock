@@ -9210,7 +9210,7 @@ lru-cache@^7.4.4, lru-cache@^7.5.1, lru-cache@^7.7.1:
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-10.2.0.tgz#0bd445ca57363465900f4d1f9bd8db343a4d95c3"
   integrity sha512-2bIM8x+VAf6JT4bKAljS1qUWgMsqZRPGJS6FSahIMPVvctcNhyVp7AJu7quxOW9jwkryBReKZY5tY5JYv2n/7Q==
 
-lucid-cardano@^0.10.7:
+lucid-cardano@0.10.7:
   version "0.10.7"
   resolved "https://registry.yarnpkg.com/lucid-cardano/-/lucid-cardano-0.10.7.tgz#31faf461e9199ae8521e017dd21408b759b43a82"
   integrity sha512-hxJRMWj8VH+SGFqsVMG6T3LSRuxzwFbWOQ5DTGQQUyR/20FL7bjiVL+2ivMJF52tAbFKcwqpRD4fddR7LbqcAw==

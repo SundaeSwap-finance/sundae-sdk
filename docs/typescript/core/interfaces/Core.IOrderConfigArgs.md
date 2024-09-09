@@ -15,5 +15,3 @@ The common arguments for any valid order.
   ↳↳ [`IDepositConfigArgs`](Core.IDepositConfigArgs.md)
 
   ↳↳ [`IZapConfigArgs`](Core.IZapConfigArgs.md)
-
-  ↳↳ [`IWithdrawConfigArgs`](Core.IWithdrawConfigArgs.md)

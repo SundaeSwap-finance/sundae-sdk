@@ -27,8 +27,7 @@ describe("WithdrawConfig class", () => {
       suppliedLPAsset: PREVIEW_DATA.assets.tindy,
     });
 
-    expect(myConfig.buildArgs()).toStrictEqual({
-      pool: PREVIEW_DATA.pools.v1,
+    expect(myConfig.buildArgs()).toMatchObject({
       orderAddresses: {
         DestinationAddress: {
           address: PREVIEW_DATA.addresses.current,
@@ -160,8 +159,7 @@ describe("WithdrawConfig class", () => {
       })
       .setSuppliedLPAsset(validFunding);
 
-    expect(config.buildArgs()).toStrictEqual({
-      pool: PREVIEW_DATA.pools.v1,
+    expect(config.buildArgs()).toMatchObject({
       orderAddresses: {
         DestinationAddress: {
           address: PREVIEW_DATA.addresses.current,

@@ -23,8 +23,6 @@ It includes settings such as the pool and order addresses.
 
   ↳↳ [`SwapConfig`](Core.SwapConfig.md)
 
-  ↳↳ [`WithdrawConfig`](Core.WithdrawConfig.md)
-
   ↳↳ [`ZapConfig`](Core.ZapConfig.md)
 
 ## Properties

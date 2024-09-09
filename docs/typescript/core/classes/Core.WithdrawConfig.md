@@ -24,7 +24,7 @@ const { submit, cbor } = await SDK.swap(config);
 
 ## Hierarchy
 
-- [`OrderConfig`](Core.OrderConfig.md)\<[`IWithdrawConfigArgs`](../interfaces/Core.IWithdrawConfigArgs.md)\>
+- `LiquidityConfig`\<[`IWithdrawConfigArgs`](../interfaces/Core.IWithdrawConfigArgs.md)\>
 
   ↳ **`WithdrawConfig`**
 
@@ -38,27 +38,11 @@ The addresses for the order.
 
 #### Inherited from
 
-[OrderConfig](Core.OrderConfig.md).[orderAddresses](Core.OrderConfig.md#orderaddresses)
+LiquidityConfig.orderAddresses
 
 #### Defined in
 
-[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L19)
-
-___
-
-### pool
-
-• `Optional` **pool**: [`IPoolData`](../interfaces/Core.IPoolData.md)
-
-The data for the pool involved in the order.
-
-#### Inherited from
-
-[OrderConfig](Core.OrderConfig.md).[pool](Core.OrderConfig.md#pool)
-
-#### Defined in
-
-[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L14)
+[packages/core/src/Abstracts/LiquidityConfig.abstract.class.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/LiquidityConfig.abstract.class.ts#L14)
 
 ___
 
@@ -70,7 +54,7 @@ An optional argument that contains referral fee data.
 
 #### Inherited from
 
-[OrderConfig](Core.OrderConfig.md).[referralFee](Core.OrderConfig.md#referralfee)
+LiquidityConfig.referralFee
 
 #### Defined in
 
@@ -90,11 +74,11 @@ Build a valid arguments object for a TxBuilder withdraw method.
 
 #### Overrides
 
-[OrderConfig](Core.OrderConfig.md).[buildArgs](Core.OrderConfig.md#buildargs)
+LiquidityConfig.buildArgs
 
 #### Defined in
 
-[packages/core/src/Configs/WithdrawConfig.class.ts:69](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L69)
+[packages/core/src/Configs/WithdrawConfig.class.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L63)
 
 ___
 
@@ -116,11 +100,11 @@ Set the default arguments from a JSON object as opposed to individually.
 
 #### Overrides
 
-[OrderConfig](Core.OrderConfig.md).[setFromObject](Core.OrderConfig.md#setfromobject)
+LiquidityConfig.setFromObject
 
 #### Defined in
 
-[packages/core/src/Configs/WithdrawConfig.class.ts:43](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L43)
+[packages/core/src/Configs/WithdrawConfig.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L39)
 
 ___
 
@@ -144,39 +128,11 @@ The current instance of the class.
 
 #### Inherited from
 
-[OrderConfig](Core.OrderConfig.md).[setOrderAddresses](Core.OrderConfig.md#setorderaddresses)
+LiquidityConfig.setOrderAddresses
 
 #### Defined in
 
-[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:26](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L26)
-
-___
-
-### setPool
-
-▸ **setPool**(`pool`): [`WithdrawConfig`](Core.WithdrawConfig.md)
-
-Set the pool data directly for the swap you use.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `pool` | [`IPoolData`](../interfaces/Core.IPoolData.md) | The data for the pool involved in the order. |
-
-#### Returns
-
-[`WithdrawConfig`](Core.WithdrawConfig.md)
-
-The current instance of the class.
-
-#### Inherited from
-
-[OrderConfig](Core.OrderConfig.md).[setPool](Core.OrderConfig.md#setpool)
-
-#### Defined in
-
-[packages/core/src/Abstracts/OrderConfig.abstract.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/OrderConfig.abstract.class.ts#L37)
+[packages/core/src/Abstracts/LiquidityConfig.abstract.class.ts:21](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/LiquidityConfig.abstract.class.ts#L21)
 
 ___
 
@@ -198,7 +154,7 @@ An inherited method that allows a config to add an optional referral fee.
 
 #### Inherited from
 
-[OrderConfig](Core.OrderConfig.md).[setReferralFee](Core.OrderConfig.md#setreferralfee)
+LiquidityConfig.setReferralFee
 
 #### Defined in
 
@@ -224,7 +180,7 @@ Set the funded asset of LP tokens.
 
 #### Defined in
 
-[packages/core/src/Configs/WithdrawConfig.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L60)
+[packages/core/src/Configs/WithdrawConfig.class.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L54)
 
 ___
 
@@ -240,8 +196,8 @@ Validates the current config and throws an Error if any required item is not set
 
 #### Overrides
 
-[OrderConfig](Core.OrderConfig.md).[validate](Core.OrderConfig.md#validate)
+LiquidityConfig.validate
 
 #### Defined in
 
-[packages/core/src/Configs/WithdrawConfig.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L82)
+[packages/core/src/Configs/WithdrawConfig.class.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/WithdrawConfig.class.ts#L75)
