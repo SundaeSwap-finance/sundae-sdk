@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.27](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.1.26...@sundaeswap/yield-farming@1.1.27) (2024-09-09)
+
+### Bug Fixes
+
+- yield farming asset loop ([39df857](https://github.com/SundaeSwap-finance/sundae-sdk/commit/39df85744f8f8a7a929882125285a63bfed6a3bc))
+
 ## [1.1.26](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.1.25...@sundaeswap/yield-farming@1.1.26) (2024-09-09)
 
 ### Bug Fixes
