@@ -84,7 +84,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   private SETTINGS_NFT_NAME = "73657474696e6773";
 
   /**
-   * @param {Blaze<Blockfrost, WebWallet>} blaze A configured Blaze instance to use.
+   * @param {Blaze<Provider, Wallet>} blaze A configured Blaze instance to use.
    * @param {TSupportedNetworks} network The Network identifier for this TxBuilder instance.
    */
   constructor(

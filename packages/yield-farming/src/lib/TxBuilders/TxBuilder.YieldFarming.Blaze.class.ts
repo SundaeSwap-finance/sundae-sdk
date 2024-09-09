@@ -1,13 +1,11 @@
-import type { EmulatorProvider } from "@blaze-cardano/emulator";
 import {
   type Blaze,
   type TxBuilder as BlazeTx,
-  type Blockfrost,
-  type ColdWallet,
   Core,
   Data,
   makeValue,
-  type WebWallet,
+  type Provider,
+  type Wallet,
 } from "@blaze-cardano/sdk";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
@@ -87,12 +85,7 @@ export class YieldFarmingBlaze
     },
   };
 
-  constructor(
-    public blaze:
-      | Blaze<Blockfrost, WebWallet>
-      | Blaze<EmulatorProvider, ColdWallet>,
-    network: Core.NetworkId
-  ) {
+  constructor(public blaze: Blaze<Provider, Wallet>, network: Core.NetworkId) {
     this.datumBuilder = new DatumBuilderBlaze(network ? "mainnet" : "preview");
     this.network = network ? "mainnet" : "preview";
   }
