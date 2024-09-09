@@ -170,7 +170,7 @@ export class YieldFarmingBlaze
         payment.lovelace += position.output().amount().coin();
 
         const assets = position.output().amount().multiasset() || new Map();
-        Object.entries(assets).forEach(([assetId, amount]) => {
+        assets.forEach((amount, assetId) => {
           if (!payment[assetId]) {
             payment[assetId] = amount;
           } else {
