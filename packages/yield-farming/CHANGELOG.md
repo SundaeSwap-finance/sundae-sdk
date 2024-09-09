@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.25](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.1.24...@sundaeswap/yield-farming@1.1.25) (2024-09-09)
+
+### Bug Fixes
+
+- blaze types ([6c79ca4](https://github.com/SundaeSwap-finance/sundae-sdk/commit/6c79ca45cb25d7218318c49300db746bfe8296e5))
+
 ## [1.1.24](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.1.23...@sundaeswap/yield-farming@1.1.24) (2024-09-09)
 
 **Note:** Version bump only for package @sundaeswap/yield-farming
