@@ -706,8 +706,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     });
 
     const ident = SundaeUtils.getIdentFromAssetId(
-      suppliedLPAsset.metadata.assetId,
-      EContractVersion.V1
+      suppliedLPAsset.metadata.assetId
     );
 
     const { inline: cbor } = this.datumBuilder.buildWithdrawDatum({

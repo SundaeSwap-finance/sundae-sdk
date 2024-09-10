@@ -445,50 +445,46 @@ describe("SundaeUtils class", () => {
   describe("getIdentFromAssetId", () => {
     it("should get the ident from a v3 pool", () => {
       expect(
-        SundaeUtils.getIdentFromAssetId(
-          PREVIEW_DATA.pools.v3.assetLP.assetId,
-          EContractVersion.V3
-        )
-      );
+        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v3.assetLP.assetId)
+      ).toEqual(PREVIEW_DATA.pools.v3.ident);
     });
 
     it("should get the ident from a v1 pool", () => {
       expect(
-        SundaeUtils.getIdentFromAssetId(
-          PREVIEW_DATA.pools.v1.assetLP.assetId,
-          EContractVersion.V1
-        )
-      );
-    });
-
-    it("should throw an error if the LP token doesn't match the contract version", () => {
-      expect(() =>
-        SundaeUtils.getIdentFromAssetId(
-          PREVIEW_DATA.pools.v1.assetLP.assetId,
-          EContractVersion.V3
-        )
-      ).toThrowError(
-        new Error("Could not find an LP token prefix in this asset ID!")
-      );
-
-      expect(() =>
-        SundaeUtils.getIdentFromAssetId(
-          PREVIEW_DATA.pools.v3.assetLP.assetId,
-          EContractVersion.V1
-        )
-      ).toThrowError(
-        new Error("Could not find an LP token prefix in this asset ID!")
-      );
+        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v1.assetLP.assetId)
+      ).toEqual(PREVIEW_DATA.pools.v1.ident);
     });
 
     it("should throw an error if not an LP token", () => {
       expect(() =>
-        SundaeUtils.getIdentFromAssetId(
-          PREVIEW_DATA.pools.v1.assetA.assetId,
-          EContractVersion.V1
+        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v1.assetA.assetId)
+      ).toThrowError(
+        new Error("Could not find a contract version prefix in the asset name!")
+      );
+    });
+  });
+
+  describe("getPoolVersionFromAssetId", () => {
+    it("should return the right contract version", () => {
+      expect(
+        SundaeUtils.getPoolVersionFromAssetId(
+          PREVIEW_DATA.pools.v1.assetLP.assetId
+        )
+      ).toEqual(EContractVersion.V1);
+      expect(
+        SundaeUtils.getPoolVersionFromAssetId(
+          PREVIEW_DATA.pools.v3.assetLP.assetId
+        )
+      ).toEqual(EContractVersion.V3);
+    });
+
+    it("should throw an error if no contract version is found", () => {
+      expect(() =>
+        SundaeUtils.getPoolVersionFromAssetId(
+          PREVIEW_DATA.pools.v1.assetA.assetId
         )
       ).toThrowError(
-        new Error("Could not find an LP token prefix in this asset ID!")
+        new Error("Could not find a contract version prefix in the asset name!")
       );
     });
   });

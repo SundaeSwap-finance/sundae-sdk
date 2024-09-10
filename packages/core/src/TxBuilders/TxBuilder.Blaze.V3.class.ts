@@ -1084,8 +1084,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     });
 
     const ident = SundaeUtils.getIdentFromAssetId(
-      suppliedLPAsset.metadata.assetId,
-      EContractVersion.V3
+      suppliedLPAsset.metadata.assetId
     );
 
     const { inline } = this.datumBuilder.buildWithdrawDatum({

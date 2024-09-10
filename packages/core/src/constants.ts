@@ -51,3 +51,5 @@ export const POOL_MIN_ADA = 3_000_000n;
 export const ORDER_DEPOSIT_DEFAULT = 2_000_000n;
 export const ORDER_ROUTE_DEPOSIT_DEFAULT = 3_000_000n;
 export const CANCEL_REDEEMER = "d87a80";
+export const CONTRACT_V1_PREFIX = "6c7020";
+export const CONTRACT_V3_PREFIX = "0014df10";
