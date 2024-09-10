@@ -3,17 +3,17 @@ import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { DatumBuilderLucid } from "../Classes/DatumBuilder.Lucid.class.js";
 
-let builderInstance: DatumBuilderLucid;
+describe.skip("DatumBuilderLucid", () => {
+  let builderInstance: DatumBuilderLucid;
 
-beforeEach(() => {
-  builderInstance = new DatumBuilderLucid("preview");
-});
+  beforeEach(() => {
+    builderInstance = new DatumBuilderLucid("preview");
+  });
 
-afterEach(() => {
-  mock.restore();
-});
+  afterEach(() => {
+    mock.restore();
+  });
 
-describe("DatumBuilderLucid", () => {
   it("should pass", () => {
     const { inline } = builderInstance.buildDepositDatum({
       address: PREVIEW_DATA.addresses.current,

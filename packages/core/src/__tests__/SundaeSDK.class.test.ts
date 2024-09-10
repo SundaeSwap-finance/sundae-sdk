@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, mock } from "bun:test";
-import { type Lucid } from "lucid-cardano";
 
+import { EmulatorProvider } from "@blaze-cardano/emulator";
+import { Blaze, ColdWallet } from "@blaze-cardano/sdk";
 import {
   EContractVersion,
   ETxBuilderType,
@@ -9,20 +10,20 @@ import {
 import { windowCardano } from "../exports/testing.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeSDK } from "../SundaeSDK.class.js";
-import { setupLucid } from "../TestUtilities/setupLucid.js";
-import { TxBuilderLucidV1 } from "../TxBuilders/TxBuilder.Lucid.V1.class.js";
-import { TxBuilderLucidV3 } from "../TxBuilders/TxBuilder.Lucid.V3.class.js";
+import { setupBlaze } from "../TestUtilities/setupBlaze.js";
+import { TxBuilderBlazeV1 } from "../TxBuilders/TxBuilder.Blaze.V1.class.js";
+import { TxBuilderBlazeV3 } from "../TxBuilders/TxBuilder.Blaze.V3.class.js";
 
-let lucidInstance: Lucid;
+let lucidInstance: Blaze<EmulatorProvider, ColdWallet>;
 let defaultWallet: ISundaeSDKOptions["wallet"];
 
-setupLucid(async (lucid) => {
-  lucidInstance = lucid;
+setupBlaze(async (blaze) => {
+  lucidInstance = blaze;
   defaultWallet = {
     name: "eternl",
     builder: {
-      type: ETxBuilderType.LUCID,
-      lucid,
+      type: ETxBuilderType.BLAZE,
+      blaze,
     },
     network: "preview",
   };
@@ -71,10 +72,10 @@ describe("SundaeSDK", () => {
       wallet: defaultWallet,
     });
 
-    expect(sdk.builder()).toBeInstanceOf(TxBuilderLucidV3);
+    expect(sdk.builder()).toBeInstanceOf(TxBuilderBlazeV3);
     expect(
-      sdk.builder(EContractVersion.V1, ETxBuilderType.LUCID)
-    ).toBeInstanceOf(TxBuilderLucidV1);
+      sdk.builder(EContractVersion.V1, ETxBuilderType.BLAZE)
+    ).toBeInstanceOf(TxBuilderBlazeV1);
   });
 
   it("should populate correct QueryProvider", async () => {
@@ -86,19 +87,19 @@ describe("SundaeSDK", () => {
   });
 
   it("should throw an error if given an invalid provider type", async () => {
-    try {
-      await SundaeSDK.new({
+    expect(() =>
+      SundaeSDK.new({
         wallet: {
           builder: {
             // @ts-ignore
             type: "invalid",
           },
         },
-      });
-    } catch (e) {
-      expect((e as Error).message).toEqual(
+      })
+    ).toThrowError(
+      new Error(
         "A valid wallet provider type must be defined in your options object."
-      );
-    }
+      )
+    );
   });
 });

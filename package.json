@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "postinstall": "lerna bootstrap && bun run build",
+    "postinstall": "lerna bootstrap",
     "test": "bun jest",
     "test:old": "node --max-old-space-size=6000 --no-warnings --experimental-vm-modules $(bun jest)",
     "lint": "eslint ./packages --ext js,jsx,ts,tsx",
@@ -56,7 +56,7 @@
     "lerna": "^5.6.2",
     "lint-staged": "^15.1.0",
     "log-update": "^6.0.0",
-    "lucid-cardano": "^0.10.10",
+    "lucid-cardano": "0.10.7",
     "prettier": "^2",
     "ts-jest": "^29.0.4",
     "ts-node": "^10.9.1"

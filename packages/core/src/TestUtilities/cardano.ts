@@ -524,8 +524,9 @@ export const getBlockfrostProtocolParameters = (
         collateralPercentage: realBlockfrostProtocolParams.collateral_percent,
         maxCollateralInputs: realBlockfrostProtocolParams.max_collateral_inputs,
         costModels: realBlockfrostProtocolParams.cost_models,
-        minfeeRefscriptCostPerByte:
-          realBlockfrostProtocolParams.minfeeRefscriptCostPerByte,
+        // 0.10.10 only, but it is currently broke
+        // minfeeRefscriptCostPerByte:
+        //   realBlockfrostProtocolParams.minfeeRefscriptCostPerByte,
       };
   }
 };

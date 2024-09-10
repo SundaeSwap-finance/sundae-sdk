@@ -4,8 +4,8 @@ import {
   Core,
   makeValue,
 } from "@blaze-cardano/sdk";
-import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
+import { describe, expect, it, spyOn } from "bun:test";
 
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType } from "../../@types/datumbuilder.js";
@@ -28,15 +28,17 @@ const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (blaze) => {
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
 
-jest
-  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScriptHashes")
-  .mockResolvedValue(params);
-jest
-  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScripts")
-  .mockResolvedValue(params);
-jest
-  .spyOn(TxBuilderBlazeV3.prototype, "getSettingsUtxo")
-  .mockResolvedValue(settingsUtxosBlaze[0]);
+spyOn(
+  QueryProviderSundaeSwap.prototype,
+  "getProtocolParamsWithScriptHashes"
+).mockResolvedValue(params);
+spyOn(
+  QueryProviderSundaeSwap.prototype,
+  "getProtocolParamsWithScripts"
+).mockResolvedValue(params);
+spyOn(TxBuilderBlazeV3.prototype, "getSettingsUtxo").mockResolvedValue(
+  settingsUtxosBlaze[0]
+);
 
 describe("TxBuilderBlazeV1", () => {
   it("should have the correct settings", () => {
@@ -59,7 +61,7 @@ describe("TxBuilderBlazeV1", () => {
     ).toEqual("2500000");
   });
 
-  test("newTxInstance()", async () => {
+  it("newTxInstance()", async () => {
     expect(builder.newTxInstance()).toBeInstanceOf(BlazeTx);
 
     const txWithReferralAndLabel = builder.newTxInstance({
@@ -96,7 +98,7 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(referralAddressOutput).not.toBeUndefined();
     expect(referralAddressOutput?.address().toBech32()).toEqual(
-      TEST_REFERRAL_DEST
+      Core.PaymentAddress(TEST_REFERRAL_DEST)
     );
 
     const txWithReferral = builder.newTxInstance({
@@ -124,7 +126,7 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(referralAddressOutput2).not.toBeUndefined();
     expect(referralAddressOutput2?.address().toBech32()).toEqual(
-      TEST_REFERRAL_DEST
+      Core.PaymentAddress(TEST_REFERRAL_DEST)
     );
 
     const txWithoutReferral = builder.newTxInstance();
@@ -146,12 +148,9 @@ describe("TxBuilderBlazeV1", () => {
     expect(referralAddressOutput3).toBeUndefined();
   });
 
-  test("swap()", async () => {
-    const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildSwapDatum = jest.spyOn(
-      builder.datumBuilder,
-      "buildSwapDatum"
-    );
+  it("swap()", async () => {
+    const spiedNewTx = spyOn(builder, "newTxInstance");
+    const spiedBuildSwapDatum = spyOn(builder.datumBuilder, "buildSwapDatum");
 
     const { build, fees, datum } = await builder.swap({
       orderAddresses: {
@@ -184,7 +183,7 @@ describe("TxBuilderBlazeV1", () => {
     expect(datum).toEqual(
       "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d8799fd879801a01312d00d8799f1a008cf2d7ffffff"
     );
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: ORDER_DEPOSIT_DEFAULT,
         metadata: ADA_METADATA,
@@ -193,7 +192,7 @@ describe("TxBuilderBlazeV1", () => {
         amount: 2_500_000n,
         metadata: ADA_METADATA,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
 
@@ -224,15 +223,17 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(inlineDatum).toBeUndefined();
     expect(depositOutput?.datum()?.asDataHash()).toEqual(
-      "98e1eb989d74f122c29502f3dda5c68416dae1cd4f4f69a31d49534ebfab4d9c"
+      Core.DatumHash(
+        "98e1eb989d74f122c29502f3dda5c68416dae1cd4f4f69a31d49534ebfab4d9c"
+      )
     );
 
     const datumBytes = builtTx.witnessSet().plutusData()?.values()[0].toCbor();
     expect(datumBytes).not.toBeUndefined();
-    expect(datumBytes).toEqual(datum);
+    expect(datumBytes).toEqual(datum as Core.HexBlob);
   });
 
-  test("swap() with incorrect idents should throw", async () => {
+  it("swap() with incorrect idents should throw", async () => {
     try {
       await builder.swap({
         orderAddresses: {
@@ -260,7 +261,7 @@ describe("TxBuilderBlazeV1", () => {
     }
   });
 
-  test("orderRouteSwap() - v1 to v1", async () => {
+  it("orderRouteSwap() - v1 to v1", async () => {
     const { build, datum, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
@@ -342,13 +343,15 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(inlineDatum).toBeUndefined();
     expect(swapOutput?.datum()?.asDataHash()).toEqual(
-      "3043e2dc62f9e00a9374c71338c67bf3f55173cd11a713a31fa2f55e9a4ed428"
+      Core.DatumHash(
+        "3043e2dc62f9e00a9374c71338c67bf3f55173cd11a713a31fa2f55e9a4ed428"
+      )
     );
 
     const datumBytes = builtTx.witnessSet().plutusData()?.values()?.[0];
 
     expect(datumBytes).not.toBeUndefined();
-    expect(datumBytes?.toCbor()).toEqual(datum);
+    expect(datumBytes?.toCbor()).toEqual(datum as Core.HexBlob);
 
     const transactionMetadata = builtTx
       .auxiliaryData()
@@ -359,11 +362,13 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(transactionMetadata).not.toBeUndefined();
     expect(transactionMetadata).toEqual(
-      "a158202f046e481ae60ba18b449cda20c7c0878be2aee90ca79bbf3528f21b5478019585581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a021f1b48d8799f1a00f39ad2ff42ffff"
+      Core.HexBlob(
+        "a158202f046e481ae60ba18b449cda20c7c0878be2aee90ca79bbf3528f21b5478019585581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a021f1b48d8799f1a00f39ad2ff42ffff"
+      )
     );
   });
 
-  test("orderRouteSwap() - v1 to v3", async () => {
+  it("orderRouteSwap() - v1 to v3", async () => {
     const { build, datum, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
@@ -442,14 +447,9 @@ describe("TxBuilderBlazeV1", () => {
     expect(swapOutput).not.toBeUndefined();
     const inlineDatum = swapOutput?.datum()?.asInlineData();
 
-    expect(inlineDatum).toBeUndefined();
-    expect(swapOutput?.datum()?.asDataHash()).toEqual(
-      "705d4d6cbea4c8309ae48439025e0107e176d32a98f5e2f73374cb2e338185f9"
-    );
-
     const datumBytes = builtTx.witnessSet().plutusData()?.values()?.[0];
     expect(datumBytes).not.toBeUndefined();
-    expect(datumBytes?.toCbor()).toEqual(datum);
+    expect(datumBytes?.toCbor()).toEqual(datum as Core.HexBlob);
 
     const transactionMetadata = builtTx
       .auxiliaryData()
@@ -459,11 +459,20 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(transactionMetadata).not.toBeUndefined();
     expect(transactionMetadata?.toCbor()).toEqual(
-      "a158208595af420bfd99c8d001d1c8b11842ab900157618df6dc9ac36d73647fe34bc288581fd8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a4581f2470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87a9f9f40401a021f1b48ff9f581c2fe3c3364b443194581fb10954771c95819b8d6ed464033c21f03f8facb544694254431a01d7af8aff46ff43d87980ff"
+      Core.HexBlob(
+        "a15820411c9ab96dc0cad6dbd8909e09c30874a276f1e2876a00b9bcf09659b57461e488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87a9f9f40401a021f1b48ff9f581c2fe3c3364b443194581fb10954771c95819b8d6ed464033c21f03f8facb544694254431a01d7af8aff46ff43d87980ff"
+      )
+    );
+
+    expect(inlineDatum).toBeUndefined();
+    expect(swapOutput?.datum()?.asDataHash()).toEqual(
+      Core.DatumHash(
+        "4692e72b72f032bea9362b94473df5aea4899b359ecbe69a6b6e36f4fa5a614c"
+      )
     );
   });
 
-  test("migrateLiquidityToV3() - single migration", async () => {
+  it("migrateLiquidityToV3() - single migration", async () => {
     const { build, datum, fees } = await builder.migrateLiquidityToV3([
       {
         withdrawConfig: {
@@ -530,7 +539,9 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(inlineDatum).toBeUndefined();
     expect(withdrawOutput?.datum()?.asDataHash()).toEqual(
-      "fbd0fb1f0dbcd15fa2f51797c7283d44bbc96a98d9ad32bb8a308b9bdd06ff2d"
+      Core.DatumHash(
+        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561"
+      )
     );
 
     const depositMetadata = builtTx
@@ -541,19 +552,23 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(depositMetadata).not.toBeUndefined();
     expect(depositMetadata?.toCbor()).toEqual(
-      "a158206c096e02dd1520f759bce1a1ce9bf7b127deaf4138f69658d5a0e091740097ea88581fd8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a4581f2470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff"
+      Core.HexBlob(
+        "a158201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff"
+      )
     );
 
     const datumBytes = builtTx.witnessSet().plutusData()?.values()?.[0];
     expect(datumBytes).not.toBeUndefined();
     expect(datumBytes?.toCbor()).toEqual(
-      "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58206c096e02dd1520f759bce1a1ce9bf7b127deaf4138f69658d5a0e091740097eaffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      Core.HexBlob(
+        "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      )
     );
 
     expect(fees.cardanoTxFee?.amount).not.toBeUndefined();
   });
 
-  test("migrateLiquidityToV3() - multi migration", async () => {
+  it("migrateLiquidityToV3() - multi migration", async () => {
     const RBERRY_V1_POOL: IPoolData = {
       assetA: ADA_METADATA,
       assetB: {
@@ -691,10 +706,14 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(withdrawOutput1?.datum()?.asInlineData()).toBeUndefined();
     expect(withdrawOutput1?.datum()?.asDataHash()).toEqual(
-      "fbd0fb1f0dbcd15fa2f51797c7283d44bbc96a98d9ad32bb8a308b9bdd06ff2d"
+      Core.DatumHash(
+        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561"
+      )
     );
     expect(withdrawOutput2?.datum()?.asDataHash()).toEqual(
-      "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a"
+      Core.DatumHash(
+        "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a"
+      )
     );
 
     const transactionMetadata = builtTx
@@ -705,7 +724,9 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(transactionMetadata).not.toBeUndefined();
     expect(transactionMetadata?.toCbor()).toEqual(
-      "a258206c096e02dd1520f759bce1a1ce9bf7b127deaf4138f69658d5a0e091740097ea88581fd8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a4581f2470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff"
+      Core.HexBlob(
+        "a258201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff"
+      )
     );
 
     const firstMigrationDatumBytes = builtTx
@@ -715,7 +736,9 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(firstMigrationDatumBytes).not.toBeUndefined();
     expect(firstMigrationDatumBytes?.toCbor()).toEqual(
-      "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58206c096e02dd1520f759bce1a1ce9bf7b127deaf4138f69658d5a0e091740097eaffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      Core.HexBlob(
+        "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      )
     );
 
     const secondMigrationDatumBytes = builtTx
@@ -724,13 +747,15 @@ describe("TxBuilderBlazeV1", () => {
       ?.values()?.[1];
     expect(secondMigrationDatumBytes).not.toBeUndefined();
     expect(secondMigrationDatumBytes?.toCbor()).toEqual(
-      "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      Core.HexBlob(
+        "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      )
     );
 
     expect(fees.cardanoTxFee?.amount).not.toBeUndefined();
   });
 
-  test("migrateLiquidityToV3() - multi migration with yield farming", async () => {
+  it("migrateLiquidityToV3() - multi migration with yield farming", async () => {
     const RBERRY_V1_POOL: IPoolData = {
       assetA: ADA_METADATA,
       assetB: {
@@ -968,13 +993,19 @@ describe("TxBuilderBlazeV1", () => {
     expect(withdrawOutput3).not.toBeUndefined();
 
     expect(withdrawOutput1?.datum()?.asDataHash()).toEqual(
-      "fbd0fb1f0dbcd15fa2f51797c7283d44bbc96a98d9ad32bb8a308b9bdd06ff2d"
+      Core.DatumHash(
+        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561"
+      )
     );
     expect(withdrawOutput2?.datum()?.asDataHash()).toEqual(
-      "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a"
+      Core.DatumHash(
+        "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a"
+      )
     );
     expect(withdrawOutput3?.datum()?.asDataHash()).toEqual(
-      "6586e08bbf1bbffb10ba2388f2fa8855d3b616c313b96eb144947cf22d9c2ed2"
+      Core.DatumHash(
+        "6586e08bbf1bbffb10ba2388f2fa8855d3b616c313b96eb144947cf22d9c2ed2"
+      )
     );
 
     const transactionMetadata = builtTx
@@ -985,7 +1016,9 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(transactionMetadata).not.toBeUndefined();
     expect(transactionMetadata?.toCbor()).toEqual(
-      "a358206c096e02dd1520f759bce1a1ce9bf7b127deaf4138f69658d5a0e091740097ea88581fd8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a4581f2470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda44689581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c73275b9e267f581fd927bfc14cf653d904d1538ad8869260ab638bf73f5cffd8799fd8799fd879581f9f581c045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa8581fffffffffd87b9fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa077581f1919f5218b40691eea4514d0ff80ffffffd87b9f9f9f40401b0000001e4be5581fc9f7ff9f581cd441227553a0f1a965fee7d60a0f724b368dd1bddbc208730f581bccebcf465242455252591b00000011e5baa103ffffff43d87980ff"
+      Core.HexBlob(
+        "a358201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda44689581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c73275b9e267f581fd927bfc14cf653d904d1538ad8869260ab638bf73f5cffd8799fd8799fd879581f9f581c045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa8581fffffffffd87b9fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa077581f1919f5218b40691eea4514d0ff80ffffffd87b9f9f9f40401b0000001e4be5581fc9f7ff9f581cd441227553a0f1a965fee7d60a0f724b368dd1bddbc208730f581bccebcf465242455252591b00000011e5baa103ffffff43d87980ff"
+      )
     );
 
     const secondMigrationDatumBytes = builtTx
@@ -994,7 +1027,9 @@ describe("TxBuilderBlazeV1", () => {
       ?.values()?.[0];
     expect(secondMigrationDatumBytes).not.toBeUndefined();
     expect(secondMigrationDatumBytes?.toCbor()).toEqual(
-      "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58206c096e02dd1520f759bce1a1ce9bf7b127deaf4138f69658d5a0e091740097eaffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      Core.HexBlob(
+        "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      )
     );
 
     const thirdMigrationDatumBytes = builtTx
@@ -1003,7 +1038,9 @@ describe("TxBuilderBlazeV1", () => {
       ?.values()?.[1];
     expect(thirdMigrationDatumBytes).not.toBeUndefined();
     expect(thirdMigrationDatumBytes?.toCbor()).toEqual(
-      "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      Core.HexBlob(
+        "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      )
     );
 
     const firstMigrationDatumBytes = builtTx
@@ -1012,13 +1049,15 @@ describe("TxBuilderBlazeV1", () => {
       ?.values()?.[2];
     expect(firstMigrationDatumBytes).not.toBeUndefined();
     expect(firstMigrationDatumBytes?.toCbor()).toEqual(
-      "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda446ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1b000000174876e800ffff"
+      Core.HexBlob(
+        "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda446ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1b000000174876e800ffff"
+      )
     );
 
     expect(fees.cardanoTxFee?.amount).not.toBeUndefined();
   });
 
-  test("cancel()", async () => {
+  it("cancel()", async () => {
     getUtxosByOutRefMock.mockResolvedValueOnce([
       Core.TransactionUnspentOutput.fromCore([
         new Core.TransactionInput(
@@ -1062,15 +1101,17 @@ describe("TxBuilderBlazeV1", () => {
       },
     });
 
-    expect(datum).toEqual(PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum);
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(datum).toEqual(
+      PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum as string
+    );
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: 0n,
       }),
       scooperFee: expect.objectContaining({
         amount: 0n,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
 
@@ -1089,12 +1130,14 @@ describe("TxBuilderBlazeV1", () => {
     ).not.toBeNull();
 
     expect(builtTx.witnessSet().plutusData()?.values()?.[0].toCbor()).toEqual(
-      PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum
+      Core.HexBlob(
+        PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum as string
+      )
     );
   });
 
-  test("cancel() v3 order", async () => {
-    const spiedOnV3Cancel = jest.spyOn(TxBuilderBlazeV3.prototype, "cancel");
+  it("cancel() v3 order", async () => {
+    const spiedOnV3Cancel = spyOn(TxBuilderBlazeV3.prototype, "cancel");
     getUtxosByOutRefMock.mockResolvedValue([
       Core.TransactionUnspentOutput.fromCore([
         new Core.TransactionInput(
@@ -1138,9 +1181,9 @@ describe("TxBuilderBlazeV1", () => {
     }
   });
 
-  test("withdraw()", async () => {
-    const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildWithdrawDatum = jest.spyOn(
+  it("withdraw()", async () => {
+    const spiedNewTx = spyOn(builder, "newTxInstance");
+    const spiedBuildWithdrawDatum = spyOn(
       builder.datumBuilder,
       "buildWithdrawDatum"
     );
@@ -1154,7 +1197,6 @@ describe("TxBuilderBlazeV1", () => {
           },
         },
       },
-      pool: PREVIEW_DATA.pools.v1,
       suppliedLPAsset: PREVIEW_DATA.assets.v1LpToken,
     });
 
@@ -1172,7 +1214,7 @@ describe("TxBuilderBlazeV1", () => {
     expect(datum).toEqual(
       "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d87a9f1a05f5e100ffff"
     );
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: ORDER_DEPOSIT_DEFAULT,
         metadata: ADA_METADATA,
@@ -1181,7 +1223,7 @@ describe("TxBuilderBlazeV1", () => {
         amount: 2_500_000n,
         metadata: ADA_METADATA,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
     expect(fees.cardanoTxFee).not.toBeUndefined();
@@ -1217,35 +1259,13 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(inlineDatum).toBeUndefined();
     expect(withdrawOutput?.datum()?.asDataHash()).toEqual(
-      "cfc0f78bf969f77692696fc06c20e605187e7c77a13168e42c8ec121e79e51bd"
+      Core.DatumHash(
+        "cfc0f78bf969f77692696fc06c20e605187e7c77a13168e42c8ec121e79e51bd"
+      )
     );
 
     const datumBytes = builtTx.witnessSet().plutusData()?.values()?.[0];
     expect(datumBytes).not.toBeUndefined();
-    expect(datumBytes?.toCbor()).toEqual(datum);
-  });
-
-  test("withdraw() incorrect idents throw", async () => {
-    try {
-      await builder.withdraw({
-        orderAddresses: {
-          DestinationAddress: {
-            address: PREVIEW_DATA.addresses.current,
-            datum: {
-              type: EDatumType.NONE,
-            },
-          },
-        },
-        pool: {
-          ...PREVIEW_DATA.pools.v1,
-          ident: PREVIEW_DATA.pools.v3.ident,
-        },
-        suppliedLPAsset: PREVIEW_DATA.assets.v3LpToken,
-      });
-    } catch (e) {
-      expect((e as Error).message).toEqual(
-        DatumBuilderBlazeV1.INVALID_POOL_IDENT
-      );
-    }
+    expect(datumBytes?.toCbor()).toEqual(datum as Core.HexBlob);
   });
 });

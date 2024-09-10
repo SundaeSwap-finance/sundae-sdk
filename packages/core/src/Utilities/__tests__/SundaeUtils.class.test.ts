@@ -1,5 +1,5 @@
 import { AssetAmount } from "@sundaeswap/asset";
-import { describe, it } from "bun:test";
+import { describe, expect, it, spyOn } from "bun:test";
 
 import {
   EContractVersion,
@@ -253,8 +253,9 @@ describe("SundaeUtils class", () => {
   });
 
   it("should correctly convert a decaying pool fee to a Fraction", () => {
-    jest.setSystemTime(
-      SundaeUtils.slotToUnix(1702941926 + 200, "preview") * 1000
+    const spiedDate = spyOn(Date, "now");
+    spiedDate.mockImplementationOnce(
+      () => SundaeUtils.slotToUnix(1702941926 + 200, "preview") * 1000
     );
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
@@ -266,8 +267,8 @@ describe("SundaeUtils class", () => {
       })
     ).toEqual(0.01);
 
-    jest.setSystemTime(
-      SundaeUtils.slotToUnix(1702941926 + 1000000, "preview") * 1000
+    spiedDate.mockImplementationOnce(
+      () => SundaeUtils.slotToUnix(1702941926 + 1000000, "preview") * 1000
     );
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
@@ -279,7 +280,9 @@ describe("SundaeUtils class", () => {
       })
     ).toEqual(0.009499976150126405);
 
-    jest.setSystemTime(SundaeUtils.slotToUnix(1702941926, "preview") * 1000);
+    spiedDate.mockImplementationOnce(
+      () => SundaeUtils.slotToUnix(1702941926, "preview") * 1000
+    );
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
         endFee: [5n, 100n],
@@ -290,7 +293,9 @@ describe("SundaeUtils class", () => {
       })
     ).toEqual(0.005);
 
-    jest.setSystemTime(SundaeUtils.slotToUnix(1702941979, "preview") * 1000);
+    spiedDate.mockImplementationOnce(
+      () => SundaeUtils.slotToUnix(1702941979, "preview") * 1000
+    );
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
         endFee: [5n, 100n],
@@ -437,6 +442,53 @@ describe("SundaeUtils class", () => {
     it("should return false for a v1 pool ident", () => {
       const result = SundaeUtils.isV3PoolIdent(PREVIEW_DATA.pools.v1.ident);
       expect(result).toBe(false);
+    });
+  });
+
+  describe("getIdentFromAssetId", () => {
+    it("should get the ident from a v3 pool", () => {
+      expect(
+        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v3.assetLP.assetId)
+      ).toEqual(PREVIEW_DATA.pools.v3.ident);
+    });
+
+    it("should get the ident from a v1 pool", () => {
+      expect(
+        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v1.assetLP.assetId)
+      ).toEqual(PREVIEW_DATA.pools.v1.ident);
+    });
+
+    it("should throw an error if not an LP token", () => {
+      expect(() =>
+        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v1.assetA.assetId)
+      ).toThrowError(
+        new Error("Could not find a contract version prefix in the asset name!")
+      );
+    });
+  });
+
+  describe("getPoolVersionFromAssetId", () => {
+    it("should return the right contract version", () => {
+      expect(
+        SundaeUtils.getPoolVersionFromAssetId(
+          PREVIEW_DATA.pools.v1.assetLP.assetId
+        )
+      ).toEqual(EContractVersion.V1);
+      expect(
+        SundaeUtils.getPoolVersionFromAssetId(
+          PREVIEW_DATA.pools.v3.assetLP.assetId
+        )
+      ).toEqual(EContractVersion.V3);
+    });
+
+    it("should throw an error if no contract version is found", () => {
+      expect(() =>
+        SundaeUtils.getPoolVersionFromAssetId(
+          PREVIEW_DATA.pools.v1.assetA.assetId
+        )
+      ).toThrowError(
+        new Error("Could not find a contract version prefix in the asset name!")
+      );
     });
   });
 });

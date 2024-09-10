@@ -3,6 +3,50 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.26](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.25...@sundaeswap/core@1.3.26) (2024-09-10)
+
+**Note:** Version bump only for package @sundaeswap/core
+
+## [1.3.25](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.24...@sundaeswap/core@1.3.25) (2024-09-10)
+
+**Note:** Version bump only for package @sundaeswap/core
+
+## [1.3.24](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.23...@sundaeswap/core@1.3.24) (2024-09-09)
+
+### Bug Fixes
+
+- blaze types ([6c79ca4](https://github.com/SundaeSwap-finance/sundae-sdk/commit/6c79ca45cb25d7218318c49300db746bfe8296e5))
+
+## [1.3.23](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.22...@sundaeswap/core@1.3.23) (2024-09-09)
+
+### Bug Fixes
+
+- minfee on cancellations ([79c26e5](https://github.com/SundaeSwap-finance/sundae-sdk/commit/79c26e50d2df92e72096a6aa3b65b22f2a3da0bd))
+
+## [1.3.22](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.21...@sundaeswap/core@1.3.22) (2024-09-09)
+
+**Note:** Version bump only for package @sundaeswap/core
+
+## [1.3.21](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.20...@sundaeswap/core@1.3.21) (2024-09-05)
+
+**Note:** Version bump only for package @sundaeswap/core
+
+## [1.3.20](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.19...@sundaeswap/core@1.3.20) (2024-09-05)
+
+**Note:** Version bump only for package @sundaeswap/core
+
+## [1.3.19](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.18...@sundaeswap/core@1.3.19) (2024-09-05)
+
+**Note:** Version bump only for package @sundaeswap/core
+
+## [1.3.18](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.17...@sundaeswap/core@1.3.18) (2024-09-05)
+
+**Note:** Version bump only for package @sundaeswap/core
+
+## [1.3.17](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.16...@sundaeswap/core@1.3.17) (2024-09-04)
+
+**Note:** Version bump only for package @sundaeswap/core
+
 ## [1.3.16](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/core@1.3.15...@sundaeswap/core@1.3.16) (2024-09-03)
 
 ### Bug Fixes

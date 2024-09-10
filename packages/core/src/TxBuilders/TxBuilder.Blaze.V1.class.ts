@@ -1,17 +1,15 @@
 import {
   Blaze,
   TxBuilder as BlazeTx,
-  Blockfrost,
-  ColdWallet,
   Core,
   Data,
   makeValue,
-  WebWallet,
+  Provider,
+  Wallet,
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getTokensForLp } from "@sundaeswap/cpp";
 
-import { EmulatorProvider } from "@blaze-cardano/emulator";
 import {
   EContractVersion,
   EDatumType,
@@ -97,13 +95,11 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   };
 
   /**
-   * @param {Blaze<Blockfrost, WebWallet>} blaze A configured Blaze instance to use.
+   * @param {Blaze<Provider, Wallet>} blaze A configured Blaze instance to use.
    * @param {TSupportedNetworks} network The network id to use when building the transaction.
    */
   constructor(
-    public blaze:
-      | Blaze<Blockfrost, WebWallet>
-      | Blaze<EmulatorProvider, ColdWallet>,
+    public blaze: Blaze<Provider, Wallet>,
     network: TSupportedNetworks,
     queryProvider?: QueryProviderSundaeSwap
   ) {
@@ -403,8 +399,6 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       .provideDatum(Core.PlutusData.fromCbor(Core.HexBlob(inline)))
       .lockAssets(script, newPayment, datum);
 
-    txInstance.setMinimumFee(200_000n);
-
     return this.completeTx({
       tx: txInstance,
       datum: inline,
@@ -653,7 +647,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingCred));
     }
 
-    tx.setMinimumFee(500_000n);
+    tx.setMinimumFee(310_000n);
 
     return this.completeTx({
       tx,
@@ -779,8 +773,6 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       );
     }
 
-    cancelTx.setMinimumFee(500_000n);
-
     return this.completeTx({
       tx: cancelTx,
       datum: swapDatum.inline,
@@ -860,8 +852,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   async withdraw(
     withdrawArgs: IWithdrawConfigArgs
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const { suppliedLPAsset, pool, orderAddresses, referralFee } =
-      new WithdrawConfig(withdrawArgs).buildArgs();
+    const { suppliedLPAsset, orderAddresses, referralFee } = new WithdrawConfig(
+      withdrawArgs
+    ).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
 
@@ -870,8 +863,12 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       scooperFee: this.__getParam("maxScooperFee"),
     });
 
+    const ident = SundaeUtils.getIdentFromAssetId(
+      suppliedLPAsset.metadata.assetId
+    );
+
     const withdrawDatum = this.datumBuilder.buildWithdrawDatum({
-      ident: pool.ident,
+      ident,
       orderAddresses: orderAddresses,
       suppliedLPAsset: suppliedLPAsset,
       scooperFee: this.__getParam("maxScooperFee"),
@@ -1346,9 +1343,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
 
       const [coinA, coinB] = getTokensForLp(
         withdrawArgs.suppliedLPAsset.amount,
-        withdrawArgs.pool.liquidity.aReserve,
-        withdrawArgs.pool.liquidity.bReserve,
-        withdrawArgs.pool.liquidity.lpTotal
+        withdrawConfig.pool.liquidity.aReserve,
+        withdrawConfig.pool.liquidity.bReserve,
+        withdrawConfig.pool.liquidity.lpTotal
       );
 
       const v3DatumBuilder = new DatumBuilderBlazeV3(this.network);
@@ -1372,7 +1369,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
 
       const { inline: withdrawInline, hash: withdrawHash } =
         this.datumBuilder.buildWithdrawDatum({
-          ident: withdrawArgs.pool.ident,
+          ident: withdrawConfig.pool.ident,
           orderAddresses: {
             DestinationAddress: {
               address: v3OrderScriptAddress,

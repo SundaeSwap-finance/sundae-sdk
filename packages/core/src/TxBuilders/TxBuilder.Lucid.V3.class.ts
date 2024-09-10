@@ -899,8 +899,9 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
   async withdraw(
     withdrawArgs: IWithdrawConfigArgs
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
-    const { suppliedLPAsset, pool, orderAddresses, referralFee } =
-      new WithdrawConfig(withdrawArgs).buildArgs();
+    const { suppliedLPAsset, orderAddresses, referralFee } = new WithdrawConfig(
+      withdrawArgs
+    ).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
 
@@ -909,8 +910,12 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
+    const ident = SundaeUtils.getIdentFromAssetId(
+      suppliedLPAsset.metadata.assetId
+    );
+
     const { inline } = this.datumBuilder.buildWithdrawDatum({
-      ident: pool.ident,
+      ident,
       destinationAddress: orderAddresses.DestinationAddress,
       order: {
         lpToken: suppliedLPAsset,

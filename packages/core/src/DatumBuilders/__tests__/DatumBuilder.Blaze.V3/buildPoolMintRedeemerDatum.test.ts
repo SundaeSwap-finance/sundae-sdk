@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+  spyOn,
+} from "bun:test";
 
 import { DatumBuilderBlazeV3 } from "../../DatumBuilder.Blaze.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
@@ -15,7 +23,7 @@ afterEach(() => {
 
 describe("buildPoolMintRedeemerDatum()", () => {
   it("should build the pool mint redeemer datum properly", () => {
-    const spiedOnBuildLexicographicalAssetsDatum = jest.spyOn(
+    const spiedOnBuildLexicographicalAssetsDatum = spyOn(
       DatumBuilderBlazeV3.prototype,
       "buildLexicographicalAssetsDatum"
     );

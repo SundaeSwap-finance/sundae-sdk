@@ -1,16 +1,14 @@
 import {
   Blaze,
   TxBuilder as BlazeTx,
-  Blockfrost,
-  ColdWallet,
   Core,
   Data,
   makeValue,
-  WebWallet,
+  Provider,
+  Wallet,
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { EmulatorProvider } from "@blaze-cardano/emulator";
 import type {
   ICancelConfigArgs,
   IComposedTx,
@@ -86,13 +84,11 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   private SETTINGS_NFT_NAME = "73657474696e6773";
 
   /**
-   * @param {Blaze<Blockfrost, WebWallet>} blaze A configured Blaze instance to use.
+   * @param {Blaze<Provider, Wallet>} blaze A configured Blaze instance to use.
    * @param {TSupportedNetworks} network The Network identifier for this TxBuilder instance.
    */
   constructor(
-    public blaze:
-      | Blaze<Blockfrost, WebWallet>
-      | Blaze<EmulatorProvider, ColdWallet>,
+    public blaze: Blaze<Provider, Wallet>,
     network: TSupportedNetworks,
     queryProvider?: QueryProviderSundaeSwap
   ) {
@@ -497,11 +493,21 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     );
 
     // Send the metadata reference NFT to the metadata address.
-    tx.payAssets(
-      Core.addressFromBech32(metadataAddress),
-      makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
-      Data.void()
-    );
+    const address = Core.addressFromBech32(metadataAddress);
+    const type = address.getProps().paymentPart?.type;
+    if (type === Core.CredentialType.ScriptHash) {
+      tx.lockAssets(
+        address,
+        makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
+        Data.void()
+      );
+    } else {
+      tx.payAssets(
+        address,
+        makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
+        Data.void()
+      );
+    }
 
     if (donateToTreasury) {
       const datum = Data.from(
@@ -892,7 +898,8 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     if (signerKey) {
       tx.addRequiredSigner(Core.Ed25519KeyHashHex(signerKey));
     }
-    tx.setMinimumFee(250_000n);
+
+    tx.setMinimumFee(230_000n);
 
     return this.completeTx({
       tx,
@@ -1047,8 +1054,6 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       Core.PlutusData.fromCbor(Core.HexBlob(inline))
     );
 
-    tx.setMinimumFee(250_000n);
-
     return this.completeTx({
       tx,
       datum: inline,
@@ -1065,10 +1070,11 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object.
    */
   async withdraw(
-    withdrawArgs: IWithdrawConfigArgs
+    withdrawArgs: Omit<IWithdrawConfigArgs, "withdraw">
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const { suppliedLPAsset, pool, orderAddresses, referralFee } =
-      new WithdrawConfig(withdrawArgs).buildArgs();
+    const { suppliedLPAsset, orderAddresses, referralFee } = new WithdrawConfig(
+      withdrawArgs
+    ).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
 
@@ -1077,8 +1083,12 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
+    const ident = SundaeUtils.getIdentFromAssetId(
+      suppliedLPAsset.metadata.assetId
+    );
+
     const { inline } = this.datumBuilder.buildWithdrawDatum({
-      ident: pool.ident,
+      ident,
       destinationAddress: orderAddresses.DestinationAddress,
       order: {
         lpToken: suppliedLPAsset,
@@ -1101,8 +1111,6 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       assets,
       Core.PlutusData.fromCbor(Core.HexBlob(inline))
     );
-
-    tx.setMinimumFee(250_000n);
 
     return this.completeTx({
       tx,

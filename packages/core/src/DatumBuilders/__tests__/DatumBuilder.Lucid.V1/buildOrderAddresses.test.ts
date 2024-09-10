@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+  spyOn,
+} from "bun:test";
 
 import { TOrderAddressesArgs } from "../../../@types/datumbuilder.js";
 import { LucidHelper } from "../../../Utilities/LucidHelper.class.js";
@@ -117,7 +125,7 @@ describe("buildDestinationAddresses()", () => {
   });
 
   it("should fail when passing a script address to DestinationAddress without a datum attached", () => {
-    jest.spyOn(LucidHelper, "throwInvalidOrderAddressesError");
+    spyOn(LucidHelper, "throwInvalidOrderAddressesError");
     try {
       builderInstance.buildOrderAddresses(
         expectations[10].args as TOrderAddressesArgs
@@ -131,7 +139,7 @@ describe("buildDestinationAddresses()", () => {
   });
 
   it("should fail when passing an invalid datum along with a script DestinationAddress", () => {
-    jest.spyOn(LucidHelper, "throwInvalidOrderAddressesError");
+    spyOn(LucidHelper, "throwInvalidOrderAddressesError");
     try {
       builderInstance.buildOrderAddresses(
         expectations[11].args as TOrderAddressesArgs

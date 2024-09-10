@@ -5,63 +5,47 @@ import {
   Data,
   makeValue,
 } from "@blaze-cardano/sdk";
-import { jest } from "@jest/globals";
-import fetchMock from "jest-fetch-mock";
-// import { AssetAmount } from "@sundaeswap/asset";
-// import fetchMock from "jest-fetch-mock";
-
-// import { EDatumType, ESwapType, ITxBuilderFees } from "../../@types/index.js";
-// import {
-//   SettingsDatum,
-//   TSettingsDatum,
-// } from "../../DatumBuilders/Contracts/Contracts.Blaze.v3.js";
-// import { DatumBuilderBlazeV3 } from "../../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
-import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
-import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
-// import {
-//   ADA_METADATA,
-//   ORDER_DEPOSIT_DEFAULT,
-//   POOL_MIN_ADA,
-// } from "../../constants.js";
-import { PREVIEW_DATA } from "../../exports/testing.js";
-// import { TxBuilderBlazeV1 } from "../TxBuilder.Blaze.V1.class.js";
 import { AssetAmount } from "@sundaeswap/asset";
+import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
+
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
 import { DatumBuilderBlazeV3 } from "../../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
+import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
+import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import {
   ADA_METADATA,
   ORDER_DEPOSIT_DEFAULT,
   POOL_MIN_ADA,
 } from "../../constants.js";
+import { PREVIEW_DATA } from "../../exports/testing.js";
 import { TxBuilderBlazeV1 } from "../TxBuilder.Blaze.V1.class.js";
 import { TxBuilderBlazeV3 } from "../TxBuilder.Blaze.V3.class.js";
 import {
-  mockBlockfrostEvaluateResponse,
   mockOrderToCancel,
-  // mockBlockfrostEvaluateResponse,
-  // mockOrderToCancel,
   params,
   referenceUtxosBlaze,
   settingsUtxosBlaze,
 } from "../__data__/mockData.js";
 
-jest
-  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScriptHashes")
-  .mockResolvedValue(params);
+spyOn(
+  QueryProviderSundaeSwap.prototype,
+  "getProtocolParamsWithScriptHashes"
+).mockResolvedValue(params);
 
-jest
-  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScripts")
-  .mockResolvedValue(params);
+spyOn(
+  QueryProviderSundaeSwap.prototype,
+  "getProtocolParamsWithScripts"
+).mockResolvedValue(params);
 
-jest
-  .spyOn(TxBuilderBlazeV3.prototype, "getSettingsUtxo")
-  .mockResolvedValue(settingsUtxosBlaze[0]);
+spyOn(TxBuilderBlazeV3.prototype, "getSettingsUtxo").mockResolvedValue(
+  settingsUtxosBlaze[0]
+);
 
-jest
-  .spyOn(TxBuilderBlazeV3.prototype, "getAllReferenceUtxos")
-  .mockResolvedValue(referenceUtxosBlaze);
+spyOn(TxBuilderBlazeV3.prototype, "getAllReferenceUtxos").mockResolvedValue(
+  referenceUtxosBlaze
+);
 
 let builder: TxBuilderBlazeV3;
 
@@ -87,7 +71,7 @@ const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (lucid) => {
 });
 
 afterAll(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("TxBuilderBlazeV3", () => {
@@ -129,7 +113,7 @@ describe("TxBuilderBlazeV3", () => {
 
     expect(referralAddressOutput).not.toBeUndefined();
     expect(referralAddressOutput?.address().toBech32()).toEqual(
-      TEST_REFERRAL_DEST
+      Core.PaymentAddress(TEST_REFERRAL_DEST)
     );
 
     const txWithReferral = builder.newTxInstance({
@@ -153,7 +137,7 @@ describe("TxBuilderBlazeV3", () => {
 
     expect(referralAddressOutput2).not.toBeUndefined();
     expect(referralAddressOutput2?.address().toBech32()).toEqual(
-      TEST_REFERRAL_DEST
+      Core.PaymentAddress(TEST_REFERRAL_DEST)
     );
 
     const txWithoutReferral = builder.newTxInstance();
@@ -195,7 +179,7 @@ describe("TxBuilderBlazeV3", () => {
       ...referenceUtxosBlaze,
     ]);
 
-    const spiedGetSignerKeyFromDatum = jest.spyOn(
+    const spiedGetSignerKeyFromDatum = spyOn(
       DatumBuilderBlazeV3,
       "getSignerKeyFromDatum"
     );
@@ -208,10 +192,7 @@ describe("TxBuilderBlazeV3", () => {
       },
     });
 
-    expect(spiedGetSignerKeyFromDatum).toHaveBeenCalledTimes(1);
-    expect(spiedGetSignerKeyFromDatum).toHaveReturnedWith(
-      "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0"
-    );
+    expect(spiedGetSignerKeyFromDatum).toHaveReturnedTimes(1);
 
     expect(fees.deposit.amount).toEqual(0n);
     expect(fees.scooperFee.amount).toEqual(0n);
@@ -222,7 +203,9 @@ describe("TxBuilderBlazeV3", () => {
     const txFee = builtTx.body().fee();
     expect(builtTx.body().inputs().size()).toEqual(1);
     expect(builtTx.body().inputs().values()[0].transactionId()).toEqual(
-      "b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c"
+      Core.TransactionId(
+        "b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c"
+      )
     );
     expect(builtTx.body().inputs().values()[0].index().toString()).toEqual("0");
     expect(builtTx.body().outputs().length).toEqual(1);
@@ -248,8 +231,8 @@ describe("TxBuilderBlazeV3", () => {
     expect(fees.cardanoTxFee?.amount.toString()).toEqual(txFee.toString());
   });
 
-  test("cancel() v1 order", async () => {
-    const spiedOnV1Cancel = jest.spyOn(TxBuilderBlazeV1.prototype, "cancel");
+  it("cancel() v1 order", async () => {
+    const spiedOnV1Cancel = spyOn(TxBuilderBlazeV1.prototype, "cancel");
     getUtxosByOutRefMock.mockResolvedValue([
       Core.TransactionUnspentOutput.fromCore([
         new Core.TransactionInput(
@@ -299,15 +282,12 @@ describe("TxBuilderBlazeV3", () => {
     }
   });
 
-  test("swap()", async () => {
-    const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildSwapDatum = jest.spyOn(
-      builder.datumBuilder,
-      "buildSwapDatum"
-    );
+  it("swap()", async () => {
+    const spiedNewTx = spyOn(builder, "newTxInstance");
+    const spiedBuildSwapDatum = spyOn(builder.datumBuilder, "buildSwapDatum");
 
     // Ensure that our tests are running at a consistent date due to decaying fees.
-    const spiedDate = jest.spyOn(Date, "now");
+    const spiedDate = spyOn(Date, "now");
     spiedDate.mockImplementation(() => new Date("2023-12-10").getTime());
 
     const { build, fees, datum } = await builder.swap({
@@ -341,9 +321,9 @@ describe("TxBuilderBlazeV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a010cd3b9ffff43d87980ff"
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a010cd3b9ffff43d87980ff"
     );
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: ORDER_DEPOSIT_DEFAULT,
         metadata: ADA_METADATA,
@@ -352,7 +332,7 @@ describe("TxBuilderBlazeV3", () => {
         amount: 1_000_000n,
         metadata: ADA_METADATA,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
     expect(fees.cardanoTxFee).not.toBeUndefined();
@@ -377,10 +357,10 @@ describe("TxBuilderBlazeV3", () => {
 
     const inlineDatum = depositOutput?.datum()?.asInlineData()?.toCbor();
     expect(inlineDatum).not.toBeUndefined();
-    expect(inlineDatum).toEqual(datum);
+    expect(inlineDatum).toEqual(datum as Core.HexBlob);
   });
 
-  test("swap() with incorrect idents should throw", async () => {
+  it("swap() with incorrect idents should throw", async () => {
     try {
       await builder.swap({
         orderAddresses: {
@@ -408,7 +388,7 @@ describe("TxBuilderBlazeV3", () => {
     }
   });
 
-  test("orderRouteSwap() - v3 to v3", async () => {
+  it("orderRouteSwap() - v3 to v3", async () => {
     const { build, fees, datum } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
@@ -481,11 +461,13 @@ describe("TxBuilderBlazeV3", () => {
 
     expect(inlineDatum).not.toBeUndefined();
     expect(inlineDatum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
+      Core.HexBlob(
+        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
+      )
     );
   });
 
-  test("orderRouteSwap() - v3 to v1", async () => {
+  it("orderRouteSwap() - v3 to v1", async () => {
     const { build, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
@@ -559,7 +541,9 @@ describe("TxBuilderBlazeV3", () => {
 
     expect(inlineDatum).not.toBeUndefined();
     expect(inlineDatum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977effd87a80ffd87a9f58208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fbffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
+      Core.HexBlob(
+        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977effd87a80ffd87a9f58208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fbffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
+      )
     );
 
     const transactionMetadata = builtTx
@@ -570,13 +554,15 @@ describe("TxBuilderBlazeV3", () => {
 
     expect(transactionMetadata).not.toBeUndefined();
     expect(transactionMetadata?.toCbor()).toEqual(
-      "a158208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fb85581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a011b5ec7d8799f1a00833c12ff42ffff"
+      Core.HexBlob(
+        "a158208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fb85581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a011b5ec7d8799f1a00833c12ff42ffff"
+      )
     );
   });
 
-  test("deposit()", async () => {
-    const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildDepositDatum = jest.spyOn(
+  it("deposit()", async () => {
+    const spiedNewTx = spyOn(builder, "newTxInstance");
+    const spiedBuildDepositDatum = spyOn(
       builder.datumBuilder,
       "buildDepositDatum"
     );
@@ -611,9 +597,9 @@ describe("TxBuilderBlazeV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87b9f9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ffffff43d87980ff"
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87b9f9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ffffff43d87980ff"
     );
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: ORDER_DEPOSIT_DEFAULT,
         metadata: ADA_METADATA,
@@ -622,7 +608,7 @@ describe("TxBuilderBlazeV3", () => {
         amount: 1_000_000n,
         metadata: ADA_METADATA,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
     expect(fees.cardanoTxFee).not.toBeUndefined();
@@ -656,10 +642,10 @@ describe("TxBuilderBlazeV3", () => {
 
     const inlineDatum = depositOutput?.datum()?.asInlineData()?.toCbor();
     expect(inlineDatum).not.toBeUndefined();
-    expect(inlineDatum).toEqual(datum);
+    expect(inlineDatum).toEqual(datum as Core.HexBlob);
   });
 
-  test("deposit() incorrect idents throw", async () => {
+  it("deposit() incorrect idents throw", async () => {
     try {
       await builder.deposit({
         orderAddresses: {
@@ -683,9 +669,9 @@ describe("TxBuilderBlazeV3", () => {
     }
   });
 
-  test("withdraw()", async () => {
-    const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildWithdrawDatum = jest.spyOn(
+  it("withdraw()", async () => {
+    const spiedNewTx = spyOn(builder, "newTxInstance");
+    const spiedBuildWithdrawDatum = spyOn(
       builder.datumBuilder,
       "buildWithdrawDatum"
     );
@@ -699,7 +685,6 @@ describe("TxBuilderBlazeV3", () => {
           },
         },
       },
-      pool: PREVIEW_DATA.pools.v3,
       suppliedLPAsset: PREVIEW_DATA.assets.v3LpToken,
     });
 
@@ -717,9 +702,9 @@ describe("TxBuilderBlazeV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87c9f9f581c633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d928958200014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e21a05f5e100ffff43d87980ff"
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87c9f9f581c633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d928958200014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e21a05f5e100ffff43d87980ff"
     );
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: ORDER_DEPOSIT_DEFAULT,
         metadata: ADA_METADATA,
@@ -728,7 +713,7 @@ describe("TxBuilderBlazeV3", () => {
         amount: 1_000_000n,
         metadata: ADA_METADATA,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
     expect(fees.cardanoTxFee).not.toBeUndefined();
@@ -762,10 +747,10 @@ describe("TxBuilderBlazeV3", () => {
 
     const inlineDatum = withdrawOutput?.datum()?.asInlineData()?.toCbor();
     expect(inlineDatum).not.toBeUndefined();
-    expect(inlineDatum).toEqual(datum);
+    expect(inlineDatum).toEqual(datum as Core.HexBlob);
   });
 
-  test("withdraw() incorrect idents throw", async () => {
+  it("withdraw() incorrect idents throw", async () => {
     try {
       await builder.withdraw({
         orderAddresses: {
@@ -776,10 +761,6 @@ describe("TxBuilderBlazeV3", () => {
             },
           },
         },
-        pool: {
-          ...PREVIEW_DATA.pools.v3,
-          ident: "00",
-        },
         suppliedLPAsset: PREVIEW_DATA.assets.v3LpToken,
       });
     } catch (e) {
@@ -789,10 +770,7 @@ describe("TxBuilderBlazeV3", () => {
     }
   });
 
-  test("mintPool() should build a transaction correctly when including ADA", async () => {
-    fetchMock.enableMocks();
-    fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
-
+  it("mintPool() should build a transaction correctly when including ADA", async () => {
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tada,
       assetB: PREVIEW_DATA.assets.tindy,
@@ -812,7 +790,9 @@ describe("TxBuilderBlazeV3", () => {
 
     expect(poolBalanceDatum).not.toBeUndefined();
     expect(poolBalanceDatum?.toCbor()).toEqual(
-      "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0009c4751a0cc6beab"
+      Core.HexBlob(
+        "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0009c4751a0cc6beab"
+      )
     );
 
     /**
@@ -820,7 +800,9 @@ describe("TxBuilderBlazeV3", () => {
      */
     const poolOutput = builtTx.body().outputs()[0];
     expect(poolOutput.toCbor()).toEqual(
-      "a30058393044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f880801821a015ef3c0a2581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a01312d00028201d818585ed8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+      Core.HexBlob(
+        "a30058393044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f880801821a015ef3c0a2581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a01312d00028201d818585ed8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+      )
     );
     const poolDepositAssets = poolOutput.amount().multiasset();
     const poolDepositedAssetA = poolOutput.amount().coin().toString();
@@ -846,7 +828,9 @@ describe("TxBuilderBlazeV3", () => {
     expect(poolDepositedNFT?.toString()).toEqual("1");
     // Should have datum attached.
     expect(poolOutput.datum()?.asInlineData()?.toCbor()).toEqual(
-      "d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+      Core.HexBlob(
+        "d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+      )
     );
 
     /**
@@ -855,7 +839,11 @@ describe("TxBuilderBlazeV3", () => {
     const metadataOutput = builtTx.body().outputs()[1];
     expect(
       metadataOutput.address().asEnterprise()?.getPaymentCredential().hash
-    ).toEqual("035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
+    ).toEqual(
+      Core.Hash28ByteBase16(
+        "035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b"
+      )
+    );
     const metadataDepositAssets = metadataOutput.amount().multiasset();
     const metadataDepositedAssetA = metadataOutput.amount().coin().toString();
     const metadataDepositedNFT = metadataDepositAssets?.get(
@@ -901,14 +889,9 @@ describe("TxBuilderBlazeV3", () => {
     );
     expect(lpTokensReturnedADA.toString()).toEqual("2000000");
     expect(lpTokensReturned?.toString()).toEqual("20000000");
-
-    fetchMock.disableMocks();
   });
 
-  test("mintPool() should build a transaction correctly when including ADA and donating Treasury", async () => {
-    fetchMock.enableMocks();
-    fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
-
+  it("mintPool() should build a transaction correctly when including ADA and donating Treasury", async () => {
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tada,
       assetB: PREVIEW_DATA.assets.tindy,
@@ -928,7 +911,9 @@ describe("TxBuilderBlazeV3", () => {
     const poolBalanceDatum = builtTx.witnessSet().redeemers()?.values()?.[0];
     expect(poolBalanceDatum).not.toBeUndefined();
     expect(poolBalanceDatum?.toCbor()).toEqual(
-      "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0009c4751a0cc6beab"
+      Core.HexBlob(
+        "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0009c4751a0cc6beab"
+      )
     );
 
     /**
@@ -969,7 +954,9 @@ describe("TxBuilderBlazeV3", () => {
     expect(poolDepositedNFT?.toString()).toEqual("1");
     // Should have datum attached.
     expect(poolOutput.datum()?.asInlineData()?.toCbor()).toEqual(
-      "d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+      Core.HexBlob(
+        "d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+      )
     );
 
     /**
@@ -981,7 +968,9 @@ describe("TxBuilderBlazeV3", () => {
       .asEnterprise()
       ?.getPaymentCredential().hash;
     expect(metadataOutputPaymentHash).toEqual(
-      "035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b"
+      Core.Hash28ByteBase16(
+        "035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b"
+      )
     );
     const metadataDepositAssets = metadataOutput.amount().multiasset();
     const metadataDepositedAssetA = metadataOutput.amount().coin().toString();
@@ -1007,7 +996,9 @@ describe("TxBuilderBlazeV3", () => {
       .asEnterprise()
       ?.getPaymentCredential().hash;
     expect(lpTokensOutputPaymentHash).toEqual(
-      "035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b"
+      Core.Hash28ByteBase16(
+        "035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b"
+      )
     );
     expect(lpTokensOutput.datum()?.asInlineData()?.toCbor()).toEqual(
       Data.void().toCbor()
@@ -1026,318 +1017,240 @@ describe("TxBuilderBlazeV3", () => {
     );
     expect(lpTokensReturnedADA.toString()).toEqual("2000000");
     expect(lpTokensReturned?.toString()).toEqual("20000000");
-
-    fetchMock.disableMocks();
   });
 
-  // test("mintPool() should build a transaction correctly when including ADA and donating a percentage to the Treasury", async () => {
-  //   fetchMock.enableMocks();
-  //   fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
+  it("mintPool() should build a transaction correctly when including ADA and donating a percentage to the Treasury", async () => {
+    const { fees, build } = await builder.mintPool({
+      assetA: PREVIEW_DATA.assets.tada,
+      assetB: PREVIEW_DATA.assets.tindy,
+      fees: 5n,
+      marketOpen: 5n,
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      donateToTreasury: 43n,
+    });
 
-  //   const { fees, build } = await builder.mintPool({
-  //     assetA: PREVIEW_DATA.assets.tada,
-  //     assetB: PREVIEW_DATA.assets.tindy,
-  //     fees: 5n,
-  //     marketOpen: 5n,
-  //     ownerAddress: PREVIEW_DATA.addresses.current,
-  //     donateToTreasury: 43n,
-  //   });
+    // Since we are depositing ADA, we only need ADA for the metadata and settings utxos.
+    expect(fees.deposit.amount.toString()).toEqual(
+      (ORDER_DEPOSIT_DEFAULT * 2n).toString()
+    );
 
-  //   // Since we are depositing ADA, we only need ADA for the metadata and settings utxos.
-  //   expect(fees.deposit.amount.toString()).toEqual(
-  //     (ORDER_DEPOSIT_DEFAULT * 2n).toString()
-  //   );
+    const { builtTx } = await build();
 
-  //   const { builtTx } = await build();
+    const poolBalanceDatum = builtTx.witnessSet().redeemers()?.values()?.[0];
+    expect(poolBalanceDatum).not.toBeUndefined();
+    expect(poolBalanceDatum?.toCbor()).toEqual(
+      Core.HexBlob(
+        "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0009c4751a0cc6beab"
+      )
+    );
 
-  //   const poolBalanceDatum = builtTx.txComplete
-  //     .witness_set()
-  //     .redeemers()
-  //     ?.get(0);
-  //   expect(poolBalanceDatum).not.toBeUndefined();
-  //   expect(
-  //     Buffer.from(poolBalanceDatum?.to_bytes() as Uint8Array).toString("hex")
-  //   ).toEqual(
-  //     "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a000b4af51a121ba48c"
-  //   );
+    /**
+     * The pool output should be the first in the outputs.
+     */
+    const poolOutput = builtTx.body().outputs()[0];
+    expect(poolOutput.toCbor()).toEqual(
+      Core.HexBlob(
+        "a30058393044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f880801821a015ef3c0a2581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a01312d00028201d818585ed8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+      )
+    );
+    const poolDepositAssets = poolOutput.amount().multiasset();
+    const poolDepositedAssetA = poolOutput.amount().coin().toString();
+    const poolDepositedAssetB = poolDepositAssets
+      ?.get(
+        Core.AssetId(
+          PREVIEW_DATA.assets.tindy.metadata.assetId.replace(".", "")
+        )
+      )
+      ?.toString();
+    const poolDepositedNFT = poolDepositAssets
+      ?.get(
+        Core.AssetId(
+          `44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`
+        )
+      )
+      ?.toString();
 
-  //   /**
-  //    * The pool output should be the first in the outputs.
-  //    */
-  //   const poolOutput = builtTx.txComplete.body().outputs().get(0);
-  //   expect(
-  //     Buffer.from(poolOutput.address().to_bytes()).toString("hex")
-  //   ).toEqual(
-  //     "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
-  //   );
-  //   const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
-  //   const poolDepositedAssetA = poolOutput.amount().coin().to_str();
-  //   const poolDepositedAssetB =
-  //     poolDepositAssets[
-  //       PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[0]
-  //     ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]];
-  //   const poolDepositedNFT =
-  //     poolDepositAssets[
-  //       "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
-  //     ]["000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"];
+    expect(poolDepositedAssetA).not.toBeUndefined();
+    expect(poolDepositedAssetB).not.toBeUndefined();
+    expect(poolDepositedNFT).not.toBeUndefined();
 
-  //   [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(
-  //     (val) => expect(val).not.toBeUndefined()
-  //   );
-  //   // Should deposit assets without additional ADA.
-  //   expect(poolDepositedAssetA).toEqual(
-  //     (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString()
-  //   );
-  //   expect(poolDepositedAssetB).toEqual("20000000");
-  //   expect(poolDepositedNFT).toEqual("1");
-  //   // Should have datum attached.
-  //   expect(
-  //     Buffer.from(
-  //       poolOutput.datum()?.as_data()?.to_bytes() as Uint8Array
-  //     ).toString("hex")
-  //   ).toEqual(
-  //     "d818585ed8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
-  //   );
+    // Should deposit assets without additional ADA.
+    expect(poolDepositedAssetA).toEqual(
+      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString()
+    );
+    expect(poolDepositedAssetB).toEqual("20000000");
+    expect(poolDepositedNFT).toEqual("1");
+    // Should have datum attached.
+    expect(poolOutput.datum()?.asInlineData()?.toCbor()).toEqual(
+      Core.HexBlob(
+        "d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+      )
+    );
 
-  //   /**
-  //    * The metadata output should be the second in the outputs.
-  //    */
-  //   const metadataOutput = builtTx.txComplete.body().outputs().get(1);
-  //   expect(
-  //     Buffer.from(metadataOutput.address().to_bytes()).toString("hex")
-  //   ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
-  //   const metadataDepositAssets = metadataOutput
-  //     .amount()
-  //     .multiasset()
-  //     ?.to_js_value();
-  //   const metadataDepositedAssetA = metadataOutput.amount().coin().to_str();
-  //   const metadataDepositedNFT =
-  //     metadataDepositAssets[params.blueprint.validators[1].hash][
-  //       "000643b09e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
-  //     ];
+    /**
+     * The metadata output should be the second in the outputs.
+     */
+    const metadataOutput = builtTx.body().outputs()[1];
+    expect(metadataOutput.toCbor()).toEqual(
+      Core.HexBlob(
+        "a300581d60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b01821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000643b0f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601028201d81843d87980"
+      )
+    );
+    const metadataDepositAssets = metadataOutput.amount().multiasset();
+    const metadataDepositedAssetA = metadataOutput.amount().coin().toString();
+    const metadataDepositedNFT = metadataDepositAssets
+      ?.get(
+        Core.AssetId(
+          `${params.blueprint.validators[1].hash}000643b0f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`
+        )
+      )
+      ?.toString();
 
-  //   [metadataDepositedAssetA, metadataDepositedNFT].forEach((val) =>
-  //     expect(val).not.toBeUndefined()
-  //   );
-  //   expect(metadataDepositedAssetA).toEqual("2000000");
-  //   expect(metadataDepositedNFT).toEqual("1");
+    expect(metadataDepositedAssetA).not.toBeUndefined();
+    expect(metadataDepositedNFT).not.toBeUndefined();
+    expect(metadataDepositedAssetA).toEqual("2000000");
+    expect(metadataDepositedNFT).toEqual("1");
 
-  //   /**
-  //    * The lp tokens donation output should be the third in the outputs.
-  //    */
-  //   const lpTokensDonation = builtTx.txComplete.body().outputs().get(2);
-  //   expect(
-  //     Buffer.from(lpTokensDonation.address().to_bytes()).toString("hex")
-  //   ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
-  //   expect(
-  //     Buffer.from(
-  //       lpTokensDonation.datum()?.as_data_hash()?.to_bytes() as Uint8Array
-  //     ).toString("hex")
-  //   ).toEqual(builder.lucid.utils.datumToHash(Data.void()));
-  //   const lpTokensDonationAssets = lpTokensDonation
-  //     .amount()
-  //     .multiasset()
-  //     ?.to_js_value();
-  //   const lpTokensDonatedADA = lpTokensDonation.amount().coin().to_str();
-  //   const lpTokensDonated =
-  //     lpTokensDonationAssets[params.blueprint.validators[1].hash][
-  //       "0014df109e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
-  //     ];
+    /**
+     * The lp tokens donation output should be the third in the outputs.
+     */
+    const lpTokensDonation = builtTx.body().outputs()[2];
+    expect(lpTokensDonation.toCbor()).toEqual(
+      Core.HexBlob(
+        "a300581d60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b01821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a158200014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc61a008339c0028201d81843d87980"
+      )
+    );
+    expect(lpTokensDonation.datum()?.asInlineData()).toEqual(Data.void());
+    const lpTokensDonationAssets = lpTokensDonation.amount().multiasset();
+    const lpTokensDonatedADA = lpTokensDonation.amount().coin().toString();
+    const lpTokensDonated = lpTokensDonationAssets
+      ?.get(
+        Core.AssetId(
+          `${params.blueprint.validators[1].hash}0014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`
+        )
+      )
+      ?.toString();
 
-  //   [lpTokensDonatedADA, lpTokensDonated].forEach((val) =>
-  //     expect(val).not.toBeUndefined()
-  //   );
-  //   expect(lpTokensDonatedADA).toEqual("2000000");
-  //   expect(lpTokensDonated).toEqual("8600000");
+    expect(lpTokensDonatedADA).not.toBeUndefined();
+    expect(lpTokensDonated).not.toBeUndefined();
+    expect(lpTokensDonatedADA).toEqual("2000000");
+    expect(lpTokensDonated).toEqual("8600000");
 
-  //   /**
-  //    * The lp tokens returned output should be the fourth in the outputs.
-  //    */
-  //   const lpTokensOutput = builtTx.txComplete.body().outputs().get(3);
-  //   expect(
-  //     Buffer.from(lpTokensOutput.address().to_bytes()).toString("hex")
-  //   ).toEqual(
-  //     "00c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0"
-  //   );
-  //   const lpTokensDepositAssets = lpTokensOutput
-  //     .amount()
-  //     .multiasset()
-  //     ?.to_js_value();
-  //   const lpTokensReturnedADA = lpTokensOutput.amount().coin().to_str();
-  //   const lpTokensReturned =
-  //     lpTokensDepositAssets[params.blueprint.validators[1].hash][
-  //       "0014df109e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
-  //     ];
+    /**
+     * The lp tokens returned output should be the fourth in the outputs.
+     */
+    const lpTokensOutput = builtTx.body().outputs()[3];
+    expect(lpTokensOutput.toCbor()).toEqual(
+      Core.HexBlob(
+        "82583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a158200014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc61a00adf340"
+      )
+    );
+    const lpTokensDepositAssets = lpTokensOutput.amount().multiasset();
+    const lpTokensReturnedADA = lpTokensOutput.amount().coin().toString();
+    const lpTokensReturned = lpTokensDepositAssets
+      ?.get(
+        Core.AssetId.fromParts(
+          Core.PolicyId(params.blueprint.validators[1].hash),
+          Core.AssetName(
+            "0014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6"
+          )
+        )
+      )
+      ?.toString();
 
-  //   [lpTokensReturnedADA, lpTokensReturned].forEach((val) =>
-  //     expect(val).not.toBeUndefined()
-  //   );
-  //   expect(lpTokensReturnedADA).toEqual("2000000");
-  //   expect(lpTokensReturned).toEqual("11400000");
+    expect(lpTokensReturnedADA).not.toBeUndefined();
+    expect(lpTokensReturned).not.toBeUndefined();
+    expect(lpTokensReturnedADA).toEqual("2000000");
+    expect(lpTokensReturned).toEqual("11400000");
+  });
 
-  //   fetchMock.disableMocks();
-  // });
+  it("mintPool() should build a transaction correctly when using exotic pairs", async () => {
+    const { fees, build } = await builder.mintPool({
+      assetA: PREVIEW_DATA.assets.tindy,
+      assetB: PREVIEW_DATA.assets.usdc,
+      fees: 5n,
+      marketOpen: 5n,
+      ownerAddress: PREVIEW_DATA.addresses.current,
+    });
 
-  // test("mintPool() should build a transaction correctly when using exotic pairs", async () => {
-  //   fetchMock.enableMocks();
-  //   fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
+    /**
+     * Since we're depositing exotic assets, we expect:
+     * - 2 minAda required for exotic pair
+     * - 2 ADA for metadata ref token
+     * - 2 ADA for sending back LP tokens
+     */
+    expect(fees.deposit.amount.toString()).toEqual("6000000");
 
-  //   const { fees, build } = await builder.mintPool({
-  //     assetA: PREVIEW_DATA.assets.tindy,
-  //     assetB: PREVIEW_DATA.assets.usdc,
-  //     fees: 5n,
-  //     marketOpen: 5n,
-  //     ownerAddress: PREVIEW_DATA.addresses.current,
-  //   });
+    const { builtTx } = await build();
 
-  //   /**
-  //    * Since we're depositing exotic assets, we expect:
-  //    * - 2 minAda required for exotic pair
-  //    * - 2 ADA for metadata ref token
-  //    * - 2 ADA for sending back LP tokens
-  //    */
-  //   expect(fees.deposit.amount.toString()).toEqual("6000000");
+    const poolBalanceDatum = builtTx.witnessSet().redeemers()?.values()?.[0];
+    expect(poolBalanceDatum).not.toBeUndefined();
+    expect(poolBalanceDatum?.toCbor()).toEqual(
+      Core.HexBlob(
+        "840100d87a9f9f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a000a93d71a0dc08acf"
+      )
+    );
 
-  //   const { builtTx } = await build();
+    /**
+     * The pool output should be the first in the outputs.
+     */
+    const poolOutput = builtTx.body().outputs()[0];
+    expect(poolOutput.toCbor()).toEqual(
+      Core.HexBlob(
+        "a30058393044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f880801821a002dc6c0a3581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a144555344431a01312d00581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a01312d00028201d818587fd8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
+      )
+    );
 
-  //   const poolBalanceDatum = builtTx.txComplete
-  //     .witness_set()
-  //     .redeemers()
-  //     ?.get(0);
-  //   expect(poolBalanceDatum).not.toBeUndefined();
-  //   expect(
-  //     Buffer.from(poolBalanceDatum?.to_bytes() as Uint8Array).toString("hex")
-  //   ).toEqual(
-  //     "840100d87a9f9f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a000b4af51a121ba48c"
-  //   );
+    // /**
+    //  * The metadata output should be the second in the outputs.
+    //  */
+    const metadataOutput = builtTx.body().outputs()[1];
+    expect(metadataOutput.toCbor()).toEqual(
+      Core.HexBlob(
+        "a300581d60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b01821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000643b0f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601028201d81843d87980"
+      )
+    );
 
-  //   /**
-  //    * The pool output should be the first in the outputs.
-  //    */
-  //   const poolOutput = builtTx.txComplete.body().outputs().get(0);
-  //   expect(
-  //     Buffer.from(poolOutput.address().to_bytes()).toString("hex")
-  //   ).toEqual(
-  //     "308140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808"
-  //   );
-  //   const poolDepositAssets = poolOutput.amount().multiasset()?.to_js_value();
-  //   // const poolDepositedAssetA = poolOutput.amount().coin().to_str();
-  //   const poolDepositedAssetA =
-  //     poolDepositAssets[
-  //       PREVIEW_DATA.assets.usdc.metadata.assetId.split(".")[0]
-  //     ][PREVIEW_DATA.assets.usdc.metadata.assetId.split(".")[1]];
-  //   const poolDepositedAssetB =
-  //     poolDepositAssets[
-  //       PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[0]
-  //     ][PREVIEW_DATA.assets.tindy.metadata.assetId.split(".")[1]];
-  //   const poolDepositedNFT =
-  //     poolDepositAssets[
-  //       "8140c4b89428fc264e90b10c71c53a4c3f9ce52b676bf1d9b51eb9ca"
-  //     ]["000de1409e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"];
+    // /**
+    //  * The lp tokens output should be the third in the outputs.
+    //  */
+    const lpTokensOutput = builtTx.body().outputs()[2];
+    expect(lpTokensOutput.toCbor()).toEqual(
+      Core.HexBlob(
+        "82583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a158200014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc61a01312d00"
+      )
+    );
+  });
 
-  //   [poolDepositedAssetA, poolDepositedAssetB, poolDepositedNFT].forEach(
-  //     (val) => expect(val).not.toBeUndefined()
-  //   );
-  //   // Should deposit assets without additional ADA deposit.
-  //   expect(poolDepositedAssetA).toEqual(
-  //     PREVIEW_DATA.assets.tada.amount.toString()
-  //   );
-  //   expect(poolDepositedAssetB).toEqual("20000000");
-  //   expect(poolDepositedNFT).toEqual("1");
-  //   // Should have datum attached.
-  //   expect(
-  //     Buffer.from(
-  //       poolOutput.datum()?.as_data()?.to_bytes() as Uint8Array
-  //     ).toString("hex")
-  //   ).toEqual(
-  //     "d818587fd8799f581c9e67cc006063ea055629552650664979d7c92d47e342e5340ef775509f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff"
-  //   );
+  it("mintPool() should throw an error when the ADA provided is less than the min required", async () => {
+    try {
+      await builder.mintPool({
+        assetA: PREVIEW_DATA.assets.tada.withAmount(500_000n),
+        assetB: PREVIEW_DATA.assets.usdc,
+        fees: 5n,
+        marketOpen: 5n,
+        ownerAddress: PREVIEW_DATA.addresses.current,
+      });
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        TxBuilderBlazeV3.MIN_ADA_POOL_MINT_ERROR
+      );
+    }
+  });
 
-  //   /**
-  //    * The metadata output should be the second in the outputs.
-  //    */
-  //   const metadataOutput = builtTx.txComplete.body().outputs().get(1);
-  //   expect(
-  //     Buffer.from(metadataOutput.address().to_bytes()).toString("hex")
-  //   ).toEqual("60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b");
-  //   const metadataDepositAssets = metadataOutput
-  //     .amount()
-  //     .multiasset()
-  //     ?.to_js_value();
-  //   const metadataDepositedAssetA = metadataOutput.amount().coin().to_str();
-  //   const metadataDepositedNFT =
-  //     metadataDepositAssets[params.blueprint.validators[1].hash][
-  //       "000643b09e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
-  //     ];
-
-  //   [metadataDepositedAssetA, metadataDepositedNFT].forEach((val) =>
-  //     expect(val).not.toBeUndefined()
-  //   );
-  //   expect(metadataDepositedAssetA).toEqual("2000000");
-  //   expect(metadataDepositedNFT).toEqual("1");
-
-  //   /**
-  //    * The lp tokens output should be the third in the outputs.
-  //    */
-  //   const lpTokensOutput = builtTx.txComplete.body().outputs().get(2);
-  //   expect(
-  //     Buffer.from(lpTokensOutput.address().to_bytes()).toString("hex")
-  //   ).toEqual(
-  //     "00c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0"
-  //   );
-  //   const lpTokensDepositAssets = lpTokensOutput
-  //     .amount()
-  //     .multiasset()
-  //     ?.to_js_value();
-  //   const lpTokensReturnedADA = lpTokensOutput.amount().coin().to_str();
-  //   const lpTokensReturned =
-  //     lpTokensDepositAssets[params.blueprint.validators[1].hash][
-  //       "0014df109e67cc006063ea055629552650664979d7c92d47e342e5340ef77550"
-  //     ];
-
-  //   [lpTokensReturnedADA, lpTokensReturned].forEach((val) =>
-  //     expect(val).not.toBeUndefined()
-  //   );
-  //   expect(lpTokensReturnedADA).toEqual("2000000");
-  //   expect(lpTokensReturned).toEqual("20000000");
-
-  //   fetchMock.disableMocks();
-  // });
-
-  // test("mintPool() should throw an error when the ADA provided is less than the min required", async () => {
-  //   fetchMock.enableMocks();
-  //   fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
-
-  //   try {
-  //     await builder.mintPool({
-  //       assetA: PREVIEW_DATA.assets.tada.withAmount(500_000n),
-  //       assetB: PREVIEW_DATA.assets.usdc,
-  //       fees: 5n,
-  //       marketOpen: 5n,
-  //       ownerAddress: PREVIEW_DATA.addresses.current,
-  //     });
-  //   } catch (e) {
-  //     expect((e as Error).message).toEqual(
-  //       TxBuilderBlazeV3.MIN_ADA_POOL_MINT_ERROR
-  //     );
-  //   }
-
-  //   fetchMock.disableMocks();
-  // });
-
-  // it("should fail when trying to mint a pool with decaying values", async () => {
-  //   try {
-  //     await builder.mintPool({
-  //       assetA: PREVIEW_DATA.assets.tada,
-  //       assetB: PREVIEW_DATA.assets.tindy,
-  //       fees: 5n,
-  //       marketOpen: 5n,
-  //       ownerAddress: PREVIEW_DATA.addresses.current,
-  //     });
-  //   } catch (e) {
-  //     expect((e as Error).message).toEqual(
-  //       "Decaying fees are currently not supported in the scoopers. For now, use the same fee for both start and end values."
-  //     );
-  //   }
-  // });
+  it("should fail when trying to mint a pool with decaying values", async () => {
+    try {
+      await builder.mintPool({
+        assetA: PREVIEW_DATA.assets.tada,
+        assetB: PREVIEW_DATA.assets.tindy,
+        fees: 5n,
+        marketOpen: 5n,
+        ownerAddress: PREVIEW_DATA.addresses.current,
+      });
+    } catch (e) {
+      expect((e as Error).message).toEqual(
+        "Decaying fees are currently not supported in the scoopers. For now, use the same fee for both start and end values."
+      );
+    }
+  });
 });

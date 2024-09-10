@@ -1,17 +1,23 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+  spyOn,
+} from "bun:test";
 
 import {
   EDatumType,
   TOrderAddressesArgs,
 } from "../../../@types/datumbuilder.js";
-import { PREVIEW_DATA } from "../../../exports/testing.js";
 import { BlazeHelper } from "../../../Utilities/BlazeHelper.class.js";
 import { V1_EXPECTATIONS } from "../../__data__/v1.expectations.js";
 import { DatumBuilderBlazeV1 } from "../../DatumBuilder.Blaze.V1.class.js";
 
 let builderInstance: DatumBuilderBlazeV1;
 
-const DEFAULT_DESTINATION_ADDRESS = PREVIEW_DATA.addresses.alternatives[2];
 const expectations = V1_EXPECTATIONS.datums.buildOrderAddresses;
 
 beforeEach(() => {
@@ -129,7 +135,7 @@ describe("buildDestinationAddresses()", () => {
   });
 
   it("should fail when passing a script address to DestinationAddress without a datum attached", () => {
-    jest.spyOn(BlazeHelper, "throwInvalidOrderAddressesError");
+    spyOn(BlazeHelper, "throwInvalidOrderAddressesError");
     try {
       builderInstance.buildOrderAddresses(
         expectations[10].args as TOrderAddressesArgs
@@ -143,7 +149,7 @@ describe("buildDestinationAddresses()", () => {
   });
 
   it("should fail when passing an invalid datum along with a script DestinationAddress", () => {
-    jest.spyOn(BlazeHelper, "throwInvalidOrderAddressesError");
+    spyOn(BlazeHelper, "throwInvalidOrderAddressesError");
     try {
       builderInstance.buildOrderAddresses(
         expectations[11].args as TOrderAddressesArgs

@@ -2,7 +2,7 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getSwapOutput } from "@sundaeswap/cpp";
 import { Fraction } from "@sundaeswap/fraction";
 
-import type {
+import {
   EContractVersion,
   EPoolCoin,
   ICurrentFeeFromDecayingFeeArgs,
@@ -13,6 +13,8 @@ import type {
 } from "../@types/index.js";
 import {
   ADA_ASSET_DECIMAL,
+  CONTRACT_V1_PREFIX,
+  CONTRACT_V3_PREFIX,
   ORDER_DEPOSIT_DEFAULT,
   V3_POOL_IDENT_LENGTH,
 } from "../constants.js";
@@ -445,6 +447,43 @@ export class SundaeUtils {
         (network === "mainnet"
           ? SundaeUtils.MAINNET_OFFSET
           : SundaeUtils.PREVIEW_OFFSET)
+    );
+  }
+
+  /**
+   * Helper method to extract the pool ident from a liquidity token.
+   * @param {string} id The asset ID.
+   * @param {EContractVersion} version The contract version type.
+   * @returns {string}
+   */
+  static getIdentFromAssetId(id: string): string {
+    // Remove the prefix from the asset name to get the ident.
+    const version = SundaeUtils.getPoolVersionFromAssetId(id);
+    const prefix =
+      version === EContractVersion.V1 ? CONTRACT_V1_PREFIX : CONTRACT_V3_PREFIX;
+
+    const assetName = id.includes(".") ? id.split(".")[1] : id.slice(56);
+    return assetName.replace(prefix, "");
+  }
+
+  /**
+   * Helper method to determine a contract version based on the prefix in the asset name.
+   * @param {string} id The asset ID.
+   * @returns {EContractVersion}
+   */
+  static getPoolVersionFromAssetId(id: string): EContractVersion {
+    const assetName = id.includes(".") ? id.split(".")[1] : id.slice(56);
+
+    if (assetName.indexOf(CONTRACT_V1_PREFIX) === 0) {
+      return EContractVersion.V1;
+    }
+
+    if (assetName.indexOf(CONTRACT_V3_PREFIX) === 0) {
+      return EContractVersion.V3;
+    }
+
+    throw new Error(
+      "Could not find a contract version prefix in the asset name!"
     );
   }
 }

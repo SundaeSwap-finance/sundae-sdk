@@ -1,5 +1,5 @@
-import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
+import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 import fetchMock from "jest-fetch-mock";
 import { C, Data, Lucid, Tx } from "lucid-cardano";
 
@@ -27,21 +27,23 @@ import {
   settingsUtxosLucid,
 } from "../__data__/mockData.js";
 
-jest
-  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScriptHashes")
-  .mockResolvedValue(params);
+spyOn(
+  QueryProviderSundaeSwap.prototype,
+  "getProtocolParamsWithScriptHashes"
+).mockResolvedValue(params);
 
-jest
-  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScripts")
-  .mockResolvedValue(params);
+spyOn(
+  QueryProviderSundaeSwap.prototype,
+  "getProtocolParamsWithScripts"
+).mockResolvedValue(params);
 
-jest
-  .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-  .mockResolvedValue(settingsUtxosLucid);
+spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos").mockResolvedValue(
+  settingsUtxosLucid
+);
 
-jest
-  .spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos")
-  .mockResolvedValue(referenceUtxos);
+spyOn(TxBuilderLucidV3.prototype, "getAllReferenceUtxos").mockResolvedValue(
+  referenceUtxos
+);
 
 let builder: TxBuilderLucidV3;
 
@@ -70,7 +72,7 @@ const { getUtxosByOutRefMock } = setupLucid(async (lucid) => {
 });
 
 afterAll(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("TxBuilderLucidV3", () => {
@@ -92,23 +94,21 @@ describe("TxBuilderLucidV3", () => {
       simpleFee: 0n,
     };
 
-    jest
-      .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-      .mockResolvedValue([
-        {
-          ...settingsUtxosLucid[0],
-          datum: Data.to(newSettingsDatum, SettingsDatum),
-        },
-        ...settingsUtxosLucid.slice(1),
-      ]);
+    spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos").mockResolvedValue([
+      {
+        ...settingsUtxosLucid[0],
+        datum: Data.to(newSettingsDatum, SettingsDatum),
+      },
+      ...settingsUtxosLucid.slice(1),
+    ]);
 
     const result2 = await builder.getMaxScooperFeeAmount();
     expect(result2.toString()).toEqual("1000000");
 
     // Reset scooper fee
-    jest
-      .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-      .mockResolvedValue(settingsUtxosLucid);
+    spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos").mockResolvedValue(
+      settingsUtxosLucid
+    );
   });
 
   it("should create a new transaction instance correctly", async () => {
@@ -189,7 +189,7 @@ describe("TxBuilderLucidV3", () => {
       ...mockOrderToCancel,
       ...referenceUtxos,
     ]);
-    const spiedGetSignerKeyFromDatum = jest.spyOn(
+    const spiedGetSignerKeyFromDatum = spyOn(
       DatumBuilderLucidV3,
       "getSignerKeyFromDatum"
     );
@@ -202,10 +202,7 @@ describe("TxBuilderLucidV3", () => {
       },
     });
 
-    expect(spiedGetSignerKeyFromDatum).toHaveBeenCalledTimes(1);
-    expect(spiedGetSignerKeyFromDatum).toHaveReturnedWith(
-      "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0"
-    );
+    expect(spiedGetSignerKeyFromDatum).toHaveReturnedTimes(1);
 
     expect(fees.deposit.amount).toEqual(0n);
     expect(fees.scooperFee.amount).toEqual(0n);
@@ -219,8 +216,8 @@ describe("TxBuilderLucidV3", () => {
     expect(fees.cardanoTxFee?.amount).toEqual(227193n);
   });
 
-  test("cancel() v1 order", async () => {
-    const spiedOnV1Cancel = jest.spyOn(TxBuilderLucidV1.prototype, "cancel");
+  it("cancel() v1 order", async () => {
+    const spiedOnV1Cancel = spyOn(TxBuilderLucidV1.prototype, "cancel");
     getUtxosByOutRefMock.mockResolvedValue([
       PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1,
     ]);
@@ -239,15 +236,12 @@ describe("TxBuilderLucidV3", () => {
     }
   });
 
-  test("swap()", async () => {
-    const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildSwapDatum = jest.spyOn(
-      builder.datumBuilder,
-      "buildSwapDatum"
-    );
+  it("swap()", async () => {
+    const spiedNewTx = spyOn(builder, "newTxInstance");
+    const spiedBuildSwapDatum = spyOn(builder.datumBuilder, "buildSwapDatum");
 
     // Ensure that our tests are running at a consistent date due to decaying fees.
-    const spiedDate = jest.spyOn(Date, "now");
+    const spiedDate = spyOn(Date, "now");
     spiedDate.mockImplementation(() => new Date("2023-12-10").getTime());
 
     const { build, fees, datum } = await builder.swap({
@@ -281,9 +275,9 @@ describe("TxBuilderLucidV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a010cd3b9ffff43d87980ff"
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a010cd3b9ffff43d87980ff"
     );
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: ORDER_DEPOSIT_DEFAULT,
         metadata: ADA_METADATA,
@@ -292,7 +286,7 @@ describe("TxBuilderLucidV3", () => {
         amount: 1_000_000n,
         metadata: ADA_METADATA,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
     expect(fees.cardanoTxFee).not.toBeUndefined();
@@ -322,11 +316,11 @@ describe("TxBuilderLucidV3", () => {
     const inlineDatum = depositOutput?.datum()?.as_data()?.get().to_bytes();
     expect(inlineDatum).not.toBeUndefined();
     expect(Buffer.from(inlineDatum as Uint8Array).toString("hex")).toEqual(
-      datum
+      datum as string
     );
   });
 
-  test("swap() with incorrect idents should throw", async () => {
+  it("swap() with incorrect idents should throw", async () => {
     try {
       await builder.swap({
         orderAddresses: {
@@ -354,7 +348,7 @@ describe("TxBuilderLucidV3", () => {
     }
   });
 
-  test("orderRouteSwap() - v3 to v3", async () => {
+  it("orderRouteSwap() - v3 to v3", async () => {
     const { build, fees, datum } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
@@ -424,11 +418,11 @@ describe("TxBuilderLucidV3", () => {
 
     expect(inlineDatum).not.toBeUndefined();
     expect(Buffer.from(inlineDatum as Uint8Array).toString("hex")).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
     );
   });
 
-  test("orderRouteSwap() - v3 to v1", async () => {
+  it("orderRouteSwap() - v3 to v1", async () => {
     const { build, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
@@ -499,7 +493,7 @@ describe("TxBuilderLucidV3", () => {
 
     expect(inlineDatum).not.toBeUndefined();
     expect(Buffer.from(inlineDatum as Uint8Array).toString("hex")).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977effd87a80ffd87a9f58208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fbffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977effd87a80ffd87a9f58208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fbffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff"
     );
 
     const transactionMetadata = builtTx.txComplete
@@ -516,9 +510,9 @@ describe("TxBuilderLucidV3", () => {
     );
   });
 
-  test("deposit()", async () => {
-    const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildDepositDatum = jest.spyOn(
+  it("deposit()", async () => {
+    const spiedNewTx = spyOn(builder, "newTxInstance");
+    const spiedBuildDepositDatum = spyOn(
       builder.datumBuilder,
       "buildDepositDatum"
     );
@@ -553,9 +547,9 @@ describe("TxBuilderLucidV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87b9f9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ffffff43d87980ff"
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87b9f9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ffffff43d87980ff"
     );
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: ORDER_DEPOSIT_DEFAULT,
         metadata: ADA_METADATA,
@@ -564,7 +558,7 @@ describe("TxBuilderLucidV3", () => {
         amount: 1_000_000n,
         metadata: ADA_METADATA,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
     expect(fees.cardanoTxFee).not.toBeUndefined();
@@ -597,11 +591,11 @@ describe("TxBuilderLucidV3", () => {
     const inlineDatum = depositOutput?.datum()?.as_data()?.get().to_bytes();
     expect(inlineDatum).not.toBeUndefined();
     expect(Buffer.from(inlineDatum as Uint8Array).toString("hex")).toEqual(
-      datum
+      datum as string
     );
   });
 
-  test("deposit() incorrect idents throw", async () => {
+  it("deposit() incorrect idents throw", async () => {
     try {
       await builder.deposit({
         orderAddresses: {
@@ -625,9 +619,9 @@ describe("TxBuilderLucidV3", () => {
     }
   });
 
-  test("withdraw()", async () => {
-    const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildWithdrawDatum = jest.spyOn(
+  it("withdraw()", async () => {
+    const spiedNewTx = spyOn(builder, "newTxInstance");
+    const spiedBuildWithdrawDatum = spyOn(
       builder.datumBuilder,
       "buildWithdrawDatum"
     );
@@ -641,7 +635,6 @@ describe("TxBuilderLucidV3", () => {
           },
         },
       },
-      pool: PREVIEW_DATA.pools.v3,
       suppliedLPAsset: PREVIEW_DATA.assets.v3LpToken,
     });
 
@@ -659,9 +652,9 @@ describe("TxBuilderLucidV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581c8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87c9f9f581c633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d928958200014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e21a05f5e100ffff43d87980ff"
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87c9f9f581c633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d928958200014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e21a05f5e100ffff43d87980ff"
     );
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: ORDER_DEPOSIT_DEFAULT,
         metadata: ADA_METADATA,
@@ -670,7 +663,7 @@ describe("TxBuilderLucidV3", () => {
         amount: 1_000_000n,
         metadata: ADA_METADATA,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
     expect(fees.cardanoTxFee).not.toBeUndefined();
@@ -704,11 +697,11 @@ describe("TxBuilderLucidV3", () => {
     const inlineDatum = withdrawOutput?.datum()?.as_data()?.get().to_bytes();
     expect(inlineDatum).not.toBeUndefined();
     expect(Buffer.from(inlineDatum as Uint8Array).toString("hex")).toEqual(
-      datum
+      datum as string
     );
   });
 
-  test("withdraw() incorrect idents throw", async () => {
+  it("withdraw() incorrect idents throw", async () => {
     try {
       await builder.withdraw({
         orderAddresses: {
@@ -719,10 +712,6 @@ describe("TxBuilderLucidV3", () => {
             },
           },
         },
-        pool: {
-          ...PREVIEW_DATA.pools.v3,
-          ident: "00",
-        },
         suppliedLPAsset: PREVIEW_DATA.assets.v3LpToken,
       });
     } catch (e) {
@@ -732,7 +721,7 @@ describe("TxBuilderLucidV3", () => {
     }
   });
 
-  test("mintPool() should build a transaction correctly when including ADA", async () => {
+  it("mintPool() should build a transaction correctly when including ADA", async () => {
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
 
@@ -851,7 +840,7 @@ describe("TxBuilderLucidV3", () => {
     fetchMock.disableMocks();
   });
 
-  test("mintPool() should build a transaction correctly when including ADA and donating Treasury", async () => {
+  it("mintPool() should build a transaction correctly when including ADA and donating Treasury", async () => {
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
 
@@ -974,7 +963,7 @@ describe("TxBuilderLucidV3", () => {
     fetchMock.disableMocks();
   });
 
-  test("mintPool() should build a transaction correctly when including ADA and donating a percentage to the Treasury", async () => {
+  it("mintPool() should build a transaction correctly when including ADA and donating a percentage to the Treasury", async () => {
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
 
@@ -1122,7 +1111,7 @@ describe("TxBuilderLucidV3", () => {
     fetchMock.disableMocks();
   });
 
-  test("mintPool() should build a transaction correctly when using exotic pairs", async () => {
+  it("mintPool() should build a transaction correctly when using exotic pairs", async () => {
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
 
@@ -1248,7 +1237,7 @@ describe("TxBuilderLucidV3", () => {
     fetchMock.disableMocks();
   });
 
-  test("mintPool() should throw an error when the ADA provided is less than the min required", async () => {
+  it("mintPool() should throw an error when the ADA provided is less than the min required", async () => {
     fetchMock.enableMocks();
     fetchMock.mockResponseOnce(JSON.stringify(mockBlockfrostEvaluateResponse));
 

@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+  spyOn,
+} from "bun:test";
 
 import {
   DatumBuilderBlazeV3,
@@ -18,11 +26,8 @@ afterEach(() => {
 
 describe("builderMintPoolDatum()", () => {
   it("should build the pool mint datum properly", () => {
-    const spiedOnComputePoolId = jest.spyOn(
-      DatumBuilderBlazeV3,
-      "computePoolId"
-    );
-    const spiedOnBuildLexicographicalAssetsDatum = jest.spyOn(
+    const spiedOnComputePoolId = spyOn(DatumBuilderBlazeV3, "computePoolId");
+    const spiedOnBuildLexicographicalAssetsDatum = spyOn(
       DatumBuilderBlazeV3.prototype,
       "buildLexicographicalAssetsDatum"
     );
@@ -54,11 +59,8 @@ describe("builderMintPoolDatum()", () => {
   });
 
   it("should build the pool mint datum properly with split fees", () => {
-    const spiedOnComputePoolId = jest.spyOn(
-      DatumBuilderBlazeV3,
-      "computePoolId"
-    );
-    const spiedOnBuildLexicographicalAssetsDatum = jest.spyOn(
+    const spiedOnComputePoolId = spyOn(DatumBuilderBlazeV3, "computePoolId");
+    const spiedOnBuildLexicographicalAssetsDatum = spyOn(
       DatumBuilderBlazeV3.prototype,
       "buildLexicographicalAssetsDatum"
     );
