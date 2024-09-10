@@ -441,4 +441,55 @@ describe("SundaeUtils class", () => {
       expect(result).toBe(false);
     });
   });
+
+  describe("getIdentFromAssetId", () => {
+    it("should get the ident from a v3 pool", () => {
+      expect(
+        SundaeUtils.getIdentFromAssetId(
+          PREVIEW_DATA.pools.v3.assetLP.assetId,
+          EContractVersion.V3
+        )
+      );
+    });
+
+    it("should get the ident from a v1 pool", () => {
+      expect(
+        SundaeUtils.getIdentFromAssetId(
+          PREVIEW_DATA.pools.v1.assetLP.assetId,
+          EContractVersion.V1
+        )
+      );
+    });
+
+    it("should throw an error if the LP token doesn't match the contract version", () => {
+      expect(() =>
+        SundaeUtils.getIdentFromAssetId(
+          PREVIEW_DATA.pools.v1.assetLP.assetId,
+          EContractVersion.V3
+        )
+      ).toThrowError(
+        new Error("Could not find an LP token prefix in this asset ID!")
+      );
+
+      expect(() =>
+        SundaeUtils.getIdentFromAssetId(
+          PREVIEW_DATA.pools.v3.assetLP.assetId,
+          EContractVersion.V1
+        )
+      ).toThrowError(
+        new Error("Could not find an LP token prefix in this asset ID!")
+      );
+    });
+
+    it("should throw an error if not an LP token", () => {
+      expect(() =>
+        SundaeUtils.getIdentFromAssetId(
+          PREVIEW_DATA.pools.v1.assetA.assetId,
+          EContractVersion.V1
+        )
+      ).toThrowError(
+        new Error("Could not find an LP token prefix in this asset ID!")
+      );
+    });
+  });
 });
