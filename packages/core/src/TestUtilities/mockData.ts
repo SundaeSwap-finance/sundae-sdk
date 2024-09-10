@@ -87,7 +87,7 @@ const PREVIEW_DATA: INetworkData = {
       },
       assetLP: {
         assetId:
-          "633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d9289.0014df101750b21414d4198763ee4d442f5c03a295a13a6028def9be4a785463",
+          "633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d9289.0014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2",
         decimals: 0,
       },
       currentFee: 0.05,
@@ -96,7 +96,7 @@ const PREVIEW_DATA: INetworkData = {
         bReserve: 992067448n,
         lpTotal: 1005344874n,
       },
-      ident: "8bf66e915c450ad94866abb02802821b599e32f43536a42470b21ea2",
+      ident: "a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2",
       version: EContractVersion.V3,
     },
   },

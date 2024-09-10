@@ -2,7 +2,7 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getSwapOutput } from "@sundaeswap/cpp";
 import { Fraction } from "@sundaeswap/fraction";
 
-import type {
+import {
   EContractVersion,
   EPoolCoin,
   ICurrentFeeFromDecayingFeeArgs,
@@ -446,5 +446,22 @@ export class SundaeUtils {
           ? SundaeUtils.MAINNET_OFFSET
           : SundaeUtils.PREVIEW_OFFSET)
     );
+  }
+
+  /**
+   * Helper method to extract the pool ident from a liquidity token.
+   * @param {string} id The asset ID.
+   * @param {EContractVersion} version The contract version type.
+   * @returns {string}
+   */
+  static getIdentFromAssetId(id: string, version: EContractVersion): string {
+    // Remove the prefix from the asset name to get the ident.
+    const prefix = version === EContractVersion.V1 ? "6c7020" : "0014df10";
+    if (!id.includes(prefix)) {
+      throw new Error("Could not find an LP token prefix in this asset ID!");
+    }
+
+    const assetName = id.includes(".") ? id.split(".")[1] : id.slice(56);
+    return assetName.replace(prefix, "");
   }
 }

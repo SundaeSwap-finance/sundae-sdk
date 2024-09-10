@@ -1070,10 +1070,11 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object.
    */
   async withdraw(
-    withdrawArgs: IWithdrawConfigArgs
+    withdrawArgs: Omit<IWithdrawConfigArgs, "withdraw">
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const { suppliedLPAsset, pool, orderAddresses, referralFee } =
-      new WithdrawConfig(withdrawArgs).buildArgs();
+    const { suppliedLPAsset, orderAddresses, referralFee } = new WithdrawConfig(
+      withdrawArgs
+    ).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
 
@@ -1082,8 +1083,13 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
+    const ident = SundaeUtils.getIdentFromAssetId(
+      suppliedLPAsset.metadata.assetId,
+      EContractVersion.V3
+    );
+
     const { inline } = this.datumBuilder.buildWithdrawDatum({
-      ident: pool.ident,
+      ident,
       destinationAddress: orderAddresses.DestinationAddress,
       order: {
         lpToken: suppliedLPAsset,

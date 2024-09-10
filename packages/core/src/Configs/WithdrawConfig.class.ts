@@ -1,11 +1,7 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import {
-  IPoolData,
-  IWithdrawConfigArgs,
-  TOrderAddressesArgs,
-} from "../@types/index.js";
-import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
+import { IWithdrawConfigArgs, TOrderAddressesArgs } from "../@types/index.js";
+import { LiquidityConfig } from "../Abstracts/LiquidityConfig.abstract.class.js";
 
 /**
  * The `WithdrawConfig` class helps to properly format your withdraw arguments for use within {@link Core.TxBuilderV1} or {@link Core.TxBuilderV3}.
@@ -28,7 +24,7 @@ import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
  * const { submit, cbor } = await SDK.swap(config);
  * ```
  */
-export class WithdrawConfig extends OrderConfig<IWithdrawConfigArgs> {
+export class WithdrawConfig extends LiquidityConfig<IWithdrawConfigArgs> {
   suppliedLPAsset?: AssetAmount<IAssetAmountMetadata>;
 
   constructor(args?: IWithdrawConfigArgs) {
@@ -43,10 +39,8 @@ export class WithdrawConfig extends OrderConfig<IWithdrawConfigArgs> {
   setFromObject({
     suppliedLPAsset,
     orderAddresses,
-    pool,
     referralFee,
   }: IWithdrawConfigArgs): void {
-    this.setPool(pool);
     this.setOrderAddresses(orderAddresses);
     this.setSuppliedLPAsset(suppliedLPAsset);
     referralFee && this.setReferralFee(referralFee);
@@ -68,7 +62,6 @@ export class WithdrawConfig extends OrderConfig<IWithdrawConfigArgs> {
    */
   buildArgs(): IWithdrawConfigArgs {
     return {
-      pool: this.pool as IPoolData,
       orderAddresses: this.orderAddresses as TOrderAddressesArgs,
       suppliedLPAsset: this
         .suppliedLPAsset as AssetAmount<IAssetAmountMetadata>,

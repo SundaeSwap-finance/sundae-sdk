@@ -135,7 +135,7 @@ The generated Bech32 address.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1279](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1279)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1285](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1285)
 
 ___
 
@@ -271,7 +271,7 @@ Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1328](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1328)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1334](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1334)
 
 ___
 
@@ -463,7 +463,7 @@ and datum, and then completes the transaction to remove liquidity from a pool.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `withdrawArgs` | [`IWithdrawConfigArgs`](../interfaces/Core.IWithdrawConfigArgs.md) | The configuration arguments for the withdrawal. |
+| `withdrawArgs` | `Omit`\<[`IWithdrawConfigArgs`](../interfaces/Core.IWithdrawConfigArgs.md), ``"withdraw"``\> | The configuration arguments for the withdrawal. |
 
 #### Returns
 
@@ -507,4 +507,4 @@ TxBuilderV3.zap
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1125](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1125)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1131](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1131)

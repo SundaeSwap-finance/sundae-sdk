@@ -108,7 +108,7 @@
     "@sundaeswap/bigint-math": "^0.6.3",
     "@sundaeswap/cpp": "^1.0.3",
     "@sundaeswap/fraction": "^1.0.3",
-    "lucid-cardano": "^0.10.7"
+    "lucid-cardano": "0.10.7"
   },
   "gitHead": "ddc937102065a5a581fe7affe02474c0e68ad9a0"
 }

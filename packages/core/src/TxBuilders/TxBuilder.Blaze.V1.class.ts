@@ -852,8 +852,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   async withdraw(
     withdrawArgs: IWithdrawConfigArgs
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const { suppliedLPAsset, pool, orderAddresses, referralFee } =
-      new WithdrawConfig(withdrawArgs).buildArgs();
+    const { suppliedLPAsset, orderAddresses, referralFee } = new WithdrawConfig(
+      withdrawArgs
+    ).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
 
@@ -862,8 +863,13 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       scooperFee: this.__getParam("maxScooperFee"),
     });
 
+    const ident = SundaeUtils.getIdentFromAssetId(
+      suppliedLPAsset.metadata.assetId,
+      EContractVersion.V1
+    );
+
     const withdrawDatum = this.datumBuilder.buildWithdrawDatum({
-      ident: pool.ident,
+      ident,
       orderAddresses: orderAddresses,
       suppliedLPAsset: suppliedLPAsset,
       scooperFee: this.__getParam("maxScooperFee"),
@@ -1338,9 +1344,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
 
       const [coinA, coinB] = getTokensForLp(
         withdrawArgs.suppliedLPAsset.amount,
-        withdrawArgs.pool.liquidity.aReserve,
-        withdrawArgs.pool.liquidity.bReserve,
-        withdrawArgs.pool.liquidity.lpTotal
+        withdrawConfig.pool.liquidity.aReserve,
+        withdrawConfig.pool.liquidity.bReserve,
+        withdrawConfig.pool.liquidity.lpTotal
       );
 
       const v3DatumBuilder = new DatumBuilderBlazeV3(this.network);
@@ -1364,7 +1370,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
 
       const { inline: withdrawInline, hash: withdrawHash } =
         this.datumBuilder.buildWithdrawDatum({
-          ident: withdrawArgs.pool.ident,
+          ident: withdrawConfig.pool.ident,
           orderAddresses: {
             DestinationAddress: {
               address: v3OrderScriptAddress,

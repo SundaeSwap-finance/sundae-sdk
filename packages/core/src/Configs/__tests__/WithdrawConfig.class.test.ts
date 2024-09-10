@@ -16,7 +16,6 @@ describe("WithdrawConfig class", () => {
 
   it("should construct with a config", () => {
     const myConfig = new WithdrawConfig({
-      pool: PREVIEW_DATA.pools.v1,
       orderAddresses: {
         DestinationAddress: {
           address: PREVIEW_DATA.addresses.current,
@@ -28,8 +27,7 @@ describe("WithdrawConfig class", () => {
       suppliedLPAsset: PREVIEW_DATA.assets.tindy,
     });
 
-    expect(myConfig.buildArgs()).toStrictEqual({
-      pool: PREVIEW_DATA.pools.v1,
+    expect(myConfig.buildArgs()).toMatchObject({
       orderAddresses: {
         DestinationAddress: {
           address: PREVIEW_DATA.addresses.current,
@@ -41,11 +39,6 @@ describe("WithdrawConfig class", () => {
       suppliedLPAsset: PREVIEW_DATA.assets.tindy,
       referralFee: undefined,
     });
-  });
-
-  it("it should set the pool correctly", () => {
-    config.setPool(PREVIEW_DATA.pools.v1);
-    expect(config.pool).toMatchObject(PREVIEW_DATA.pools.v1);
   });
 
   it("should set the suppliedAsset correctly", () => {
@@ -99,7 +92,6 @@ describe("WithdrawConfig class", () => {
           },
         },
       })
-      .setPool(PREVIEW_DATA.pools.v1)
       .setSuppliedLPAsset(
         new AssetAmount(20n, { assetId: "tINDY", decimals: 6 })
       );
@@ -122,7 +114,6 @@ describe("WithdrawConfig class", () => {
           },
         },
       })
-      .setPool(PREVIEW_DATA.pools.v1)
       .setSuppliedLPAsset(
         new AssetAmount(20n, {
           assetId:
@@ -142,9 +133,7 @@ describe("WithdrawConfig class", () => {
   });
 
   it("should throw when not providing a receiving address", () => {
-    config
-      .setPool(PREVIEW_DATA.pools.v1)
-      .setSuppliedLPAsset(PREVIEW_DATA.assets.tindy);
+    config.setSuppliedLPAsset(PREVIEW_DATA.assets.tindy);
 
     try {
       config.buildArgs();
@@ -160,7 +149,6 @@ describe("WithdrawConfig class", () => {
     const validFunding = new AssetAmount(2n, { assetId: "", decimals: 6 });
 
     config
-      .setPool(PREVIEW_DATA.pools.v1)
       .setOrderAddresses({
         DestinationAddress: {
           address: PREVIEW_DATA.addresses.current,
@@ -171,8 +159,7 @@ describe("WithdrawConfig class", () => {
       })
       .setSuppliedLPAsset(validFunding);
 
-    expect(config.buildArgs()).toStrictEqual({
-      pool: PREVIEW_DATA.pools.v1,
+    expect(config.buildArgs()).toMatchObject({
       orderAddresses: {
         DestinationAddress: {
           address: PREVIEW_DATA.addresses.current,
@@ -187,7 +174,7 @@ describe("WithdrawConfig class", () => {
   });
 
   it("should throw an error when validating with no suppliedLPAsset defined", () => {
-    config.setPool(PREVIEW_DATA.pools.v1).setOrderAddresses({
+    config.setOrderAddresses({
       DestinationAddress: {
         address: PREVIEW_DATA.addresses.current,
         datum: {
