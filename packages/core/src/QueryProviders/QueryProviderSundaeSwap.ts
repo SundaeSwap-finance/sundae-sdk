@@ -138,8 +138,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     if (!res?.data) {
       throw new Error(
         `Something went wrong when trying to fetch pool data. Full response: ${JSON.stringify(
-          res
-        )}`
+          res,
+        )}`,
       );
     }
 
@@ -195,8 +195,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     if (!res?.data) {
       throw new Error(
         `Something went wrong when trying to fetch that transaction's datum. Full response: ${JSON.stringify(
-          res
-        )}`
+          res,
+        )}`,
       );
     }
 
@@ -212,13 +212,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
    * @param {EContractVersion} version The protocol script hashes.
    */
   async getProtocolParamsWithScriptHashes(
-    version: undefined
+    version: undefined,
   ): Promise<ISundaeProtocolParams[]>;
   async getProtocolParamsWithScriptHashes(
-    version: EContractVersion
+    version: EContractVersion,
   ): Promise<ISundaeProtocolParams>;
   async getProtocolParamsWithScriptHashes(
-    version?: EContractVersion
+    version?: EContractVersion,
   ): Promise<ISundaeProtocolParams[] | ISundaeProtocolParams> {
     const res: {
       data?: { protocols: ISundaeProtocolParams[] };
@@ -254,14 +254,14 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     if (!res?.data) {
       throw new Error(
         `Something went wrong when trying to fetch the protocol validators. Full response: ${JSON.stringify(
-          res
-        )}`
+          res,
+        )}`,
       );
     }
 
     if (version) {
       return res.data.protocols.find(
-        ({ version: protocolVersion }) => version === protocolVersion
+        ({ version: protocolVersion }) => version === protocolVersion,
       ) as ISundaeProtocolParams;
     }
 
@@ -274,13 +274,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
    * @param {EContractVersion} version The protocol script hashes.
    */
   async getProtocolParamsWithScripts(
-    version: undefined
+    version: undefined,
   ): Promise<ISundaeProtocolParamsFull[]>;
   async getProtocolParamsWithScripts(
-    version: EContractVersion
+    version: EContractVersion,
   ): Promise<ISundaeProtocolParamsFull>;
   async getProtocolParamsWithScripts(
-    version?: EContractVersion
+    version?: EContractVersion,
   ): Promise<ISundaeProtocolParamsFull[] | ISundaeProtocolParamsFull> {
     const res: {
       data?: { protocols: ISundaeProtocolParamsFull[] };
@@ -317,14 +317,14 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     if (!res?.data) {
       throw new Error(
         `Something went wrong when trying to fetch the protocol validators. Full response: ${JSON.stringify(
-          res
-        )}`
+          res,
+        )}`,
       );
     }
 
     if (version) {
       return res.data.protocols.find(
-        ({ version: protocolVersion }) => version === protocolVersion
+        ({ version: protocolVersion }) => version === protocolVersion,
       ) as ISundaeProtocolParamsFull;
     }
 

@@ -13,6 +13,6 @@ export abstract class GummiWorm {
   abstract sdk: SundaeSDK;
 
   abstract deposit(
-    args: IDepositArgs
+    args: IDepositArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>;
 }

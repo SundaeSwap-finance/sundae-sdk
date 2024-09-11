@@ -16,7 +16,7 @@ afterEach(() => {
 describe("static computePoolId()", () => {
   it("should properly generate a pool id from a seed utxo", () => {
     expect(
-      DatumBuilderLucidV3.computePoolId(V3_EXPECTATIONS.computePoolId[0].args)
+      DatumBuilderLucidV3.computePoolId(V3_EXPECTATIONS.computePoolId[0].args),
     ).toEqual(V3_EXPECTATIONS.computePoolId[0].expectations.result);
   });
 });

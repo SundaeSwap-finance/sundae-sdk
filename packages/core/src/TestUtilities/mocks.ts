@@ -3,14 +3,14 @@
  * Some example descriptions for using exported mocks in your application.
  *
  * @module Mocks
- * @packageDescription
+ * @packageDocumentation
  */
 
-import { beforeEach, mock } from "bun:test";
+import { beforeEach, mock, type Mock } from "bun:test";
 import * as Core from "../exports/core";
 
 export const MockAll = () => {
-  const mockSwap: any = mock(async () => ({
+  const mockSwap: Mock<any> = mock(async () => ({
     submit: mock(() => "hex"),
     cbor: "cbor",
   }));
@@ -29,9 +29,9 @@ export const MockAll = () => {
     return {};
   });
 
-  const mockBuild: any = mock();
-  // @ts-ignore
-  const mockQuery: any = mock(() => new MockedProviderSundaeSwap());
+  const mockBuild: Mock<any> = mock();
+  // @ts-expect-error Type Mismatches.
+  const mockQuery: Mock<any> = mock(() => new MockedProviderSundaeSwap());
   const MockedSundaeSDK = mock().mockImplementation(() => ({
     build: mockBuild,
     swap: mockSwap,

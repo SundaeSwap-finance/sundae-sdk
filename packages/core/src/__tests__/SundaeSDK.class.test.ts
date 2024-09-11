@@ -74,7 +74,7 @@ describe("SundaeSDK", () => {
 
     expect(sdk.builder()).toBeInstanceOf(TxBuilderBlazeV3);
     expect(
-      sdk.builder(EContractVersion.V1, ETxBuilderType.BLAZE)
+      sdk.builder(EContractVersion.V1, ETxBuilderType.BLAZE),
     ).toBeInstanceOf(TxBuilderBlazeV1);
   });
 
@@ -95,11 +95,11 @@ describe("SundaeSDK", () => {
             type: "invalid",
           },
         },
-      })
+      }),
     ).toThrowError(
       new Error(
-        "A valid wallet provider type must be defined in your options object."
-      )
+        "A valid wallet provider type must be defined in your options object.",
+      ),
     );
   });
 });

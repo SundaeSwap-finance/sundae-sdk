@@ -25,21 +25,21 @@ describe("buildPoolMintRedeemerDatum()", () => {
   it("should build the pool mint redeemer datum properly", () => {
     const spiedOnBuildLexicographicalAssetsDatum = spyOn(
       DatumBuilderLucidV3.prototype,
-      "buildLexicographicalAssetsDatum"
+      "buildLexicographicalAssetsDatum",
     );
 
     const { inline, hash } = builderInstance.buildPoolMintRedeemerDatum(
-      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].args
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].args,
     );
 
     expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(
-      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.called
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.called,
     );
     expect(inline).toEqual(
-      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.inline
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.inline,
     );
     expect(hash).toEqual(
-      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.hash
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.hash,
     );
   });
 });

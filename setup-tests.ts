@@ -1,7 +1,7 @@
 import { mock } from "bun:test";
 
 global.jest = {
-  // @ts-ignore
+  // @ts-expect-error Not exact matches.
   fn: mock,
 };
 

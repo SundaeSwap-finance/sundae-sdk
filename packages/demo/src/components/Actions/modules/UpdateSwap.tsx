@@ -39,7 +39,7 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       }
 
       const pool = await SDK.query().findPoolData(
-        useV3Contracts ? newPoolQuery : poolQuery
+        useV3Contracts ? newPoolQuery : poolQuery,
       );
 
       const cancelConfig: ICancelConfigArgs = {
@@ -86,7 +86,7 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
 
       await SDK.builder(
         useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
-        builderLib
+        builderLib,
       )
         .update({
           cancelArgs: cancelConfig,

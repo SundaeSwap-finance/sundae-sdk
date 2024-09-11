@@ -17,8 +17,8 @@ describe("static getSignerKeyFromDatum()", () => {
   it("should properly extract the owner's key hash from the datum", () => {
     expect(
       DatumBuilderLucidV3.getSignerKeyFromDatum(
-        V3_EXPECTATIONS.getSignerKeyFromDatum[0].args
-      )
+        V3_EXPECTATIONS.getSignerKeyFromDatum[0].args,
+      ),
     ).toEqual(V3_EXPECTATIONS.getSignerKeyFromDatum[0].expectations.result);
   });
 });

@@ -25,12 +25,12 @@ export const Zap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     setZapping(true);
     try {
       const pool = await SDK.query().findPoolData(
-        useV3Contracts ? newPoolQuery : poolQuery
+        useV3Contracts ? newPoolQuery : poolQuery,
       );
 
       await SDK.builder(
         useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
-        builderLib
+        builderLib,
       )
         .zap({
           pool,

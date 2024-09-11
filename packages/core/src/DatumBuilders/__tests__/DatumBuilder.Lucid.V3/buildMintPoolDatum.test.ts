@@ -29,32 +29,32 @@ describe("builderMintPoolDatum()", () => {
     const spiedOnComputePoolId = spyOn(DatumBuilderLucidV3, "computePoolId");
     const spiedOnBuildLexicographicalAssetsDatum = spyOn(
       DatumBuilderLucidV3.prototype,
-      "buildLexicographicalAssetsDatum"
+      "buildLexicographicalAssetsDatum",
     );
 
     const { inline, hash } = builderInstance.buildMintPoolDatum(
-      V3_EXPECTATIONS.buildMintPoolDatum[0].args
+      V3_EXPECTATIONS.buildMintPoolDatum[0].args,
     );
 
     expect(spiedOnComputePoolId).toHaveBeenNthCalledWith(
       ...(V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.calledWith as [
         number,
-        IDatumBuilderMintPoolV3Args["seedUtxo"]
-      ])
+        IDatumBuilderMintPoolV3Args["seedUtxo"],
+      ]),
     );
     expect(spiedOnComputePoolId).toHaveReturnedTimes(
       V3_EXPECTATIONS.buildMintPoolDatum[0].expectations
-        .returnedWith[0] as number
+        .returnedWith[0] as number,
     );
     expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(
       V3_EXPECTATIONS.buildMintPoolDatum[0].expectations
-        .buildLexicographicalAssetsDatumCalls
+        .buildLexicographicalAssetsDatumCalls,
     );
     expect(inline).toEqual(
-      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.inline
+      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.inline,
     );
     expect(hash).toEqual(
-      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.hash
+      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.hash,
     );
   });
 
@@ -62,26 +62,26 @@ describe("builderMintPoolDatum()", () => {
     const spiedOnComputePoolId = spyOn(DatumBuilderLucidV3, "computePoolId");
     const spiedOnBuildLexicographicalAssetsDatum = spyOn(
       DatumBuilderLucidV3.prototype,
-      "buildLexicographicalAssetsDatum"
+      "buildLexicographicalAssetsDatum",
     );
 
     const { inline, hash } = builderInstance.buildMintPoolDatum(
-      V3_EXPECTATIONS.buildMintPoolDatum[1].args
+      V3_EXPECTATIONS.buildMintPoolDatum[1].args,
     );
 
     expect(spiedOnComputePoolId).toHaveReturnedTimes(
       V3_EXPECTATIONS.buildMintPoolDatum[1].expectations
-        .returnedWith[0] as number
+        .returnedWith[0] as number,
     );
     expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(
       V3_EXPECTATIONS.buildMintPoolDatum[1].expectations
-        .buildLexicographicalAssetsDatumCalls
+        .buildLexicographicalAssetsDatumCalls,
     );
     expect(inline).toEqual(
-      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations.inline
+      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations.inline,
     );
     expect(hash).toEqual(
-      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations.hash
+      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations.hash,
     );
   });
 });

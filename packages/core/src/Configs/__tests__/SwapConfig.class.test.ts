@@ -144,7 +144,7 @@ describe("SwapConfig class", () => {
           amount: 10n,
           decimals: 0,
         }),
-      })
+      }),
     );
 
     const myConfigWithMinReceivable = new SwapConfig({
@@ -202,7 +202,7 @@ describe("SwapConfig class", () => {
       .setMinReceivable(new AssetAmount(20n))
       .setPool(PREVIEW_DATA.pools.v1)
       .setSuppliedAsset(
-        new AssetAmount(20n, { assetId: "tINDY", decimals: 0 })
+        new AssetAmount(20n, { assetId: "tINDY", decimals: 0 }),
       );
 
     try {
@@ -210,7 +210,7 @@ describe("SwapConfig class", () => {
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toStrictEqual(
-        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
+        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()",
       );
     }
 
@@ -230,7 +230,7 @@ describe("SwapConfig class", () => {
           assetId:
             "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459",
           decimals: 6,
-        })
+        }),
       );
 
     try {
@@ -238,7 +238,7 @@ describe("SwapConfig class", () => {
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toStrictEqual(
-        "Invalid assetId: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459. You likely forgot to concatenate with a period, like so: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459"
+        "Invalid assetId: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459. You likely forgot to concatenate with a period, like so: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
       );
     }
   });
@@ -297,7 +297,7 @@ describe("SwapConfig class", () => {
       config.validate();
     } catch (e) {
       expect((e as Error).message).toStrictEqual(
-        "You haven't funded this swap on your SwapConfig! Fund the swap with .setSuppliedAsset()"
+        "You haven't funded this swap on your SwapConfig! Fund the swap with .setSuppliedAsset()",
       );
     }
   });
@@ -319,7 +319,7 @@ describe("SwapConfig class", () => {
       config.validate();
     } catch (e) {
       expect((e as Error).message).toStrictEqual(
-        "A minimum receivable amount was not found. This is usually because an invalid swapType was not supplied in the config."
+        "A minimum receivable amount was not found. This is usually because an invalid swapType was not supplied in the config.",
       );
     }
 
@@ -342,7 +342,7 @@ describe("SwapConfig class", () => {
       }).validate();
     } catch (e) {
       expect((e as Error).message).toStrictEqual(
-        "Cannot use a negative minimum receivable amount. Please try again."
+        "Cannot use a negative minimum receivable amount. Please try again.",
       );
     }
   });

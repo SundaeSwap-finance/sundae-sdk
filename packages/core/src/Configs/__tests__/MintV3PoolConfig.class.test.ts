@@ -46,18 +46,18 @@ describe("MintV3PoolConfig class", () => {
       new MintV3PoolConfig({
         ...defaultArgs,
         fees: 11_000n,
-      }).buildArgs()
+      }).buildArgs(),
     ).toThrowError(
-      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
     );
 
     expect(() =>
       new MintV3PoolConfig({
         ...defaultArgs,
         fees: 10n,
-      }).buildArgs()
+      }).buildArgs(),
     ).not.toThrowError(
-      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
     );
   });
 
@@ -69,9 +69,9 @@ describe("MintV3PoolConfig class", () => {
           bid: 10n,
           ask: 11_000n,
         },
-      }).buildArgs()
+      }).buildArgs(),
     ).toThrowError(
-      `Ask fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+      `Ask fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
     );
   });
 
@@ -83,9 +83,9 @@ describe("MintV3PoolConfig class", () => {
           bid: 11_000n,
           ask: 10n,
         },
-      }).buildArgs()
+      }).buildArgs(),
     ).toThrowError(
-      `Bid fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+      `Bid fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
     );
   });
 });

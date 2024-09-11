@@ -92,7 +92,7 @@ describe("WithdrawConfig class", () => {
       config.validate();
     } catch (e) {
       expect((e as Error).message).toStrictEqual(
-        "You did not provided funding for this deposit! Make sure you supply both sides of the pool with .setSuppliedAssets()"
+        "You did not provided funding for this deposit! Make sure you supply both sides of the pool with .setSuppliedAssets()",
       );
     }
   });

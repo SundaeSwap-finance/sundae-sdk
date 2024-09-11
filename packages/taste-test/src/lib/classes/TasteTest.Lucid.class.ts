@@ -87,11 +87,15 @@ export interface ITasteTestCompleteTxArgs {
  *
  * @public
  * @class
- * @implements {AbstractTasteTest}
+ * @extends {AbstractTasteTest}
  * @param {Lucid} lucid - An instance of the Lucid class, providing various utility methods for blockchain interactions.
  */
 export class TasteTestLucid implements AbstractTasteTest {
-  constructor(public lucid: Lucid) {}
+  lucid: Lucid;
+
+  constructor(lucid: Lucid) {
+    this.lucid = lucid;
+  }
 
   /**
    * Initiates a deposit transaction, conducting various checks and orchestrating the transaction construction.
@@ -112,11 +116,11 @@ export class TasteTestLucid implements AbstractTasteTest {
    * @param {IDepositArgs} args - The required arguments for the deposit operation.
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} - Returns a promise that resolves with a transaction builder object,
    * which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
-   * @async
+   *
    * @throws {Error} Throws an error if no UTXOs are available, if reference scripts are missing, or if a covering node cannot be found.
    */
   public async deposit(
-    args: IDepositArgs
+    args: IDepositArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>> {
     const walletUtxos = await this.lucid.wallet.getUtxos();
     const { updateFallback = false } = args;
@@ -127,7 +131,7 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     if (!args.scripts) {
       throw new Error(
-        "Did not receive a reference script UTXO or raw PlutusV2 CBOR script for the validator."
+        "Did not receive a reference script UTXO or raw PlutusV2 CBOR script for the validator.",
       );
     }
 
@@ -159,7 +163,7 @@ export class TasteTestLucid implements AbstractTasteTest {
         next: userKey,
         commitment: 0n,
       },
-      LiquiditySetNode
+      LiquiditySetNode,
     );
 
     const nodeDatum = Data.to(
@@ -168,7 +172,7 @@ export class TasteTestLucid implements AbstractTasteTest {
         next: coveringNodeDatum.next,
         commitment: 0n,
       },
-      LiquiditySetNode
+      LiquiditySetNode,
     );
 
     const redeemerNodePolicy = Data.to(
@@ -178,12 +182,12 @@ export class TasteTestLucid implements AbstractTasteTest {
           coveringNode: coveringNodeDatum,
         },
       },
-      LiquidityNodeAction
+      LiquidityNodeAction,
     );
 
     const redeemerNodeValidator = Data.to(
       "LinkedListAct",
-      LiquidityNodeValidatorAction
+      LiquidityNodeValidatorAction,
     );
 
     let nodePolicyId: string | undefined;
@@ -191,7 +195,7 @@ export class TasteTestLucid implements AbstractTasteTest {
       nodePolicyId = args.scripts.policy.value.hash;
     } else if (args.scripts.policy.type === EScriptType.POLICY) {
       nodePolicyId = this.lucid.utils.mintingPolicyToId(
-        args.scripts.policy.value
+        args.scripts.policy.value,
       );
     }
 
@@ -212,7 +216,7 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const [lowerBound, upperBound] = this._getTxBounds(
       args.time,
-      args.deadline
+      args.deadline,
     );
 
     const tx = this.lucid
@@ -221,12 +225,12 @@ export class TasteTestLucid implements AbstractTasteTest {
       .payToContract(
         args.validatorAddress,
         { inline: prevNodeDatum },
-        coveringNode.assets
+        coveringNode.assets,
       )
       .payToContract(
         args.validatorAddress,
         { inline: nodeDatum },
-        { ...assets, lovelace: correctAmount }
+        { ...assets, lovelace: correctAmount },
       )
       .addSignerKey(userKey)
       .mintAssets(assets, redeemerNodePolicy)
@@ -264,11 +268,11 @@ export class TasteTestLucid implements AbstractTasteTest {
    * @param {IUpdateArgs} args - The arguments required for the update operation, including potential UTXOs and the amount to add.
    * @returns {Promise<IComposedTx<Tx, TxComplete, string | undefined>>} - Returns a promise that resolves with a transaction builder object,
    * equipped with the transaction, its associated fees, and functions to build, sign, and submit the transaction.
-   * @async
+   *
    * @throws {Error} Throws an error if the user's payment credential hash is missing or if the node with the required datum cannot be found.
    */
   public async update(
-    args: IUpdateArgs
+    args: IUpdateArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>> {
     const userKey = await this.getUserKey();
 
@@ -284,7 +288,7 @@ export class TasteTestLucid implements AbstractTasteTest {
       ownNode = findOwnNode(
         nodeUTXOs,
         userKey,
-        this._getTasteTestTypeFromArgs(args)
+        this._getTasteTestTypeFromArgs(args),
       );
     }
 
@@ -294,7 +298,7 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const redeemerNodeValidator = Data.to(
       "ModifyCommitment",
-      LiquidityNodeValidatorAction
+      LiquidityNodeValidatorAction,
     );
 
     const newNodeAssets: Assets = {
@@ -304,7 +308,7 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const [lowerBound, upperBound] = this._getTxBounds(
       args.time,
-      args.deadline
+      args.deadline,
     );
 
     const tx = this.lucid
@@ -313,7 +317,7 @@ export class TasteTestLucid implements AbstractTasteTest {
       .payToContract(
         args.validatorAddress,
         { inline: ownNode.datum },
-        newNodeAssets
+        newNodeAssets,
       )
       .validFrom(lowerBound)
       .validTo(upperBound);
@@ -341,11 +345,11 @@ export class TasteTestLucid implements AbstractTasteTest {
    * @public
    * @param {IWithdrawArgs} args - The required arguments for the withdrawal operation.
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
-   * @async
+   *
    * @throws {Error} Throws errors if the withdrawal conditions are not met, such as missing keys, inability to find nodes, or ownership issues.
    */
   public async withdraw(
-    args: IWithdrawArgs
+    args: IWithdrawArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>> {
     const userKey = await this.getUserKey();
 
@@ -377,7 +381,7 @@ export class TasteTestLucid implements AbstractTasteTest {
       nodePolicyId = args.scripts.policy.value.hash;
     } else if (args.scripts.policy.type === EScriptType.POLICY) {
       nodePolicyId = this.lucid.utils.mintingPolicyToId(
-        args.scripts.policy.value
+        args.scripts.policy.value,
       );
     }
 
@@ -404,14 +408,14 @@ export class TasteTestLucid implements AbstractTasteTest {
           coveringNode: newPrevNodeSchema,
         },
       },
-      LiquidityNodeAction
+      LiquidityNodeAction,
     );
 
     const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
 
     const [lowerBound, upperBound] = this._getTxBounds(
       args.time,
-      args.deadline
+      args.deadline,
     );
     const beforeDeadline = upperBound < args.deadline;
     const beforeTwentyFourHours =
@@ -420,10 +424,10 @@ export class TasteTestLucid implements AbstractTasteTest {
     if (beforeDeadline && !beforeTwentyFourHours) {
       const quarterPenalty = divCeil(
         ownNode.assets.lovelace - TT_UTXO_ADDITIONAL_ADA,
-        4n
+        4n,
       );
       const penaltyAmount = BigInt(
-        Math.max(Number(quarterPenalty), Number(TT_UTXO_ADDITIONAL_ADA))
+        Math.max(Number(quarterPenalty), Number(TT_UTXO_ADDITIONAL_ADA)),
       );
 
       const tx = this.lucid
@@ -432,7 +436,7 @@ export class TasteTestLucid implements AbstractTasteTest {
         .payToContract(
           args.validatorAddress,
           { inline: newPrevNodeDatum },
-          prevNode.assets
+          prevNode.assets,
         )
         .payToAddress(args.penaltyAddress, {
           lovelace: penaltyAmount,
@@ -465,7 +469,7 @@ export class TasteTestLucid implements AbstractTasteTest {
       .payToContract(
         args.validatorAddress,
         { inline: newPrevNodeDatum },
-        prevNode.assets
+        prevNode.assets,
       )
       .addSignerKey(userKey)
       .mintAssets(assetsToBurn, redeemerNodePolicy)
@@ -494,14 +498,14 @@ export class TasteTestLucid implements AbstractTasteTest {
    * @public
    * @param {IClaimArgs} args - The required arguments for the claim operation.
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
-   * @async
+   *
    * @throws {Error} Throws errors if the claim conditions are not met, such as missing keys, inability to find nodes, or ownership issues.
    */
   public async claim(
-    args: IClaimArgs
+    args: IClaimArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>> {
     const rewardFoldUtxo = await this.lucid.utxoByUnit(
-      toUnit(args.rewardFoldPolicyId, Buffer.from("RFold").toString("hex"))
+      toUnit(args.rewardFoldPolicyId, Buffer.from("RFold").toString("hex")),
     );
 
     const userKey = await this.getUserKey();
@@ -520,7 +524,7 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const redeemerNodeValidator = Data.to(
       "ClaimAct",
-      LiquidityNodeValidatorAction
+      LiquidityNodeValidatorAction,
     );
 
     const burnRedeemer = Data.to(
@@ -534,7 +538,7 @@ export class TasteTestLucid implements AbstractTasteTest {
           },
         },
       },
-      LiquidityNodeAction
+      LiquidityNodeAction,
     );
 
     let nodePolicyId: string | undefined;
@@ -542,7 +546,7 @@ export class TasteTestLucid implements AbstractTasteTest {
       nodePolicyId = args.scripts.policy.value.hash;
     } else if (args.scripts.policy.type === EScriptType.POLICY) {
       nodePolicyId = this.lucid.utils.mintingPolicyToId(
-        args.scripts.policy.value
+        args.scripts.policy.value,
       );
     }
 
@@ -565,7 +569,7 @@ export class TasteTestLucid implements AbstractTasteTest {
         {
           [toUnit(nodePolicyId, `${fromText(SETNODE_PREFIX)}${userKey}`)]: -1n,
         },
-        burnRedeemer
+        burnRedeemer,
       );
     }
 
@@ -600,7 +604,7 @@ export class TasteTestLucid implements AbstractTasteTest {
    *  - `referralFee`: The referral fee information, if applicable.
    *  - `tx`: The initial transaction object that needs to be completed.
    * @returns {Promise<IComposedTx<Tx, TxComplete, TxComplete, Datum | undefined>>} - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
-   * @async
+   *
    * @throws {Error} Throws an error if the transaction cannot be completed or if there are issues with the fee calculation.
    */
   private async completeTx({
@@ -639,7 +643,7 @@ export class TasteTestLucid implements AbstractTasteTest {
         penaltyFee: penalty ?? new AssetAmount(0n, 6),
         referral: new AssetAmount(
           referralFee?.payment?.amount ?? 0n,
-          referralFee?.payment?.metadata ?? 6
+          referralFee?.payment?.metadata ?? 6,
         ),
         scooperFee: new AssetAmount(0n, 6),
       },
@@ -651,7 +655,7 @@ export class TasteTestLucid implements AbstractTasteTest {
 
         thisTx.fees.cardanoTxFee = new AssetAmount(
           BigInt(txFee?.to_str() ?? finishedTx?.fee?.toString() ?? "0"),
-          6
+          6,
         );
 
         return {
@@ -690,7 +694,7 @@ export class TasteTestLucid implements AbstractTasteTest {
       details?.stakeCredential?.hash ?? details?.paymentCredential?.hash;
     if (!userKey) {
       throw new Error(
-        `Could not determine the key hash of the user's address: ${address}`
+        `Could not determine the key hash of the user's address: ${address}`,
       );
     }
 

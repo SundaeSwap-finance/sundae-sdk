@@ -17,7 +17,7 @@ afterEach(() => {
 describe("buildPoolIdent", () => {
   it("should correctly build and validate a pool ident", () => {
     expect(() =>
-      builderInstance.buildPoolIdent(expectations[0].args)
+      builderInstance.buildPoolIdent(expectations[0].args),
     ).toThrowError(expectations[0].expectations.error);
 
     const validIdent = builderInstance.buildPoolIdent(expectations[1].args);

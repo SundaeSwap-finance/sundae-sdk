@@ -2,19 +2,19 @@ import { afterEach, beforeAll, mock, type Mock } from "bun:test";
 import { Lucid, OutRef, Provider } from "lucid-cardano";
 
 import { getBlockfrostProtocolParameters, windowCardano } from "./cardano.js";
-import { LocalUtxo, PREVIEW_DATA } from "./mockData.js";
+import { ILocalUtxo, PREVIEW_DATA } from "./mockData.js";
 
 type TGetUtxosByOutRefMock = (
-  outRefs: OutRef[]
-) => Promise<LocalUtxo[] | undefined>;
-type TGetUtxosMock = () => Promise<LocalUtxo[]>;
+  outRefs: OutRef[],
+) => Promise<ILocalUtxo[] | undefined>;
+type TGetUtxosMock = () => Promise<ILocalUtxo[]>;
 
 export const setupLucid = (
   useLucid?: (lucid: Lucid) => Promise<void>,
   options?: {
-    customUtxos?: LocalUtxo[];
+    customUtxos?: ILocalUtxo[];
     beforeAll?: () => void;
-  }
+  },
 ): {
   getUtxosByOutRefMock: Mock<TGetUtxosByOutRefMock>;
   getUtxosMock: Mock<TGetUtxosMock>;
@@ -23,7 +23,7 @@ export const setupLucid = (
 } => {
   const getUtxosByOutRefMock = mock<TGetUtxosByOutRefMock>();
   const getUtxosMock = mock<TGetUtxosMock>().mockResolvedValue(
-    PREVIEW_DATA.wallet.utxos
+    PREVIEW_DATA.wallet.utxos,
   );
 
   const mockProvider = mock().mockImplementation(() => ({
@@ -34,7 +34,7 @@ export const setupLucid = (
     // Required for collecting UTXOs for some reason.
     getUtxos: getUtxosMock,
     getProtocolParameters: mock().mockImplementation(() =>
-      getBlockfrostProtocolParameters("preview")
+      getBlockfrostProtocolParameters("preview"),
     ),
     getUtxosByOutRef: getUtxosByOutRefMock,
     getDatum: mock(),
@@ -44,16 +44,16 @@ export const setupLucid = (
     options?.beforeAll?.();
 
     global.window = {
-      // @ts-ignore
+      // @ts-expect-error Type mismatches.
       cardano: windowCardano,
     };
 
-    // @ts-ignore
+    // @ts-expect-error Type mismatches.
     const provider = new mockProvider() as unknown as Provider;
     const lucid = await Lucid.new(provider, "Preview");
     lucid.selectWalletFrom({
       address: PREVIEW_DATA.addresses.current,
-      // @ts-ignore
+      // @ts-expect-error Type mismatches.
       utxos: options?.customUtxos ?? PREVIEW_DATA.wallet.utxos,
     });
     await useLucid?.(lucid);

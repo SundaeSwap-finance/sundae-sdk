@@ -77,7 +77,7 @@ export class WithdrawConfig extends LiquidityConfig<IWithdrawConfigArgs> {
 
     if (!this.suppliedLPAsset) {
       throw new Error(
-        "There was no LP asset set! Set the LP token with .setSuppliedLPAsset()"
+        "There was no LP asset set! Set the LP token with .setSuppliedLPAsset()",
       );
     }
   }

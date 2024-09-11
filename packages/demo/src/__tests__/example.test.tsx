@@ -31,7 +31,7 @@ describe.skip("Example testing", () => {
     const { container, getByText } = render(
       <AppStateProvider defaultValue={{ SDK: MockedSDK }}>
         <Actions />
-      </AppStateProvider>
+      </AppStateProvider>,
     );
 
     const swapButton = getByText("Swap tINDY for tADA");

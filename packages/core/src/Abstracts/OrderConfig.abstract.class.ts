@@ -7,7 +7,7 @@ import { Config } from "./Config.abstract.class.js";
  *
  * @template Args The type of the arguments object, defaulting to an empty object.
  */
-export abstract class OrderConfig<Args = {}> extends Config<Args> {
+export abstract class OrderConfig<Args = object> extends Config<Args> {
   /**
    * The data for the pool involved in the order.
    */
@@ -49,13 +49,13 @@ export abstract class OrderConfig<Args = {}> extends Config<Args> {
 
     if (!this.pool) {
       throw new Error(
-        "You haven't set a pool in your Config. Set a pool with .setPool()"
+        "You haven't set a pool in your Config. Set a pool with .setPool()",
       );
     }
 
     if (!this.orderAddresses) {
       throw new Error(
-        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
+        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()",
       );
     }
   }

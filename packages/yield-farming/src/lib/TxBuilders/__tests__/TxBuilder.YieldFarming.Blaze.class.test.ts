@@ -17,54 +17,54 @@ const { getUtxosByOutRefMock, ownerAddress } = setupBlaze(async (Blaze) => {
 const referenceInputMock = new Core.TransactionUnspentOutput(
   new Core.TransactionInput(
     Core.TransactionId(
-      PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.txHash
+      PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.txHash,
     ),
-    BigInt(PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.outputIndex)
+    BigInt(PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.outputIndex),
   ),
   Core.TransactionOutput.fromCore({
     address: Core.getPaymentAddress(
       Core.Address.fromBech32(
-        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.address
-      )
+        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.address,
+      ),
     ),
     value: makeValue(
       PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.assets.lovelace,
       ...Object.entries(
-        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.assets
-      ).filter(([key]) => key !== "lovelace")
+        PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.assets,
+      ).filter(([key]) => key !== "lovelace"),
     ).toCore(),
     scriptReference: Core.Script.newPlutusV2Script(
       new Core.PlutusV2Script(
         Core.HexBlob(
           PREVIEW_DATA.wallet.referenceUtxos.previewYieldFarming.scriptRef
-            ?.script as string
-        )
-      )
+            ?.script as string,
+        ),
+      ),
     ).toCore(),
-  })
+  }),
 );
 
 const createMockUtxoWithDatum = (datum: string) =>
   new Core.TransactionUnspentOutput(
     new Core.TransactionInput(
       Core.TransactionId(
-        "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de"
+        "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
       ),
-      0n
+      0n,
     ),
     Core.TransactionOutput.fromCore({
       address: Core.PaymentAddress(
-        "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
+        "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
       ),
       value: makeValue(
         5_000_000n,
         ...Object.entries({
           "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
             10_000_000n,
-        })
+        }),
       ).toCore(),
       datum: Core.PlutusData.fromCbor(Core.HexBlob(datum)).toCore(),
-    })
+    }),
   );
 
 afterEach(() => {
@@ -110,8 +110,8 @@ describe("YieldFarmingBlaze", () => {
           .multiasset()
           ?.get(
             Core.AssetId(
-              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344"
-            )
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
+            ),
           );
 
       if (!asset) {
@@ -138,7 +138,7 @@ describe("YieldFarmingBlaze", () => {
       programs: [],
     });
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff",
     );
   });
 
@@ -147,7 +147,7 @@ describe("YieldFarmingBlaze", () => {
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
         createMockUtxoWithDatum(
-          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
         ),
       ]);
 
@@ -180,7 +180,7 @@ describe("YieldFarmingBlaze", () => {
      */
     // await build();
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
     );
 
     // Cover case where there are no existing positions with null.
@@ -205,7 +205,7 @@ describe("YieldFarmingBlaze", () => {
     });
 
     expect(fallbackDatum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff",
     );
   });
 
@@ -214,7 +214,7 @@ describe("YieldFarmingBlaze", () => {
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
         createMockUtxoWithDatum(
-          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
         ),
       ]);
 
@@ -246,7 +246,7 @@ describe("YieldFarmingBlaze", () => {
      */
     // await build();
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff",
     );
   });
 
@@ -293,8 +293,8 @@ describe("YieldFarmingBlaze", () => {
         .multiasset()
         ?.get(
           Core.AssetId(
-            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344"
-          )
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344",
+          ),
         );
 
       if (!asset || asset !== 20000000n) {
@@ -317,7 +317,7 @@ describe("YieldFarmingBlaze", () => {
       programs: delegation,
     } as TDelegation);
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
     );
   });
 
@@ -326,7 +326,7 @@ describe("YieldFarmingBlaze", () => {
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
         createMockUtxoWithDatum(
-          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff"
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87980ffff",
         ),
       ]);
 
@@ -346,23 +346,23 @@ describe("YieldFarmingBlaze", () => {
     expect(spiedPayToContract).toHaveBeenNthCalledWith(
       1,
       Core.Address.fromBech32(
-        "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
+        "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
       ),
       makeValue(
         5000000n,
         ...Object.entries({
           "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
             10000000n,
-        })
+        }),
       ),
       Core.PlutusData.fromCbor(
         Core.HexBlob(
-          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
-        )
-      )
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
+        ),
+      ),
     );
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
     );
   });
 
@@ -371,7 +371,7 @@ describe("YieldFarmingBlaze", () => {
       .mockResolvedValueOnce([referenceInputMock])
       .mockResolvedValueOnce([
         createMockUtxoWithDatum(
-          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffd87980ff"
+          "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffd87980ff",
         ),
       ]);
 
@@ -394,8 +394,8 @@ describe("YieldFarmingBlaze", () => {
     expect(tx.builtTx.body().inputs().values()[0].index()).toEqual(0n);
     expect(tx.builtTx.body().inputs().values()[0].transactionId()).toEqual(
       Core.TransactionId(
-        "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de"
-      )
+        "e9d184d82201d9fba441eb88107097bc8e764af3715ab9e95164e3dbd08721de",
+      ),
     );
 
     const outputWithAssets = tx.builtTx
@@ -407,8 +407,8 @@ describe("YieldFarmingBlaze", () => {
           .multiasset()
           ?.get(
             Core.AssetId(
-              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344"
-            )
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344",
+            ),
           );
 
         if (
@@ -441,9 +441,9 @@ describe("YieldFarmingBlaze", () => {
         ownerAddress: ownerAddress,
         programs: delegation,
         existingPositions: [],
-      })
+      }),
     ).rejects.toThrowError(
-      "Could not fetch valid UTXO from Blockfrost based on the the Yield Farming reference input."
+      "Could not fetch valid UTXO from Blockfrost based on the the Yield Farming reference input.",
     );
   });
 
@@ -534,7 +534,7 @@ describe("YieldFarmingBlaze", () => {
         }
 
         hasAdaReferralFee = true;
-      }
+      },
     );
 
     expect(hasAdaReferralFee).toBeTruthy();
@@ -566,7 +566,7 @@ describe("YieldFarmingBlaze", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        "Only the ADA asset is supported for referral fees."
+        "Only the ADA asset is supported for referral fees.",
       );
     }
 
@@ -577,7 +577,7 @@ describe("YieldFarmingBlaze", () => {
         ?.metadata()
         ?.metadata()
         ?.get(674n)
-        ?.asText()
+        ?.asText(),
     ).toEqual("Test Label: 1 ADA");
   });
 });

@@ -26,19 +26,19 @@ export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     setDepositing(true);
     try {
       const pool = await SDK.query().findPoolData(
-        useV3Contracts ? newPoolQuery : poolQuery
+        useV3Contracts ? newPoolQuery : poolQuery,
       );
       const baseAmount = 25000000n;
       const altPairAmount = getSwapOutput(
         baseAmount,
         pool.liquidity.aReserve,
         pool.liquidity.bReserve,
-        pool.currentFee
+        pool.currentFee,
       ).output;
 
       await SDK.builder(
         useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
-        builderLib
+        builderLib,
       )
         .deposit({
           orderAddresses: {

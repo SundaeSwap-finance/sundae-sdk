@@ -40,18 +40,18 @@ const SelectBuilder: FC = () => {
             new Blockfrost({
               network: network ? "cardano-mainnet" : "cardano-preview",
               projectId: network
-                ? // @ts-ignore
+                ? // @ts-expect-error No types.
                   window.__APP_CONFIG.blockfrostAPIMainnet
-                : // @ts-ignore
+                : // @ts-expect-error No types.
                   window.__APP_CONFIG.blockfrostAPIPreview,
             }),
-            new WebWallet(api)
+            new WebWallet(api),
           );
 
           const options: ISundaeSDKOptions = {
             customQueryProvider: !useV3Contracts
               ? new QueryProviderSundaeSwapLegacy(
-                  network ? "mainnet" : "preview"
+                  network ? "mainnet" : "preview",
                 )
               : undefined,
             wallet: {
@@ -76,18 +76,18 @@ const SelectBuilder: FC = () => {
                 network ? "mainnet" : "preview"
               }.blockfrost.io/api/v0/`,
               network
-                ? // @ts-ignore
+                ? // @ts-expect-error No types.
                   window.__APP_CONFIG.blockfrostAPIMainnet
-                : // @ts-ignore
-                  window.__APP_CONFIG.blockfrostAPIPreview
+                : // @ts-expect-error No types.
+                  window.__APP_CONFIG.blockfrostAPIPreview,
             ),
-            network ? "Mainnet" : "Preview"
+            network ? "Mainnet" : "Preview",
           );
 
           const options: ISundaeSDKOptions = {
             customQueryProvider: !useV3Contracts
               ? new QueryProviderSundaeSwapLegacy(
-                  network ? "mainnet" : "preview"
+                  network ? "mainnet" : "preview",
                 )
               : undefined,
             wallet: {

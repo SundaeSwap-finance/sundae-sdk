@@ -3,7 +3,7 @@ import type { ProtocolParameters, WalletApi } from "lucid-cardano";
 
 import type { TSupportedNetworks } from "../@types/utilities.js";
 
-export interface WalletAPIResponses {
+export interface IWalletAPIResponses {
   balance: string;
   changeAddress: string;
   networkId: number;
@@ -14,7 +14,7 @@ export interface WalletAPIResponses {
   utxos: string[];
 }
 
-const walletApiResponses: WalletAPIResponses = {
+const walletApiResponses: IWalletAPIResponses = {
   balance:
     "821a89c8606ba1581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a0584eba0",
   changeAddress:
@@ -44,37 +44,37 @@ const walletApiResponses: WalletAPIResponses = {
 const mockAPI: WalletApi = {
   experimental: {
     getCollateral: mock<() => Promise<string[]>>().mockImplementation(() =>
-      Promise.resolve([walletApiResponses.utxos[0]])
+      Promise.resolve([walletApiResponses.utxos[0]]),
     ),
     off: mock(),
     on: mock(),
   },
   getBalance: mock<() => Promise<string>>().mockImplementation(() =>
-    Promise.resolve(walletApiResponses.balance)
+    Promise.resolve(walletApiResponses.balance),
   ),
   getChangeAddress: mock<() => Promise<string>>().mockImplementation(() =>
-    Promise.resolve(walletApiResponses.changeAddress)
+    Promise.resolve(walletApiResponses.changeAddress),
   ),
   getNetworkId: mock<() => Promise<number>>().mockImplementation(() =>
-    Promise.resolve(walletApiResponses.networkId)
+    Promise.resolve(walletApiResponses.networkId),
   ),
   getRewardAddresses: mock<() => Promise<string[]>>().mockImplementation(() =>
-    Promise.resolve(walletApiResponses.rewardAddresses)
+    Promise.resolve(walletApiResponses.rewardAddresses),
   ),
   getCollateral: mock<() => Promise<string[]>>().mockImplementation(() =>
-    Promise.resolve(walletApiResponses.collateral)
+    Promise.resolve(walletApiResponses.collateral),
   ),
   getUnusedAddresses: mock<() => Promise<string[]>>().mockImplementation(() =>
-    Promise.resolve(walletApiResponses.unusedAddresses)
+    Promise.resolve(walletApiResponses.unusedAddresses),
   ),
   getUsedAddresses: mock<() => Promise<string[]>>().mockImplementation(() =>
-    Promise.resolve(walletApiResponses.usedAddresses)
+    Promise.resolve(walletApiResponses.usedAddresses),
   ),
   getUtxos: mock<() => Promise<string[]>>().mockImplementation(() =>
-    Promise.resolve(walletApiResponses.utxos)
+    Promise.resolve(walletApiResponses.utxos),
   ),
   submitTx: mock<() => Promise<string>>().mockImplementation(() =>
-    Promise.resolve("test-preview-txhash")
+    Promise.resolve("test-preview-txhash"),
   ),
   signData: mock<
     () => Promise<{ signature: string; key: string }>
@@ -82,10 +82,10 @@ const mockAPI: WalletApi = {
     Promise.resolve({
       signature: "test-preview-signature",
       key: "test-preview-key",
-    })
+    }),
   ),
   signTx: mock<() => Promise<string>>().mockImplementation(() =>
-    Promise.resolve("test-preview-signedtx")
+    Promise.resolve("test-preview-signedtx"),
   ),
 };
 
@@ -101,11 +101,11 @@ export const windowCardano: {
   eternl: {
     name: "Eternl",
     enable: mock<() => Promise<WalletApi>>().mockImplementation(() =>
-      Promise.resolve(mockAPI)
+      Promise.resolve(mockAPI),
     ),
     icon: "",
     isEnabled: mock<() => Promise<boolean>>().mockImplementation(() =>
-      Promise.resolve(true)
+      Promise.resolve(true),
     ),
     version: "test",
   },
@@ -502,7 +502,7 @@ const realBlockfrostProtocolParams = {
 };
 
 export const getBlockfrostProtocolParameters = (
-  env: TSupportedNetworks
+  env: TSupportedNetworks,
 ): ProtocolParameters => {
   switch (env) {
     default:
@@ -519,7 +519,7 @@ export const getBlockfrostProtocolParameters = (
         maxTxExMem: BigInt(realBlockfrostProtocolParams.max_tx_ex_mem),
         maxTxExSteps: BigInt(realBlockfrostProtocolParams.max_tx_ex_steps),
         coinsPerUtxoByte: BigInt(
-          realBlockfrostProtocolParams.coins_per_utxo_size
+          realBlockfrostProtocolParams.coins_per_utxo_size,
         ),
         collateralPercentage: realBlockfrostProtocolParams.collateral_percent,
         maxCollateralInputs: realBlockfrostProtocolParams.max_collateral_inputs,

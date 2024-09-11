@@ -45,7 +45,7 @@ interface IGummiWormParams {
  *  const txHash = await GW.deposit({ ...args }).then(({ submit }) => submit());
  * ```
  *
- * @implements {GummiWorm}
+ * @extends {GummiWorm}
  */
 export class GummiWormLucid implements GummiWorm {
   network: TSupportedNetworks;
@@ -70,7 +70,7 @@ export class GummiWormLucid implements GummiWorm {
     const lucid = sdk.lucid();
     if (!lucid) {
       throw new Error(
-        "A lucid instance is required. Ensure that you have a builder set up in your SDK."
+        "A lucid instance is required. Ensure that you have a builder set up in your SDK.",
       );
     }
 
@@ -88,7 +88,7 @@ export class GummiWormLucid implements GummiWorm {
    */
   static getParam<K extends keyof IGummiWormParams>(
     param: K,
-    network: TSupportedNetworks
+    network: TSupportedNetworks,
   ): IGummiWormParams[K] {
     return GummiWormLucid.PARAMS[network][param];
   }
@@ -100,7 +100,7 @@ export class GummiWormLucid implements GummiWorm {
    * @returns {IGummiWormParams}
    */
   public getParam<K extends keyof IGummiWormParams>(
-    param: K
+    param: K,
   ): IGummiWormParams[K] {
     return GummiWormLucid.getParam(param, this.network);
   }
@@ -122,14 +122,14 @@ export class GummiWormLucid implements GummiWorm {
     const lucid = this.sdk.lucid();
     if (!lucid) {
       throw new Error(
-        "Lucid is not available. Are you using a different builder?"
+        "Lucid is not available. Are you using a different builder?",
       );
     }
 
     const wallet = lucid.wallet;
     if (!wallet) {
       throw new Error(
-        "A wallet was not initialized in your Lucid instance. Please select a wallet, and then try again."
+        "A wallet was not initialized in your Lucid instance. Please select a wallet, and then try again.",
       );
     }
 
@@ -195,10 +195,10 @@ export class GummiWormLucid implements GummiWorm {
             !SundaeUtils.isAdaAsset(referralFee.payment.metadata)
               ? Buffer.from(
                   referralFee.payment.metadata.assetId.split(".")[1],
-                  "hex"
+                  "hex",
                 ).toString("utf-8")
               : "ADA"
-          }`
+          }`,
         );
       }
     }
@@ -213,7 +213,7 @@ export class GummiWormLucid implements GummiWorm {
         scooperFee: new AssetAmount(0n, ADA_METADATA),
         referral: new AssetAmount(
           referralFee?.payment?.amount ?? 0n,
-          referralFee?.payment?.metadata ?? ADA_METADATA
+          referralFee?.payment?.metadata ?? ADA_METADATA,
         ),
       },
       datum,
@@ -224,7 +224,7 @@ export class GummiWormLucid implements GummiWorm {
 
         thisTx.fees.cardanoTxFee = new AssetAmount(
           BigInt(txFee?.to_str() ?? finishedTx?.fee?.toString() ?? "0"),
-          6
+          6,
         );
 
         return {

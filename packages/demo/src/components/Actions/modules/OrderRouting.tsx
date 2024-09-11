@@ -37,10 +37,10 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     setSwapping(true);
     try {
       const v1PoolTIndy = await new QueryProviderSundaeSwapLegacy(
-        "preview"
+        "preview",
       ).findPoolData(poolQuery);
       const v1PoolRberry = await new QueryProviderSundaeSwapLegacy(
-        "preview"
+        "preview",
       ).findPoolData({
         pair: [
           "",
@@ -50,12 +50,12 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         ident: "00",
       });
       const v3PoolTIndy = await new QueryProviderSundaeSwap(
-        "preview"
+        "preview",
       ).findPoolData({
         ident: "2e74e6af9739616dd021f547bca1f68c937b566bb6ca2e4782e76001",
       });
       const v3PoolRberry = await new QueryProviderSundaeSwap(
-        "preview"
+        "preview",
       ).findPoolData({
         ident: "bd9437d9ec1a559d053f05dc38d337c32d1d0746952ea961f874c39a",
       });
@@ -82,7 +82,7 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
           pool: direction === "forward" ? swapAPool : swapBPool,
           suppliedAsset: new AssetAmount(
             25000000n,
-            direction === "forward" ? swapAPool.assetB : swapBPool.assetB
+            direction === "forward" ? swapAPool.assetB : swapBPool.assetB,
           ),
         },
         swapB: {
@@ -120,7 +120,7 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         route === ERoute.V3TOV1 || route === ERoute.V3TOV3
           ? EContractVersion.V3
           : EContractVersion.V1,
-        builderLib
+        builderLib,
       )
         .orderRouteSwap(args)
         .then(async ({ build, fees }) => {

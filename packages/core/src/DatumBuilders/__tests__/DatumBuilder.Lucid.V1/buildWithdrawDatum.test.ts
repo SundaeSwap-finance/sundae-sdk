@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { IWithdrawArguments } from "../../../@types/datumbuilder.js";
 import { DatumBuilderLucidV1 } from "../../DatumBuilder.Lucid.V1.class.js";
@@ -12,13 +12,13 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildWithdrawDatum()", () => {
   it("should correctly build the datum, variation 1", () => {
     const result = builderInstance.buildWithdrawDatum(
-      expectations[0].args as IWithdrawArguments
+      expectations[0].args as IWithdrawArguments,
     );
 
     expect(result.inline).toEqual(expectations[0].expectations.inline);

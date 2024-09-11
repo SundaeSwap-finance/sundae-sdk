@@ -10,7 +10,7 @@ parent: Guides
 To get started building your first swap, you'll need to install a few things. Assuming you've setup a TypeScript and Webpack bundling config (see [details on requirements](/sundae-sdk/#requirements)), you can then install dependencies. We install the main `@sundaeswap/core` package, and then the latest version of `lucid-cardano`:
 
 ```bash
-$ yarn add @sundaeswap/core lucid-cardano
+$ bun add @sundaeswap/core lucid-cardano
 ```
 
 ## Steps
@@ -28,6 +28,7 @@ Let's take each step and break it down so we can understand what's going on behi
 For our example, we'll be using the Preview network, and a pool ident for ADA/RBERRY. If you're testing this locally, make sure you have Eternl installed and are on the `preview` network and have at least 30 tADA in your wallet.
 
 {: .note }
+
 > Keep in mind that async/await should usually be handled inside a function unless you
 > have top-level await enabled in your bundler. For our purposes, they will not be in
 > functions for clarity.
@@ -38,7 +39,7 @@ import { ETxBuilderType, ISundaeSDKOptions, SundaeSDK } from "@sundaeswap/core";
 
 const lucidInstance = await Lucid.new(
   new Blockfrost(
-    "https://cardano-preview.blockfrost.io/api/v0/",
+    "https://cardano-preview.blockfrost.io/api/v0/"
     // Your API Key
   ),
   "Preview"
@@ -59,8 +60,9 @@ const SDK = new SundaeSDK(options);
 
 const poolData = await SDK.query().findPoolData({
   ident: "34c2b9d553d3a74b3ac67cc8cefb423af0f77fc84664420090e09990",
-})
+});
 ```
+
 - The first thing we do is setup a Lucid instance. This is because our `options.builder` config is set to use the `ETxBuilderType.LUCID` type.
 - Next, we construct our SDK options config. We define that we'll be using the Eternl wallet (defined as `eternl` to match the property on the `window.cardano` object), and set the network to `preview`.
 - Then, we instantiate a new `SundaeSDK` instance. It is recommended to keep this instance as a singleton across your app, so that it's not recreated every time.
@@ -76,8 +78,8 @@ import {
   // ...the previous imports
   ESwapType,
   EDatumType,
-  ISwapConfigArgs
-} from "@sundaeswap/core"
+  ISwapConfigArgs,
+} from "@sundaeswap/core";
 ```
 
 - The `AssetAmount` class is a tool for dealing with asset calculations with regard to their respective decimal places and metadata.
@@ -118,16 +120,14 @@ Finally, once we have our configuration all set for the swap, we can build the t
 ```ts
 import {
   // ...rest of imports
-  EContractVersion
-} from "@sundaeswap/core"
+  EContractVersion,
+} from "@sundaeswap/core";
 ```
 
 ```ts
 // ...rest of our code
 
-const { build, fees } = await SDK
-  .builder(EContractVersion.V3)
-  .swap(args);
+const { build, fees } = await SDK.builder(EContractVersion.V3).swap(args);
 ```
 
 - Here we select the `SDK.builder()` property. By default, the builder uses V1 contracts, so we pass in `EContractVersion.V3` as a parameter.
@@ -141,10 +141,11 @@ Next, let's go ahead and build the transaction and request a signature:
 // ... rest of our code
 
 const builtTx = await build();
-const { submit, cbor } = await builtTx.sign()
+const { submit, cbor } = await builtTx.sign();
 
 const txHash = await submit();
 ```
+
 - First, we `build()` the transaction. This removes the details from memory, so manipulating the transaction details after this point is impossible aside form signing it.
 - Once we have a built transaction, we can access two things. 1) The `submit` method does what it sounds like: it submits the signed transaction transaction and returns the transaction hash for your record keeping and lookup. 2) The `cbor` property is the signed transaction in its fullness, which can then be used for many other things, including future support for multi-sig orders, manual entry to a different node, etc.
 

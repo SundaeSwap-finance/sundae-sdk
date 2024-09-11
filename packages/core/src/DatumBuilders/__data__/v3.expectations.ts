@@ -151,7 +151,7 @@ export const V3_EXPECTATIONS = {
       },
     },
     {
-      // @ts-ignore
+      // @ts-expect-error Invalid type.
       args: {
         datum: {
           type: "notvalid",

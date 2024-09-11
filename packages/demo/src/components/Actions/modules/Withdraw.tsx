@@ -26,7 +26,7 @@ export const Withdraw: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     setWithdrawing(true);
     try {
       const pool = await SDK.query().findPoolData(
-        useV3Contracts ? newPoolQuery : poolQuery
+        useV3Contracts ? newPoolQuery : poolQuery,
       );
 
       let lpBalance: bigint = 0n;
@@ -58,7 +58,7 @@ export const Withdraw: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
           }
 
           const matchingAsset = assets.get(
-            Core.AssetId(pool.assetLP.assetId.replace(".", ""))
+            Core.AssetId(pool.assetLP.assetId.replace(".", "")),
           );
           if (matchingAsset) {
             lpBalance += matchingAsset;
@@ -72,7 +72,7 @@ export const Withdraw: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
 
       await SDK.builder(
         useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
-        builderLib
+        builderLib,
       )
         .withdraw({
           orderAddresses: {

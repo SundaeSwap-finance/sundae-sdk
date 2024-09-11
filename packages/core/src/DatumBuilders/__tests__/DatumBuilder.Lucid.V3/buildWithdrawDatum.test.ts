@@ -16,14 +16,14 @@ afterEach(() => {
 describe("buildWithdrawDatum()", () => {
   it("should correctly build the datum, variation 1", () => {
     const result = builderInstance.buildWithdrawDatum(
-      V3_EXPECTATIONS.buildWithdrawDatum[0].args
+      V3_EXPECTATIONS.buildWithdrawDatum[0].args,
     );
 
     expect(result.inline).toEqual(
-      V3_EXPECTATIONS.buildWithdrawDatum[0].expectations.inline
+      V3_EXPECTATIONS.buildWithdrawDatum[0].expectations.inline,
     );
     expect(result.hash).toEqual(
-      V3_EXPECTATIONS.buildWithdrawDatum[0].expectations.hash
+      V3_EXPECTATIONS.buildWithdrawDatum[0].expectations.hash,
     );
   });
 });

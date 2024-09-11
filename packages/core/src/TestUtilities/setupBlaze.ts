@@ -10,7 +10,7 @@ const convertedOutputs = PREVIEW_DATA.wallet.utxos.map((utxo) => {
     address: Core.PaymentAddress(utxo.address),
     value: makeValue(
       utxo.assets.lovelace,
-      ...Object.entries(utxo.assets).filter(([key]) => key !== "lovelace")
+      ...Object.entries(utxo.assets).filter(([key]) => key !== "lovelace"),
     ).toCore(),
     datum: utxo.datum
       ? Core.PlutusData.fromCbor(Core.HexBlob(utxo.datum)).toCore()
@@ -26,7 +26,7 @@ export const setupBlaze = (
   options?: {
     customUtxos?: Core.TransactionOutput[];
     beforeAll?: () => void;
-  }
+  },
 ): {
   getUtxosByOutRefMock: Mock<
     (txIns: Core.TransactionInput[]) => Promise<Core.TransactionUnspentOutput[]>
@@ -41,7 +41,7 @@ export const setupBlaze = (
 } => {
   const getUtxosByOutRefMock = spyOn(
     EmulatorProvider.prototype,
-    "resolveUnspentOutputs"
+    "resolveUnspentOutputs",
   );
   const getUtxosMock = spyOn(EmulatorProvider.prototype, "getUnspentOutputs");
   const resolveDatumMock = spyOn(EmulatorProvider.prototype, "resolveDatum");
@@ -50,7 +50,7 @@ export const setupBlaze = (
     options?.beforeAll?.();
 
     global.window = {
-      // @ts-ignore
+      // @ts-expect-error Type mismatches.
       cardano: windowCardano,
     };
 
@@ -62,8 +62,8 @@ export const setupBlaze = (
       new ColdWallet(
         Core.addressFromBech32(PREVIEW_DATA.addresses.current),
         Core.NetworkId.Testnet,
-        new EmulatorProvider(emulator)
-      )
+        new EmulatorProvider(emulator),
+      ),
     );
 
     await useBlaze?.(blaze);

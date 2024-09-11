@@ -101,11 +101,11 @@ export class SundaeSDK {
         this.builders.set(ETxBuilderType.LUCID, {
           [EContractVersion.V1]: new TxBuilderLucidV1(
             this.options.wallet.builder.lucid,
-            this.options.wallet.network
+            this.options.wallet.network,
           ),
           [EContractVersion.V3]: new TxBuilderLucidV3(
             this.options.wallet.builder.lucid,
-            this.options.wallet.network
+            this.options.wallet.network,
           ),
         });
 
@@ -114,7 +114,7 @@ export class SundaeSDK {
           const extension = window.cardano?.[this.options.wallet.name];
           if (!extension) {
             throw new Error(
-              `Could not find wallet extension: ${this.options.wallet.name}`
+              `Could not find wallet extension: ${this.options.wallet.name}`,
             );
           }
 
@@ -122,8 +122,8 @@ export class SundaeSDK {
             .enable()
             .then((api) =>
               (this.options.wallet.builder as ILucidBuilder).lucid.selectWallet(
-                api
-              )
+                api,
+              ),
             );
         }
 
@@ -138,11 +138,11 @@ export class SundaeSDK {
         this.builders.set(ETxBuilderType.BLAZE, {
           [EContractVersion.V1]: new TxBuilderBlazeV1(
             this.options.wallet.builder.blaze,
-            this.options.wallet.network
+            this.options.wallet.network,
           ),
           [EContractVersion.V3]: new TxBuilderBlazeV3(
             this.options.wallet.builder.blaze,
-            this.options.wallet.network
+            this.options.wallet.network,
           ),
         });
 
@@ -150,7 +150,7 @@ export class SundaeSDK {
       }
       default:
         throw new Error(
-          "A valid wallet provider type must be defined in your options object."
+          "A valid wallet provider type must be defined in your options object.",
         );
     }
   }
@@ -167,38 +167,38 @@ export class SundaeSDK {
   // Overloads
   builder(
     contractVersion: EContractVersion.V1,
-    txBuilderType: ETxBuilderType.BLAZE
+    txBuilderType: ETxBuilderType.BLAZE,
   ): TxBuilderBlazeV1;
   builder(
     contractVersion: EContractVersion.V3,
-    txBuilderType: ETxBuilderType.BLAZE
+    txBuilderType: ETxBuilderType.BLAZE,
   ): TxBuilderBlazeV3;
   builder(
     contractVersion: EContractVersion.V1,
-    txBuilderType: ETxBuilderType.LUCID
+    txBuilderType: ETxBuilderType.LUCID,
   ): TxBuilderLucidV1;
   builder(
     contractVersion: EContractVersion.V3,
-    txBuilderType: ETxBuilderType.LUCID
+    txBuilderType: ETxBuilderType.LUCID,
   ): TxBuilderLucidV3;
   builder(contractVersion: EContractVersion.V1): TxBuilderV1;
   builder(contractVersion: EContractVersion.V3): TxBuilderV3;
   builder(
     contractVersion: EContractVersion.V1,
-    txBuilderType?: ETxBuilderType
+    txBuilderType?: ETxBuilderType,
   ): TxBuilderV1;
   builder(
     contractVersion: EContractVersion.V3,
-    txBuilderType?: ETxBuilderType
+    txBuilderType?: ETxBuilderType,
   ): TxBuilderV3;
   builder(
     contractVersion: EContractVersion.V3,
-    txBuilderType: ETxBuilderType
+    txBuilderType: ETxBuilderType,
   ): TxBuilderV3;
   builder(): TxBuilderV3;
   builder(
     contractVersion?: EContractVersion,
-    txBuilderType?: ETxBuilderType
+    txBuilderType?: ETxBuilderType,
   ): TxBuilderV1 | TxBuilderV3;
   /**
    * Creates the appropriate transaction builder by which you can create valid transactions.
@@ -207,12 +207,12 @@ export class SundaeSDK {
    */
   builder(
     contractVersion: EContractVersion = EContractVersion.V3,
-    txBuilderType: ETxBuilderType = ETxBuilderType.BLAZE
+    txBuilderType: ETxBuilderType = ETxBuilderType.BLAZE,
   ): TxBuilderV1 | TxBuilderV3 {
     const contextBuilders = this.builders.get(txBuilderType);
     if (!contextBuilders) {
       throw new Error(
-        "Could not find a matching TxBuilder for this builder type. Please register a custom builder with `.registerBuilder()` first, then try again."
+        "Could not find a matching TxBuilder for this builder type. Please register a custom builder with `.registerBuilder()` first, then try again.",
       );
     }
 
@@ -256,7 +256,7 @@ export class SundaeSDK {
 
     const builder = this.builder(
       EContractVersion.V3,
-      ETxBuilderType.LUCID
+      ETxBuilderType.LUCID,
     ) as TxBuilderLucidV3;
     return builder.lucid;
   }
@@ -273,7 +273,7 @@ export class SundaeSDK {
 
     const builder = this.builder(
       EContractVersion.V3,
-      ETxBuilderType.BLAZE
+      ETxBuilderType.BLAZE,
     ) as TxBuilderBlazeV3;
 
     return builder.blaze;

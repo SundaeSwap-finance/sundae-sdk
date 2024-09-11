@@ -19,7 +19,7 @@ import { TTasteTestType } from "./@types/index.js";
 export const findCoveringNode = (
   utxos: UTxO[],
   userKey: string,
-  ttType: TTasteTestType
+  ttType: TTasteTestType,
 ) =>
   utxos.find((value) => {
     if (!value.datum) {
@@ -28,7 +28,7 @@ export const findCoveringNode = (
 
     const datum = Data.from(
       value.datum,
-      ttType === "Liquidity" ? LiquiditySetNode : SetNode
+      ttType === "Liquidity" ? LiquiditySetNode : SetNode,
     );
     return (
       (datum.key == null || datum.key < userKey) &&
@@ -51,7 +51,7 @@ export const findCoveringNode = (
 export const findOwnNode = (
   utxos: UTxO[],
   userKey: string,
-  ttType: TTasteTestType
+  ttType: TTasteTestType,
 ) =>
   utxos.find((value) => {
     if (!value.datum) {
@@ -60,7 +60,7 @@ export const findOwnNode = (
 
     const nodeData = Data.from(
       value.datum,
-      ttType === "Liquidity" ? LiquiditySetNode : SetNode
+      ttType === "Liquidity" ? LiquiditySetNode : SetNode,
     );
     return nodeData.key === userKey;
   });
@@ -80,7 +80,7 @@ export const findOwnNode = (
 export const findPrevNode = (
   utxos: UTxO[],
   userKey: string,
-  ttType: TTasteTestType
+  ttType: TTasteTestType,
 ) =>
   utxos.find((value) => {
     if (!value.datum) {
@@ -89,7 +89,7 @@ export const findPrevNode = (
 
     const datum = Data.from(
       value.datum,
-      ttType === "Liquidity" ? LiquiditySetNode : SetNode
+      ttType === "Liquidity" ? LiquiditySetNode : SetNode,
     );
     return datum?.next === userKey;
   });

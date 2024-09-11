@@ -72,7 +72,7 @@ interface ITxBuilderLucidCompleteTxArgs {
  * for Lucid against the V3 SundaeSwap protocol. It includes capabilities to build and execute various transaction types
  * such as swaps, cancellations, updates, deposits, withdrawals, and zaps.
  *
- * @implements {TxBuilderV3}
+ * @extends {TxBuilderV3}
  */
 export class TxBuilderLucidV3 extends TxBuilderV3 {
   datumBuilder: DatumBuilderLucidV3;
@@ -94,7 +94,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
   constructor(
     public lucid: Lucid,
     network: TSupportedNetworks,
-    queryProvider?: QueryProviderSundaeSwap
+    queryProvider?: QueryProviderSundaeSwap,
   ) {
     super();
     this.network = lucid.network === "Mainnet" ? "mainnet" : "preview";
@@ -117,7 +117,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     if (!this.protocolParams) {
       this.protocolParams =
         await this.queryProvider.getProtocolParamsWithScripts(
-          EContractVersion.V3
+          EContractVersion.V3,
         );
     }
 
@@ -136,7 +136,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       const utxos: OutRef[] = [];
       const { references } = await this.getProtocolParams();
       references.forEach(({ txIn }) =>
-        utxos.push({ outputIndex: txIn.index, txHash: txIn.hash })
+        utxos.push({ outputIndex: txIn.index, txHash: txIn.hash }),
       );
       this.referenceUtxos = await this.lucid.provider.getUtxosByOutRef(utxos);
     }
@@ -150,7 +150,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    * @returns {ISundaeProtocolReference}
    */
   public async getReferenceScript(
-    type: "order.spend" | "pool.spend"
+    type: "order.spend" | "pool.spend",
   ): Promise<ISundaeProtocolReference> {
     const { references } = await this.getProtocolParams();
     const match = references.find(({ key }) => key === type);
@@ -173,7 +173,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       const { hash } = await this.getValidatorScript("settings.mint");
       this.settingsUtxos = [
         await this.lucid.provider.getUtxoByUnit(
-          `${hash}${this.SETTINGS_NFT_NAME}`
+          `${hash}${this.SETTINGS_NFT_NAME}`,
         ),
       ];
     }
@@ -189,9 +189,6 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    * @returns {bigint} The maxScooperFee as defined by the settings UTXO.
    */
   public async getMaxScooperFeeAmount(): Promise<bigint> {
-    // Patch to set the max scooper fee to 1ADA to avoid out of range orders being stuck after Wednesday.
-    return 1_000_000n;
-
     const [settings] = await this.getAllSettingsUtxos();
     if (!settings) {
       return 1_000_000n;
@@ -199,7 +196,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
 
     const { baseFee, simpleFee } = Data.from(
       settings.datum as string,
-      SettingsDatum
+      SettingsDatum,
     );
 
     return baseFee + simpleFee;
@@ -214,15 +211,15 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    * @returns {Promise<ISundaeProtocolValidatorFull>}
    */
   public async getValidatorScript(
-    name: string
+    name: string,
   ): Promise<ISundaeProtocolValidatorFull> {
     const params = await this.getProtocolParams();
     const result = params.blueprint.validators.find(
-      ({ title }) => title === name
+      ({ title }) => title === name,
     );
     if (!result) {
       throw new Error(
-        `Could not find a validator that matched the key: ${name}`
+        `Could not find a validator that matched the key: ${name}`,
       );
     }
 
@@ -255,10 +252,10 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
             !SundaeUtils.isAdaAsset(fee.payment.metadata)
               ? Buffer.from(
                   fee.payment.metadata.assetId.split(".")[1],
-                  "hex"
+                  "hex",
                 ).toString("utf-8")
               : "ADA"
-          }`
+          }`,
         );
       }
     }
@@ -283,7 +280,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    * @throws {Error} Throws an error if the transaction fails to build or submit.
    */
   async mintPool(
-    mintPoolArgs: IMintV3PoolConfigArgs
+    mintPoolArgs: IMintV3PoolConfigArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const {
       assetA,
@@ -314,15 +311,15 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
 
     const poolNftNameHex = toUnit(
       poolPolicyId,
-      DatumBuilderLucidV3.computePoolNftName(newPoolIdent)
+      DatumBuilderLucidV3.computePoolNftName(newPoolIdent),
     );
     const poolRefNameHex = toUnit(
       poolPolicyId,
-      DatumBuilderLucidV3.computePoolRefName(newPoolIdent)
+      DatumBuilderLucidV3.computePoolRefName(newPoolIdent),
     );
     const poolLqNameHex = toUnit(
       poolPolicyId,
-      DatumBuilderLucidV3.computePoolLqName(newPoolIdent)
+      DatumBuilderLucidV3.computePoolLqName(newPoolIdent),
     );
 
     const poolAssets = {
@@ -368,12 +365,12 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     } = Data.from(settings[0].datum as string, V3Types.SettingsDatum);
     const metadataAddress = DatumBuilderLucidV3.addressSchemaToBech32(
       { paymentCredential, stakeCredential },
-      this.lucid
+      this.lucid,
     );
 
     const { blueprint } = await this.getProtocolParams();
     const poolContract = blueprint.validators.find(
-      ({ title }) => title === "pool.mint"
+      ({ title }) => title === "pool.mint",
     );
 
     const sundaeStakeAddress = DatumBuilderLucidV3.addressSchemaToBech32(
@@ -387,7 +384,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
           keyHash: poolStakingCredential,
         },
       },
-      this.lucid
+      this.lucid,
     );
 
     const tx = this.newTxInstance(referralFee)
@@ -397,7 +394,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
           [poolRefNameHex]: 1n,
           [poolLqNameHex]: circulatingLp,
         },
-        mintRedeemerDatum
+        mintRedeemerDatum,
       )
       .readFrom([...references, ...settings])
       .collectFrom(userUtxos)
@@ -408,14 +405,14 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
         {
           lovelace: ORDER_DEPOSIT_DEFAULT,
           [poolRefNameHex]: 1n,
-        }
+        },
       );
 
     if (donateToTreasury) {
       const datum = Data.from(settings[0].datum as string, SettingsDatum);
       const realTreasuryAddress = DatumBuilderLucidV3.addressSchemaToBech32(
         datum.treasuryAddress,
-        this.lucid
+        this.lucid,
       );
 
       if (donateToTreasury === 100n) {
@@ -470,7 +467,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the result of the completed transaction.
    */
   async swap(
-    swapArgs: ISwapConfigArgs
+    swapArgs: ISwapConfigArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const config = new SwapConfig(swapArgs);
 
@@ -503,11 +500,11 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
         this.lucid.utils.validatorToAddress({
           type: "PlutusV1",
           script: compiledCode,
-        })
+        }),
       );
     const v3Address = await this.generateScriptAddress(
       "order.spend",
-      swapArgs?.ownerAddress ?? orderAddresses.DestinationAddress.address
+      swapArgs?.ownerAddress ?? orderAddresses.DestinationAddress.address,
     );
 
     // Adjust scooper fee supply based on destination address.
@@ -518,7 +515,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     }
 
     const isOrderRoute = [v1Address, v3Address].includes(
-      orderAddresses.DestinationAddress.address
+      orderAddresses.DestinationAddress.address,
     );
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: [suppliedAsset],
@@ -543,12 +540,11 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
   /**
    * Performs an order route swap with the given arguments.
    *
-   * @async
    * @param {IOrderRouteSwapArgs} args - The arguments for the order route swap.
    * @returns {Promise<IComposedTx<Tx, TxComplete>>} The result of the transaction.
    */
   async orderRouteSwap(
-    args: IOrderRouteSwapArgs
+    args: IOrderRouteSwapArgs,
   ): Promise<IComposedTx<Tx, TxComplete>> {
     const isSecondSwapV1 = args.swapB.pool.version === EContractVersion.V1;
 
@@ -562,7 +558,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
             this.lucid.utils.validatorToAddress({
               type: "PlutusV1",
               script: compiledCode,
-            })
+            }),
           )
       : await this.generateScriptAddress("order.spend", args.ownerAddress);
 
@@ -582,11 +578,11 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     const [aReserve, bReserve] = SundaeUtils.sortSwapAssetsWithAmounts([
       new AssetAmount(
         args.swapA.pool.liquidity.aReserve,
-        args.swapA.pool.assetA
+        args.swapA.pool.assetA,
       ),
       new AssetAmount(
         args.swapA.pool.liquidity.bReserve,
-        args.swapA.pool.assetB
+        args.swapA.pool.assetB,
       ),
     ]);
 
@@ -636,7 +632,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     }
 
     const datumHash = this.lucid.utils.datumToHash(
-      secondSwapData.datum as string
+      secondSwapData.datum as string,
     );
 
     const { tx, datum, fees } = await this.swap({
@@ -666,7 +662,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       tx.attachMetadataWithConversion(103251, {
         [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
           secondSwapData.datum as string,
-          true
+          true,
         ),
       });
     }
@@ -689,7 +685,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the result of the cancel transaction.
    */
   async cancel(
-    cancelArgs: ICancelConfigArgs
+    cancelArgs: ICancelConfigArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const { utxo, referralFee } = new CancelConfig(cancelArgs).buildArgs();
 
@@ -701,8 +697,8 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     if (!utxosToSpend) {
       throw new Error(
         `UTXO data was not found with the following parameters: ${JSON.stringify(
-          utxo
-        )}`
+          utxo,
+        )}`,
       );
     }
 
@@ -713,7 +709,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
 
     if (!spendingDatum) {
       throw new Error(
-        "Failed trying to cancel an order that doesn't include a datum!"
+        "Failed trying to cancel an order that doesn't include a datum!",
       );
     }
 
@@ -800,13 +796,13 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     cancelTx.payToContract(
       await this.generateScriptAddress(
         "order.spend",
-        orderAddresses.DestinationAddress.address
+        orderAddresses.DestinationAddress.address,
       ),
       { inline: swapDatum.inline },
       SundaeUtils.accumulateSuppliedAssets({
         suppliedAssets: [suppliedAsset],
         scooperFee: await this.getMaxScooperFeeAmount(),
-      })
+      }),
     );
 
     /**
@@ -849,7 +845,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object.
    */
   async deposit(
-    depositArgs: IDepositConfigArgs
+    depositArgs: IDepositConfigArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const { suppliedAssets, pool, orderAddresses, referralFee } =
       new DepositConfig(depositArgs).buildArgs();
@@ -876,10 +872,10 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     tx.payToContract(
       await this.generateScriptAddress(
         "order.spend",
-        orderAddresses.DestinationAddress.address
+        orderAddresses.DestinationAddress.address,
       ),
       { inline },
-      payment
+      payment,
     );
     return this.completeTx({
       tx,
@@ -897,10 +893,10 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object.
    */
   async withdraw(
-    withdrawArgs: IWithdrawConfigArgs
+    withdrawArgs: IWithdrawConfigArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const { suppliedLPAsset, orderAddresses, referralFee } = new WithdrawConfig(
-      withdrawArgs
+      withdrawArgs,
     ).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
@@ -911,7 +907,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     });
 
     const ident = SundaeUtils.getIdentFromAssetId(
-      suppliedLPAsset.metadata.assetId
+      suppliedLPAsset.metadata.assetId,
     );
 
     const { inline } = this.datumBuilder.buildWithdrawDatum({
@@ -926,10 +922,10 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     tx.payToContract(
       await this.generateScriptAddress(
         "order.spend",
-        orderAddresses.DestinationAddress.address
+        orderAddresses.DestinationAddress.address,
       ),
       { inline },
-      payment
+      payment,
     );
     return this.completeTx({
       tx,
@@ -947,11 +943,11 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the composed transaction object resulting from the zap operation.
    */
   async zap(
-    zapArgs: Omit<IZapConfigArgs, "zapDirection">
+    zapArgs: Omit<IZapConfigArgs, "zapDirection">,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>> {
     const zapDirection = SundaeUtils.getAssetSwapDirection(
       zapArgs.suppliedAsset.metadata,
-      [zapArgs.pool.assetA, zapArgs.pool.assetB]
+      [zapArgs.pool.assetA, zapArgs.pool.assetB],
     );
     const { pool, suppliedAsset, orderAddresses, swapSlippage, referralFee } =
       new ZapConfig({
@@ -972,20 +968,20 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
      */
     const halfSuppliedAmount = new AssetAmount(
       Math.ceil(Number(suppliedAsset.amount) / 2),
-      suppliedAsset.metadata
+      suppliedAsset.metadata,
     );
 
     const minReceivable = SundaeUtils.getMinReceivableFromSlippage(
       pool,
       halfSuppliedAmount,
-      swapSlippage ?? 0.3
+      swapSlippage ?? 0.3,
     );
 
     let depositPair: TDepositMixed;
     if (
       SundaeUtils.isAssetIdsEqual(
         pool.assetA.assetId,
-        suppliedAsset.metadata.assetId
+        suppliedAsset.metadata.assetId,
       )
     ) {
       depositPair = {
@@ -1015,7 +1011,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
 
     if (!depositData?.hash) {
       throw new Error(
-        "A datum hash for a deposit transaction is required to build a chained Zap operation."
+        "A datum hash for a deposit transaction is required to build a chained Zap operation.",
       );
     }
 
@@ -1032,7 +1028,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       destinationAddress: {
         address: await this.generateScriptAddress(
           "order.spend",
-          orderAddresses.DestinationAddress.address
+          orderAddresses.DestinationAddress.address,
         ),
         /**
          * @TODO
@@ -1055,17 +1051,17 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     tx.attachMetadataWithConversion(103251, {
       [`0x${depositData.hash}`]: SundaeUtils.splitMetadataString(
         depositData.inline,
-        true
+        true,
       ),
     });
 
     tx.payToContract(
       await this.generateScriptAddress(
         "order.spend",
-        orderAddresses.DestinationAddress.address
+        orderAddresses.DestinationAddress.address,
       ),
       { inline },
-      payment
+      payment,
     );
 
     return this.completeTx({
@@ -1086,7 +1082,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
    */
   public async generateScriptAddress(
     type: "order.spend" | "pool.mint",
-    ownerAddress?: string
+    ownerAddress?: string,
   ): Promise<string> {
     const { hash } = await this.getValidatorScript(type);
     const paymentCred = this.lucid.utils.scriptHashToCredential(hash);
@@ -1097,7 +1093,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     }
 
     const paymentStakeCred = C.StakeCredential.from_scripthash(
-      C.ScriptHash.from_hex(hash)
+      C.ScriptHash.from_hex(hash),
     );
     const ownerStakeCred =
       ownerAddress &&
@@ -1110,11 +1106,11 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
     const newAddress = C.BaseAddress.new(
       this.network === "mainnet" ? 1 : 0,
       paymentStakeCred,
-      ownerStakeCred
+      ownerStakeCred,
     ).to_address();
 
     return newAddress.to_bech32(
-      this.network === "mainnet" ? "addr" : "addr_test"
+      this.network === "mainnet" ? "addr" : "addr_test",
     );
   }
 
@@ -1156,7 +1152,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
       scooperFee: new AssetAmount(
         scooperFee ?? (await this.getMaxScooperFeeAmount()),
-        ADA_METADATA
+        ADA_METADATA,
       ),
       referral: referralFee,
     };
@@ -1173,7 +1169,7 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
           finishedTx = await tx.complete({ coinSelection, nativeUplc });
           thisTx.fees.cardanoTxFee = new AssetAmount(
             BigInt(txFee?.to_str() ?? finishedTx?.fee?.toString() ?? "0"),
-            ADA_METADATA
+            ADA_METADATA,
           );
         }
 
@@ -1190,8 +1186,8 @@ export class TxBuilderLucidV3 extends TxBuilderV3 {
                 } catch (e) {
                   console.log(
                     `Could not submit order. Signed transaction CBOR: ${Buffer.from(
-                      signedTx.txSigned.body().to_bytes()
-                    ).toString("hex")}`
+                      signedTx.txSigned.body().to_bytes(),
+                    ).toString("hex")}`,
                   );
                   throw e;
                 }

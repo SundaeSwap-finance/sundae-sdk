@@ -35,7 +35,7 @@ describe("GummiWormLucid", () => {
   it("should initiate with correct parameters", () => {
     expect(GWInstance.network).toEqual("preview");
     expect(GWInstance.getParam("contractAddress")).toEqual(
-      "addr_test1qzt4mu987ghxdfdhgp42ac57x5vjpyc6hm8gurkvmhldg6tgpzrz0ht2a8faz0waqgsf42pz8rdajr7tf83p08nkdmqqlak2wl"
+      "addr_test1qzt4mu987ghxdfdhgp42ac57x5vjpyc6hm8gurkvmhldg6tgpzrz0ht2a8faz0waqgsf42pz8rdajr7tf83p08nkdmqqlak2wl",
     );
     expect(GWInstance.getParam("minLockAda")).toEqual(5_000_000n);
   });
@@ -62,13 +62,13 @@ describe("GummiWormLucid", () => {
     const { builtTx } = await deposit.build();
     const depositOutput = builtTx.txComplete.body().outputs().get(0);
     expect(depositOutput.amount().coin().to_str()).toEqual(
-      (10_000_000n + GWInstance.getParam("minLockAda")).toString()
+      (10_000_000n + GWInstance.getParam("minLockAda")).toString(),
     );
     expect(depositOutput.amount().multiasset()).toBeUndefined();
     expect(
       Buffer.from(
-        depositOutput.datum()?.as_data()?.get()?.to_bytes() as Uint8Array
-      ).toString("hex")
+        depositOutput.datum()?.as_data()?.get()?.to_bytes() as Uint8Array,
+      ).toString("hex"),
     ).toEqual(expectedDatum);
   });
 
@@ -96,7 +96,7 @@ describe("GummiWormLucid", () => {
 
     // Should include minLockAda
     expect(depositOutput.amount().coin().to_str()).toEqual(
-      GWInstance.getParam("minLockAda").toString()
+      GWInstance.getParam("minLockAda").toString(),
     );
 
     // Should include the deposited asset.
@@ -108,14 +108,14 @@ describe("GummiWormLucid", () => {
         .multiasset()
         ?.get_asset(
           C.ScriptHash.from_hex(policyId),
-          C.AssetName.new(Buffer.from(assetName, "hex"))
+          C.AssetName.new(Buffer.from(assetName, "hex")),
         )
-        .to_str()
+        .to_str(),
     ).toEqual(PREVIEW_DATA.assets.tindy.amount.toString());
     expect(
       Buffer.from(
-        depositOutput.datum()?.as_data()?.get()?.to_bytes() as Uint8Array
-      ).toString("hex")
+        depositOutput.datum()?.as_data()?.get()?.to_bytes() as Uint8Array,
+      ).toString("hex"),
     ).toEqual(expectedDatum);
   });
 });

@@ -8,13 +8,13 @@
     "./src/exports/testing.ts",
     "./src/exports/utilities.ts"
   ],
+  "entryModule": "README.md",
   "hideBreadcrumbs": true,
-  "hideInPageTOC": true,
   "excludeNotDocumented": true,
   "githubPages": false,
   "gitRevision": "main",
   "treatWarningsAsErrors": true,
-  "frontmatterTags": [
+  "frontmatterCommentTags": [
     "title",
     "layout",
     "nav_excluded",

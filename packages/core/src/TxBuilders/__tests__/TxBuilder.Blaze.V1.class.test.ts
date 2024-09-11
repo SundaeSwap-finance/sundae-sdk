@@ -30,14 +30,14 @@ const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
 
 spyOn(
   QueryProviderSundaeSwap.prototype,
-  "getProtocolParamsWithScriptHashes"
+  "getProtocolParamsWithScriptHashes",
 ).mockResolvedValue(params);
 spyOn(
   QueryProviderSundaeSwap.prototype,
-  "getProtocolParamsWithScripts"
+  "getProtocolParamsWithScripts",
 ).mockResolvedValue(params);
 spyOn(TxBuilderBlazeV3.prototype, "getSettingsUtxo").mockResolvedValue(
-  settingsUtxosBlaze[0]
+  settingsUtxosBlaze[0],
 );
 
 describe("TxBuilderBlazeV1", () => {
@@ -48,16 +48,16 @@ describe("TxBuilderBlazeV1", () => {
 
   it("should have the correct parameters", () => {
     expect(TxBuilderBlazeV1.getParam("cancelRedeemer", "preview")).toEqual(
-      "d87a80"
+      "d87a80",
     );
     expect(TxBuilderBlazeV1.getParam("cancelRedeemer", "mainnet")).toEqual(
-      "d87a80"
+      "d87a80",
     );
     expect(
-      TxBuilderBlazeV1.getParam("maxScooperFee", "preview").toString()
+      TxBuilderBlazeV1.getParam("maxScooperFee", "preview").toString(),
     ).toEqual("2500000");
     expect(
-      TxBuilderBlazeV1.getParam("maxScooperFee", "mainnet").toString()
+      TxBuilderBlazeV1.getParam("maxScooperFee", "mainnet").toString(),
     ).toEqual("2500000");
   });
 
@@ -98,7 +98,7 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(referralAddressOutput).not.toBeUndefined();
     expect(referralAddressOutput?.address().toBech32()).toEqual(
-      Core.PaymentAddress(TEST_REFERRAL_DEST)
+      Core.PaymentAddress(TEST_REFERRAL_DEST),
     );
 
     const txWithReferral = builder.newTxInstance({
@@ -126,7 +126,7 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(referralAddressOutput2).not.toBeUndefined();
     expect(referralAddressOutput2?.address().toBech32()).toEqual(
-      Core.PaymentAddress(TEST_REFERRAL_DEST)
+      Core.PaymentAddress(TEST_REFERRAL_DEST),
     );
 
     const txWithoutReferral = builder.newTxInstance();
@@ -177,11 +177,11 @@ describe("TxBuilderBlazeV1", () => {
         fundedAsset: expect.objectContaining({
           amount: PREVIEW_DATA.assets.tada.amount,
         }),
-      })
+      }),
     );
 
     expect(datum).toEqual(
-      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d8799fd879801a01312d00d8799f1a008cf2d7ffffff"
+      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d8799fd879801a01312d00d8799f1a008cf2d7ffffff",
     );
     expect(fees).toMatchObject({
       deposit: expect.objectContaining({
@@ -224,8 +224,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(inlineDatum).toBeUndefined();
     expect(depositOutput?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "98e1eb989d74f122c29502f3dda5c68416dae1cd4f4f69a31d49534ebfab4d9c"
-      )
+        "98e1eb989d74f122c29502f3dda5c68416dae1cd4f4f69a31d49534ebfab4d9c",
+      ),
     );
 
     const datumBytes = builtTx.witnessSet().plutusData()?.values()[0].toCbor();
@@ -256,7 +256,7 @@ describe("TxBuilderBlazeV1", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        DatumBuilderBlazeV1.INVALID_POOL_IDENT
+        DatumBuilderBlazeV1.INVALID_POOL_IDENT,
       );
     }
   });
@@ -326,8 +326,8 @@ describe("TxBuilderBlazeV1", () => {
           .multiasset()
           ?.get(
             Core.AssetId(
-              PREVIEW_DATA.assets.tindy.metadata.assetId.replace(".", "")
-            )
+              PREVIEW_DATA.assets.tindy.metadata.assetId.replace(".", ""),
+            ),
           )
           ?.toString() === "20000000" &&
         // deposit (2) + v1 scooper fee (2.5) + v1 scooper fee (2.5) +  = 7
@@ -344,8 +344,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(inlineDatum).toBeUndefined();
     expect(swapOutput?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "3043e2dc62f9e00a9374c71338c67bf3f55173cd11a713a31fa2f55e9a4ed428"
-      )
+        "3043e2dc62f9e00a9374c71338c67bf3f55173cd11a713a31fa2f55e9a4ed428",
+      ),
     );
 
     const datumBytes = builtTx.witnessSet().plutusData()?.values()?.[0];
@@ -363,8 +363,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(transactionMetadata).not.toBeUndefined();
     expect(transactionMetadata).toEqual(
       Core.HexBlob(
-        "a158202f046e481ae60ba18b449cda20c7c0878be2aee90ca79bbf3528f21b5478019585581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a021f1b48d8799f1a00f39ad2ff42ffff"
-      )
+        "a158202f046e481ae60ba18b449cda20c7c0878be2aee90ca79bbf3528f21b5478019585581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a021f1b48d8799f1a00f39ad2ff42ffff",
+      ),
     );
   });
 
@@ -432,8 +432,8 @@ describe("TxBuilderBlazeV1", () => {
           .multiasset()
           ?.get(
             Core.AssetId(
-              PREVIEW_DATA.assets.tindy.metadata.assetId.replace(".", "")
-            )
+              PREVIEW_DATA.assets.tindy.metadata.assetId.replace(".", ""),
+            ),
           )
           ?.toString() === "20000000" &&
         // deposit (2) + v1 scooper fee (2.5) + v3 scooper fee (1) +  = 5.5
@@ -460,15 +460,15 @@ describe("TxBuilderBlazeV1", () => {
     expect(transactionMetadata).not.toBeUndefined();
     expect(transactionMetadata?.toCbor()).toEqual(
       Core.HexBlob(
-        "a15820411c9ab96dc0cad6dbd8909e09c30874a276f1e2876a00b9bcf09659b57461e488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87a9f9f40401a021f1b48ff9f581c2fe3c3364b443194581fb10954771c95819b8d6ed464033c21f03f8facb544694254431a01d7af8aff46ff43d87980ff"
-      )
+        "a15820411c9ab96dc0cad6dbd8909e09c30874a276f1e2876a00b9bcf09659b57461e488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87a9f9f40401a021f1b48ff9f581c2fe3c3364b443194581fb10954771c95819b8d6ed464033c21f03f8facb544694254431a01d7af8aff46ff43d87980ff",
+      ),
     );
 
     expect(inlineDatum).toBeUndefined();
     expect(swapOutput?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "4692e72b72f032bea9362b94473df5aea4899b359ecbe69a6b6e36f4fa5a614c"
-      )
+        "4692e72b72f032bea9362b94473df5aea4899b359ecbe69a6b6e36f4fa5a614c",
+      ),
     );
   });
 
@@ -487,7 +487,7 @@ describe("TxBuilderBlazeV1", () => {
           pool: PREVIEW_DATA.pools.v1,
           suppliedLPAsset: new AssetAmount(
             100_000_000n,
-            PREVIEW_DATA.pools.v1.assetLP
+            PREVIEW_DATA.pools.v1.assetLP,
           ),
         },
         depositPool: PREVIEW_DATA.pools.v3,
@@ -524,7 +524,9 @@ describe("TxBuilderBlazeV1", () => {
           .amount()
           .multiasset()
           ?.get(
-            Core.AssetId(PREVIEW_DATA.pools.v1.assetLP.assetId.replace(".", ""))
+            Core.AssetId(
+              PREVIEW_DATA.pools.v1.assetLP.assetId.replace(".", ""),
+            ),
           )
           ?.toString() === "100000000" &&
         // deposit (2) + v1 scooper fee (2.5) + v3 scooper fee (1) +  = 5.5
@@ -540,8 +542,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(inlineDatum).toBeUndefined();
     expect(withdrawOutput?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561"
-      )
+        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561",
+      ),
     );
 
     const depositMetadata = builtTx
@@ -553,16 +555,16 @@ describe("TxBuilderBlazeV1", () => {
     expect(depositMetadata).not.toBeUndefined();
     expect(depositMetadata?.toCbor()).toEqual(
       Core.HexBlob(
-        "a158201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff"
-      )
+        "a158201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff",
+      ),
     );
 
     const datumBytes = builtTx.witnessSet().plutusData()?.values()?.[0];
     expect(datumBytes).not.toBeUndefined();
     expect(datumBytes?.toCbor()).toEqual(
       Core.HexBlob(
-        "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
-      )
+        "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff",
+      ),
     );
 
     expect(fees.cardanoTxFee?.amount).not.toBeUndefined();
@@ -627,7 +629,7 @@ describe("TxBuilderBlazeV1", () => {
           pool: PREVIEW_DATA.pools.v1,
           suppliedLPAsset: new AssetAmount(
             100_000_000n,
-            PREVIEW_DATA.pools.v1.assetLP
+            PREVIEW_DATA.pools.v1.assetLP,
           ),
         },
         depositPool: PREVIEW_DATA.pools.v3,
@@ -645,7 +647,7 @@ describe("TxBuilderBlazeV1", () => {
           pool: RBERRY_V1_POOL,
           suppliedLPAsset: new AssetAmount(
             100_000_000n,
-            RBERRY_V1_POOL.assetLP
+            RBERRY_V1_POOL.assetLP,
           ),
         },
         depositPool: RBERRY_V3_POOL,
@@ -656,7 +658,7 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(fees.cardanoTxFee).toBeUndefined();
     expect(fees.deposit.amount.toString()).toEqual(
-      (ORDER_DEPOSIT_DEFAULT * 2n).toString()
+      (ORDER_DEPOSIT_DEFAULT * 2n).toString(),
     );
     expect(fees.scooperFee.amount.toString()).toEqual(7_000_000n.toString());
 
@@ -686,7 +688,9 @@ describe("TxBuilderBlazeV1", () => {
           .amount()
           .multiasset()
           ?.get(
-            Core.AssetId(PREVIEW_DATA.pools.v1.assetLP.assetId.replace(".", ""))
+            Core.AssetId(
+              PREVIEW_DATA.pools.v1.assetLP.assetId.replace(".", ""),
+            ),
           )
           ?.toString() === "100000000" &&
         // deposit (2) + v1 scooper fee (2.5) + v3 scooper fee (1) +  = 5.5
@@ -707,13 +711,13 @@ describe("TxBuilderBlazeV1", () => {
     expect(withdrawOutput1?.datum()?.asInlineData()).toBeUndefined();
     expect(withdrawOutput1?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561"
-      )
+        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561",
+      ),
     );
     expect(withdrawOutput2?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a"
-      )
+        "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a",
+      ),
     );
 
     const transactionMetadata = builtTx
@@ -725,8 +729,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(transactionMetadata).not.toBeUndefined();
     expect(transactionMetadata?.toCbor()).toEqual(
       Core.HexBlob(
-        "a258201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff"
-      )
+        "a258201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff",
+      ),
     );
 
     const firstMigrationDatumBytes = builtTx
@@ -737,8 +741,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(firstMigrationDatumBytes).not.toBeUndefined();
     expect(firstMigrationDatumBytes?.toCbor()).toEqual(
       Core.HexBlob(
-        "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
-      )
+        "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff",
+      ),
     );
 
     const secondMigrationDatumBytes = builtTx
@@ -748,8 +752,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(secondMigrationDatumBytes).not.toBeUndefined();
     expect(secondMigrationDatumBytes?.toCbor()).toEqual(
       Core.HexBlob(
-        "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
-      )
+        "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff",
+      ),
     );
 
     expect(fees.cardanoTxFee?.amount).not.toBeUndefined();
@@ -805,23 +809,23 @@ describe("TxBuilderBlazeV1", () => {
         Core.TransactionUnspentOutput.fromCore([
           new Core.TransactionInput(
             Core.TransactionId(
-              "aaaf193b8418253f4169ab869b77dedd4ee3df4f2837c226cee3c2f7fa955189"
+              "aaaf193b8418253f4169ab869b77dedd4ee3df4f2837c226cee3c2f7fa955189",
             ),
-            0n
+            0n,
           ).toCore(),
           Core.TransactionOutput.fromCore({
             address: Core.getPaymentAddress(
               Core.addressFromBech32(
-                "addr_test1qzj89zakqu939ljqrpsu5r0eq8eysxsncs0jyylrcjxvn2eam2na4f9wm8yxqa9andqfvu80uykztpnkfj9ey6vxf95qz4nnaf"
-              )
+                "addr_test1qzj89zakqu939ljqrpsu5r0eq8eysxsncs0jyylrcjxvn2eam2na4f9wm8yxqa9andqfvu80uykztpnkfj9ey6vxf95qz4nnaf",
+              ),
             ),
             value: makeValue(20_000_000n).toCore(),
             scriptReference: Core.Script.newPlutusV2Script(
               new Core.PlutusV2Script(
                 Core.HexBlob(
-                  "5905df0100003232323232323232323232222325333009333323232323232323232300100122223253330163370e900000089919198070028009bae301c0013014004153330163370e90010008991919806000919998040040008030029bac301c0013014004153330163370e90020008991919804000919998040040008030029bac301c0013014004153330163370e900300089919191919b8900333300c00148000894ccc070cccc02c02c0080240204cdc0000a400420026eb0c078004c078008dd6980e000980a0020a99980b19b87480200044c8c8c8c94ccc068cdc3a400400226464a66603866e1d2002301e3754660306034660306034010900124004266e240040144cdc40008029bad3020001301800214a0603000266028602c66028602c0089001240006eb4c070004c0500104c8c8c8c94ccc068cdc3a400400226464a66603866e1d2002301e3754660306034660306034010900024004266e240140044cdc40028009bad3020001301800214a0603000266028602c66028602c0089000240006eb4c070004c050010c05000cc0040048894ccc05800852809919299980a18018010a51133300500500100330190033017002300100122225333015003100213232333300600600133003002004003301800430160033001001222533301200214a226464a6660206006004266600a00a0020062940c05400cc04c008c0040048894ccc04000852809919299980719b8f00200314a2266600a00a00200660260066eb8c044008cc014c01c005200037586600a600e6600a600e0049000240206600a600e6600a600e00490002401c2930b19002199191919119299980719b87480000044c8c8c8c94ccc058c0600084c926300700315330134901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016301600130160023014001300c002153300f4912b436f6e73747220696e64657820646964206e6f74206d6174636820616e7920747970652076617269616e740016300c00130010012232533300d3370e9000000899192999809980a8010a4c2a66020921334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016375c602600260160042a66601a66e1d20020011323253330133015002132498cc0180048c9263300600600115330104901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e20657870656374656400163758602600260160042a66601a66e1d20040011323253330133015002132498cc0180048c9263300600600115330104901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e20657870656374656400163758602600260160042a66601a66e1d200600113232323253330153017002132498cc0200048c9263300800800115330124901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e20657870656374656400163758602a002602a0046eb4c04c004c02c00854ccc034cdc3a401000226464a666026602a0042930a99808249334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016375a602600260160042a66601a66e1d200a0011323253330133015002149854cc0412401334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016375a602600260160042a6601c9212b436f6e73747220696e64657820646964206e6f74206d6174636820616e7920747970652076617269616e740016300b0013001001222533300f00214984c8ccc010010c04800c008c004c04000800ccc0040052000222233330073370e0020060184666600a00a66e000112002300e001002002230063754002460086ea80055cd2b9c5573aaae7955cfaba157441"
-                )
-              )
+                  "5905df0100003232323232323232323232222325333009333323232323232323232300100122223253330163370e900000089919198070028009bae301c0013014004153330163370e90010008991919806000919998040040008030029bac301c0013014004153330163370e90020008991919804000919998040040008030029bac301c0013014004153330163370e900300089919191919b8900333300c00148000894ccc070cccc02c02c0080240204cdc0000a400420026eb0c078004c078008dd6980e000980a0020a99980b19b87480200044c8c8c8c94ccc068cdc3a400400226464a66603866e1d2002301e3754660306034660306034010900124004266e240040144cdc40008029bad3020001301800214a0603000266028602c66028602c0089001240006eb4c070004c0500104c8c8c8c94ccc068cdc3a400400226464a66603866e1d2002301e3754660306034660306034010900024004266e240140044cdc40028009bad3020001301800214a0603000266028602c66028602c0089000240006eb4c070004c050010c05000cc0040048894ccc05800852809919299980a18018010a51133300500500100330190033017002300100122225333015003100213232333300600600133003002004003301800430160033001001222533301200214a226464a6660206006004266600a00a0020062940c05400cc04c008c0040048894ccc04000852809919299980719b8f00200314a2266600a00a00200660260066eb8c044008cc014c01c005200037586600a600e6600a600e0049000240206600a600e6600a600e00490002401c2930b19002199191919119299980719b87480000044c8c8c8c94ccc058c0600084c926300700315330134901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016301600130160023014001300c002153300f4912b436f6e73747220696e64657820646964206e6f74206d6174636820616e7920747970652076617269616e740016300c00130010012232533300d3370e9000000899192999809980a8010a4c2a66020921334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016375c602600260160042a66601a66e1d20020011323253330133015002132498cc0180048c9263300600600115330104901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e20657870656374656400163758602600260160042a66601a66e1d20040011323253330133015002132498cc0180048c9263300600600115330104901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e20657870656374656400163758602600260160042a66601a66e1d200600113232323253330153017002132498cc0200048c9263300800800115330124901334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e20657870656374656400163758602a002602a0046eb4c04c004c02c00854ccc034cdc3a401000226464a666026602a0042930a99808249334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016375a602600260160042a66601a66e1d200a0011323253330133015002149854cc0412401334c6973742f5475706c652f436f6e73747220636f6e7461696e73206d6f7265206974656d73207468616e2065787065637465640016375a602600260160042a6601c9212b436f6e73747220696e64657820646964206e6f74206d6174636820616e7920747970652076617269616e740016300b0013001001222533300f00214984c8ccc010010c04800c008c004c04000800ccc0040052000222233330073370e0020060184666600a00a66e000112002300e001002002230063754002460086ea80055cd2b9c5573aaae7955cfaba157441",
+                ),
+              ),
             ).toCore(),
           }).toCore(),
         ]),
@@ -830,15 +834,15 @@ describe("TxBuilderBlazeV1", () => {
         Core.TransactionUnspentOutput.fromCore([
           new Core.TransactionInput(
             Core.TransactionId(
-              "86124ca5d341877a57943a608c7d2175d87da8502b038fc0883559f76ea5e7ed"
+              "86124ca5d341877a57943a608c7d2175d87da8502b038fc0883559f76ea5e7ed",
             ),
-            0n
+            0n,
           ).toCore(),
           Core.TransactionOutput.fromCore({
             address: Core.getPaymentAddress(
               Core.addressFromBech32(
-                "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg"
-              )
+                "addr_test1zpejwku7yelajfalc9x0v57eqng48zkcs6fxp2mr30mn7hqyt4ru43gx0nnfw3uvzyz3m6untg2jupmn5ht5xzs3h25qyussyg",
+              ),
             ),
             value: makeValue(
               500_000_000n,
@@ -846,12 +850,12 @@ describe("TxBuilderBlazeV1", () => {
                 [RBERRY_V3_POOL.assetLP.assetId.replace(".", "")]: 100_000_000n,
                 [RBERRY_V1_POOL.assetLP.assetId.replace(".", "")]:
                   100_000_000_000n,
-              })
+              }),
             ).toCore(),
             datum: Core.PlutusData.fromCbor(
               Core.HexBlob(
-                "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
-              )
+                "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff",
+              ),
             ).toCore(),
             // datumHash: Core.Hash32ByteBase16(
             //   "ae02f4c4c993de87d8cfbf6b870326a97a0f4f674ff66ed895af257ff572c311"
@@ -870,9 +874,9 @@ describe("TxBuilderBlazeV1", () => {
           return res(
             Core.PlutusData.fromCbor(
               Core.HexBlob(
-                "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
-              )
-            )
+                "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff",
+              ),
+            ),
           );
         }
 
@@ -895,7 +899,7 @@ describe("TxBuilderBlazeV1", () => {
             pool: PREVIEW_DATA.pools.v1,
             suppliedLPAsset: new AssetAmount(
               100_000_000n,
-              PREVIEW_DATA.pools.v1.assetLP
+              PREVIEW_DATA.pools.v1.assetLP,
             ),
           },
           depositPool: PREVIEW_DATA.pools.v3,
@@ -913,7 +917,7 @@ describe("TxBuilderBlazeV1", () => {
             pool: RBERRY_V1_POOL,
             suppliedLPAsset: new AssetAmount(
               100_000_000n,
-              RBERRY_V1_POOL.assetLP
+              RBERRY_V1_POOL.assetLP,
             ),
           },
           depositPool: RBERRY_V3_POOL,
@@ -938,14 +942,14 @@ describe("TxBuilderBlazeV1", () => {
             index: 0,
           },
         ],
-      }
+      },
     );
 
     expect(datum).toBeUndefined();
 
     expect(fees.cardanoTxFee).toBeUndefined();
     expect(fees.deposit.amount.toString()).toEqual(
-      (ORDER_DEPOSIT_DEFAULT * 3n).toString()
+      (ORDER_DEPOSIT_DEFAULT * 3n).toString(),
     );
 
     // 3 scoops = 3x for 2.5 ADA v1 contract withdraw, and 1 ADA v3 contract deposit
@@ -975,7 +979,9 @@ describe("TxBuilderBlazeV1", () => {
           .amount()
           .multiasset()
           ?.get(
-            Core.AssetId(PREVIEW_DATA.pools.v1.assetLP.assetId.replace(".", ""))
+            Core.AssetId(
+              PREVIEW_DATA.pools.v1.assetLP.assetId.replace(".", ""),
+            ),
           )
           ?.toString() === "100000000" &&
         // deposit (2) + v1 scooper fee (2.5) + v3 scooper fee (1) +  = 5.5
@@ -994,18 +1000,18 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(withdrawOutput1?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561"
-      )
+        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561",
+      ),
     );
     expect(withdrawOutput2?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a"
-      )
+        "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a",
+      ),
     );
     expect(withdrawOutput3?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "6586e08bbf1bbffb10ba2388f2fa8855d3b616c313b96eb144947cf22d9c2ed2"
-      )
+        "6586e08bbf1bbffb10ba2388f2fa8855d3b616c313b96eb144947cf22d9c2ed2",
+      ),
     );
 
     const transactionMetadata = builtTx
@@ -1017,8 +1023,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(transactionMetadata).not.toBeUndefined();
     expect(transactionMetadata?.toCbor()).toEqual(
       Core.HexBlob(
-        "a358201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda44689581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c73275b9e267f581fd927bfc14cf653d904d1538ad8869260ab638bf73f5cffd8799fd8799fd879581f9f581c045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa8581fffffffffd87b9fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa077581f1919f5218b40691eea4514d0ff80ffffffd87b9f9f9f40401b0000001e4be5581fc9f7ff9f581cd441227553a0f1a965fee7d60a0f724b368dd1bddbc208730f581bccebcf465242455252591b00000011e5baa103ffffff43d87980ff"
-      )
+        "a358201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda44689581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c73275b9e267f581fd927bfc14cf653d904d1538ad8869260ab638bf73f5cffd8799fd8799fd879581f9f581c045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa8581fffffffffd87b9fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa077581f1919f5218b40691eea4514d0ff80ffffffd87b9f9f9f40401b0000001e4be5581fc9f7ff9f581cd441227553a0f1a965fee7d60a0f724b368dd1bddbc208730f581bccebcf465242455252591b00000011e5baa103ffffff43d87980ff",
+      ),
     );
 
     const secondMigrationDatumBytes = builtTx
@@ -1028,8 +1034,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(secondMigrationDatumBytes).not.toBeUndefined();
     expect(secondMigrationDatumBytes?.toCbor()).toEqual(
       Core.HexBlob(
-        "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
-      )
+        "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff",
+      ),
     );
 
     const thirdMigrationDatumBytes = builtTx
@@ -1039,8 +1045,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(thirdMigrationDatumBytes).not.toBeUndefined();
     expect(thirdMigrationDatumBytes?.toCbor()).toEqual(
       Core.HexBlob(
-        "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
-      )
+        "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff",
+      ),
     );
 
     const firstMigrationDatumBytes = builtTx
@@ -1050,8 +1056,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(firstMigrationDatumBytes).not.toBeUndefined();
     expect(firstMigrationDatumBytes?.toCbor()).toEqual(
       Core.HexBlob(
-        "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda446ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1b000000174876e800ffff"
-      )
+        "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda446ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1b000000174876e800ffff",
+      ),
     );
 
     expect(fees.cardanoTxFee?.amount).not.toBeUndefined();
@@ -1062,24 +1068,24 @@ describe("TxBuilderBlazeV1", () => {
       Core.TransactionUnspentOutput.fromCore([
         new Core.TransactionInput(
           Core.TransactionId(
-            PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.txHash
+            PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.txHash,
           ),
-          BigInt(PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.outputIndex)
+          BigInt(PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.outputIndex),
         ).toCore(),
         Core.TransactionOutput.fromCore({
           address: Core.getPaymentAddress(
             Core.Address.fromBech32(
-              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.address
-            )
+              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.address,
+            ),
           ),
           value: makeValue(
             PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.assets.lovelace,
             ...Object.entries(
-              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.assets
-            ).filter(([key]) => key !== "lovelace")
+              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.assets,
+            ).filter(([key]) => key !== "lovelace"),
           ).toCore(),
           datumHash: Core.Hash32ByteBase16(
-            PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datumHash as string
+            PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datumHash as string,
           ),
         }).toCore(),
       ]),
@@ -1088,9 +1094,9 @@ describe("TxBuilderBlazeV1", () => {
     resolveDatumMock.mockResolvedValueOnce(
       Core.PlutusData.fromCbor(
         Core.HexBlob(
-          PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum as string
-        )
-      )
+          PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum as string,
+        ),
+      ),
     );
 
     const { build, datum, fees } = await builder.cancel({
@@ -1102,7 +1108,7 @@ describe("TxBuilderBlazeV1", () => {
     });
 
     expect(datum).toEqual(
-      PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum as string
+      PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum as string,
     );
     expect(fees).toMatchObject({
       deposit: expect.objectContaining({
@@ -1125,14 +1131,14 @@ describe("TxBuilderBlazeV1", () => {
             input.transactionId() ===
               PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.txHash &&
             input.index().toString() ===
-              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.outputIndex.toString()
-        )
+              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.outputIndex.toString(),
+        ),
     ).not.toBeNull();
 
     expect(builtTx.witnessSet().plutusData()?.values()?.[0].toCbor()).toEqual(
       Core.HexBlob(
-        PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum as string
-      )
+        PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum as string,
+      ),
     );
   });
 
@@ -1142,26 +1148,26 @@ describe("TxBuilderBlazeV1", () => {
       Core.TransactionUnspentOutput.fromCore([
         new Core.TransactionInput(
           Core.TransactionId(
-            PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.txHash
+            PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.txHash,
           ),
-          BigInt(PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.outputIndex)
+          BigInt(PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.outputIndex),
         ).toCore(),
         Core.TransactionOutput.fromCore({
           address: Core.getPaymentAddress(
             Core.addressFromBech32(
-              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.address
-            )
+              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.address,
+            ),
           ),
           value: makeValue(
             PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.assets.lovelace,
             ...Object.entries(
-              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.assets
-            ).filter(([key]) => key !== "lovelace")
+              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.assets,
+            ).filter(([key]) => key !== "lovelace"),
           ).toCore(),
           datum: Core.PlutusData.fromCbor(
             Core.HexBlob(
-              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.datum as string
-            )
+              PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.datum as string,
+            ),
           ).toCore(),
         }).toCore(),
       ]),
@@ -1185,7 +1191,7 @@ describe("TxBuilderBlazeV1", () => {
     const spiedNewTx = spyOn(builder, "newTxInstance");
     const spiedBuildWithdrawDatum = spyOn(
       builder.datumBuilder,
-      "buildWithdrawDatum"
+      "buildWithdrawDatum",
     );
 
     const { build, fees, datum } = await builder.withdraw({
@@ -1208,11 +1214,11 @@ describe("TxBuilderBlazeV1", () => {
         suppliedLPAsset: expect.objectContaining({
           amount: 100_000_000n,
         }),
-      })
+      }),
     );
 
     expect(datum).toEqual(
-      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d87a9f1a05f5e100ffff"
+      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d87a9f1a05f5e100ffff",
     );
     expect(fees).toMatchObject({
       deposit: expect.objectContaining({
@@ -1246,8 +1252,8 @@ describe("TxBuilderBlazeV1", () => {
           .multiasset()
           ?.get(
             Core.AssetId(
-              PREVIEW_DATA.assets.v1LpToken.metadata.assetId.replace(".", "")
-            )
+              PREVIEW_DATA.assets.v1LpToken.metadata.assetId.replace(".", ""),
+            ),
           )
       ) {
         withdrawOutput = output;
@@ -1260,8 +1266,8 @@ describe("TxBuilderBlazeV1", () => {
     expect(inlineDatum).toBeUndefined();
     expect(withdrawOutput?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "cfc0f78bf969f77692696fc06c20e605187e7c77a13168e42c8ec121e79e51bd"
-      )
+        "cfc0f78bf969f77692696fc06c20e605187e7c77a13168e42c8ec121e79e51bd",
+      ),
     );
 
     const datumBytes = builtTx.witnessSet().plutusData()?.values()?.[0];

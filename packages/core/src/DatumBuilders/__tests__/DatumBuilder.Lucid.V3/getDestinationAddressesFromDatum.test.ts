@@ -17,10 +17,10 @@ describe("static getDestinationAddressesFromDatum()", () => {
   it("should properly extract the addresses from the datum", () => {
     expect(
       DatumBuilderLucidV3.getDestinationAddressesFromDatum(
-        V3_EXPECTATIONS.getDestinationFromDatum[0].args
-      )
+        V3_EXPECTATIONS.getDestinationFromDatum[0].args,
+      ),
     ).toMatchObject(
-      V3_EXPECTATIONS.getDestinationFromDatum[0].expectations.result
+      V3_EXPECTATIONS.getDestinationFromDatum[0].expectations.result,
     );
   });
 });

@@ -13,7 +13,7 @@ import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
 export class DepositConfig extends OrderConfig<IDepositConfigArgs> {
   suppliedAssets?: [
     AssetAmount<IAssetAmountMetadata>,
-    AssetAmount<IAssetAmountMetadata>
+    AssetAmount<IAssetAmountMetadata>,
   ];
 
   constructor(args?: IDepositConfigArgs) {
@@ -25,8 +25,8 @@ export class DepositConfig extends OrderConfig<IDepositConfigArgs> {
   setSuppliedAssets(
     assets: [
       AssetAmount<IAssetAmountMetadata>,
-      AssetAmount<IAssetAmountMetadata>
-    ]
+      AssetAmount<IAssetAmountMetadata>,
+    ],
   ) {
     this.suppliedAssets = assets;
     return this;
@@ -40,7 +40,7 @@ export class DepositConfig extends OrderConfig<IDepositConfigArgs> {
       pool: this.pool as IPoolData,
       suppliedAssets: this.suppliedAssets as [
         AssetAmount<IAssetAmountMetadata>,
-        AssetAmount<IAssetAmountMetadata>
+        AssetAmount<IAssetAmountMetadata>,
       ],
       referralFee: this.referralFee,
     };
@@ -63,7 +63,7 @@ export class DepositConfig extends OrderConfig<IDepositConfigArgs> {
 
     if (!this.suppliedAssets) {
       throw new Error(
-        "You did not provided funding for this deposit! Make sure you supply both sides of the pool with .setSuppliedAssets()"
+        "You did not provided funding for this deposit! Make sure you supply both sides of the pool with .setSuppliedAssets()",
       );
     }
   }

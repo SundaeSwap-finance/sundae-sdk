@@ -1,12 +1,17 @@
+[**@sundaeswap/taste-test**](../README.md) • **Docs**
+
+***
+
 # Interface: IComposedTx\<Transaction, BuiltTransaction, Datum, Fees\>
 
 The primary top-level API surface for dealing with built TxBuilder transactions.
 
-## Type parameters
+## Type Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `Transaction` | `unknown` |
-| `BuiltTransaction` | `unknown` |
-| `Datum` | `string` \| `undefined` |
-| `Fees` | `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\> |
+• **Transaction** = `unknown`
+
+• **BuiltTransaction** = `unknown`
+
+• **Datum** = `string` \| `undefined`
+
+• **Fees** = `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>

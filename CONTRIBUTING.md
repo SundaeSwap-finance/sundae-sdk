@@ -10,10 +10,10 @@ Do not hesitate to upvote discussions or comments to show your interest!
 
 #### 2. Code
 
-After running `yarn install`, you can run the following to ensure tests pass:
+After running `bun install`, you can run the following to ensure tests pass:
 
 ```
-yarn test
+buntest
 ```
 
 This is also an automatic hook with each commit.

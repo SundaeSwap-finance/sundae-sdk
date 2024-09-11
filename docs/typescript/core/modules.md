@@ -1,9 +1,13 @@
+[**@sundaeswap/core**](README.md) • **Docs**
+
+***
+
 # @sundaeswap/core
 
 ## Modules
 
-- [Blaze](modules/Blaze.md)
-- [Core](modules/Core.md)
-- [Lucid](modules/Lucid.md)
-- [Testing](modules/Testing.md)
-- [Utilities](modules/Utilities.md)
+- [Blaze](Blaze/README.md)
+- [Core](Core/README.md)
+- [Lucid](Lucid/README.md)
+- [Testing](Testing/README.md)
+- [Utilities](Utilities/README.md)

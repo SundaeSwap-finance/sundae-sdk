@@ -6,7 +6,7 @@ import { EContractVersion } from "../@types/txbuilders.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { ADA_METADATA } from "../constants.js";
 
-export interface LocalUtxo {
+export interface ILocalUtxo {
   txHash: string;
   outputIndex: number;
   assets: Record<string, bigint>;
@@ -35,13 +35,13 @@ interface INetworkData {
   orderAddresses: TOrderAddressesArgs;
   wallet: {
     assets: Record<string, bigint>;
-    utxos: LocalUtxo[];
+    utxos: ILocalUtxo[];
     referenceUtxos: {
-      previewYieldFarming: LocalUtxo;
+      previewYieldFarming: ILocalUtxo;
     };
     submittedOrderUtxos: {
-      swapV1: LocalUtxo;
-      swapV3: LocalUtxo;
+      swapV1: ILocalUtxo;
+      swapV3: ILocalUtxo;
     };
   };
 }

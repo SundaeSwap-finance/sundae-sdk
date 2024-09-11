@@ -64,7 +64,7 @@ describe("Config", () => {
 
     configWithAmount.setReferralFee(amountConfig);
     expect(() => configWithAmount.buildArgs()).toThrowError(
-      new Error(configWithAmount.INVALID_FEE_AMOUNT)
+      new Error(configWithAmount.INVALID_FEE_AMOUNT),
     );
   });
 });

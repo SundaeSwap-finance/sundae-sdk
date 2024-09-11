@@ -58,7 +58,7 @@ describe("OrderConfig", () => {
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toStrictEqual(
-        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
+        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()",
       );
     }
   });
@@ -79,7 +79,7 @@ describe("OrderConfig", () => {
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toStrictEqual(
-        "You haven't set a pool in your Config. Set a pool with .setPool()"
+        "You haven't set a pool in your Config. Set a pool with .setPool()",
       );
     }
   });

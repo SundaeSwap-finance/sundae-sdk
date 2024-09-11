@@ -7,7 +7,7 @@ import { Config } from "./Config.abstract.class.js";
  *
  * @template Args The type of the arguments object, defaulting to an empty object.
  */
-export abstract class LiquidityConfig<Args = {}> extends Config<Args> {
+export abstract class LiquidityConfig<Args = object> extends Config<Args> {
   /**
    * The addresses for the order.
    */
@@ -33,7 +33,7 @@ export abstract class LiquidityConfig<Args = {}> extends Config<Args> {
 
     if (!this.orderAddresses) {
       throw new Error(
-        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
+        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()",
       );
     }
   }

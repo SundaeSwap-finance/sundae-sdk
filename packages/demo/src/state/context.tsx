@@ -58,7 +58,7 @@ export const AppStateProvider: FC<
   const [useReferral, setUseReferral] = useState(false);
   const [useV3Contracts, setUseV3Contracts] = useState(false);
   const [builderLib, setBuilderLib] = useState<ETxBuilderType>(
-    ETxBuilderType.BLAZE
+    ETxBuilderType.BLAZE,
   );
   const [network, setNetwork] = useState<0 | 1>(0);
 
@@ -83,12 +83,12 @@ export const AppStateProvider: FC<
         setActiveWalletAddr(bech32);
 
         const keyhash = C.Ed25519KeyHash.from_hex(
-          paymentCredential?.hash as string
+          paymentCredential?.hash as string,
         );
 
         const enterprise = C.EnterpriseAddress.new(
           0,
-          C.StakeCredential.from_keyhash(keyhash)
+          C.StakeCredential.from_keyhash(keyhash),
         )
           ?.to_address()
           .to_bech32("addr_test");

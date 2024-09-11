@@ -8,7 +8,7 @@ nav_order: 2
 # Getting Started with Taste Tests
 
 ```bash
-$ yarn add @sundaeswap/yield-farming lucid-cardano
+$ bun add @sundaeswap/yield-farming lucid-cardano
 ```
 
 Next, configure the instance in your app:

@@ -18,7 +18,7 @@ afterEach(() => {
 describe("buildWithdrawDatum()", () => {
   it("should correctly build the datum, variation 1", () => {
     const result = builderInstance.buildWithdrawDatum(
-      expectations[0].args as IWithdrawArguments
+      expectations[0].args as IWithdrawArguments,
     );
 
     expect(result.inline).toEqual(expectations[0].expectations.inline);

@@ -19,30 +19,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
-
-      - name: Setting up Node.js 18.x
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
-          registry-url: "https://registry.npmjs.org"
-          scope: "@sundaeswap"
-          cache: yarn
 
       # Install dependencies
       - name: Install
-        run: yarn install --frozen-lockfile --ignore-scripts
+        run: bun install --frozen-lockfile --ignore-scripts
 
       # Build dist folders
       - name: Build
-        run: yarn build
+        run: bun run build
 
       # Run Tests
       - name: Run Tests
-        run: yarn test
+        run: bun test:all
 
       # Git Identity
       - name: Git Identity
@@ -55,15 +48,16 @@ jobs:
 
       # Bump Versions (reinstate after release)
       - name: Bump versions
-        run: yarn version:ci
+        run: bun version:ci
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Configure npm authentication
+        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_ACCESS_TOKEN }}
+
       # Create Release
       - name: Publish
-        run: yarn publish:ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+        run: bun publish:ci
 
   # Deploy Documentation
   docs:

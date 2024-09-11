@@ -16,17 +16,17 @@ afterEach(() => {
 describe("buildOwnerDatum()", () => {
   it("should build the owner datum properly", () => {
     const result = builderInstance.buildOwnerDatum(
-      V3_EXPECTATIONS.buildOwnerDatum[0].args
+      V3_EXPECTATIONS.buildOwnerDatum[0].args,
     );
 
     expect(result.inline).toEqual(
-      V3_EXPECTATIONS.buildOwnerDatum[0].expectations.inline
+      V3_EXPECTATIONS.buildOwnerDatum[0].expectations.inline,
     );
     expect(result.hash).toEqual(
-      V3_EXPECTATIONS.buildOwnerDatum[0].expectations.hash
+      V3_EXPECTATIONS.buildOwnerDatum[0].expectations.hash,
     );
     expect(result.schema).toMatchObject(
-      V3_EXPECTATIONS.buildOwnerDatum[0].expectations.schemaMatch
+      V3_EXPECTATIONS.buildOwnerDatum[0].expectations.schemaMatch,
     );
   });
 });

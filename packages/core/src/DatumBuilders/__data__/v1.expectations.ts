@@ -27,7 +27,7 @@ export const V1_EXPECTATIONS = {
           deposit: {
             CoinAAmount: new AssetAmount(
               100n,
-              PREVIEW_DATA.assets.tada.metadata
+              PREVIEW_DATA.assets.tada.metadata,
             ),
             CoinBAmount: new AssetAmount(100n, {
               ...ADA_METADATA,
@@ -261,7 +261,7 @@ export const V1_EXPECTATIONS = {
         ident: PREVIEW_DATA.pools.v1.ident,
         fundedAsset: new AssetAmount(
           10_000_000n,
-          PREVIEW_DATA.assets.tada.metadata
+          PREVIEW_DATA.assets.tada.metadata,
         ),
         swap: {
           SuppliedCoin: EPoolCoin.A,
@@ -293,7 +293,7 @@ export const V1_EXPECTATIONS = {
         ident: PREVIEW_DATA.pools.v1.ident,
         suppliedLPAsset: new AssetAmount(
           100n,
-          PREVIEW_DATA.assets.tada.metadata
+          PREVIEW_DATA.assets.tada.metadata,
         ),
         scooperFee: 1_000_000n,
       },

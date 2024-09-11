@@ -142,7 +142,7 @@ export const AddressSchema = Data.Object({
   stakeCredential: Data.Nullable(
     Data.Object({
       keyHash: CredentialSchema,
-    })
+    }),
   ),
 });
 export type TAddressSchema = Data.Static<typeof AddressSchema>;

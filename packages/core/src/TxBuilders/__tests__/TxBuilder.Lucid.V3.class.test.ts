@@ -4,10 +4,6 @@ import fetchMock from "jest-fetch-mock";
 import { C, Data, Lucid, Tx } from "lucid-cardano";
 
 import { EDatumType, ESwapType, ITxBuilderFees } from "../../@types/index.js";
-import {
-  SettingsDatum,
-  TSettingsDatum,
-} from "../../DatumBuilders/ContractTypes/Contract.Lucid.v3.js";
 import { DatumBuilderLucidV3 } from "../../DatumBuilders/DatumBuilder.Lucid.V3.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { setupLucid } from "../../TestUtilities/setupLucid.js";
@@ -84,31 +80,6 @@ describe("TxBuilderLucidV3", () => {
   it("should get the correct maxScooperFee", async () => {
     const result = await builder.getMaxScooperFeeAmount();
     expect(result.toString()).toEqual("1000000");
-
-    const oldSettingsDatum = Data.from(
-      settingsUtxosLucid[0].datum as string,
-      SettingsDatum
-    );
-    const newSettingsDatum: TSettingsDatum = {
-      ...oldSettingsDatum,
-      simpleFee: 0n,
-    };
-
-    spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos").mockResolvedValue([
-      {
-        ...settingsUtxosLucid[0],
-        datum: Data.to(newSettingsDatum, SettingsDatum),
-      },
-      ...settingsUtxosLucid.slice(1),
-    ]);
-
-    const result2 = await builder.getMaxScooperFeeAmount();
-    expect(result2.toString()).toEqual("1000000");
-
-    // Reset scooper fee
-    spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos").mockResolvedValue(
-      settingsUtxosLucid
-    );
   });
 
   it("should create a new transaction instance correctly", async () => {

@@ -25,7 +25,7 @@ export const AddressSchema = Data.Object({
   stakeCredential: Data.Nullable(
     Data.Object({
       keyHash: CredentialSchema,
-    })
+    }),
   ),
 });
 
