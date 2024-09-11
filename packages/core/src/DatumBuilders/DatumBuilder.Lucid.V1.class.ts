@@ -163,7 +163,7 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
 
   buildSwapDirection(
     swap: TSwap,
-    amount: AssetAmount<IAssetAmountMetadata>
+    amount: AssetAmount<IAssetAmountMetadata>,
   ): TDatumResult<TSwapDirection> {
     const datum: TSwapDirection = {
       amount: amount.amount,
@@ -183,7 +183,7 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
   }
 
   buildOrderAddresses(
-    addresses: TOrderAddressesArgs
+    addresses: TOrderAddressesArgs,
   ): TDatumResult<TOrderAddresses> {
     LucidHelper.validateAddressAndDatumAreValid({
       ...addresses.DestinationAddress,
@@ -201,17 +201,17 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
 
     const { DestinationAddress, AlternateAddress } = addresses;
     const destinationHashes = LucidHelper.getAddressHashes(
-      DestinationAddress.address
+      DestinationAddress.address,
     );
 
     if (DestinationAddress.datum.type === EDatumType.INLINE) {
       throw new Error(
-        "Inline datum types are not supported in V1 contracts! Convert this to a hash."
+        "Inline datum types are not supported in V1 contracts! Convert this to a hash.",
       );
     }
 
     const destinationAddressCredentialType = LucidHelper.isScriptAddress(
-      DestinationAddress.address
+      DestinationAddress.address,
     )
       ? ("ScriptHash" as keyof TDestination["credentials"]["paymentKey"])
       : "KeyHash";
@@ -245,7 +245,8 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
     const datum: TOrderAddresses = {
       destination,
       alternate: alternateHashes
-        ? alternateHashes.stakeCredentials ?? alternateHashes.paymentCredentials
+        ? (alternateHashes.stakeCredentials ??
+          alternateHashes.paymentCredentials)
         : null,
     };
 

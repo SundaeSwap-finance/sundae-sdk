@@ -27,7 +27,7 @@ export abstract class AbstractTasteTest {
    * IComposedTx instance, representing the constructed transaction for the deposit.
    */
   abstract deposit(
-    args: IDepositArgs
+    args: IDepositArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>>;
 
   /**
@@ -42,7 +42,7 @@ export abstract class AbstractTasteTest {
    * IComposedTx instance, representing the constructed transaction for the update.
    */
   abstract update(
-    args: IUpdateArgs
+    args: IUpdateArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>>;
 
   /**
@@ -56,6 +56,6 @@ export abstract class AbstractTasteTest {
    * IComposedTx instance, representing the constructed transaction for the withdrawal.
    */
   abstract withdraw(
-    args: IWithdrawArgs
+    args: IWithdrawArgs,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>>;
 }

@@ -1,3 +1,5 @@
+import { beforeEach, describe, expect, it } from "bun:test";
+
 import { EDatumType, EPoolCoin, IZapConfigArgs } from "../../@types/index.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { ZapConfig } from "../ZapConfig.class";
@@ -143,33 +145,33 @@ describe("ZapConfig class", () => {
 
   it("should throw the correct errors when building the config", () => {
     expect(() => config.validate()).toThrowError(
-      "You haven't set a pool in your Config. Set a pool with .setPool()"
+      "You haven't set a pool in your Config. Set a pool with .setPool()",
     );
     config.setPool(PREVIEW_DATA.pools.v1);
 
     expect(() => config.validate()).toThrowError(
-      "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
+      "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()",
     );
     config.setOrderAddresses(PREVIEW_DATA.orderAddresses);
 
     expect(() => config.validate()).toThrowError(
-      "You did not provided funding for this deposit! Make sure you supply both sides of the pool with .setSuppliedAssets()"
+      "You did not provided funding for this deposit! Make sure you supply both sides of the pool with .setSuppliedAssets()",
     );
     config.setSuppliedAsset(PREVIEW_DATA.assets.tada);
 
     expect(() => config.validate()).toThrowError(
-      "You did not provide a Zap Direction for this deposit! Make sure you supply the Zap Direction with .setZapDirection()"
+      "You did not provide a Zap Direction for this deposit! Make sure you supply the Zap Direction with .setZapDirection()",
     );
     config.setZapDirection(EPoolCoin.A);
 
     config.setSwapSlippage(-1);
     expect(() => config.validate()).toThrowError(
-      "You provided an invalid number for the desired swap slippage. Please choose a float number between 0 and 1."
+      "You provided an invalid number for the desired swap slippage. Please choose a float number between 0 and 1.",
     );
 
     config.setSwapSlippage(1.1);
     expect(() => config.validate()).toThrowError(
-      "You provided an invalid number for the desired swap slippage. Please choose a float number between 0 and 1."
+      "You provided an invalid number for the desired swap slippage. Please choose a float number between 0 and 1.",
     );
   });
 });

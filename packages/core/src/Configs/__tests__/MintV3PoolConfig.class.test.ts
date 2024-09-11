@@ -1,3 +1,5 @@
+import { beforeEach, describe, expect, it } from "bun:test";
+
 import { IMintV3PoolConfigArgs } from "../../@types/configs.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { MintV3PoolConfig } from "../MintV3PoolConfig.class.js";
@@ -23,9 +25,7 @@ describe("MintV3PoolConfig class", () => {
   it("should construct with a config", () => {
     const myConfig = new MintV3PoolConfig(defaultArgs);
 
-    expect(myConfig.buildArgs()).toMatchObject<
-      ReturnType<(typeof myConfig)["buildArgs"]>
-    >({
+    expect(myConfig.buildArgs()).toMatchObject({
       assetA: expect.objectContaining({
         amount: PREVIEW_DATA.assets.tada.amount,
       }),
@@ -38,7 +38,7 @@ describe("MintV3PoolConfig class", () => {
       },
       marketOpen: 0n,
       ownerAddress: "addr_test",
-    });
+    } as ReturnType<(typeof myConfig)["buildArgs"]>);
   });
 
   it("should fail when any of the fees surpass the max fee", () => {
@@ -46,18 +46,18 @@ describe("MintV3PoolConfig class", () => {
       new MintV3PoolConfig({
         ...defaultArgs,
         fees: 11_000n,
-      }).buildArgs()
+      }).buildArgs(),
     ).toThrowError(
-      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
     );
 
     expect(() =>
       new MintV3PoolConfig({
         ...defaultArgs,
         fees: 10n,
-      }).buildArgs()
+      }).buildArgs(),
     ).not.toThrowError(
-      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+      `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
     );
   });
 
@@ -69,9 +69,9 @@ describe("MintV3PoolConfig class", () => {
           bid: 10n,
           ask: 11_000n,
         },
-      }).buildArgs()
+      }).buildArgs(),
     ).toThrowError(
-      `Ask fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+      `Ask fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
     );
   });
 
@@ -83,9 +83,9 @@ describe("MintV3PoolConfig class", () => {
           bid: 11_000n,
           ask: 10n,
         },
-      }).buildArgs()
+      }).buildArgs(),
     ).toThrowError(
-      `Bid fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+      `Bid fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
     );
   });
 });

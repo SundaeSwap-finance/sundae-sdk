@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeAll, spyOn, type Mock } from "bun:test";
 
 import { Emulator, EmulatorProvider } from "@blaze-cardano/emulator";
 import { Blaze, ColdWallet, Core, makeValue } from "@blaze-cardano/sdk";
@@ -10,7 +10,7 @@ const convertedOutputs = PREVIEW_DATA.wallet.utxos.map((utxo) => {
     address: Core.PaymentAddress(utxo.address),
     value: makeValue(
       utxo.assets.lovelace,
-      ...Object.entries(utxo.assets).filter(([key]) => key !== "lovelace")
+      ...Object.entries(utxo.assets).filter(([key]) => key !== "lovelace"),
     ).toCore(),
     datum: utxo.datum
       ? Core.PlutusData.fromCbor(Core.HexBlob(utxo.datum)).toCore()
@@ -26,37 +26,31 @@ export const setupBlaze = (
   options?: {
     customUtxos?: Core.TransactionOutput[];
     beforeAll?: () => void;
-  }
+  },
 ): {
-  getUtxosByOutRefMock: jest.SpiedFunction<
+  getUtxosByOutRefMock: Mock<
     (txIns: Core.TransactionInput[]) => Promise<Core.TransactionUnspentOutput[]>
   >;
-  getUtxosMock: jest.SpiedFunction<
+  getUtxosMock: Mock<
     (address: Core.Address) => Promise<Core.TransactionUnspentOutput[]>
   >;
-  resolveDatumMock: jest.SpiedFunction<
+  resolveDatumMock: Mock<
     (datumHash: Core.DatumHash) => Promise<Core.PlutusData>
   >;
   ownerAddress: string;
 } => {
-  const getUtxosByOutRefMock = jest.spyOn(
+  const getUtxosByOutRefMock = spyOn(
     EmulatorProvider.prototype,
-    "resolveUnspentOutputs"
+    "resolveUnspentOutputs",
   );
-  const getUtxosMock = jest.spyOn(
-    EmulatorProvider.prototype,
-    "getUnspentOutputs"
-  );
-  const resolveDatumMock = jest.spyOn(
-    EmulatorProvider.prototype,
-    "resolveDatum"
-  );
+  const getUtxosMock = spyOn(EmulatorProvider.prototype, "getUnspentOutputs");
+  const resolveDatumMock = spyOn(EmulatorProvider.prototype, "resolveDatum");
 
   beforeAll(async () => {
     options?.beforeAll?.();
 
     global.window = {
-      // @ts-ignore
+      // @ts-expect-error Type mismatches.
       cardano: windowCardano,
     };
 
@@ -68,8 +62,8 @@ export const setupBlaze = (
       new ColdWallet(
         Core.addressFromBech32(PREVIEW_DATA.addresses.current),
         Core.NetworkId.Testnet,
-        new EmulatorProvider(emulator)
-      )
+        new EmulatorProvider(emulator),
+      ),
     );
 
     await useBlaze?.(blaze);

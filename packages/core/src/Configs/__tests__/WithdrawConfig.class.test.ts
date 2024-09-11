@@ -1,4 +1,5 @@
 import { AssetAmount } from "@sundaeswap/asset";
+import { beforeEach, describe, expect, it } from "bun:test";
 
 import { EDatumType } from "../../@types/index.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
@@ -69,7 +70,7 @@ describe("WithdrawConfig class", () => {
 
   it("should throw an error if a pool isn't set", () => {
     config.setSuppliedLPAsset(
-      new AssetAmount(20n, { assetId: "tINDY", decimals: 6 })
+      new AssetAmount(20n, { assetId: "tINDY", decimals: 6 }),
     );
 
     try {
@@ -77,7 +78,7 @@ describe("WithdrawConfig class", () => {
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toStrictEqual(
-        "You haven't set a pool in your Config. Set a pool with .setPool()"
+        "You haven't set a pool in your Config. Set a pool with .setPool()",
       );
     }
   });
@@ -93,7 +94,7 @@ describe("WithdrawConfig class", () => {
         },
       })
       .setSuppliedLPAsset(
-        new AssetAmount(20n, { assetId: "tINDY", decimals: 6 })
+        new AssetAmount(20n, { assetId: "tINDY", decimals: 6 }),
       );
 
     try {
@@ -101,7 +102,7 @@ describe("WithdrawConfig class", () => {
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toStrictEqual(
-        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
+        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()",
       );
     }
 
@@ -119,7 +120,7 @@ describe("WithdrawConfig class", () => {
           assetId:
             "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459",
           decimals: 6,
-        })
+        }),
       );
 
     try {
@@ -127,7 +128,7 @@ describe("WithdrawConfig class", () => {
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toStrictEqual(
-        "Invalid assetId: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459. You likely forgot to concatenate with a period, like so: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459"
+        "Invalid assetId: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459. You likely forgot to concatenate with a period, like so: fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
       );
     }
   });
@@ -140,7 +141,7 @@ describe("WithdrawConfig class", () => {
     } catch (e) {
       expect(e).toBeInstanceOf(Error);
       expect((e as Error).message).toStrictEqual(
-        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"
+        "You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()",
       );
     }
   });
@@ -187,7 +188,7 @@ describe("WithdrawConfig class", () => {
       config.validate();
     } catch (e) {
       expect((e as Error).message).toStrictEqual(
-        "There was no LP asset set! Set the LP token with .setSuppliedLPAsset()"
+        "There was no LP asset set! Set the LP token with .setSuppliedLPAsset()",
       );
     }
   });

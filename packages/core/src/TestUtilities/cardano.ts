@@ -1,11 +1,9 @@
-// @ts-nocheck
-
-import { jest } from "@jest/globals";
+import { mock } from "bun:test";
 import type { ProtocolParameters, WalletApi } from "lucid-cardano";
 
 import type { TSupportedNetworks } from "../@types/utilities.js";
 
-export interface WalletAPIResponses {
+export interface IWalletAPIResponses {
   balance: string;
   changeAddress: string;
   networkId: number;
@@ -16,7 +14,7 @@ export interface WalletAPIResponses {
   utxos: string[];
 }
 
-const walletApiResponses: WalletAPIResponses = {
+const walletApiResponses: IWalletAPIResponses = {
   balance:
     "821a89c8606ba1581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a0584eba0",
   changeAddress:
@@ -45,58 +43,50 @@ const walletApiResponses: WalletAPIResponses = {
 
 const mockAPI: WalletApi = {
   experimental: {
-    getCollateral: jest
-      .fn<() => Promise<string[]>>()
-      .mockImplementation(() => Promise.resolve([walletApiResponses.utxos[0]])),
-    off: jest.fn(),
-    on: jest.fn(),
+    getCollateral: mock<() => Promise<string[]>>().mockImplementation(() =>
+      Promise.resolve([walletApiResponses.utxos[0]]),
+    ),
+    off: mock(),
+    on: mock(),
   },
-  getBalance: jest
-    .fn<() => Promise<string>>()
-    .mockImplementation(() => Promise.resolve(walletApiResponses.balance)),
-  getChangeAddress: jest
-    .fn<() => Promise<string>>()
-    .mockImplementation(() =>
-      Promise.resolve(walletApiResponses.changeAddress)
-    ),
-  getNetworkId: jest
-    .fn<() => Promise<number>>()
-    .mockImplementation(() => Promise.resolve(walletApiResponses.networkId)),
-  getRewardAddresses: jest
-    .fn<() => Promise<string[]>>()
-    .mockImplementation(() =>
-      Promise.resolve(walletApiResponses.rewardAddresses)
-    ),
-  getCollateral: jest
-    .fn<() => Promise<string[]>>()
-    .mockImplementation(() => Promise.resolve(walletApiResponses.collateral)),
-  getUnusedAddresses: jest
-    .fn<() => Promise<string[]>>()
-    .mockImplementation(() =>
-      Promise.resolve(walletApiResponses.unusedAddresses)
-    ),
-  getUsedAddresses: jest
-    .fn<() => Promise<string[]>>()
-    .mockImplementation(() =>
-      Promise.resolve(walletApiResponses.usedAddresses)
-    ),
-  getUtxos: jest
-    .fn<() => Promise<string[]>>()
-    .mockImplementation(() => Promise.resolve(walletApiResponses.utxos)),
-  submitTx: jest
-    .fn<() => Promise<string>>()
-    .mockImplementation(() => Promise.resolve("test-preview-txhash")),
-  signData: jest
-    .fn<() => Promise<{ signature: string; key: string }>>()
-    .mockImplementation(() =>
-      Promise.resolve({
-        signature: "test-preview-signature",
-        key: "test-preview-key",
-      })
-    ),
-  signTx: jest
-    .fn<() => Promise<string>>()
-    .mockImplementation(() => Promise.resolve("test-preview-signedtx")),
+  getBalance: mock<() => Promise<string>>().mockImplementation(() =>
+    Promise.resolve(walletApiResponses.balance),
+  ),
+  getChangeAddress: mock<() => Promise<string>>().mockImplementation(() =>
+    Promise.resolve(walletApiResponses.changeAddress),
+  ),
+  getNetworkId: mock<() => Promise<number>>().mockImplementation(() =>
+    Promise.resolve(walletApiResponses.networkId),
+  ),
+  getRewardAddresses: mock<() => Promise<string[]>>().mockImplementation(() =>
+    Promise.resolve(walletApiResponses.rewardAddresses),
+  ),
+  getCollateral: mock<() => Promise<string[]>>().mockImplementation(() =>
+    Promise.resolve(walletApiResponses.collateral),
+  ),
+  getUnusedAddresses: mock<() => Promise<string[]>>().mockImplementation(() =>
+    Promise.resolve(walletApiResponses.unusedAddresses),
+  ),
+  getUsedAddresses: mock<() => Promise<string[]>>().mockImplementation(() =>
+    Promise.resolve(walletApiResponses.usedAddresses),
+  ),
+  getUtxos: mock<() => Promise<string[]>>().mockImplementation(() =>
+    Promise.resolve(walletApiResponses.utxos),
+  ),
+  submitTx: mock<() => Promise<string>>().mockImplementation(() =>
+    Promise.resolve("test-preview-txhash"),
+  ),
+  signData: mock<
+    () => Promise<{ signature: string; key: string }>
+  >().mockImplementation(() =>
+    Promise.resolve({
+      signature: "test-preview-signature",
+      key: "test-preview-key",
+    }),
+  ),
+  signTx: mock<() => Promise<string>>().mockImplementation(() =>
+    Promise.resolve("test-preview-signedtx"),
+  ),
 };
 
 export const windowCardano: {
@@ -110,13 +100,13 @@ export const windowCardano: {
 } = {
   eternl: {
     name: "Eternl",
-    enable: jest
-      .fn<() => Promise<WalletApi>>()
-      .mockImplementation(() => Promise.resolve(mockAPI)),
+    enable: mock<() => Promise<WalletApi>>().mockImplementation(() =>
+      Promise.resolve(mockAPI),
+    ),
     icon: "",
-    isEnabled: jest
-      .fn<() => Promise<boolean>>()
-      .mockImplementation(() => Promise.resolve(true)),
+    isEnabled: mock<() => Promise<boolean>>().mockImplementation(() =>
+      Promise.resolve(true),
+    ),
     version: "test",
   },
 };
@@ -150,6 +140,7 @@ const realBlockfrostProtocolParams = {
   min_utxo: "4310",
   min_pool_cost: "170000000",
   nonce: "88367379b4918c6b54619f233f71e8056e1fef567014a45739f68de73c4ae90e",
+  minfeeRefscriptCostPerByte: 15,
   cost_models: {
     PlutusV1: {
       "addInteger-cpu-arguments-intercept": 205665,
@@ -511,32 +502,31 @@ const realBlockfrostProtocolParams = {
 };
 
 export const getBlockfrostProtocolParameters = (
-  env: TSupportedNetworks
+  env: TSupportedNetworks,
 ): ProtocolParameters => {
   switch (env) {
     default:
     case "preview":
       return {
-        minFeeA: parseInt(realBlockfrostProtocolParams.min_fee_a),
-        minFeeB: parseInt(realBlockfrostProtocolParams.min_fee_b),
-        maxTxSize: parseInt(realBlockfrostProtocolParams.max_tx_size),
+        minFeeA: realBlockfrostProtocolParams.min_fee_a,
+        minFeeB: realBlockfrostProtocolParams.min_fee_b,
+        maxTxSize: realBlockfrostProtocolParams.max_tx_size,
         maxValSize: parseInt(realBlockfrostProtocolParams.max_val_size),
         keyDeposit: BigInt(realBlockfrostProtocolParams.key_deposit),
         poolDeposit: BigInt(realBlockfrostProtocolParams.pool_deposit),
-        priceMem: parseFloat(realBlockfrostProtocolParams.price_mem),
-        priceStep: parseFloat(realBlockfrostProtocolParams.price_step),
+        priceMem: realBlockfrostProtocolParams.price_mem,
+        priceStep: realBlockfrostProtocolParams.price_step,
         maxTxExMem: BigInt(realBlockfrostProtocolParams.max_tx_ex_mem),
         maxTxExSteps: BigInt(realBlockfrostProtocolParams.max_tx_ex_steps),
         coinsPerUtxoByte: BigInt(
-          realBlockfrostProtocolParams.coins_per_utxo_size
+          realBlockfrostProtocolParams.coins_per_utxo_size,
         ),
-        collateralPercentage: parseInt(
-          realBlockfrostProtocolParams.collateral_percent
-        ),
-        maxCollateralInputs: parseInt(
-          realBlockfrostProtocolParams.max_collateral_inputs
-        ),
+        collateralPercentage: realBlockfrostProtocolParams.collateral_percent,
+        maxCollateralInputs: realBlockfrostProtocolParams.max_collateral_inputs,
         costModels: realBlockfrostProtocolParams.cost_models,
+        // 0.10.10 only, but it is currently broke
+        // minfeeRefscriptCostPerByte:
+        //   realBlockfrostProtocolParams.minfeeRefscriptCostPerByte,
       };
   }
 };

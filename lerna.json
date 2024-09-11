@@ -1,9 +1,8 @@
 {
   "$schema": "node_modules/lerna/schemas/lerna-schema.json",
   "useNx": true,
-  "useWorkspaces": true,
   "version": "independent",
-  "npmClient": "yarn",
+  "npmClient": "bun",
   "ignoreChanges": [
     "**/__tests__/**",
     "**/__fixtures__/**",
@@ -15,6 +14,8 @@
     "version": {
       "message": "chore(release): publish %s",
       "conventionalCommits": true,
+      "createRelease": "github",
+      "ignoreScripts": true,
       "private": false,
       "allowBranch": ["main"]
     }

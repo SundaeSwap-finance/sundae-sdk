@@ -7,7 +7,7 @@ import { ITxBuilderReferralFee } from "../@types/index.js";
  * It is meant to be extended by more specific configuration classes.
  * @template Args The type of the arguments object, defaulting to an empty object.
  */
-export abstract class Config<Args = {}> {
+export abstract class Config<Args = object> {
   INVALID_FEE_AMOUNT = `The fee amount must be of type AssetAmount.`;
 
   /**
@@ -21,7 +21,7 @@ export abstract class Config<Args = {}> {
    * @abstract
    * @param {Object} obj - The object from which to set the configuration.
    */
-  abstract setFromObject(obj: {}): void;
+  abstract setFromObject(obj: object): void;
 
   /**
    * An abstract method to build the arguments for the configuration.

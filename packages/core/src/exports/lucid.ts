@@ -5,7 +5,7 @@
  * in your main repository! Also includes a helper class for basic operations.
  *
  * @module Lucid
- * @packageDescription
+ * @packageDocumentation
  */
 export * from "../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
 export * from "../DatumBuilders/DatumBuilder.Lucid.V3.class.js";

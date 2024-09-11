@@ -1,4 +1,5 @@
 import { setupLucid } from "@sundaeswap/core/testing";
+import { describe, expect, it } from "bun:test";
 import { Lucid } from "lucid-cardano";
 
 import { TasteTestLucid } from "../classes/TasteTest.Lucid.class.js";

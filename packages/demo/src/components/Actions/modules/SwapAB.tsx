@@ -29,7 +29,7 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     setReverseSwapping(true);
     try {
       const pool = await SDK.query().findPoolData(
-        useV3Contracts ? newPoolQuery : poolQuery
+        useV3Contracts ? newPoolQuery : poolQuery,
       );
       const args: ISwapConfigArgs = {
         swapType: {
@@ -62,7 +62,7 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
 
       await SDK.builder(
         useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
-        builderLib
+        builderLib,
       )
         .swap(args)
         .then(async ({ build, fees }) => {

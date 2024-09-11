@@ -70,7 +70,7 @@ export interface ISwapConfigArgs extends IOrderConfigArgs {
 export interface IDepositConfigArgs extends IOrderConfigArgs {
   suppliedAssets: [
     AssetAmount<IAssetAmountMetadata>,
-    AssetAmount<IAssetAmountMetadata>
+    AssetAmount<IAssetAmountMetadata>,
   ];
 }
 

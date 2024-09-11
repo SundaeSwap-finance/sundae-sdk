@@ -60,7 +60,7 @@ interface IYieldFarmingParams {
  * }
  * ```
  *
- * @implements {YieldFarming}
+ * @extends {YieldFarming}
  */
 export class YieldFarmingBlaze
   implements YieldFarming<BlazeTx, Core.Transaction>
@@ -85,7 +85,10 @@ export class YieldFarmingBlaze
     },
   };
 
-  constructor(public blaze: Blaze<Provider, Wallet>, network: Core.NetworkId) {
+  constructor(
+    public blaze: Blaze<Provider, Wallet>,
+    network: Core.NetworkId,
+  ) {
     this.datumBuilder = new DatumBuilderBlaze(network ? "mainnet" : "preview");
     this.network = network ? "mainnet" : "preview";
   }
@@ -99,7 +102,7 @@ export class YieldFarmingBlaze
    */
   static getParam<K extends keyof IYieldFarmingParams>(
     param: K,
-    network: TSupportedNetworks
+    network: TSupportedNetworks,
   ): IYieldFarmingParams[K] {
     return YieldFarmingBlaze.PARAMS[network][param];
   }
@@ -121,7 +124,7 @@ export class YieldFarmingBlaze
    * @returns
    */
   async lock(
-    lockArgs: ILockConfigArgs<TDelegationPrograms>
+    lockArgs: ILockConfigArgs<TDelegationPrograms>,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const {
       existingPositions,
@@ -135,7 +138,7 @@ export class YieldFarmingBlaze
       this.blaze.provider.resolveUnspentOutputs([
         new Core.TransactionInput(
           Core.TransactionId(this.__getParam("referenceInput").split("#")[0]),
-          BigInt(this.__getParam("referenceInput").split("#")[1])
+          BigInt(this.__getParam("referenceInput").split("#")[1]),
         ),
       ]),
       (() =>
@@ -144,18 +147,21 @@ export class YieldFarmingBlaze
         this.blaze.provider.resolveUnspentOutputs(
           existingPositions.map(
             ({ hash, index }) =>
-              new Core.TransactionInput(Core.TransactionId(hash), BigInt(index))
-          )
+              new Core.TransactionInput(
+                Core.TransactionId(hash),
+                BigInt(index),
+              ),
+          ),
         ))(),
     ]);
 
     if (!referenceInputs?.length) {
       throw new Error(
-        "Could not fetch valid UTXO from Blockfrost based on the the Yield Farming reference input."
+        "Could not fetch valid UTXO from Blockfrost based on the the Yield Farming reference input.",
       );
     }
 
-    let payment: Record<string, bigint> = {
+    const payment: Record<string, bigint> = {
       lovelace: 0n,
     };
 
@@ -209,7 +215,7 @@ export class YieldFarmingBlaze
       Core.Credential.fromCore({
         hash: Core.Hash28ByteBase16(this.__getParam("stakeKeyHash")),
         type: Core.CredentialType.KeyHash,
-      })
+      }),
     );
 
     if (!contractAddress) {
@@ -222,12 +228,12 @@ export class YieldFarmingBlaze
     referenceInputs.forEach((input) => txInstance.addReferenceInput(input));
     signerKey?.paymentCredentials &&
       txInstance.addRequiredSigner(
-        Core.Ed25519KeyHashHex(signerKey.paymentCredentials)
+        Core.Ed25519KeyHashHex(signerKey.paymentCredentials),
       );
 
     if (signerKey?.stakeCredentials) {
       txInstance.addRequiredSigner(
-        Core.Ed25519KeyHashHex(signerKey.stakeCredentials)
+        Core.Ed25519KeyHashHex(signerKey.stakeCredentials),
       );
     }
 
@@ -240,17 +246,17 @@ export class YieldFarmingBlaze
             txInstance.addInput(utxo, redeemer);
           } else {
             const datum = await this.blaze.provider.resolveDatum(
-              Core.DatumHash(hash)
+              Core.DatumHash(hash),
             );
             txInstance.addInput(utxo, redeemer, datum);
           }
-        })
+        }),
       );
     }
 
     const deposit = new AssetAmount(
       (existingPositions?.length ?? 0) > 0 ? 0n : this.__getParam("minLockAda"),
-      ADA_METADATA
+      ADA_METADATA,
     );
 
     /**
@@ -301,7 +307,7 @@ export class YieldFarmingBlaze
 
     if (!inline) {
       throw new Error(
-        "A datum was not constructed for this lockup, which can brick the funds! Aborting."
+        "A datum was not constructed for this lockup, which can brick the funds! Aborting.",
       );
     }
 
@@ -309,9 +315,9 @@ export class YieldFarmingBlaze
       contractAddress,
       makeValue(
         payment.lovelace,
-        ...Object.entries(payment).filter(([key]) => key !== "lovelace")
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace"),
       ),
-      Core.PlutusData.fromCbor(Core.HexBlob(inline))
+      Core.PlutusData.fromCbor(Core.HexBlob(inline)),
     );
 
     txInstance.setMinimumFee(500_000n);
@@ -333,7 +339,7 @@ export class YieldFarmingBlaze
    * @returns
    */
   updatePosition(
-    positionArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "programs">
+    positionArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "programs">,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     return this.lock({
       ...positionArgs,
@@ -350,7 +356,7 @@ export class YieldFarmingBlaze
    * @returns
    */
   updateDelegation(
-    delegationArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">
+    delegationArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     return this.lock({
       ...delegationArgs,
@@ -365,7 +371,7 @@ export class YieldFarmingBlaze
    * @returns
    */
   async unlock(
-    unlockArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">
+    unlockArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     return this.lock({
       ...unlockArgs,
@@ -389,12 +395,12 @@ export class YieldFarmingBlaze
 
     tx.provideScript(
       Core.Script.newPlutusV1Script(
-        Core.PlutusV1Script.fromCbor(Core.HexBlob(v1UnlockScript))
-      )
+        Core.PlutusV1Script.fromCbor(Core.HexBlob(v1UnlockScript)),
+      ),
     );
     tx.addRequiredSigner(Core.Ed25519KeyHashHex(paymentCredentials));
     positions.forEach((p) =>
-      tx.addInput(p, Data.to("EMPTY", PositionRedeemer))
+      tx.addInput(p, Data.to("EMPTY", PositionRedeemer)),
     );
     // tx.collectFrom(positions, Data.to(new Constr(0, [])));
 
@@ -419,8 +425,8 @@ export class YieldFarmingBlaze
       Core.Address.fromBech32(destination),
       makeValue(
         allAssets.lovelace,
-        ...Object.entries(allAssets).filter(([key]) => key !== "lovelace")
-      )
+        ...Object.entries(allAssets).filter(([key]) => key !== "lovelace"),
+      ),
     );
 
     return this.completeTx({
@@ -465,7 +471,7 @@ export class YieldFarmingBlaze
       } else {
         tx.payLovelace(
           Core.Address.fromBech32(referralFee.destination),
-          referralFee.payment.amount
+          referralFee.payment.amount,
         );
       }
 
@@ -482,11 +488,11 @@ export class YieldFarmingBlaze
               !SundaeUtils.isAdaAsset(referralFee.payment.metadata)
                 ? Buffer.from(
                     referralFee.payment.metadata.assetId.split(".")[1],
-                    "hex"
+                    "hex",
                   ).toString("utf-8")
                 : "ADA"
-            }`
-          )
+            }`,
+          ),
         );
         data.setMetadata(new Core.Metadata(map));
         tx.setAuxiliaryData(data);
@@ -504,7 +510,7 @@ export class YieldFarmingBlaze
         scooperFee: new AssetAmount(0n, ADA_METADATA),
         referral: new AssetAmount(
           referralFee?.payment?.amount ?? 0n,
-          referralFee?.payment?.metadata ?? ADA_METADATA
+          referralFee?.payment?.metadata ?? ADA_METADATA,
         ),
       },
       datum,
@@ -515,7 +521,7 @@ export class YieldFarmingBlaze
 
         thisTx.fees.cardanoTxFee = new AssetAmount(
           BigInt(finishedTx.body().fee() ?? "0"),
-          6
+          6,
         );
 
         return {
@@ -523,7 +529,7 @@ export class YieldFarmingBlaze
           builtTx: finishedTx,
           sign: async () => {
             const signedTx = await that.blaze.signTransaction(
-              finishedTx as Core.Transaction
+              finishedTx as Core.Transaction,
             );
             return {
               cbor: signedTx.toCbor(),

@@ -1,5 +1,5 @@
-import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import {
   EDatumType,
@@ -18,13 +18,13 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildSwapDatum()", () => {
   it("should correctly build the datum, variation 1", () => {
     const result = builderInstance.buildSwapDatum(
-      expectations[0].args as ISwapArguments
+      expectations[0].args as ISwapArguments,
     );
 
     expect(result.inline).toEqual(expectations[0].expectations.inline);
@@ -49,17 +49,17 @@ describe("buildSwapDatum()", () => {
         SuppliedCoin: EPoolCoin.B,
         MinimumReceivable: new AssetAmount(
           10_000_000n,
-          PREVIEW_DATA.assets.tada.metadata
+          PREVIEW_DATA.assets.tada.metadata,
         ),
       },
       scooperFee: 1_000_000n,
     });
 
     expect(result.inline).toEqual(
-      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd8799f5820801781d78d0a71944986666b6edd375c7ac039002a0ecbf55258c69bd6dcd7daffffd87a80ff1a000f4240d8799fd87a801864d8799f1a00989680ffffff"
+      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd8799f5820801781d78d0a71944986666b6edd375c7ac039002a0ecbf55258c69bd6dcd7daffffd87a80ff1a000f4240d8799fd87a801864d8799f1a00989680ffffff",
     );
     expect(result.hash).toEqual(
-      "ffd5dd8d7952afc1f6e890b7a5d648d3d74df05abc1997da1acaf94dc01f8a73"
+      "ffd5dd8d7952afc1f6e890b7a5d648d3d74df05abc1997da1acaf94dc01f8a73",
     );
   });
 });

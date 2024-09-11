@@ -1,3 +1,7 @@
+[**@sundaeswap/taste-test**](../README.md) • **Docs**
+
+***
+
 # Class: TasteTestLucid
 
 Represents the TasteTest class capable of handling various blockchain interactions for a protocol Taste Test.
@@ -25,9 +29,7 @@ tasteTest.withdraw({ ... }).then(({ build, fees }) => console.log(fees));;
 tasteTest.update({ ... }).then(({ build, fees }) => console.log(fees));;
 ```
 
-**`Implements`**
-
-**`Param`**
+## Param
 
 An instance of the Lucid class, providing various utility methods for blockchain interactions.
 
@@ -37,85 +39,9 @@ An instance of the Lucid class, providing various utility methods for blockchain
 
 ## Methods
 
-### \_attachScriptsOrReferenceInputs
+### claim()
 
-▸ **_attachScriptsOrReferenceInputs**(`tx`, `script`): `Promise`\<`void`\>
-
-Utility function to attach the correct validators or reference inputs
-to a transaction.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `tx` | `Tx` | The Lucid Transaction instance. |
-| `script` | [`TScriptType`](../modules.md#tscripttype) | The script passed by the config. |
-
-#### Returns
-
-`Promise`\<`void`\>
-
-#### Defined in
-
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:720](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L720)
-
-___
-
-### \_getTasteTestTypeFromArgs
-
-▸ **_getTasteTestTypeFromArgs**(`args`): [`TTasteTestType`](../modules.md#ttastetesttype)
-
-A utility method to default the Taste Test type to liquidity if not set.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `args` | [`IBaseArgs`](../interfaces/IBaseArgs.md) | The base arguments. |
-
-#### Returns
-
-[`TTasteTestType`](../modules.md#ttastetesttype)
-
-#### Defined in
-
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:706](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L706)
-
-___
-
-### \_getTxBounds
-
-▸ **_getTxBounds**(`time?`, `deadline?`): [`number`, `number`]
-
-Calculates and returns the lower and upper bounds for a transaction based on the provided time and deadline.
-If the `time` parameter is not provided, the current timestamp (`Date.now()`) is used. The lower bound is calculated
-by subtracting a predefined tolerance value (`VALID_FROM_TOLERANCE_MS`) from the `time`. The natural upper bound
-is calculated by adding another predefined tolerance value (`VALID_TO_TOLERANCE_MS`) to the `time`. If a `deadline`
-is provided, the actual upper bound is the minimum between the `deadline - 1` and the natural upper bound; otherwise,
-the natural upper bound is used.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `time?` | `number` | The reference time for the bounds calculation. Defaults to the current timestamp if not provided. |
-| `deadline?` | `number` | An optional deadline that may cap the upper bound. |
-
-#### Returns
-
-[`number`, `number`]
-
-An array containing two elements: the lower and upper bounds for the transaction.
-
-#### Defined in
-
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:747](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L747)
-
-___
-
-### claim
-
-▸ **claim**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+> **claim**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 Processes a claim transaction, handling various pre-conditions and state checks.
 
@@ -129,9 +55,9 @@ by setting the appropriate fees and preparing it for submission.
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `args` | [`IClaimArgs`](../interfaces/IClaimArgs.md) | The required arguments for the claim operation. |
+• **args**: [`IClaimArgs`](../interfaces/IClaimArgs.md)
+
+The required arguments for the claim operation.
 
 #### Returns
 
@@ -139,62 +65,19 @@ by setting the appropriate fees and preparing it for submission.
 
 - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
 
-**`Async`**
-
-**`Throws`**
+#### Throws
 
 Throws errors if the claim conditions are not met, such as missing keys, inability to find nodes, or ownership issues.
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:500](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L500)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:504](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L504)
 
-___
+***
 
-### completeTx
+### deposit()
 
-▸ **completeTx**(`params`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
-
-Finalizes the construction of a transaction with the necessary operations and fees.
-
-This function takes a constructed transaction and applies the final necessary steps to make it ready for submission.
-These steps include setting the referral fee if it's part of the transaction, calculating the necessary transaction fees,
-and preparing the transaction for signing. The function adapts to the presence of asset-specific transactions by
-handling different referral payment types.
-
-The base fees for the transaction are calculated based on a boolean for whether to include them, specifically for deposit and fold.
-The only fees that are always set are referral fees and the native Cardano transaction fee.
-
-Once the transaction is built, it's completed, and the actual Cardano network transaction fee is retrieved and set.
-The built transaction is then ready for signing and submission.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `params` | [`ITasteTestCompleteTxArgs`](../interfaces/ITasteTestCompleteTxArgs.md) | The arguments required for completing the transaction, including the transaction itself, the referral fee, and a flag indicating if the transaction includes fees. - `hasFees`: Indicates whether the transaction has fees associated with it. - `referralFee`: The referral fee information, if applicable. - `tx`: The initial transaction object that needs to be completed. |
-
-#### Returns
-
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
-
-- Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
-
-**`Async`**
-
-**`Throws`**
-
-Throws an error if the transaction cannot be completed or if there are issues with the fee calculation.
-
-#### Defined in
-
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:606](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L606)
-
-___
-
-### deposit
-
-▸ **deposit**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+> **deposit**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 Initiates a deposit transaction, conducting various checks and orchestrating the transaction construction.
 
@@ -212,9 +95,9 @@ it for submission.
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `args` | [`IDepositArgs`](../interfaces/IDepositArgs.md) | The required arguments for the deposit operation. |
+• **args**: [`IDepositArgs`](../interfaces/IDepositArgs.md)
+
+The required arguments for the deposit operation.
 
 #### Returns
 
@@ -223,52 +106,23 @@ it for submission.
 - Returns a promise that resolves with a transaction builder object,
 which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
 
-**`Async`**
-
-**`Throws`**
+#### Throws
 
 Throws an error if no UTXOs are available, if reference scripts are missing, or if a covering node cannot be found.
 
 #### Implementation of
 
-[AbstractTasteTest](AbstractTasteTest.md).[deposit](AbstractTasteTest.md#deposit)
+[`AbstractTasteTest`](AbstractTasteTest.md).[`deposit`](AbstractTasteTest.md#deposit)
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:118](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L118)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:122](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L122)
 
-___
+***
 
-### getUserKey
+### update()
 
-▸ **getUserKey**(): `Promise`\<`string`\>
-
-Retrieves the user key (hash) from a given Cardano address.
-
-This method processes the Cardano address, attempts to extract the stake credential or payment credential hash,
-and returns it as the user's key. If neither stake nor payment credentials are found, an error is thrown.
-
-It utilizes the `lucid.utils.getAddressDetails` method to parse and extract details from the Cardano address.
-
-#### Returns
-
-`Promise`\<`string`\>
-
-- The user key hash extracted from the address.
-
-**`Throws`**
-
-If neither stake nor payment credentials could be determined from the address.
-
-#### Defined in
-
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:686](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L686)
-
-___
-
-### update
-
-▸ **update**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+> **update**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 Initiates an update transaction for a node's assets, ensuring various checks and constructing the transaction.
 
@@ -286,9 +140,9 @@ submission.
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `args` | [`IUpdateArgs`](../interfaces/IUpdateArgs.md) | The arguments required for the update operation, including potential UTXOs and the amount to add. |
+• **args**: [`IUpdateArgs`](../interfaces/IUpdateArgs.md)
+
+The arguments required for the update operation, including potential UTXOs and the amount to add.
 
 #### Returns
 
@@ -297,25 +151,23 @@ submission.
 - Returns a promise that resolves with a transaction builder object,
 equipped with the transaction, its associated fees, and functions to build, sign, and submit the transaction.
 
-**`Async`**
-
-**`Throws`**
+#### Throws
 
 Throws an error if the user's payment credential hash is missing or if the node with the required datum cannot be found.
 
 #### Implementation of
 
-[AbstractTasteTest](AbstractTasteTest.md).[update](AbstractTasteTest.md#update)
+[`AbstractTasteTest`](AbstractTasteTest.md).[`update`](AbstractTasteTest.md#update)
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:270](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L270)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:274](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L274)
 
-___
+***
 
-### withdraw
+### withdraw()
 
-▸ **withdraw**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+> **withdraw**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`Tx`, `TxComplete`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
 
 Processes a withdrawal transaction, handling various pre-conditions and state checks.
 
@@ -333,9 +185,9 @@ by setting the appropriate fees and preparing it for submission.
 
 #### Parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `args` | [`IWithdrawArgs`](../interfaces/IWithdrawArgs.md) | The required arguments for the withdrawal operation. |
+• **args**: [`IWithdrawArgs`](../interfaces/IWithdrawArgs.md)
+
+The required arguments for the withdrawal operation.
 
 #### Returns
 
@@ -343,16 +195,14 @@ by setting the appropriate fees and preparing it for submission.
 
 - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
 
-**`Async`**
-
-**`Throws`**
+#### Throws
 
 Throws errors if the withdrawal conditions are not met, such as missing keys, inability to find nodes, or ownership issues.
 
 #### Implementation of
 
-[AbstractTasteTest](AbstractTasteTest.md).[withdraw](AbstractTasteTest.md#withdraw)
+[`AbstractTasteTest`](AbstractTasteTest.md).[`withdraw`](AbstractTasteTest.md#withdraw)
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:347](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L347)
+[taste-test/src/lib/classes/TasteTest.Lucid.class.ts:351](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTest.Lucid.class.ts#L351)

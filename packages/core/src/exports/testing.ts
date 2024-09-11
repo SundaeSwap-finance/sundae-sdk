@@ -12,7 +12,7 @@
  * hex-encoded CBOR when writing your own unit tests on them.
  *
  * @module Testing
- * @packageDescription
+ * @packageDocumentation
  */
 export * from "../TestUtilities/cardano.js";
 export { PREVIEW_DATA } from "../TestUtilities/mockData.js";

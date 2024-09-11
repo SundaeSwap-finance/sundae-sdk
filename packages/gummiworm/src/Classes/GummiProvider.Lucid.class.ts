@@ -31,7 +31,7 @@ export class GummiProvider implements Provider {
 
   async awaitTx(
     txHash: string,
-    checkInterval?: number | undefined
+    checkInterval?: number | undefined,
   ): Promise<boolean> {
     console.log(txHash, checkInterval);
     console.log("called awaitTx");
@@ -72,6 +72,8 @@ export class GummiProvider implements Provider {
         PlutusV1: PROTOCOL_PARAMETERS_DEFAULT.costModels.PlutusV1,
         PlutusV2: PROTOCOL_PARAMETERS_DEFAULT.costModels.PlutusV2,
       },
+      // minfeeRefscriptCostPerByte:
+      //   PROTOCOL_PARAMETERS_DEFAULT.minfeeRefscriptCostPerByte,
     };
   }
 
@@ -82,7 +84,7 @@ export class GummiProvider implements Provider {
         ? addressOrCredential
         : lucid.utils.credentialToAddress(addressOrCredential);
     const response = await fetch(
-      `${this.url}/get_utxos?address=${address}`
+      `${this.url}/get_utxos?address=${address}`,
     ).then((res) => res.json());
 
     return this.__transformRestUtxos(response);
@@ -168,7 +170,7 @@ export class GummiProvider implements Provider {
     const newValue: Assets = {};
 
     for (const [key, value] of Object.entries<number | Record<string, number>>(
-      input
+      input,
     )) {
       if (typeof value === "number") {
         newValue[key] = BigInt(value);

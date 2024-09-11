@@ -1,5 +1,5 @@
-import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
+import { describe, expect, it, spyOn } from "bun:test";
 
 import {
   EContractVersion,
@@ -26,14 +26,12 @@ const mockedProtocols: ISundaeProtocolParams[] = [
   },
 ];
 
-jest.useFakeTimers();
-
 describe("SundaeUtils class", () => {
   it("getMinReceivableFromSlippage", () => {
     const resultA = SundaeUtils.getMinReceivableFromSlippage(
       PREVIEW_DATA.pools.v1,
       PREVIEW_DATA.assets.tada,
-      0.1
+      0.1,
     );
 
     expect(resultA).toBeInstanceOf(AssetAmount);
@@ -41,13 +39,13 @@ describe("SundaeUtils class", () => {
       expect.objectContaining({
         amount: 8570604n,
         decimals: 0,
-      })
+      }),
     );
 
     const resultB = SundaeUtils.getMinReceivableFromSlippage(
       PREVIEW_DATA.pools.v1,
       PREVIEW_DATA.assets.tindy,
-      0.01
+      0.01,
     );
 
     expect(resultB).toBeInstanceOf(AssetAmount);
@@ -55,17 +53,17 @@ describe("SundaeUtils class", () => {
       expect.objectContaining({
         amount: 36326909n,
         decimals: 6,
-      })
+      }),
     );
 
     expect(() =>
       SundaeUtils.getMinReceivableFromSlippage(
         PREVIEW_DATA.pools.v1,
         new AssetAmount(10n, { assetId: "not in the pool", decimals: 0 }),
-        0.1
-      )
+        0.1,
+      ),
     ).toThrowError(
-      `The supplied asset ID does not match either assets within the supplied pool data. {\"suppliedAssetID\":\"not in the pool\",\"poolAssetIDs\":[\"ada.lovelace\",\"fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459\"]}`
+      `The supplied asset ID does not match either assets within the supplied pool data. {\"suppliedAssetID\":\"not in the pool\",\"poolAssetIDs\":[\"ada.lovelace\",\"fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459\"]}`,
     );
 
     /**
@@ -88,7 +86,7 @@ describe("SundaeUtils class", () => {
 
     const mockSuppliedAsset = new AssetAmount(
       80000000n,
-      PREVIEW_DATA.assets.tada.metadata
+      PREVIEW_DATA.assets.tada.metadata,
     );
 
     // Default 3% slippage.
@@ -96,13 +94,13 @@ describe("SundaeUtils class", () => {
       SundaeUtils.getMinReceivableFromSlippage(
         mockPoolData,
         mockSuppliedAsset,
-        0.3
-      )
+        0.3,
+      ),
     ).toMatchObject(
       expect.objectContaining({
         amount: 1n,
         decimals: 0,
-      })
+      }),
     );
 
     // Even a 99% slippage should be at least a single token.
@@ -110,13 +108,13 @@ describe("SundaeUtils class", () => {
       SundaeUtils.getMinReceivableFromSlippage(
         mockPoolData,
         mockSuppliedAsset,
-        0.99
-      )
+        0.99,
+      ),
     ).toMatchObject(
       expect.objectContaining({
         amount: 1n,
         decimals: 0,
-      })
+      }),
     );
 
     // Only a 100% slippage will be okay with 0 assets received.
@@ -124,13 +122,13 @@ describe("SundaeUtils class", () => {
       SundaeUtils.getMinReceivableFromSlippage(
         mockPoolData,
         mockSuppliedAsset,
-        1
-      )
+        1,
+      ),
     ).toMatchObject(
       expect.objectContaining({
         amount: 0n,
         decimals: 0,
-      })
+      }),
     );
 
     /**
@@ -140,11 +138,11 @@ describe("SundaeUtils class", () => {
       SundaeUtils.getMinReceivableFromSlippage(
         mockPoolData,
         mockSuppliedAsset,
-        2
+        2,
       );
     } catch (e) {
       expect((e as Error).message).toStrictEqual(
-        "Cannot have a negative minimum receivable amount."
+        "Cannot have a negative minimum receivable amount.",
       );
     }
   });
@@ -158,8 +156,8 @@ describe("SundaeUtils class", () => {
             ...PREVIEW_DATA.assets.tada.metadata,
             assetId: id,
           },
-          [PREVIEW_DATA.pools.v1.assetA, PREVIEW_DATA.pools.v1.assetB]
-        )
+          [PREVIEW_DATA.pools.v1.assetA, PREVIEW_DATA.pools.v1.assetB],
+        ),
       ).toEqual(EPoolCoin.A);
     });
 
@@ -167,7 +165,7 @@ describe("SundaeUtils class", () => {
       SundaeUtils.getAssetSwapDirection(PREVIEW_DATA.assets.tindy.metadata, [
         PREVIEW_DATA.pools.v1.assetA,
         PREVIEW_DATA.pools.v1.assetB,
-      ])
+      ]),
     ).toEqual(EPoolCoin.B);
   });
 
@@ -211,13 +209,13 @@ describe("SundaeUtils class", () => {
   it("should accurately get the swap direction", () => {
     const result = SundaeUtils.getAssetSwapDirection(
       PREVIEW_DATA.pools.v1.assetA,
-      [PREVIEW_DATA.pools.v1.assetA, PREVIEW_DATA.pools.v1.assetB]
+      [PREVIEW_DATA.pools.v1.assetA, PREVIEW_DATA.pools.v1.assetB],
     );
     expect(result).toStrictEqual(0);
 
     const result2 = SundaeUtils.getAssetSwapDirection(
       PREVIEW_DATA.assets.tindy.metadata,
-      [PREVIEW_DATA.pools.v1.assetA, PREVIEW_DATA.pools.v1.assetB]
+      [PREVIEW_DATA.pools.v1.assetA, PREVIEW_DATA.pools.v1.assetB],
     );
     expect(result2).toStrictEqual(1);
   });
@@ -255,8 +253,9 @@ describe("SundaeUtils class", () => {
   });
 
   it("should correctly convert a decaying pool fee to a Fraction", () => {
-    jest.setSystemTime(
-      SundaeUtils.slotToUnix(1702941926 + 200, "preview") * 1000
+    const spiedDate = spyOn(Date, "now");
+    spiedDate.mockImplementationOnce(
+      () => SundaeUtils.slotToUnix(1702941926 + 200, "preview") * 1000,
     );
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
@@ -265,11 +264,11 @@ describe("SundaeUtils class", () => {
         startFee: [1n, 100n],
         startSlot: "1702941926",
         network: "preview",
-      })
+      }),
     ).toEqual(0.01);
 
-    jest.setSystemTime(
-      SundaeUtils.slotToUnix(1702941926 + 1000000, "preview") * 1000
+    spiedDate.mockImplementationOnce(
+      () => SundaeUtils.slotToUnix(1702941926 + 1000000, "preview") * 1000,
     );
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
@@ -278,10 +277,12 @@ describe("SundaeUtils class", () => {
         startFee: [5n, 1000n],
         startSlot: "1702941926",
         network: "preview",
-      })
+      }),
     ).toEqual(0.009499976150126405);
 
-    jest.setSystemTime(SundaeUtils.slotToUnix(1702941926, "preview") * 1000);
+    spiedDate.mockImplementationOnce(
+      () => SundaeUtils.slotToUnix(1702941926, "preview") * 1000,
+    );
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
         endFee: [5n, 100n],
@@ -289,10 +290,12 @@ describe("SundaeUtils class", () => {
         startFee: [5n, 1000n],
         startSlot: "1702941926",
         network: "preview",
-      })
+      }),
     ).toEqual(0.005);
 
-    jest.setSystemTime(SundaeUtils.slotToUnix(1702941979, "preview") * 1000);
+    spiedDate.mockImplementationOnce(
+      () => SundaeUtils.slotToUnix(1702941979, "preview") * 1000,
+    );
     expect(
       SundaeUtils.getCurrentFeeFromDecayingFee({
         endFee: [5n, 100n],
@@ -300,7 +303,7 @@ describe("SundaeUtils class", () => {
         startFee: [5n, 1000n],
         startSlot: "1702941926",
         network: "preview",
-      })
+      }),
     ).toEqual(0.05);
   });
 
@@ -310,13 +313,13 @@ describe("SundaeUtils class", () => {
     expect(SundaeUtils.isAdaAsset({ assetId: "", decimals: 6 })).toBeTruthy();
     expect(SundaeUtils.isAdaAsset({ assetId: ".", decimals: 6 })).toBeTruthy();
     expect(
-      SundaeUtils.isAdaAsset({ assetId: "ada.lovelace", decimals: 6 })
+      SundaeUtils.isAdaAsset({ assetId: "ada.lovelace", decimals: 6 }),
     ).toBeTruthy();
     expect(
-      SundaeUtils.isAdaAsset({ assetId: "cardano.ada", decimals: 6 })
+      SundaeUtils.isAdaAsset({ assetId: "cardano.ada", decimals: 6 }),
     ).toBeTruthy();
     expect(
-      SundaeUtils.isAdaAsset({ assetId: "ada.lovelace", decimals: 4 })
+      SundaeUtils.isAdaAsset({ assetId: "ada.lovelace", decimals: 4 }),
     ).toBeFalsy();
     expect(SundaeUtils.isAdaAsset(PREVIEW_DATA.pools.v1.assetB)).toBeFalsy();
     expect(SundaeUtils.isAdaAsset(PREVIEW_DATA.pools.v3.assetB)).toBeFalsy();
@@ -340,7 +343,7 @@ describe("SundaeUtils class", () => {
         availablePools: [],
         given,
         taken,
-      })
+      }),
     ).toBeUndefined();
   });
 
@@ -362,7 +365,7 @@ describe("SundaeUtils class", () => {
         availablePools: [],
         given,
         taken,
-      })
+      }),
     ).toBeUndefined();
   });
 
@@ -407,19 +410,19 @@ describe("SundaeUtils class", () => {
 
     it("should return true for equal non-ADA asset IDs without periods", () => {
       expect(SundaeUtils.isAssetIdsEqual(nonAdaAssetId1, nonAdaAssetId1)).toBe(
-        true
+        true,
       );
     });
 
     it("should return false for different non-ADA asset IDs", () => {
       expect(SundaeUtils.isAssetIdsEqual(nonAdaAssetId1, nonAdaAssetId2)).toBe(
-        false
+        false,
       );
     });
 
     it("should return true for equal non-ADA asset IDs where one contains a period", () => {
       expect(
-        SundaeUtils.isAssetIdsEqual(nonAdaAssetId1, `${nonAdaAssetId1}.`)
+        SundaeUtils.isAssetIdsEqual(nonAdaAssetId1, `${nonAdaAssetId1}.`),
       ).toBe(true);
     });
 
@@ -445,21 +448,23 @@ describe("SundaeUtils class", () => {
   describe("getIdentFromAssetId", () => {
     it("should get the ident from a v3 pool", () => {
       expect(
-        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v3.assetLP.assetId)
+        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v3.assetLP.assetId),
       ).toEqual(PREVIEW_DATA.pools.v3.ident);
     });
 
     it("should get the ident from a v1 pool", () => {
       expect(
-        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v1.assetLP.assetId)
+        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v1.assetLP.assetId),
       ).toEqual(PREVIEW_DATA.pools.v1.ident);
     });
 
     it("should throw an error if not an LP token", () => {
       expect(() =>
-        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v1.assetA.assetId)
+        SundaeUtils.getIdentFromAssetId(PREVIEW_DATA.pools.v1.assetA.assetId),
       ).toThrowError(
-        new Error("Could not find a contract version prefix in the asset name!")
+        new Error(
+          "Could not find a contract version prefix in the asset name!",
+        ),
       );
     });
   });
@@ -468,23 +473,25 @@ describe("SundaeUtils class", () => {
     it("should return the right contract version", () => {
       expect(
         SundaeUtils.getPoolVersionFromAssetId(
-          PREVIEW_DATA.pools.v1.assetLP.assetId
-        )
+          PREVIEW_DATA.pools.v1.assetLP.assetId,
+        ),
       ).toEqual(EContractVersion.V1);
       expect(
         SundaeUtils.getPoolVersionFromAssetId(
-          PREVIEW_DATA.pools.v3.assetLP.assetId
-        )
+          PREVIEW_DATA.pools.v3.assetLP.assetId,
+        ),
       ).toEqual(EContractVersion.V3);
     });
 
     it("should throw an error if no contract version is found", () => {
       expect(() =>
         SundaeUtils.getPoolVersionFromAssetId(
-          PREVIEW_DATA.pools.v1.assetA.assetId
-        )
+          PREVIEW_DATA.pools.v1.assetA.assetId,
+        ),
       ).toThrowError(
-        new Error("Could not find a contract version prefix in the asset name!")
+        new Error(
+          "Could not find a contract version prefix in the asset name!",
+        ),
       );
     });
   });

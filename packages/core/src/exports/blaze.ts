@@ -5,7 +5,7 @@
  * in your main repository! Also includes a helper class for basic operations.
  *
  * @module Blaze
- * @packageDescription
+ * @packageDocumentation
  */
 export * from "../DatumBuilders/DatumBuilder.Blaze.V1.class.js";
 export * from "../DatumBuilders/DatumBuilder.Blaze.V3.class.js";

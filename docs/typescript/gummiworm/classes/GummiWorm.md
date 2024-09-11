@@ -1,4 +1,8 @@
-# Class: GummiWorm
+[**@sundaeswap/gummiworm**](../README.md) • **Docs**
+
+***
+
+# Class: `abstract` GummiWorm
 
 Represents the abstract class that should be extended to implement
 the functionality of GummiWorm transaction features. This class provides

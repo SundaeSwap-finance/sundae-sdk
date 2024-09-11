@@ -33,7 +33,7 @@ export class LucidHelper {
 
     if (!details.paymentCredential) {
       throw new Error(
-        "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key."
+        "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key.",
       );
     }
 
@@ -59,11 +59,11 @@ export class LucidHelper {
     LucidHelper.validateAddressNetwork(address, network);
     if (
       ![EDatumType.NONE, EDatumType.HASH, EDatumType.INLINE].includes(
-        datum.type
+        datum.type,
       )
     ) {
       throw new Error(
-        "Could not find a matching datum type for the destination address. Aborting."
+        "Could not find a matching datum type for the destination address. Aborting.",
       );
     }
 
@@ -72,7 +72,7 @@ export class LucidHelper {
       if (datum.type === EDatumType.NONE) {
         LucidHelper.throwInvalidOrderAddressesError(
           address,
-          `The address provided is a Script Address, but a datum hash was not supplied. This will brick your funds! Supply a valid datum hash with the address in order to proceed.`
+          `The address provided is a Script Address, but a datum hash was not supplied. This will brick your funds! Supply a valid datum hash with the address in order to proceed.`,
         );
       }
 
@@ -89,8 +89,8 @@ export class LucidHelper {
             {
               datum,
               originalErrorMessage: (e as Error).message,
-            }
-          )}`
+            },
+          )}`,
         );
       }
     }
@@ -116,7 +116,7 @@ export class LucidHelper {
    */
   static validateAddressNetwork(
     address: string,
-    network: TSupportedNetworks
+    network: TSupportedNetworks,
   ): void | never {
     let details: AddressDetails;
     try {
@@ -124,7 +124,7 @@ export class LucidHelper {
     } catch (e) {
       LucidHelper.throwInvalidOrderAddressesError(
         address,
-        (e as Error).message
+        (e as Error).message,
       );
     }
 
@@ -139,26 +139,26 @@ export class LucidHelper {
   static maybeThrowNetworkError(
     addressNetwork: number,
     address: string,
-    network: TSupportedNetworks
+    network: TSupportedNetworks,
   ): never | void {
     if (addressNetwork !== 1 && network === "mainnet") {
       LucidHelper.throwInvalidOrderAddressesError(
         address,
-        `The given address is not a Mainnet Network address: ${address}.`
+        `The given address is not a Mainnet Network address: ${address}.`,
       );
     }
 
     if (addressNetwork !== 0 && network === "preview") {
       LucidHelper.throwInvalidOrderAddressesError(
         address,
-        `The given address is not a (Preview/Testnet/PreProd) Network address: ${address}.`
+        `The given address is not a (Preview/Testnet/PreProd) Network address: ${address}.`,
       );
     }
   }
 
   static inlineDatumToHash(inline: string): string {
     return C.hash_plutus_data(
-      C.PlutusData.from_bytes(Buffer.from(inline, "hex"))
+      C.PlutusData.from_bytes(Buffer.from(inline, "hex")),
     )?.to_hex();
   }
 
@@ -167,10 +167,10 @@ export class LucidHelper {
    */
   static throwInvalidOrderAddressesError(
     address: string,
-    errorMessage: string
+    errorMessage: string,
   ): never {
     throw new Error(
-      `You supplied an invalid address: ${address}. Please check your arguments and try again. Error message: ${errorMessage}`
+      `You supplied an invalid address: ${address}. Please check your arguments and try again. Error message: ${errorMessage}`,
     );
   }
 }

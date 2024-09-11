@@ -8,26 +8,26 @@ nav_order: 3
 # Getting Started with Taste Tests
 
 ```bash
-$ yarn add @sundaeswap/taste-test lucid-cardano
+$ bun add @sundaeswap/taste-test lucid-cardano
 ```
 
 Next, configure the instance in your app:
 
 ```ts
 import { SundaeSDK } from "@sundaeswap/core";
-import { TasteTestLucid } from "@sundaeswap/taste-test"
+import { TasteTestLucid } from "@sundaeswap/taste-test";
 
 const sdk: SundaeSDK = new SundaeSDK({
-    ...args
+  ...args,
 });
 
 const walletInstance = sdk.builder().wallet;
 if (!walletInstance) {
-    throw new Error()
+  throw new Error();
 }
 
 const TT = new TasteTestLucid(walletInstance);
-const txHash = await TT.deposit({ ...args }).then(({ submit }) => submit())
+const txHash = await TT.deposit({ ...args }).then(({ submit }) => submit());
 ```
 
 For more instructions see [Overview](/).

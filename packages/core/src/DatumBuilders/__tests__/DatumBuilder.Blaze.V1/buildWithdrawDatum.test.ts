@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { IWithdrawArguments } from "../../../@types/datumbuilder.js";
 import { DatumBuilderBlazeV1 } from "../../DatumBuilder.Blaze.V1.class.js";
@@ -12,13 +12,13 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildWithdrawDatum()", () => {
   it("should correctly build the datum, variation 1", () => {
     const result = builderInstance.buildWithdrawDatum(
-      expectations[0].args as IWithdrawArguments
+      expectations[0].args as IWithdrawArguments,
     );
 
     expect(result.inline).toEqual(expectations[0].expectations.inline);

@@ -60,7 +60,6 @@ export class SundaeUtils {
    * Determines if a given asset is a Liquidity Pool (LP) asset based on its policy ID, associated protocols, and version.
    * This method checks whether the asset's policy ID matches the hash of the 'pool.mint' validator in the specified protocol version.
    *
-   * @static
    * @param {Object} params - The parameters for the method.
    * @param {string} params.assetPolicyId - The policy ID of the asset to be checked.
    * @param {IProtocol[]} params.protocols - An array of protocol objects, where each protocol corresponds to a different contract version.
@@ -78,7 +77,7 @@ export class SundaeUtils {
   }) {
     const protocol = protocols.find((p) => p.version === version);
     const validator = protocol?.blueprint.validators.find(
-      (v) => v.title === "pool.mint"
+      (v) => v.title === "pool.mint",
     );
     return validator?.hash === assetPolicyId;
   }
@@ -86,8 +85,8 @@ export class SundaeUtils {
   static sortSwapAssetsWithAmounts(
     assets: [
       AssetAmount<IAssetAmountMetadata>,
-      AssetAmount<IAssetAmountMetadata>
-    ]
+      AssetAmount<IAssetAmountMetadata>,
+    ],
   ) {
     return assets.sort((a, b) => {
       const isASpecial = SundaeUtils.isAdaAsset(a.metadata);
@@ -107,7 +106,7 @@ export class SundaeUtils {
 
   static getAssetSwapDirection(
     asset: IAssetAmountMetadata,
-    assets: [IAssetAmountMetadata, IAssetAmountMetadata]
+    assets: [IAssetAmountMetadata, IAssetAmountMetadata],
   ): EPoolCoin {
     const sorted = SundaeUtils.sortSwapAssetsWithAmounts([
       new AssetAmount<IAssetAmountMetadata>(0n, assets[0]),
@@ -132,7 +131,7 @@ export class SundaeUtils {
    */
   static subtractPoolFeeFromAmount(
     amount: AssetAmount<IAssetAmountMetadata>,
-    fee: TFee
+    fee: TFee,
   ): number {
     const percent = new Fraction(fee[0], fee[1]).toNumber();
     return Number(amount.amount) * (1 - percent);
@@ -166,7 +165,7 @@ export class SundaeUtils {
 
     const interpolatedFee = Fraction.asFraction(
       openingFee.toNumber() +
-        feeRange * (finalFee.toNumber() - openingFee.toNumber())
+        feeRange * (finalFee.toNumber() - openingFee.toNumber()),
     );
 
     return interpolatedFee.toNumber();
@@ -200,11 +199,11 @@ export class SundaeUtils {
   static getMinReceivableFromSlippage(
     pool: IPoolData,
     suppliedAsset: AssetAmount<IAssetAmountMetadata>,
-    slippage: number
+    slippage: number,
   ): AssetAmount<IAssetAmountMetadata> {
     const supplyingPoolAssetA = SundaeUtils.isAssetIdsEqual(
       pool.assetA.assetId,
-      suppliedAsset.metadata.assetId
+      suppliedAsset.metadata.assetId,
     );
 
     const output = getSwapOutput(
@@ -212,17 +211,17 @@ export class SundaeUtils {
       supplyingPoolAssetA ? pool.liquidity.aReserve : pool.liquidity.bReserve,
       supplyingPoolAssetA ? pool.liquidity.bReserve : pool.liquidity.aReserve,
       pool.currentFee,
-      false
+      false,
     );
 
     if (
       !SundaeUtils.isAssetIdsEqual(
         pool.assetA.assetId,
-        suppliedAsset.metadata.assetId
+        suppliedAsset.metadata.assetId,
       ) &&
       !SundaeUtils.isAssetIdsEqual(
         pool.assetB.assetId,
-        suppliedAsset.metadata.assetId
+        suppliedAsset.metadata.assetId,
       )
     ) {
       throw new Error(
@@ -230,8 +229,8 @@ export class SundaeUtils {
           {
             suppliedAssetID: suppliedAsset.metadata.assetId,
             poolAssetIDs: [pool.assetA.assetId, pool.assetB.assetId],
-          }
-        )}`
+          },
+        )}`,
       );
     }
 
@@ -247,7 +246,7 @@ export class SundaeUtils {
 
     return new AssetAmount<IAssetAmountMetadata>(
       amount,
-      receivableAssetMetadata
+      receivableAssetMetadata,
     );
   }
 
@@ -302,7 +301,7 @@ export class SundaeUtils {
 
     const aggregatedAssets = suppliedAssets.reduce((acc, curr) => {
       const existingAssetIndex = acc.findIndex(({ metadata }) =>
-        SundaeUtils.isAssetIdsEqual(curr.metadata.assetId, metadata.assetId)
+        SundaeUtils.isAssetIdsEqual(curr.metadata.assetId, metadata.assetId),
       );
       if (existingAssetIndex !== -1) {
         acc[existingAssetIndex] = acc[existingAssetIndex].add(curr);
@@ -351,7 +350,7 @@ export class SundaeUtils {
     let bestOutcome;
 
     const [resolvedGiven, resolvedTaken] = SundaeUtils.isAdaAsset(
-      given?.metadata
+      given?.metadata,
     )
       ? [given, taken]
       : [taken, given];
@@ -363,13 +362,13 @@ export class SundaeUtils {
       for (const pool of availablePools) {
         const givenReserve = SundaeUtils.isAssetIdsEqual(
           pool.assetA.assetId,
-          resolvedGiven.metadata.assetId
+          resolvedGiven.metadata.assetId,
         )
           ? pool.liquidity.aReserve
           : pool.liquidity.bReserve;
         const takenReserve = SundaeUtils.isAssetIdsEqual(
           pool.assetB.assetId,
-          resolvedTaken.metadata.assetId
+          resolvedTaken.metadata.assetId,
         )
           ? pool.liquidity.bReserve
           : pool.liquidity.aReserve;
@@ -378,7 +377,7 @@ export class SundaeUtils {
           hundredGiven,
           givenReserve,
           takenReserve,
-          pool.currentFee
+          pool.currentFee,
         );
 
         if (!bestOutcome || swapOutcome.output > bestOutcome.output) {
@@ -420,13 +419,13 @@ export class SundaeUtils {
    */
   static unixToSlot(
     unix: number | string,
-    network: TSupportedNetworks
+    network: TSupportedNetworks,
   ): number {
     return Math.floor(
       Math.trunc(Number(unix)) -
         (network === "mainnet"
           ? SundaeUtils.MAINNET_OFFSET
-          : SundaeUtils.PREVIEW_OFFSET)
+          : SundaeUtils.PREVIEW_OFFSET),
     );
   }
 
@@ -440,13 +439,13 @@ export class SundaeUtils {
    */
   static slotToUnix(
     unix: number | string,
-    network: TSupportedNetworks
+    network: TSupportedNetworks,
   ): number {
     return Math.floor(
       Math.trunc(Number(unix)) +
         (network === "mainnet"
           ? SundaeUtils.MAINNET_OFFSET
-          : SundaeUtils.PREVIEW_OFFSET)
+          : SundaeUtils.PREVIEW_OFFSET),
     );
   }
 
@@ -483,7 +482,7 @@ export class SundaeUtils {
     }
 
     throw new Error(
-      "Could not find a contract version prefix in the asset name!"
+      "Could not find a contract version prefix in the asset name!",
     );
   }
 }

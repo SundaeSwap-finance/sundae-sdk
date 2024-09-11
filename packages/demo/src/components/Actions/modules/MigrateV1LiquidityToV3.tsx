@@ -35,10 +35,10 @@ export const Migrate: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     setMigrating(true);
     try {
       const v1PoolTIndy = await new QueryProviderSundaeSwapLegacy(
-        "preview"
+        "preview",
       ).findPoolData(poolQuery);
       const v1PoolRberry = await new QueryProviderSundaeSwapLegacy(
-        "preview"
+        "preview",
       ).findPoolData({
         pair: [
           "",
@@ -85,10 +85,10 @@ export const Migrate: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
           }
 
           const matchingTindyAsset = assets.get(
-            Core.AssetId(v1PoolTIndy.assetLP.assetId.replace(".", ""))
+            Core.AssetId(v1PoolTIndy.assetLP.assetId.replace(".", "")),
           );
           const matchingRberryAsset = assets.get(
-            Core.AssetId(v1PoolRberry.assetLP.assetId.replace(".", ""))
+            Core.AssetId(v1PoolRberry.assetLP.assetId.replace(".", "")),
           );
 
           if (matchingTindyAsset) {
@@ -119,7 +119,7 @@ export const Migrate: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
               },
               suppliedLPAsset: new AssetAmount(
                 tINdyLpBalance,
-                v1PoolTIndy.assetLP
+                v1PoolTIndy.assetLP,
               ),
             }
           : undefined;
@@ -138,7 +138,7 @@ export const Migrate: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
               },
               suppliedLPAsset: new AssetAmount(
                 rRberryLpBalance,
-                v1PoolRberry.assetLP
+                v1PoolRberry.assetLP,
               ),
             }
           : undefined;

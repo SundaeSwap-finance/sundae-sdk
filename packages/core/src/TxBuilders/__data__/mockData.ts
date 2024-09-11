@@ -84,19 +84,21 @@ export const settingsUtxosBlaze: Core.TransactionUnspentOutput[] =
       new Core.TransactionUnspentOutput(
         new Core.TransactionInput(
           Core.TransactionId(utxo.txHash),
-          BigInt(utxo.outputIndex)
+          BigInt(utxo.outputIndex),
         ),
         Core.TransactionOutput.fromCore({
           address: Core.PaymentAddress(utxo.address),
           value: makeValue(
             utxo.assets.lovelace,
-            ...Object.entries(utxo.assets).filter(([key]) => key !== "lovelace")
+            ...Object.entries(utxo.assets).filter(
+              ([key]) => key !== "lovelace",
+            ),
           ).toCore(),
           datum: utxo.datum
             ? Core.PlutusData.fromCbor(Core.HexBlob(utxo.datum)).toCore()
             : undefined,
-        })
-      )
+        }),
+      ),
   );
 
 export const referenceUtxos: UTxO[] = [
@@ -192,27 +194,27 @@ export const referenceUtxosBlaze: Core.TransactionUnspentOutput[] =
     Core.TransactionUnspentOutput.fromCore([
       new Core.TransactionInput(
         Core.TransactionId(i.txHash),
-        BigInt(i.outputIndex)
+        BigInt(i.outputIndex),
       ).toCore(),
       Core.TransactionOutput.fromCore({
         address: Core.getPaymentAddress(Core.Address.fromBech32(i.address)),
         value: makeValue(
           i.assets.lovelace,
-          ...Object.entries(i.assets).filter(([key]) => key !== "lovelace")
+          ...Object.entries(i.assets).filter(([key]) => key !== "lovelace"),
         ).toCore(),
         scriptReference: i.scriptRef?.script
           ? Core.Script.newPlutusV2Script(
               new Core.PlutusV2Script(
                 [0, 4].includes(index)
                   ? Core.HexBlob(
-                      index === 0 ? ORDER_SPEND_SCRIPT : POOL_MINT_SCRIPT
+                      index === 0 ? ORDER_SPEND_SCRIPT : POOL_MINT_SCRIPT,
                     )
-                  : Core.HexBlob(i.scriptRef?.script as string)
-              )
+                  : Core.HexBlob(i.scriptRef?.script as string),
+              ),
             ).toCore()
           : undefined,
       }).toCore(),
-    ])
+    ]),
   );
 
 export const mockBlockfrostEvaluateResponse = {

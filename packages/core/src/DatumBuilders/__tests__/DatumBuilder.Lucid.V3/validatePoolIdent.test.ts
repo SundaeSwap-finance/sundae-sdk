@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { DatumBuilderLucidV3 } from "../../DatumBuilder.Lucid.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
@@ -10,21 +10,21 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildPoolIdent", () => {
   it("should correctly build and validate a pool ident", () => {
     expect(() =>
-      builderInstance.buildPoolIdent(V3_EXPECTATIONS.validatePoolIdent[0].args)
+      builderInstance.buildPoolIdent(V3_EXPECTATIONS.validatePoolIdent[0].args),
     ).toThrowError(V3_EXPECTATIONS.validatePoolIdent[0].expectations.error);
 
     const validIdent = builderInstance.buildPoolIdent(
-      V3_EXPECTATIONS.validatePoolIdent[1].args
+      V3_EXPECTATIONS.validatePoolIdent[1].args,
     );
 
     expect(validIdent).toEqual(
-      V3_EXPECTATIONS.validatePoolIdent[1].expectations.result
+      V3_EXPECTATIONS.validatePoolIdent[1].expectations.result as string,
     );
   });
 });

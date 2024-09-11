@@ -1,3 +1,5 @@
+import { beforeEach, describe, expect, it } from "bun:test";
+
 import { EDatumType } from "../../@types/index.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { DepositConfig } from "../DepositConfig.class";
@@ -90,7 +92,7 @@ describe("WithdrawConfig class", () => {
       config.validate();
     } catch (e) {
       expect((e as Error).message).toStrictEqual(
-        "You did not provided funding for this deposit! Make sure you supply both sides of the pool with .setSuppliedAssets()"
+        "You did not provided funding for this deposit! Make sure you supply both sides of the pool with .setSuppliedAssets()",
       );
     }
   });

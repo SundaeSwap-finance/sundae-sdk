@@ -8,7 +8,7 @@ nav_order: 5
 # Getting Started with GummiWorm
 
 ```bash
-$ yarn add @sundaeswap/core @sundaeswap/gummiworm lucid-cardano
+$ bun add @sundaeswap/core @sundaeswap/gummiworm lucid-cardano
 ```
 
 Next, configure the instance in your app:

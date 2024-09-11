@@ -1,4 +1,1 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-yarn lint-staged && yarn test && yarn docs && git add ./docs
+bun lint-staged && bun test:all && bun docs && git add ./docs

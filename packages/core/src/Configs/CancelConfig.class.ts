@@ -42,13 +42,13 @@ export class CancelConfig extends OrderConfig<ICancelConfigArgs> {
   validate(): never | void {
     if (!this.utxo) {
       throw new Error(
-        "You did not add the order's UTXO for this cancellation. Set a valid UTXO with .setUTXO()"
+        "You did not add the order's UTXO for this cancellation. Set a valid UTXO with .setUTXO()",
       );
     }
 
     if (!this.ownerAddress) {
       throw new Error(
-        "An owner address is required for validation purposes. Set the owner address of the order with .setOwnerAddress()"
+        "An owner address is required for validation purposes. Set the owner address of the order with .setOwnerAddress()",
       );
     }
   }

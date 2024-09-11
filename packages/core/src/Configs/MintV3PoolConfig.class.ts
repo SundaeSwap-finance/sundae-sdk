@@ -99,19 +99,19 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
         this.fees.bid > MintV3PoolConfig.MAX_FEE
       ) {
         throw new Error(
-          `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+          `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
         );
       }
     } else {
       if (this.fees.ask > MintV3PoolConfig.MAX_FEE) {
         throw new Error(
-          `Ask fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+          `Ask fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
         );
       }
 
       if (this.fees.bid > MintV3PoolConfig.MAX_FEE) {
         throw new Error(
-          `Bid fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`
+          `Bid fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
         );
       }
     }
@@ -121,7 +121,7 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
       (this.donateToTreasury > 100n || this.donateToTreasury < 0n)
     ) {
       throw new Error(
-        `Donation value is determined as a percentage between 0 and 100`
+        `Donation value is determined as a percentage between 0 and 100`,
       );
     }
   }

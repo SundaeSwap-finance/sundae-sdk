@@ -5,7 +5,7 @@
  * values, convenience methods, and package-wide constants.
  *
  * @module Utilities
- * @packageDescription
+ * @packageDocumentation
  */
-export { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 export * from "../constants.js";
+export { SundaeUtils } from "../Utilities/SundaeUtils.class.js";

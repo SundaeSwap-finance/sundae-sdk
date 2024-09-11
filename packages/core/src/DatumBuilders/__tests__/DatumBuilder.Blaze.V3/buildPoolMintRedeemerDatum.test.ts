@@ -1,4 +1,12 @@
-import { jest } from "@jest/globals";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+  spyOn,
+} from "bun:test";
 
 import { DatumBuilderBlazeV3 } from "../../DatumBuilder.Blaze.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
@@ -10,28 +18,28 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  mock.restore();
 });
 
 describe("buildPoolMintRedeemerDatum()", () => {
   it("should build the pool mint redeemer datum properly", () => {
-    const spiedOnBuildLexicographicalAssetsDatum = jest.spyOn(
+    const spiedOnBuildLexicographicalAssetsDatum = spyOn(
       DatumBuilderBlazeV3.prototype,
-      "buildLexicographicalAssetsDatum"
+      "buildLexicographicalAssetsDatum",
     );
 
     const { inline, hash } = builderInstance.buildPoolMintRedeemerDatum(
-      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].args
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].args,
     );
 
     expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(
-      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.called
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.called,
     );
     expect(inline).toEqual(
-      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.inline
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.inline,
     );
     expect(hash).toEqual(
-      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.hash
+      V3_EXPECTATIONS.buildPoolMintRedeemerDatum[0].expectations.hash,
     );
   });
 });

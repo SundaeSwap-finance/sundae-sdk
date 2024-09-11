@@ -1,5 +1,5 @@
-import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
+import { describe, expect, it, spyOn } from "bun:test";
 import { C, Lucid, Tx } from "lucid-cardano";
 
 import { DatumBuilderLucidV1 } from "../../DatumBuilders/DatumBuilder.Lucid.V1.class.js";
@@ -26,15 +26,17 @@ const { getUtxosByOutRefMock } = setupLucid(async (lucid) => {
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
 
-jest
-  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScriptHashes")
-  .mockResolvedValue(params);
-jest
-  .spyOn(QueryProviderSundaeSwap.prototype, "getProtocolParamsWithScripts")
-  .mockResolvedValue(params);
-jest
-  .spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos")
-  .mockResolvedValue(settingsUtxosLucid);
+spyOn(
+  QueryProviderSundaeSwap.prototype,
+  "getProtocolParamsWithScriptHashes",
+).mockResolvedValue(params);
+spyOn(
+  QueryProviderSundaeSwap.prototype,
+  "getProtocolParamsWithScripts",
+).mockResolvedValue(params);
+spyOn(TxBuilderLucidV3.prototype, "getAllSettingsUtxos").mockResolvedValue(
+  settingsUtxosLucid,
+);
 
 describe("TxBuilderLucidV1", () => {
   it("should have the correct settings", () => {
@@ -44,20 +46,20 @@ describe("TxBuilderLucidV1", () => {
 
   it("should have the correct parameters", () => {
     expect(TxBuilderLucidV1.getParam("cancelRedeemer", "preview")).toEqual(
-      "d87a80"
+      "d87a80",
     );
     expect(TxBuilderLucidV1.getParam("cancelRedeemer", "mainnet")).toEqual(
-      "d87a80"
+      "d87a80",
     );
     expect(
-      TxBuilderLucidV1.getParam("maxScooperFee", "preview").toString()
+      TxBuilderLucidV1.getParam("maxScooperFee", "preview").toString(),
     ).toEqual("2500000");
     expect(
-      TxBuilderLucidV1.getParam("maxScooperFee", "mainnet").toString()
+      TxBuilderLucidV1.getParam("maxScooperFee", "mainnet").toString(),
     ).toEqual("2500000");
   });
 
-  test("newTxInstance()", async () => {
+  it("newTxInstance()", async () => {
     expect(builder.newTxInstance()).toBeInstanceOf(Tx);
 
     const txWithReferralAndLabel = builder.newTxInstance({
@@ -71,7 +73,7 @@ describe("TxBuilderLucidV1", () => {
 
     expect(metadata).not.toBeUndefined();
     expect(metadata?.get(C.BigNum.from_str("674"))?.as_text()).toEqual(
-      "Test Label: 1.5 ADA"
+      "Test Label: 1.5 ADA",
     );
 
     let referralAddressOutput: C.TransactionOutput | undefined;
@@ -87,7 +89,7 @@ describe("TxBuilderLucidV1", () => {
 
     expect(referralAddressOutput).not.toBeUndefined();
     expect(referralAddressOutput?.address().to_bech32("addr_test")).toEqual(
-      TEST_REFERRAL_DEST
+      TEST_REFERRAL_DEST,
     );
 
     const txWithReferral = builder.newTxInstance({
@@ -111,7 +113,7 @@ describe("TxBuilderLucidV1", () => {
 
     expect(referralAddressOutput2).not.toBeUndefined();
     expect(referralAddressOutput2?.address().to_bech32("addr_test")).toEqual(
-      TEST_REFERRAL_DEST
+      TEST_REFERRAL_DEST,
     );
 
     const txWithoutReferral = builder.newTxInstance();
@@ -130,12 +132,9 @@ describe("TxBuilderLucidV1", () => {
     expect(referralAddressOutput3).toBeUndefined();
   });
 
-  test("swap()", async () => {
-    const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildSwapDatum = jest.spyOn(
-      builder.datumBuilder,
-      "buildSwapDatum"
-    );
+  it("swap()", async () => {
+    const spiedNewTx = spyOn(builder, "newTxInstance");
+    const spiedBuildSwapDatum = spyOn(builder.datumBuilder, "buildSwapDatum");
 
     const { build, fees, datum } = await builder.swap({
       orderAddresses: {
@@ -162,13 +161,13 @@ describe("TxBuilderLucidV1", () => {
         fundedAsset: expect.objectContaining({
           amount: PREVIEW_DATA.assets.tada.amount,
         }),
-      })
+      }),
     );
 
     expect(datum).toEqual(
-      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d8799fd879801a01312d00d8799f1a008cf2d7ffffff"
+      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d8799fd879801a01312d00d8799f1a008cf2d7ffffff",
     );
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: ORDER_DEPOSIT_DEFAULT,
         metadata: ADA_METADATA,
@@ -177,7 +176,7 @@ describe("TxBuilderLucidV1", () => {
         amount: 2_500_000n,
         metadata: ADA_METADATA,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
 
@@ -202,7 +201,7 @@ describe("TxBuilderLucidV1", () => {
         ) {
           depositOutput = output;
         }
-      }
+      },
     );
 
     expect(depositOutput).not.toBeUndefined();
@@ -210,7 +209,7 @@ describe("TxBuilderLucidV1", () => {
 
     expect(inlineDatum).toBeUndefined();
     expect(depositOutput?.datum()?.as_data_hash()?.to_hex()).toEqual(
-      "98e1eb989d74f122c29502f3dda5c68416dae1cd4f4f69a31d49534ebfab4d9c"
+      "98e1eb989d74f122c29502f3dda5c68416dae1cd4f4f69a31d49534ebfab4d9c",
     );
 
     const datumBytes = builtTx.txComplete
@@ -220,11 +219,11 @@ describe("TxBuilderLucidV1", () => {
       .to_bytes();
     expect(datumBytes).not.toBeUndefined();
     expect(Buffer.from(datumBytes as Uint8Array).toString("hex")).toEqual(
-      datum
+      datum as string,
     );
   });
 
-  test("swap() with incorrect idents should throw", async () => {
+  it("swap() with incorrect idents should throw", async () => {
     try {
       await builder.swap({
         orderAddresses: {
@@ -247,12 +246,12 @@ describe("TxBuilderLucidV1", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        DatumBuilderLucidV1.INVALID_POOL_IDENT
+        DatumBuilderLucidV1.INVALID_POOL_IDENT,
       );
     }
   });
 
-  test("orderRouteSwap() - v1 to v1", async () => {
+  it("orderRouteSwap() - v1 to v1", async () => {
     const { build, datum, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
@@ -317,7 +316,7 @@ describe("TxBuilderLucidV1", () => {
         ) {
           swapOutput = output;
         }
-      }
+      },
     );
 
     expect(swapOutput).not.toBeUndefined();
@@ -326,7 +325,7 @@ describe("TxBuilderLucidV1", () => {
 
     expect(inlineDatum).toBeUndefined();
     expect(swapOutput?.datum()?.as_data_hash()?.to_hex()).toEqual(
-      "3043e2dc62f9e00a9374c71338c67bf3f55173cd11a713a31fa2f55e9a4ed428"
+      "3043e2dc62f9e00a9374c71338c67bf3f55173cd11a713a31fa2f55e9a4ed428",
     );
 
     const datumBytes = builtTx.txComplete
@@ -336,7 +335,7 @@ describe("TxBuilderLucidV1", () => {
       .to_bytes();
     expect(datumBytes).not.toBeUndefined();
     expect(Buffer.from(datumBytes as Uint8Array).toString("hex")).toEqual(
-      datum
+      datum as string,
     );
 
     const transactionMetadata = builtTx.txComplete
@@ -347,13 +346,15 @@ describe("TxBuilderLucidV1", () => {
 
     expect(transactionMetadata).not.toBeUndefined();
     expect(
-      Buffer.from(transactionMetadata?.to_bytes() as Uint8Array).toString("hex")
+      Buffer.from(transactionMetadata?.to_bytes() as Uint8Array).toString(
+        "hex",
+      ),
     ).toEqual(
-      "a158202f046e481ae60ba18b449cda20c7c0878be2aee90ca79bbf3528f21b5478019585581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a021f1b48d8799f1a00f39ad2ff42ffff"
+      "a158202f046e481ae60ba18b449cda20c7c0878be2aee90ca79bbf3528f21b5478019585581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a021f1b48d8799f1a00f39ad2ff42ffff",
     );
   });
 
-  test("orderRouteSwap() - v1 to v3", async () => {
+  it("orderRouteSwap() - v1 to v3", async () => {
     const { build, datum, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
@@ -417,7 +418,7 @@ describe("TxBuilderLucidV1", () => {
         ) {
           swapOutput = output;
         }
-      }
+      },
     );
 
     expect(swapOutput).not.toBeUndefined();
@@ -431,7 +432,7 @@ describe("TxBuilderLucidV1", () => {
       .to_bytes();
     expect(datumBytes).not.toBeUndefined();
     expect(Buffer.from(datumBytes as Uint8Array).toString("hex")).toEqual(
-      datum
+      datum as string,
     );
 
     const transactionMetadata = builtTx.txComplete
@@ -442,18 +443,20 @@ describe("TxBuilderLucidV1", () => {
 
     expect(transactionMetadata).not.toBeUndefined();
     expect(
-      Buffer.from(transactionMetadata?.to_bytes() as Uint8Array).toString("hex")
+      Buffer.from(transactionMetadata?.to_bytes() as Uint8Array).toString(
+        "hex",
+      ),
     ).toEqual(
-      "a15820411c9ab96dc0cad6dbd8909e09c30874a276f1e2876a00b9bcf09659b57461e488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87a9f9f40401a021f1b48ff9f581c2fe3c3364b443194581fb10954771c95819b8d6ed464033c21f03f8facb544694254431a01d7af8aff46ff43d87980ff"
+      "a15820411c9ab96dc0cad6dbd8909e09c30874a276f1e2876a00b9bcf09659b57461e488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87a9f9f40401a021f1b48ff9f581c2fe3c3364b443194581fb10954771c95819b8d6ed464033c21f03f8facb544694254431a01d7af8aff46ff43d87980ff",
     );
 
     expect(inlineDatum).toBeUndefined();
     expect(swapOutput?.datum()?.as_data_hash()?.to_hex()).toEqual(
-      "4692e72b72f032bea9362b94473df5aea4899b359ecbe69a6b6e36f4fa5a614c"
+      "4692e72b72f032bea9362b94473df5aea4899b359ecbe69a6b6e36f4fa5a614c",
     );
   });
 
-  test("migrateLiquidityToV3() - single migration", async () => {
+  it("migrateLiquidityToV3() - single migration", async () => {
     const { build, datum, fees } = await builder.migrateLiquidityToV3([
       {
         withdrawConfig: {
@@ -468,7 +471,7 @@ describe("TxBuilderLucidV1", () => {
           pool: PREVIEW_DATA.pools.v1,
           suppliedLPAsset: new AssetAmount(
             100_000_000n,
-            PREVIEW_DATA.pools.v1.assetLP
+            PREVIEW_DATA.pools.v1.assetLP,
           ),
         },
         depositPool: PREVIEW_DATA.pools.v3,
@@ -506,7 +509,7 @@ describe("TxBuilderLucidV1", () => {
         ) {
           withdrawOutput = output;
         }
-      }
+      },
     );
 
     expect(withdrawOutput).not.toBeUndefined();
@@ -514,7 +517,7 @@ describe("TxBuilderLucidV1", () => {
 
     expect(inlineDatum).toBeUndefined();
     expect(withdrawOutput?.datum()?.as_data_hash()?.to_hex()).toEqual(
-      "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561"
+      "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561",
     );
 
     const depositMetadata = builtTx.txComplete
@@ -525,9 +528,9 @@ describe("TxBuilderLucidV1", () => {
 
     expect(depositMetadata).not.toBeUndefined();
     expect(
-      Buffer.from(depositMetadata?.to_bytes() as Uint8Array).toString("hex")
+      Buffer.from(depositMetadata?.to_bytes() as Uint8Array).toString("hex"),
     ).toEqual(
-      "a158201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff"
+      "a158201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff",
     );
 
     const datumBytes = builtTx.txComplete
@@ -537,13 +540,13 @@ describe("TxBuilderLucidV1", () => {
       .to_bytes();
     expect(datumBytes).not.toBeUndefined();
     expect(Buffer.from(datumBytes as Uint8Array).toString("hex")).toEqual(
-      "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff",
     );
 
     expect(fees.cardanoTxFee?.amount).not.toBeUndefined();
   });
 
-  test("migrateLiquidityToV3() - multi migration", async () => {
+  it("migrateLiquidityToV3() - multi migration", async () => {
     const RBERRY_V1_POOL: IPoolData = {
       assetA: ADA_METADATA,
       assetB: {
@@ -602,7 +605,7 @@ describe("TxBuilderLucidV1", () => {
           pool: PREVIEW_DATA.pools.v1,
           suppliedLPAsset: new AssetAmount(
             100_000_000n,
-            PREVIEW_DATA.pools.v1.assetLP
+            PREVIEW_DATA.pools.v1.assetLP,
           ),
         },
         depositPool: PREVIEW_DATA.pools.v3,
@@ -620,7 +623,7 @@ describe("TxBuilderLucidV1", () => {
           pool: RBERRY_V1_POOL,
           suppliedLPAsset: new AssetAmount(
             100_000_000n,
-            RBERRY_V1_POOL.assetLP
+            RBERRY_V1_POOL.assetLP,
           ),
         },
         depositPool: RBERRY_V3_POOL,
@@ -631,7 +634,7 @@ describe("TxBuilderLucidV1", () => {
 
     expect(fees.cardanoTxFee).toBeUndefined();
     expect(fees.deposit.amount.toString()).toEqual(
-      (ORDER_DEPOSIT_DEFAULT * 2n).toString()
+      (ORDER_DEPOSIT_DEFAULT * 2n).toString(),
     );
     expect(fees.scooperFee.amount.toString()).toEqual(7_000_000n.toString());
 
@@ -675,13 +678,13 @@ describe("TxBuilderLucidV1", () => {
     expect(withdrawOutput2).not.toBeUndefined();
 
     expect(
-      withdrawOutput1?.datum()?.as_data()?.get().to_bytes()
+      withdrawOutput1?.datum()?.as_data()?.get().to_bytes(),
     ).toBeUndefined();
     expect(withdrawOutput1?.datum()?.as_data_hash()?.to_hex()).toEqual(
-      "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561"
+      "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561",
     );
     expect(withdrawOutput2?.datum()?.as_data_hash()?.to_hex()).toEqual(
-      "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a"
+      "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a",
     );
 
     const transactionMetadata = builtTx.txComplete
@@ -692,9 +695,11 @@ describe("TxBuilderLucidV1", () => {
 
     expect(transactionMetadata).not.toBeUndefined();
     expect(
-      Buffer.from(transactionMetadata?.to_bytes() as Uint8Array).toString("hex")
+      Buffer.from(transactionMetadata?.to_bytes() as Uint8Array).toString(
+        "hex",
+      ),
     ).toEqual(
-      "a258201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff"
+      "a258201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff",
     );
 
     const firstMigrationDatumBytes = builtTx.txComplete
@@ -704,9 +709,9 @@ describe("TxBuilderLucidV1", () => {
       .to_bytes();
     expect(firstMigrationDatumBytes).not.toBeUndefined();
     expect(
-      Buffer.from(firstMigrationDatumBytes as Uint8Array).toString("hex")
+      Buffer.from(firstMigrationDatumBytes as Uint8Array).toString("hex"),
     ).toEqual(
-      "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff",
     );
 
     const secondMigrationDatumBytes = builtTx.txComplete
@@ -716,15 +721,15 @@ describe("TxBuilderLucidV1", () => {
       .to_bytes();
     expect(secondMigrationDatumBytes).not.toBeUndefined();
     expect(
-      Buffer.from(secondMigrationDatumBytes as Uint8Array).toString("hex")
+      Buffer.from(secondMigrationDatumBytes as Uint8Array).toString("hex"),
     ).toEqual(
-      "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff",
     );
 
     expect(fees.cardanoTxFee?.amount).not.toBeUndefined();
   });
 
-  test.only("migrateLiquidityToV3() - multi migration with yield farming", async () => {
+  it("migrateLiquidityToV3() - multi migration with yield farming", async () => {
     const RBERRY_V1_POOL: IPoolData = {
       assetA: ADA_METADATA,
       assetB: {
@@ -820,7 +825,7 @@ describe("TxBuilderLucidV1", () => {
             pool: PREVIEW_DATA.pools.v1,
             suppliedLPAsset: new AssetAmount(
               100_000_000n,
-              PREVIEW_DATA.pools.v1.assetLP
+              PREVIEW_DATA.pools.v1.assetLP,
             ),
           },
           depositPool: PREVIEW_DATA.pools.v3,
@@ -838,7 +843,7 @@ describe("TxBuilderLucidV1", () => {
             pool: RBERRY_V1_POOL,
             suppliedLPAsset: new AssetAmount(
               100_000_000n,
-              RBERRY_V1_POOL.assetLP
+              RBERRY_V1_POOL.assetLP,
             ),
           },
           depositPool: RBERRY_V3_POOL,
@@ -863,14 +868,14 @@ describe("TxBuilderLucidV1", () => {
             index: 0,
           },
         ],
-      }
+      },
     );
 
     expect(datum).toBeUndefined();
 
     expect(fees.cardanoTxFee).toBeUndefined();
     expect(fees.deposit.amount.toString()).toEqual(
-      (ORDER_DEPOSIT_DEFAULT * 3n).toString()
+      (ORDER_DEPOSIT_DEFAULT * 3n).toString(),
     );
 
     // 3 scoops = 3x for 2.5 ADA v1 contract withdraw, and 1 ADA v3 contract deposit
@@ -922,13 +927,13 @@ describe("TxBuilderLucidV1", () => {
     expect(withdrawOutput3).not.toBeUndefined();
 
     expect(withdrawOutput1?.datum()?.as_data_hash()?.to_hex()).toEqual(
-      "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561"
+      "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561",
     );
     expect(withdrawOutput2?.datum()?.as_data_hash()?.to_hex()).toEqual(
-      "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a"
+      "cf299e3c5791274292885e3f64dc38325c42cadd9275b121d28a3f790d7ef49a",
     );
     expect(withdrawOutput3?.datum()?.as_data_hash()?.to_hex()).toEqual(
-      "6586e08bbf1bbffb10ba2388f2fa8855d3b616c313b96eb144947cf22d9c2ed2"
+      "6586e08bbf1bbffb10ba2388f2fa8855d3b616c313b96eb144947cf22d9c2ed2",
     );
 
     const transactionMetadata = builtTx.txComplete
@@ -939,9 +944,11 @@ describe("TxBuilderLucidV1", () => {
 
     expect(transactionMetadata).not.toBeUndefined();
     expect(
-      Buffer.from(transactionMetadata?.to_bytes() as Uint8Array).toString("hex")
+      Buffer.from(transactionMetadata?.to_bytes() as Uint8Array).toString(
+        "hex",
+      ),
     ).toEqual(
-      "a358201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda44689581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c73275b9e267f581fd927bfc14cf653d904d1538ad8869260ab638bf73f5cffd8799fd8799fd879581f9f581c045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa8581fffffffffd87b9fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa077581f1919f5218b40691eea4514d0ff80ffffffd87b9f9f9f40401b0000001e4be5581fc9f7ff9f581cd441227553a0f1a965fee7d60a0f724b368dd1bddbc208730f581bccebcf465242455252591b00000011e5baa103ffffff43d87980ff"
+      "a358201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e427488581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a086deb2cff9f581cfa3eff2047fdf9581f293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a0436f54996ffffff43d87980ff582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd588581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e581f62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd879581f9f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0581fffffffffd87980ffd87b9f9f9f40401a07c18281ff9f581cd441227553a0f1581fa965fee7d60a0f724b368dd1bddbc208730fccebcf465242455252591a04944aec31ffffff43d87980ff5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda44689581fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382581fe1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f521581f8b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c73275b9e267f581fd927bfc14cf653d904d1538ad8869260ab638bf73f5cffd8799fd8799fd879581f9f581c045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa8581fffffffffd87b9fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa077581f1919f5218b40691eea4514d0ff80ffffffd87b9f9f9f40401b0000001e4be5581fc9f7ff9f581cd441227553a0f1a965fee7d60a0f724b368dd1bddbc208730f581bccebcf465242455252591b00000011e5baa103ffffff43d87980ff",
     );
 
     const firstMigrationDatumBytes = builtTx.txComplete
@@ -951,9 +958,9 @@ describe("TxBuilderLucidV1", () => {
       .to_bytes();
     expect(firstMigrationDatumBytes).not.toBeUndefined();
     expect(
-      Buffer.from(firstMigrationDatumBytes as Uint8Array).toString("hex")
+      Buffer.from(firstMigrationDatumBytes as Uint8Array).toString("hex"),
     ).toEqual(
-      "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      "d8799f4106d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f58201c47dcdca681d1bd3fa339606ed76fb05dd2697a76d71379f81e4fea0e0e4274ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff",
     );
 
     const secondMigrationDatumBytes = builtTx.txComplete
@@ -963,9 +970,9 @@ describe("TxBuilderLucidV1", () => {
       .to_bytes();
     expect(secondMigrationDatumBytes).not.toBeUndefined();
     expect(
-      Buffer.from(secondMigrationDatumBytes as Uint8Array).toString("hex")
+      Buffer.from(secondMigrationDatumBytes as Uint8Array).toString("hex"),
     ).toEqual(
-      "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff"
+      "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f582032444e87d4c9524a0f26f494b40476d0e3738455f6cd25ce8ba1ea98a3cd8fd5ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1a05f5e100ffff",
     );
 
     const thirdMigrationDatumBytes = builtTx.txComplete
@@ -975,20 +982,20 @@ describe("TxBuilderLucidV1", () => {
       .to_bytes();
     expect(thirdMigrationDatumBytes).not.toBeUndefined();
     expect(
-      Buffer.from(thirdMigrationDatumBytes as Uint8Array).toString("hex")
+      Buffer.from(thirdMigrationDatumBytes as Uint8Array).toString("hex"),
     ).toEqual(
-      "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda446ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1b000000174876e800ffff"
+      "d8799f4100d8799fd8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd87a80ffd8799f5820ae0bdc3950b0fcb6359b38164cadc28d7be721146069884ac09a0f7cf8cda446ffffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffff1a002625a0d87a9f1b000000174876e800ffff",
     );
 
     expect(fees.cardanoTxFee?.amount).not.toBeUndefined();
   });
 
-  test("cancel()", async () => {
+  it("cancel()", async () => {
     getUtxosByOutRefMock.mockResolvedValueOnce([
       PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1,
     ]);
 
-    const spiedOnGetDatum = jest.spyOn(builder.lucid.provider, "getDatum");
+    const spiedOnGetDatum = spyOn(builder.lucid.provider, "getDatum");
     spiedOnGetDatum.mockResolvedValueOnce(
       builder.datumBuilder.buildOrderAddresses({
         DestinationAddress: {
@@ -997,7 +1004,7 @@ describe("TxBuilderLucidV1", () => {
             type: EDatumType.NONE,
           },
         },
-      }).inline
+      }).inline,
     );
 
     const { build, datum, fees } = await builder.cancel({
@@ -1008,15 +1015,17 @@ describe("TxBuilderLucidV1", () => {
       },
     });
 
-    expect(datum).toEqual(PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum);
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(datum).toEqual(
+      PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum as string,
+    );
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: 0n,
       }),
       scooperFee: expect.objectContaining({
         amount: 0n,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
     let utxoInput: C.TransactionInput | undefined;
@@ -1040,12 +1049,12 @@ describe("TxBuilderLucidV1", () => {
       .to_bytes();
     expect(attachedDatum).not.toBeUndefined();
     expect(Buffer.from(attachedDatum as Uint8Array).toString("hex")).toEqual(
-      PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum
+      PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.datum as string,
     );
   });
 
-  test("cancel() v3 order", async () => {
-    const spiedOnV3Cancel = jest.spyOn(TxBuilderLucidV3.prototype, "cancel");
+  it("cancel() v3 order", async () => {
+    const spiedOnV3Cancel = spyOn(TxBuilderLucidV3.prototype, "cancel");
     getUtxosByOutRefMock.mockResolvedValue([
       PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3,
     ]);
@@ -1064,11 +1073,11 @@ describe("TxBuilderLucidV1", () => {
     }
   });
 
-  test("withdraw()", async () => {
-    const spiedNewTx = jest.spyOn(builder, "newTxInstance");
-    const spiedBuildWithdrawDatum = jest.spyOn(
+  it("withdraw()", async () => {
+    const spiedNewTx = spyOn(builder, "newTxInstance");
+    const spiedBuildWithdrawDatum = spyOn(
       builder.datumBuilder,
-      "buildWithdrawDatum"
+      "buildWithdrawDatum",
     );
 
     const { build, fees, datum } = await builder.withdraw({
@@ -1091,13 +1100,13 @@ describe("TxBuilderLucidV1", () => {
         suppliedLPAsset: expect.objectContaining({
           amount: 100_000_000n,
         }),
-      })
+      }),
     );
 
     expect(datum).toEqual(
-      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d87a9f1a05f5e100ffff"
+      "d8799f4106d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a80ffd87a80ff1a002625a0d87a9f1a05f5e100ffff",
     );
-    expect(fees).toMatchObject<ITxBuilderFees>({
+    expect(fees).toMatchObject({
       deposit: expect.objectContaining({
         amount: ORDER_DEPOSIT_DEFAULT,
         metadata: ADA_METADATA,
@@ -1106,7 +1115,7 @@ describe("TxBuilderLucidV1", () => {
         amount: 2_500_000n,
         metadata: ADA_METADATA,
       }),
-    });
+    } as ITxBuilderFees);
 
     const { builtTx } = await build();
     expect(fees.cardanoTxFee).not.toBeUndefined();
@@ -1135,7 +1144,7 @@ describe("TxBuilderLucidV1", () => {
         ) {
           withdrawOutput = output;
         }
-      }
+      },
     );
 
     expect(withdrawOutput).not.toBeUndefined();
@@ -1143,7 +1152,7 @@ describe("TxBuilderLucidV1", () => {
 
     expect(inlineDatum).toBeUndefined();
     expect(withdrawOutput?.datum()?.as_data_hash()?.to_hex()).toEqual(
-      "cfc0f78bf969f77692696fc06c20e605187e7c77a13168e42c8ec121e79e51bd"
+      "cfc0f78bf969f77692696fc06c20e605187e7c77a13168e42c8ec121e79e51bd",
     );
 
     const datumBytes = builtTx.txComplete
@@ -1153,7 +1162,7 @@ describe("TxBuilderLucidV1", () => {
       .to_bytes();
     expect(datumBytes).not.toBeUndefined();
     expect(Buffer.from(datumBytes as Uint8Array).toString("hex")).toEqual(
-      datum
+      datum as string,
     );
   });
 });

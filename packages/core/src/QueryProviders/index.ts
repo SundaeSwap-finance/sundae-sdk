@@ -1,2 +1,5 @@
 export { QueryProviderSundaeSwap } from "./QueryProviderSundaeSwap.js";
-export { QueryProviderSundaeSwapLegacy } from "./QueryProviderSundaeSwapLegacy.js";
+export {
+  QueryProviderSundaeSwapLegacy,
+  type IPoolQueryLegacy,
+} from "./QueryProviderSundaeSwapLegacy.js";

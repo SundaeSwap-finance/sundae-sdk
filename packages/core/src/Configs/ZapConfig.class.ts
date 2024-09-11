@@ -70,19 +70,19 @@ export class ZapConfig extends OrderConfig<IZapConfigArgs> {
 
     if (this.swapSlippage && (this.swapSlippage > 1 || this.swapSlippage < 0)) {
       throw new Error(
-        "You provided an invalid number for the desired swap slippage. Please choose a float number between 0 and 1."
+        "You provided an invalid number for the desired swap slippage. Please choose a float number between 0 and 1.",
       );
     }
 
     if (!this.suppliedAsset) {
       throw new Error(
-        "You did not provided funding for this deposit! Make sure you supply both sides of the pool with .setSuppliedAssets()"
+        "You did not provided funding for this deposit! Make sure you supply both sides of the pool with .setSuppliedAssets()",
       );
     }
 
     if (typeof this.zapDirection === "undefined") {
       throw new Error(
-        "You did not provide a Zap Direction for this deposit! Make sure you supply the Zap Direction with .setZapDirection()"
+        "You did not provide a Zap Direction for this deposit! Make sure you supply the Zap Direction with .setZapDirection()",
       );
     }
   }

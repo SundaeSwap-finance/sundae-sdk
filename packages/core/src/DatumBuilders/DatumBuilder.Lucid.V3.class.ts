@@ -258,7 +258,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
 
     const assetsPair = this.buildLexicographicalAssetsDatum(
       assetA,
-      assetB
+      assetB,
     ).schema;
 
     const newPoolDatum: V3Types.TPoolDatum = {
@@ -348,7 +348,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
         break;
       default:
         throw new Error(
-          "Could not find a matching datum type for the destination address. Aborting."
+          "Could not find a matching datum type for the destination address. Aborting.",
         );
     }
 
@@ -406,7 +406,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
   }
 
   public buildAssetAmountDatum(
-    asset: AssetAmount<IAssetAmountMetadata>
+    asset: AssetAmount<IAssetAmountMetadata>,
   ): TDatumResult<V3Types.TSingletonValue> {
     const isAdaLovelace = SundaeUtils.isAdaAsset(asset.metadata);
 
@@ -427,29 +427,32 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
 
   public buildLexicographicalAssetsDatum(
     assetA: AssetAmount<IAssetAmountMetadata>,
-    assetB: AssetAmount<IAssetAmountMetadata>
+    assetB: AssetAmount<IAssetAmountMetadata>,
   ): TDatumResult<[V3Types.TAssetClass, V3Types.TAssetClass]> {
     const lexicographicalAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       assetA,
       assetB,
     ]);
 
-    const assets = lexicographicalAssets.reduce((result, { metadata }) => {
-      if (SundaeUtils.isAdaAsset(metadata)) {
-        result.push(["", ""]);
+    const assets = lexicographicalAssets.reduce(
+      (result, { metadata }) => {
+        if (SundaeUtils.isAdaAsset(metadata)) {
+          result.push(["", ""]);
+          return result;
+        }
+
+        const [policyId, assetName] = metadata.assetId.split(".");
+        if (!policyId || !assetName) {
+          throw new Error(
+            `Invalid asset format for minting a pool with ${metadata.assetId}. Expected both a policyID and assetName.`,
+          );
+        }
+
+        result.push([policyId, assetName]);
         return result;
-      }
-
-      const [policyId, assetName] = metadata.assetId.split(".");
-      if (!policyId || !assetName) {
-        throw new Error(
-          `Invalid asset format for minting a pool with ${metadata.assetId}. Expected both a policyID and assetName.`
-        );
-      }
-
-      result.push([policyId, assetName]);
-      return result;
-    }, [] as unknown as [V3Types.TAssetClass, V3Types.TAssetClass]);
+      },
+      [] as unknown as [V3Types.TAssetClass, V3Types.TAssetClass],
+    );
 
     const inline = Data.to(assets, V3Types.AssetClassPair);
 
@@ -523,7 +526,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
     const hash = Buffer.from(
       C.hash_blake2b256(poolInputRef)
         // Truncate first four bytes and convert to hex string.
-        .slice(4)
+        .slice(4),
     ).toString("hex");
 
     return hash;
@@ -602,7 +605,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
 
   static addressSchemaToBech32(
     datum: V3Types.TAddressSchema,
-    lucid: Lucid
+    lucid: Lucid,
   ): string {
     let paymentKeyHash: string;
     let paymentAddressType: "Key" | "Script";
@@ -616,7 +619,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
         .SCredential.bytes;
     } else {
       throw new Error(
-        "Could not determine the address type from supplied payment credential."
+        "Could not determine the address type from supplied payment credential.",
       );
     }
 
@@ -656,7 +659,7 @@ export class DatumBuilderLucidV3 implements DatumBuilder {
 
     return lucid.utils.credentialToAddress(
       result.paymentCredential,
-      result.stakeCredential
+      result.stakeCredential,
     );
   }
 }

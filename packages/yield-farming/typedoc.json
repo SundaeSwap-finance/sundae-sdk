@@ -6,8 +6,8 @@
     "./src/exports/lucid.ts",
     "./src/exports/blaze.ts"
   ],
+  "entryModule": "README.md",
   "hideBreadcrumbs": true,
-  "hideInPageTOC": true,
   "excludeNotDocumented": true,
   "githubPages": false,
   "gitRevision": "main",

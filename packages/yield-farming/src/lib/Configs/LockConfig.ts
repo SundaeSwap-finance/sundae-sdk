@@ -53,7 +53,7 @@ export class LockConfig<Programs> extends Config<ILockConfigArgs<Programs>> {
   }
 
   setExistingPositions(
-    positions: ILockConfigArgs<Programs>["existingPositions"]
+    positions: ILockConfigArgs<Programs>["existingPositions"],
   ) {
     this.existingPositions = positions;
     return this;
@@ -74,7 +74,7 @@ export class LockConfig<Programs> extends Config<ILockConfigArgs<Programs>> {
 
     if (!this.ownerAddress) {
       throw new Error(
-        "You did not provide an owner's address. An owner's address is required to add, update, or remove locked assets."
+        "You did not provide an owner's address. An owner's address is required to add, update, or remove locked assets.",
       );
     }
 
@@ -84,7 +84,7 @@ export class LockConfig<Programs> extends Config<ILockConfigArgs<Programs>> {
         ?.length > 0
     ) {
       throw new Error(
-        "One or more of your locked values is not of type AssetAmount."
+        "One or more of your locked values is not of type AssetAmount.",
       );
     }
 
@@ -94,7 +94,7 @@ export class LockConfig<Programs> extends Config<ILockConfigArgs<Programs>> {
       !this?.existingPositions?.length
     ) {
       throw new Error(
-        "You provided a program map but no assets are assigned to accompany the data."
+        "You provided a program map but no assets are assigned to accompany the data.",
       );
     }
   }

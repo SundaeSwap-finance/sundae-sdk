@@ -112,8 +112,8 @@ export class QueryProviderSundaeSwapLegacy implements QueryProvider {
     if (!res?.data) {
       throw new Error(
         `Something went wrong when trying to fetch pool data. Full response: ${JSON.stringify(
-          res
-        )}`
+          res,
+        )}`,
       );
     }
 
@@ -124,7 +124,7 @@ export class QueryProviderSundaeSwapLegacy implements QueryProvider {
         }
 
         return fee === poolFee;
-      }
+      },
     );
 
     if (!pool) {
@@ -176,8 +176,8 @@ export class QueryProviderSundaeSwapLegacy implements QueryProvider {
     if (!res?.data) {
       throw new Error(
         `Something went wrong when trying to fetch that transaction's datum. Full response: ${JSON.stringify(
-          res
-        )}`
+          res,
+        )}`,
       );
     }
 

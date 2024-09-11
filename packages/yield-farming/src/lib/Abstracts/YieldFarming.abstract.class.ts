@@ -9,9 +9,9 @@ export abstract class YieldFarming<Tx, TxComplete, Datum = string> {
   abstract datumBuilder: DatumBuilder;
 
   abstract lock(
-    args: unknown
+    args: unknown,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>;
   abstract unlock(
-    args: unknown
+    args: unknown,
   ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>;
 }

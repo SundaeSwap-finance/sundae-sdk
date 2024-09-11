@@ -37,7 +37,7 @@ export interface IComposedTx<
   Transaction = unknown,
   BuiltTransaction = unknown,
   Datum = string | undefined,
-  Fees = Record<string, AssetAmount<IAssetAmountMetadata>>
+  Fees = Record<string, AssetAmount<IAssetAmountMetadata>>,
 > {
   tx: Transaction;
   datum: Datum;

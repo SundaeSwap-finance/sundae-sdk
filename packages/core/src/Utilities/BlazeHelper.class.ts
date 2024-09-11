@@ -89,11 +89,11 @@ export class BlazeHelper {
     BlazeHelper.validateAddressNetwork(address, network);
     if (
       ![EDatumType.NONE, EDatumType.HASH, EDatumType.INLINE].includes(
-        datum.type
+        datum.type,
       )
     ) {
       throw new Error(
-        "Could not find a matching datum type for the destination address. Aborting."
+        "Could not find a matching datum type for the destination address. Aborting.",
       );
     }
 
@@ -102,7 +102,7 @@ export class BlazeHelper {
       if (datum.type === EDatumType.NONE) {
         BlazeHelper.throwInvalidOrderAddressesError(
           address,
-          `The address provided is a Script Address, but a datum hash was not supplied. This will brick your funds! Supply a valid datum hash with the address in order to proceed.`
+          `The address provided is a Script Address, but a datum hash was not supplied. This will brick your funds! Supply a valid datum hash with the address in order to proceed.`,
         );
       }
 
@@ -112,7 +112,7 @@ export class BlazeHelper {
         } else {
           Data.from(
             Core.PlutusData.fromCbor(Core.HexBlob(datum.value)),
-            Data.Any()
+            Data.Any(),
           );
         }
       } catch (e) {
@@ -122,8 +122,8 @@ export class BlazeHelper {
             {
               datum,
               originalErrorMessage: (e as Error).message,
-            }
-          )}`
+            },
+          )}`,
         );
       }
     }
@@ -150,7 +150,7 @@ export class BlazeHelper {
    */
   static validateAddressNetwork(
     address: string,
-    network: TSupportedNetworks
+    network: TSupportedNetworks,
   ): void | never {
     let details: Core.Address;
     try {
@@ -158,20 +158,20 @@ export class BlazeHelper {
     } catch (e) {
       BlazeHelper.throwInvalidOrderAddressesError(
         address,
-        (e as Error).message
+        (e as Error).message,
       );
     }
 
     BlazeHelper.maybeThrowNetworkError(
       details.getNetworkId(),
       address,
-      network
+      network,
     );
   }
 
   static throwNoPaymentKeyError(): never {
     throw new Error(
-      "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key."
+      "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key.",
     );
   }
 
@@ -183,19 +183,19 @@ export class BlazeHelper {
   static maybeThrowNetworkError(
     addressNetwork: number,
     address: string,
-    network: TSupportedNetworks
+    network: TSupportedNetworks,
   ): never | void {
     if (addressNetwork !== 1 && network === "mainnet") {
       BlazeHelper.throwInvalidOrderAddressesError(
         address,
-        `The given address is not a Mainnet Network address: ${address}.`
+        `The given address is not a Mainnet Network address: ${address}.`,
       );
     }
 
     if (addressNetwork !== 0 && network === "preview") {
       BlazeHelper.throwInvalidOrderAddressesError(
         address,
-        `The given address is not a (Preview/Testnet/PreProd) Network address: ${address}.`
+        `The given address is not a (Preview/Testnet/PreProd) Network address: ${address}.`,
       );
     }
   }
@@ -209,10 +209,10 @@ export class BlazeHelper {
    */
   static throwInvalidOrderAddressesError(
     address: string,
-    errorMessage: string
+    errorMessage: string,
   ): never {
     throw new Error(
-      `You supplied an invalid address: ${address}. Please check your arguments and try again. Error message: ${errorMessage}`
+      `You supplied an invalid address: ${address}. Please check your arguments and try again. Error message: ${errorMessage}`,
     );
   }
 }

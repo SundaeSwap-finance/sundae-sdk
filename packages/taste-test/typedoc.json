@@ -1,13 +1,11 @@
 {
-    "$schema": "https://typedoc.org/schema.json",
-    "out": "../../docs/typescript/taste-test",
-    "entryPoints": [
-        "./src/index.ts"
-    ],
-    "hideBreadcrumbs": true,
-    "hideInPageTOC": true,
-    "excludeNotDocumented": true,
-    "githubPages": false,
-    "gitRevision": "main",
-    "treatWarningsAsErrors": true,
+  "$schema": "https://typedoc.org/schema.json",
+  "out": "../../docs/typescript/taste-test",
+  "entryPoints": ["./src/index.ts"],
+  "hideBreadcrumbs": true,
+  "entryModule": "README.md",
+  "excludeNotDocumented": true,
+  "githubPages": false,
+  "gitRevision": "main",
+  "treatWarningsAsErrors": true
 }

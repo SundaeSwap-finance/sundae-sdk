@@ -1,4 +1,5 @@
 import { AssetAmount } from "@sundaeswap/asset";
+import { describe, expect, it } from "bun:test";
 
 import { ITxBuilderReferralFee } from "../../@types/index.js";
 import { Config } from "../Config.abstract.class.js";
@@ -63,7 +64,7 @@ describe("Config", () => {
 
     configWithAmount.setReferralFee(amountConfig);
     expect(() => configWithAmount.buildArgs()).toThrowError(
-      new Error(configWithAmount.INVALID_FEE_AMOUNT)
+      new Error(configWithAmount.INVALID_FEE_AMOUNT),
     );
   });
 });

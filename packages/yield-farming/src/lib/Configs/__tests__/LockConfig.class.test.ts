@@ -1,8 +1,9 @@
 import { AssetAmount } from "@sundaeswap/asset";
 import { ADA_METADATA } from "@sundaeswap/core";
 import { PREVIEW_DATA } from "@sundaeswap/core/testing";
+import { beforeEach, describe, expect, it } from "bun:test";
 
-// @ts-ignore
+// @ts-expect-error
 global.BigInt.prototype.toJSON = function () {
   return this.toString();
 };
@@ -115,7 +116,9 @@ describe("LockConfig class", () => {
     ]);
 
     expect(() => config.validate()).toThrowError(
-      new Error("One or more of your locked values is not of type AssetAmount.")
+      new Error(
+        "One or more of your locked values is not of type AssetAmount.",
+      ),
     );
   });
 
@@ -125,8 +128,8 @@ describe("LockConfig class", () => {
 
     expect(() => config.validate()).toThrowError(
       new Error(
-        "You provided a program map but no assets are assigned to accompany the data."
-      )
+        "You provided a program map but no assets are assigned to accompany the data.",
+      ),
     );
   });
 
@@ -140,8 +143,8 @@ describe("LockConfig class", () => {
 
     expect(() => config.validate()).toThrowError(
       new Error(
-        "You did not provide an owner's address. An owner's address is required to add, update, or remove locked assets."
-      )
+        "You did not provide an owner's address. An owner's address is required to add, update, or remove locked assets.",
+      ),
     );
   });
 });

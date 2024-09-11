@@ -1,7 +1,7 @@
-import { jest } from "@jest/globals";
 import { AssetAmount } from "@sundaeswap/asset";
 import { ADA_METADATA } from "@sundaeswap/core";
 import { PREVIEW_DATA, setupLucid } from "@sundaeswap/core/testing";
+import { afterEach, describe, expect, it, spyOn } from "bun:test";
 import { C, Data, Lucid, Tx } from "lucid-cardano";
 
 import { Delegation, TDelegation } from "../../../@types/lucid.js";
@@ -76,22 +76,22 @@ describe("YieldFarmingLucid", () => {
           datum.Data.original_bytes &&
           Data.from(
             Buffer.from(datum.Data.original_bytes).toString("hex"),
-            Delegation
+            Delegation,
           );
         hasLockedValuesOutput = true;
-      }
+      },
     );
 
     expect(hasLockedValuesOutput).toBeTruthy();
-    expect(lockedValueDatum).toMatchObject<TDelegation>({
+    expect(lockedValueDatum).toMatchObject({
       owner: {
         address: lucidInstance.utils.getAddressDetails(ownerAddress)
           .stakeCredential?.hash as string,
       },
       programs: [],
-    });
+    } as TDelegation);
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff",
     );
   });
 
@@ -146,7 +146,7 @@ describe("YieldFarmingLucid", () => {
      */
     // await build();
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
     );
 
     // Cover case where there are no existing positions with null.
@@ -173,7 +173,7 @@ describe("YieldFarmingLucid", () => {
     });
 
     expect(fallbackDatum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff",
     );
   });
 
@@ -227,7 +227,7 @@ describe("YieldFarmingLucid", () => {
      */
     // await build();
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff80ff",
     );
   });
 
@@ -293,22 +293,22 @@ describe("YieldFarmingLucid", () => {
           datum.Data.original_bytes &&
           Data.from(
             Buffer.from(datum.Data.original_bytes).toString("hex"),
-            Delegation
+            Delegation,
           );
         hasLockedValuesOutput = true;
-      }
+      },
     );
 
     expect(hasLockedValuesOutput).toBeTruthy();
-    expect(lockedValueDatum).toMatchObject<TDelegation>({
+    expect(lockedValueDatum).toMatchObject({
       owner: {
         address: lucidInstance.utils.getAddressDetails(ownerAddress)
           .stakeCredential?.hash as string,
       },
       programs: delegation,
-    });
+    } as TDelegation);
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
     );
   });
 
@@ -334,7 +334,7 @@ describe("YieldFarmingLucid", () => {
         },
       ]);
 
-    const spiedPayToContract = jest.spyOn(Tx.prototype, "payToContract");
+    const spiedPayToContract = spyOn(Tx.prototype, "payToContract");
     const { datum } = await YFInstance.lock({
       lockedValues: null,
       ownerAddress: ownerAddress,
@@ -359,10 +359,10 @@ describe("YieldFarmingLucid", () => {
         "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344":
           10000000n,
         lovelace: 5000000n,
-      }
+      },
     );
     expect(datum).toEqual(
-      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff"
+      "d8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff9fd87a9f4574494e445941001864ffd87a9f44494e445941041837ffd87a9f44494e44594102182dffd87a9f4653424552525941021864ffffff",
     );
   });
 
@@ -406,7 +406,7 @@ describe("YieldFarmingLucid", () => {
   it("should throw an error if the reference input cannot be found", async () => {
     getUtxosByOutRefMock.mockResolvedValueOnce(undefined);
 
-    expect(() =>
+    expect(
       YFInstance.lock({
         lockedValues: [
           new AssetAmount(5_000_000n, ADA_METADATA),
@@ -419,9 +419,9 @@ describe("YieldFarmingLucid", () => {
         ownerAddress: ownerAddress,
         programs: delegation,
         existingPositions: [],
-      })
+      }),
     ).rejects.toThrowError(
-      "Could not fetch valid UTXO from Blockfrost based on the the Yield Farming reference input."
+      "Could not fetch valid UTXO from Blockfrost based on the the Yield Farming reference input.",
     );
   });
 
@@ -596,14 +596,14 @@ describe("YieldFarmingLucid", () => {
         .auxiliary_data()
         ?.metadata()
         ?.get(C.BigNum.from_str("674"))
-        ?.as_text()
+        ?.as_text(),
     ).toEqual("Test Label: 1 ADA");
     expect(
       nonAdaReferralBuiltTx.txComplete
         .auxiliary_data()
         ?.metadata()
         ?.get(C.BigNum.from_str("674"))
-        ?.as_text()
+        ?.as_text(),
     ).toEqual("Non-Ada Test Label: 1 iUSD");
   });
 });

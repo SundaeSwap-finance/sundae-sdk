@@ -46,7 +46,7 @@ export const AddressSchema = Data.Object({
           }),
         ]),
       }),
-    ])
+    ]),
   ),
 });
 export type TAddressD = Data.Static<typeof AddressSchema>;

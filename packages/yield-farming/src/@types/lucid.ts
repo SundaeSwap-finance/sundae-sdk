@@ -13,7 +13,7 @@ export const DelegationProgramsSchema = Data.Array(
     Data.Object({
       Delegation: Data.Tuple([Data.Bytes(), Data.Bytes(), Data.Integer()]),
     }),
-  ])
+  ]),
 );
 export type TDelegationPrograms = Data.Static<typeof DelegationProgramsSchema>;
 export const DelegationPrograms =

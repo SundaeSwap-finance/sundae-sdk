@@ -24,6 +24,6 @@ export abstract class QueryProvider {
    * @param utxo The transaction hash and index of the open order in the escrow contract.
    */
   abstract findOpenOrderDatum: (
-    utxo: TUTXO
+    utxo: TUTXO,
   ) => Promise<{ datum: string; datumHash: string }>;
 }
