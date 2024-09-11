@@ -32,14 +32,14 @@
     }
   },
   "scripts": {
-    "clean": "rm -rf ./dist",
     "typecheck": "tsc --noEmit",
-    "compile:esm": "tsc --outDir dist/esm",
-    "compile:cjs": "tsc --outDir dist/cjs --module commonjs",
-    "compile:types": "tsc --outDir dist/types --emitDeclarationOnly --declarationMap --declaration",
-    "compile": "bun compile:cjs && bun compile:esm && bun compile:types",
-    "build": "bun clean && bun compile",
-    "watch": "bun compile:cjs && bun compile:types && bun compile:esm --watch",
+    "clean": "rm -rf ./dist",
+    "build:esm": "cross-env BABEL_ENV=esmUnbundled babel src --extensions '.ts,.tsx' --out-dir './dist/esm' --source-maps",
+    "build:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts,.tsx' --out-dir 'dist/cjs' --source-maps",
+    "types": "tsc --project ./tsconfig.build.json",
+    "build": "bun clean && bun types && bun build:esm && bun build:cjs && bun set-cjs",
+    "watch": "bun clean && bun run build && bun build:esm --watch",
+    "set-cjs": "echo '{ \"type\": \"commonjs\" }' > ./dist/cjs/package.json",
     "docs": "docgen generate --typedoc-options ./typedoc.json",
     "docs:ci": "bun docs --unsafe"
   },

@@ -1,0 +1,4 @@
+{
+  "presets": ["@sundaeswap/babel-preset"],
+  "ignore": ["**/__data__", "**/__tests__"]
+}
