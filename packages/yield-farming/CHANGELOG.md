@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.1.30 (2024-09-11)
+
+**Note:** Version bump only for package @sundaeswap/yield-farming
+
 ## [1.1.29](https://github.com/SundaeSwap-finance/sundae-sdk/compare/@sundaeswap/yield-farming@1.1.28...@sundaeswap/yield-farming@1.1.29) (2024-09-10)
 
 **Note:** Version bump only for package @sundaeswap/yield-farming
