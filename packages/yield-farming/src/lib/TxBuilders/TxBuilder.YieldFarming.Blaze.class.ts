@@ -241,6 +241,7 @@ export class YieldFarmingBlaze
       const redeemer = Core.PlutusData.fromCbor(Core.HexBlob(CANCEL_REDEEMER));
       await Promise.all(
         existingPositionData.map(async (utxo) => {
+          debugger;
           const hash = utxo.output().datum()?.asDataHash();
           if (!hash) {
             txInstance.addInput(utxo, redeemer);
@@ -399,10 +400,17 @@ export class YieldFarmingBlaze
       ),
     );
     tx.addRequiredSigner(Core.Ed25519KeyHashHex(paymentCredentials));
-    positions.forEach((p) =>
-      tx.addInput(p, Data.to("EMPTY", PositionRedeemer)),
+    await Promise.all(
+      positions.map(async (p) => {
+        const hash = p.output().datum()?.asDataHash();
+        if (!hash) {
+          tx.addInput(p, Data.to("EMPTY", PositionRedeemer));
+        } else {
+          const datum = await this.blaze.provider.resolveDatum(hash);
+          tx.addInput(p, Data.to("EMPTY", PositionRedeemer), datum);
+        }
+      }),
     );
-    // tx.collectFrom(positions, Data.to(new Constr(0, [])));
 
     const allAssets: Record<string, bigint> = {
       lovelace: 0n,
