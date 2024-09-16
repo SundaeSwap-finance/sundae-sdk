@@ -85,6 +85,17 @@ describe("TxBuilderBlazeV3", () => {
     expect(result.toString()).toEqual("1000000");
   });
 
+  it("should respect a max scooper fee override", async () => {
+    const result = await builder.getMaxScooperFeeAmount();
+    expect(result.toString()).toEqual("1000000");
+    builder.setMaxScooperFee(2_000_000n);
+    const newResult = await builder.getMaxScooperFeeAmount();
+    expect(newResult.toString()).toEqual("2000000");
+    builder.resetMaxScooperFee();
+    const finalResult = await builder.getMaxScooperFeeAmount();
+    expect(finalResult.toString()).toEqual("1000000");
+  });
+
   it("should create a new transaction instance correctly", async () => {
     expect(builder.newTxInstance()).toBeInstanceOf(BlazeTx);
 

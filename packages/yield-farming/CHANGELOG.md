@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.1.34 (2024-09-16)
+
+**Note:** Version bump only for package @sundaeswap/yield-farming
+
 ## 1.1.33 (2024-09-16)
 
 ### Bug Fixes
