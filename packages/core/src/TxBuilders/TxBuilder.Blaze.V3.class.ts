@@ -78,6 +78,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
   referenceUtxos: Core.TransactionUnspentOutput[] | undefined;
   settingsUtxoDatum: string | undefined;
   validatorScripts: Record<string, ISundaeProtocolValidatorFull> = {};
+  maxScopoerFeeOverride?: bigint;
 
   static MIN_ADA_POOL_MINT_ERROR =
     "You tried to create a pool with less ADA than is required. Try again with more than 2 ADA.";
@@ -239,6 +240,10 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    * @returns {bigint} The maxScooperFee as defined by the settings UTXO.
    */
   public async getMaxScooperFeeAmount(): Promise<bigint> {
+    if (this.maxScopoerFeeOverride) {
+      return this.maxScopoerFeeOverride;
+    }
+
     const settings = await this.getSettingsUtxoDatum();
     if (!settings) {
       return 1_000_000n;
@@ -250,6 +255,25 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     );
 
     return baseFee + simpleFee;
+  }
+
+  /**
+   * Sets the max scooper fee override value.
+   *
+   * @param {bigint} val The value in lovelace.
+   * @return {void}
+   */
+  public setMaxScooperFee(val: bigint): void {
+    this.maxScopoerFeeOverride = val;
+  }
+
+  /**
+   * Resets the max scooper fee to read from the settings UTXO.
+   *
+   * @return {void}
+   */
+  public resetMaxScooperFee(): void {
+    this.maxScopoerFeeOverride = undefined;
   }
 
   /**
