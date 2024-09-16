@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.73 (2024-09-16)
+
+### Bug Fixes
+
+- YF Unlock V1 ([5f9289c](https://github.com/SundaeSwap-finance/sundae-sdk/commit/5f9289cbc9cfb9d9275cbe1413e0ff1c21031154))
+
 ## 1.0.72 (2024-09-16)
 
 ### Bug Fixes
