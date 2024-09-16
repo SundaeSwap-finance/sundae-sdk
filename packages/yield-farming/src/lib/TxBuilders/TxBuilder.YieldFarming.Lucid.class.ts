@@ -74,7 +74,7 @@ export class YieldFarmingLucid
       stakeKeyHash: "d7244b4a8777b7dc6909f4640cf02ea4757a557a99fb483b05f87dfe",
       scriptHash: "73275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c",
       referenceInput:
-        "006ddd85cfc2e2d8b7238daa37b37a5db2ac63de2df35884a5e501667981e1e3#0",
+        "5af2bc2b1c983f65122d8737755d1de6e88c4d24797fdfac2c01e5156c15256f#0",
       minLockAda: 5_000_000n,
     },
     preview: {
@@ -102,7 +102,7 @@ export class YieldFarmingLucid
    */
   static getParam<K extends keyof IYieldFarmingParams>(
     param: K,
-    network: TSupportedNetworks,
+    network: TSupportedNetworks
   ): IYieldFarmingParams[K] {
     return YieldFarmingLucid.PARAMS[network][param];
   }
@@ -146,13 +146,13 @@ export class YieldFarmingLucid
           existingPositions.map(({ hash, index }) => ({
             outputIndex: index,
             txHash: hash,
-          })),
+          }))
         ))(),
     ]);
 
     if (!referenceInput?.length) {
       throw new Error(
-        "Could not fetch valid UTXO from Blockfrost based on the the Yield Farming reference input.",
+        "Could not fetch valid UTXO from Blockfrost based on the the Yield Farming reference input."
       );
     }
 
@@ -204,7 +204,7 @@ export class YieldFarmingLucid
       {
         hash: this.__getParam("stakeKeyHash"),
         type: "Key",
-      },
+      }
     );
 
     if (!contractAddress) {
@@ -228,7 +228,7 @@ export class YieldFarmingLucid
 
     const deposit = new AssetAmount(
       (existingPositions?.length ?? 0) > 0 ? 0n : this.__getParam("minLockAda"),
-      ADA_METADATA,
+      ADA_METADATA
     );
 
     /**
@@ -276,7 +276,7 @@ export class YieldFarmingLucid
 
     if (!inline) {
       throw new Error(
-        "A datum was not constructed for this lockup, which can brick the funds! Aborting.",
+        "A datum was not constructed for this lockup, which can brick the funds! Aborting."
       );
     }
 
@@ -298,7 +298,7 @@ export class YieldFarmingLucid
    * @returns
    */
   updatePosition(
-    positionArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "programs">,
+    positionArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "programs">
   ) {
     return this.lock({
       ...positionArgs,
@@ -315,7 +315,7 @@ export class YieldFarmingLucid
    * @returns
    */
   updateDelegation(
-    delegationArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">,
+    delegationArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">
   ) {
     return this.lock({
       ...delegationArgs,
@@ -330,7 +330,7 @@ export class YieldFarmingLucid
    * @returns
    */
   unlock(
-    unlockArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">,
+    unlockArgs: Omit<ILockConfigArgs<TDelegationPrograms>, "lockedValues">
   ) {
     // We just reverse the lock process.
     return this.lock({
@@ -428,10 +428,10 @@ export class YieldFarmingLucid
             !SundaeUtils.isAdaAsset(referralFee.payment.metadata)
               ? Buffer.from(
                   referralFee.payment.metadata.assetId.split(".")[1],
-                  "hex",
+                  "hex"
                 ).toString("utf-8")
               : "ADA"
-          }`,
+          }`
         );
       }
     }
@@ -446,7 +446,7 @@ export class YieldFarmingLucid
         scooperFee: new AssetAmount(0n, ADA_METADATA),
         referral: new AssetAmount(
           referralFee?.payment?.amount ?? 0n,
-          referralFee?.payment?.metadata ?? ADA_METADATA,
+          referralFee?.payment?.metadata ?? ADA_METADATA
         ),
       },
       datum,
@@ -457,7 +457,7 @@ export class YieldFarmingLucid
 
         thisTx.fees.cardanoTxFee = new AssetAmount(
           BigInt(txFee?.to_str() ?? finishedTx?.fee?.toString() ?? "0"),
-          6,
+          6
         );
 
         return {

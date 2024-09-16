@@ -101,7 +101,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
   constructor(
     public lucid: Lucid,
     network: TSupportedNetworks,
-    queryProvider?: QueryProviderSundaeSwap,
+    queryProvider?: QueryProviderSundaeSwap
   ) {
     super();
     this.network = network;
@@ -124,7 +124,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     if (!this.protocolParams) {
       this.protocolParams =
         await this.queryProvider.getProtocolParamsWithScripts(
-          EContractVersion.V1,
+          EContractVersion.V1
         );
     }
 
@@ -140,15 +140,15 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    * @returns {Promise<ISundaeProtocolValidatorFull>}
    */
   public async getValidatorScript(
-    name: string,
+    name: string
   ): Promise<ISundaeProtocolValidatorFull> {
     const params = await this.getProtocolParams();
     const result = params.blueprint.validators.find(
-      ({ title }) => title === name,
+      ({ title }) => title === name
     );
     if (!result) {
       throw new Error(
-        `Could not find a validator that matched the key: ${name}`,
+        `Could not find a validator that matched the key: ${name}`
       );
     }
 
@@ -164,7 +164,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    */
   static getParam<K extends keyof ITxBuilderV1LucidParams>(
     param: K,
-    network: TSupportedNetworks,
+    network: TSupportedNetworks
   ): ITxBuilderV1LucidParams[K] {
     return TxBuilderLucidV1.PARAMS[network][param];
   }
@@ -176,7 +176,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    * @returns {ITxBuilderV1LucidParams}
    */
   public __getParam<K extends keyof ITxBuilderV1LucidParams>(
-    param: K,
+    param: K
   ): ITxBuilderV1LucidParams[K] {
     return TxBuilderLucidV1.getParam(param, this.network);
   }
@@ -204,10 +204,10 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
             !SundaeUtils.isAdaAsset(fee.payment.metadata)
               ? Buffer.from(
                   fee.payment.metadata.assetId.split(".")[1],
-                  "hex",
+                  "hex"
                 ).toString("utf-8")
               : "ADA"
-          }`,
+          }`
         );
       }
     }
@@ -250,7 +250,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       swap: {
         SuppliedCoin: SundaeUtils.getAssetSwapDirection(
           suppliedAsset.metadata,
-          [assetA, assetB],
+          [assetA, assetB]
         ),
         MinimumReceivable: minReceivable,
       },
@@ -265,7 +265,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     const v3Address = await v3TxBuilder.generateScriptAddress(
       "order.spend",
       swapArgs.ownerAddress ||
-        swapArgs.orderAddresses.DestinationAddress.address,
+        swapArgs.orderAddresses.DestinationAddress.address
     );
 
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
@@ -302,7 +302,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    * @returns {Promise<IComposedTx<Tx, TxComplete>>} The result of the transaction.
    */
   async orderRouteSwap(
-    args: IOrderRouteSwapArgs,
+    args: IOrderRouteSwapArgs
   ): Promise<IComposedTx<Tx, TxComplete>> {
     const isSecondSwapV3 = args.swapB.pool.version === EContractVersion.V3;
 
@@ -312,13 +312,13 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     const secondSwapAddress = isSecondSwapV3
       ? await (secondSwapBuilder as TxBuilderLucidV3).generateScriptAddress(
           "order.spend",
-          args.ownerAddress,
+          args.ownerAddress
         )
       : await this.getValidatorScript("escrow.spend").then(({ compiledCode }) =>
           this.lucid.utils.validatorToAddress({
             type: "PlutusV1",
             script: compiledCode,
-          }),
+          })
         );
 
     const swapA = new SwapConfig({
@@ -337,11 +337,11 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     const [aReserve, bReserve] = SundaeUtils.sortSwapAssetsWithAmounts([
       new AssetAmount(
         args.swapA.pool.liquidity.aReserve,
-        args.swapA.pool.assetA,
+        args.swapA.pool.assetA
       ),
       new AssetAmount(
         args.swapA.pool.liquidity.bReserve,
-        args.swapA.pool.assetB,
+        args.swapA.pool.assetB
       ),
     ]);
 
@@ -391,7 +391,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     }
 
     const datumHash = this.lucid.utils.datumToHash(
-      secondSwapData.datum as string,
+      secondSwapData.datum as string
     );
 
     const { tx, datum, fees } = await this.swap({
@@ -417,7 +417,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     tx.attachMetadataWithConversion(103251, {
       [`0x${datumHash}`]: SundaeUtils.splitMetadataString(
         secondSwapData.datum as string,
-        true,
+        true
       ),
     });
 
@@ -449,7 +449,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    */
   async cancel(cancelArgs: ICancelConfigArgs) {
     const { utxo, referralFee, ownerAddress } = new CancelConfig(
-      cancelArgs,
+      cancelArgs
     ).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
@@ -460,8 +460,8 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     if (!utxosToSpend) {
       throw new Error(
         `UTXO data was not found with the following parameters: ${JSON.stringify(
-          utxo,
-        )}`,
+          utxo
+        )}`
       );
     }
 
@@ -472,7 +472,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
 
     if (!spendingDatum) {
       throw new Error(
-        "Failed trying to cancel an order that doesn't include a datum!",
+        "Failed trying to cancel an order that doesn't include a datum!"
       );
     }
 
@@ -495,7 +495,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
 
     tx.collectFrom(
       utxosToSpend,
-      this.__getParam("cancelRedeemer"),
+      this.__getParam("cancelRedeemer")
     ).attachSpendingValidator(scriptValidator);
 
     const details = getAddressDetails(ownerAddress);
@@ -573,7 +573,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       swap: {
         SuppliedCoin: SundaeUtils.getAssetSwapDirection(
           suppliedAsset.metadata,
-          [assetA, assetB],
+          [assetA, assetB]
         ),
         MinimumReceivable: minReceivable,
       },
@@ -598,7 +598,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       SundaeUtils.accumulateSuppliedAssets({
         suppliedAssets: [suppliedAsset],
         scooperFee: this.__getParam("maxScooperFee"),
-      }),
+      })
     );
 
     /**
@@ -687,10 +687,10 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    * ```
    */
   async withdraw(
-    withdrawArgs: IWithdrawConfigArgs,
+    withdrawArgs: IWithdrawConfigArgs
   ): Promise<IComposedTx<Tx, TxComplete>> {
     const { suppliedLPAsset, orderAddresses, referralFee } = new WithdrawConfig(
-      withdrawArgs,
+      withdrawArgs
     ).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
@@ -701,7 +701,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     });
 
     const ident = SundaeUtils.getIdentFromAssetId(
-      suppliedLPAsset.metadata.assetId,
+      suppliedLPAsset.metadata.assetId
     );
 
     const { inline: cbor } = this.datumBuilder.buildWithdrawDatum({
@@ -743,11 +743,11 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    * ```
    */
   async zap(
-    zapArgs: Omit<IZapConfigArgs, "zapDirection">,
+    zapArgs: Omit<IZapConfigArgs, "zapDirection">
   ): Promise<IComposedTx<Tx, TxComplete>> {
     const zapDirection = SundaeUtils.getAssetSwapDirection(
       zapArgs.suppliedAsset.metadata,
-      [zapArgs.pool.assetA, zapArgs.pool.assetB],
+      [zapArgs.pool.assetA, zapArgs.pool.assetB]
     );
     const { pool, suppliedAsset, orderAddresses, swapSlippage, referralFee } =
       new ZapConfig({
@@ -768,20 +768,20 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
      */
     const halfSuppliedAmount = new AssetAmount(
       Math.ceil(Number(suppliedAsset.amount) / 2),
-      suppliedAsset.metadata,
+      suppliedAsset.metadata
     );
 
     const minReceivable = SundaeUtils.getMinReceivableFromSlippage(
       pool,
       halfSuppliedAmount,
-      swapSlippage,
+      swapSlippage
     );
 
     let depositPair: TDepositMixed;
     if (
       SundaeUtils.isAssetIdsEqual(
         pool.assetA.assetId,
-        suppliedAsset.metadata.assetId,
+        suppliedAsset.metadata.assetId
       )
     ) {
       depositPair = {
@@ -809,7 +809,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
 
     if (!depositHash) {
       throw new Error(
-        "A datum hash for a deposit transaction is required to build a chained Zap operation.",
+        "A datum hash for a deposit transaction is required to build a chained Zap operation."
       );
     }
 
@@ -843,7 +843,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       swap: {
         SuppliedCoin: SundaeUtils.getAssetSwapDirection(
           suppliedAsset.metadata,
-          [pool.assetA, pool.assetB],
+          [pool.assetA, pool.assetB]
         ),
         MinimumReceivable: minReceivable,
       },
@@ -853,7 +853,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     tx.attachMetadataWithConversion(103251, {
       [`0x${depositHash}`]: SundaeUtils.splitMetadataString(
         depositInline,
-        true,
+        true
       ),
     });
 
@@ -912,7 +912,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
    */
   async migrateLiquidityToV3(
     migrations: IMigrateLiquidityConfig[],
-    yieldFarming?: IMigrateYieldFarmingLiquidityConfig,
+    yieldFarming?: IMigrateYieldFarmingLiquidityConfig
   ): Promise<
     IComposedTx<
       Tx,
@@ -929,7 +929,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
     const v3TxBuilderInstance = new TxBuilderLucidV3(
       this.lucid,
       this.network,
-      this.queryProvider,
+      this.queryProvider
     );
     const v3OrderScriptAddress =
       await v3TxBuilderInstance.generateScriptAddress("order.spend");
@@ -946,7 +946,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
           "d7244b4a8777b7dc6909f4640cf02ea4757a557a99fb483b05f87dfe",
         scriptHash: "73275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c",
         referenceInput:
-          "006ddd85cfc2e2d8b7238daa37b37a5db2ac63de2df35884a5e501667981e1e3#0",
+          "5af2bc2b1c983f65122d8737755d1de6e88c4d24797fdfac2c01e5156c15256f#0",
       },
       preview: {
         stakeKeyHash:
@@ -963,7 +963,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
         {
           txHash: YF_V2_PARAMS[this.network].referenceInput.split("#")[0],
           outputIndex: Number(
-            YF_V2_PARAMS[this.network].referenceInput.split("#")[1],
+            YF_V2_PARAMS[this.network].referenceInput.split("#")[1]
           ),
         },
       ]));
@@ -974,7 +974,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
         yieldFarming.existingPositions.map(({ hash, index }) => ({
           outputIndex: index,
           txHash: hash,
-        })),
+        }))
       ));
 
     const lockContractAddress = this.lucid.utils.credentialToAddress(
@@ -985,7 +985,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       {
         hash: YF_V2_PARAMS[this.network].stakeKeyHash,
         type: "Key",
-      },
+      }
     );
 
     const returnedYFAssets: Record<
@@ -1020,7 +1020,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
           list.push(withdrawPool.assetLP.assetId.replace(".", ""));
           return list;
         },
-        [] as string[],
+        [] as string[]
       );
 
       existingPositionsData.forEach(({ assets }) => {
@@ -1051,7 +1051,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
 
       if (Object.keys(migrationAssets).length === 0) {
         throw new Error(
-          "There were no eligible assets to migrate within the provided existing positions. Please check your migration config, and try again.",
+          "There were no eligible assets to migrate within the provided existing positions. Please check your migration config, and try again."
         );
       }
 
@@ -1085,7 +1085,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
               migrationAssets[
                 withdrawPool.assetLP.assetId.replace(".", "")
               ].amount,
-              withdrawPool.assetLP,
+              withdrawPool.assetLP
             ),
           },
         };
@@ -1119,7 +1119,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
         withdrawArgs.suppliedLPAsset.amount,
         withdrawConfig.pool.liquidity.aReserve,
         withdrawConfig.pool.liquidity.bReserve,
-        withdrawConfig.pool.liquidity.lpTotal,
+        withdrawConfig.pool.liquidity.lpTotal
       );
 
       const v3DatumBuilder = new DatumBuilderLucidV3(this.network);
@@ -1131,11 +1131,11 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
           order: {
             assetA: new AssetAmount<IAssetAmountMetadata>(
               coinA,
-              depositPool.assetA,
+              depositPool.assetA
             ),
             assetB: new AssetAmount<IAssetAmountMetadata>(
               coinB,
-              depositPool.assetB,
+              depositPool.assetB
             ),
           },
           scooperFee: v3MaxScooperFee,
@@ -1161,7 +1161,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
 
       metadataDatums[`0x${depositHash}`] = SundaeUtils.splitMetadataString(
         depositInline,
-        true,
+        true
       );
 
       tx.payToContract(scriptAddress, withdrawInline, payment);
@@ -1184,7 +1184,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       });
 
       const signerKey = LucidHelper.getAddressHashes(
-        yieldFarming.ownerAddress.address,
+        yieldFarming.ownerAddress.address
       );
 
       finalTx.addSignerKey(signerKey.paymentCredentials);
@@ -1196,7 +1196,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       finalTx.payToContract(
         lockContractAddress,
         { inline: existingPositionsData[0].datum as string },
-        returningPayment,
+        returningPayment
       );
     }
 
@@ -1224,7 +1224,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
       scooperFee: new AssetAmount(
         scooperFee ?? this.__getParam("maxScooperFee"),
-        ADA_METADATA,
+        ADA_METADATA
       ),
       referral: referralFee,
     };
@@ -1241,7 +1241,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
           finishedTx = await tx.complete({ coinSelection });
           thisTx.fees.cardanoTxFee = new AssetAmount(
             BigInt(txFee?.to_str() ?? finishedTx?.fee?.toString() ?? "0"),
-            ADA_METADATA,
+            ADA_METADATA
           );
         }
 
