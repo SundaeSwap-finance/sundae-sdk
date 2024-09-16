@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.72 (2024-09-16)
+
+### Bug Fixes
+
+- unlocking v1 yf position ([3bf7b22](https://github.com/SundaeSwap-finance/sundae-sdk/commit/3bf7b22bf1e1275cdafd2f82c3af3ebe396603e6))
+
 ## 1.0.71 (2024-09-11)
 
 **Note:** Version bump only for package @sundaeswap/taste-test
