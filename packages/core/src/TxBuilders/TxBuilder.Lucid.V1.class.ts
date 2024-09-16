@@ -946,7 +946,7 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
           "d7244b4a8777b7dc6909f4640cf02ea4757a557a99fb483b05f87dfe",
         scriptHash: "73275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c",
         referenceInput:
-          "006ddd85cfc2e2d8b7238daa37b37a5db2ac63de2df35884a5e501667981e1e3#0",
+          "5af2bc2b1c983f65122d8737755d1de6e88c4d24797fdfac2c01e5156c15256f#0",
       },
       preview: {
         stakeKeyHash:
