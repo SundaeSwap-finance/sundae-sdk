@@ -224,6 +224,7 @@ export class YieldFarmingBlaze
 
     const signerKey = BlazeHelper.getAddressHashes(ownerAddress);
     const txInstance = this.blaze.newTransaction();
+    txInstance.setMinimumFee(500_000n);
 
     referenceInputs.forEach((input) => txInstance.addReferenceInput(input));
     signerKey?.paymentCredentials &&
@@ -271,8 +272,6 @@ export class YieldFarmingBlaze
       lockedValues === undefined ||
       (lockedValues && lockedValues.length === 0)
     ) {
-      const draft = await txInstance.complete();
-      txInstance.setMinimumFee(draft.body().fee() + 10_000n);
       return this.completeTx({
         tx: txInstance,
         deposit,
@@ -320,8 +319,6 @@ export class YieldFarmingBlaze
       ),
       Core.PlutusData.fromCbor(Core.HexBlob(inline)),
     );
-
-    txInstance.setMinimumFee(500_000n);
 
     return this.completeTx({
       tx: txInstance,

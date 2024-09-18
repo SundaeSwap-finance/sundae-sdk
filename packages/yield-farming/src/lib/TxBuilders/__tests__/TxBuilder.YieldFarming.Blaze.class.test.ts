@@ -414,7 +414,7 @@ describe("YieldFarmingBlaze", () => {
         if (
           matchingAsset &&
           matchingAsset >= 10_000_000n &&
-          output.amount().coin() > 5_000_000n
+          output.amount().coin() === 4_500_000n
         ) {
           return true;
         }
