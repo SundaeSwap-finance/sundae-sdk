@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.0.67 (2024-09-18)
+
+### Bug Fixes
+
+- min fee on unlock yf ([582ce15](https://github.com/SundaeSwap-finance/sundae-sdk/commit/582ce1540bad8793ff23a684a38f3d1feea20b7c))
+
 ## 0.0.66 (2024-09-16)
 
 **Note:** Version bump only for package @sundaeswap/gummiworm
