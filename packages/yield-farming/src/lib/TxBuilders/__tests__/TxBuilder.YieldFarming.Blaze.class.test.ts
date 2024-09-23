@@ -398,6 +398,7 @@ describe("YieldFarmingBlaze", () => {
       ),
     );
 
+    console.log(tx.builtTx.body().toCbor());
     const outputWithAssets = tx.builtTx
       .body()
       .outputs()
@@ -414,7 +415,8 @@ describe("YieldFarmingBlaze", () => {
         if (
           matchingAsset &&
           matchingAsset >= 10_000_000n &&
-          output.amount().coin() === 4_500_000n
+          // Min ada fee, the rest is in the second output.
+          output.amount().coin() === 1_155_080n
         ) {
           return true;
         }

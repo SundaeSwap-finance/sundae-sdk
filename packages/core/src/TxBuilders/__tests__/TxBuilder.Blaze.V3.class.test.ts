@@ -219,9 +219,10 @@ describe("TxBuilderBlazeV3", () => {
       ),
     );
     expect(builtTx.body().inputs().values()[0].index().toString()).toEqual("0");
-    expect(builtTx.body().outputs().length).toEqual(1);
+    expect(builtTx.body().outputs().length).toEqual(2);
     expect(
-      Number(builtTx.body().outputs()[0].amount().coin()),
+      Number(builtTx.body().outputs()[0].amount().coin()) +
+        Number(builtTx.body().outputs()[1].amount().coin()),
     ).toBeGreaterThanOrEqual(
       Number(mockOrderToCancel[0].assets.lovelace - txFee),
     );

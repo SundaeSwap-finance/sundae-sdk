@@ -1445,7 +1445,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
             );
 
             return {
-              cbor: signedTx.toCbor(),
+              cbor: signedTx.body().toCbor(),
               submit: async () => {
                 try {
                   return await that.blaze.submitTransaction(signedTx);
