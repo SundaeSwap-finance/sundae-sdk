@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.0.72 (2024-09-27)
+
+### Bug Fixes
+
+- unlocking v1 positions fee padding ([a37497f](https://github.com/SundaeSwap-finance/sundae-sdk/commit/a37497f70c1b28b7188af6edf63c4fc473b2b680))
+
 ## 0.0.71 (2024-09-23)
 
 **Note:** Version bump only for package @sundaeswap/gummiworm
