@@ -35,7 +35,7 @@ export class CancelConfig extends OrderConfig<ICancelConfigArgs> {
 
   setFromObject({ utxo, ownerAddress, referralFee }: ICancelConfigArgs): void {
     this.setUTXO(utxo);
-    this.setOwnerAddress(ownerAddress);
+    ownerAddress && this.setOwnerAddress(ownerAddress);
     referralFee && this.setReferralFee(referralFee);
   }
 
@@ -43,12 +43,6 @@ export class CancelConfig extends OrderConfig<ICancelConfigArgs> {
     if (!this.utxo) {
       throw new Error(
         "You did not add the order's UTXO for this cancellation. Set a valid UTXO with .setUTXO()",
-      );
-    }
-
-    if (!this.ownerAddress) {
-      throw new Error(
-        "An owner address is required for validation purposes. Set the owner address of the order with .setOwnerAddress()",
       );
     }
   }

@@ -36,6 +36,15 @@ import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
+import {
+  DepositOrder,
+  SwapOrder,
+  TDepositOrder,
+  TKeyHashSchema,
+  TSwapOrder,
+  TWithdrawOrder,
+  WithdrawOrder,
+} from "../DatumBuilders/ContractTypes/Contract.Blaze.v1.js";
 import { OrderDatum as V3OrderDatum } from "../DatumBuilders/ContractTypes/Contract.Blaze.v3.js";
 import { DatumBuilderBlazeV1 } from "../DatumBuilders/DatumBuilder.Blaze.V1.class.js";
 import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
@@ -284,9 +293,6 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     }
 
     if (fee?.feeLabel) {
-      /**
-       * @todo Ensure metadata is correctly attached.
-       */
       const data = new Core.AuxiliaryData();
       const map = new Map<bigint, Core.Metadatum>();
       map.set(
@@ -576,9 +582,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   async cancel(
     cancelArgs: ICancelConfigArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const { utxo, referralFee, ownerAddress } = new CancelConfig(
-      cancelArgs,
-    ).buildArgs();
+    const { utxo, referralFee } = new CancelConfig(cancelArgs).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
     const [utxoToSpend] = await this.blaze.provider.resolveUnspentOutputs([
@@ -632,16 +636,42 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     );
 
     tx.provideScript(scriptValidator);
-    const details = Core.Address.fromBech32(ownerAddress);
-    const paymentCred = details.asBase()?.getPaymentCredential().hash;
-    const stakingCred = details.asBase()?.getStakeCredential().hash;
 
-    if (paymentCred && spendingDatum.toCbor().includes(paymentCred)) {
-      tx.addRequiredSigner(Core.Ed25519KeyHashHex(paymentCred));
+    // Must try deserializing the datum with each order type.
+    let data: TSwapOrder | TWithdrawOrder | TDepositOrder | undefined;
+    [SwapOrder, WithdrawOrder, DepositOrder].forEach((type) => {
+      if (data) {
+        return;
+      }
+
+      try {
+        data = Data.from(spendingDatum, type);
+      } catch (e) {}
+    });
+
+    if (!data) {
+      throw new Error(
+        "Could not determine order type based on the order's datum.",
+      );
     }
 
-    if (stakingCred && spendingDatum.toCbor().includes(stakingCred)) {
-      tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingCred));
+    tx.addRequiredSigner(
+      Core.Ed25519KeyHashHex(
+        (
+          data.orderAddresses.destination.credentials
+            .paymentKey as TKeyHashSchema
+        ).KeyHash.value,
+      ),
+    );
+
+    const stakingKeyCred =
+      data.orderAddresses.destination.credentials.stakingKey?.value;
+    if (stakingKeyCred) {
+      tx.addRequiredSigner(
+        Core.Ed25519KeyHashHex(
+          (stakingKeyCred as TKeyHashSchema).KeyHash.value,
+        ),
+      );
     }
 
     tx.setMinimumFee(310_000n);

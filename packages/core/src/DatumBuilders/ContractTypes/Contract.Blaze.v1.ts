@@ -1,16 +1,24 @@
 import { Data, Static } from "@blaze-cardano/sdk";
 
+export const KeyHashSchema = Data.Object({
+  KeyHash: Data.Object({
+    value: Data.Bytes(),
+  }),
+});
+export type TKeyHashSchema = Static<typeof KeyHashSchema>;
+export const KeyHash = KeyHashSchema as unknown as TKeyHashSchema;
+
+export const ScriptHashSchema = Data.Object({
+  ScriptHash: Data.Object({
+    value: Data.Bytes(),
+  }),
+});
+export type TScriptHashSchema = Static<typeof ScriptHashSchema>;
+export const ScriptHash = ScriptHashSchema as unknown as TScriptHashSchema;
+
 export const PaymentStakingHashSchema = Data.Enum([
-  Data.Object({
-    KeyHash: Data.Object({
-      value: Data.Bytes(),
-    }),
-  }),
-  Data.Object({
-    ScriptHash: Data.Object({
-      value: Data.Bytes(),
-    }),
-  }),
+  KeyHashSchema,
+  ScriptHashSchema,
 ]);
 export type TPaymentStakingHash = Static<typeof PaymentStakingHashSchema>;
 export const PaymentStakingHash =
@@ -101,6 +109,20 @@ export const WithdrawAssetSchema = Data.Enum([
 export type TWithdrawAsset = Static<typeof WithdrawAssetSchema>;
 export const WithdrawAsset = WithdrawAssetSchema as unknown as TWithdrawAsset;
 
+/**
+ * @todo
+ * The WithdrawAsset is using an enum that can be consolidated like V3 orders.
+ * This will help simplify checking order datums with a single type.
+ *
+ * - OrderSchema
+ * -- ident
+ * -- orderAddresses
+ * -- scooperFee
+ * -- details (enum)
+ * --- Swap (121)
+ * --- Withdraw (122)
+ * --- Deposit (123)
+ */
 export const WithdrawOrderSchema = Data.Object({
   ident: Data.Bytes(),
   orderAddresses: OrderAddressesSchema,

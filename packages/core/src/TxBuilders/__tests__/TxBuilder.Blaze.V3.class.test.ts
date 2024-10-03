@@ -196,7 +196,6 @@ describe("TxBuilderBlazeV3", () => {
     );
 
     const { build, fees } = await builder.cancel({
-      ownerAddress: PREVIEW_DATA.addresses.current,
       utxo: {
         hash: "b18feb718648b33ef4900519b76f72f46723577ebad46191e2f8e1076c2b632c",
         index: 0,
@@ -283,7 +282,6 @@ describe("TxBuilderBlazeV3", () => {
     // Don't care to mock v3 so it will throw.
     try {
       await builder.cancel({
-        ownerAddress: PREVIEW_DATA.addresses.current,
         utxo: {
           hash: PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.txHash,
           index: PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.outputIndex,
