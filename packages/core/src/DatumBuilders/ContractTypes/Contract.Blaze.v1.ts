@@ -109,6 +109,20 @@ export const WithdrawAssetSchema = Data.Enum([
 export type TWithdrawAsset = Static<typeof WithdrawAssetSchema>;
 export const WithdrawAsset = WithdrawAssetSchema as unknown as TWithdrawAsset;
 
+/**
+ * @todo
+ * The WithdrawAsset is using an enum that can be consolidated like V3 orders.
+ * This will help simplify checking order datums with a single type.
+ *
+ * - OrderSchema
+ * -- ident
+ * -- orderAddresses
+ * -- scooperFee
+ * -- details (enum)
+ * --- Swap (121)
+ * --- Withdraw (122)
+ * --- Deposit (123)
+ */
 export const WithdrawOrderSchema = Data.Object({
   ident: Data.Bytes(),
   orderAddresses: OrderAddressesSchema,
