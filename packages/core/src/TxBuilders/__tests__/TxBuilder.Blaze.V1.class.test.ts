@@ -67,19 +67,14 @@ describe("TxBuilderBlazeV1", () => {
     const txWithReferralAndLabel = builder.newTxInstance({
       destination: TEST_REFERRAL_DEST,
       payment: new AssetAmount(1_500_000n, ADA_METADATA),
-      // feeLabel: "Test Label",
+      feeLabel: "Test Label",
     });
 
     const txComplete = await txWithReferralAndLabel.complete();
-    // const metadata = txComplete.auxiliaryData()?.metadata();
+    const metadata = txComplete.auxiliaryData()?.metadata()?.metadata();
 
-    /**
-     * @TODO Restore this once Blaze fixes metadata bug.
-     */
-    // expect(metadata).not.toBeUndefined();
-    // expect(metadata?.metadata()?.get(674n)?.asText()).toEqual(
-    //   "Test Label: 1.5 ADA"
-    // );
+    expect(metadata).not.toBeUndefined();
+    expect(metadata?.get(674n)?.asText()).toEqual("Test Label: 1.5 ADA");
 
     let referralAddressOutput: Core.TransactionOutput | undefined;
     [...Array(txComplete.body().outputs().length).keys()].forEach((index) => {
@@ -1100,7 +1095,6 @@ describe("TxBuilderBlazeV1", () => {
     );
 
     const { build, datum, fees } = await builder.cancel({
-      ownerAddress: PREVIEW_DATA.addresses.current,
       utxo: {
         hash: PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.txHash,
         index: PREVIEW_DATA.wallet.submittedOrderUtxos.swapV1.outputIndex,
@@ -1119,7 +1113,7 @@ describe("TxBuilderBlazeV1", () => {
       }),
     } as ITxBuilderFees);
 
-    const { builtTx } = await build();
+    const { builtTx, cbor } = await build();
 
     expect(
       builtTx
@@ -1176,7 +1170,6 @@ describe("TxBuilderBlazeV1", () => {
     // Don't care to mock v3 so it will throw.
     try {
       await builder.cancel({
-        ownerAddress: PREVIEW_DATA.addresses.current,
         utxo: {
           hash: PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.txHash,
           index: PREVIEW_DATA.wallet.submittedOrderUtxos.swapV3.outputIndex,

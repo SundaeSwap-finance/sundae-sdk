@@ -398,7 +398,6 @@ describe("YieldFarmingBlaze", () => {
       ),
     );
 
-    console.log(tx.builtTx.body().toCbor());
     const outputWithAssets = tx.builtTx
       .body()
       .outputs()

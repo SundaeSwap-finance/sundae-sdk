@@ -78,7 +78,7 @@ export interface IDepositConfigArgs extends IOrderConfigArgs {
  * The arguments configuration for building a valid cancellation transaction.
  */
 export interface ICancelConfigArgs extends IBaseConfig {
-  ownerAddress: string;
+  ownerAddress?: string;
   utxo: TUTXO;
 }
 

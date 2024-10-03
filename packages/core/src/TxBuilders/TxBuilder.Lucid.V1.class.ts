@@ -452,6 +452,12 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
       cancelArgs,
     ).buildArgs();
 
+    if (!ownerAddress) {
+      throw new Error(
+        "An owner address is required to be explicitly supplied when using the Lucid builder.",
+      );
+    }
+
     const tx = this.newTxInstance(referralFee);
     const utxosToSpend = await this.lucid.provider.getUtxosByOutRef([
       { outputIndex: utxo.index, txHash: utxo.hash },

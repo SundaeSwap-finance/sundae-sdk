@@ -1,16 +1,24 @@
 import { Data, Static } from "@blaze-cardano/sdk";
 
+export const KeyHashSchema = Data.Object({
+  KeyHash: Data.Object({
+    value: Data.Bytes(),
+  }),
+});
+export type TKeyHashSchema = Static<typeof KeyHashSchema>;
+export const KeyHash = KeyHashSchema as unknown as TKeyHashSchema;
+
+export const ScriptHashSchema = Data.Object({
+  ScriptHash: Data.Object({
+    value: Data.Bytes(),
+  }),
+});
+export type TScriptHashSchema = Static<typeof ScriptHashSchema>;
+export const ScriptHash = ScriptHashSchema as unknown as TScriptHashSchema;
+
 export const PaymentStakingHashSchema = Data.Enum([
-  Data.Object({
-    KeyHash: Data.Object({
-      value: Data.Bytes(),
-    }),
-  }),
-  Data.Object({
-    ScriptHash: Data.Object({
-      value: Data.Bytes(),
-    }),
-  }),
+  KeyHashSchema,
+  ScriptHashSchema,
 ]);
 export type TPaymentStakingHash = Static<typeof PaymentStakingHashSchema>;
 export const PaymentStakingHash =
