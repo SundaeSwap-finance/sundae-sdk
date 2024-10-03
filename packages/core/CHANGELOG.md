@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.3.39 (2024-10-03)
+
+**Note:** Version bump only for package @sundaeswap/core
+
 ## 1.3.38 (2024-09-27)
 
 ### Bug Fixes

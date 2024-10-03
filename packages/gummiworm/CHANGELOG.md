@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.0.73 (2024-10-03)
+
+**Note:** Version bump only for package @sundaeswap/gummiworm
+
 ## 0.0.72 (2024-09-27)
 
 ### Bug Fixes
