@@ -434,8 +434,8 @@ export class YieldFarmingBlaze
       ),
     );
 
-    // Set fee padding to resolve miscalculated fees.
-    tx.setFeePadding(10000n);
+    // Set min fee.
+    tx.setMinimumFee(400_000n);
 
     return this.completeTx({
       deposit: new AssetAmount(0n, ADA_METADATA),

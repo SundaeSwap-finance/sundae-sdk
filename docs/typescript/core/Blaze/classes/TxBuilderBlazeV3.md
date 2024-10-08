@@ -112,7 +112,7 @@ A promise that resolves to the composed transaction object.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1041](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1041)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1039](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1039)
 
 ***
 
@@ -136,7 +136,7 @@ The generated Bech32 address.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1307](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1307)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1305](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1305)
 
 ***
 
@@ -272,7 +272,7 @@ Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1356](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1356)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1354](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1354)
 
 ***
 
@@ -490,7 +490,7 @@ A promise that resolves to the result of the updated transaction.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:945](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L945)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:943](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L943)
 
 ***
 
@@ -520,7 +520,7 @@ A promise that resolves to the composed transaction object.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1095](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1095)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1093](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1093)
 
 ***
 
@@ -550,4 +550,4 @@ A promise that resolves to the composed transaction object resulting from the za
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1153](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1153)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts:1151](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V3.class.ts#L1151)

@@ -233,7 +233,7 @@ const migrationResult = await sdk.builder().migrateLiquidityToV3([
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:1136](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L1136)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:1134](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L1134)
 
 ***
 
@@ -376,7 +376,7 @@ const txHash = await sdk.builder().update({
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:712](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L712)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:710](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L710)
 
 ***
 
@@ -416,7 +416,7 @@ const txHash = await sdk.builder().withdraw({
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:877](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L877)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:875](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L875)
 
 ***
 
@@ -456,7 +456,7 @@ const txHash = await sdk.builder().zap({
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:945](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L945)
+[packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts:943](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Blaze.V1.class.ts#L943)
 
 ***
 

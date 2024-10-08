@@ -674,8 +674,6 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       );
     }
 
-    tx.setMinimumFee(310_000n);
-
     return this.completeTx({
       tx,
       datum: spendingDatum.toCbor(),
@@ -1526,8 +1524,8 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   }: ITxBuilderBlazeCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {
-    // Temporarily pad fee.
-    tx.setFeePadding(50000n);
+    // Set the min fee high enough to cover lack of accuracy.
+    tx.setMinimumFee(400_000n);
 
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
