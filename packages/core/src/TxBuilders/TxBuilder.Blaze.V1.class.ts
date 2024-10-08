@@ -1526,6 +1526,9 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   }: ITxBuilderBlazeCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {
+    // Temporarily pad fee.
+    tx.setFeePadding(50000n);
+
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
       scooperFee: new AssetAmount(
