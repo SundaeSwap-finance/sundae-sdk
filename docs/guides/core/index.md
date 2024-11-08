@@ -7,10 +7,10 @@ parent: Guides
 
 # Building a Swap
 
-To get started building your first swap, you'll need to install a few things. Assuming you've setup a TypeScript and Webpack bundling config (see [details on requirements](/sundae-sdk/#requirements)), you can then install dependencies. We install the main `@sundaeswap/core` package, and then the latest version of `lucid-cardano`:
+To get started building your first swap, you'll need to install a few things. Assuming you've setup a TypeScript and Webpack bundling config (see [details on requirements](/sundae-sdk/#requirements)), you can then install dependencies. We install the main `@sundaeswap/core` package, and then the latest version of `@blaze-cardano/sdk` (we're using [Bun.sh](https://bun.sh/) here, but you can use whatever package manager you like):
 
 ```bash
-$ bun add @sundaeswap/core lucid-cardano
+$ bun add @sundaeswap/core @blaze-cardano/sdk
 ```
 
 ## Steps
@@ -34,15 +34,18 @@ For our example, we'll be using the Preview network, and a pool ident for ADA/RB
 > functions for clarity.
 
 ```ts
-import { Lucid } from "lucid-cardano";
+import { Blaze, Blockfrost, WebWallet } from "@blaze-cardano/sdk";
 import { ETxBuilderType, ISundaeSDKOptions, SundaeSDK } from "@sundaeswap/core";
 
-const lucidInstance = await Lucid.new(
-  new Blockfrost(
-    "https://cardano-preview.blockfrost.io/api/v0/"
-    // Your API Key
-  ),
-  "Preview"
+// Get the API from the browser window.
+const myBlockfrostApiKey = "";
+const api = await window.cardano.eternl.enable();
+const blazeInstance = await Blaze.from(
+  new Blockfrost({
+    network: network ? "cardano-mainnet" : "cardano-preview",
+    projectId: myBlockfrostApiKey
+  }),
+  new WebWallet(api),
 );
 
 const options: ISundaeSDKOptions = {
@@ -50,13 +53,13 @@ const options: ISundaeSDKOptions = {
     name: "eternl",
     network: "preview",
     builder: {
-      lucid: lucidInstance,
-      type: ETxBuilderType.LUCID,
+      blaze: blazeInstance,
+      type: ETxBuilderType.BLAZE,
     },
   },
 };
 
-const SDK = new SundaeSDK(options);
+const SDK = await new SundaeSDK(options);
 
 const poolData = await SDK.query().findPoolData({
   ident: "34c2b9d553d3a74b3ac67cc8cefb423af0f77fc84664420090e09990",

@@ -242,7 +242,6 @@ export class YieldFarmingBlaze
       const redeemer = Core.PlutusData.fromCbor(Core.HexBlob(CANCEL_REDEEMER));
       await Promise.all(
         existingPositionData.map(async (utxo) => {
-          debugger;
           const hash = utxo.output().datum()?.asDataHash();
           if (!hash) {
             txInstance.addInput(utxo, redeemer);
