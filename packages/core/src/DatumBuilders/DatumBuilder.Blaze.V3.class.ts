@@ -441,10 +441,10 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
           return result;
         }
 
-        const [policyId, assetName] = metadata.assetId.split(".");
-        if (!policyId || !assetName) {
+        const [policyId, assetName = ""] = metadata.assetId.split(".");
+        if (!policyId) {
           throw new Error(
-            `Invalid asset format for minting a pool with ${metadata.assetId}. Expected both a policyID and assetName.`,
+            `Invalid asset format for minting a pool with ${metadata.assetId}. Expected a policyID.`,
           );
         }
 
