@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.3.43 (2024-11-14)
+
+### Bug Fixes
+
+- assetName requirement when minting a pool ([1edea6b](https://github.com/SundaeSwap-finance/sundae-sdk/commit/1edea6b5fbfcccd19bf2eaa6e29741e6c8ae55b8))
+
 ## 1.3.42 (2024-11-08)
 
 **Note:** Version bump only for package @sundaeswap/core
