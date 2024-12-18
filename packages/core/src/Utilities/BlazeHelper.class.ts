@@ -28,6 +28,7 @@ export class BlazeHelper {
   static getAddressHashes(address: string): {
     paymentCredentials: Core.Hash28ByteBase16;
     stakeCredentials?: string;
+    type: Core.AddressType;
   } {
     const details = Core.Address.fromBech32(address);
     const addressType = details.getType();
@@ -46,6 +47,7 @@ export class BlazeHelper {
         return {
           paymentCredentials,
           stakeCredentials: details.asBase()?.getStakeCredential()?.hash,
+          type: addressType,
         };
       }
       case Core.AddressType.EnterpriseKey:
@@ -59,6 +61,7 @@ export class BlazeHelper {
 
         return {
           paymentCredentials,
+          type: addressType,
         };
       }
 

@@ -390,11 +390,22 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
 
   public buildOwnerDatum(main: string): TDatumResult<V3Types.TMultiSigScript> {
     BlazeHelper.validateAddressNetwork(main, this.network);
-    const { stakeCredentials, paymentCredentials } =
+    const { stakeCredentials, paymentCredentials, type } =
       BlazeHelper.getAddressHashes(main);
-    const ownerDatum: V3Types.TMultiSigScript = {
-      Address: { hex: stakeCredentials || paymentCredentials },
-    };
+
+    let ownerDatum: V3Types.TMultiSigScript;
+    if (
+      type === Core.AddressType.BasePaymentScriptStakeKey ||
+      type === Core.AddressType.BasePaymentScriptStakeScript
+    ) {
+      ownerDatum = {
+        Script: { hex: stakeCredentials || paymentCredentials },
+      };
+    } else {
+      ownerDatum = {
+        Address: { hex: stakeCredentials || paymentCredentials },
+      };
+    }
 
     const data = Data.to(ownerDatum, V3Types.MultiSigScript);
 
