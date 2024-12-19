@@ -367,7 +367,7 @@ The UTxO txHash and index.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:516](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L516)
+[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:526](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L526)
 
 ***
 
@@ -389,7 +389,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:492](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L492)
+[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:502](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L502)
 
 ***
 
@@ -411,7 +411,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:480](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L480)
+[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:490](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L490)
 
 ***
 
@@ -433,7 +433,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:504](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L504)
+[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:514](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L514)
 
 ***
 
@@ -471,7 +471,7 @@ An object containing the staking and
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:547](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L547)
+[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:557](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L557)
 
 ***
 
@@ -500,4 +500,4 @@ The signing key associated with the owner, extracted from the datum. This key is
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:589](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L589)
+[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:599](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L599)

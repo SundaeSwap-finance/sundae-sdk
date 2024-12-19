@@ -152,7 +152,7 @@ export const V1_EXPECTATIONS = {
         } as TOrderAddressesArgs,
         expectations: {
           error:
-            "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key.",
+            "Could not find a payment key in the address: stake_test1uqxn89tuq7kdmhkvnzpy2ldz9uz7p5vf7l7ftvvh9ek4zpghgvr36",
         },
       },
       {

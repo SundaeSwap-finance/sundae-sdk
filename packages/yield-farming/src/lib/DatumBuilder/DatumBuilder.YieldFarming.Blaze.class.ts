@@ -34,12 +34,11 @@ export class DatumBuilderBlaze implements DatumBuilder {
     programs,
   }: ILockArguments<TDelegation>["delegation"]): TDatumResult<TDelegation> {
     BlazeHelper.validateAddressNetwork(owner.address, this.network);
-    const addressDetails = BlazeHelper.getAddressHashes(owner.address);
+    const paymentPart = BlazeHelper.getPaymentHashFromBech32(owner.address);
+    const stakingPart = BlazeHelper.getStakingHashFromBech32(owner.address);
     const delegationData: TDelegation = {
       owner: {
-        address:
-          addressDetails?.stakeCredentials ??
-          addressDetails?.paymentCredentials,
+        address: stakingPart || paymentPart,
       },
       programs,
     };
