@@ -23,9 +23,9 @@ Cardano addresses. These functions include:
 
 ## Methods
 
-### getAddressHashes()
+### getAddressAsType()
 
-> `static` **getAddressHashes**(`address`): `object`
+> `static` **getAddressAsType**(`address`): `object`
 
 Helper function to parse addresses hashes from a Bech32 encoded address.
 
@@ -37,13 +37,9 @@ Helper function to parse addresses hashes from a Bech32 encoded address.
 
 `object`
 
-##### paymentCredentials
+##### address
 
-> **paymentCredentials**: `Hash28ByteBase16`
-
-##### stakeCredentials?
-
-> `optional` **stakeCredentials**: `string`
+> **address**: `Address`
 
 ##### type
 
@@ -55,17 +51,17 @@ Helper function to parse addresses hashes from a Bech32 encoded address.
 
 ***
 
-### isScriptAddress()
+### isBaseAddress()
 
-> `static` **isScriptAddress**(`address`): `boolean`
+> `static` **isBaseAddress**(`type`): `boolean`
 
-Helper function to check if an address is a script address.
+Helper method to determine address type.
 
 #### Parameters
 
-• **address**: `string`
+• **type**: `AddressType`
 
-The Bech32 encoded address.
+The address type.
 
 #### Returns
 
@@ -73,7 +69,29 @@ The Bech32 encoded address.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:140](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L140)
+[packages/core/src/Utilities/BlazeHelper.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L60)
+
+***
+
+### isEnterpriseAddress()
+
+> `static` **isEnterpriseAddress**(`type`): `boolean`
+
+Helper method to determine address type.
+
+#### Parameters
+
+• **type**: `AddressType`
+
+The address type.
+
+#### Returns
+
+`boolean`
+
+#### Defined in
+
+[packages/core/src/Utilities/BlazeHelper.class.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L47)
 
 ***
 
@@ -97,7 +115,7 @@ Throws a useful error if the address, network, and instance network are on the w
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:186](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L186)
+[packages/core/src/Utilities/BlazeHelper.class.ts:203](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L203)
 
 ***
 
@@ -119,7 +137,7 @@ Throws an error describing the address and contextual information.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:213](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L213)
+[packages/core/src/Utilities/BlazeHelper.class.ts:230](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L230)
 
 ***
 
@@ -146,7 +164,7 @@ and that the address is on the correct network.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:83](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L83)
+[packages/core/src/Utilities/BlazeHelper.class.ts:112](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L112)
 
 ***
 
@@ -168,4 +186,4 @@ Validates that an address matches the provided network.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:154](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L154)
+[packages/core/src/Utilities/BlazeHelper.class.ts:167](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L167)

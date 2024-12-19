@@ -25,55 +25,84 @@ export class BlazeHelper {
    * @param address
    * @returns
    */
-  static getAddressHashes(address: string): {
-    paymentCredentials: Core.Hash28ByteBase16;
-    stakeCredentials?: string;
+  static getAddressAsType(address: string): {
+    address: Core.Address;
     type: Core.AddressType;
   } {
     const details = Core.Address.fromBech32(address);
     const addressType = details.getType();
-    switch (addressType) {
-      case Core.AddressType.BasePaymentKeyStakeKey:
-      case Core.AddressType.BasePaymentKeyStakeScript:
-      case Core.AddressType.BasePaymentScriptStakeKey:
-      case Core.AddressType.BasePaymentScriptStakeScript: {
-        const paymentCredentials = details
-          .asBase()
-          ?.getPaymentCredential().hash;
-        if (!paymentCredentials) {
-          BlazeHelper.throwNoPaymentKeyError();
-        }
 
-        return {
-          paymentCredentials,
-          stakeCredentials: details.asBase()?.getStakeCredential()?.hash,
-          type: addressType,
-        };
-      }
-      case Core.AddressType.EnterpriseKey:
-      case Core.AddressType.EnterpriseScript: {
-        const paymentCredentials = details
-          .asEnterprise()
-          ?.getPaymentCredential().hash;
-        if (!paymentCredentials) {
-          BlazeHelper.throwNoPaymentKeyError();
-        }
+    return {
+      address: details,
+      type: addressType,
+    };
+  }
 
-        return {
-          paymentCredentials,
-          type: addressType,
-        };
-      }
+  /**
+   * Helper method to determine address type.
+   *
+   * @param {Core.AddressType} type The address type.
+   * @returns {boolean}
+   */
+  static isEnterpriseAddress(type: Core.AddressType): boolean {
+    return (
+      type === Core.AddressType.EnterpriseKey ||
+      type === Core.AddressType.EnterpriseScript
+    );
+  }
 
-      // Not supporting for now, but possible.
-      case Core.AddressType.PointerKey:
-      case Core.AddressType.PointerScript:
-      case Core.AddressType.RewardKey:
-      case Core.AddressType.RewardScript:
-      case Core.AddressType.Byron:
-      default:
-        BlazeHelper.throwNoPaymentKeyError();
+  /**
+   * Helper method to determine address type.
+   *
+   * @param {Core.AddressType} type The address type.
+   * @returns {boolean}
+   */
+  static isBaseAddress(type: Core.AddressType): boolean {
+    return (
+      type === Core.AddressType.BasePaymentKeyStakeKey ||
+      type === Core.AddressType.BasePaymentKeyStakeScript ||
+      type === Core.AddressType.BasePaymentScriptStakeKey ||
+      type === Core.AddressType.BasePaymentScriptStakeScript
+    );
+  }
+
+  static isScriptAddress(address: string): boolean {
+    const { type } = BlazeHelper.getAddressAsType(address);
+    return (
+      type === Core.AddressType.BasePaymentScriptStakeKey ||
+      type === Core.AddressType.BasePaymentScriptStakeScript ||
+      type === Core.AddressType.EnterpriseScript ||
+      type === Core.AddressType.PointerScript ||
+      type === Core.AddressType.RewardScript
+    );
+  }
+
+  static getPaymentHashFromBech32(address: string) {
+    const addr = BlazeHelper.getAddressAsType(address);
+    let paymentPart: string | undefined;
+    if (BlazeHelper.isBaseAddress(addr.type)) {
+      paymentPart = addr.address.asBase()?.getPaymentCredential().hash;
+    } else if (BlazeHelper.isEnterpriseAddress(addr.type)) {
+      paymentPart = addr.address.asEnterprise()?.getPaymentCredential().hash;
     }
+
+    if (!paymentPart) {
+      throw new Error(
+        `Could not find a payment key in the address: ${address}`,
+      );
+    }
+
+    return paymentPart;
+  }
+
+  static getStakingHashFromBech32(address: string) {
+    const addr = BlazeHelper.getAddressAsType(address);
+    let paymentPart: string | undefined;
+    if (BlazeHelper.isBaseAddress(addr.type)) {
+      paymentPart = addr.address.asBase()?.getStakeCredential().hash;
+    }
+
+    return paymentPart;
   }
 
   /**
@@ -133,22 +162,6 @@ export class BlazeHelper {
   }
 
   /**
-   * Helper function to check if an address is a script address.
-   * @param address The Bech32 encoded address.
-   * @returns
-   */
-  static isScriptAddress(address: string): boolean {
-    // Ensure that the address can be serialized.
-    const realAddress = Core.Address.fromBech32(address);
-
-    // Ensure the datumHash is valid HEX if the address is a script.
-    const isScript =
-      (Buffer.from(realAddress.toBytes(), "hex")[0] & 0b00010000) !== 0;
-
-    return isScript;
-  }
-
-  /**
    * Validates that an address matches the provided network.
    */
   static validateAddressNetwork(
@@ -172,10 +185,14 @@ export class BlazeHelper {
     );
   }
 
-  static throwNoPaymentKeyError(): never {
-    throw new Error(
-      "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key.",
-    );
+  static throwNoPaymentKeyError(address?: string): never {
+    let error =
+      "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key.";
+    if (address) {
+      error += ` Provided address: ${address}`;
+    }
+
+    throw new Error(error);
   }
 
   /**

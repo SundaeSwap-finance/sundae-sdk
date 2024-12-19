@@ -326,7 +326,6 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
       network: this.network,
     });
 
-    const destination = BlazeHelper.getAddressHashes(address);
     let formattedDatum: V3Types.TDestination["datum"];
     switch (datum.type) {
       case EDatumType.NONE:
@@ -352,25 +351,28 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
         );
     }
 
+    const paymentPart = BlazeHelper.getPaymentHashFromBech32(address);
+    const stakingPart = BlazeHelper.getStakingHashFromBech32(address);
+
     const destinationDatum: V3Types.TDestination = {
       address: {
         paymentCredential: BlazeHelper.isScriptAddress(address)
           ? {
               SCredential: {
-                bytes: destination.paymentCredentials,
+                bytes: paymentPart,
               },
             }
           : {
               VKeyCredential: {
-                bytes: destination.paymentCredentials,
+                bytes: paymentPart,
               },
             },
 
-        stakeCredential: destination?.stakeCredentials
+        stakeCredential: stakingPart
           ? {
               keyHash: {
                 VKeyCredential: {
-                  bytes: destination.stakeCredentials,
+                  bytes: stakingPart,
                 },
               },
             }
@@ -390,20 +392,17 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
 
   public buildOwnerDatum(main: string): TDatumResult<V3Types.TMultiSigScript> {
     BlazeHelper.validateAddressNetwork(main, this.network);
-    const { stakeCredentials, paymentCredentials, type } =
-      BlazeHelper.getAddressHashes(main);
+    const paymentPart = BlazeHelper.getPaymentHashFromBech32(main);
+    const stakingPart = BlazeHelper.getStakingHashFromBech32(main);
 
     let ownerDatum: V3Types.TMultiSigScript;
-    if (
-      type === Core.AddressType.BasePaymentScriptStakeKey ||
-      type === Core.AddressType.BasePaymentScriptStakeScript
-    ) {
+    if (BlazeHelper.isScriptAddress(main)) {
       ownerDatum = {
-        Script: { hex: stakeCredentials || paymentCredentials },
+        Script: { hex: stakingPart || paymentPart },
       };
     } else {
       ownerDatum = {
-        Address: { hex: stakeCredentials || paymentCredentials },
+        Address: { hex: stakingPart || paymentPart },
       };
     }
 

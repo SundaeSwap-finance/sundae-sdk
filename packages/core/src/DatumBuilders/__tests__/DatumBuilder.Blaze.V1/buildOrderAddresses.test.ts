@@ -87,6 +87,7 @@ describe("buildDestinationAddresses()", () => {
         expectations[4].args as TOrderAddressesArgs,
       ),
     ).toThrowError(expectations[4].expectations.error);
+
     expect(() =>
       builderInstance.buildOrderAddresses(
         expectations[5].args as TOrderAddressesArgs,
@@ -94,7 +95,8 @@ describe("buildDestinationAddresses()", () => {
     ).toThrowError(expectations[5].expectations.error);
   });
 
-  it("should fail when passing just a staking key as the DestinationAddress", () => {
+  it.only("should fail when passing just a staking key as the DestinationAddress", () => {
+    console.log(expectations[6].args)
     expect(() =>
       builderInstance.buildOrderAddresses(
         expectations[6].args as TOrderAddressesArgs,

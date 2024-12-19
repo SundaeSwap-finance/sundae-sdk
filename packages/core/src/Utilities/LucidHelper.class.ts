@@ -33,7 +33,7 @@ export class LucidHelper {
 
     if (!details.paymentCredential) {
       throw new Error(
-        "Invalid address. Make sure you are using a Bech32 encoded address that includes the payment key.",
+        `Could not find a payment key in the address: ${address}`,
       );
     }
 
