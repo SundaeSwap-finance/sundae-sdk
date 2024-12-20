@@ -18,6 +18,7 @@ export default [
     rules: {
       "@typescript-eslint/no-this-alias": "off",
       "@typescript-eslint/no-explicit-any": "warn",
+      "no-unused-expressions": "off",
     },
     languageOptions: {
       globals: {

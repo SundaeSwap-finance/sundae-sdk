@@ -1383,18 +1383,17 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
         }
       });
 
-      const signerKey = BlazeHelper.getAddressHashes(
+      const paymentPart = BlazeHelper.getPaymentHashFromBech32(
+        yieldFarming.ownerAddress.address,
+      );
+      const stakingPart = BlazeHelper.getStakingHashFromBech32(
         yieldFarming.ownerAddress.address,
       );
 
-      finalTx.addRequiredSigner(
-        Core.Ed25519KeyHashHex(signerKey.paymentCredentials),
-      );
+      finalTx.addRequiredSigner(Core.Ed25519KeyHashHex(paymentPart));
 
-      if (signerKey?.stakeCredentials) {
-        finalTx.addRequiredSigner(
-          Core.Ed25519KeyHashHex(signerKey.stakeCredentials),
-        );
+      if (stakingPart) {
+        finalTx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingPart));
       }
 
       const existingDatum =

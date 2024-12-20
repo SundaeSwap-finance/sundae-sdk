@@ -31,6 +31,7 @@ import {
   TWithdrawOrder,
   WithdrawOrder,
 } from "./ContractTypes/Contract.Blaze.v1.js";
+import { V1Types } from "./ContractTypes/index.js";
 
 /**
  * The Blaze implementation for building valid Datums for
@@ -203,9 +204,6 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
       });
 
     const { DestinationAddress, AlternateAddress } = addresses;
-    const destinationHashes = BlazeHelper.getAddressHashes(
-      DestinationAddress.address,
-    );
 
     if (DestinationAddress.datum.type === EDatumType.INLINE) {
       throw new Error(
@@ -213,28 +211,49 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
       );
     }
 
-    const destinationAddressCredentialType = BlazeHelper.isScriptAddress(
+    const paymentPart = BlazeHelper.getPaymentHashFromBech32(
       DestinationAddress.address,
-    )
-      ? ("ScriptHash" as keyof TDestination["credentials"]["paymentKey"])
-      : "KeyHash";
+    );
+    const stakingPart = BlazeHelper.getStakingHashFromBech32(
+      DestinationAddress.address,
+    );
+
+    let paymentKeyData: V1Types.TPaymentStakingHash | undefined;
+    if (BlazeHelper.isScriptAddress(DestinationAddress.address)) {
+      paymentKeyData = {
+        ScriptHash: {
+          value: paymentPart,
+        },
+      };
+    } else {
+      paymentKeyData = {
+        KeyHash: {
+          value: paymentPart,
+        },
+      };
+    }
+
+    let stakingKeyData: V1Types.TPaymentStakingHash | undefined;
+    if (stakingPart) {
+      if (BlazeHelper.isScriptAddress(DestinationAddress.address)) {
+        stakingKeyData = {
+          ScriptHash: {
+            value: stakingPart,
+          },
+        };
+      } else {
+        stakingKeyData = {
+          KeyHash: {
+            value: stakingPart,
+          },
+        };
+      }
+    }
 
     const destination: TDestination = {
       credentials: {
-        paymentKey: {
-          [destinationAddressCredentialType]: {
-            value: destinationHashes.paymentCredentials,
-          },
-        },
-        stakingKey: destinationHashes.stakeCredentials
-          ? {
-              value: {
-                [destinationAddressCredentialType]: {
-                  value: destinationHashes.stakeCredentials,
-                },
-              },
-            }
-          : null,
+        paymentKey: paymentKeyData,
+        stakingKey: stakingKeyData ? { value: stakingKeyData } : null,
       },
       datum:
         DestinationAddress.datum.type !== EDatumType.NONE
@@ -242,15 +261,19 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
           : null,
     };
 
-    const alternateHashes =
-      AlternateAddress && BlazeHelper.getAddressHashes(AlternateAddress);
+    let alternatePaymentPart: string | null = null;
+    let alternateStakingPart: string | undefined;
+
+    if (AlternateAddress) {
+      alternatePaymentPart =
+        BlazeHelper.getPaymentHashFromBech32(AlternateAddress);
+      alternateStakingPart =
+        BlazeHelper.getStakingHashFromBech32(AlternateAddress);
+    }
 
     const datum: TOrderAddresses = {
       destination,
-      alternate: alternateHashes
-        ? (alternateHashes.stakeCredentials ??
-          alternateHashes.paymentCredentials)
-        : null,
+      alternate: alternateStakingPart || alternatePaymentPart,
     };
 
     const data = Data.to<TOrderAddresses>(datum, OrderAddresses);
