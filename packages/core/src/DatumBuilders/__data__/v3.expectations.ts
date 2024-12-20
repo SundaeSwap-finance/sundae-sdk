@@ -188,7 +188,7 @@ export const V3_EXPECTATIONS = {
           lucid:
             "You supplied an invalid address: invalid. Please check your arguments and try again. Error message: No address type matched for: invalid",
           blaze:
-            "You supplied an invalid address: invalid. Please check your arguments and try again. Error message: Wrong string length: 7 (invalid). Expected (8..1023)",
+            "You supplied an invalid address: invalid. Please check your arguments and try again. Error message: invalid string length: 7 (invalid). Expected (8..1023)",
         },
       },
     },
