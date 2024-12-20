@@ -239,6 +239,8 @@ export class YieldFarmingBlaze
       await Promise.all(
         existingPositionData.map(async (utxo) => {
           const hash = utxo.output().datum()?.asDataHash();
+
+          // If there's no hash, then it has an inline datum and we don't need to provide it.
           if (!hash) {
             txInstance.addInput(utxo, redeemer);
           } else {

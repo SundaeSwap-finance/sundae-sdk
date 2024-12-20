@@ -65,11 +65,11 @@
     "docs:ci": "bun docs --unsafe"
   },
   "devDependencies": {
-    "@blaze-cardano/emulator": "^0.3.6",
+    "@blaze-cardano/emulator": "^0.3.7",
     "@sundaeswap/core": "workspace:*"
   },
   "peerDependencies": {
-    "@blaze-cardano/sdk": "^0.2.11",
+    "@blaze-cardano/sdk": "^0.2.12",
     "@sundaeswap/asset": "^1.0.6",
     "@sundaeswap/core": "^1.3.26",
     "lucid-cardano": "0.10.7"
