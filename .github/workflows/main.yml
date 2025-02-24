@@ -12,7 +12,7 @@ concurrency:
 jobs:
   # Build
   build:
-    if: github.repository == 'sundaeswap/sundae-sdk'
+    if: github.repository == 'SundaeSwap-finance/sundae-sdk'
     permissions:
       id-token: write
       contents: write
