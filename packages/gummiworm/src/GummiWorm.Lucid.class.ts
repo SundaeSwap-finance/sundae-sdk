@@ -74,6 +74,7 @@ export class GummiWormLucid implements GummiWorm {
       );
     }
 
+    console.log("Comment for testing changeset");
     const network = lucid.network === "Mainnet" ? "mainnet" : "preview";
     this.datumBuilder = new DatumBuilderLucid(network);
     this.network = network;
