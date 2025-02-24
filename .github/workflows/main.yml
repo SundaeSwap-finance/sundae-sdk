@@ -40,8 +40,8 @@ jobs:
       # Bump Versions (reinstate after release)
       - name: Release
         uses: changesets/action@v1
-        with: |
-          bun changeset publish
+        with:
+          publish: bun changeset publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
