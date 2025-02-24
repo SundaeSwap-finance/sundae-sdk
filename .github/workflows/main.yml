@@ -1,13 +1,8 @@
-name: CI/CD
+name: Main
 
 on:
   push:
     branches: ["main"]
-
-permissions:
-  id-token: write
-  contents: write
-  pages: write
 
 # Allow one concurrent deployment
 concurrency:
@@ -17,6 +12,11 @@ concurrency:
 jobs:
   # Build
   build:
+    if: github.repository == 'sundaeswap/sundae-sdk'
+    permissions:
+      id-token: write
+      contents: write
+      pages: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,12 +40,12 @@ jobs:
       # Bump Versions (reinstate after release)
       - name: Release
         uses: changesets/action@v1
-        run: |
-          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_ACCESS_TOKEN }}
+        with: |
           bun changeset publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
 
   # Deploy Documentation
   docs:

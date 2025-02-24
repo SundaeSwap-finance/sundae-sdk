@@ -5,12 +5,12 @@ on:
     branches-ignore:
       - "main" # Ignores pushes to the main branch
 
-permissions:
-  id-token: write
-  contents: write
-
 jobs:
   build:
+    if: github.repository == 'sundaeswap/sundae-sdk'
+    permissions:
+      id-token: write
+      contents: write
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
