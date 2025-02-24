@@ -49,6 +49,9 @@ jobs:
 
   # Deploy Documentation
   docs:
+    if: github.repository == 'SundaeSwap-finance/sundae-sdk'
+    permissions:
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
