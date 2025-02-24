@@ -31,6 +31,7 @@
     ]
   },
   "devDependencies": {
+    "@changesets/cli": "^2.28.1",
     "@semantic-release/git": "^10.0.1",
     "@sundaeswap/asset": "^1.0.3",
     "@sundaeswap/babel-preset": "^2.0.15",

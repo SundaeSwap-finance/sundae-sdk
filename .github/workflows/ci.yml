@@ -37,27 +37,14 @@ jobs:
       - name: Run Tests
         run: bun test:all
 
-      # Git Identity
-      - name: Git Identity
-        run: |
-          git config --global user.name 'CI-CD'
-          git config --global user.email 'CI-CD@users.noreply.github.com'
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$GITHUB_REPOSITORY
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       # Bump Versions (reinstate after release)
-      - name: Bump versions
-        run: bun version:ci
+      - name: Release
+        uses: changesets/action@v1
+        run: |
+          bun changeset publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Configure npm authentication
-        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_ACCESS_TOKEN }}
-
-      # Create Release
-      - name: Publish
-        run: bun publish:ci
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Deploy Documentation
   docs:

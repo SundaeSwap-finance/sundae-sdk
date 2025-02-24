@@ -34,3 +34,9 @@ jobs:
       # Run Tests
       - name: Run Tests
         run: bun test:all
+
+      # Release
+      - name: Release (Canary)
+        run: |
+          bun changeset version --snapshot dev
+          bun changeset publish --tag dev --no-git-tag --access public
