@@ -41,6 +41,7 @@ jobs:
       - name: Release
         uses: changesets/action@v1
         run: |
+          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_ACCESS_TOKEN }}
           bun changeset publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
