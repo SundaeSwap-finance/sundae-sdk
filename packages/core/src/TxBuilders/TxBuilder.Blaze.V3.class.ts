@@ -1364,7 +1364,6 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     referralFee,
     deposit,
     scooperFee,
-    coinSelection = true,
   }: ITxBuilderBlazeCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {
@@ -1386,8 +1385,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       fees: baseFees,
       async build() {
         if (!finishedTx) {
-          // @ts-expect-error No types
-          finishedTx = await tx.complete({ useCoinSelection: coinSelection });
+          finishedTx = await tx.complete();
           thisTx.fees.cardanoTxFee = new AssetAmount(
             BigInt(finishedTx?.body().fee()?.toString() ?? "0"),
             ADA_METADATA,
