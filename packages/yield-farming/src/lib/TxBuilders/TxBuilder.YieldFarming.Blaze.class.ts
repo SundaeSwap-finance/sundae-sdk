@@ -225,6 +225,7 @@ export class YieldFarmingBlaze
     const paymentPart = BlazeHelper.getPaymentHashFromBech32(ownerAddress);
     const stakingPart = BlazeHelper.getStakingHashFromBech32(ownerAddress);
     const txInstance = this.blaze.newTransaction();
+    txInstance.setMinimumFee(500_000n);
 
     referenceInputs.forEach((input) => txInstance.addReferenceInput(input));
     txInstance.addRequiredSigner(Core.Ed25519KeyHashHex(paymentPart));
@@ -429,6 +430,9 @@ export class YieldFarmingBlaze
         ...Object.entries(allAssets).filter(([key]) => key !== "lovelace"),
       ),
     );
+
+    // Set min fee.
+    tx.setMinimumFee(400_000n);
 
     return this.completeTx({
       deposit: new AssetAmount(0n, ADA_METADATA),
