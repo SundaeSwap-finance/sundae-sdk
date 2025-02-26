@@ -1230,7 +1230,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
         );
       }
 
-      yieldFarming.migrations.map(({ withdrawPool, depositPool }) => {
+      yieldFarming.migrations.forEach(({ withdrawPool, depositPool }) => {
         const oldDelegation = existingPositionsData.find((position) => {
           const hasLpAsset = position
             .output()
@@ -1454,12 +1454,10 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     referralFee,
     deposit,
     scooperFee,
+    coinSelection = true,
   }: ITxBuilderBlazeCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {
-    // Set the min fee high enough to cover lack of accuracy.
-    tx.setMinimumFee(400_000n);
-
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
       scooperFee: new AssetAmount(
@@ -1478,7 +1476,8 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       fees: baseFees,
       async build() {
         if (!finishedTx) {
-          finishedTx = await tx.complete();
+          // @ts-expect-error Until we get a canary release, this is a placeholder for symlinking.
+          finishedTx = await tx.complete({ useCoinSelection: coinSelection });
           thisTx.fees.cardanoTxFee = new AssetAmount(
             BigInt(finishedTx?.body().fee()?.toString() ?? "0"),
             ADA_METADATA,
