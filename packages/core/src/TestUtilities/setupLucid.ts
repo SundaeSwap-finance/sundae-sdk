@@ -18,6 +18,7 @@ export const setupLucid = (
 ): {
   getUtxosByOutRefMock: Mock<TGetUtxosByOutRefMock>;
   getUtxosMock: Mock<TGetUtxosMock>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mockProvider: Mock<any>;
   ownerAddress: string;
 } => {

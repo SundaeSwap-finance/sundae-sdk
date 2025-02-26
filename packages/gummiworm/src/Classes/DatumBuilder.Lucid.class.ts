@@ -20,7 +20,11 @@ interface IDepositDatumArgs {
  * specs as defined in the SundaeSwap smart contracts.
  */
 export class DatumBuilderLucid implements DatumBuilder {
-  constructor(public network: TSupportedNetworks) {}
+  public network: TSupportedNetworks;
+
+  constructor(network: TSupportedNetworks) {
+    this.network = network;
+  }
 
   buildDepositDatum({
     address,

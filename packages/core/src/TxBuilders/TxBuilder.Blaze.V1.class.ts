@@ -1230,7 +1230,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
         );
       }
 
-      yieldFarming.migrations.map(({ withdrawPool, depositPool }) => {
+      yieldFarming.migrations.forEach(({ withdrawPool, depositPool }) => {
         const oldDelegation = existingPositionsData.find((position) => {
           const hasLpAsset = position
             .output()

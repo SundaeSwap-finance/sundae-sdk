@@ -1066,6 +1066,8 @@ export class TxBuilderLucidV1 extends TxBuilderV1 {
           if (assets[withdrawPool.assetLP.assetId.replace(".", "")]) {
             return true;
           }
+
+          return false;
         });
 
         if (!oldDelegation) {
