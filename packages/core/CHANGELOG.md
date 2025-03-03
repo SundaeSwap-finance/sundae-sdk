@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.3.48
+
+### Patch Changes
+
+- bbd726e: Fixes cancellation of mid-hop V1 orders.
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 

@@ -61,7 +61,7 @@
     "@blaze-cardano/sdk": "^0.2.20",
     "@sundaeswap/asset": "^1.0.3",
     "@sundaeswap/bigint-math": "^0.6.3",
-    "@sundaeswap/core": "^1.3.10",
+    "@sundaeswap/core": "^1.3.48",
     "@sundaeswap/cpp": "^1.0.3",
     "@sundaeswap/fraction": "^1.0.3",
     "@sundaeswap/taste-test": "^1.0.53",
