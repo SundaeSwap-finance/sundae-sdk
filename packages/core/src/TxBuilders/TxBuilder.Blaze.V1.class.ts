@@ -589,22 +589,24 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
       );
     }
 
-    tx.addRequiredSigner(
-      Core.Ed25519KeyHashHex(
-        (
-          data.orderAddresses.destination.credentials
-            .paymentKey as TKeyHashSchema
-        ).KeyHash.value,
-      ),
-    );
+    if (!data.orderAddresses.alternate) {
+      const paymentKeyCred = (
+        data.orderAddresses.destination.credentials.paymentKey as TKeyHashSchema
+      )?.KeyHash.value;
+      if (paymentKeyCred) {
+        tx.addRequiredSigner(Core.Ed25519KeyHashHex(paymentKeyCred));
+      }
 
-    const stakingKeyCred =
-      data.orderAddresses.destination.credentials.stakingKey?.value;
-    if (stakingKeyCred) {
+      const stakingKeyCred = (
+        data.orderAddresses.destination.credentials.stakingKey
+          ?.value as TKeyHashSchema
+      )?.KeyHash.value;
+      if (stakingKeyCred) {
+        tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingKeyCred));
+      }
+    } else {
       tx.addRequiredSigner(
-        Core.Ed25519KeyHashHex(
-          (stakingKeyCred as TKeyHashSchema).KeyHash.value,
-        ),
+        Core.Ed25519KeyHashHex(data.orderAddresses.alternate),
       );
     }
 
