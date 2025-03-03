@@ -19,6 +19,7 @@ export default [
       "@typescript-eslint/no-this-alias": "off",
       "@typescript-eslint/no-explicit-any": "warn",
       "no-unused-expressions": "off",
+      "no-dupe-class-members": "off",
     },
     languageOptions: {
       globals: {

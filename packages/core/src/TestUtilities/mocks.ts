@@ -10,6 +10,7 @@ import { beforeEach, mock, type Mock } from "bun:test";
 import * as Core from "../exports/core";
 
 export const MockAll = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockSwap: Mock<any> = mock(async () => ({
     submit: mock(() => "hex"),
     cbor: "cbor",
@@ -29,8 +30,11 @@ export const MockAll = () => {
     return {};
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockBuild: Mock<any> = mock();
+
   // @ts-expect-error Type Mismatches.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockQuery: Mock<any> = mock(() => new MockedProviderSundaeSwap());
   const MockedSundaeSDK = mock().mockImplementation(() => ({
     build: mockBuild,
