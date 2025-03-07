@@ -18,4 +18,3 @@ export * from "../TestUtilities/cardano.js";
 export { PREVIEW_DATA } from "../TestUtilities/mockData.js";
 export { MockAll } from "../TestUtilities/mocks.js";
 export { setupBlaze } from "../TestUtilities/setupBlaze.js";
-export { setupLucid } from "../TestUtilities/setupLucid.js";

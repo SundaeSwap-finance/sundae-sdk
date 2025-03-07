@@ -12,18 +12,18 @@ import { EDatumType } from "../../@types/datumbuilder.js";
 import { IPoolData } from "../../@types/queryprovider.js";
 import { EContractVersion, ITxBuilderFees } from "../../@types/txbuilders.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../../constants.js";
-import { DatumBuilderBlazeV1 } from "../../DatumBuilders/DatumBuilder.Blaze.V1.class.js";
+import { DatumBuilderBlazeV1 } from "../../DatumBuilders/DatumBuilder.V1.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { PREVIEW_DATA } from "../../TestUtilities/mockData.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import { params, settingsUtxosBlaze } from "../__data__/mockData.js";
-import { TxBuilderBlazeV1 } from "../TxBuilder.Blaze.V1.class.js";
-import { TxBuilderBlazeV3 } from "../TxBuilder.Blaze.V3.class.js";
+import { TxBuilderV1 } from "../TxBuilder.V1.class.js";
+import { TxBuilderAbstractV3 } from "../TxBuilder.V3.class.js";
 
-let builder: TxBuilderBlazeV1;
+let builder: TxBuilderV1;
 
 const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (blaze) => {
-  builder = new TxBuilderBlazeV1(blaze, "preview");
+  builder = new TxBuilderV1(blaze, "preview");
 });
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
@@ -36,7 +36,7 @@ spyOn(
   QueryProviderSundaeSwap.prototype,
   "getProtocolParamsWithScripts",
 ).mockResolvedValue(params);
-spyOn(TxBuilderBlazeV3.prototype, "getSettingsUtxo").mockResolvedValue(
+spyOn(TxBuilderAbstractV3.prototype, "getSettingsUtxo").mockResolvedValue(
   settingsUtxosBlaze[0],
 );
 
@@ -47,17 +47,17 @@ describe("TxBuilderBlazeV1", () => {
   });
 
   it("should have the correct parameters", () => {
-    expect(TxBuilderBlazeV1.getParam("cancelRedeemer", "preview")).toEqual(
+    expect(TxBuilderV1.getParam("cancelRedeemer", "preview")).toEqual(
       "d87a80",
     );
-    expect(TxBuilderBlazeV1.getParam("cancelRedeemer", "mainnet")).toEqual(
+    expect(TxBuilderV1.getParam("cancelRedeemer", "mainnet")).toEqual(
       "d87a80",
     );
     expect(
-      TxBuilderBlazeV1.getParam("maxScooperFee", "preview").toString(),
+      TxBuilderV1.getParam("maxScooperFee", "preview").toString(),
     ).toEqual("2500000");
     expect(
-      TxBuilderBlazeV1.getParam("maxScooperFee", "mainnet").toString(),
+      TxBuilderV1.getParam("maxScooperFee", "mainnet").toString(),
     ).toEqual("2500000");
   });
 
@@ -1137,7 +1137,7 @@ describe("TxBuilderBlazeV1", () => {
   });
 
   it("cancel() v3 order", async () => {
-    const spiedOnV3Cancel = spyOn(TxBuilderBlazeV3.prototype, "cancel");
+    const spiedOnV3Cancel = spyOn(TxBuilderAbstractV3.prototype, "cancel");
     getUtxosByOutRefMock.mockResolvedValue([
       Core.TransactionUnspentOutput.fromCore([
         new Core.TransactionInput(

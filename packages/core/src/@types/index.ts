@@ -1,5 +1,5 @@
+import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 import type { QueryProvider } from "../Abstracts/QueryProvider.abstract.class.js";
-import type { TWalletBuilder } from "./txbuilders.js";
 
 /**
  * The SundaeSDK options argument when creating a new instance.
@@ -17,8 +17,7 @@ export interface ISundaeSDKOptions {
     name: string;
     /** The desired network. */
     network: "preview" | "mainnet";
-    /** The type of builder to use. Currently only supports Lucid. */
-    builder: TWalletBuilder;
+    blazeInstance: Blaze<Provider, Wallet>;
   };
 }
 

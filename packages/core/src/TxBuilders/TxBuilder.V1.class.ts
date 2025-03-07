@@ -30,7 +30,7 @@ import {
   TDepositMixed,
   TSupportedNetworks,
 } from "../@types/index.js";
-import { TxBuilderV1 } from "../Abstracts/TxBuilderV1.abstract.class.js";
+import { TxBuilderAbstractV1 } from "../Abstracts/TxBuilderAbstract.V1.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
@@ -44,10 +44,10 @@ import {
   TSwapOrder,
   TWithdrawOrder,
   WithdrawOrder,
-} from "../DatumBuilders/ContractTypes/Contract.Blaze.v1.js";
-import { OrderDatum as V3OrderDatum } from "../DatumBuilders/ContractTypes/Contract.Blaze.v3.js";
-import { DatumBuilderBlazeV1 } from "../DatumBuilders/DatumBuilder.Blaze.V1.class.js";
-import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
+} from "../DatumBuilders/ContractTypes/Contract.v1.js";
+import { OrderDatum as V3OrderDatum } from "../DatumBuilders/ContractTypes/Contract.v3.js";
+import { DatumBuilderBlazeV1 } from "../DatumBuilders/DatumBuilder.V1.class.js";
+import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
@@ -56,12 +56,12 @@ import {
   CANCEL_REDEEMER,
   ORDER_DEPOSIT_DEFAULT,
 } from "../constants.js";
-import { TxBuilderBlazeV3 } from "./TxBuilder.Blaze.V3.class.js";
+import { TxBuilderV3 } from "./TxBuilder.V3.class.js";
 
 /**
  * Object arguments for completing a transaction.
  */
-export interface ITxBuilderBlazeCompleteTxArgs {
+export interface ITxBuilderCompleteTxArgs {
   tx: BlazeTx;
   referralFee?: AssetAmount<IAssetAmountMetadata>;
   datum?: string;
@@ -84,9 +84,9 @@ export interface ITxBuilderV1BlazeParams {
  * such as swaps, cancellations, updates, deposits, withdrawals, zaps, and liquidity migrations to
  * the V3 contracts (it is recommended to utilize V3 contracts if possible: {@link Blaze.TxBuilderBlazeV3}).
  *
- * @extends {TxBuilderV1}
+ * @extends {TxBuilderAbstractV1}
  */
-export class TxBuilderBlazeV1 extends TxBuilderV1 {
+export class TxBuilderV1 extends TxBuilderAbstractV1 {
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
@@ -123,7 +123,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
    * and fills in a place-holder for the compiled code of any validators.
    *
    * This is to keep things lean until we really need to attach a validator,
-   * in which case, a subsequent method call to {@link TxBuilderBlazeV3#getValidatorScript}
+   * in which case, a subsequent method call to {@link TxBuilderV3#getValidatorScript}
    * will re-populate with real data.
    *
    * @returns {Promise<ISundaeProtocolParamsFull>}
@@ -174,7 +174,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     param: K,
     network: TSupportedNetworks,
   ): ITxBuilderV1BlazeParams[K] {
-    return TxBuilderBlazeV1.PARAMS[network][param];
+    return TxBuilderV1.PARAMS[network][param];
   }
 
   /**
@@ -186,7 +186,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
   public __getParam<K extends keyof ITxBuilderV1BlazeParams>(
     param: K,
   ): ITxBuilderV1BlazeParams[K] {
-    return TxBuilderBlazeV1.getParam(param, this.network);
+    return TxBuilderV1.getParam(param, this.network);
   }
 
   /**
@@ -296,7 +296,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     });
 
     let scooperFee = this.__getParam("maxScooperFee");
-    const v3TxBuilder = new TxBuilderBlazeV3(this.blaze, this.network);
+    const v3TxBuilder = new TxBuilderV3(this.blaze, this.network);
 
     const v3Address = await v3TxBuilder.generateScriptAddress(
       "order.spend",
@@ -358,10 +358,10 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     const isSecondSwapV3 = args.swapB.pool.version === EContractVersion.V3;
 
     const secondSwapBuilder = isSecondSwapV3
-      ? new TxBuilderBlazeV3(this.blaze, this.network)
+      ? new TxBuilderV3(this.blaze, this.network)
       : this;
     const secondSwapAddress = isSecondSwapV3
-      ? await (secondSwapBuilder as TxBuilderBlazeV3).generateScriptAddress(
+      ? await (secondSwapBuilder as TxBuilderV3).generateScriptAddress(
           "order.spend",
           args.ownerAddress,
         )
@@ -554,7 +554,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     try {
       Data.from(spendingDatum, V3OrderDatum);
       console.log("This is a V3 order! Calling appropriate builder...");
-      const v3Builder = new TxBuilderBlazeV3(this.blaze, this.network);
+      const v3Builder = new TxBuilderV3(this.blaze, this.network);
       return v3Builder.cancel({ ...cancelArgs });
     } catch (e) {}
 
@@ -1083,7 +1083,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     let totalDeposit = 0n;
     const totalReferralFees = new AssetAmount(0n, ADA_METADATA);
     const metadataDatums = new Core.MetadatumMap();
-    const v3TxBuilderInstance = new TxBuilderBlazeV3(
+    const v3TxBuilderInstance = new TxBuilderV3(
       this.blaze,
       this.network,
       this.queryProvider,
@@ -1456,7 +1456,7 @@ export class TxBuilderBlazeV1 extends TxBuilderV1 {
     referralFee,
     deposit,
     scooperFee,
-  }: ITxBuilderBlazeCompleteTxArgs): Promise<
+  }: ITxBuilderCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {
     // Set the min fee high enough to cover lack of accuracy.

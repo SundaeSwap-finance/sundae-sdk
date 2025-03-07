@@ -12,7 +12,7 @@ import { QueryProvider } from "./QueryProvider.abstract.class.js";
  *
  * @group Exported TxBuilders
  */
-export abstract class TxBuilderV1 {
+export abstract class TxBuilderAbstractV1 {
   abstract queryProvider: QueryProvider;
   abstract datumBuilder: DatumBuilder;
   abstract network: TSupportedNetworks;

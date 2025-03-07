@@ -1,17 +1,17 @@
 import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  mock,
-  spyOn,
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    mock,
+    spyOn,
 } from "bun:test";
 
 import {
-  DatumBuilderBlazeV3,
-  IDatumBuilderMintPoolV3Args,
-} from "../../DatumBuilder.Blaze.V3.class.js";
+    DatumBuilderBlazeV3,
+    IDatumBuilderMintPoolV3Args,
+} from "../../DatumBuilder.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
 let builderInstance: DatumBuilderBlazeV3;

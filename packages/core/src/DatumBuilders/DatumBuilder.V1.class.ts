@@ -1,19 +1,22 @@
+import { Data } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { Data } from "lucid-cardano";
 
 import {
   EDatumType,
   EPoolCoin,
   IDepositArguments,
+  // IDepositArguments,
   ISwapArguments,
   IWithdrawArguments,
+  // IWithdrawArguments,
+  // IZapArguments,
   TDatumResult,
   TOrderAddressesArgs,
   TSupportedNetworks,
   TSwap,
 } from "../@types/index.js";
 import { DatumBuilder } from "../Abstracts/DatumBuilder.abstract.class.js";
-import { LucidHelper } from "../Utilities/LucidHelper.class.js";
+import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { V1_MAX_POOL_IDENT_LENGTH } from "../constants.js";
 import {
   DepositOrder,
@@ -27,13 +30,14 @@ import {
   TSwapOrder,
   TWithdrawOrder,
   WithdrawOrder,
-} from "./ContractTypes/Contract.Lucid.v1.js";
+} from "./ContractTypes/Contract.v1.js";
+import { V1Types } from "./ContractTypes/index.js";
 
 /**
- * The Lucid implementation for building valid Datums for
+ * The Blaze implementation for building valid Datums for
  * V1 contracts on the SundaeSwap protocol.
  */
-export class DatumBuilderLucidV1 implements DatumBuilder {
+export class DatumBuilderBlazeV1 implements DatumBuilder {
   /** The current network id. */
   public network: TSupportedNetworks;
   /** The error to throw when the pool ident does not match V1 constraints. */
@@ -48,7 +52,7 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
    * Constructs a swap datum object based on the provided swap arguments.
    * The function initializes a new datum with specific properties such as the pool ident,
    * order addresses, scooper fee, and swap direction schema. It then converts this datum
-   * into an inline format and computes its hash using {@link Lucid.LucidHelper}. The function returns an
+   * into an inline format and computes its hash using {@link Blaze.BlazeHelper}. The function returns an
    * object containing the hash of the inline datum, the inline datum itself, and the original
    * datum schema.
    *
@@ -66,15 +70,15 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
     const datum: TSwapOrder = {
       ident: this.buildPoolIdent(ident),
       orderAddresses: this.buildOrderAddresses(orderAddresses).schema,
-      scooperFee,
+      scooperFee: scooperFee,
       swapDirection: this.buildSwapDirection(swap, fundedAsset).schema,
     };
 
-    const inline = Data.to(datum, SwapOrder);
+    const data = Data.to(datum, SwapOrder);
 
     return {
-      hash: LucidHelper.inlineDatumToHash(inline),
-      inline,
+      hash: data.hash(),
+      inline: data.toCbor(),
       schema: datum,
     };
   }
@@ -83,7 +87,7 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
    * Creates a deposit datum object from the given deposit arguments. The function initializes
    * a new datum with specific properties such as the pool ident, order addresses, scooper fee,
    * and deposit pair schema. It then converts this datum into an inline format and calculates
-   * its hash using {@link Lucid.LucidHelper}. The function returns an object containing the hash of the inline
+   * its hash using {@link Blaze.BlazeHelper}. The function returns an object containing the hash of the inline
    * datum, the inline datum itself, and the original datum schema.
    *
    * @param {IDepositArguments} params - The deposit arguments required to construct the deposit datum.
@@ -114,11 +118,11 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
       },
     };
 
-    const inline = Data.to(datum, DepositOrder);
+    const data = Data.to(datum, DepositOrder);
 
     return {
-      hash: LucidHelper.inlineDatumToHash(inline),
-      inline,
+      hash: data.hash(),
+      inline: data.toCbor(),
       schema: datum,
     };
   }
@@ -127,7 +131,7 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
    * Generates a withdraw datum object from the specified withdraw arguments. This function constructs
    * a new datum with defined attributes such as the pool ident, order addresses, scooper fee, and
    * the schema for the supplied LP (Liquidity Provider) asset for withdrawal. After constructing the datum,
-   * it is converted into an inline format, and its hash is calculated using {@link Lucid.LucidHelper}. The function returns
+   * it is converted into an inline format, and its hash is calculated using {@link Blaze.BlazeHelper}. The function returns
    * an object containing the hash of the inline datum, the inline datum itself, and the schema of the original
    * datum, which are crucial for executing the withdrawal operation within a transactional framework.
    *
@@ -152,11 +156,11 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
       },
     };
 
-    const inline = Data.to(datum, WithdrawOrder);
+    const data = Data.to(datum, WithdrawOrder);
 
     return {
-      hash: LucidHelper.inlineDatumToHash(inline),
-      inline,
+      hash: data.hash(),
+      inline: data.toCbor(),
       schema: datum,
     };
   }
@@ -173,11 +177,11 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
       suppliedAssetIndex: swap.SuppliedCoin === EPoolCoin.A ? "A" : "B",
     };
 
-    const inline = Data.to(datum, SwapDirection);
+    const data = Data.to(datum, SwapDirection);
 
     return {
-      hash: LucidHelper.inlineDatumToHash(inline),
-      inline,
+      hash: data.hash(),
+      inline: data.toCbor(),
       schema: datum,
     };
   }
@@ -185,13 +189,13 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
   buildOrderAddresses(
     addresses: TOrderAddressesArgs,
   ): TDatumResult<TOrderAddresses> {
-    LucidHelper.validateAddressAndDatumAreValid({
+    BlazeHelper.validateAddressAndDatumAreValid({
       ...addresses.DestinationAddress,
       network: this.network,
     });
 
     addresses?.AlternateAddress &&
-      LucidHelper.validateAddressAndDatumAreValid({
+      BlazeHelper.validateAddressAndDatumAreValid({
         address: addresses.AlternateAddress,
         network: this.network,
         datum: {
@@ -200,9 +204,6 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
       });
 
     const { DestinationAddress, AlternateAddress } = addresses;
-    const destinationHashes = LucidHelper.getAddressHashes(
-      DestinationAddress.address,
-    );
 
     if (DestinationAddress.datum.type === EDatumType.INLINE) {
       throw new Error(
@@ -210,28 +211,49 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
       );
     }
 
-    const destinationAddressCredentialType = LucidHelper.isScriptAddress(
+    const paymentPart = BlazeHelper.getPaymentHashFromBech32(
       DestinationAddress.address,
-    )
-      ? ("ScriptHash" as keyof TDestination["credentials"]["paymentKey"])
-      : "KeyHash";
+    );
+    const stakingPart = BlazeHelper.getStakingHashFromBech32(
+      DestinationAddress.address,
+    );
+
+    let paymentKeyData: V1Types.TPaymentStakingHash | undefined;
+    if (BlazeHelper.isScriptAddress(DestinationAddress.address)) {
+      paymentKeyData = {
+        ScriptHash: {
+          value: paymentPart,
+        },
+      };
+    } else {
+      paymentKeyData = {
+        KeyHash: {
+          value: paymentPart,
+        },
+      };
+    }
+
+    let stakingKeyData: V1Types.TPaymentStakingHash | undefined;
+    if (stakingPart) {
+      if (BlazeHelper.isScriptAddress(DestinationAddress.address)) {
+        stakingKeyData = {
+          ScriptHash: {
+            value: stakingPart,
+          },
+        };
+      } else {
+        stakingKeyData = {
+          KeyHash: {
+            value: stakingPart,
+          },
+        };
+      }
+    }
 
     const destination: TDestination = {
       credentials: {
-        paymentKey: {
-          [destinationAddressCredentialType]: {
-            value: destinationHashes.paymentCredentials,
-          },
-        },
-        stakingKey: destinationHashes.stakeCredentials
-          ? {
-              value: {
-                [destinationAddressCredentialType]: {
-                  value: destinationHashes.stakeCredentials,
-                },
-              },
-            }
-          : null,
+        paymentKey: paymentKeyData,
+        stakingKey: stakingKeyData ? { value: stakingKeyData } : null,
       },
       datum:
         DestinationAddress.datum.type !== EDatumType.NONE
@@ -239,29 +261,33 @@ export class DatumBuilderLucidV1 implements DatumBuilder {
           : null,
     };
 
-    const alternateHashes =
-      AlternateAddress && LucidHelper.getAddressHashes(AlternateAddress);
+    let alternatePaymentPart: string | null = null;
+    let alternateStakingPart: string | undefined;
+
+    if (AlternateAddress) {
+      alternatePaymentPart =
+        BlazeHelper.getPaymentHashFromBech32(AlternateAddress);
+      alternateStakingPart =
+        BlazeHelper.getStakingHashFromBech32(AlternateAddress);
+    }
 
     const datum: TOrderAddresses = {
       destination,
-      alternate: alternateHashes
-        ? (alternateHashes.stakeCredentials ??
-          alternateHashes.paymentCredentials)
-        : null,
+      alternate: alternateStakingPart || alternatePaymentPart,
     };
 
-    const inline = Data.to(datum, OrderAddresses);
+    const data = Data.to<TOrderAddresses>(datum, OrderAddresses);
 
     return {
-      hash: LucidHelper.inlineDatumToHash(inline),
-      inline,
+      hash: data.hash(),
+      inline: data.toCbor(),
       schema: datum,
     };
   }
 
   buildPoolIdent(ident: string): string {
     if (ident.length > V1_MAX_POOL_IDENT_LENGTH) {
-      throw new Error(DatumBuilderLucidV1.INVALID_POOL_IDENT);
+      throw new Error(DatumBuilderBlazeV1.INVALID_POOL_IDENT);
     }
 
     return ident;

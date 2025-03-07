@@ -11,7 +11,7 @@ import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
-import { DatumBuilderBlazeV3 } from "../../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
+import { DatumBuilderBlazeV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import {
@@ -20,8 +20,8 @@ import {
   POOL_MIN_ADA,
 } from "../../constants.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
-import { TxBuilderBlazeV1 } from "../TxBuilder.Blaze.V1.class.js";
-import { TxBuilderBlazeV3 } from "../TxBuilder.Blaze.V3.class.js";
+import { TxBuilderV1 } from "../TxBuilder.V1.class.js";
+import { TxBuilderAbstractV3 } from "../TxBuilder.V3.class.js";
 import {
   mockOrderToCancel,
   params,
@@ -39,15 +39,15 @@ spyOn(
   "getProtocolParamsWithScripts",
 ).mockResolvedValue(params);
 
-spyOn(TxBuilderBlazeV3.prototype, "getSettingsUtxo").mockResolvedValue(
+spyOn(TxBuilderAbstractV3.prototype, "getSettingsUtxo").mockResolvedValue(
   settingsUtxosBlaze[0],
 );
 
-spyOn(TxBuilderBlazeV3.prototype, "getAllReferenceUtxos").mockResolvedValue(
+spyOn(TxBuilderAbstractV3.prototype, "getAllReferenceUtxos").mockResolvedValue(
   referenceUtxosBlaze,
 );
 
-let builder: TxBuilderBlazeV3;
+let builder: TxBuilderAbstractV3;
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
 
@@ -67,7 +67,7 @@ const getPaymentAddressFromOutput = (output: Core.TransactionOutput) => {
 };
 
 const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (lucid) => {
-  builder = new TxBuilderBlazeV3(lucid, "preview");
+  builder = new TxBuilderAbstractV3(lucid, "preview");
 });
 
 afterAll(() => {
@@ -243,7 +243,7 @@ describe("TxBuilderBlazeV3", () => {
   });
 
   it("cancel() v1 order", async () => {
-    const spiedOnV1Cancel = spyOn(TxBuilderBlazeV1.prototype, "cancel");
+    const spiedOnV1Cancel = spyOn(TxBuilderV1.prototype, "cancel");
     getUtxosByOutRefMock.mockResolvedValue([
       Core.TransactionUnspentOutput.fromCore([
         new Core.TransactionInput(
@@ -1248,7 +1248,7 @@ describe("TxBuilderBlazeV3", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        TxBuilderBlazeV3.MIN_ADA_POOL_MINT_ERROR,
+        TxBuilderAbstractV3.MIN_ADA_POOL_MINT_ERROR,
       );
     }
   });

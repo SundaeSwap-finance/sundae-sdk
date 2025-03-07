@@ -27,7 +27,7 @@ import type {
   TSupportedNetworks,
 } from "../@types/index.js";
 import { EContractVersion, EDatumType, ESwapType } from "../@types/index.js";
-import { TxBuilderV3 } from "../Abstracts/TxBuilderV3.abstract.class.js";
+import { TxBuilderAbstractV3 } from "../Abstracts/TxBuilderV3.abstract.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { MintV3PoolConfig } from "../Configs/MintV3PoolConfig.class.js";
@@ -37,8 +37,8 @@ import { ZapConfig } from "../Configs/ZapConfig.class.js";
 import {
   OrderDatum,
   SettingsDatum,
-} from "../DatumBuilders/ContractTypes/Contract.Blaze.v3.js";
-import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.Blaze.V3.class.js";
+} from "../DatumBuilders/ContractTypes/Contract.v3.js";
+import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
@@ -48,12 +48,12 @@ import {
   ORDER_ROUTE_DEPOSIT_DEFAULT,
   POOL_MIN_ADA,
 } from "../constants.js";
-import { TxBuilderBlazeV1 } from "./TxBuilder.Blaze.V1.class.js";
+import { TxBuilderV1 } from "./TxBuilder.V1.class.js";
 
 /**
  * Object arguments for completing a transaction.
  */
-interface ITxBuilderBlazeCompleteTxArgs {
+interface ITxBuilderCompleteTxArgs {
   tx: BlazeTx;
   referralFee?: AssetAmount<IAssetAmountMetadata>;
   datum?: string;
@@ -68,9 +68,9 @@ interface ITxBuilderBlazeCompleteTxArgs {
  * for Blaze against the V3 SundaeSwap protocol. It includes capabilities to build and execute various transaction types
  * such as swaps, cancellations, updates, deposits, withdrawals, and zaps.
  *
- * @extends {TxBuilderV3}
+ * @extends {TxBuilderAbstractV3}
  */
-export class TxBuilderBlazeV3 extends TxBuilderV3 {
+export class TxBuilderV3 extends TxBuilderAbstractV3 {
   datumBuilder: DatumBuilderBlazeV3;
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
@@ -104,7 +104,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
    * and fills in a place-holder for the compiled code of any validators.
    *
    * This is to keep things lean until we really need to attach a validator,
-   * in which case, a subsequent method call to {@link TxBuilderBlazeV3#getValidatorScript}
+   * in which case, a subsequent method call to {@link TxBuilderAbstractV3#getValidatorScript}
    * will re-populate with real data.
    *
    * @returns {Promise<ISundaeProtocolParamsFull>}
@@ -588,7 +588,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     });
 
     let scooperFee = await this.getMaxScooperFeeAmount();
-    const v1TxBUilder = new TxBuilderBlazeV1(this.blaze, this.network);
+    const v1TxBUilder = new TxBuilderV1(this.blaze, this.network);
     const v1Address = await v1TxBUilder
       .getValidatorScript("escrow.spend")
       .then(({ compiledCode }) =>
@@ -655,10 +655,10 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     const isSecondSwapV1 = args.swapB.pool.version === EContractVersion.V1;
 
     const secondSwapBuilder = isSecondSwapV1
-      ? new TxBuilderBlazeV1(this.blaze, this.network)
+      ? new TxBuilderV1(this.blaze, this.network)
       : this;
     const secondSwapAddress = isSecondSwapV1
-      ? await (secondSwapBuilder as TxBuilderBlazeV1)
+      ? await (secondSwapBuilder as TxBuilderV1)
           .getValidatorScript("escrow.spend")
           .then(({ compiledCode }) =>
             Core.addressFromValidator(
@@ -846,7 +846,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
       Data.from(spendingDatum, OrderDatum);
     } catch (e) {
       console.log("This is a V1 order! Calling appropriate builder...");
-      const v1Builder = new TxBuilderBlazeV1(this.blaze, this.network);
+      const v1Builder = new TxBuilderV1(this.blaze, this.network);
       return v1Builder.cancel({ ...cancelArgs });
     }
 
@@ -1335,7 +1335,7 @@ export class TxBuilderBlazeV3 extends TxBuilderV3 {
     deposit,
     scooperFee,
     coinSelection = true,
-  }: ITxBuilderBlazeCompleteTxArgs): Promise<
+  }: ITxBuilderCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {
     // Set the min fee high enough to cover lack of accuracy.

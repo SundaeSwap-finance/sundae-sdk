@@ -11,8 +11,8 @@ import { windowCardano } from "../exports/testing.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeSDK } from "../SundaeSDK.class.js";
 import { setupBlaze } from "../TestUtilities/setupBlaze.js";
-import { TxBuilderBlazeV1 } from "../TxBuilders/TxBuilder.Blaze.V1.class.js";
-import { TxBuilderBlazeV3 } from "../TxBuilders/TxBuilder.Blaze.V3.class.js";
+import { TxBuilderV1 } from "../TxBuilders/TxBuilder.V1.class.js";
+import { TxBuilderAbstractV3 } from "../TxBuilders/TxBuilder.V3.class.js";
 
 let lucidInstance: Blaze<EmulatorProvider, ColdWallet>;
 let defaultWallet: ISundaeSDKOptions["wallet"];
@@ -72,10 +72,10 @@ describe("SundaeSDK", () => {
       wallet: defaultWallet,
     });
 
-    expect(sdk.builder()).toBeInstanceOf(TxBuilderBlazeV3);
+    expect(sdk.builder()).toBeInstanceOf(TxBuilderAbstractV3);
     expect(
       sdk.builder(EContractVersion.V1, ETxBuilderType.BLAZE),
-    ).toBeInstanceOf(TxBuilderBlazeV1);
+    ).toBeInstanceOf(TxBuilderV1);
   });
 
   it("should populate correct QueryProvider", async () => {

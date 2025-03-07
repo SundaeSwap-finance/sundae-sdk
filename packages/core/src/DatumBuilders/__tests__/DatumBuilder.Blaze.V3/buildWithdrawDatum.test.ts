@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
-import { DatumBuilderBlazeV3 } from "../../DatumBuilder.Blaze.V3.class.js";
+import { DatumBuilderBlazeV3 } from "../../DatumBuilder.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
 let builderInstance: DatumBuilderBlazeV3;
