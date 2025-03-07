@@ -5,13 +5,12 @@ import {
   Data,
   makeValue,
 } from "@blaze-cardano/sdk";
-import { AssetAmount } from "@sundaeswap/asset";
 import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
-import { DatumBuilderBlazeV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
+import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import {
@@ -21,7 +20,7 @@ import {
 } from "../../constants.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { TxBuilderV1 } from "../TxBuilder.V1.class.js";
-import { TxBuilderAbstractV3 } from "../TxBuilder.V3.class.js";
+import { TxBuilderV3 } from "../TxBuilder.V3.class.js";
 import {
   mockOrderToCancel,
   params,
@@ -39,15 +38,15 @@ spyOn(
   "getProtocolParamsWithScripts",
 ).mockResolvedValue(params);
 
-spyOn(TxBuilderAbstractV3.prototype, "getSettingsUtxo").mockResolvedValue(
+spyOn(TxBuilderV3.prototype, "getSettingsUtxo").mockResolvedValue(
   settingsUtxosBlaze[0],
 );
 
-spyOn(TxBuilderAbstractV3.prototype, "getAllReferenceUtxos").mockResolvedValue(
+spyOn(TxBuilderV3.prototype, "getAllReferenceUtxos").mockResolvedValue(
   referenceUtxosBlaze,
 );
 
-let builder: TxBuilderAbstractV3;
+let builder: TxBuilderV3;
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
 
@@ -67,7 +66,7 @@ const getPaymentAddressFromOutput = (output: Core.TransactionOutput) => {
 };
 
 const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (lucid) => {
-  builder = new TxBuilderAbstractV3(lucid, "preview");
+  builder = new TxBuilderV3(lucid, "preview");
 });
 
 afterAll(() => {
@@ -101,7 +100,7 @@ describe("TxBuilderBlazeV3", () => {
 
     const txWithReferralAndLabel = builder.newTxInstance({
       destination: TEST_REFERRAL_DEST,
-      payment: new AssetAmount(1_500_000n, ADA_METADATA),
+      payment: new Core.Value(1_500_000n),
       feeLabel: "Test Label",
     });
 
@@ -109,7 +108,7 @@ describe("TxBuilderBlazeV3", () => {
     const metadata = txComplete.auxiliaryData()?.metadata()?.metadata();
 
     expect(metadata).not.toBeUndefined();
-    expect(metadata?.get(674n)?.asText()).toEqual("Test Label: 1.5 ADA");
+    expect(metadata?.get(674n)?.asText()).toEqual("Test Label");
 
     let referralAddressOutput: Core.TransactionOutput | undefined;
     [...Array(txComplete.body().outputs().length).keys()].forEach((index) => {
@@ -129,7 +128,7 @@ describe("TxBuilderBlazeV3", () => {
 
     const txWithReferral = builder.newTxInstance({
       destination: TEST_REFERRAL_DEST,
-      payment: new AssetAmount(1_300_000n, ADA_METADATA),
+      payment: new Core.Value(1_300_000n),
     });
 
     const txComplete2 = await txWithReferral.complete();
@@ -191,7 +190,7 @@ describe("TxBuilderBlazeV3", () => {
     ]);
 
     const spiedGetSignerKeyFromDatum = spyOn(
-      DatumBuilderBlazeV3,
+      DatumBuilderV3,
       "getSignerKeyFromDatum",
     );
 
@@ -393,7 +392,7 @@ describe("TxBuilderBlazeV3", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        DatumBuilderBlazeV3.INVALID_POOL_IDENT,
+        DatumBuilderV3.INVALID_POOL_IDENT,
       );
     }
   });
@@ -674,7 +673,7 @@ describe("TxBuilderBlazeV3", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        DatumBuilderBlazeV3.INVALID_POOL_IDENT,
+        DatumBuilderV3.INVALID_POOL_IDENT,
       );
     }
   });
@@ -775,7 +774,7 @@ describe("TxBuilderBlazeV3", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        DatumBuilderBlazeV3.INVALID_POOL_IDENT,
+        DatumBuilderV3.INVALID_POOL_IDENT,
       );
     }
   });
@@ -1248,7 +1247,7 @@ describe("TxBuilderBlazeV3", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        TxBuilderAbstractV3.MIN_ADA_POOL_MINT_ERROR,
+        TxBuilderV3.MIN_ADA_POOL_MINT_ERROR,
       );
     }
   });

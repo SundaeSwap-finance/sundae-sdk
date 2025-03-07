@@ -86,7 +86,7 @@ export interface IDatumBuilderPoolMintRedeemerV3Args {
  * if you would rather just build valid CBOR strings for just the datum
  * portion of a valid SundaeSwap transaction.
  */
-export class DatumBuilderBlazeV3 implements DatumBuilder {
+export class DatumBuilderV3 implements DatumBuilder {
   /** The current network id. */
   public network: TSupportedNetworks;
   /** The error to throw when the pool ident does not match V1 constraints. */
@@ -253,7 +253,7 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
     depositFee,
     seedUtxo,
   }: IDatumBuilderMintPoolV3Args): TDatumResult<V3Types.TPoolDatum> {
-    const ident = DatumBuilderBlazeV3.computePoolId(seedUtxo);
+    const ident = DatumBuilderV3.computePoolId(seedUtxo);
     const liquidity = sqrt(assetA.amount * assetB.amount);
 
     const assetsPair = this.buildLexicographicalAssetsDatum(
@@ -475,7 +475,7 @@ export class DatumBuilderBlazeV3 implements DatumBuilder {
 
   public validatePoolIdent(ident: string): string {
     if (!SundaeUtils.isV3PoolIdent(ident)) {
-      throw new Error(DatumBuilderBlazeV3.INVALID_POOL_IDENT);
+      throw new Error(DatumBuilderV3.INVALID_POOL_IDENT);
     }
 
     return ident;

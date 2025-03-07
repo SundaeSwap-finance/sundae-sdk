@@ -1,11 +1,6 @@
+import type { Core } from "@blaze-cardano/sdk";
 import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { IComposedTx, ITxBuilderReferralFee } from "@sundaeswap/core";
-import type {
-  MintingPolicy,
-  OutRef,
-  SpendingValidator,
-  UTxO,
-} from "lucid-cardano";
 
 /**
  * The type of Taste Test, where "Direct" is a non-pool Taste Test, and "Liquidity"
@@ -44,7 +39,7 @@ export enum EScriptType {
  */
 export type TSpendingValidatorScript = {
   type: EScriptType.VALIDATOR;
-  value: SpendingValidator;
+  value: Core.Script;
 };
 
 /**
@@ -52,7 +47,7 @@ export type TSpendingValidatorScript = {
  */
 export type TMintingPolicyScript = {
   type: EScriptType.POLICY;
-  value: MintingPolicy;
+  value: Core.Script;
 };
 
 /**
@@ -63,7 +58,7 @@ export type TOutRef = {
   type: EScriptType.OUTREF;
   value: {
     hash: string;
-    outRef: OutRef;
+    outRef: Core.TransactionInput;
   };
 };
 
@@ -88,7 +83,7 @@ export interface IBaseArgs {
     validator: TScriptType;
   };
   tasteTestType?: TTasteTestType;
-  utxos?: UTxO[];
+  utxos?: Core.TransactionUnspentOutput[];
 }
 
 /**

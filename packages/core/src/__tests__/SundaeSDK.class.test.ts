@@ -4,7 +4,6 @@ import { EmulatorProvider } from "@blaze-cardano/emulator";
 import { Blaze, ColdWallet } from "@blaze-cardano/sdk";
 import {
   EContractVersion,
-  ETxBuilderType,
   ISundaeSDKOptions,
 } from "../@types/index.js";
 import { windowCardano } from "../exports/testing.js";
@@ -12,7 +11,7 @@ import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSw
 import { SundaeSDK } from "../SundaeSDK.class.js";
 import { setupBlaze } from "../TestUtilities/setupBlaze.js";
 import { TxBuilderV1 } from "../TxBuilders/TxBuilder.V1.class.js";
-import { TxBuilderAbstractV3 } from "../TxBuilders/TxBuilder.V3.class.js";
+import { TxBuilderV3 } from "../TxBuilders/TxBuilder.V3.class.js";
 
 let lucidInstance: Blaze<EmulatorProvider, ColdWallet>;
 let defaultWallet: ISundaeSDKOptions["wallet"];
@@ -21,11 +20,8 @@ setupBlaze(async (blaze) => {
   lucidInstance = blaze;
   defaultWallet = {
     name: "eternl",
-    builder: {
-      type: ETxBuilderType.BLAZE,
-      blaze,
-    },
     network: "preview",
+    blazeInstance: blaze
   };
 });
 
@@ -72,9 +68,9 @@ describe("SundaeSDK", () => {
       wallet: defaultWallet,
     });
 
-    expect(sdk.builder()).toBeInstanceOf(TxBuilderAbstractV3);
+    expect(sdk.builder()).toBeInstanceOf(TxBuilderV3);
     expect(
-      sdk.builder(EContractVersion.V1, ETxBuilderType.BLAZE),
+      sdk.builder(EContractVersion.V1),
     ).toBeInstanceOf(TxBuilderV1);
   });
 
@@ -84,22 +80,5 @@ describe("SundaeSDK", () => {
     });
 
     expect(sdk.query()).toBeInstanceOf(QueryProviderSundaeSwap);
-  });
-
-  it("should throw an error if given an invalid provider type", async () => {
-    expect(() =>
-      SundaeSDK.new({
-        wallet: {
-          builder: {
-            // @ts-ignore
-            type: "invalid",
-          },
-        },
-      }),
-    ).toThrowError(
-      new Error(
-        "A valid wallet provider type must be defined in your options object.",
-      ),
-    );
   });
 });

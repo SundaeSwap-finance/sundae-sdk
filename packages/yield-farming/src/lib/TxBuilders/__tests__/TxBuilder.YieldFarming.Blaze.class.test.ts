@@ -5,13 +5,13 @@ import { PREVIEW_DATA, setupBlaze } from "@sundaeswap/core/testing";
 import { afterEach, describe, expect, it, spyOn } from "bun:test";
 
 import { Delegation, TDelegation } from "../../../@types/blaze.js";
-import { delegation } from "../../__data__/delegationData.blaze.js";
-import { YieldFarmingBlaze } from "../TxBuilder.YieldFarming.Blaze.class.js";
+import { delegation } from "../../__data__/delegationData.js";
+import { YieldFarmingBuilder } from "../YieldFarmingBuilder.class.js";
 
-let YFInstance: YieldFarmingBlaze;
+let YFInstance: YieldFarmingBuilder;
 
 const { getUtxosByOutRefMock, ownerAddress } = setupBlaze(async (Blaze) => {
-  YFInstance = new YieldFarmingBlaze(Blaze, 0);
+  YFInstance = new YieldFarmingBuilder(Blaze, 0);
 });
 
 const referenceInputMock = new Core.TransactionUnspentOutput(
@@ -503,7 +503,7 @@ describe("YieldFarmingBlaze", () => {
       existingPositions: [],
       referralFee: {
         destination: referralFeeAddress,
-        payment: new AssetAmount(1_000_000n, ADA_METADATA),
+        payment: new Core.Value(1_000_000n),
         feeLabel: "Test Label",
       },
     });
@@ -557,11 +557,9 @@ describe("YieldFarmingBlaze", () => {
         existingPositions: [],
         referralFee: {
           destination: referralFeeAddress,
-          payment: new AssetAmount(1_000_000n, {
-            decimals: 6,
-            assetId:
-              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69555344",
-          }),
+          payment: new Core.Value(1_000_000n, new Map([
+            [Core.AssetId("2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344"), 100n]
+          ])),
           feeLabel: "Non-Ada Test Label",
         },
       });
@@ -579,6 +577,6 @@ describe("YieldFarmingBlaze", () => {
         ?.metadata()
         ?.get(674n)
         ?.asText(),
-    ).toEqual("Test Label: 1 ADA");
+    ).toEqual("Test Label");
   });
 });

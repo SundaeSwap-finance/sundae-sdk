@@ -1,8 +1,8 @@
-import { AssetAmount } from "@sundaeswap/asset";
 import { EContractVersion } from "@sundaeswap/core";
 import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 import { FC, useCallback, useState } from "react";
 
+import { Core } from "@blaze-cardano/sdk";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs } from "../Actions";
@@ -10,7 +10,6 @@ import { IActionArgs } from "../Actions";
 export const CreatePool: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
   const {
     SDK,
-    builderLib,
     ready,
     activeWalletAddr,
     useReferral,
@@ -25,7 +24,7 @@ export const CreatePool: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
 
     setCreatePooling(true);
     try {
-      await SDK.builder(EContractVersion.V3, builderLib)
+      await SDK.builder(EContractVersion.V3)
         .mintPool({
           assetA: PREVIEW_DATA.assets.tada,
           assetB: PREVIEW_DATA.assets.tindy,
@@ -36,10 +35,7 @@ export const CreatePool: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
                 referralFee: {
                   destination:
                     "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-                  payment: new AssetAmount(1000000n, {
-                    assetId: "",
-                    decimals: 6,
-                  }),
+                  payment: new Core.Value(1000000n),
                 },
               }
             : {}),

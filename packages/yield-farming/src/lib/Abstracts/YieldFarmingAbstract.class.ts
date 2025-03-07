@@ -1,3 +1,4 @@
+import type { Core, TxBuilder } from "@blaze-cardano/sdk";
 import type { DatumBuilder, IComposedTx } from "@sundaeswap/core";
 
 /**
@@ -5,13 +6,13 @@ import type { DatumBuilder, IComposedTx } from "@sundaeswap/core";
  * the functionality of the Yield Farming features. This class provides
  * the structure for depositing, updating, and withdrawing operations.
  */
-export abstract class YieldFarming<Tx, TxComplete, Datum = string> {
+export abstract class YieldFarmingAbstract {
   abstract datumBuilder: DatumBuilder;
 
   abstract lock(
     args: unknown,
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>;
+  ): Promise<IComposedTx<TxBuilder, Core.Transaction, string | undefined>>;
   abstract unlock(
     args: unknown,
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>;
+  ): Promise<IComposedTx<TxBuilder, Core.Transaction, string | undefined>>;
 }

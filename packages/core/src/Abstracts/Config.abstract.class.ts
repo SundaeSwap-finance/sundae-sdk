@@ -1,5 +1,4 @@
-import { AssetAmount } from "@sundaeswap/asset";
-
+import { Core } from "@blaze-cardano/sdk";
 import { ITxBuilderReferralFee } from "../@types/index.js";
 
 /**
@@ -51,7 +50,7 @@ export abstract class Config<Args = object> {
       return;
     }
 
-    if (!(this.referralFee.payment instanceof AssetAmount)) {
+    if (!(this.referralFee.payment instanceof Core.Value)) {
       throw new Error(this.INVALID_FEE_AMOUNT);
     }
   }

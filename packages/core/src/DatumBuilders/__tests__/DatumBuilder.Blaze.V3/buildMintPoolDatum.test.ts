@@ -1,23 +1,23 @@
 import {
-    afterEach,
-    beforeEach,
-    describe,
-    expect,
-    it,
-    mock,
-    spyOn,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+  spyOn,
 } from "bun:test";
 
 import {
-    DatumBuilderBlazeV3,
-    IDatumBuilderMintPoolV3Args,
+  DatumBuilderV3,
+  IDatumBuilderMintPoolV3Args,
 } from "../../DatumBuilder.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
-let builderInstance: DatumBuilderBlazeV3;
+let builderInstance: DatumBuilderV3;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderBlazeV3("preview");
+  builderInstance = new DatumBuilderV3("preview");
 });
 
 afterEach(() => {
@@ -26,9 +26,9 @@ afterEach(() => {
 
 describe("builderMintPoolDatum()", () => {
   it("should build the pool mint datum properly", () => {
-    const spiedOnComputePoolId = spyOn(DatumBuilderBlazeV3, "computePoolId");
+    const spiedOnComputePoolId = spyOn(DatumBuilderV3, "computePoolId");
     const spiedOnBuildLexicographicalAssetsDatum = spyOn(
-      DatumBuilderBlazeV3.prototype,
+      DatumBuilderV3.prototype,
       "buildLexicographicalAssetsDatum",
     );
 
@@ -59,9 +59,9 @@ describe("builderMintPoolDatum()", () => {
   });
 
   it("should build the pool mint datum properly with split fees", () => {
-    const spiedOnComputePoolId = spyOn(DatumBuilderBlazeV3, "computePoolId");
+    const spiedOnComputePoolId = spyOn(DatumBuilderV3, "computePoolId");
     const spiedOnBuildLexicographicalAssetsDatum = spyOn(
-      DatumBuilderBlazeV3.prototype,
+      DatumBuilderV3.prototype,
       "buildLexicographicalAssetsDatum",
     );
 

@@ -1,9 +1,7 @@
-import { AssetAmount } from "@sundaeswap/asset";
-import { ETxBuilderType } from "@sundaeswap/core";
-import type { YieldFarmingBlaze } from "@sundaeswap/yield-farming/blaze";
-import type { YieldFarmingLucid } from "@sundaeswap/yield-farming/lucid";
+import { YieldFarmingBuilder } from "@sundaeswap/yield-farming";
 import { FC, useCallback, useState } from "react";
 
+import { Core } from "@blaze-cardano/sdk";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs } from "../Actions";
@@ -12,9 +10,8 @@ export const UnlockV1: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
   const {
     SDK,
     ready,
-    activeWalletAddr: walletAddress,
+    activeWalletAddr,
     useReferral,
-    builderLib,
     network,
   } = useAppState();
   const [unlocking, setUnlocking] = useState(false);
@@ -24,8 +21,6 @@ export const UnlockV1: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       return;
     }
 
-    let YF: YieldFarmingBlaze | YieldFarmingLucid | undefined;
-
     const hash = prompt("Transaction hash:");
     const index = prompt("Transaction index:");
 
@@ -34,128 +29,57 @@ export const UnlockV1: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setUnlocking(true);
-    switch (builderLib) {
-      case ETxBuilderType.LUCID: {
-        const lucid = SDK.lucid();
-        if (!lucid) {
-          return;
-        }
+    const blaze = SDK.blaze();
+    if (!blaze) {
+      return;
+    }
 
-        const { YieldFarmingLucid } = await import(
-          "@sundaeswap/yield-farming/lucid"
-        );
-        YF = new YieldFarmingLucid(lucid);
+    const YF = new YieldFarmingBuilder(blaze, network);
 
-        const utxos = await lucid.provider.getUtxosByOutRef([
-          {
-            outputIndex: Number(index),
-            txHash: hash,
-          },
-        ]);
+    const utxos = await blaze.provider.resolveUnspentOutputs([
+      Core.TransactionInput.fromCore({
+        index: Number(index),
+        txId: Core.TransactionId(hash),
+      }),
+    ]);
 
-        try {
-          await YF.unlock_v1({
-            destination: walletAddress,
-            positions: utxos,
-            ...(useReferral
-              ? {
-                  referralFee: {
-                    destination:
-                      "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-                    payment: new AssetAmount(1000000n, {
-                      assetId: "",
-                      decimals: 6,
-                    }),
-                  },
-                }
-              : {}),
-          })
-            // @ts-ignore
-            .then(async ({ build, fees }) => {
-              setFees(fees);
-              const builtTx = await build();
+    try {
+      await YF.unlock_v1({
+        destination: activeWalletAddr,
+        positions: utxos,
+        ...(useReferral
+          ? {
+              referralFee: {
+                destination:
+                  "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
+                payment: new Core.Value(1000000n),
+              },
+            }
+          : {}),
+      })
+        // @ts-ignore
+        .then(async ({ build, fees }) => {
+          setFees(fees);
+          const builtTx = await build();
 
-              if (submit) {
-                const { cbor, submit } = await builtTx.sign();
-                setCBOR({
-                  cbor,
-                  hash: await submit(),
-                });
-              } else {
-                setCBOR({
-                  cbor: builtTx.cbor,
-                });
-              }
+          if (submit) {
+            const { cbor, submit } = await builtTx.sign();
+            setCBOR({
+              cbor,
+              hash: await submit(),
             });
-        } catch (e) {
-          console.log(e);
-        }
-        break;
-      }
-      case ETxBuilderType.BLAZE: {
-        const blaze = SDK.blaze();
-        if (!blaze) {
-          return;
-        }
-
-        const { YieldFarmingBlaze } = await import(
-          "@sundaeswap/yield-farming/blaze"
-        );
-        const { Core } = await import("@blaze-cardano/sdk");
-        YF = new YieldFarmingBlaze(blaze, network);
-
-        const utxos = await blaze.provider.resolveUnspentOutputs([
-          Core.TransactionInput.fromCore({
-            index: Number(index),
-            txId: Core.TransactionId(hash),
-          }),
-        ]);
-
-        try {
-          await YF.unlock_v1({
-            destination: walletAddress,
-            positions: utxos,
-            ...(useReferral
-              ? {
-                  referralFee: {
-                    destination:
-                      "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-                    payment: new AssetAmount(1000000n, {
-                      assetId: "",
-                      decimals: 6,
-                    }),
-                  },
-                }
-              : {}),
-          })
-            // @ts-ignore
-            .then(async ({ build, fees }) => {
-              setFees(fees);
-              const builtTx = await build();
-
-              if (submit) {
-                const { cbor, submit } = await builtTx.sign();
-                setCBOR({
-                  cbor,
-                  hash: await submit(),
-                });
-              } else {
-                setCBOR({
-                  cbor: builtTx.cbor,
-                });
-              }
+          } else {
+            setCBOR({
+              cbor: builtTx.cbor,
             });
-        } catch (e) {
-          console.log(e);
-        }
-        break;
-      }
-      default:
-        throw new Error("No TxBuilder type defined.");
+          }
+        });
+    } catch (e) {
+      console.log(e);
     }
 
     setUnlocking(false);
-  }, [SDK, submit, walletAddress, useReferral, builderLib, network]);
+  }, [SDK, submit, activeWalletAddr, useReferral, network]);
 
   if (!SDK) {
     return null;

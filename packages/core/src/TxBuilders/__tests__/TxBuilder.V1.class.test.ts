@@ -12,13 +12,13 @@ import { EDatumType } from "../../@types/datumbuilder.js";
 import { IPoolData } from "../../@types/queryprovider.js";
 import { EContractVersion, ITxBuilderFees } from "../../@types/txbuilders.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../../constants.js";
-import { DatumBuilderBlazeV1 } from "../../DatumBuilders/DatumBuilder.V1.class.js";
+import { DatumBuilderV1 } from "../../DatumBuilders/DatumBuilder.V1.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { PREVIEW_DATA } from "../../TestUtilities/mockData.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import { params, settingsUtxosBlaze } from "../__data__/mockData.js";
 import { TxBuilderV1 } from "../TxBuilder.V1.class.js";
-import { TxBuilderAbstractV3 } from "../TxBuilder.V3.class.js";
+import { TxBuilderV3 } from "../TxBuilder.V3.class.js";
 
 let builder: TxBuilderV1;
 
@@ -36,7 +36,7 @@ spyOn(
   QueryProviderSundaeSwap.prototype,
   "getProtocolParamsWithScripts",
 ).mockResolvedValue(params);
-spyOn(TxBuilderAbstractV3.prototype, "getSettingsUtxo").mockResolvedValue(
+spyOn(TxBuilderV3.prototype, "getSettingsUtxo").mockResolvedValue(
   settingsUtxosBlaze[0],
 );
 
@@ -66,7 +66,7 @@ describe("TxBuilderBlazeV1", () => {
 
     const txWithReferralAndLabel = builder.newTxInstance({
       destination: TEST_REFERRAL_DEST,
-      payment: new AssetAmount(1_500_000n, ADA_METADATA),
+      payment: new Core.Value(1_500_000n),
       feeLabel: "Test Label",
     });
 
@@ -74,7 +74,7 @@ describe("TxBuilderBlazeV1", () => {
     const metadata = txComplete.auxiliaryData()?.metadata()?.metadata();
 
     expect(metadata).not.toBeUndefined();
-    expect(metadata?.get(674n)?.asText()).toEqual("Test Label: 1.5 ADA");
+    expect(metadata?.get(674n)?.asText()).toEqual("Test Label");
 
     let referralAddressOutput: Core.TransactionOutput | undefined;
     [...Array(txComplete.body().outputs().length).keys()].forEach((index) => {
@@ -98,7 +98,7 @@ describe("TxBuilderBlazeV1", () => {
 
     const txWithReferral = builder.newTxInstance({
       destination: TEST_REFERRAL_DEST,
-      payment: new AssetAmount(1_300_000n, ADA_METADATA),
+      payment: new Core.Value(1_300_000n),
     });
 
     const txComplete2 = await txWithReferral.complete();
@@ -251,7 +251,7 @@ describe("TxBuilderBlazeV1", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        DatumBuilderBlazeV1.INVALID_POOL_IDENT,
+        DatumBuilderV1.INVALID_POOL_IDENT,
       );
     }
   });
@@ -1137,7 +1137,7 @@ describe("TxBuilderBlazeV1", () => {
   });
 
   it("cancel() v3 order", async () => {
-    const spiedOnV3Cancel = spyOn(TxBuilderAbstractV3.prototype, "cancel");
+    const spiedOnV3Cancel = spyOn(TxBuilderV3.prototype, "cancel");
     getUtxosByOutRefMock.mockResolvedValue([
       Core.TransactionUnspentOutput.fromCore([
         new Core.TransactionInput(

@@ -7,8 +7,9 @@ import {
   Provider,
   Wallet,
 } from "@blaze-cardano/sdk";
-import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { AssetAmount } from "@sundaeswap/asset";
 
+import { BlazeHelper } from "src/Utilities/BlazeHelper.class.js";
 import type {
   ICancelConfigArgs,
   IComposedTx,
@@ -27,7 +28,7 @@ import type {
   TSupportedNetworks,
 } from "../@types/index.js";
 import { EContractVersion, EDatumType, ESwapType } from "../@types/index.js";
-import { TxBuilderAbstractV3 } from "../Abstracts/TxBuilderV3.abstract.class.js";
+import { TxBuilderAbstractV3 } from "../Abstracts/TxBuilderAbstract.V3..class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { MintV3PoolConfig } from "../Configs/MintV3PoolConfig.class.js";
@@ -38,7 +39,7 @@ import {
   OrderDatum,
   SettingsDatum,
 } from "../DatumBuilders/ContractTypes/Contract.v3.js";
-import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
+import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
@@ -55,7 +56,7 @@ import { TxBuilderV1 } from "./TxBuilder.V1.class.js";
  */
 interface ITxBuilderCompleteTxArgs {
   tx: BlazeTx;
-  referralFee?: AssetAmount<IAssetAmountMetadata>;
+  referralFee?: Core.Value;
   datum?: string;
   deposit?: bigint;
   scooperFee?: bigint;
@@ -71,7 +72,7 @@ interface ITxBuilderCompleteTxArgs {
  * @extends {TxBuilderAbstractV3}
  */
 export class TxBuilderV3 extends TxBuilderAbstractV3 {
-  datumBuilder: DatumBuilderBlazeV3;
+  datumBuilder: DatumBuilderV3;
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
@@ -96,7 +97,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     super();
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
-    this.datumBuilder = new DatumBuilderBlazeV3(network);
+    this.datumBuilder = new DatumBuilderV3(network);
   }
 
   /**
@@ -268,21 +269,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const instance = this.blaze.newTransaction();
 
     if (fee) {
-      const tokenMap = new Map<Core.AssetId, bigint>();
-      const payment: Core.Value = new Core.Value(0n, tokenMap);
-      if (SundaeUtils.isAdaAsset(fee.payment.metadata)) {
-        payment.setCoin(fee.payment.amount);
-        instance.payLovelace(
-          Core.addressFromBech32(fee.destination),
-          fee.payment.amount,
-        );
-      } else {
-        tokenMap.set(
-          Core.AssetId(fee.payment.metadata.assetId),
-          fee.payment.amount,
-        );
-        instance.payAssets(Core.addressFromBech32(fee.destination), payment);
-      }
+      instance.payAssets(Core.addressFromBech32(fee.destination), fee.payment);
 
       if (fee?.feeLabel) {
         /**
@@ -290,19 +277,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
          */
         const data = new Core.AuxiliaryData();
         const map = new Map<bigint, Core.Metadatum>();
-        map.set(
-          674n,
-          Core.Metadatum.newText(
-            `${fee.feeLabel}: ${fee.payment.value.toString()} ${
-              !SundaeUtils.isAdaAsset(fee.payment.metadata)
-                ? Buffer.from(
-                    fee.payment.metadata.assetId.split(".")[1],
-                    "hex",
-                  ).toString("utf-8")
-                : "ADA"
-            }`,
-          ),
-        );
+        map.set(674n, Core.Metadatum.newText(`${fee.feeLabel}`));
         data.setMetadata(new Core.Metadata(map));
         instance.setAuxiliaryData(data);
       }
@@ -360,15 +335,15 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       txHash: userUtxos[0].input().transactionId(),
     };
 
-    const newPoolIdent = DatumBuilderBlazeV3.computePoolId(seedUtxo);
+    const newPoolIdent = DatumBuilderV3.computePoolId(seedUtxo);
 
-    const nftAssetName = DatumBuilderBlazeV3.computePoolNftName(newPoolIdent);
+    const nftAssetName = DatumBuilderV3.computePoolNftName(newPoolIdent);
     const poolNftAssetIdHex = `${poolPolicyId + nftAssetName}`;
 
-    const refAssetName = DatumBuilderBlazeV3.computePoolRefName(newPoolIdent);
+    const refAssetName = DatumBuilderV3.computePoolRefName(newPoolIdent);
     const poolRefAssetIdHex = `${poolPolicyId + refAssetName}`;
 
-    const poolLqAssetName = DatumBuilderBlazeV3.computePoolLqName(newPoolIdent);
+    const poolLqAssetName = DatumBuilderV3.computePoolLqName(newPoolIdent);
     const poolLqAssetIdHex = `${poolPolicyId + poolLqAssetName}`;
 
     const poolAssets = {
@@ -420,7 +395,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
       SettingsDatum,
     );
-    const metadataAddress = DatumBuilderBlazeV3.addressSchemaToBech32(
+    const metadataAddress = DatumBuilderV3.addressSchemaToBech32(
       { paymentCredential, stakeCredential },
       this.network === "mainnet"
         ? Core.NetworkId.Mainnet
@@ -432,7 +407,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       ({ title }) => title === "pool.mint",
     );
 
-    const sundaeStakeAddress = DatumBuilderBlazeV3.addressSchemaToBech32(
+    const sundaeStakeAddress = DatumBuilderV3.addressSchemaToBech32(
       {
         paymentCredential: {
           SCredential: {
@@ -498,7 +473,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
         Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
         SettingsDatum,
       );
-      const realTreasuryAddress = DatumBuilderBlazeV3.addressSchemaToBech32(
+      const realTreasuryAddress = DatumBuilderV3.addressSchemaToBech32(
         datum.treasuryAddress,
         this.network === "mainnet"
           ? Core.NetworkId.Mainnet
@@ -717,25 +692,21 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       swapType: args.swapB.swapType,
     });
 
-    let referralFeeAmount = 0n;
-    if (swapA.referralFee) {
-      referralFeeAmount += swapA.referralFee.payment.amount;
-    }
-
-    if (swapB.referralFee) {
-      referralFeeAmount += swapB.referralFee.payment.amount;
-    }
+    const referralFeeAmount = BlazeHelper.mergeValues(
+      swapA.referralFee?.payment,
+      swapB.referralFee?.payment,
+    );
 
     let mergedReferralFee: ITxBuilderReferralFee | undefined;
     if (swapA.referralFee) {
       mergedReferralFee = {
         ...swapA.referralFee,
-        payment: swapA.referralFee.payment.withAmount(referralFeeAmount),
+        payment: referralFeeAmount,
       };
     } else if (swapB.referralFee) {
       mergedReferralFee = {
         ...swapB.referralFee,
-        payment: swapB.referralFee.payment.withAmount(referralFeeAmount),
+        payment: referralFeeAmount,
       };
     }
 
@@ -845,6 +816,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     try {
       Data.from(spendingDatum, OrderDatum);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log("This is a V1 order! Calling appropriate builder...");
       const v1Builder = new TxBuilderV1(this.blaze, this.network);
       return v1Builder.cancel({ ...cancelArgs });
@@ -874,7 +846,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     );
     cancelReadFrom.forEach((utxo) => tx.addReferenceInput(utxo));
 
-    const signerKey = DatumBuilderBlazeV3.getSignerKeyFromDatum(
+    const signerKey = DatumBuilderV3.getSignerKeyFromDatum(
       spendingDatum.toCbor(),
     );
 
@@ -957,27 +929,22 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     /**
      * Accumulate any referral fees.
      */
-    let accumulatedReferralFee: AssetAmount<IAssetAmountMetadata> | undefined;
-    if (cancelArgs?.referralFee) {
-      accumulatedReferralFee = cancelArgs?.referralFee?.payment;
-    }
-    if (swapArgs?.referralFee) {
-      // Add the accumulation.
-      if (accumulatedReferralFee) {
-        accumulatedReferralFee.add(swapArgs?.referralFee?.payment);
-      } else {
-        accumulatedReferralFee = swapArgs?.referralFee?.payment;
-      }
+    const accumulatedReferralFee = BlazeHelper.mergeValues(
+      cancelArgs.referralFee?.payment,
+      swapArgs.referralFee?.payment,
+    );
 
-      // Add to the transaction.
+    if (cancelArgs.referralFee) {
+      cancelTx.payAssets(
+        Core.addressFromBech32(cancelArgs.referralFee.destination),
+        cancelArgs.referralFee.payment,
+      );
+    }
+
+    if (swapArgs.referralFee) {
       cancelTx.payAssets(
         Core.addressFromBech32(swapArgs.referralFee.destination),
-        SundaeUtils.isAdaAsset(swapArgs.referralFee.payment.metadata)
-          ? makeValue(swapArgs.referralFee.payment.amount)
-          : makeValue(0n, [
-              swapArgs.referralFee.payment.metadata.assetId,
-              swapArgs.referralFee.payment.amount,
-            ]),
+        swapArgs.referralFee.payment,
       );
     }
 
@@ -1347,7 +1314,10 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
         scooperFee ?? (await this.getMaxScooperFeeAmount()),
         ADA_METADATA,
       ),
-      referral: referralFee,
+      // TODO: update this to show native asset referral fees.
+      referral: referralFee
+        ? new AssetAmount(referralFee.coin() || 0n, ADA_METADATA)
+        : undefined,
     };
 
     let finishedTx: Core.Transaction | undefined;
@@ -1411,6 +1381,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
                 try {
                   return await that.blaze.submitTransaction(signedTx);
                 } catch (e) {
+                  // eslint-disable-next-line no-console
                   console.log(
                     `Could not submit order. Signed transaction CBOR: ${signedTx
                       .body()

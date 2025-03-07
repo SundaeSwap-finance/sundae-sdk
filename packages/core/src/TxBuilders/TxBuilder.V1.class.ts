@@ -46,8 +46,8 @@ import {
   WithdrawOrder,
 } from "../DatumBuilders/ContractTypes/Contract.v1.js";
 import { OrderDatum as V3OrderDatum } from "../DatumBuilders/ContractTypes/Contract.v3.js";
-import { DatumBuilderBlazeV1 } from "../DatumBuilders/DatumBuilder.V1.class.js";
-import { DatumBuilderBlazeV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
+import { DatumBuilderV1 } from "../DatumBuilders/DatumBuilder.V1.class.js";
+import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
@@ -63,7 +63,7 @@ import { TxBuilderV3 } from "./TxBuilder.V3.class.js";
  */
 export interface ITxBuilderCompleteTxArgs {
   tx: BlazeTx;
-  referralFee?: AssetAmount<IAssetAmountMetadata>;
+  referralFee?: Core.Value;
   datum?: string;
   deposit?: bigint;
   scooperFee?: bigint;
@@ -90,7 +90,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
-  datumBuilder: DatumBuilderBlazeV1;
+  datumBuilder: DatumBuilderV1;
 
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV1BlazeParams> = {
     mainnet: {
@@ -115,7 +115,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     super();
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
-    this.datumBuilder = new DatumBuilderBlazeV1(network);
+    this.datumBuilder = new DatumBuilderV1(network);
   }
 
   /**
@@ -210,21 +210,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
    * @param fee The referral fees to add.
    */
   private attachReferralFees(instance: BlazeTx, fee: ITxBuilderReferralFee) {
-    const tokenMap = new Map<Core.AssetId, bigint>();
-    const payment: Core.Value = new Core.Value(0n, tokenMap);
-    if (SundaeUtils.isAdaAsset(fee.payment.metadata)) {
-      payment.setCoin(fee.payment.amount);
-      instance.payLovelace(
-        Core.addressFromBech32(fee.destination),
-        fee.payment.amount,
-      );
-    } else {
-      tokenMap.set(
-        Core.AssetId(fee.payment.metadata.assetId),
-        fee.payment.amount,
-      );
-      instance.payAssets(Core.addressFromBech32(fee.destination), payment);
-    }
+    instance.payAssets(Core.addressFromBech32(fee.destination), fee.payment);
 
     if (fee?.feeLabel) {
       const data = new Core.AuxiliaryData();
@@ -232,16 +218,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       map.set(
         674n,
         Core.Metadatum.fromCore(
-          Core.Metadatum.newText(
-            `${fee.feeLabel}: ${fee.payment.value.toString()} ${
-              !SundaeUtils.isAdaAsset(fee.payment.metadata)
-                ? Buffer.from(
-                    fee.payment.metadata.assetId.split(".")[1],
-                    "hex",
-                  ).toString("utf-8")
-                : "ADA"
-            }`,
-          ).toCore(),
+          Core.Metadatum.newText(`${fee.feeLabel}`).toCore(),
         ),
       );
       data.setMetadata(new Core.Metadata(map));
@@ -423,25 +400,21 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       swapType: args.swapB.swapType,
     });
 
-    let referralFeeAmount = 0n;
-    if (swapA.referralFee) {
-      referralFeeAmount += swapA.referralFee.payment.amount;
-    }
-
-    if (swapB.referralFee) {
-      referralFeeAmount += swapB.referralFee.payment.amount;
-    }
+    const referralFeeAmount = BlazeHelper.mergeValues(
+      swapA.referralFee?.payment,
+      swapB.referralFee?.payment,
+    );
 
     let mergedReferralFee: ITxBuilderReferralFee | undefined;
     if (swapA.referralFee) {
       mergedReferralFee = {
         ...swapA.referralFee,
-        payment: swapA.referralFee.payment.withAmount(referralFeeAmount),
+        payment: referralFeeAmount,
       };
     } else if (swapB.referralFee) {
       mergedReferralFee = {
         ...swapB.referralFee,
-        payment: swapB.referralFee.payment.withAmount(referralFeeAmount),
+        payment: referralFeeAmount,
       };
     }
 
@@ -553,6 +526,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
      */
     try {
       Data.from(spendingDatum, V3OrderDatum);
+      // eslint-disable-next-line no-console
       console.log("This is a V3 order! Calling appropriate builder...");
       const v3Builder = new TxBuilderV3(this.blaze, this.network);
       return v3Builder.cancel({ ...cancelArgs });
@@ -709,27 +683,22 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     /**
      * Accumulate any referral fees.
      */
-    let accumulatedReferralFee: AssetAmount<IAssetAmountMetadata> | undefined;
-    if (cancelArgs?.referralFee) {
-      accumulatedReferralFee = cancelArgs?.referralFee?.payment;
-    }
-    if (swapArgs?.referralFee) {
-      // Add the accumulation.
-      if (accumulatedReferralFee) {
-        accumulatedReferralFee.add(swapArgs?.referralFee?.payment);
-      } else {
-        accumulatedReferralFee = swapArgs?.referralFee?.payment;
-      }
+    const accumulatedReferralFee = BlazeHelper.mergeValues(
+      cancelArgs.referralFee?.payment,
+      swapArgs.referralFee?.payment,
+    );
 
-      // Add to the transaction.
+    if (cancelArgs.referralFee) {
+      cancelTx.payAssets(
+        Core.addressFromBech32(cancelArgs.referralFee.destination),
+        cancelArgs.referralFee.payment,
+      );
+    }
+
+    if (swapArgs.referralFee) {
       cancelTx.payAssets(
         Core.addressFromBech32(swapArgs.referralFee.destination),
-        SundaeUtils.isAdaAsset(swapArgs.referralFee.payment.metadata)
-          ? makeValue(swapArgs.referralFee.payment.amount)
-          : makeValue(ORDER_DEPOSIT_DEFAULT, [
-              swapArgs.referralFee.payment.metadata.assetId,
-              swapArgs.referralFee.payment.amount,
-            ]),
+        swapArgs.referralFee.payment,
       );
     }
 
@@ -1081,7 +1050,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     const finalTx = this.blaze.newTransaction();
     let totalScooper = 0n;
     let totalDeposit = 0n;
-    const totalReferralFees = new AssetAmount(0n, ADA_METADATA);
+    let totalReferralFees = new Core.Value(0n);
     const metadataDatums = new Core.MetadatumMap();
     const v3TxBuilderInstance = new TxBuilderV3(
       this.blaze,
@@ -1232,7 +1201,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         );
       }
 
-      yieldFarming.migrations.map(({ withdrawPool, depositPool }) => {
+      yieldFarming.migrations.forEach(({ withdrawPool, depositPool }) => {
         const oldDelegation = existingPositionsData.find((position) => {
           const hasLpAsset = position
             .output()
@@ -1296,8 +1265,12 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
 
       totalDeposit += ORDER_DEPOSIT_DEFAULT;
       totalScooper += scooperFee;
-      withdrawArgs.referralFee?.payment &&
-        totalReferralFees.add(withdrawArgs.referralFee.payment);
+      if (withdrawArgs.referralFee) {
+        totalReferralFees = BlazeHelper.mergeValues(
+          totalReferralFees,
+          withdrawArgs.referralFee.payment,
+        );
+      }
 
       const [coinA, coinB] = getTokensForLp(
         withdrawArgs.suppliedLPAsset.amount,
@@ -1306,7 +1279,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         withdrawConfig.pool.liquidity.lpTotal,
       );
 
-      const v3DatumBuilder = new DatumBuilderBlazeV3(this.network);
+      const v3DatumBuilder = new DatumBuilderV3(this.network);
       const { hash: depositHash, inline: depositInline } =
         v3DatumBuilder.buildDepositDatum({
           destinationAddress: withdrawArgs.orderAddresses.DestinationAddress,
@@ -1468,7 +1441,10 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         scooperFee ?? this.__getParam("maxScooperFee"),
         ADA_METADATA,
       ),
-      referral: referralFee,
+      // TODO: update this to show native asset referral fees.
+      referral: referralFee
+        ? new AssetAmount(referralFee.coin() || 0n, ADA_METADATA)
+        : undefined,
     };
 
     let finishedTx: Core.Transaction | undefined;

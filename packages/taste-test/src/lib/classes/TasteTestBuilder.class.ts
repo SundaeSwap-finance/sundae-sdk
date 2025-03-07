@@ -1,17 +1,14 @@
+import {
+  Blaze,
+  Core,
+  Data,
+  Provider,
+  TxBuilder,
+  Wallet,
+} from "@blaze-cardano/sdk";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { IComposedTx, ITxBuilderReferralFee } from "@sundaeswap/core";
-import { SundaeUtils } from "@sundaeswap/core/utilities";
-import {
-  Assets,
-  Data,
-  Datum,
-  Tx,
-  TxComplete,
-  UTxO,
-  fromText,
-  toUnit,
-  type Lucid,
-} from "lucid-cardano";
+import { ADA_METADATA } from "@sundaeswap/core/utilities";
 
 import {
   LiquidityNodeAction,
@@ -53,7 +50,7 @@ import {
  * Object arguments for completing a transaction.
  */
 export interface ITasteTestCompleteTxArgs {
-  tx: Tx;
+  tx: TxBuilder;
   referralFee?: ITxBuilderReferralFee;
   hasFees?: boolean;
   penalty?: AssetAmount<IAssetAmountMetadata>;
@@ -88,13 +85,13 @@ export interface ITasteTestCompleteTxArgs {
  * @public
  * @class
  * @extends {AbstractTasteTest}
- * @param {Lucid} lucid - An instance of the Lucid class, providing various utility methods for blockchain interactions.
+ * @param {Blaze} blazeInstance - An instance of the Blaze class, providing various utility methods for blockchain interactions.
  */
-export class TasteTestLucid implements AbstractTasteTest {
-  lucid: Lucid;
+export class TasteTestBuilder implements AbstractTasteTest {
+  blaze: Blaze<Provider, Wallet>;
 
-  constructor(lucid: Lucid) {
-    this.lucid = lucid;
+  constructor(blazeInstance: Blaze<Provider, Wallet>) {
+    this.blaze = blazeInstance;
   }
 
   /**
@@ -114,16 +111,19 @@ export class TasteTestLucid implements AbstractTasteTest {
    *
    * @public
    * @param {IDepositArgs} args - The required arguments for the deposit operation.
-   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} - Returns a promise that resolves with a transaction builder object,
+   * @returns {Promise<IComposedTx<TxBuilder, Core.Transaction, string | undefined, ITasteTestFees>>} - Returns a promise that resolves with a transaction builder object,
    * which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
    *
    * @throws {Error} Throws an error if no UTXOs are available, if reference scripts are missing, or if a covering node cannot be found.
    */
   public async deposit(
     args: IDepositArgs,
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>> {
-    const walletUtxos = await this.lucid.wallet.getUtxos();
+  ): Promise<
+    IComposedTx<TxBuilder, Core.Transaction, string | undefined, ITasteTestFees>
+  > {
+    const walletUtxos = await this.blaze.wallet.getUnspentOutputs();
     const { updateFallback = false } = args;
+    const validatorAddress = Core.addressFromBech32(args.validatorAddress);
 
     if (!walletUtxos.length) {
       throw new Error("No available UTXOs found in wallet.");
@@ -137,8 +137,9 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const userKey = await this.getUserKey();
 
-    let coveringNode: UTxO | undefined;
-    const nodeUTXOs = await this.lucid.utxosAt(args.validatorAddress);
+    let coveringNode: Core.TransactionUnspentOutput | undefined;
+    const nodeUTXOs =
+      await this.blaze.provider.getUnspentOutputs(validatorAddress);
 
     if (args.utxos) {
       coveringNode = args.utxos[0];
@@ -146,7 +147,7 @@ export class TasteTestLucid implements AbstractTasteTest {
       coveringNode = findCoveringNode(nodeUTXOs, userKey, "Liquidity");
     }
 
-    if (!coveringNode || !coveringNode.datum) {
+    if (!coveringNode || !coveringNode.output().datum()) {
       const hasOwnNode = findOwnNode(nodeUTXOs, userKey, "Liquidity");
       if (hasOwnNode && updateFallback) {
         return this.update({ ...args });
@@ -155,7 +156,12 @@ export class TasteTestLucid implements AbstractTasteTest {
       throw new Error("Could not find covering node.");
     }
 
-    const coveringNodeDatum = Data.from(coveringNode.datum, LiquiditySetNode);
+    const plutusData = coveringNode.output().datum()?.asInlineData();
+    if (!plutusData) {
+      throw new Error("Could not find datum from covering node.");
+    }
+
+    const coveringNodeDatum = Data.from(plutusData, LiquiditySetNode);
 
     const prevNodeDatum = Data.to(
       {
@@ -194,48 +200,49 @@ export class TasteTestLucid implements AbstractTasteTest {
     if (args.scripts.policy.type === EScriptType.OUTREF) {
       nodePolicyId = args.scripts.policy.value.hash;
     } else if (args.scripts.policy.type === EScriptType.POLICY) {
-      nodePolicyId = this.lucid.utils.mintingPolicyToId(
-        args.scripts.policy.value,
-      );
+      nodePolicyId = args.scripts.policy.value.hash();
     }
 
     if (!nodePolicyId) {
       throw new Error("Could not derive a PolicyID for burning the node NFT!");
     }
 
-    const assets = {
-      [toUnit(nodePolicyId, `${fromText(SETNODE_PREFIX)}${userKey}`)]: 1n,
-    };
+    const nodeAssetName = `${Buffer.from(SETNODE_PREFIX).toString("hex")}${userKey}`;
+    const assets: Core.TokenMap = new Map([
+      [Core.AssetId(`${nodePolicyId}${nodeAssetName}`), 1n],
+    ]);
+
+    const correctAmount = Core.Value.fromCore({
+      coins: BigInt(args.assetAmount.amount) + TT_UTXO_ADDITIONAL_ADA,
+      assets,
+    });
 
     if (args.assetAmount.amount < MIN_COMMITMENT_ADA) {
       throw new Error("Amount deposited is less than the minimum amount.");
     }
-
-    const correctAmount =
-      BigInt(args.assetAmount.amount) + TT_UTXO_ADDITIONAL_ADA;
 
     const [lowerBound, upperBound] = this._getTxBounds(
       args.time,
       args.deadline,
     );
 
-    const tx = this.lucid
-      .newTx()
-      .collectFrom([coveringNode], redeemerNodeValidator)
-      .payToContract(
-        args.validatorAddress,
-        { inline: prevNodeDatum },
-        coveringNode.assets,
+    const tx = this.blaze
+      .newTransaction()
+      .addInput(coveringNode, redeemerNodeValidator)
+      .lockAssets(
+        validatorAddress,
+        coveringNode.output().amount(),
+        prevNodeDatum,
       )
-      .payToContract(
-        args.validatorAddress,
-        { inline: nodeDatum },
-        { ...assets, lovelace: correctAmount },
+      .lockAssets(validatorAddress, correctAmount, nodeDatum)
+      .addRequiredSigner(Core.Ed25519KeyHashHex(userKey))
+      .addMint(
+        Core.PolicyId(nodePolicyId),
+        new Map([[Core.AssetName(nodeAssetName), 1n]]),
+        redeemerNodePolicy,
       )
-      .addSignerKey(userKey)
-      .mintAssets(assets, redeemerNodePolicy)
-      .validFrom(lowerBound)
-      .validTo(upperBound);
+      .setValidFrom(Core.Slot(lowerBound))
+      .setValidUntil(Core.Slot(upperBound));
 
     await Promise.all([
       this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
@@ -266,25 +273,29 @@ export class TasteTestLucid implements AbstractTasteTest {
    *
    * @public
    * @param {IUpdateArgs} args - The arguments required for the update operation, including potential UTXOs and the amount to add.
-   * @returns {Promise<IComposedTx<Tx, TxComplete, string | undefined>>} - Returns a promise that resolves with a transaction builder object,
+   * @returns {Promise<IComposedTx<TxBuilder, Core.Transaction, string | undefined, ITasteTestFees>>} - Returns a promise that resolves with a transaction builder object,
    * equipped with the transaction, its associated fees, and functions to build, sign, and submit the transaction.
    *
    * @throws {Error} Throws an error if the user's payment credential hash is missing or if the node with the required datum cannot be found.
    */
   public async update(
     args: IUpdateArgs,
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>> {
+  ): Promise<
+    IComposedTx<TxBuilder, Core.Transaction, string | undefined, ITasteTestFees>
+  > {
     const userKey = await this.getUserKey();
+    const validatorAddress = Core.addressFromBech32(args.validatorAddress);
 
     if (!userKey) {
       throw new Error("Missing wallet's payment credential hash.");
     }
 
-    let ownNode: UTxO | undefined;
+    let ownNode: Core.TransactionUnspentOutput | undefined;
     if (args.utxos) {
       ownNode = args.utxos[0];
     } else {
-      const nodeUTXOs = await this.lucid.utxosAt(args.validatorAddress);
+      const nodeUTXOs =
+        await this.blaze.provider.getUnspentOutputs(validatorAddress);
       ownNode = findOwnNode(
         nodeUTXOs,
         userKey,
@@ -292,7 +303,8 @@ export class TasteTestLucid implements AbstractTasteTest {
       );
     }
 
-    if (!ownNode || !ownNode.datum) {
+    const plutusData = ownNode?.output().datum()?.asInlineData();
+    if (!ownNode || !plutusData) {
       throw new Error("Could not find covering node.");
     }
 
@@ -301,26 +313,22 @@ export class TasteTestLucid implements AbstractTasteTest {
       LiquidityNodeValidatorAction,
     );
 
-    const newNodeAssets: Assets = {
-      ...ownNode.assets,
-      lovelace: ownNode.assets.lovelace + args.assetAmount.amount,
-    };
+    const newNodeAssets = new Core.Value(
+      ownNode.output().amount().coin() + args.assetAmount.amount,
+      ownNode.output().amount().multiasset(),
+    );
 
     const [lowerBound, upperBound] = this._getTxBounds(
       args.time,
       args.deadline,
     );
 
-    const tx = this.lucid
-      .newTx()
-      .collectFrom([ownNode], redeemerNodeValidator)
-      .payToContract(
-        args.validatorAddress,
-        { inline: ownNode.datum },
-        newNodeAssets,
-      )
-      .validFrom(lowerBound)
-      .validTo(upperBound);
+    const tx = this.blaze
+      .newTransaction()
+      .addInput(ownNode, redeemerNodeValidator)
+      .lockAssets(validatorAddress, newNodeAssets, plutusData)
+      .setValidFrom(Core.Slot(lowerBound))
+      .setValidUntil(Core.Slot(upperBound));
 
     await this._attachScriptsOrReferenceInputs(tx, args.scripts.validator);
 
@@ -344,14 +352,18 @@ export class TasteTestLucid implements AbstractTasteTest {
    *
    * @public
    * @param {IWithdrawArgs} args - The required arguments for the withdrawal operation.
-   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
+   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum |<TxBuilder, Core.Transaction, string | undefined, ITasteTestFees>>} - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
    *
    * @throws {Error} Throws errors if the withdrawal conditions are not met, such as missing keys, inability to find nodes, or ownership issues.
    */
   public async withdraw(
     args: IWithdrawArgs,
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>> {
+  ): Promise<
+    IComposedTx<TxBuilder, Core.Transaction, string | undefined, ITasteTestFees>
+  > {
     const userKey = await this.getUserKey();
+    const validatorAddress = Core.addressFromBech32(args.validatorAddress);
+    const penaltyAddress = Core.addressFromBech32(args.penaltyAddress);
 
     if (!userKey) {
       throw new Error("Missing wallet's payment credential hash.");
@@ -359,39 +371,44 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const nodeUTXOS = args.utxos
       ? args.utxos
-      : await this.lucid.utxosAt(args.validatorAddress);
+      : await this.blaze.provider.getUnspentOutputs(validatorAddress);
 
     const ownNode = findOwnNode(nodeUTXOS, userKey, "Liquidity");
 
-    if (!ownNode || !ownNode.datum) {
+    const ownNodesPlutusData = ownNode?.output().datum()?.asInlineData();
+    if (!ownNode || !ownNodesPlutusData) {
       throw new Error("Could not find covering node.");
     }
 
     const prevNode = findPrevNode(nodeUTXOS, userKey, "Liquidity");
 
-    if (!prevNode || !prevNode.datum) {
+    const prevNodesPlutusData = prevNode?.output().datum()?.asInlineData();
+    if (!prevNode || !prevNodesPlutusData) {
       throw new Error("Could not find previous node.");
     }
 
-    const ownNodeDatum = Data.from(ownNode.datum, LiquiditySetNode);
-    const prevNodeDatum = Data.from(prevNode.datum, LiquiditySetNode);
+    const ownNodeDatum = Data.from(ownNodesPlutusData, LiquiditySetNode);
+    const prevNodeDatum = Data.from(prevNodesPlutusData, LiquiditySetNode);
 
     let nodePolicyId: string | undefined;
     if (args.scripts.policy.type === EScriptType.OUTREF) {
       nodePolicyId = args.scripts.policy.value.hash;
     } else if (args.scripts.policy.type === EScriptType.POLICY) {
-      nodePolicyId = this.lucid.utils.mintingPolicyToId(
-        args.scripts.policy.value,
-      );
+      nodePolicyId = args.scripts.policy.value.hash();
     }
 
     if (!nodePolicyId) {
       throw new Error("Could not derive a PolicyID for burning the node NFT!");
     }
 
-    const assetsToBurn = {
-      [toUnit(nodePolicyId, fromText(SETNODE_PREFIX) + userKey)]: -1n,
-    };
+    const assetsToBurn = new Map([
+      [
+        Core.AssetName(
+          `${Buffer.from(SETNODE_PREFIX).toString("hex")}${userKey}`,
+        ),
+        -1n,
+      ],
+    ]);
 
     const newPrevNodeSchema: TLiquiditySetNode = {
       key: prevNodeDatum.key,
@@ -423,28 +440,27 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     if (beforeDeadline && !beforeTwentyFourHours) {
       const quarterPenalty = divCeil(
-        ownNode.assets.lovelace - TT_UTXO_ADDITIONAL_ADA,
+        ownNode.output().amount().coin() - TT_UTXO_ADDITIONAL_ADA,
         4n,
       );
       const penaltyAmount = BigInt(
         Math.max(Number(quarterPenalty), Number(TT_UTXO_ADDITIONAL_ADA)),
       );
 
-      const tx = this.lucid
-        .newTx()
-        .collectFrom([ownNode, prevNode], redeemerNodeValidator)
-        .payToContract(
-          args.validatorAddress,
-          { inline: newPrevNodeDatum },
-          prevNode.assets,
+      const tx = this.blaze
+        .newTransaction()
+        .addInput(ownNode, redeemerNodeValidator)
+        .addInput(prevNode, redeemerNodeValidator)
+        .lockAssets(
+          validatorAddress,
+          prevNode.output().amount(),
+          newPrevNodeDatum,
         )
-        .payToAddress(args.penaltyAddress, {
-          lovelace: penaltyAmount,
-        })
-        .addSignerKey(userKey)
-        .mintAssets(assetsToBurn, redeemerNodePolicy)
-        .validFrom(lowerBound)
-        .validTo(upperBound);
+        .payLovelace(penaltyAddress, penaltyAmount)
+        .addRequiredSigner(Core.Ed25519KeyHashHex(userKey))
+        .addMint(Core.PolicyId(nodePolicyId), assetsToBurn, redeemerNodePolicy)
+        .setValidFrom(Core.Slot(lowerBound))
+        .setValidUntil(Core.Slot(upperBound));
 
       await Promise.all([
         this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
@@ -463,18 +479,19 @@ export class TasteTestLucid implements AbstractTasteTest {
       });
     }
 
-    const tx = this.lucid
-      .newTx()
-      .collectFrom([ownNode, prevNode], redeemerNodeValidator)
-      .payToContract(
-        args.validatorAddress,
-        { inline: newPrevNodeDatum },
-        prevNode.assets,
+    const tx = this.blaze
+      .newTransaction()
+      .addInput(ownNode, redeemerNodeValidator)
+      .addInput(prevNode, redeemerNodeValidator)
+      .lockAssets(
+        validatorAddress,
+        prevNode.output().amount(),
+        newPrevNodeDatum,
       )
-      .addSignerKey(userKey)
-      .mintAssets(assetsToBurn, redeemerNodePolicy)
-      .validFrom(lowerBound)
-      .validTo(upperBound);
+      .addRequiredSigner(Core.Ed25519KeyHashHex(userKey))
+      .addMint(Core.PolicyId(nodePolicyId), assetsToBurn, redeemerNodePolicy)
+      .setValidFrom(Core.Slot(lowerBound))
+      .setValidUntil(Core.Slot(upperBound));
 
     await Promise.all([
       this._attachScriptsOrReferenceInputs(tx, args.scripts.policy),
@@ -497,24 +514,32 @@ export class TasteTestLucid implements AbstractTasteTest {
    *
    * @public
    * @param {IClaimArgs} args - The required arguments for the claim operation.
-   * @returns {Promise<IComposedTx<Tx, TxComplete, Datum | undefined>>} - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
+   * @returns {Promise<IComposedTx<TxBuilder, Core.Transaction, string | undefined, ITasteTestFees>>} - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
    *
    * @throws {Error} Throws errors if the claim conditions are not met, such as missing keys, inability to find nodes, or ownership issues.
    */
   public async claim(
     args: IClaimArgs,
-  ): Promise<IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>> {
-    const rewardFoldUtxo = await this.lucid.utxoByUnit(
-      toUnit(args.rewardFoldPolicyId, Buffer.from("RFold").toString("hex")),
+  ): Promise<
+    IComposedTx<TxBuilder, Core.Transaction, string | undefined, ITasteTestFees>
+  > {
+    const rewardFoldPolicyId = Core.PolicyId(args.rewardFoldPolicyId);
+    const rewardFoldAssetName = Core.AssetName(
+      Buffer.from("RFold").toString("hex"),
+    );
+    const rewardFoldUtxo = await this.blaze.provider.getUnspentOutputByNFT(
+      Core.AssetId(`${rewardFoldPolicyId}${rewardFoldAssetName}`),
     );
 
     const userKey = await this.getUserKey();
+    const validatorAddress = Core.addressFromBech32(args.validatorAddress);
 
-    let ownNode: UTxO | undefined;
+    let ownNode: Core.TransactionUnspentOutput | undefined;
     if (args.utxos) {
       ownNode = args.utxos[0];
     } else {
-      const nodeUTXOs = await this.lucid.utxosAt(args.validatorAddress);
+      const nodeUTXOs =
+        await this.blaze.provider.getUnspentOutputs(validatorAddress);
       ownNode = findOwnNode(nodeUTXOs, userKey, "Liquidity");
     }
 
@@ -545,9 +570,7 @@ export class TasteTestLucid implements AbstractTasteTest {
     if (args.scripts.policy.type === EScriptType.OUTREF) {
       nodePolicyId = args.scripts.policy.value.hash;
     } else if (args.scripts.policy.type === EScriptType.POLICY) {
-      nodePolicyId = this.lucid.utils.mintingPolicyToId(
-        args.scripts.policy.value,
-      );
+      nodePolicyId = args.scripts.policy.value.hash();
     }
 
     if (!nodePolicyId) {
@@ -556,19 +579,25 @@ export class TasteTestLucid implements AbstractTasteTest {
 
     const [lowerBound, upperBound] = this._getTxBounds(args.time);
 
-    const tx = this.lucid
-      .newTx()
-      .collectFrom([ownNode], redeemerNodeValidator)
-      .readFrom([rewardFoldUtxo])
-      .addSignerKey(userKey)
-      .validFrom(lowerBound)
-      .validTo(upperBound);
+    const tx = this.blaze
+      .newTransaction()
+      .addInput(ownNode, redeemerNodeValidator)
+      .addReferenceInput(rewardFoldUtxo)
+      .addRequiredSigner(Core.Ed25519KeyHashHex(userKey))
+      .setValidFrom(Core.Slot(lowerBound))
+      .setValidUntil(Core.Slot(upperBound));
 
     if (args?.burnFoldToken) {
-      tx.mintAssets(
-        {
-          [toUnit(nodePolicyId, `${fromText(SETNODE_PREFIX)}${userKey}`)]: -1n,
-        },
+      tx.addMint(
+        Core.PolicyId(nodePolicyId),
+        new Map([
+          [
+            Core.AssetName(
+              `${Buffer.from(SETNODE_PREFIX).toString("hex")}${userKey}`,
+            ),
+            -1n,
+          ],
+        ]),
         burnRedeemer,
       );
     }
@@ -603,7 +632,7 @@ export class TasteTestLucid implements AbstractTasteTest {
    *  - `hasFees`: Indicates whether the transaction has fees associated with it.
    *  - `referralFee`: The referral fee information, if applicable.
    *  - `tx`: The initial transaction object that needs to be completed.
-   * @returns {Promise<IComposedTx<Tx, TxComplete, TxComplete, Datum | undefined>>} - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
+   * @returns {Promise<IComposedTx<TxBuilder, Core.Transaction, string | undefined, ITasteTestFees>|<TxBuilder, Core.Transaction, string | undefined, ITasteTestFees>>} - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
    *
    * @throws {Error} Throws an error if the transaction cannot be completed or if there are issues with the fee calculation.
    */
@@ -613,26 +642,21 @@ export class TasteTestLucid implements AbstractTasteTest {
     referralFee,
     tx,
   }: ITasteTestCompleteTxArgs): Promise<
-    IComposedTx<Tx, TxComplete, Datum | undefined, ITasteTestFees>
+    IComposedTx<TxBuilder, Core.Transaction, string | undefined, ITasteTestFees>
   > {
     if (referralFee) {
-      if (!SundaeUtils.isAdaAsset(referralFee.payment.metadata)) {
-        tx.payToAddress(referralFee.destination, {
-          [referralFee.payment.metadata.assetId]: referralFee.payment.amount,
-        });
-      } else {
-        tx.payToAddress(referralFee.destination, {
-          lovelace: referralFee.payment.amount,
-        });
-      }
+      const destination = Core.Address.fromBech32(referralFee.destination);
+      tx.payAssets(destination, referralFee.payment);
     }
 
-    const txFee = tx.txBuilder.get_fee_if_set();
-    let finishedTx: TxComplete | undefined;
+    const draft_tx = Core.Transaction.fromCbor(Core.TxCBOR(tx.toCbor()));
+    const txFee = draft_tx.body().fee();
+    const that = this;
+    let finishedTx: Core.Transaction | undefined;
     const thisTx: IComposedTx<
-      Tx,
-      TxComplete,
-      Datum | undefined,
+      TxBuilder,
+      Core.Transaction,
+      string | undefined,
       ITasteTestFees
     > = {
       tx,
@@ -642,30 +666,29 @@ export class TasteTestLucid implements AbstractTasteTest {
         foldFee: new AssetAmount(hasFees ? FOLDING_FEE_ADA * 2n : 0n, 6),
         penaltyFee: penalty ?? new AssetAmount(0n, 6),
         referral: new AssetAmount(
-          referralFee?.payment?.amount ?? 0n,
-          referralFee?.payment?.metadata ?? 6,
+          referralFee?.payment.coin() || 0n,
+          ADA_METADATA,
         ),
         scooperFee: new AssetAmount(0n, 6),
       },
-      datum: Buffer.from(tx.txBuilder.to_bytes()).toString("hex"),
+      datum: draft_tx.body().outputs()[0].datum()?.asInlineData()?.toCbor(),
       async build() {
         if (!finishedTx) {
           finishedTx = await tx.complete();
         }
 
-        thisTx.fees.cardanoTxFee = new AssetAmount(
-          BigInt(txFee?.to_str() ?? finishedTx?.fee?.toString() ?? "0"),
-          6,
-        );
+        thisTx.fees.cardanoTxFee = new AssetAmount(txFee, 6);
 
         return {
-          cbor: Buffer.from(finishedTx.txComplete.to_bytes()).toString("hex"),
+          cbor: finishedTx.toCbor(),
           builtTx: finishedTx,
           sign: async () => {
-            const signedTx = await (finishedTx as TxComplete).sign().complete();
+            const signedTx = await that.blaze.signTransaction(
+              finishedTx as Core.Transaction,
+            );
             return {
-              cbor: Buffer.from(signedTx.txSigned.to_bytes()).toString("hex"),
-              submit: async () => await signedTx.submit(),
+              cbor: signedTx.toCbor(),
+              submit: async () => await that.blaze.submitTransaction(signedTx),
             };
           },
         };
@@ -688,10 +711,10 @@ export class TasteTestLucid implements AbstractTasteTest {
    * @throws {Error} If neither stake nor payment credentials could be determined from the address.
    */
   public async getUserKey(): Promise<string> {
-    const address = await this.lucid.wallet.address();
-    const details = this.lucid.utils.getAddressDetails(address);
+    const address = await this.blaze.wallet.getChangeAddress();
     const userKey =
-      details?.stakeCredential?.hash ?? details?.paymentCredential?.hash;
+      address.getProps().delegationPart?.hash ??
+      address.getProps().paymentPart?.hash;
     if (!userKey) {
       throw new Error(
         `Could not determine the key hash of the user's address: ${address}`,
@@ -721,17 +744,23 @@ export class TasteTestLucid implements AbstractTasteTest {
    * @param {Tx} tx The Lucid Transaction instance.
    * @param {TScriptType} script The script passed by the config.
    */
-  private async _attachScriptsOrReferenceInputs(tx: Tx, script: TScriptType) {
+  private async _attachScriptsOrReferenceInputs(
+    tx: TxBuilder,
+    script: TScriptType,
+  ) {
     switch (script.type) {
       case EScriptType.VALIDATOR:
-        tx.attachSpendingValidator(script.value);
+        tx.provideScript(script.value);
         break;
       case EScriptType.POLICY:
-        tx.attachMintingPolicy(script.value);
+        tx.provideScript(script.value);
         break;
       default:
       case EScriptType.OUTREF:
-        tx.readFrom(await this.lucid.utxosByOutRef([script.value.outRef]));
+        const outputs = await this.blaze.provider.resolveUnspentOutputs([
+          script.value.outRef,
+        ]);
+        outputs.forEach((output) => tx.addReferenceInput(output));
     }
   }
 

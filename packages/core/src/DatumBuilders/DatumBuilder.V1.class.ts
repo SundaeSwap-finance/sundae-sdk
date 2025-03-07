@@ -37,7 +37,7 @@ import { V1Types } from "./ContractTypes/index.js";
  * The Blaze implementation for building valid Datums for
  * V1 contracts on the SundaeSwap protocol.
  */
-export class DatumBuilderBlazeV1 implements DatumBuilder {
+export class DatumBuilderV1 implements DatumBuilder {
   /** The current network id. */
   public network: TSupportedNetworks;
   /** The error to throw when the pool ident does not match V1 constraints. */
@@ -287,7 +287,7 @@ export class DatumBuilderBlazeV1 implements DatumBuilder {
 
   buildPoolIdent(ident: string): string {
     if (ident.length > V1_MAX_POOL_IDENT_LENGTH) {
-      throw new Error(DatumBuilderBlazeV1.INVALID_POOL_IDENT);
+      throw new Error(DatumBuilderV1.INVALID_POOL_IDENT);
     }
 
     return ident;

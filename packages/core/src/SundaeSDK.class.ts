@@ -1,3 +1,4 @@
+import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 import { EContractVersion, ISundaeSDKOptions } from "./@types/index.js";
 import { QueryProvider } from "./Abstracts/QueryProvider.abstract.class.js";
 import { QueryProviderSundaeSwap } from "./QueryProviders/QueryProviderSundaeSwap.js";
@@ -135,5 +136,14 @@ export class SundaeSDK {
    */
   query(): QueryProvider {
     return this.queryProvider;
+  }
+
+  /**
+   * Helper method to easily get the SDK's Blaze instance.
+   *
+   * @returns {Blaze<Provider, Wallet>}
+   */
+  blaze(): Blaze<Provider, Wallet> {
+    return this.options.wallet.blazeInstance;
   }
 }

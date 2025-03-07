@@ -5,5 +5,8 @@
  * @module YieldFarming
  */
 export type { IComposedTx } from "@sundaeswap/core";
+export * from "../@types/blaze.js";
 export * from "../@types/configs.js";
-export * from "../lib/Abstracts/YieldFarming.abstract.class.js";
+export * from "../lib/Abstracts/YieldFarmingAbstract.class.js";
+export * from "../lib/DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.js";
+export * from "../lib/TxBuilders/YieldFarmingBuilder.class.js";

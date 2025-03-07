@@ -1,10 +1,10 @@
 import { Data } from "@blaze-cardano/sdk";
 import {
+  BlazeHelper,
   DatumBuilder,
   TDatumResult,
   TSupportedNetworks,
 } from "@sundaeswap/core";
-import { BlazeHelper } from "@sundaeswap/core/blaze";
 
 import { Delegation, TDelegation } from "../../@types/blaze.js";
 import { ILockArguments } from "../../@types/configs.js";

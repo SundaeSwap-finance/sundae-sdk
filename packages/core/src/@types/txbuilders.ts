@@ -1,5 +1,6 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
+import { Core } from "@blaze-cardano/sdk";
 import { ISwapConfigArgs } from "./configs.js";
 
 /**
@@ -48,7 +49,7 @@ export interface IComposedTx<
  */
 export interface ITxBuilderReferralFee {
   destination: string;
-  payment: AssetAmount<IAssetAmountMetadata>;
+  payment: Core.Value;
   /** The label that prefixes the fee amount in the metadata. */
   feeLabel?: string;
 }

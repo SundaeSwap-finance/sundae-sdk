@@ -1,20 +1,20 @@
 import {
-    afterEach,
-    beforeEach,
-    describe,
-    expect,
-    it,
-    mock,
-    spyOn,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+  spyOn,
 } from "bun:test";
 
-import { DatumBuilderBlazeV3 } from "../../DatumBuilder.V3.class.js";
+import { DatumBuilderV3 } from "../../DatumBuilder.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
-let builderInstance: DatumBuilderBlazeV3;
+let builderInstance: DatumBuilderV3;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderBlazeV3("preview");
+  builderInstance = new DatumBuilderV3("preview");
 });
 
 afterEach(() => {
@@ -24,7 +24,7 @@ afterEach(() => {
 describe("buildPoolMintRedeemerDatum()", () => {
   it("should build the pool mint redeemer datum properly", () => {
     const spiedOnBuildLexicographicalAssetsDatum = spyOn(
-      DatumBuilderBlazeV3.prototype,
+      DatumBuilderV3.prototype,
       "buildLexicographicalAssetsDatum",
     );
 
