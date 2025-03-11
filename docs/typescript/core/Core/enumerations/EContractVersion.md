@@ -15,7 +15,7 @@ of any time that interact with SundaeSwap contracts.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:92](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L92)
+[packages/core/src/@types/txbuilders.ts:62](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L62)
 
 ***
 
@@ -25,4 +25,4 @@ of any time that interact with SundaeSwap contracts.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:93](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L93)
+[packages/core/src/@types/txbuilders.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L63)

@@ -104,10 +104,6 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
    * Retrieves the basic protocol parameters from the SundaeSwap API
    * and fills in a place-holder for the compiled code of any validators.
    *
-   * This is to keep things lean until we really need to attach a validator,
-   * in which case, a subsequent method call to {@link TxBuilderAbstractV3#getValidatorScript}
-   * will re-populate with real data.
-   *
    * @returns {Promise<ISundaeProtocolParamsFull>}
    */
   public async getProtocolParams(): Promise<ISundaeProtocolParamsFull> {

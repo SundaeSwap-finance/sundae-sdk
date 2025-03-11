@@ -2,26 +2,26 @@
 
 ***
 
-# Class: DatumBuilderLucidV1
+# Class: DatumBuilderV1
 
-The Lucid implementation for building valid Datums for
+The Blaze implementation for building valid Datums for
 V1 contracts on the SundaeSwap protocol.
 
 ## Implements
 
-- [`DatumBuilder`](../../Core/classes/DatumBuilder.md)
+- [`DatumBuilder`](DatumBuilder.md)
 
 ## Properties
 
 ### network
 
-> **network**: [`TSupportedNetworks`](../../Core/type-aliases/TSupportedNetworks.md)
+> **network**: [`TSupportedNetworks`](../type-aliases/TSupportedNetworks.md)
 
 The current network id.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:38](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L38)
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L42)
 
 ***
 
@@ -33,29 +33,29 @@ The error to throw when the pool ident does not match V1 constraints.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L40)
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L44)
 
 ## Methods
 
 ### buildDepositDatum()
 
-> **buildDepositDatum**(`params`): [`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+> **buildDepositDatum**(`params`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 Creates a deposit datum object from the given deposit arguments. The function initializes
 a new datum with specific properties such as the pool ident, order addresses, scooper fee,
 and deposit pair schema. It then converts this datum into an inline format and calculates
-its hash using [Lucid.LucidHelper](LucidHelper.md). The function returns an object containing the hash of the inline
+its hash using [Core.BlazeHelper](BlazeHelper.md). The function returns an object containing the hash of the inline
 datum, the inline datum itself, and the original datum schema.
 
 #### Parameters
 
-• **params**: [`IDepositArguments`](../../Core/interfaces/IDepositArguments.md)
+• **params**: [`IDepositArguments`](../interfaces/IDepositArguments.md)
 
 The deposit arguments required to construct the deposit datum.
 
 #### Returns
 
-[`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                               and the schema of the original datum.
@@ -102,30 +102,30 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:93](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L93)
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:97](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L97)
 
 ***
 
 ### buildSwapDatum()
 
-> **buildSwapDatum**(`params`): [`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+> **buildSwapDatum**(`params`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 Constructs a swap datum object based on the provided swap arguments.
 The function initializes a new datum with specific properties such as the pool ident,
 order addresses, scooper fee, and swap direction schema. It then converts this datum
-into an inline format and computes its hash using [Lucid.LucidHelper](LucidHelper.md). The function returns an
+into an inline format and computes its hash using [Core.BlazeHelper](BlazeHelper.md). The function returns an
 object containing the hash of the inline datum, the inline datum itself, and the original
 datum schema.
 
 #### Parameters
 
-• **params**: [`ISwapArguments`](../../Core/interfaces/ISwapArguments.md)
+• **params**: [`ISwapArguments`](../interfaces/ISwapArguments.md)
 
 The swap arguments required to build the swap datum.
 
 #### Returns
 
-[`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                               and the schema of the original datum.
@@ -184,30 +184,30 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L59)
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L63)
 
 ***
 
 ### buildWithdrawDatum()
 
-> **buildWithdrawDatum**(`params`): [`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+> **buildWithdrawDatum**(`params`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 Generates a withdraw datum object from the specified withdraw arguments. This function constructs
 a new datum with defined attributes such as the pool ident, order addresses, scooper fee, and
 the schema for the supplied LP (Liquidity Provider) asset for withdrawal. After constructing the datum,
-it is converted into an inline format, and its hash is calculated using [Lucid.LucidHelper](LucidHelper.md). The function returns
+it is converted into an inline format, and its hash is calculated using [Core.BlazeHelper](BlazeHelper.md). The function returns
 an object containing the hash of the inline datum, the inline datum itself, and the schema of the original
 datum, which are crucial for executing the withdrawal operation within a transactional framework.
 
 #### Parameters
 
-• **params**: [`IWithdrawArguments`](../../Core/interfaces/IWithdrawArguments.md)
+• **params**: [`IWithdrawArguments`](../interfaces/IWithdrawArguments.md)
 
 The arguments necessary to construct the withdraw datum.
 
 #### Returns
 
-[`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 An object comprising the hash of the inline datum, the inline datum itself,
                               and the schema of the original datum, facilitating the withdrawal operation's integration into the transactional process.
@@ -254,4 +254,4 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts:138](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Lucid.V1.class.ts#L138)
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:142](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L142)

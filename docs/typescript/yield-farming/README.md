@@ -1,4 +1,4 @@
-**@sundaeswap/yield-farming** • [**Docs**](modules.md)
+**@sundaeswap/yield-farming** • [**Docs**](globals.md)
 
 ***
 

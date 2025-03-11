@@ -74,7 +74,7 @@ An optional argument that contains referral fee data.
 
 #### Defined in
 
-[packages/core/src/Abstracts/Config.abstract.class.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L16)
+[packages/core/src/Abstracts/Config.abstract.class.ts:15](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L15)
 
 ## Methods
 
@@ -245,7 +245,7 @@ The desired fee.
 
 #### Defined in
 
-[packages/core/src/Abstracts/Config.abstract.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L40)
+[packages/core/src/Abstracts/Config.abstract.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L39)
 
 ***
 

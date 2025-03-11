@@ -1,4 +1,4 @@
-[**@sundaeswap/yield-farming**](../../README.md) • **Docs**
+[**@sundaeswap/yield-farming**](../README.md) • **Docs**
 
 ***
 

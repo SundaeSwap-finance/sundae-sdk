@@ -1,10 +1,10 @@
-[**@sundaeswap/yield-farming**](../../README.md) • **Docs**
+[**@sundaeswap/yield-farming**](../README.md) • **Docs**
 
 ***
 
-# Class: DatumBuilderLucid
+# Class: DatumBuilderBlaze
 
-The Lucid representation of a DatumBuilder. The primary purpose of this class
+The Blaze representation of a DatumBuilder. The primary purpose of this class
 is to encapsulate the accurate building of valid datums, which should be attached
 to transactions that are constructed and sent to the SundaeSwap Yield Farming V2
 smart contracts. These datums ensure accurate business logic and the conform to the
@@ -53,4 +53,4 @@ funds.
 
 #### Defined in
 
-[packages/yield-farming/src/lib/DatumBuilder/DatumBuilder.YieldFarming.Lucid.class.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/yield-farming/src/lib/DatumBuilder/DatumBuilder.YieldFarming.Lucid.class.ts#L32)
+[packages/yield-farming/src/lib/DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/yield-farming/src/lib/DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.ts#L32)

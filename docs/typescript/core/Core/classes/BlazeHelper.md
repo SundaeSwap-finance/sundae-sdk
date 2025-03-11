@@ -107,7 +107,7 @@ Throws a useful error if the address, network, and instance network are on the w
 
 • **address**: `string`
 
-• **network**: [`TSupportedNetworks`](../../Core/type-aliases/TSupportedNetworks.md)
+• **network**: [`TSupportedNetworks`](../type-aliases/TSupportedNetworks.md)
 
 #### Returns
 
@@ -116,6 +116,28 @@ Throws a useful error if the address, network, and instance network are on the w
 #### Defined in
 
 [packages/core/src/Utilities/BlazeHelper.class.ts:203](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L203)
+
+***
+
+### mergeValues()
+
+> `static` **mergeValues**(...`values`): `Value`
+
+Helper function to merge to Value instances together into one.
+
+#### Parameters
+
+• ...**values**: (`undefined` \| `Value`)[]
+
+A list of values to merge together.
+
+#### Returns
+
+`Value`
+
+#### Defined in
+
+[packages/core/src/Utilities/BlazeHelper.class.ts:245](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L245)
 
 ***
 
@@ -154,9 +176,9 @@ and that the address is on the correct network.
 
 • **\_\_namedParameters.address**: `string`
 
-• **\_\_namedParameters.datum**: [`TDatum`](../../Core/type-aliases/TDatum.md)
+• **\_\_namedParameters.datum**: [`TDatum`](../type-aliases/TDatum.md)
 
-• **\_\_namedParameters.network**: [`TSupportedNetworks`](../../Core/type-aliases/TSupportedNetworks.md)
+• **\_\_namedParameters.network**: [`TSupportedNetworks`](../type-aliases/TSupportedNetworks.md)
 
 #### Returns
 
@@ -178,7 +200,7 @@ Validates that an address matches the provided network.
 
 • **address**: `string`
 
-• **network**: [`TSupportedNetworks`](../../Core/type-aliases/TSupportedNetworks.md)
+• **network**: [`TSupportedNetworks`](../type-aliases/TSupportedNetworks.md)
 
 #### Returns
 

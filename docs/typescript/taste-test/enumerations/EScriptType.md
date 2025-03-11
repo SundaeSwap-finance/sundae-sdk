@@ -14,7 +14,7 @@ An enum that describes different script types.
 
 #### Defined in
 
-[taste-test/src/@types/index.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L39)
+[taste-test/src/@types/index.ts:34](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L34)
 
 ***
 
@@ -24,7 +24,7 @@ An enum that describes different script types.
 
 #### Defined in
 
-[taste-test/src/@types/index.ts:38](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L38)
+[taste-test/src/@types/index.ts:33](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L33)
 
 ***
 
@@ -34,4 +34,4 @@ An enum that describes different script types.
 
 #### Defined in
 
-[taste-test/src/@types/index.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L37)
+[taste-test/src/@types/index.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L32)

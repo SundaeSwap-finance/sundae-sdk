@@ -2,6 +2,6 @@
 
 ***
 
-# Interface: ITxBuilderBlazeCompleteTxArgs
+# Interface: ITxBuilderCompleteTxArgs
 
 Object arguments for completing a transaction.

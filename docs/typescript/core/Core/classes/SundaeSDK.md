@@ -29,233 +29,37 @@ sdk.builder().buildSwapTx({ ...args })
 
 ### blaze()
 
-> **blaze**(): `undefined` \| `Blaze`\<`Provider`, `Wallet$1`\>
+> **blaze**(): `Blaze`\<`Provider`, `Wallet$1`\>
 
-Helper method to retrieve a blaze instance.
+Helper method to easily get the SDK's Blaze instance.
 
 #### Returns
 
-`undefined` \| `Blaze`\<`Provider`, `Wallet$1`\>
+`Blaze`\<`Provider`, `Wallet$1`\>
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:269](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L269)
+[packages/core/src/SundaeSDK.class.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L146)
 
 ***
 
 ### builder()
 
-Creates the appropriate transaction builder by which you can create valid transactions.
-
-#### builder(contractVersion, txBuilderType)
-
-> **builder**(`contractVersion`, `txBuilderType`): [`TxBuilderBlazeV1`](../../Blaze/classes/TxBuilderBlazeV1.md)
-
-Creates the appropriate transaction builder by which you can create valid transactions.
-
-##### Parameters
-
-• **contractVersion**: [`V1`](../enumerations/EContractVersion.md#v1)
-
-• **txBuilderType**: [`BLAZE`](../enumerations/ETxBuilderType.md#blaze)
-
-##### Returns
-
-[`TxBuilderBlazeV1`](../../Blaze/classes/TxBuilderBlazeV1.md)
-
-##### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:168](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L168)
-
-#### builder(contractVersion, txBuilderType)
-
-> **builder**(`contractVersion`, `txBuilderType`): [`TxBuilderBlazeV3`](../../Blaze/classes/TxBuilderBlazeV3.md)
-
-Creates the appropriate transaction builder by which you can create valid transactions.
-
-##### Parameters
-
-• **contractVersion**: [`V3`](../enumerations/EContractVersion.md#v3)
-
-• **txBuilderType**: [`BLAZE`](../enumerations/ETxBuilderType.md#blaze)
-
-##### Returns
-
-[`TxBuilderBlazeV3`](../../Blaze/classes/TxBuilderBlazeV3.md)
-
-##### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:172](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L172)
-
-#### builder(contractVersion, txBuilderType)
-
-> **builder**(`contractVersion`, `txBuilderType`): [`TxBuilderLucidV1`](../../Lucid/classes/TxBuilderLucidV1.md)
-
-Creates the appropriate transaction builder by which you can create valid transactions.
-
-##### Parameters
-
-• **contractVersion**: [`V1`](../enumerations/EContractVersion.md#v1)
-
-• **txBuilderType**: [`LUCID`](../enumerations/ETxBuilderType.md#lucid)
-
-##### Returns
-
-[`TxBuilderLucidV1`](../../Lucid/classes/TxBuilderLucidV1.md)
-
-##### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:176](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L176)
-
-#### builder(contractVersion, txBuilderType)
-
-> **builder**(`contractVersion`, `txBuilderType`): [`TxBuilderLucidV3`](../../Lucid/classes/TxBuilderLucidV3.md)
-
-Creates the appropriate transaction builder by which you can create valid transactions.
-
-##### Parameters
-
-• **contractVersion**: [`V3`](../enumerations/EContractVersion.md#v3)
-
-• **txBuilderType**: [`LUCID`](../enumerations/ETxBuilderType.md#lucid)
-
-##### Returns
-
-[`TxBuilderLucidV3`](../../Lucid/classes/TxBuilderLucidV3.md)
-
-##### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L180)
-
-#### builder(contractVersion)
-
 > **builder**(`contractVersion`): [`TxBuilderV1`](TxBuilderV1.md)
 
 Creates the appropriate transaction builder by which you can create valid transactions.
 
-##### Parameters
+#### Parameters
 
 • **contractVersion**: [`V1`](../enumerations/EContractVersion.md#v1)
 
-##### Returns
+#### Returns
 
 [`TxBuilderV1`](TxBuilderV1.md)
 
-##### Defined in
+#### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:184](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L184)
-
-#### builder(contractVersion)
-
-> **builder**(`contractVersion`): [`TxBuilderV3`](TxBuilderV3.md)
-
-Creates the appropriate transaction builder by which you can create valid transactions.
-
-##### Parameters
-
-• **contractVersion**: [`V3`](../enumerations/EContractVersion.md#v3)
-
-##### Returns
-
-[`TxBuilderV3`](TxBuilderV3.md)
-
-##### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:185](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L185)
-
-#### builder(contractVersion, txBuilderType)
-
-> **builder**(`contractVersion`, `txBuilderType`?): [`TxBuilderV1`](TxBuilderV1.md)
-
-Creates the appropriate transaction builder by which you can create valid transactions.
-
-##### Parameters
-
-• **contractVersion**: [`V1`](../enumerations/EContractVersion.md#v1)
-
-• **txBuilderType?**: [`ETxBuilderType`](../enumerations/ETxBuilderType.md)
-
-##### Returns
-
-[`TxBuilderV1`](TxBuilderV1.md)
-
-##### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:186](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L186)
-
-#### builder(contractVersion, txBuilderType)
-
-> **builder**(`contractVersion`, `txBuilderType`?): [`TxBuilderV3`](TxBuilderV3.md)
-
-Creates the appropriate transaction builder by which you can create valid transactions.
-
-##### Parameters
-
-• **contractVersion**: [`V3`](../enumerations/EContractVersion.md#v3)
-
-• **txBuilderType?**: [`ETxBuilderType`](../enumerations/ETxBuilderType.md)
-
-##### Returns
-
-[`TxBuilderV3`](TxBuilderV3.md)
-
-##### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:190](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L190)
-
-#### builder(contractVersion, txBuilderType)
-
-> **builder**(`contractVersion`, `txBuilderType`): [`TxBuilderV3`](TxBuilderV3.md)
-
-Creates the appropriate transaction builder by which you can create valid transactions.
-
-##### Parameters
-
-• **contractVersion**: [`V3`](../enumerations/EContractVersion.md#v3)
-
-• **txBuilderType**: [`ETxBuilderType`](../enumerations/ETxBuilderType.md)
-
-##### Returns
-
-[`TxBuilderV3`](TxBuilderV3.md)
-
-##### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:194](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L194)
-
-#### builder()
-
-> **builder**(): [`TxBuilderV3`](TxBuilderV3.md)
-
-Creates the appropriate transaction builder by which you can create valid transactions.
-
-##### Returns
-
-[`TxBuilderV3`](TxBuilderV3.md)
-
-##### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:198](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L198)
-
-#### builder(contractVersion, txBuilderType)
-
-> **builder**(`contractVersion`?, `txBuilderType`?): [`TxBuilderV1`](TxBuilderV1.md) \| [`TxBuilderV3`](TxBuilderV3.md)
-
-Creates the appropriate transaction builder by which you can create valid transactions.
-
-##### Parameters
-
-• **contractVersion?**: [`EContractVersion`](../enumerations/EContractVersion.md)
-
-• **txBuilderType?**: [`ETxBuilderType`](../enumerations/ETxBuilderType.md)
-
-##### Returns
-
-[`TxBuilderV1`](TxBuilderV1.md) \| [`TxBuilderV3`](TxBuilderV3.md)
-
-##### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:199](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L199)
+[packages/core/src/SundaeSDK.class.ts:109](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L109)
 
 ***
 
@@ -271,23 +75,7 @@ Utility method to retrieve the SDK options object.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:163](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L163)
-
-***
-
-### lucid()
-
-> **lucid**(): `undefined` \| `Lucid`
-
-Helper method to retrieve a Lucid instance.
-
-#### Returns
-
-`undefined` \| `Lucid`
-
-#### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:252](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L252)
+[packages/core/src/SundaeSDK.class.ts:100](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L100)
 
 ***
 
@@ -305,7 +93,7 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:243](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L243)
+[packages/core/src/SundaeSDK.class.ts:137](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L137)
 
 ***
 
@@ -328,4 +116,4 @@ The SundaeSDK arguments.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:80](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L80)
+[packages/core/src/SundaeSDK.class.ts:65](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L65)

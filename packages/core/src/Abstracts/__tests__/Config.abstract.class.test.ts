@@ -1,6 +1,6 @@
-import { AssetAmount } from "@sundaeswap/asset";
 import { describe, expect, it } from "bun:test";
 
+import { Core } from "@blaze-cardano/sdk";
 import { ITxBuilderReferralFee } from "../../@types/index.js";
 import { Config } from "../Config.abstract.class.js";
 
@@ -28,7 +28,7 @@ describe("Config", () => {
     const amountConfig: ITxBuilderReferralFee = {
       destination: mockAddress,
 
-      payment: new AssetAmount(10n, { assetId: "", decimals: 6 }),
+      payment: new Core.Value(10n),
     };
 
     configWithAmount.setReferralFee(amountConfig);
@@ -37,7 +37,7 @@ describe("Config", () => {
     const configWithPercent = new TestClass();
     const percentConfig: ITxBuilderReferralFee = {
       destination: mockAddress,
-      payment: new AssetAmount(10n, { assetId: "", decimals: 6 }),
+      payment: new Core.Value(10n),
     };
 
     configWithPercent.setReferralFee(percentConfig);
@@ -46,7 +46,7 @@ describe("Config", () => {
     const configWithLabel = new TestClass();
     const labelConfig: ITxBuilderReferralFee = {
       destination: mockAddress,
-      payment: new AssetAmount(10n, { assetId: "", decimals: 6 }),
+      payment: new Core.Value(10n),
       feeLabel: "Test Fee",
     };
 

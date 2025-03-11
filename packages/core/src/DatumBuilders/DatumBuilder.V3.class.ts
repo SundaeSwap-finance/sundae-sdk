@@ -231,7 +231,7 @@ export class DatumBuilderV3 implements DatumBuilder {
 
   /**
    * Creates a new pool datum for minting a the pool. This is attached to the assets that are sent
-   * to the pool minting contract. See {@link Blaze.TxBuilderBlazeV3} for more details.
+   * to the pool minting contract. See {@link Core.TxBuilderV3} for more details.
    *
    * @param {IDatumBuilderMintPoolV3Args} params The arguments for building a pool mint datum.
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
@@ -283,7 +283,7 @@ export class DatumBuilderV3 implements DatumBuilder {
 
   /**
    * Creates a redeemer datum for minting a new pool. This is attached to the new assets that
-   * creating a new pool mints on the blockchain. See {@link Blaze.TxBuilderBlazeV3} for more
+   * creating a new pool mints on the blockchain. See {@link Core.TxBuilderV3} for more
    * details.
    *
    * @param {IDatumBuilderPoolMintRedeemerV3Args} param The assets being supplied to the new pool.

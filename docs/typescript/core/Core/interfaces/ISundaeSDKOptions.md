@@ -50,11 +50,9 @@ The minimum amount of ADA required for a locking position.
 
 The wallet options.
 
-#### builder
+#### blazeInstance
 
-> **builder**: [`TWalletBuilder`](../type-aliases/TWalletBuilder.md)
-
-The type of builder to use. Currently only supports Lucid.
+> **blazeInstance**: `Blaze`\<`Provider`, `Wallet$1`\>
 
 #### name
 

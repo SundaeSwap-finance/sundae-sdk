@@ -82,7 +82,7 @@ export interface ITxBuilderV1BlazeParams {
  * `TxBuilderBlazeV1` is a class extending `TxBuilder` to support transaction construction
  * for Blaze against the V1 SundaeSwap protocol. It includes capabilities to build and execute various transaction types
  * such as swaps, cancellations, updates, deposits, withdrawals, zaps, and liquidity migrations to
- * the V3 contracts (it is recommended to utilize V3 contracts if possible: {@link Blaze.TxBuilderBlazeV3}).
+ * the V3 contracts (it is recommended to utilize V3 contracts if possible: {@link Core.TxBuilderV3}).
  *
  * @extends {TxBuilderAbstractV1}
  */

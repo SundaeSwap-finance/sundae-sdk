@@ -14,7 +14,7 @@ Test transactions for the SundaeSwap protocol.
 ## Classes
 
 - [AbstractTasteTest](classes/AbstractTasteTest.md)
-- [TasteTestLucid](classes/TasteTestLucid.md)
+- [TasteTestBuilder](classes/TasteTestBuilder.md)
 
 ## Interfaces
 

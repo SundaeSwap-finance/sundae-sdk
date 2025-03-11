@@ -2,27 +2,27 @@
 
 ***
 
-# Class: DatumBuilderBlazeV3
+# Class: DatumBuilderV3
 
-The Blaze implementation of a [Core.DatumBuilder](../../Core/classes/DatumBuilder.md). This is useful
+The Blaze implementation of a [Core.DatumBuilder](DatumBuilder.md). This is useful
 if you would rather just build valid CBOR strings for just the datum
 portion of a valid SundaeSwap transaction.
 
 ## Implements
 
-- [`DatumBuilder`](../../Core/classes/DatumBuilder.md)
+- [`DatumBuilder`](DatumBuilder.md)
 
 ## Properties
 
 ### network
 
-> **network**: [`TSupportedNetworks`](../../Core/type-aliases/TSupportedNetworks.md)
+> **network**: [`TSupportedNetworks`](../type-aliases/TSupportedNetworks.md)
 
 The current network id.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L91)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L91)
 
 ***
 
@@ -34,13 +34,13 @@ The error to throw when the pool ident does not match V1 constraints.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:93](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L93)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:93](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L93)
 
 ## Methods
 
 ### buildDepositDatum()
 
-> **buildDepositDatum**(`args`): [`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+> **buildDepositDatum**(`args`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 Constructs a deposit datum object for V3 deposits, based on the specified arguments. This function
 creates a comprehensive deposit datum structure, which includes the destination address, the pool ident,
@@ -58,7 +58,7 @@ The deposit arguments for constructing the V3 deposit datum.
 
 #### Returns
 
-[`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 An object comprising the hash of the inline datum, the inline datum itself,
                                              and the schema of the original deposit datum, essential for the execution of the deposit operation.
@@ -105,16 +105,16 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:156](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L156)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:156](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L156)
 
 ***
 
 ### buildMintPoolDatum()
 
-> **buildMintPoolDatum**(`params`): [`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+> **buildMintPoolDatum**(`params`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 Creates a new pool datum for minting a the pool. This is attached to the assets that are sent
-to the pool minting contract. See [Blaze.TxBuilderBlazeV3](TxBuilderBlazeV3.md) for more details.
+to the pool minting contract. See [Core.TxBuilderV3](TxBuilderV3.md) for more details.
 
 #### Parameters
 
@@ -130,7 +130,7 @@ The arguments for building a pool mint datum.
 
 #### Returns
 
-[`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                                              and the schema of the original pool mint datum, crucial for the execution
@@ -170,16 +170,16 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:248](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L248)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:248](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L248)
 
 ***
 
 ### buildPoolMintRedeemerDatum()
 
-> **buildPoolMintRedeemerDatum**(`param`): [`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object` \| `object`\>
+> **buildPoolMintRedeemerDatum**(`param`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object` \| `object`\>
 
 Creates a redeemer datum for minting a new pool. This is attached to the new assets that
-creating a new pool mints on the blockchain. See [Blaze.TxBuilderBlazeV3](TxBuilderBlazeV3.md) for more
+creating a new pool mints on the blockchain. See [Core.TxBuilderV3](TxBuilderV3.md) for more
 details.
 
 #### Parameters
@@ -192,7 +192,7 @@ The assets being supplied to the new pool.
 
 #### Returns
 
-[`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object` \| `object`\>
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object` \| `object`\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                                              and the schema of the original pool mint redeemer datum, crucial for the execution
@@ -200,13 +200,13 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:296](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L296)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:296](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L296)
 
 ***
 
 ### buildSwapDatum()
 
-> **buildSwapDatum**(`args`): [`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+> **buildSwapDatum**(`args`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 Constructs a swap datum object tailored for V3 swaps, based on the provided arguments. This function
 assembles a detailed swap datum structure, which includes the pool ident, destination address, owner information,
@@ -223,7 +223,7 @@ The swap arguments for constructing the V3 swap datum.
 
 #### Returns
 
-[`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                                              and the schema of the original swap datum, essential for the execution of the swap operation.
@@ -270,13 +270,13 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:112](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L112)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:112](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L112)
 
 ***
 
 ### buildWithdrawDatum()
 
-> **buildWithdrawDatum**(`args`): [`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+> **buildWithdrawDatum**(`args`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 Creates a withdraw datum object for V3 withdrawals, utilizing the provided arguments. This function
 assembles a detailed withdraw datum structure, which encompasses the destination address, pool ident,
@@ -294,7 +294,7 @@ The withdrawal arguments for constructing the V3 withdraw datum.
 
 #### Returns
 
-[`TDatumResult`](../../Core/type-aliases/TDatumResult.md)\<`object`\>
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                                              and the schema of the original withdraw datum, crucial for the execution of the withdrawal operation.
@@ -341,7 +341,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:202](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L202)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:202](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L202)
 
 ***
 
@@ -367,7 +367,7 @@ The UTxO txHash and index.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:526](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L526)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:526](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L526)
 
 ***
 
@@ -389,7 +389,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:502](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L502)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:502](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L502)
 
 ***
 
@@ -411,7 +411,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:490](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L490)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:490](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L490)
 
 ***
 
@@ -433,7 +433,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:514](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L514)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:514](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L514)
 
 ***
 
@@ -471,7 +471,7 @@ An object containing the staking and
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:557](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L557)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:557](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L557)
 
 ***
 
@@ -500,4 +500,4 @@ The signing key associated with the owner, extracted from the datum. This key is
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts:599](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Blaze.V3.class.ts#L599)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:599](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L599)
