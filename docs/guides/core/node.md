@@ -12,13 +12,30 @@ the `SundaeSDK` class assumes a browser environment. Setting things up is pretty
 
 ```ts
 // utils.ts
-import { Blockfrost, Lucid } from "lucid-cardano";
+import { Blaze, Blockfrost, HotWallet } from "@blaze-cardano/sdk";
+import { ETxBuilderType, ISundaeSDKOptions, SundaeSDK } from "@sundaeswap/core";
 
-const blockfrost = new Blockfrost("url", "projectId");
-const lucid = await Lucid.new(blockfrost, "Preview");
-lucid.selectWalletFromSeed("seed");
+// Get the API from the browser window.
+const myBlockfrostApiKey = "";
+const provider = new Blockfrost({ network: "cardano-preview", projectId: myBlockfrostApiKey });
+const blaze = Blaze.from(
+  provider,
+  await HotWallet.fromMasterkey(
+    Core.Bip32PrivateKeyHex("your-private-key"),
+    provider,
+    Core.NetworkId.Testnet,
+  ),
+);
 
-export { lucid };
+const options: ISundaeSDKOptions = {
+  wallet: {
+    name: "eternl",
+    network: "preview",
+    blazeInstance,
+  },
+};
+
+const SDK = await SundaeSDK.new(options);
 ```
 
 ### V1 Contracts

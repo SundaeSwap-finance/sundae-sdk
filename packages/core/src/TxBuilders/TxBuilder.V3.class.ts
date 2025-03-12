@@ -87,14 +87,17 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
   /**
    * @param {Blaze<Provider, Wallet>} blaze A configured Blaze instance to use.
-   * @param {TSupportedNetworks} network The Network identifier for this TxBuilder instance.
+   * @param {QueryProviderSundaeSwap} queryProvider A custom query provider if desired.
    */
   constructor(
     public blaze: Blaze<Provider, Wallet>,
-    network: TSupportedNetworks,
     queryProvider?: QueryProviderSundaeSwap,
   ) {
     super();
+    const network: TSupportedNetworks = blaze.provider.network
+      ? "mainnet"
+      : "preview";
+
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
     this.datumBuilder = new DatumBuilderV3(network);
@@ -559,7 +562,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     });
 
     let scooperFee = await this.getMaxScooperFeeAmount();
-    const v1TxBUilder = new TxBuilderV1(this.blaze, this.network);
+    const v1TxBUilder = new TxBuilderV1(this.blaze);
     const v1Address = await v1TxBUilder
       .getValidatorScript("escrow.spend")
       .then(({ compiledCode }) =>
@@ -626,7 +629,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const isSecondSwapV1 = args.swapB.pool.version === EContractVersion.V1;
 
     const secondSwapBuilder = isSecondSwapV1
-      ? new TxBuilderV1(this.blaze, this.network)
+      ? new TxBuilderV1(this.blaze)
       : this;
     const secondSwapAddress = isSecondSwapV1
       ? await (secondSwapBuilder as TxBuilderV1)
@@ -814,7 +817,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log("This is a V1 order! Calling appropriate builder...");
-      const v1Builder = new TxBuilderV1(this.blaze, this.network);
+      const v1Builder = new TxBuilderV1(this.blaze);
       return v1Builder.cancel({ ...cancelArgs });
     }
 

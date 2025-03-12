@@ -105,14 +105,17 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
 
   /**
    * @param {Blaze<Provider, Wallet>} blaze A configured Blaze instance to use.
-   * @param {TSupportedNetworks} network The network id to use when building the transaction.
+   * @param {QueryProviderSundaeSwap} queryProvider A custom query provider if desired.
    */
   constructor(
     public blaze: Blaze<Provider, Wallet>,
-    network: TSupportedNetworks,
     queryProvider?: QueryProviderSundaeSwap,
   ) {
     super();
+    const network: TSupportedNetworks = blaze.provider.network
+      ? "mainnet"
+      : "preview";
+
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
     this.datumBuilder = new DatumBuilderV1(network);
@@ -273,7 +276,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     });
 
     let scooperFee = this.__getParam("maxScooperFee");
-    const v3TxBuilder = new TxBuilderV3(this.blaze, this.network);
+    const v3TxBuilder = new TxBuilderV3(this.blaze);
 
     const v3Address = await v3TxBuilder.generateScriptAddress(
       "order.spend",
@@ -335,7 +338,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     const isSecondSwapV3 = args.swapB.pool.version === EContractVersion.V3;
 
     const secondSwapBuilder = isSecondSwapV3
-      ? new TxBuilderV3(this.blaze, this.network)
+      ? new TxBuilderV3(this.blaze)
       : this;
     const secondSwapAddress = isSecondSwapV3
       ? await (secondSwapBuilder as TxBuilderV3).generateScriptAddress(
@@ -528,7 +531,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       Data.from(spendingDatum, V3OrderDatum);
       // eslint-disable-next-line no-console
       console.log("This is a V3 order! Calling appropriate builder...");
-      const v3Builder = new TxBuilderV3(this.blaze, this.network);
+      const v3Builder = new TxBuilderV3(this.blaze);
       return v3Builder.cancel({ ...cancelArgs });
     } catch (e) {}
 
@@ -1052,11 +1055,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     let totalDeposit = 0n;
     let totalReferralFees = new Core.Value(0n);
     const metadataDatums = new Core.MetadatumMap();
-    const v3TxBuilderInstance = new TxBuilderV3(
-      this.blaze,
-      this.network,
-      this.queryProvider,
-    );
+    const v3TxBuilderInstance = new TxBuilderV3(this.blaze, this.queryProvider);
     const v3OrderScriptAddress =
       await v3TxBuilderInstance.generateScriptAddress("order.spend");
     const v3MaxScooperFee = await v3TxBuilderInstance.getMaxScooperFeeAmount();

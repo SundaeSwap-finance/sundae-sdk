@@ -8,7 +8,7 @@ nav_order: 1
 # Getting Started with Core
 
 ```bash
-$ bun add @sundaeswap/core lucid-cardano
+$ bun add @sundaeswap/core @blaze-cardano/sdk
 ```
 
 For more instructions see [Overview](/)

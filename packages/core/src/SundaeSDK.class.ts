@@ -17,9 +17,11 @@ export const SDK_OPTIONS_DEFAULTS: Pick<
  * interacting with the SundaeSwap protocol.
  *
  * ```ts
+ * const blazeInstance = Blaze.from(
+ *   // Blaze constructor options.
+ * );
  * const sdk = await SundaeSDK.new({
- *   baseType: EBasePrototype.Lucid,
- *   network: "preview"
+ *   blazeInstance
  * });
  *
  * sdk.builder().buildSwapTx({ ...args })
@@ -35,10 +37,9 @@ export const SDK_OPTIONS_DEFAULTS: Pick<
  * ```
  */
 export class SundaeSDK {
-  private builders: Map<EContractVersion, TxBuilderV1 | TxBuilderV3> =
-    new Map();
-  private queryProvider: QueryProvider;
-  private options: ISundaeSDKOptions;
+  public builders: Map<EContractVersion, TxBuilderV1 | TxBuilderV3> = new Map();
+  public queryProvider: QueryProvider;
+  public options: ISundaeSDKOptions;
 
   /**
    * Builds a class instance using the arguments specified.
@@ -49,7 +50,9 @@ export class SundaeSDK {
   private constructor(args: ISundaeSDKOptions) {
     this.queryProvider =
       args.customQueryProvider ||
-      new QueryProviderSundaeSwap(args.wallet.network);
+      new QueryProviderSundaeSwap(
+        args.blazeInstance.provider.network ? "mainnet" : "preview",
+      );
     this.options = {
       ...args,
       ...SDK_OPTIONS_DEFAULTS,
@@ -64,41 +67,30 @@ export class SundaeSDK {
    */
   static async new(args: ISundaeSDKOptions): Promise<SundaeSDK> {
     const instance = new this(args);
-    await instance.registerTxBuilders();
+    instance.builders.set(
+      EContractVersion.V1,
+      new TxBuilderV1(instance.options.blazeInstance),
+    );
+    instance.builders.set(
+      EContractVersion.V3,
+      new TxBuilderV3(instance.options.blazeInstance),
+    );
     return instance;
   }
 
   /**
    * Registers TxBuilders depending on the TxBuilder
-   * type. Currently we only support Lucid, but plan on adding
-   * more types in the future. This gives full flexibility to the
-   * client in which they can utilize the SDK according to their
-   * software stack.
+   * type.
    */
   private async registerTxBuilders() {
     this.builders.set(
       EContractVersion.V1,
-      new TxBuilderV1(
-        this.options.wallet.blazeInstance,
-        this.options.wallet.network,
-      ),
+      new TxBuilderV1(this.options.blazeInstance),
     );
     this.builders.set(
       EContractVersion.V3,
-      new TxBuilderV3(
-        this.options.wallet.blazeInstance,
-        this.options.wallet.network,
-      ),
+      new TxBuilderV3(this.options.blazeInstance),
     );
-  }
-
-  /**
-   * Utility method to retrieve the SDK options object.
-   *
-   * @returns {ISundaeSDKOptions}
-   */
-  getOptions(): ISundaeSDKOptions {
-    return this.options;
   }
 
   /**
@@ -144,6 +136,6 @@ export class SundaeSDK {
    * @returns {Blaze<Provider, Wallet>}
    */
   blaze(): Blaze<Provider, Wallet> {
-    return this.options.wallet.blazeInstance;
+    return this.options.blazeInstance;
   }
 }

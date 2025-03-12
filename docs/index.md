@@ -20,46 +20,8 @@ SDK in TypeScript that ensures datum compliance with corresponding smart contrac
 
 ## Requirements
 
-All SDKs are built to be extendable, but currently we only support transaction building using [Lucid](https://www.npmjs.com/package/lucid-cardano). This means that they
-require bundling using a tool like [Webpack](https://webpack.js.org/) with WASM support. As a sample, you'll want to configure you Webpack like this:
+The SundaeSwap SDK is built on top of the popular transaction building library, Blaze, an open-source library that we also help maintain. You must install this dependency in your project along with whatever SundaeSwap SDK libary you are trying to use.
 
-### Loading WASM Asynchronously
-
-```ts
-const config = {
-    ...args,
-    experiments: {
-      topLevelAwait: true,
-      asyncWebAssembly: true,
-    },
-}
-```
-
-### Loading WASM Synchronously
-
-```ts
-const config = {
-    ...args,
-    experiments: {
-      layers: true,
-      syncWebAssembly: true,
-    },
-}
-```
-
-### Browserfy Buffer
-
-All Lucid exports in the SDKs require Buffer to work in the browser. To enable this in Webpack, do the following:
-
-```ts
-const config = {
-  ...args,
-  plugins: {
-    new webpack.ProvidePlugin({
-      Buffer: ["buffer", "Buffer"],
-    });
-  }
-}
-```
+- [Blaze](https://github.com/butaneprotocol/blaze-cardano)
 
 ## Up Next: [Getting Started](./guides)

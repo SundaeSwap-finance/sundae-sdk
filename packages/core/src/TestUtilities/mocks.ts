@@ -22,13 +22,6 @@ export const MockAll = () => {
       findPoolIdent: mock(() => "findPoolIdent"),
     };
   });
-  const MockedTxBuilderLucid = mock().mockImplementation(() => {
-    return {};
-  });
-
-  const MockedDatumBuilderLucid = mock().mockImplementation(() => {
-    return {};
-  });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockBuild: Mock<any> = mock();
@@ -42,9 +35,7 @@ export const MockAll = () => {
   }));
 
   beforeEach(() => {
-    MockedDatumBuilderLucid.mockClear();
     MockedProviderSundaeSwap.mockClear();
-    MockedTxBuilderLucid.mockClear();
     MockedSundaeSDK.mockClear();
     mockSwap.mockClear();
     mockBuild.mockClear();
@@ -55,10 +46,5 @@ export const MockAll = () => {
     ...Core,
     SundaeSDK: MockedSundaeSDK,
     ProviderSundaeSwap: MockedProviderSundaeSwap,
-  }));
-
-  mock.module("@sundaeswap/core/lucid", () => ({
-    TxBuilderLucid: MockedTxBuilderLucid,
-    DatumBuilderLucid: MockedDatumBuilderLucid,
   }));
 };

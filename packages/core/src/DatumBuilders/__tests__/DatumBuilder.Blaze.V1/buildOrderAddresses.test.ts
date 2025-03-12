@@ -1,16 +1,16 @@
 import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  mock,
-  spyOn,
+    afterEach,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    mock,
+    spyOn,
 } from "bun:test";
 
 import {
-  EDatumType,
-  TOrderAddressesArgs,
+    EDatumType,
+    TOrderAddressesArgs,
 } from "../../../@types/datumbuilder.js";
 import { BlazeHelper } from "../../../Utilities/BlazeHelper.class.js";
 import { V1_EXPECTATIONS } from "../../__data__/v1.expectations.js";
@@ -159,7 +159,7 @@ describe("buildDestinationAddresses()", () => {
     } catch (e) {
       expect(BlazeHelper.throwInvalidOrderAddressesError).toHaveBeenCalledWith(
         expectations[11].args.DestinationAddress.address,
-        expectations[11].expectations.errorBlaze,
+        expectations[11].expectations.error,
       );
     }
   });

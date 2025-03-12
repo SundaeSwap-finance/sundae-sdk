@@ -5,7 +5,7 @@
 # Testing
 
 ## Testing
-Writing unit tests for large packages, especially those that use WASM like Lucid, can be a daunting
+Writing unit tests for large packages can be a daunting
 task. To help make this easier, we've developed some useful tests and mocks for your downstream project.
 
 The Mocks can be used for mocking the imports in order to help reduce your API surface that must be tested.

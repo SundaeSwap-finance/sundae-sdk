@@ -185,8 +185,6 @@ export const V3_EXPECTATIONS = {
       } as TDestinationAddress,
       expectations: {
         error: {
-          lucid:
-            "You supplied an invalid address: invalid. Please check your arguments and try again. Error message: No address type matched for: invalid",
           blaze:
             "You supplied an invalid address: invalid. Please check your arguments and try again. Error message: invalid string length: 7 (invalid). Expected (8..1023)",
         },
@@ -201,8 +199,6 @@ export const V3_EXPECTATIONS = {
       } as TDestinationAddress,
       expectations: {
         error: {
-          lucid:
-            "You supplied an invalid address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294. Please check your arguments and try again. Error message: The given address is not a Mainnet Network address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294.",
           blaze:
             "You supplied an invalid address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294. Please check your arguments and try again. Error message: The given address is not a Mainnet Network address: addr_test1qrlnzzc89s5p5nhsustx5q8emft3cjvce4tmhytkfhaae7qdxw2hcpavmh0vexyzg476ytc9urgcnalujkcewtnd2yzs2pf294.",
         },
@@ -219,8 +215,6 @@ export const V3_EXPECTATIONS = {
       } as TDestinationAddress,
       expectations: {
         error: {
-          lucid:
-            "You supplied an invalid address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk. Please check your arguments and try again. Error message: The given address is not a (Preview/Testnet/PreProd) Network address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk.",
           blaze:
             "You supplied an invalid address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk. Please check your arguments and try again. Error message: The given address is not a (Preview/Testnet/PreProd) Network address: addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk.",
         },
@@ -254,8 +248,6 @@ export const V3_EXPECTATIONS = {
         calledWith:
           "addr_test1wpesulg5dtt5y73r4zzay9qmy3wnlrxdg944xg4rzuvewls7nrsf0",
         error: {
-          lucid:
-            'The datum provided was not a valid hex string. Original error: {"datum":{"type":"HASH","value":"invalidDatum"}}',
           blaze:
             'The datum provided was not a valid hex string. Original error: {"datum":{"type":"HASH","value":"invalidDatum"},"originalErrorMessage":"Invalid string: \\"expected hex string\\""}',
         },

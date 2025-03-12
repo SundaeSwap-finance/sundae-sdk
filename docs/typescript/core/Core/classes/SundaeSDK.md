@@ -8,9 +8,11 @@ The main SundaeSDK class that contains all the necessary sub-classes for
 interacting with the SundaeSwap protocol.
 
 ```ts
+const blazeInstance = Blaze.from(
+  // Blaze constructor options.
+);
 const sdk = await SundaeSDK.new({
-  baseType: EBasePrototype.Lucid,
-  network: "preview"
+  blazeInstance
 });
 
 sdk.builder().buildSwapTx({ ...args })
@@ -39,7 +41,7 @@ Helper method to easily get the SDK's Blaze instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L146)
+[packages/core/src/SundaeSDK.class.ts:138](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L138)
 
 ***
 
@@ -59,23 +61,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:109](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L109)
-
-***
-
-### getOptions()
-
-> **getOptions**(): [`ISundaeSDKOptions`](../interfaces/ISundaeSDKOptions.md)
-
-Utility method to retrieve the SDK options object.
-
-#### Returns
-
-[`ISundaeSDKOptions`](../interfaces/ISundaeSDKOptions.md)
-
-#### Defined in
-
-[packages/core/src/SundaeSDK.class.ts:100](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L100)
+[packages/core/src/SundaeSDK.class.ts:101](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L101)
 
 ***
 
@@ -93,7 +79,7 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:137](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L137)
+[packages/core/src/SundaeSDK.class.ts:129](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L129)
 
 ***
 
@@ -116,4 +102,4 @@ The SundaeSDK arguments.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:65](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L65)
+[packages/core/src/SundaeSDK.class.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L68)

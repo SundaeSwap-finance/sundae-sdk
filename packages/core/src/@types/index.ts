@@ -11,14 +11,8 @@ export interface ISundaeSDKOptions {
   debug?: boolean;
   /** The minimum amount of ADA required for a locking position. */
   minLockAda?: bigint;
-  /** The wallet options. */
-  wallet: {
-    /** A CIP-30 compatible wallet. */
-    name: string;
-    /** The desired network. */
-    network: "preview" | "mainnet";
-    blazeInstance: Blaze<Provider, Wallet>;
-  };
+  /** A built blaze instance. */
+  blazeInstance: Blaze<Provider, Wallet>;
 }
 
 export * from "./configs.js";

@@ -23,7 +23,7 @@ import { TxBuilderV3 } from "../TxBuilder.V3.class.js";
 let builder: TxBuilderV1;
 
 const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (blaze) => {
-  builder = new TxBuilderV1(blaze, "preview");
+  builder = new TxBuilderV1(blaze);
 });
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
