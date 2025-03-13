@@ -22,7 +22,7 @@ import { PositionRedeemer, TDelegationPrograms } from "../../@types/blaze.js";
 import { ILockConfigArgs } from "../../@types/configs.js";
 import { YieldFarmingAbstract } from "../Abstracts/YieldFarmingAbstract.class.js";
 import { LockConfig } from "../Configs/LockConfig.js";
-import { DatumBuilderBlaze } from "../DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.js";
+import { YieldFarmingDatumBuilder } from "../DatumBuilder/YieldFarmingDatumBuilder.class.js";
 
 /**
  * Object arguments for completing a transaction.
@@ -42,29 +42,26 @@ interface IYieldFarmingParams {
 }
 
 /**
- * Represents the YieldFarmingBlaze class, capable of handling various blockchain interactions for interacting with the
+ * Represents the YieldFarmingBuilder class, capable of handling various blockchain interactions for interacting with the
  * Yield Farming V2 contracts on the SundaeSwap protocol.
  *
  * This class encapsulates methods for common operations required in the Yield Farming process on the blockchain.
  * It provides an interface to lock and unlock assets, including updating their respective delegation datums.
  *
- * The YieldFarmingBlaze class relies on the Lucid service, which can come either from your own instance or from an existing
+ * The YieldFarmingBuilder class relies on the Blaze service, which can come either from your own instance or from an existing
  * @module Core.SundaeSDK class instance (as shown below). The class methods handle the detailed steps of each operation, including
  * transaction preparation, fee handling, and error checking, abstracting these complexities from the end user.
  *
  * ```ts
- * const lucid = sdk.builder().wallet;
- * if (lucid) {
- *  const YF = new YieldFarmingBlaze(lucid, 5_000_000n);
- *  const txHash = await YF.lock({ ...args }).then(({ submit }) => submit());
- * }
+ * const YF = new YieldFarmingBuilder(SundaeSDKInstance.blaze());
+ * const txHash = await YF.lock({ ...args }).then(({ submit }) => submit());
  * ```
  *
  * @extends {YieldFarmingAbstract}
  */
 export class YieldFarmingBuilder implements YieldFarmingAbstract {
   network: TSupportedNetworks;
-  datumBuilder: DatumBuilderBlaze;
+  datumBuilder: YieldFarmingDatumBuilder;
 
   static PARAMS: Record<TSupportedNetworks, IYieldFarmingParams> = {
     mainnet: {
@@ -83,12 +80,12 @@ export class YieldFarmingBuilder implements YieldFarmingAbstract {
     },
   };
 
-  constructor(
-    public blaze: Blaze<Provider, Wallet>,
-    network: Core.NetworkId,
-  ) {
-    this.datumBuilder = new DatumBuilderBlaze(network ? "mainnet" : "preview");
-    this.network = network ? "mainnet" : "preview";
+  constructor(public blaze: Blaze<Provider, Wallet>) {
+    const network: TSupportedNetworks = blaze.provider.network
+      ? "mainnet"
+      : "preview";
+    this.network = network;
+    this.datumBuilder = new YieldFarmingDatumBuilder(network);
   }
 
   /**

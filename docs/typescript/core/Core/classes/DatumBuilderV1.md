@@ -9,7 +9,7 @@ V1 contracts on the SundaeSwap protocol.
 
 ## Implements
 
-- [`DatumBuilder`](DatumBuilder.md)
+- [`DatumBuilderAbstract`](DatumBuilderAbstract.md)
 
 ## Properties
 

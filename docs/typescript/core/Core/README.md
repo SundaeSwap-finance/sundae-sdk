@@ -22,7 +22,7 @@ SundaeSwap protocol.
 - [BlazeHelper](classes/BlazeHelper.md)
 - [CancelConfig](classes/CancelConfig.md)
 - [Config](classes/Config.md)
-- [DatumBuilder](classes/DatumBuilder.md)
+- [DatumBuilderAbstract](classes/DatumBuilderAbstract.md)
 - [DatumBuilderV1](classes/DatumBuilderV1.md)
 - [DatumBuilderV3](classes/DatumBuilderV3.md)
 - [DepositConfig](classes/DepositConfig.md)

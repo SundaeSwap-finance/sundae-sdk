@@ -2,7 +2,7 @@
 
 ***
 
-# Class: DatumBuilderBlaze
+# Class: YieldFarmingDatumBuilder
 
 The Blaze representation of a DatumBuilder. The primary purpose of this class
 is to encapsulate the accurate building of valid datums, which should be attached
@@ -12,7 +12,7 @@ specs as defined in the SundaeSwap smart contracts.
 
 ## Implements
 
-- `DatumBuilder`
+- `DatumBuilderAbstract`
 
 ## Methods
 
@@ -53,4 +53,4 @@ funds.
 
 #### Defined in
 
-[packages/yield-farming/src/lib/DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/yield-farming/src/lib/DatumBuilder/DatumBuilder.YieldFarming.Blaze.class.ts#L32)
+[packages/yield-farming/src/lib/DatumBuilder/YieldFarmingDatumBuilder.class.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/yield-farming/src/lib/DatumBuilder/YieldFarmingDatumBuilder.class.ts#L32)

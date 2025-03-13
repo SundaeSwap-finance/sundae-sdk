@@ -1,6 +1,6 @@
 import { IComposedTx } from "../@types/txbuilders.js";
 import { TSupportedNetworks } from "../@types/utilities.js";
-import { DatumBuilder } from "./DatumBuilder.abstract.class.js";
+import { DatumBuilderAbstract } from "./DatumBuilder.abstract.class.js";
 import { QueryProvider } from "./QueryProvider.abstract.class.js";
 
 /**
@@ -10,7 +10,7 @@ import { QueryProvider } from "./QueryProvider.abstract.class.js";
  */
 export abstract class TxBuilderAbstractV3 {
   abstract queryProvider: QueryProvider;
-  abstract datumBuilder: DatumBuilder;
+  abstract datumBuilder: DatumBuilderAbstract;
   abstract network: TSupportedNetworks;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static PARAMS: Record<TSupportedNetworks, Record<string, any>>;

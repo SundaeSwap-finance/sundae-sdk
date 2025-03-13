@@ -9,8 +9,8 @@ Farming transactions for the SundaeSwap protocol.
 
 ## Classes
 
-- [DatumBuilderBlaze](classes/DatumBuilderBlaze.md)
 - [YieldFarmingAbstract](classes/YieldFarmingAbstract.md)
+- [YieldFarmingDatumBuilder](classes/YieldFarmingDatumBuilder.md)
 
 ## Interfaces
 

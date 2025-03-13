@@ -1,5 +1,4 @@
 import { Core, makeValue } from "@blaze-cardano/sdk";
-import { type UTxO, applyDoubleCborEncoding } from "lucid-cardano";
 import {
   EContractVersion,
   ISundaeProtocolParamsFull,
@@ -60,48 +59,32 @@ export const params: ISundaeProtocolParamsFull = {
   ],
 };
 
-export const settingsUtxosLucid: UTxO[] = [
-  {
-    address: "addr_test1wzqnqgch86xj9j69zdelwdw4cy04dy9qk3g3sq7zky8ug5gmr2v4q",
-    assets: {
-      lovelace: 2_137_760n,
-      "85ed0c7060ccd4700927d8b60f0160abe2b3c30446fc0a9ac83b6b7673657474696e6773":
+export const settingsUtxosBlaze: Core.TransactionUnspentOutput[] = [
+  new Core.TransactionUnspentOutput(
+    new Core.TransactionInput(
+      Core.TransactionId(
+        "45ae0839622478c3ed2fbf5eea03c54ca3fd57607b7a2660445166ea8a42d98c",
+      ),
+      BigInt(0),
+    ),
+    Core.TransactionOutput.fromCore({
+      address: Core.PaymentAddress(
+        "addr_test1wzqnqgch86xj9j69zdelwdw4cy04dy9qk3g3sq7zky8ug5gmr2v4q",
+      ),
+      value: makeValue(2_137_760n, [
+        "85ed0c7060ccd4700927d8b60f0160abe2b3c30446fc0a9ac83b6b7673657474696e6773",
         1n,
-    },
-    outputIndex: 0,
-    datumHash:
-      "f3e8fdd6ae16e82b01bd86c099fa36327a7fc86dfa30bc1533216f7874c7f788",
-    datum:
-      "d8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ffd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ff9f010affd8799f9f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffff9fd87a9f581c7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808ffff1a000510e01a000a31601a000290400000ff",
-    scriptRef: null,
-    txHash: "45ae0839622478c3ed2fbf5eea03c54ca3fd57607b7a2660445166ea8a42d98c",
-  },
+      ]).toCore(),
+      datum: Core.PlutusData.fromCbor(
+        Core.HexBlob(
+          "d8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ffd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ff9f010affd8799f9f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffff9fd87a9f581c7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808ffff1a000510e01a000a31601a000290400000ff",
+        ),
+      ).toCore(),
+    }),
+  ),
 ];
 
-export const settingsUtxosBlaze: Core.TransactionUnspentOutput[] =
-  settingsUtxosLucid.map(
-    (utxo) =>
-      new Core.TransactionUnspentOutput(
-        new Core.TransactionInput(
-          Core.TransactionId(utxo.txHash),
-          BigInt(utxo.outputIndex),
-        ),
-        Core.TransactionOutput.fromCore({
-          address: Core.PaymentAddress(utxo.address),
-          value: makeValue(
-            utxo.assets.lovelace,
-            ...Object.entries(utxo.assets).filter(
-              ([key]) => key !== "lovelace",
-            ),
-          ).toCore(),
-          datum: utxo.datum
-            ? Core.PlutusData.fromCbor(Core.HexBlob(utxo.datum)).toCore()
-            : undefined,
-        }),
-      ),
-  );
-
-export const referenceUtxos: UTxO[] = [
+export const referenceUtxos = [
   {
     address: "addr_test1vpadfhdamgcuf4dmw76d4u8srx355xs042pdxkgj857gveqtnxaul",
     assets: {
@@ -111,7 +94,7 @@ export const referenceUtxos: UTxO[] = [
     datumHash: null,
     datum: null,
     scriptRef: {
-      script: applyDoubleCborEncoding(ORDER_SPEND_SCRIPT),
+      script: ORDER_SPEND_SCRIPT,
       type: "PlutusV2",
     },
     txHash: "710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f243947",
@@ -160,7 +143,7 @@ export const referenceUtxos: UTxO[] = [
     datumHash: null,
     datum: null,
     scriptRef: {
-      script: applyDoubleCborEncoding(POOL_MINT_SCRIPT),
+      script: POOL_MINT_SCRIPT,
       type: "PlutusV2",
     },
     txHash: "9756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828",
@@ -190,7 +173,7 @@ export const referenceUtxos: UTxO[] = [
 ];
 
 export const referenceUtxosBlaze: Core.TransactionUnspentOutput[] =
-  referenceUtxos.map((i, index) =>
+  referenceUtxos.map((i) =>
     Core.TransactionUnspentOutput.fromCore([
       new Core.TransactionInput(
         Core.TransactionId(i.txHash),
@@ -205,11 +188,7 @@ export const referenceUtxosBlaze: Core.TransactionUnspentOutput[] =
         scriptReference: i.scriptRef?.script
           ? Core.Script.newPlutusV2Script(
               new Core.PlutusV2Script(
-                [0, 4].includes(index)
-                  ? Core.HexBlob(
-                      index === 0 ? ORDER_SPEND_SCRIPT : POOL_MINT_SCRIPT,
-                    )
-                  : Core.HexBlob(i.scriptRef?.script as string),
+                Core.HexBlob(i.scriptRef?.script as string),
               ),
             ).toCore()
           : undefined,
@@ -235,7 +214,7 @@ export const mockBlockfrostEvaluateResponse = {
   },
 };
 
-export const mockOrderToCancel: UTxO[] = [
+export const mockOrderToCancel = [
   {
     address:
       "addr_test1zpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92sjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngqm78cm4",

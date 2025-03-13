@@ -1,5 +1,5 @@
 import type { Core, TxBuilder } from "@blaze-cardano/sdk";
-import type { DatumBuilder, IComposedTx } from "@sundaeswap/core";
+import type { DatumBuilderAbstract, IComposedTx } from "@sundaeswap/core";
 
 /**
  * Represents the abstract class that should be extended to implement
@@ -7,7 +7,7 @@ import type { DatumBuilder, IComposedTx } from "@sundaeswap/core";
  * the structure for depositing, updating, and withdrawing operations.
  */
 export abstract class YieldFarmingAbstract {
-  abstract datumBuilder: DatumBuilder;
+  abstract datumBuilder: DatumBuilderAbstract;
 
   abstract lock(
     args: unknown,

@@ -15,7 +15,7 @@ import {
   TSupportedNetworks,
   TSwap,
 } from "../@types/index.js";
-import { DatumBuilder } from "../Abstracts/DatumBuilder.abstract.class.js";
+import { DatumBuilderAbstract } from "../Abstracts/DatumBuilder.abstract.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { V1_MAX_POOL_IDENT_LENGTH } from "../constants.js";
 import {
@@ -37,7 +37,7 @@ import { V1Types } from "./ContractTypes/index.js";
  * The Blaze implementation for building valid Datums for
  * V1 contracts on the SundaeSwap protocol.
  */
-export class DatumBuilderV1 implements DatumBuilder {
+export class DatumBuilderV1 implements DatumBuilderAbstract {
   /** The current network id. */
   public network: TSupportedNetworks;
   /** The error to throw when the pool ident does not match V1 constraints. */

@@ -11,7 +11,7 @@ interacting with the SundaeSwap protocol.
 const blazeInstance = Blaze.from(
   // Blaze constructor options.
 );
-const sdk = await SundaeSDK.new({
+const sdk = SundaeSDK.new({
   blazeInstance
 });
 
@@ -41,7 +41,7 @@ Helper method to easily get the SDK's Blaze instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:138](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L138)
+[packages/core/src/SundaeSDK.class.ts:124](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L124)
 
 ***
 
@@ -61,7 +61,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:101](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L101)
+[packages/core/src/SundaeSDK.class.ts:87](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L87)
 
 ***
 
@@ -79,13 +79,13 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:129](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L129)
+[packages/core/src/SundaeSDK.class.ts:115](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L115)
 
 ***
 
 ### new()
 
-> `static` **new**(`args`): `Promise`\<[`SundaeSDK`](SundaeSDK.md)\>
+> `static` **new**(`args`): [`SundaeSDK`](SundaeSDK.md)
 
 Sets up TxBuilders based on the selected builder type. This is async
 because we only import them after consuming the arguments.
@@ -98,7 +98,7 @@ The SundaeSDK arguments.
 
 #### Returns
 
-`Promise`\<[`SundaeSDK`](SundaeSDK.md)\>
+[`SundaeSDK`](SundaeSDK.md)
 
 #### Defined in
 

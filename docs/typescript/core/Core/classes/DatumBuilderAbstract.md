@@ -2,6 +2,6 @@
 
 ***
 
-# Class: `abstract` DatumBuilder
+# Class: `abstract` DatumBuilderAbstract
 
 Exported primarily for type controls.

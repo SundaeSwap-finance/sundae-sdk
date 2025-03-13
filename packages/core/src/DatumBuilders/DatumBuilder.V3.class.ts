@@ -9,7 +9,7 @@ import {
   TDestinationAddress,
   TSupportedNetworks,
 } from "../@types/index.js";
-import { DatumBuilder } from "../Abstracts/DatumBuilder.abstract.class.js";
+import { DatumBuilderAbstract } from "../Abstracts/DatumBuilder.abstract.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import * as V3Types from "./ContractTypes/Contract.v3.js";
@@ -82,11 +82,10 @@ export interface IDatumBuilderPoolMintRedeemerV3Args {
 }
 
 /**
- * The Blaze implementation of a {@link Core.DatumBuilder}. This is useful
- * if you would rather just build valid CBOR strings for just the datum
+ * This class is useful if you would rather just build valid CBOR strings for just the datum
  * portion of a valid SundaeSwap transaction.
  */
-export class DatumBuilderV3 implements DatumBuilder {
+export class DatumBuilderV3 implements DatumBuilderAbstract {
   /** The current network id. */
   public network: TSupportedNetworks;
   /** The error to throw when the pool ident does not match V1 constraints. */

@@ -15,7 +15,7 @@ export { };
 // let GWInstance: GummiWormLucid;
 
 // const { getUtxosByOutRefMock } = setupLucid(async (lucid) => {
-//   const sdk = await SundaeSDK.new({
+//   const sdk = SundaeSDK.new({
 //     wallet: {
 //       builder: {
 //         lucid,

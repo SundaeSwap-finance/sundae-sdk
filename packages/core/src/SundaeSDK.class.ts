@@ -20,7 +20,7 @@ export const SDK_OPTIONS_DEFAULTS: Pick<
  * const blazeInstance = Blaze.from(
  *   // Blaze constructor options.
  * );
- * const sdk = await SundaeSDK.new({
+ * const sdk = SundaeSDK.new({
  *   blazeInstance
  * });
  *
@@ -63,9 +63,9 @@ export class SundaeSDK {
    * Sets up TxBuilders based on the selected builder type. This is async
    * because we only import them after consuming the arguments.
    * @param {ISundaeSDKOptions} args The SundaeSDK arguments.
-   * @returns {Promise<SundaeSDK>}
+   * @returns {SundaeSDK}
    */
-  static async new(args: ISundaeSDKOptions): Promise<SundaeSDK> {
+  static new(args: ISundaeSDKOptions): SundaeSDK {
     const instance = new this(args);
     instance.builders.set(
       EContractVersion.V1,
@@ -75,22 +75,8 @@ export class SundaeSDK {
       EContractVersion.V3,
       new TxBuilderV3(instance.options.blazeInstance),
     );
-    return instance;
-  }
 
-  /**
-   * Registers TxBuilders depending on the TxBuilder
-   * type.
-   */
-  private async registerTxBuilders() {
-    this.builders.set(
-      EContractVersion.V1,
-      new TxBuilderV1(this.options.blazeInstance),
-    );
-    this.builders.set(
-      EContractVersion.V3,
-      new TxBuilderV3(this.options.blazeInstance),
-    );
+    return instance;
   }
 
   /**

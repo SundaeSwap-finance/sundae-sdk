@@ -26,7 +26,7 @@ afterAll(() => {
 
 describe("SundaeSDK", () => {
   it("should build settings with correct defaults", async () => {
-    const sdk = await SundaeSDK.new({
+    const sdk = SundaeSDK.new({
       blazeInstance: defaultWallet,
     });
 
@@ -38,7 +38,7 @@ describe("SundaeSDK", () => {
   });
 
   it("should build settings with correct overrides", async () => {
-    const sdk = await SundaeSDK.new({
+    const sdk = SundaeSDK.new({
       debug: true,
       minLockAda: 10_000_000n,
       blazeInstance: defaultWallet,
@@ -52,7 +52,7 @@ describe("SundaeSDK", () => {
   });
 
   it("should populate correct TxBuilders", async () => {
-    const sdk = await SundaeSDK.new({
+    const sdk = SundaeSDK.new({
       blazeInstance: defaultWallet,
     });
 
@@ -61,7 +61,7 @@ describe("SundaeSDK", () => {
   });
 
   it("should populate correct QueryProvider", async () => {
-    const sdk = await SundaeSDK.new({
+    const sdk = SundaeSDK.new({
       blazeInstance: defaultWallet,
     });
 

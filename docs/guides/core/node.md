@@ -35,7 +35,7 @@ const options: ISundaeSDKOptions = {
   },
 };
 
-const SDK = await SundaeSDK.new(options);
+const SDK = SundaeSDK.new(options);
 ```
 
 ### V1 Contracts

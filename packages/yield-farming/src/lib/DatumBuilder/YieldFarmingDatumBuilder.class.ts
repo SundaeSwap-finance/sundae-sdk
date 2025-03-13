@@ -1,7 +1,7 @@
 import { Data } from "@blaze-cardano/sdk";
 import {
   BlazeHelper,
-  DatumBuilder,
+  DatumBuilderAbstract,
   TDatumResult,
   TSupportedNetworks,
 } from "@sundaeswap/core";
@@ -16,7 +16,7 @@ import { ILockArguments } from "../../@types/configs.js";
  * smart contracts. These datums ensure accurate business logic and the conform to the
  * specs as defined in the SundaeSwap smart contracts.
  */
-export class DatumBuilderBlaze implements DatumBuilder {
+export class YieldFarmingDatumBuilder implements DatumBuilderAbstract {
   public network: TSupportedNetworks;
 
   constructor(network: TSupportedNetworks) {

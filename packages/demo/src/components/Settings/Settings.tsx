@@ -1,8 +1,8 @@
 import {
-  ETxBuilderType,
-  ISundaeSDKOptions,
-  QueryProviderSundaeSwapLegacy,
-  SundaeSDK,
+    ETxBuilderType,
+    ISundaeSDKOptions,
+    QueryProviderSundaeSwapLegacy,
+    SundaeSDK,
 } from "@sundaeswap/core";
 import { FC, useEffect } from "react";
 
@@ -64,7 +64,7 @@ const SelectBuilder: FC = () => {
             },
           };
 
-          sdk = await SundaeSDK.new(options);
+          sdk = SundaeSDK.new(options);
           break;
         }
         default:
@@ -100,7 +100,7 @@ const SelectBuilder: FC = () => {
             },
           };
 
-          sdk = await SundaeSDK.new(options);
+          sdk = SundaeSDK.new(options);
           break;
         }
       }

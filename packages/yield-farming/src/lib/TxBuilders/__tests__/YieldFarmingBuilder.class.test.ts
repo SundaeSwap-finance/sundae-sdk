@@ -10,8 +10,10 @@ import { YieldFarmingBuilder } from "../YieldFarmingBuilder.class.js";
 
 let YFInstance: YieldFarmingBuilder;
 
-const { getUtxosByOutRefMock, ownerAddress } = setupBlaze(async (Blaze) => {
-  YFInstance = new YieldFarmingBuilder(Blaze, 0);
+const { getUtxosByOutRefMock, ownerAddress } = setupBlaze(async (blaze) => {
+  YFInstance = new YieldFarmingBuilder(blaze);
+}, {
+  network: 0
 });
 
 const referenceInputMock = new Core.TransactionUnspentOutput(
@@ -557,9 +559,17 @@ describe("YieldFarmingBlaze", () => {
         existingPositions: [],
         referralFee: {
           destination: referralFeeAddress,
-          payment: new Core.Value(1_000_000n, new Map([
-            [Core.AssetId("2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344"), 100n]
-          ])),
+          payment: new Core.Value(
+            1_000_000n,
+            new Map([
+              [
+                Core.AssetId(
+                  "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb569555344",
+                ),
+                100n,
+              ],
+            ]),
+          ),
           feeLabel: "Non-Ada Test Label",
         },
       });
