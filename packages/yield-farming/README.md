@@ -24,5 +24,3 @@ const blazeInstance = Blaze.from(
 const YF = new YieldFarmingBuilder(blazeInstance);
 const txHash = await YF.lock({ ...args }).then(({ submit }) => submit());
 ```
-
-For more instructions see [Overview](/).

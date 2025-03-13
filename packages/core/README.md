@@ -11,4 +11,16 @@ nav_order: 1
 $ bun add @sundaeswap/core @blaze-cardano/sdk
 ```
 
-For more instructions see [Overview](/)
+Next, configure the instance in your app:
+
+```ts
+import { Blaze } from "@blaze-cardano/sdk";
+import { SundaeSDK } from "@sundaeswap/core";
+
+const blazeInstance = Blaze.from(
+  ...args
+);
+
+const sdk = SundaeSDK.new({ blazeInstance });
+const txHash = await sdk.swap({ ...args }).then(({ submit }) => submit());
+```

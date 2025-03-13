@@ -24,5 +24,3 @@ const blazeInstance = Blaze.from(
 const TT = new TasteTestBuilder(blazeInstance);
 const txHash = await TT.deposit({ ...args }).then(({ submit }) => submit());
 ```
-
-For more instructions see [Overview](/).

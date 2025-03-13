@@ -5,7 +5,7 @@
 # Getting Started with GummiWorm
 
 ```bash
-$ bun add @sundaeswap/core @sundaeswap/gummiworm @blaze-cardano/sdk
+$ bun add @sundaeswap/gummiworm @blaze-cardano/sdk
 ```
 
 Not implemented yet.
