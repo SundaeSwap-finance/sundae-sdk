@@ -1,16 +1,16 @@
 import {
-    afterEach,
-    beforeEach,
-    describe,
-    expect,
-    it,
-    mock,
-    spyOn,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+  spyOn,
 } from "bun:test";
 
 import {
-    EDatumType,
-    TOrderAddressesArgs,
+  EDatumType,
+  TOrderAddressesArgs,
 } from "../../../@types/datumbuilder.js";
 import { BlazeHelper } from "../../../Utilities/BlazeHelper.class.js";
 import { V1_EXPECTATIONS } from "../../__data__/v1.expectations.js";
@@ -96,7 +96,6 @@ describe("buildDestinationAddresses()", () => {
   });
 
   it.only("should fail when passing just a staking key as the DestinationAddress", () => {
-    console.log(expectations[6].args)
     expect(() =>
       builderInstance.buildOrderAddresses(
         expectations[6].args as TOrderAddressesArgs,
