@@ -18,11 +18,7 @@ setupBlaze(async (blaze) => {
 describe.skip("Example testing", () => {
   it("should use the mocked SundaeSDK", async () => {
     const MockedSDK = SundaeSDK.new({
-      wallet: {
-        name: "eternl",
-        network: "preview",
-        blazeInstance
-      },
+      blazeInstance
     });
 
     const { container, getByText } = render(

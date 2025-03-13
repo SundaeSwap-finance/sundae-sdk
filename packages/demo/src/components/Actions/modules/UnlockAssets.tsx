@@ -12,7 +12,6 @@ export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     ready,
     activeWalletAddr,
     useReferral,
-    network,
   } = useAppState();
   const [unlocking, setUnlocking] = useState(false);
 
@@ -21,7 +20,7 @@ export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       return;
     }
       
-    const YF = new YieldFarmingBuilder(SDK.blaze(), network);
+    const YF = new YieldFarmingBuilder(SDK.blaze());
     setUnlocking(true);
     const hash = prompt("Hash:");
     const id = prompt("Index:");
@@ -71,7 +70,7 @@ export const Unlock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setUnlocking(false);
-  }, [SDK, submit, activeWalletAddr, useReferral, network]);
+  }, [SDK, submit, activeWalletAddr, useReferral]);
 
   if (!SDK) {
     return null;

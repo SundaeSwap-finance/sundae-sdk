@@ -8,25 +8,20 @@ nav_order: 3
 # Getting Started with Taste Tests
 
 ```bash
-$ bun add @sundaeswap/taste-test lucid-cardano
+$ bun add @sundaeswap/taste-test @blaze-cardano/sdk
 ```
 
 Next, configure the instance in your app:
 
 ```ts
-import { SundaeSDK } from "@sundaeswap/core";
-import { TasteTestLucid } from "@sundaeswap/taste-test";
+import { Blaze } from "@blaze-cardano/sdk";
+import { TasteTestBuilder } from "@sundaeswap/taste-test";
 
-const sdk: SundaeSDK = new SundaeSDK({
-  ...args,
-});
+const blazeInstance = Blaze.from(
+  ...args
+);
 
-const walletInstance = sdk.builder().wallet;
-if (!walletInstance) {
-  throw new Error();
-}
-
-const TT = new TasteTestLucid(walletInstance);
+const TT = new TasteTestBuilder(blazeInstance);
 const txHash = await TT.deposit({ ...args }).then(({ submit }) => submit());
 ```
 

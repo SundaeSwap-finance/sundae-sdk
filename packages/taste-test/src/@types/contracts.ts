@@ -1,7 +1,7 @@
-import { Data } from "lucid-cardano";
+import { Data, Static } from "@blaze-cardano/sdk";
 
 export const PubKeyHashSchema = Data.Bytes({ minLength: 28, maxLength: 28 });
-export type TPubKeyHash = Data.Static<typeof PubKeyHashSchema>;
+export type TPubKeyHash = Static<typeof PubKeyHashSchema>;
 export const PubKeyHash = PubKeyHashSchema as unknown as TPubKeyHash;
 
 export const AssetClassSchema = Data.Object({
@@ -13,7 +13,7 @@ export const OutputReferenceSchema = Data.Object({
   txHash: Data.Object({ hash: Data.Bytes({ minLength: 32, maxLength: 32 }) }),
   outputIndex: Data.Integer(),
 });
-export type TOutputReference = Data.Static<typeof OutputReferenceSchema>;
+export type TOutputReference = Static<typeof OutputReferenceSchema>;
 export const OutputReference =
   OutputReferenceSchema as unknown as TOutputReference;
 
@@ -29,7 +29,7 @@ export const CredentialSchema = Data.Enum([
     ]),
   }),
 ]);
-export type TCredentialD = Data.Static<typeof CredentialSchema>;
+export type TCredentialD = Static<typeof CredentialSchema>;
 export const CredentialD = CredentialSchema as unknown as TCredentialD;
 
 export const AddressSchema = Data.Object({
@@ -49,18 +49,18 @@ export const AddressSchema = Data.Object({
     ]),
   ),
 });
-export type TAddressD = Data.Static<typeof AddressSchema>;
+export type TAddressD = Static<typeof AddressSchema>;
 export const AddressD = AddressSchema as unknown as TAddressD;
 
 export const NodeKeySchema = Data.Nullable(Data.Bytes());
-export type TNodeKey = Data.Static<typeof NodeKeySchema>;
+export type TNodeKey = Static<typeof NodeKeySchema>;
 export const NodeKey = NodeKeySchema as unknown as TNodeKey;
 
 export const SetNodeSchema = Data.Object({
   key: NodeKeySchema,
   next: NodeKeySchema,
 });
-export type TSetNode = Data.Static<typeof SetNodeSchema>;
+export type TSetNode = Static<typeof SetNodeSchema>;
 export const SetNode = SetNodeSchema as unknown as TSetNode;
 
 export const DiscoveryConfigSchema = Data.Object({
@@ -69,7 +69,7 @@ export const DiscoveryConfigSchema = Data.Object({
   discoveryDeadLine: Data.Integer(),
   penaltyAddress: AddressSchema,
 });
-export type TDiscoveryConfig = Data.Static<typeof DiscoveryConfigSchema>;
+export type TDiscoveryConfig = Static<typeof DiscoveryConfigSchema>;
 export const DiscoveryConfig =
   DiscoveryConfigSchema as unknown as TDiscoveryConfig;
 
@@ -78,9 +78,7 @@ export const NodeValidatorActionSchema = Data.Enum([
   Data.Literal("ModifyCommitment"),
   Data.Literal("RewardFoldAct"),
 ]);
-export type TNodeValidatorAction = Data.Static<
-  typeof NodeValidatorActionSchema
->;
+export type TNodeValidatorAction = Static<typeof NodeValidatorActionSchema>;
 export const NodeValidatorAction =
   NodeValidatorActionSchema as unknown as TNodeValidatorAction;
 
@@ -91,7 +89,7 @@ export const LiquidityNodeValidatorActionSchema = Data.Enum([
   Data.Literal("RewardFoldAct"),
   Data.Literal("ClaimAct"),
 ]);
-export type TLiquidityNodeValidatorAction = Data.Static<
+export type TLiquidityNodeValidatorAction = Static<
   typeof LiquidityNodeValidatorActionSchema
 >;
 export const LiquidityNodeValidatorAction =
@@ -102,7 +100,7 @@ export const FoldDatumSchema = Data.Object({
   committed: Data.Integer(),
   owner: AddressSchema,
 });
-export type TFoldDatum = Data.Static<typeof FoldDatumSchema>;
+export type TFoldDatum = Static<typeof FoldDatumSchema>;
 export const FoldDatum = FoldDatumSchema as unknown as TFoldDatum;
 
 export const FoldActSchema = Data.Enum([
@@ -114,14 +112,14 @@ export const FoldActSchema = Data.Enum([
   }),
   Data.Literal("Reclaim"),
 ]);
-export type TFoldAct = Data.Static<typeof FoldActSchema>;
+export type TFoldAct = Static<typeof FoldActSchema>;
 export const FoldAct = FoldActSchema as unknown as TFoldAct;
 
 export const FoldMintActSchema = Data.Enum([
   Data.Literal("MintFold"),
   Data.Literal("BurnFold"),
 ]);
-export type TFoldMintAct = Data.Static<typeof FoldMintActSchema>;
+export type TFoldMintAct = Static<typeof FoldMintActSchema>;
 export const FoldMintAct = FoldMintActSchema as unknown as TFoldMintAct;
 
 export const RewardFoldDatumSchema = Data.Object({
@@ -130,7 +128,7 @@ export const RewardFoldDatumSchema = Data.Object({
   totalCommitted: Data.Integer(),
   owner: AddressSchema,
 });
-export type TRewardFoldDatum = Data.Static<typeof RewardFoldDatumSchema>;
+export type TRewardFoldDatum = Static<typeof RewardFoldDatumSchema>;
 export const RewardFoldDatum =
   RewardFoldDatumSchema as unknown as TRewardFoldDatum;
 
@@ -144,7 +142,7 @@ export const RewardFoldActSchema = Data.Enum([
   Data.Literal("RewardsFoldNode"),
   Data.Literal("RewardsReclaim"),
 ]);
-export type TRewardFoldAct = Data.Static<typeof RewardFoldActSchema>;
+export type TRewardFoldAct = Static<typeof RewardFoldActSchema>;
 export const RewardFoldAct = RewardFoldActSchema as unknown as TRewardFoldAct;
 
 export const LiquiditySetNodeSchema = Data.Object({
@@ -152,7 +150,7 @@ export const LiquiditySetNodeSchema = Data.Object({
   next: NodeKeySchema,
   commitment: Data.Integer(),
 });
-export type TLiquiditySetNode = Data.Static<typeof LiquiditySetNodeSchema>;
+export type TLiquiditySetNode = Static<typeof LiquiditySetNodeSchema>;
 export const LiquiditySetNode =
   LiquiditySetNodeSchema as unknown as TLiquiditySetNode;
 
@@ -172,9 +170,7 @@ export const LiquidityNodeActionSchema = Data.Enum([
     }),
   }),
 ]);
-export type TLiquidityNodeAction = Data.Static<
-  typeof LiquidityNodeActionSchema
->;
+export type TLiquidityNodeAction = Static<typeof LiquidityNodeActionSchema>;
 export const LiquidityNodeAction =
   LiquidityNodeActionSchema as unknown as TLiquidityNodeAction;
 
@@ -197,7 +193,7 @@ export const LiquidityValidatorConfigSchema = Data.Object({
   commitCredential: StakingCredentialSchema,
   rewardCredential: StakingCredentialSchema,
 });
-export type TLiquidityValidatorConfig = Data.Static<
+export type TLiquidityValidatorConfig = Static<
   typeof LiquidityValidatorConfigSchema
 >;
 export const LBELockConfig =
@@ -208,9 +204,7 @@ export const LiquidityPolicyConfigSchema = Data.Object({
   discoveryDeadLine: Data.Integer(),
   penaltyAddress: AddressSchema,
 });
-export type TLiquidityPolicyConfig = Data.Static<
-  typeof LiquidityPolicyConfigSchema
->;
+export type TLiquidityPolicyConfig = Static<typeof LiquidityPolicyConfigSchema>;
 export const LiquidityPolicyConfig =
   LiquidityPolicyConfigSchema as unknown as TLiquidityPolicyConfig;
 
@@ -219,7 +213,7 @@ export const LiquidityFoldDatumSchema = Data.Object({
   committed: Data.Integer(),
   owner: AddressSchema,
 });
-export type TLiquidityFoldDatum = Data.Static<typeof LiquidityFoldDatumSchema>;
+export type TLiquidityFoldDatum = Static<typeof LiquidityFoldDatumSchema>;
 export const LiquidityFoldDatum =
   LiquidityFoldDatumSchema as unknown as TLiquidityFoldDatum;
 
@@ -228,9 +222,7 @@ export const LiquidityHolderDatumSchema = Data.Object({
   totalCommitted: Data.Integer(),
   totalLpTokens: Data.Integer(),
 });
-export type TLiquidityHolderDatum = Data.Static<
-  typeof LiquidityHolderDatumSchema
->;
+export type TLiquidityHolderDatum = Static<typeof LiquidityHolderDatumSchema>;
 export const LiquidityHolderDatum =
   LiquidityHolderDatumSchema as unknown as TLiquidityHolderDatum;
 
@@ -238,9 +230,7 @@ export const LiquidityProxyDatumSchema = Data.Object({
   totalCommitted: Data.Integer(),
   returnAddress: AddressSchema,
 });
-export type TLiquidityProxyDatum = Data.Static<
-  typeof LiquidityProxyDatumSchema
->;
+export type TLiquidityProxyDatum = Static<typeof LiquidityProxyDatumSchema>;
 export const LiquidityProxyDatum =
   LiquidityProxyDatumSchema as unknown as TLiquidityProxyDatum;
 
@@ -250,7 +240,7 @@ export const LiquidityRewardFoldDatumSchema = Data.Object({
   totalCommitted: Data.Integer(),
   owner: AddressSchema,
 });
-export type TLiquidityRewardFoldDatum = Data.Static<
+export type TLiquidityRewardFoldDatum = Static<
   typeof LiquidityRewardFoldDatumSchema
 >;
 export const LiquidityRewardFoldDatum =
@@ -263,9 +253,7 @@ export const LiquidityFactoryDatumSchema = Data.Object({
   scooperIdent: Data.Any(),
   scooperSet: Data.Any(),
 });
-export type TLiquidityFactoryDatum = Data.Static<
-  typeof LiquidityFactoryDatumSchema
->;
+export type TLiquidityFactoryDatum = Static<typeof LiquidityFactoryDatumSchema>;
 export const LiquidityFactoryDatum =
   LiquidityFactoryDatumSchema as unknown as TLiquidityFactoryDatum;
 
@@ -281,7 +269,7 @@ export const LiquidityPoolDatumSchema = Data.Object({
     denominator: Data.Integer(),
   }),
 });
-export type TLiquidityPoolDatum = Data.Static<typeof LiquidityPoolDatumSchema>;
+export type TLiquidityPoolDatum = Static<typeof LiquidityPoolDatumSchema>;
 export const LiquidityPoolDatum =
   LiquidityPoolDatumSchema as unknown as TLiquidityPoolDatum;
 
@@ -289,6 +277,6 @@ export const CreatePoolRedeemerSchema = Data.Object({
   coinA: AssetClassSchema,
   coinB: AssetClassSchema,
 });
-export type TCreatePoolRedeemer = Data.Static<typeof CreatePoolRedeemerSchema>;
+export type TCreatePoolRedeemer = Static<typeof CreatePoolRedeemerSchema>;
 export const CreatePoolRedeemer =
   CreatePoolRedeemerSchema as unknown as TCreatePoolRedeemer;

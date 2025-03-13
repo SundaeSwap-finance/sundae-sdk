@@ -63,14 +63,17 @@ export interface ITasteTestCompleteTxArgs {
  * It provides an interface to deposit assets, withdraw them, and update the commitment amounts. Each operation
  * is transaction-based and interacts with blockchain smart contracts to ensure the correct execution of business logic.
  *
- * The TasteTest class relies on the Lucid service, which can come either from your own instance or from an existing
+ * The TasteTest class relies on the Blaze service, which can come either from your own instance or from an existing
  * SundaeSDK class instance (as shown below). The class methods handle the detailed steps of each operation, including
  * transaction preparation, fee handling, and error checking, abstracting these complexities from the end user.
  *
  * Usage example (not part of the actual documentation):
  * ```ts
- * import type { Lucid } from "lucid-cardano";
- * const tasteTest = new TasteTest(sdk.build<unknown, Lucid>().wallet);
+ * import type { Blaze } from "@blaze-cardano/sdk";
+ * const blazeInstance = Blaze.from(
+ *   ..args
+ * );
+ * const tasteTest = new TasteTestBuilder(blazeInstance);
  *
  * // For depositing assets into the taste test smart contract
  * tasteTest.deposit({ ... }).then(({ build, fees }) => console.log(fees));

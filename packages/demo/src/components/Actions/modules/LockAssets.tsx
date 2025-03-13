@@ -17,7 +17,6 @@ export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     ready,
     activeWalletAddr,
     useReferral,
-    network,
   } = useAppState();
   const [locking, setLocking] = useState(false);
 
@@ -33,7 +32,7 @@ export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         { Delegation: [Buffer.from("DJED").toString("hex"), "02", 2n] },
       ];
 
-      const YF = new YieldFarmingBuilder(SDK.blaze(), network);
+      const YF = new YieldFarmingBuilder(SDK.blaze());
 
       await YF.lock({
         ownerAddress: activeWalletAddr,
@@ -71,7 +70,7 @@ export const Lock: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setLocking(false);
-  }, [SDK, submit, activeWalletAddr, useReferral, network]);
+  }, [SDK, submit, activeWalletAddr, useReferral]);
 
   if (!SDK) {
     return null;

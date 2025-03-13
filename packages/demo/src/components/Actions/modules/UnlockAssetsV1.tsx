@@ -12,7 +12,6 @@ export const UnlockV1: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     ready,
     activeWalletAddr,
     useReferral,
-    network,
   } = useAppState();
   const [unlocking, setUnlocking] = useState(false);
 
@@ -34,7 +33,7 @@ export const UnlockV1: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       return;
     }
 
-    const YF = new YieldFarmingBuilder(blaze, network);
+    const YF = new YieldFarmingBuilder(blaze);
 
     const utxos = await blaze.provider.resolveUnspentOutputs([
       Core.TransactionInput.fromCore({
@@ -79,7 +78,7 @@ export const UnlockV1: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setUnlocking(false);
-  }, [SDK, submit, activeWalletAddr, useReferral, network]);
+  }, [SDK, submit, activeWalletAddr, useReferral]);
 
   if (!SDK) {
     return null;

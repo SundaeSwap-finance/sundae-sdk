@@ -10,14 +10,17 @@ This class encapsulates methods for common operations required in the Taste Test
 It provides an interface to deposit assets, withdraw them, and update the commitment amounts. Each operation
 is transaction-based and interacts with blockchain smart contracts to ensure the correct execution of business logic.
 
-The TasteTest class relies on the Lucid service, which can come either from your own instance or from an existing
+The TasteTest class relies on the Blaze service, which can come either from your own instance or from an existing
 SundaeSDK class instance (as shown below). The class methods handle the detailed steps of each operation, including
 transaction preparation, fee handling, and error checking, abstracting these complexities from the end user.
 
 Usage example (not part of the actual documentation):
 ```ts
-import type { Lucid } from "lucid-cardano";
-const tasteTest = new TasteTest(sdk.build<unknown, Lucid>().wallet);
+import type { Blaze } from "@blaze-cardano/sdk";
+const blazeInstance = Blaze.from(
+  ..args
+);
+const tasteTest = new TasteTestBuilder(blazeInstance);
 
 // For depositing assets into the taste test smart contract
 tasteTest.deposit({ ... }).then(({ build, fees }) => console.log(fees));
@@ -71,7 +74,7 @@ Throws errors if the claim conditions are not met, such as missing keys, inabili
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:521](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L521)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:524](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L524)
 
 ***
 
@@ -116,7 +119,7 @@ Throws an error if no UTXOs are available, if reference scripts are missing, or 
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:119](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L119)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:122](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L122)
 
 ***
 
@@ -161,7 +164,7 @@ Throws an error if the user's payment credential hash is missing or if the node 
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:281](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L281)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:284](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L284)
 
 ***
 
@@ -205,4 +208,4 @@ Throws errors if the withdrawal conditions are not met, such as missing keys, in
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:359](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L359)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:362](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L362)

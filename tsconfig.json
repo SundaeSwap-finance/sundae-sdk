@@ -14,7 +14,7 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "declarationMap": true
+    "declarationMap": true,
   },
   "exclude": ["node_modules", "temporary_modules", "dist", "docs"]
 }

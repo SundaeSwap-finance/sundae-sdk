@@ -9,7 +9,6 @@ import {
 } from "@blaze-cardano/sdk";
 import { AssetAmount } from "@sundaeswap/asset";
 
-import { BlazeHelper } from "src/Utilities/BlazeHelper.class.js";
 import type {
   ICancelConfigArgs,
   IComposedTx,
@@ -41,6 +40,7 @@ import {
 } from "../DatumBuilders/ContractTypes/Contract.v3.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
+import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,

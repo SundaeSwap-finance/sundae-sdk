@@ -1,8 +1,8 @@
+import { Core } from "@blaze-cardano/sdk";
 import { EContractVersion } from "@sundaeswap/core";
-import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 import { FC, useCallback, useState } from "react";
 
-import { Core } from "@blaze-cardano/sdk";
+import { DEMO_PREVIEW_DATA } from "../../../constants";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs } from "../Actions";
@@ -26,8 +26,8 @@ export const CreatePool: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     try {
       await SDK.builder(EContractVersion.V3)
         .mintPool({
-          assetA: PREVIEW_DATA.assets.tada,
-          assetB: PREVIEW_DATA.assets.tindy,
+          assetA: DEMO_PREVIEW_DATA.assets.tada,
+          assetB: DEMO_PREVIEW_DATA.assets.tindy,
           fees: 5n,
           ownerAddress: activeWalletAddr,
           ...(useReferral
