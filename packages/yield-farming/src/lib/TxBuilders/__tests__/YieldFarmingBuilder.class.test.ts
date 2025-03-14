@@ -415,9 +415,8 @@ describe("YieldFarmingBlaze", () => {
 
         if (
           matchingAsset &&
-          matchingAsset >= 10_000_000n &&
-          // Min ada fee, the rest is in the second output.
-          output.amount().coin() === 1_155_080n
+          matchingAsset === 10_000_000n &&
+          output.amount().coin() === 4_786_357n
         ) {
           return true;
         }

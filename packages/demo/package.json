@@ -58,7 +58,7 @@
     "webpack-filter-warnings-plugin": "^1.2.1"
   },
   "dependencies": {
-    "@blaze-cardano/sdk": "0.2.26",
+    "@blaze-cardano/sdk": "0.2.27",
     "@sundaeswap/asset": "^1.0.3",
     "@sundaeswap/bigint-math": "^0.6.3",
     "@sundaeswap/core": "^2.0.0",

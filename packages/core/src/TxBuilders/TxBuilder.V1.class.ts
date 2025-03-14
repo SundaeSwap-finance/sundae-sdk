@@ -1428,6 +1428,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     referralFee,
     deposit,
     scooperFee,
+    coinSelection,
   }: ITxBuilderCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {

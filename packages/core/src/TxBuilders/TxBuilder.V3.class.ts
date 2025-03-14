@@ -1355,7 +1355,6 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       fees: baseFees,
       async build() {
         if (!finishedTx) {
-          // @ts-expect-error No types yet, waiting for blaze release.
           finishedTx = await tx.complete({ useCoinSelection: coinSelection });
           thisTx.fees.cardanoTxFee = new AssetAmount(
             BigInt(finishedTx?.body().fee()?.toString() ?? "0"),
