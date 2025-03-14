@@ -1,4 +1,5 @@
-import { ETxBuilderType, SundaeSDK } from "@sundaeswap/core";
+import { Blaze, Blockfrost, Core, WebWallet } from "@blaze-cardano/sdk";
+import { SundaeSDK } from "@sundaeswap/core";
 import {
   Dispatch,
   FC,
@@ -16,8 +17,6 @@ interface IAppState {
   activeWalletAddr: string;
   nonStakedWalletAddr: string;
   ready: boolean;
-  builderLib: ETxBuilderType;
-  setBuilderLib: Dispatch<SetStateAction<ETxBuilderType>>;
   setReady: Dispatch<SetStateAction<boolean>>;
   useReferral: boolean;
   setUseReferral: Dispatch<SetStateAction<boolean>>;
@@ -32,8 +31,6 @@ const defaultState: IAppState = {
   activeWalletAddr: "",
   nonStakedWalletAddr: "",
   ready: false,
-  builderLib: ETxBuilderType.LUCID,
-  setBuilderLib: () => {},
   setReady: () => {},
   useReferral: false,
   setUseReferral: () => {},
@@ -57,77 +54,70 @@ export const AppStateProvider: FC<
   const [nonStakedWalletAddr, setNonStakedWalletAddr] = useState("");
   const [useReferral, setUseReferral] = useState(false);
   const [useV3Contracts, setUseV3Contracts] = useState(false);
-  const [builderLib, setBuilderLib] = useState<ETxBuilderType>(
-    ETxBuilderType.BLAZE,
-  );
   const [network, setNetwork] = useState<0 | 1>(0);
 
   useEffect(() => {
     (async () => {
+      // @ts-expect-error Cardano is not defined by default.
       const api = await window.cardano?.eternl.enable();
       if (!api) {
         return;
       }
 
+      setReady(false);
+
       const address =
         (await api.getUsedAddresses())?.[0] ??
         (await api.getUnusedAddresses())?.[0];
 
-      setReady(false);
-      if (builderLib === ETxBuilderType.LUCID) {
-        const { getAddressDetails, C } = await import("lucid-cardano");
-        const {
-          address: { bech32 },
-          paymentCredential,
-        } = getAddressDetails(address);
-        setActiveWalletAddr(bech32);
-
-        const keyhash = C.Ed25519KeyHash.from_hex(
-          paymentCredential?.hash as string,
-        );
-
-        const enterprise = C.EnterpriseAddress.new(
-          0,
-          C.StakeCredential.from_keyhash(keyhash),
-        )
-          ?.to_address()
-          .to_bech32("addr_test");
-
-        setNonStakedWalletAddr(enterprise);
-      } else if (builderLib === ETxBuilderType.BLAZE) {
-        const { Core } = await import("@blaze-cardano/sdk");
-        const activeAddress = Core.Address.fromString(address);
-        if (activeAddress) {
-          setActiveWalletAddr(activeAddress.toBech32());
-          const paymentHash = activeAddress
-            .asBase()
-            ?.getPaymentCredential().hash;
-          const enterprise =
-            paymentHash &&
-            new Core.Address({
-              type: Core.AddressType.EnterpriseKey,
-              paymentPart: {
-                hash: Core.Hash28ByteBase16(paymentHash),
-                type: Core.CredentialType.KeyHash,
-              },
-              networkId: network,
-            });
-          if (enterprise) {
-            setNonStakedWalletAddr(enterprise.toBech32());
-          }
+      const activeAddress = Core.Address.fromString(address);
+      if (activeAddress) {
+        setActiveWalletAddr(activeAddress.toBech32());
+        const paymentHash = activeAddress
+          .asBase()
+          ?.getPaymentCredential().hash;
+        const enterprise =
+          paymentHash &&
+          new Core.Address({
+            type: Core.AddressType.EnterpriseKey,
+            paymentPart: {
+              hash: Core.Hash28ByteBase16(paymentHash),
+              type: Core.CredentialType.KeyHash,
+            },
+            networkId: network,
+          });
+        if (enterprise) {
+          setNonStakedWalletAddr(enterprise.toBech32());
         }
       }
 
+      const blazeInstance = await Blaze.from(
+        new Blockfrost({
+          network: network ? "cardano-mainnet" : "cardano-preview",
+          projectId: network
+            ? // @ts-expect-error No types.
+              window.__APP_CONFIG.blockfrostAPIMainnet
+            : // @ts-expect-error No types.
+              window.__APP_CONFIG.blockfrostAPIPreview,
+        }),
+        new WebWallet(api),
+      );
+
+      const sdk = SundaeSDK.new({
+        blazeInstance,
+        debug: true
+      });
+
+      setSDK(sdk);
+
       setReady(true);
     })();
-  }, [builderLib, network]);
+  }, [network]);
 
   return (
     <AppState.Provider
       value={{
         activeWalletAddr,
-        builderLib,
-        setBuilderLib,
         nonStakedWalletAddr,
         SDK,
         setSDK,

@@ -2,7 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./dist/",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "declarationMap": false
   },
   "extends": "../../tsconfig.json",
   "include": ["./src/**/*"]

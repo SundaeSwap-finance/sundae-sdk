@@ -1,7 +1,8 @@
 import { AssetAmount } from "@sundaeswap/asset";
-import { EScriptType, TasteTestLucid } from "@sundaeswap/taste-test";
+import { EScriptType, TasteTestBuilder } from "@sundaeswap/taste-test";
 import { FC, useCallback, useState } from "react";
 
+import { Core } from "@blaze-cardano/sdk";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs } from "../Actions";
@@ -14,7 +15,7 @@ export const DepositTasteTest: FC<IActionArgs> = ({
   const {
     SDK,
     ready,
-    activeWalletAddr: walletAddress,
+    activeWalletAddr,
     useReferral,
   } = useAppState();
   const [depositing, setDepositing] = useState(false);
@@ -24,12 +25,7 @@ export const DepositTasteTest: FC<IActionArgs> = ({
       return;
     }
 
-    const lucid = SDK.lucid();
-    if (!lucid) {
-      return;
-    }
-
-    const tt = new TasteTestLucid(lucid);
+    const tt = new TasteTestBuilder(SDK.blaze());
     setDepositing(true);
     try {
       await tt
@@ -42,22 +38,22 @@ export const DepositTasteTest: FC<IActionArgs> = ({
               type: EScriptType.OUTREF,
               value: {
                 hash: "",
-                outRef: {
-                  txHash:
-                    "0d88fdba9d3fa1182177c8907d8dc23a7cc0f111d402c12016e36017b6f16fb9",
-                  outputIndex: 0,
-                },
+                outRef: Core.TransactionInput.fromCore({
+                  txId:
+                    Core.TransactionId("0d88fdba9d3fa1182177c8907d8dc23a7cc0f111d402c12016e36017b6f16fb9"),
+                  index: 0,
+                }),
               },
             },
             validator: {
               type: EScriptType.OUTREF,
               value: {
                 hash: "",
-                outRef: {
-                  txHash:
-                    "e9eeb2da7a528faffb20e195d15f67ae23a7a56498edcf47c41aee388cadc374",
-                  outputIndex: 0,
-                },
+                outRef: Core.TransactionInput.fromCore({
+                  txId:
+                    Core.TransactionId("e9eeb2da7a528faffb20e195d15f67ae23a7a56498edcf47c41aee388cadc374"),
+                  index: 0,
+                }),
               },
             },
           },
@@ -67,10 +63,7 @@ export const DepositTasteTest: FC<IActionArgs> = ({
                 referralFee: {
                   destination:
                     "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-                  payment: new AssetAmount(1000000n, {
-                    assetId: "",
-                    decimals: 6,
-                  }),
+                  payment: new Core.Value(1000000n),
                 },
               }
             : {}),
@@ -96,7 +89,7 @@ export const DepositTasteTest: FC<IActionArgs> = ({
     }
 
     setDepositing(false);
-  }, [SDK, submit, walletAddress, useReferral]);
+  }, [SDK, submit, activeWalletAddr, useReferral]);
 
   if (!SDK) {
     return null;

@@ -49,14 +49,7 @@ const blazeInstance = await Blaze.from(
 );
 
 const options: ISundaeSDKOptions = {
-  wallet: {
-    name: "eternl",
-    network: "preview",
-    builder: {
-      blaze: blazeInstance,
-      type: ETxBuilderType.BLAZE,
-    },
-  },
+  blazeInstance,
 };
 
 const SDK = await new SundaeSDK(options);

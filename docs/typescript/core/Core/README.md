@@ -4,6 +4,9 @@
 
 # Core
 
+The primary types and exports for interacting with the core
+SundaeSwap protocol.
+
 ## Index
 
 ### Enumerations
@@ -13,17 +16,21 @@
 - [EPoolCoin](enumerations/EPoolCoin.md)
 - [EPoolSearchType](enumerations/EPoolSearchType.md)
 - [ESwapType](enumerations/ESwapType.md)
-- [ETxBuilderType](enumerations/ETxBuilderType.md)
 
 ### Classes
 
+- [BlazeHelper](classes/BlazeHelper.md)
 - [CancelConfig](classes/CancelConfig.md)
 - [Config](classes/Config.md)
-- [DatumBuilder](classes/DatumBuilder.md)
+- [DatumBuilderAbstract](classes/DatumBuilderAbstract.md)
+- [DatumBuilderV1](classes/DatumBuilderV1.md)
+- [DatumBuilderV3](classes/DatumBuilderV3.md)
 - [DepositConfig](classes/DepositConfig.md)
 - [OrderConfig](classes/OrderConfig.md)
 - [SundaeSDK](classes/SundaeSDK.md)
 - [SwapConfig](classes/SwapConfig.md)
+- [TxBuilderV1](classes/TxBuilderV1.md)
+- [TxBuilderV3](classes/TxBuilderV3.md)
 - [WithdrawConfig](classes/WithdrawConfig.md)
 - [ZapConfig](classes/ZapConfig.md)
 
@@ -31,14 +38,18 @@
 
 - [IArguments](interfaces/IArguments.md)
 - [IBaseConfig](interfaces/IBaseConfig.md)
-- [IBlazeBuilder](interfaces/IBlazeBuilder.md)
 - [ICancelConfigArgs](interfaces/ICancelConfigArgs.md)
 - [IComposedTx](interfaces/IComposedTx.md)
 - [ICurrentFeeFromDecayingFeeArgs](interfaces/ICurrentFeeFromDecayingFeeArgs.md)
+- [IDatumBuilderBaseV3Args](interfaces/IDatumBuilderBaseV3Args.md)
+- [IDatumBuilderDepositV3Args](interfaces/IDatumBuilderDepositV3Args.md)
+- [IDatumBuilderMintPoolV3Args](interfaces/IDatumBuilderMintPoolV3Args.md)
+- [IDatumBuilderPoolMintRedeemerV3Args](interfaces/IDatumBuilderPoolMintRedeemerV3Args.md)
+- [IDatumBuilderSwapV3Args](interfaces/IDatumBuilderSwapV3Args.md)
+- [IDatumBuilderWithdrawV3Args](interfaces/IDatumBuilderWithdrawV3Args.md)
 - [IDepositArguments](interfaces/IDepositArguments.md)
 - [IDepositConfigArgs](interfaces/IDepositConfigArgs.md)
 - [ILimitSwap](interfaces/ILimitSwap.md)
-- [ILucidBuilder](interfaces/ILucidBuilder.md)
 - [IMarketSwap](interfaces/IMarketSwap.md)
 - [IMigrateLiquidityConfig](interfaces/IMigrateLiquidityConfig.md)
 - [IMigrateYieldFarmingLiquidityConfig](interfaces/IMigrateYieldFarmingLiquidityConfig.md)
@@ -59,8 +70,10 @@
 - [ISundaeSDKOptions](interfaces/ISundaeSDKOptions.md)
 - [ISwapArguments](interfaces/ISwapArguments.md)
 - [ISwapConfigArgs](interfaces/ISwapConfigArgs.md)
+- [ITxBuilderCompleteTxArgs](interfaces/ITxBuilderCompleteTxArgs.md)
 - [ITxBuilderFees](interfaces/ITxBuilderFees.md)
 - [ITxBuilderReferralFee](interfaces/ITxBuilderReferralFee.md)
+- [ITxBuilderV1BlazeParams](interfaces/ITxBuilderV1BlazeParams.md)
 - [IWithdrawArguments](interfaces/IWithdrawArguments.md)
 - [IWithdrawConfigArgs](interfaces/IWithdrawConfigArgs.md)
 - [IZapArguments](interfaces/IZapArguments.md)
@@ -84,7 +97,6 @@
 - [TSwap](type-aliases/TSwap.md)
 - [TSwapType](type-aliases/TSwapType.md)
 - [TUTXO](type-aliases/TUTXO.md)
-- [TWalletBuilder](type-aliases/TWalletBuilder.md)
 - [TWithdraw](type-aliases/TWithdraw.md)
 
 ### Variables
@@ -96,8 +108,8 @@
 
 ### Exported TxBuilders
 
-- [TxBuilderV1](classes/TxBuilderV1.md)
-- [TxBuilderV3](classes/TxBuilderV3.md)
+- [TxBuilderAbstractV1](classes/TxBuilderAbstractV1.md)
+- [TxBuilderAbstractV3](classes/TxBuilderAbstractV3.md)
 
 ### Extension Builders
 

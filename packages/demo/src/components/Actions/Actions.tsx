@@ -4,7 +4,6 @@ import {
   type IPoolByPairQuery,
   type ITxBuilderFees,
 } from "@sundaeswap/core";
-import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 import type { TTasteTestFees } from "@sundaeswap/taste-test";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 import ReactJson from "react-json-view";
@@ -25,7 +24,7 @@ import { Withdraw } from "./modules/Withdraw";
 import { Zap } from "./modules/Zap";
 
 export const poolQuery: IPoolByPairQuery = {
-  pair: ["", PREVIEW_DATA.pools.v1.assetB.assetId],
+  pair: ["", "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459"],
   fee: "0.30",
 };
 

@@ -1,5 +1,3 @@
-import { AssetAmount } from "@sundaeswap/asset";
-import { ADA_METADATA } from "@sundaeswap/core";
 import { PREVIEW_DATA } from "@sundaeswap/core/testing";
 import { beforeEach, describe, expect, it } from "bun:test";
 
@@ -8,7 +6,8 @@ global.BigInt.prototype.toJSON = function () {
   return this.toString();
 };
 
-import { TDelegationPrograms } from "../../../@types/lucid.js";
+import { Core } from "@blaze-cardano/sdk";
+import { TDelegationPrograms } from "../../../@types/blaze.js";
 import { LockConfig } from "../LockConfig.js";
 
 let config: LockConfig<any>;
@@ -75,17 +74,13 @@ describe("LockConfig class", () => {
       ...myConfig,
       referralFee: {
         destination: "test-destination",
-        payment: new AssetAmount(50n, ADA_METADATA),
+        payment: new Core.Value(50n),
       },
     });
 
-    expect(freezer.buildArgs().referralFee).toMatchObject({
-      destination: "test-destination",
-      payment: expect.objectContaining({
-        amount: 50n,
-        metadata: ADA_METADATA,
-      }),
-    });
+    expect(freezer.buildArgs().referralFee?.destination).toEqual("test-destination");
+    expect(freezer.buildArgs().referralFee?.payment.coin()).toEqual(50n);
+    expect(freezer.buildArgs().referralFee?.payment.multiasset()).toBeUndefined();
   });
 
   it("it should set the ownerAddress correctly", () => {

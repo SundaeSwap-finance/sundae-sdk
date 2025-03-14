@@ -1,5 +1,16 @@
 # Change Log
 
+## 2.0.0
+
+### Major Changes
+
+- bfcf614: Removes multi-builder support by removing Lucid, and assumes a Blaze environment.
+
+### Patch Changes
+
+- Updated dependencies [bfcf614]
+  - @sundaeswap/core@2.0.0
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 

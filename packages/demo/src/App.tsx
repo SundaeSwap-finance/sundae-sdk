@@ -1,16 +1,12 @@
 import { FC, StrictMode } from "react";
 
-import { AppStateProvider } from "./state/context";
-import Settings from "./components/Settings";
-import SettingsViewer from "./components/SettingsViewer";
 import Actions from "./components/Actions";
+import SettingsViewer from "./components/SettingsViewer";
+import { AppStateProvider } from "./state/context";
 
 export const App: FC = () => {
   return (
     <div className="container flex flex-col gap-10">
-      <div className="w-full">
-        <Settings />
-      </div>
       <div className="flex w-full gap-10">
         <div className="w-1/3">
           <SettingsViewer />

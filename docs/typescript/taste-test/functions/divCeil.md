@@ -32,4 +32,4 @@ The divisor represented as a bigint.
 
 ## Defined in
 
-[taste-test/src/utils.ts:110](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/utils.ts#L110)
+[taste-test/src/utils.ts:112](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/utils.ts#L112)

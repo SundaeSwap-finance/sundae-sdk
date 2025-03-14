@@ -14,14 +14,14 @@ import {
 } from "../../../@types/datumbuilder.js";
 import { BlazeHelper } from "../../../Utilities/BlazeHelper.class.js";
 import { V1_EXPECTATIONS } from "../../__data__/v1.expectations.js";
-import { DatumBuilderBlazeV1 } from "../../DatumBuilder.Blaze.V1.class.js";
+import { DatumBuilderV1 } from "../../DatumBuilder.V1.class.js";
 
-let builderInstance: DatumBuilderBlazeV1;
+let builderInstance: DatumBuilderV1;
 
 const expectations = V1_EXPECTATIONS.datums.buildOrderAddresses;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderBlazeV1("preview");
+  builderInstance = new DatumBuilderV1("preview");
 });
 
 afterEach(() => {
@@ -96,7 +96,6 @@ describe("buildDestinationAddresses()", () => {
   });
 
   it.only("should fail when passing just a staking key as the DestinationAddress", () => {
-    console.log(expectations[6].args)
     expect(() =>
       builderInstance.buildOrderAddresses(
         expectations[6].args as TOrderAddressesArgs,
@@ -159,7 +158,7 @@ describe("buildDestinationAddresses()", () => {
     } catch (e) {
       expect(BlazeHelper.throwInvalidOrderAddressesError).toHaveBeenCalledWith(
         expectations[11].args.DestinationAddress.address,
-        expectations[11].expectations.errorBlaze,
+        expectations[11].expectations.error,
       );
     }
   });

@@ -1,7 +1,6 @@
-import type { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import type { Lucid } from "lucid-cardano";
 
+import { Core } from "@blaze-cardano/sdk";
 import { ISwapConfigArgs } from "./configs.js";
 
 /**
@@ -50,39 +49,10 @@ export interface IComposedTx<
  */
 export interface ITxBuilderReferralFee {
   destination: string;
-  payment: AssetAmount<IAssetAmountMetadata>;
+  payment: Core.Value;
   /** The label that prefixes the fee amount in the metadata. */
   feeLabel?: string;
 }
-
-/**
- * Holds the acceptable provider types.
- */
-export enum ETxBuilderType {
-  LUCID = "lucid",
-  BLAZE = "blaze",
-}
-
-/**
- * The interface to describe a Lucid builder type.
- */
-export interface ILucidBuilder {
-  type: ETxBuilderType.LUCID;
-  lucid: Lucid;
-}
-
-/**
- * The interface to describe a Blaze builder type.
- */
-export interface IBlazeBuilder {
-  type: ETxBuilderType.BLAZE;
-  blaze: Blaze<Provider, Wallet>;
-}
-
-/**
- * The union type to hold all possible builder types.
- */
-export type TWalletBuilder = ILucidBuilder | IBlazeBuilder;
 
 /**
  * The contract version to be used when building transactions

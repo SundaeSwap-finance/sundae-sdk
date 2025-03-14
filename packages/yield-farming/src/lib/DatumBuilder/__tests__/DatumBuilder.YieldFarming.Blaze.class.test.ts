@@ -1,19 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
 import { EXPECTATIONS } from "../__data__/datumbuilder.expectations.blaze.js";
-import { DatumBuilderBlaze } from "../DatumBuilder.YieldFarming.Blaze.class.js";
+import { YieldFarmingDatumBuilder } from "../YieldFarmingDatumBuilder.class.js";
 
-let builderInstance: DatumBuilderBlaze;
+let builderInstance: YieldFarmingDatumBuilder;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderBlaze("preview");
+  builderInstance = new YieldFarmingDatumBuilder("preview");
 });
 
 afterEach(() => {
   mock.restore();
 });
 
-describe("DatumBuilderBlaze", () => {
+describe("YieldFarmingDatumBuilder", () => {
   it("should build an accurate lock datum with no delegation", () => {
     const result = builderInstance.buildLockDatum(
       EXPECTATIONS.buildLockDatum[0].args,

@@ -8,27 +8,19 @@ nav_order: 2
 # Getting Started with Taste Tests
 
 ```bash
-$ bun add @sundaeswap/yield-farming lucid-cardano
+$ bun add @sundaeswap/yield-farming @blaze-cardano/sdk
 ```
 
 Next, configure the instance in your app:
 
 ```ts
-import { SundaeSDK } from "@sundaeswap/core";
-import { YieldFarmingLucid } from "@sundaeswap/yield-farming";
+import { Blaze } from "@blaze-cardano/sdk";
+import { YieldFarmingBuilder } from "@sundaeswap/yield-farming";
 
-const sdk: SundaeSDK = new SundaeSDK({
-  ...args,
-});
+const blazeInstance = Blaze.from(
+  // Blaze args.
+);
 
-const walletInstance = sdk.builder().wallet;
-
-if (!walletInstance) {
-  throw new Error();
-}
-
-const YF = new YieldFarmingLucid(walletInstance);
+const YF = new YieldFarmingBuilder(blazeInstance);
 const txHash = await YF.lock({ ...args }).then(({ submit }) => submit());
 ```
-
-For more instructions see [Overview](/).
