@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/yield-farming",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "The official SundaeSwap Yield Farming SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {
@@ -51,6 +51,6 @@
   "peerDependencies": {
     "@blaze-cardano/sdk": "^0.2.27",
     "@sundaeswap/asset": "^1.0.6",
-    "@sundaeswap/core": "^2.0.0"
+    "@sundaeswap/core": "^2.0.1"
   }
 }
