@@ -1441,7 +1441,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     referralFee,
     deposit,
     scooperFee,
-    coinSelection,
+    coinSelection = true,
   }: ITxBuilderCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {
@@ -1466,7 +1466,6 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       fees: baseFees,
       async build() {
         if (!finishedTx) {
-          // @ts-expect-error Until we get a canary release, this is a placeholder for symlinking.
           finishedTx = await tx.complete({ useCoinSelection: coinSelection });
           thisTx.fees.cardanoTxFee = new AssetAmount(
             BigInt(finishedTx?.body().fee()?.toString() ?? "0"),
