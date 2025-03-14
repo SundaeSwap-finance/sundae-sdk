@@ -25,6 +25,7 @@ export const MockAll = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockBuild: Mock<any> = mock();
+
   // @ts-expect-error Type Mismatches.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockQuery: Mock<any> = mock(() => new MockedProviderSundaeSwap());

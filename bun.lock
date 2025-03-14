@@ -30,9 +30,9 @@
     },
     "packages/core": {
       "name": "@sundaeswap/core",
-      "version": "1.3.48",
+      "version": "2.0.0",
       "devDependencies": {
-        "@blaze-cardano/emulator": "^0.3.14",
+        "@blaze-cardano/emulator": "^0.3.21",
         "@sundaeswap/bigint-math": "^0.6.3",
         "@sundaeswap/cpp": "^1.0.3",
         "@sundaeswap/fraction": "^1.0.3",
@@ -41,7 +41,7 @@
         "cbor": "^9.0.0",
       },
       "peerDependencies": {
-        "@blaze-cardano/sdk": "0.2.26",
+        "@blaze-cardano/sdk": "^0.2.27",
         "@sundaeswap/asset": "^1.0.3",
         "@sundaeswap/bigint-math": "^0.6.3",
         "@sundaeswap/cpp": "^1.0.7",
@@ -52,13 +52,13 @@
       "name": "demo",
       "version": "1.0.26",
       "dependencies": {
-        "@blaze-cardano/sdk": "0.2.26",
+        "@blaze-cardano/sdk": "^0.2.27",
         "@sundaeswap/asset": "^1.0.3",
         "@sundaeswap/bigint-math": "^0.6.3",
-        "@sundaeswap/core": "^1.3.48",
+        "@sundaeswap/core": "^2.0.0",
         "@sundaeswap/cpp": "^1.0.3",
         "@sundaeswap/fraction": "^1.0.3",
-        "@sundaeswap/taste-test": "^1.0.53",
+        "@sundaeswap/taste-test": "^2.0.0",
         "@tailwindcss/forms": "^0.5.2",
         "autoprefixer": "^9",
         "buffer": "^6.0.3",
@@ -111,7 +111,7 @@
     },
     "packages/gummiworm": {
       "name": "@sundaeswap/gummiworm",
-      "version": "0.0.81",
+      "version": "1.0.0",
       "dependencies": {
         "graphql": "^16.8.1",
         "graphql-request": "^6.1.0",
@@ -120,34 +120,34 @@
         "@sundaeswap/core": "workspace:*",
       },
       "peerDependencies": {
-        "@blaze-cardano/sdk": "0.2.26",
+        "@blaze-cardano/sdk": "^0.2.27",
         "@sundaeswap/asset": "^1.0.6",
-        "@sundaeswap/core": "^1.3.48",
+        "@sundaeswap/core": "^2.0.0",
       },
     },
     "packages/taste-test": {
       "name": "@sundaeswap/taste-test",
-      "version": "1.0.90",
+      "version": "2.0.0",
       "devDependencies": {
         "@sundaeswap/core": "workspace:*",
       },
       "peerDependencies": {
-        "@blaze-cardano/sdk": "0.2.26",
+        "@blaze-cardano/sdk": "^0.2.27",
         "@sundaeswap/asset": "^1.0.6",
-        "@sundaeswap/core": "^1.3.48",
+        "@sundaeswap/core": "^2.0.0",
       },
     },
     "packages/yield-farming": {
       "name": "@sundaeswap/yield-farming",
-      "version": "1.1.50",
+      "version": "2.0.0",
       "devDependencies": {
-        "@blaze-cardano/emulator": "^0.3.14",
+        "@blaze-cardano/emulator": "^0.3.21",
         "@sundaeswap/core": "workspace:*",
       },
       "peerDependencies": {
-        "@blaze-cardano/sdk": "0.2.26",
+        "@blaze-cardano/sdk": "^0.2.27",
         "@sundaeswap/asset": "^1.0.6",
-        "@sundaeswap/core": "^1.3.48",
+        "@sundaeswap/core": "^2.0.0",
       },
     },
   },
@@ -388,7 +388,7 @@
 
     "@blaze-cardano/core": ["@blaze-cardano/core@0.6.3", "", { "dependencies": { "@cardano-sdk/core": "^0.45.0", "@cardano-sdk/crypto": "^0.1.32", "@cardano-sdk/util": "^0.15.5", "@noble/curves": "^1.8.1", "@noble/ed25519": "^2.2.3", "@noble/hashes": "^1.7.1", "@scure/bip39": "^1.5.4", "blakejs": "^1.2.1" } }, "sha512-Ih8HdZLOIgmP1783uvE4IwOd8tEoOZp6yxmaWxpAYI1g9/jJbv+0s5WAAQhGq6cHDj/XRmYTpurVggFpdGQlNQ=="],
 
-    "@blaze-cardano/emulator": ["@blaze-cardano/emulator@0.3.14", "", { "dependencies": { "@blaze-cardano/core": "0.6.1", "@blaze-cardano/query": "0.3.5", "@blaze-cardano/tx": "0.10.4", "@blaze-cardano/vm": "0.1.7", "@blaze-cardano/wallet": "0.3.9" } }, "sha512-1gcqqUM5GQid21NAKYXRxxG1sDZgPO6OnGkAHGTPxXmLe0DHUcDXergpF459flXaK3/vDqrbdxc20BzeMPcVCQ=="],
+    "@blaze-cardano/emulator": ["@blaze-cardano/emulator@0.3.21", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "@blaze-cardano/query": "0.4.1", "@blaze-cardano/tx": "0.12.0", "@blaze-cardano/vm": "0.1.9", "@blaze-cardano/wallet": "0.4.1" } }, "sha512-/ysbN7Fnh5TDmmHKOQpfcFjpjrks5cgcZ4MM/df0lp/wPBJzFBuEvDm+Wsq3T0RRni3nvK7yUeBMRHtfGZmZ7w=="],
 
     "@blaze-cardano/jest-config": ["@blaze-cardano/jest-config@0.0.1", "", {}, "sha512-q/0BzXoN+PP4kcwmqthJEYrQ1ee3pZ1Y2dV7X7levyccX8yVMxgMUvJjXhZKl0Bb9g8JidoxanVaBW0d0Y0mSw=="],
 
@@ -396,15 +396,15 @@
 
     "@blaze-cardano/query": ["@blaze-cardano/query@0.4.1", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "@blaze-cardano/jest-config": "0.0.1", "@blaze-cardano/ogmios": "0.0.7", "@cardano-ogmios/schema": "^6.6.1", "ws": "^8.17.1" } }, "sha512-ZvNiangcOmwvpN3fNf0U3Ywhs/uIMZkysDsPuMuOjVHwtwiVVopmFBFwipNN76TeFdPzBN3o/BRSzLNp8i/8vg=="],
 
-    "@blaze-cardano/sdk": ["@blaze-cardano/sdk@0.2.26", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "@blaze-cardano/query": "0.4.1", "@blaze-cardano/tx": "0.11.1", "@blaze-cardano/uplc": "0.2.8", "@blaze-cardano/wallet": "0.4.0" } }, "sha512-ypwyHXiLcF+WyXNGxmb+mligFowoWtmNyrOR7/4TfazapIdu24I4UKONLc2dkIGD2fG151/7X8GZrRCKKlalGg=="],
+    "@blaze-cardano/sdk": ["@blaze-cardano/sdk@0.2.27", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "@blaze-cardano/query": "0.4.1", "@blaze-cardano/tx": "0.12.0", "@blaze-cardano/uplc": "0.2.9", "@blaze-cardano/wallet": "0.4.1" } }, "sha512-VnxwbuDt15pX0npVAk2qEJdTZyWRDeVXeTOd1zeaAkpx9lKuag3pMbrXEvrArwv44X+YhEyQ+9+OhrLryi07nA=="],
 
-    "@blaze-cardano/tx": ["@blaze-cardano/tx@0.11.1", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "@blaze-cardano/vm": "0.1.9" } }, "sha512-t9g+oFrTgN8rgLfiCJLEsCG+ndOQjIDgRAH/y6WeCnD35ceDA/aGVhdAXN3hm2LU78Teet0AbidLzikmldMgKw=="],
+    "@blaze-cardano/tx": ["@blaze-cardano/tx@0.12.0", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "@blaze-cardano/vm": "0.1.9" } }, "sha512-eQd9AduKt6xb0o1R6pzLnFfTIm6jTGN8J2XU9wzhlxI03QgjiaTfFms4RCGRIF1cF1kFGaYIEugzFyyiKF1mww=="],
 
-    "@blaze-cardano/uplc": ["@blaze-cardano/uplc@0.2.8", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "@blaze-cardano/tx": "0.11.1", "hex-encoding": "^2.0.2" } }, "sha512-p6L6Aet6A+lVDGDdhPKsXTqDgr2mR01xIvFqAcmZIrQdT5X/lRe6FBo60F/yXFOorJqt72dLPx4dV6CVfDyO5Q=="],
+    "@blaze-cardano/uplc": ["@blaze-cardano/uplc@0.2.9", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "@blaze-cardano/tx": "0.12.0", "hex-encoding": "^2.0.2" } }, "sha512-jls+eG9guEoagNS+Fb9RSBy6l0FqonfwkZhlOjIjIUztDn4QzITH7SOIdjT1ogd9Zj9IA5zOCa+tSfQGHdNDRw=="],
 
-    "@blaze-cardano/vm": ["@blaze-cardano/vm@0.1.7", "", { "dependencies": { "@blaze-cardano/core": "0.6.1", "uplc-node": "github:jpg-store/uplc-node#fd3f2c6dc2629092e3eb37eeac48587b5eceeffb" } }, "sha512-hdvum78R3voRkIGVbC68U/o2+EMMC1EqFVIojrVFuSkY8dNQLze3DbfZ39ctDxD627p+Uei9QupZ+xHfvNWuAQ=="],
+    "@blaze-cardano/vm": ["@blaze-cardano/vm@0.1.9", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "uplc-node": "github:jpg-store/uplc-node#fd3f2c6dc2629092e3eb37eeac48587b5eceeffb" } }, "sha512-J9ebM6vsT8D+g6sdm6N93zzOPHbTUx3vle431ECk4yJrPX+G+4szYXlm14SRqzeyAy0jV8bjMdU1qvqf9q6Hvg=="],
 
-    "@blaze-cardano/wallet": ["@blaze-cardano/wallet@0.4.0", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "@blaze-cardano/jest-config": "0.0.1", "@blaze-cardano/query": "0.4.1", "@blaze-cardano/tx": "0.11.1", "@emurgo/cardano-message-signing-browser": "^1.1.0", "@emurgo/cardano-message-signing-nodejs": "^1.1.0" } }, "sha512-LqSTX3yB4UUSnp1EZEi8NSiHndLs+wxt25oxWvsAygVH5LkleNv9qU0ktpKFEqBu0YISey7A9MBPLKKxqh6GOQ=="],
+    "@blaze-cardano/wallet": ["@blaze-cardano/wallet@0.4.1", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "@blaze-cardano/jest-config": "0.0.1", "@blaze-cardano/query": "0.4.1", "@blaze-cardano/tx": "0.12.0", "@emurgo/cardano-message-signing-browser": "^1.1.0", "@emurgo/cardano-message-signing-nodejs": "^1.1.0" } }, "sha512-2VAsCXU9Zsmnq2hqjNMZ1yNBQ9A1wK3BcK0ogI1elKyeYty1/wjFok2SYlr5nCE8rn1m+VwhgoBIeuA3CaSY4A=="],
 
     "@cardano-ogmios/client": ["@cardano-ogmios/client@6.9.0", "", { "dependencies": { "@cardano-ogmios/schema": "6.9.0", "@cardanosolutions/json-bigint": "^1.0.1", "@types/json-bigint": "^1.0.1", "bech32": "^2.0.0", "cross-fetch": "^3.1.4", "fastq": "^1.11.0", "isomorphic-ws": "^4.0.1", "nanoid": "^3.1.31", "ts-custom-error": "^3.2.0", "ws": "^7.5.10" } }, "sha512-IsoUVsaMXiYyhWrdVKYOA5PDlX0EZ2gaq4lfk4JelRw6mcWVxemUrMaU2ndvugO9LQ3SCM1nESPgMIU0xe5FWw=="],
 
@@ -3639,18 +3639,6 @@
     "@babel/preset-env/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
     "@babel/traverse/globals": ["globals@11.12.0", "", {}, "sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA=="],
-
-    "@blaze-cardano/emulator/@blaze-cardano/core": ["@blaze-cardano/core@0.6.1", "", { "dependencies": { "@cardano-sdk/core": "^0.45.0", "@cardano-sdk/crypto": "^0.1.32", "@cardano-sdk/util": "^0.15.5", "@noble/curves": "^1.8.1", "@noble/ed25519": "^2.2.3", "@noble/hashes": "^1.7.1", "@scure/bip39": "^1.5.4", "blakejs": "^1.2.1" } }, "sha512-0z14yhmL+FmtC00et1UkbqHMTTC2xkfL2+5Fd2zmUEEP27uJsJNvimPv9slvaSldiYymKVCZiibdXRr9tzciUw=="],
-
-    "@blaze-cardano/emulator/@blaze-cardano/query": ["@blaze-cardano/query@0.3.5", "", { "dependencies": { "@blaze-cardano/core": "0.6.1", "@blaze-cardano/jest-config": "0.0.1", "@blaze-cardano/ogmios": "0.0.7", "@cardano-ogmios/schema": "^6.6.1", "ws": "^8.17.1" } }, "sha512-ol/plJzalE6MDnMyFykiOOxwBi+uvz/TE20j7vDKrcPXuStW1oqUsiLNwVk7H1esmvE+687ZQe28BKd/1HoNLQ=="],
-
-    "@blaze-cardano/emulator/@blaze-cardano/tx": ["@blaze-cardano/tx@0.10.4", "", { "dependencies": { "@blaze-cardano/core": "0.6.1", "@blaze-cardano/vm": "0.1.7" } }, "sha512-gFLuzmYWCV5g+ucm1/hHb/b0F9PvRp7RdX4yyQomFc+AkBdHJxNSK7vYNyUlX8UWnhFlkZrfO6aVG2iPbtSwdA=="],
-
-    "@blaze-cardano/emulator/@blaze-cardano/wallet": ["@blaze-cardano/wallet@0.3.9", "", { "dependencies": { "@blaze-cardano/core": "0.6.1", "@blaze-cardano/jest-config": "0.0.1", "@blaze-cardano/query": "0.3.5", "@blaze-cardano/tx": "0.10.4", "@emurgo/cardano-message-signing-browser": "^1.1.0", "@emurgo/cardano-message-signing-nodejs": "^1.1.0" } }, "sha512-LU0rJAxXR8A2P2G26AvVDZNRCPL+RRW2qCqSQgk1pJS1uqAPxTem0dPNC/ubVr9hS3CJ3xCost8yfdbwZGtkeQ=="],
-
-    "@blaze-cardano/tx/@blaze-cardano/vm": ["@blaze-cardano/vm@0.1.9", "", { "dependencies": { "@blaze-cardano/core": "0.6.3", "uplc-node": "github:jpg-store/uplc-node#fd3f2c6dc2629092e3eb37eeac48587b5eceeffb" } }, "sha512-J9ebM6vsT8D+g6sdm6N93zzOPHbTUx3vle431ECk4yJrPX+G+4szYXlm14SRqzeyAy0jV8bjMdU1qvqf9q6Hvg=="],
-
-    "@blaze-cardano/vm/@blaze-cardano/core": ["@blaze-cardano/core@0.6.1", "", { "dependencies": { "@cardano-sdk/core": "^0.45.0", "@cardano-sdk/crypto": "^0.1.32", "@cardano-sdk/util": "^0.15.5", "@noble/curves": "^1.8.1", "@noble/ed25519": "^2.2.3", "@noble/hashes": "^1.7.1", "@scure/bip39": "^1.5.4", "blakejs": "^1.2.1" } }, "sha512-0z14yhmL+FmtC00et1UkbqHMTTC2xkfL2+5Fd2zmUEEP27uJsJNvimPv9slvaSldiYymKVCZiibdXRr9tzciUw=="],
 
     "@cardano-ogmios/client/@cardano-ogmios/schema": ["@cardano-ogmios/schema@6.9.0", "", {}, "sha512-e7QVLF+dQMIv9p+p5CWQjMfBmkERYRa2wK2AjyehQZCJnecZ0gvTbRqewdX5VW4mVXf6KUfFyphsxWK46Pg6LA=="],
 

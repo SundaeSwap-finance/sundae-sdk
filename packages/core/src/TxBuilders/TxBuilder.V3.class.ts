@@ -1,13 +1,14 @@
 import {
   Blaze,
   TxBuilder as BlazeTx,
+  CoinSelector,
   Core,
   Data,
   makeValue,
   Provider,
   Wallet,
 } from "@blaze-cardano/sdk";
-import { AssetAmount } from "@sundaeswap/asset";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import type {
   ICancelConfigArgs,
@@ -80,6 +81,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
   settingsUtxoDatum: string | undefined;
   validatorScripts: Record<string, ISundaeProtocolValidatorFull> = {};
   maxScopoerFeeOverride?: bigint;
+  tracing: boolean = false;
 
   static MIN_ADA_POOL_MINT_ERROR =
     "You tried to create a pool with less ADA than is required. Try again with more than 2 ADA.";
@@ -101,6 +103,17 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
     this.datumBuilder = new DatumBuilderV3(network);
+  }
+
+  /**
+   * Enables tracing in the Blaze transaction builder.
+   *
+   * @param {boolean} enable True to enable tracing, false to turn it off. (default: false)
+   * @returns {TxBuilderV3}
+   */
+  public enableTracing(enable: boolean): TxBuilderV3 {
+    this.tracing = enable;
+    return this;
   }
 
   /**
@@ -282,6 +295,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       }
     }
 
+    instance.enableTracing(this.tracing);
     return instance;
   }
 
@@ -323,7 +337,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
     const [userUtxos, { hash: poolPolicyId }, references, settings] =
       await Promise.all([
-        this.getUtxosForPoolMint(),
+        this.getUtxosForPoolMint(sortedAssets),
         this.getValidatorScript("pool.mint"),
         this.getAllReferenceUtxos(),
         this.getSettingsUtxo(),
@@ -429,7 +443,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     mints.set(Core.AssetName(poolLqAssetName), circulatingLp);
 
     [...references, settings].forEach((utxo) => {
-      tx.addReferenceInput(utxo);
+      tx.addReferenceInput(
+        Core.TransactionUnspentOutput.fromCore(utxo.toCore()),
+      );
     });
     userUtxos.forEach((utxo) => tx.addInput(utxo));
 
@@ -507,6 +523,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
         makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, circulatingLp]),
       );
     }
+
+    // Add collateral since coin selection is false.
+    tx.provideCollateral(userUtxos);
 
     return this.completeTx({
       tx,
@@ -1277,9 +1296,33 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
    * because the first UTXO in the sorted list is the seed (used for generating a unique pool ident, etc).
    * @throws {Error} Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
    */
-  public async getUtxosForPoolMint(): Promise<Core.TransactionUnspentOutput[]> {
+  public async getUtxosForPoolMint(
+    requiredAssets: [
+      AssetAmount<IAssetAmountMetadata>,
+      AssetAmount<IAssetAmountMetadata>,
+    ],
+  ): Promise<Core.TransactionUnspentOutput[]> {
     const utxos = await this.blaze.wallet.getUnspentOutputs();
-    const sortedUtxos = utxos.sort((a, b) => {
+    const neededValue = new Core.Value(5_000_000n); // Start with a 5 ADA requirement to cover fee and minting costs.
+    requiredAssets.forEach((asset) => {
+      if (SundaeUtils.isAdaAsset(asset.metadata)) {
+        neededValue.setCoin(asset.amount);
+      } else {
+        neededValue.setMultiasset(
+          new Map([[Core.AssetId(asset.metadata.assetId), asset.amount]]),
+        );
+      }
+    });
+
+    const chosenUtxos = CoinSelector.micahsSelector(
+      utxos,
+      neededValue,
+      undefined,
+      undefined,
+      this.blaze.params.coinsPerUtxoByte,
+    );
+
+    const sortedUtxos = [...chosenUtxos.selectedInputs].sort((a, b) => {
       // Sort by txHash first.
       if (a.input().transactionId() < b.input().transactionId()) return -1;
       if (a.input().transactionId() > b.input().transactionId()) return 1;
@@ -1304,9 +1347,6 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
   }: ITxBuilderCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {
-    // Set the min fee high enough to cover lack of accuracy.
-    tx.setMinimumFee(400_000n);
-
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
       scooperFee: new AssetAmount(
@@ -1322,44 +1362,13 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     let finishedTx: Core.Transaction | undefined;
     const that = this;
 
-    // Apply coinSelection argument.
-    if (!coinSelection) {
-      tx.useCoinSelector((inputs, dearth) => {
-        if (dearth.coin() || dearth.multiasset()?.size) {
-          throw Error("Dearth should be empty.");
-        }
-
-        const value = new Core.Value(0n);
-        inputs.forEach((output) => {
-          value.setCoin(value.coin() + output.output().amount().coin());
-          const assets = value.multiasset();
-          if (assets) {
-            const tokenMap = new Map<Core.AssetId, bigint>();
-            for (const [, [key, amt]] of Object.entries([...assets])) {
-              tokenMap.set(key, amt);
-            }
-
-            if (tokenMap.size) {
-              value.setMultiasset(tokenMap);
-            }
-          }
-        });
-
-        return {
-          leftoverInputs: inputs,
-          selectedInputs: [],
-          selectedValue: value,
-        };
-      });
-    }
-
     const thisTx: IComposedTx<BlazeTx, Core.Transaction> = {
       tx,
       datum,
       fees: baseFees,
       async build() {
         if (!finishedTx) {
-          finishedTx = await tx.complete();
+          finishedTx = await tx.complete({ useCoinSelection: coinSelection });
           thisTx.fees.cardanoTxFee = new AssetAmount(
             BigInt(finishedTx?.body().fee()?.toString() ?? "0"),
             ADA_METADATA,
@@ -1375,7 +1384,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
             );
 
             return {
-              cbor: signedTx.body().toCbor(),
+              cbor: signedTx.toCbor(),
               submit: async () => {
                 try {
                   return await that.blaze.submitTransaction(signedTx);

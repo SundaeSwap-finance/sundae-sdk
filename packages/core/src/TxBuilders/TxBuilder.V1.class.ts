@@ -91,6 +91,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
   datumBuilder: DatumBuilderV1;
+  tracing: boolean = false;
 
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV1BlazeParams> = {
     mainnet: {
@@ -119,6 +120,17 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
     this.datumBuilder = new DatumBuilderV1(network);
+  }
+
+  /**
+   * Enables tracing in the Blaze transaction builder.
+   *
+   * @param {boolean} enable True to enable tracing, false to turn it off. (default: false)
+   * @returns {TxBuilderV1}
+   */
+  public enableTracing(enable: boolean): TxBuilderV1 {
+    this.tracing = enable;
+    return this;
   }
 
   /**
@@ -203,6 +215,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       this.attachReferralFees(instance, fee);
     }
 
+    instance.enableTracing(this.tracing);
     return instance;
   }
 
@@ -1428,12 +1441,10 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     referralFee,
     deposit,
     scooperFee,
+    coinSelection = true,
   }: ITxBuilderCompleteTxArgs): Promise<
     IComposedTx<BlazeTx, Core.Transaction>
   > {
-    // Set the min fee high enough to cover lack of accuracy.
-    tx.setMinimumFee(400_000n);
-
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
       scooperFee: new AssetAmount(
@@ -1455,7 +1466,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       fees: baseFees,
       async build() {
         if (!finishedTx) {
-          finishedTx = await tx.complete();
+          finishedTx = await tx.complete({ useCoinSelection: coinSelection });
           thisTx.fees.cardanoTxFee = new AssetAmount(
             BigInt(finishedTx?.body().fee()?.toString() ?? "0"),
             ADA_METADATA,

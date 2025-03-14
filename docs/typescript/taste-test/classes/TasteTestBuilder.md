@@ -74,7 +74,7 @@ Throws errors if the claim conditions are not met, such as missing keys, inabili
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:524](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L524)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:543](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L543)
 
 ***
 
@@ -119,7 +119,29 @@ Throws an error if no UTXOs are available, if reference scripts are missing, or 
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:122](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L122)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:145](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L145)
+
+***
+
+### enableTracing()
+
+> **enableTracing**(`enable`): [`TasteTestBuilder`](TasteTestBuilder.md)
+
+Enables tracing in the Blaze transaction builder.
+
+#### Parameters
+
+• **enable**: `boolean`
+
+True to enable tracing, false to turn it off. (default: false)
+
+#### Returns
+
+[`TasteTestBuilder`](TasteTestBuilder.md)
+
+#### Defined in
+
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:107](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L107)
 
 ***
 
@@ -164,7 +186,7 @@ Throws an error if the user's payment credential hash is missing or if the node 
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:284](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L284)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:306](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L306)
 
 ***
 
@@ -208,4 +230,4 @@ Throws errors if the withdrawal conditions are not met, such as missing keys, in
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:362](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L362)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:383](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L383)

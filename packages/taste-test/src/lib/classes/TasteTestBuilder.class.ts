@@ -92,9 +92,32 @@ export interface ITasteTestCompleteTxArgs {
  */
 export class TasteTestBuilder implements AbstractTasteTest {
   blaze: Blaze<Provider, Wallet>;
+  tracing: boolean = false;
 
   constructor(blazeInstance: Blaze<Provider, Wallet>) {
     this.blaze = blazeInstance;
+  }
+
+  /**
+   * Enables tracing in the Blaze transaction builder.
+   *
+   * @param {boolean} enable True to enable tracing, false to turn it off. (default: false)
+   * @returns {TasteTestBuilder}
+   */
+  public enableTracing(enable: boolean): TasteTestBuilder {
+    this.tracing = enable;
+    return this;
+  }
+
+  /**
+   * Builds a new transaction and enables tracing if set.
+   *
+   * @returns {TxBuilder}
+   */
+  private newTransaction(): TxBuilder {
+    const tx = this.blaze.newTransaction();
+    tx.enableTracing(this.tracing);
+    return tx;
   }
 
   /**
@@ -229,8 +252,7 @@ export class TasteTestBuilder implements AbstractTasteTest {
       args.deadline,
     );
 
-    const tx = this.blaze
-      .newTransaction()
+    const tx = this.newTransaction()
       .addInput(coveringNode, redeemerNodeValidator)
       .lockAssets(
         validatorAddress,
@@ -326,8 +348,7 @@ export class TasteTestBuilder implements AbstractTasteTest {
       args.deadline,
     );
 
-    const tx = this.blaze
-      .newTransaction()
+    const tx = this.newTransaction()
       .addInput(ownNode, redeemerNodeValidator)
       .lockAssets(validatorAddress, newNodeAssets, plutusData)
       .setValidFrom(Core.Slot(lowerBound))
@@ -450,8 +471,7 @@ export class TasteTestBuilder implements AbstractTasteTest {
         Math.max(Number(quarterPenalty), Number(TT_UTXO_ADDITIONAL_ADA)),
       );
 
-      const tx = this.blaze
-        .newTransaction()
+      const tx = this.newTransaction()
         .addInput(ownNode, redeemerNodeValidator)
         .addInput(prevNode, redeemerNodeValidator)
         .lockAssets(
@@ -482,8 +502,7 @@ export class TasteTestBuilder implements AbstractTasteTest {
       });
     }
 
-    const tx = this.blaze
-      .newTransaction()
+    const tx = this.newTransaction()
       .addInput(ownNode, redeemerNodeValidator)
       .addInput(prevNode, redeemerNodeValidator)
       .lockAssets(
@@ -582,8 +601,7 @@ export class TasteTestBuilder implements AbstractTasteTest {
 
     const [lowerBound, upperBound] = this._getTxBounds(args.time);
 
-    const tx = this.blaze
-      .newTransaction()
+    const tx = this.newTransaction()
       .addInput(ownNode, redeemerNodeValidator)
       .addReferenceInput(rewardFoldUtxo)
       .addRequiredSigner(Core.Ed25519KeyHashHex(userKey))
