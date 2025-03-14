@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.0.1
+
+### Patch Changes
+
+- d3d00e0: Updates relevant packages with the new `@blaze-cardano/sdk` library that builds transactions more efficiently.
+
 ## 2.0.0
 
 ### Major Changes
