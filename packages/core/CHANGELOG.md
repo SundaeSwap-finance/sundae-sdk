@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.0.0
+
+### Major Changes
+
+- bfcf614: Removes multi-builder support by removing Lucid, and assumes a Blaze environment.
+
 ## 1.3.48
 
 ### Patch Changes
