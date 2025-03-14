@@ -25,8 +25,8 @@ the scripts as reference inputs.
 
 ### value.outRef
 
-> **outRef**: `OutRef`
+> **outRef**: `Core.TransactionInput`
 
 ## Defined in
 
-[taste-test/src/@types/index.ts:62](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L62)
+[taste-test/src/@types/index.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L57)

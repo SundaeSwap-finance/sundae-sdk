@@ -396,7 +396,7 @@ export class SundaeUtils {
    * Split a long string into an array of chunks for metadata.
    *
    * @param str Full string that you wish to split by chunks of 64.
-   * @param prefix Optional prefix to add to each chunk. This is useful if your transaction builder has helper functions to convert strings to CBOR bytestrings (i.e. Lucid will convert strings with a `0x` prefix).
+   * @param prefix Optional prefix to add to each chunk.
    */
   static splitMetadataString(str: string, prefix?: boolean): string[] {
     const result: string[] = [];

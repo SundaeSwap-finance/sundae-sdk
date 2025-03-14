@@ -1,3 +1,4 @@
+import { Core } from "@blaze-cardano/sdk";
 import { AssetAmount } from "@sundaeswap/asset";
 import {
   EContractVersion,
@@ -14,10 +15,9 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
   const {
     SDK,
     ready,
-    activeWalletAddr: walletAddress,
+    activeWalletAddr,
     useReferral,
     useV3Contracts,
-    builderLib,
   } = useAppState();
   const [reverseSwapping, setReverseSwapping] = useState(false);
 
@@ -39,7 +39,7 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         pool,
         orderAddresses: {
           DestinationAddress: {
-            address: walletAddress,
+            address: activeWalletAddr,
             datum: {
               type: EDatumType.NONE,
             },
@@ -52,17 +52,13 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         args.referralFee = {
           destination:
             "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-          payment: new AssetAmount(1000000n, {
-            assetId: "",
-            decimals: 6,
-          }),
+          payment: new Core.Value(1000000n),
           feeLabel: "Test Fee",
         };
       }
 
       await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
-        builderLib,
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
       )
         .swap(args)
         .then(async ({ build, fees }) => {
@@ -88,11 +84,10 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
   }, [
     SDK,
     submit,
-    walletAddress,
+    activeWalletAddr,
     useReferral,
     useV3Contracts,
     poolQuery,
-    builderLib,
   ]);
 
   if (!SDK) {

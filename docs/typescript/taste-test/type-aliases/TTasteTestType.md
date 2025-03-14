@@ -11,4 +11,4 @@ is ends the taste test with pool creation.
 
 ## Defined in
 
-[taste-test/src/@types/index.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L14)
+[taste-test/src/@types/index.ts:9](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L9)

@@ -224,9 +224,7 @@ export const V1_EXPECTATIONS = {
           },
         } as TOrderAddressesArgs,
         expectations: {
-          errorLucid:
-            'The datum provided was not a valid hex string. Original error: {"datum":{"type":"HASH","value":"invalidDatum"}}',
-          errorBlaze:
+          error:
             'The datum provided was not a valid hex string. Original error: {"datum":{"type":"HASH","value":"invalidDatum"},"originalErrorMessage":"Invalid string: \\"expected hex string\\""}',
         },
       },

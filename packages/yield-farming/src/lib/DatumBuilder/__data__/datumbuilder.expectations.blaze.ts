@@ -1,6 +1,6 @@
 import { TDelegation } from "../../../@types/blaze.js";
 import { ILockArguments } from "../../../@types/configs.js";
-import { delegation } from "../../__data__/delegationData.blaze.js";
+import { delegation } from "../../__data__/delegationData.js";
 
 const ownerAddress =
   "addr_test1qrp8nglm8d8x9w783c5g0qa4spzaft5z5xyx0kp495p8wksjrlfzuz6h4ssxlm78v0utlgrhryvl2gvtgp53a6j9zngqtjfk6s";

@@ -9,6 +9,7 @@ import {
 import { FC, useCallback, useState } from "react";
 import { IActionArgs, poolQuery } from "../Actions";
 
+import { Core } from "@blaze-cardano/sdk";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 
@@ -22,7 +23,7 @@ enum ERoute {
 type TDirection = "forward" | "backward";
 
 export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const { SDK, ready, activeWalletAddr, useReferral, builderLib } =
+  const { SDK, ready, activeWalletAddr, useReferral } =
     useAppState();
 
   const [direction, setDirection] = useState<TDirection>("forward");
@@ -98,20 +99,14 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         args.swapA.referralFee = {
           destination:
             "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-          payment: new AssetAmount(1000000n, {
-            assetId: "",
-            decimals: 6,
-          }),
+          payment: new Core.Value(1000000n),
           feeLabel: "Test Fee",
         };
 
         args.swapB.referralFee = {
           destination:
             "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-          payment: new AssetAmount(1000000n, {
-            assetId: "",
-            decimals: 6,
-          }),
+          payment: new Core.Value(1000000n),
           feeLabel: "Test Fee",
         };
       }
@@ -119,8 +114,7 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       await SDK.builder(
         route === ERoute.V3TOV1 || route === ERoute.V3TOV3
           ? EContractVersion.V3
-          : EContractVersion.V1,
-        builderLib,
+          : EContractVersion.V1
       )
         .orderRouteSwap(args)
         .then(async ({ build, fees }) => {
@@ -150,7 +144,6 @@ export const OrderRouting: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     useReferral,
     route,
     direction,
-    builderLib,
   ]);
 
   if (!SDK) {

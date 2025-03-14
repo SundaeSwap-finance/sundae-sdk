@@ -8,6 +8,18 @@ The SundaeSDK options argument when creating a new instance.
 
 ## Properties
 
+### blazeInstance
+
+> **blazeInstance**: `Blaze`\<`Provider`, `Wallet$1`\>
+
+A built blaze instance.
+
+#### Defined in
+
+[packages/core/src/@types/index.ts:15](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L15)
+
+***
+
 ### customQueryProvider?
 
 > `optional` **customQueryProvider**: [`QueryProvider`](../classes/QueryProvider.md)
@@ -41,33 +53,3 @@ The minimum amount of ADA required for a locking position.
 #### Defined in
 
 [packages/core/src/@types/index.ts:13](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L13)
-
-***
-
-### wallet
-
-> **wallet**: `object`
-
-The wallet options.
-
-#### builder
-
-> **builder**: [`TWalletBuilder`](../type-aliases/TWalletBuilder.md)
-
-The type of builder to use. Currently only supports Lucid.
-
-#### name
-
-> **name**: `string`
-
-A CIP-30 compatible wallet.
-
-#### network
-
-> **network**: `"mainnet"` \| `"preview"`
-
-The desired network.
-
-#### Defined in
-
-[packages/core/src/@types/index.ts:15](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L15)

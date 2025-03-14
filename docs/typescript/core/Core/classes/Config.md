@@ -27,7 +27,7 @@ An optional argument that contains referral fee data.
 
 #### Defined in
 
-[packages/core/src/Abstracts/Config.abstract.class.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L16)
+[packages/core/src/Abstracts/Config.abstract.class.ts:15](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L15)
 
 ## Methods
 
@@ -50,7 +50,7 @@ If validation fails.
 
 #### Defined in
 
-[packages/core/src/Abstracts/Config.abstract.class.ts:33](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L33)
+[packages/core/src/Abstracts/Config.abstract.class.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L32)
 
 ***
 
@@ -73,7 +73,7 @@ The object from which to set the configuration.
 
 #### Defined in
 
-[packages/core/src/Abstracts/Config.abstract.class.ts:24](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L24)
+[packages/core/src/Abstracts/Config.abstract.class.ts:23](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L23)
 
 ***
 
@@ -95,7 +95,7 @@ The desired fee.
 
 #### Defined in
 
-[packages/core/src/Abstracts/Config.abstract.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L40)
+[packages/core/src/Abstracts/Config.abstract.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L39)
 
 ***
 
@@ -116,4 +116,4 @@ If the configuration is invalid.
 
 #### Defined in
 
-[packages/core/src/Abstracts/Config.abstract.class.ts:49](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L49)
+[packages/core/src/Abstracts/Config.abstract.class.ts:48](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/Config.abstract.class.ts#L48)

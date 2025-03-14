@@ -10,4 +10,4 @@ The default type for scripts.
 
 ## Defined in
 
-[taste-test/src/@types/index.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L73)
+[taste-test/src/@types/index.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L68)

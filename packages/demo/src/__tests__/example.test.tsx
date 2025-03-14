@@ -1,31 +1,24 @@
-import { ETxBuilderType, SundaeSDK } from "@sundaeswap/core";
-import { MockAll, setupLucid } from "@sundaeswap/core/testing";
+import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
+import { SundaeSDK } from "@sundaeswap/core";
+import { MockAll, setupBlaze } from "@sundaeswap/core/testing";
 import { fireEvent, render, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "bun:test";
-import { Lucid } from "lucid-cardano";
-
-MockAll();
-
-let lucidInstance: Lucid;
-
-setupLucid(async (lucid) => {
-  lucidInstance = lucid;
-});
 
 import Actions from "../components/Actions";
 import { AppStateProvider } from "../state/context";
 
+MockAll();
+
+let blazeInstance: Blaze<Provider, Wallet>;
+
+setupBlaze(async (blaze) => {
+  blazeInstance = blaze;
+});
+
 describe.skip("Example testing", () => {
   it("should use the mocked SundaeSDK", async () => {
-    const MockedSDK = await SundaeSDK.new({
-      wallet: {
-        builder: {
-          type: ETxBuilderType.LUCID,
-          lucid: lucidInstance,
-        },
-        name: "eternl",
-        network: "preview",
-      },
+    const MockedSDK = SundaeSDK.new({
+      blazeInstance
     });
 
     const { container, getByText } = render(

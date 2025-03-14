@@ -3,8 +3,6 @@
   "out": "../../docs/typescript/core",
   "entryPoints": [
     "./src/exports/core.ts",
-    "./src/exports/lucid.ts",
-    "./src/exports/blaze.ts",
     "./src/exports/testing.ts",
     "./src/exports/utilities.ts"
   ],

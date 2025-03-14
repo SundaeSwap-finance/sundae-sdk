@@ -1,6 +1,8 @@
 import { AssetAmount } from "@sundaeswap/asset";
 import { EContractVersion, EDatumType, ESwapType } from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
+
+import { Core } from "@blaze-cardano/sdk";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
@@ -9,7 +11,7 @@ export const SwapBA: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
   const {
     SDK,
     ready,
-    activeWalletAddr: walletAddress,
+    activeWalletAddr,
     useReferral,
     useV3Contracts,
   } = useAppState();
@@ -36,7 +38,7 @@ export const SwapBA: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
           pool,
           orderAddresses: {
             DestinationAddress: {
-              address: walletAddress,
+              address: activeWalletAddr,
               datum: {
                 type: EDatumType.NONE,
               },
@@ -48,10 +50,7 @@ export const SwapBA: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
                 referralFee: {
                   destination:
                     "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-                  payment: new AssetAmount(1000000n, {
-                    assetId: "",
-                    decimals: 6,
-                  }),
+                  payment: new Core.Value(1000000n),
                 },
               }
             : {}),
@@ -77,7 +76,7 @@ export const SwapBA: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setSwapping(false);
-  }, [SDK, submit, walletAddress, useReferral, useV3Contracts]);
+  }, [SDK, submit, activeWalletAddr, useReferral, useV3Contracts]);
 
   if (!SDK) {
     return null;
