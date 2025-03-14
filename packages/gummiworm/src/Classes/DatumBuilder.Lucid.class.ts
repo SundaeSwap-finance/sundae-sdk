@@ -1,5 +1,5 @@
 // Convert this to Blaze.
-export { };
+export {};
 // import {
 //   DatumBuilder,
 //   TDatumResult,
