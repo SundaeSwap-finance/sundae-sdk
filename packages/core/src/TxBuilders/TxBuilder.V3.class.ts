@@ -81,6 +81,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
   settingsUtxoDatum: string | undefined;
   validatorScripts: Record<string, ISundaeProtocolValidatorFull> = {};
   maxScopoerFeeOverride?: bigint;
+  tracing: boolean = false;
 
   static MIN_ADA_POOL_MINT_ERROR =
     "You tried to create a pool with less ADA than is required. Try again with more than 2 ADA.";
@@ -102,6 +103,17 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
     this.datumBuilder = new DatumBuilderV3(network);
+  }
+
+  /**
+   * Enables tracing in the Blaze transaction builder.
+   *
+   * @param {boolean} enable True to enable tracing, false to turn it off. (default: false)
+   * @returns {TxBuilderV3}
+   */
+  public enableTracing(enable: boolean): TxBuilderV3 {
+    this.tracing = enable;
+    return this;
   }
 
   /**
@@ -283,6 +295,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       }
     }
 
+    instance.enableTracing(this.tracing);
     return instance;
   }
 

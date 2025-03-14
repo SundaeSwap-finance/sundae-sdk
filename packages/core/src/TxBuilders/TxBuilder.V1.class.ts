@@ -91,6 +91,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
   datumBuilder: DatumBuilderV1;
+  tracing: boolean = false;
 
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV1BlazeParams> = {
     mainnet: {
@@ -119,6 +120,17 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
     this.datumBuilder = new DatumBuilderV1(network);
+  }
+
+  /**
+   * Enables tracing in the Blaze transaction builder.
+   *
+   * @param {boolean} enable True to enable tracing, false to turn it off. (default: false)
+   * @returns {TxBuilderV1}
+   */
+  public enableTracing(enable: boolean): TxBuilderV1 {
+    this.tracing = enable;
+    return this;
   }
 
   /**
@@ -203,6 +215,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       this.attachReferralFees(instance, fee);
     }
 
+    instance.enableTracing(this.tracing);
     return instance;
   }
 
