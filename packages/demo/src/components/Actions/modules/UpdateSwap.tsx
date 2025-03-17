@@ -8,6 +8,7 @@ import {
 } from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
 
+import { Core } from "@blaze-cardano/sdk";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
@@ -16,10 +17,9 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
   const {
     SDK,
     ready,
-    activeWalletAddr: walletAddress,
+    activeWalletAddr,
     useReferral,
     useV3Contracts,
-    builderLib,
   } = useAppState();
   const [updating, setUpdating] = useState(false);
 
@@ -47,7 +47,7 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
           hash,
           index: Number(index),
         },
-        ownerAddress: walletAddress,
+        ownerAddress: activeWalletAddr,
       };
 
       const suppliedAsset = new AssetAmount(30_000_000n, {
@@ -59,7 +59,7 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         pool,
         orderAddresses: {
           DestinationAddress: {
-            address: walletAddress,
+            address: activeWalletAddr,
             datum: {
               type: EDatumType.NONE,
             },
@@ -75,18 +75,14 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
               referralFee: {
                 destination:
                   "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-                payment: new AssetAmount(1000000n, {
-                  assetId: "",
-                  decimals: 6,
-                }),
+                payment: new Core.Value(1000000n),
               },
             }
           : {}),
       };
 
       await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
-        builderLib,
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
       )
         .update({
           cancelArgs: cancelConfig,
@@ -113,7 +109,7 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setUpdating(false);
-  }, [SDK, submit, walletAddress, useReferral, useV3Contracts, builderLib]);
+  }, [SDK, submit, activeWalletAddr, useReferral, useV3Contracts]);
 
   if (!SDK) {
     return null;

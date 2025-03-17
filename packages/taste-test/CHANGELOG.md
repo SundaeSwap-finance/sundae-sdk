@@ -1,5 +1,24 @@
 # Change Log
 
+## 2.0.1
+
+### Patch Changes
+
+- d3d00e0: Updates relevant packages with the new `@blaze-cardano/sdk` library that builds transactions more efficiently.
+- Updated dependencies [d3d00e0]
+  - @sundaeswap/core@2.0.1
+
+## 2.0.0
+
+### Major Changes
+
+- bfcf614: Removes multi-builder support by removing Lucid, and assumes a Blaze environment.
+
+### Patch Changes
+
+- Updated dependencies [bfcf614]
+  - @sundaeswap/core@2.0.0
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 

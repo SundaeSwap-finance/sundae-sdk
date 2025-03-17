@@ -9,10 +9,9 @@ export const CancelSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
   const {
     SDK,
     ready,
-    activeWalletAddr: walletAddress,
+    activeWalletAddr,
     useReferral,
     useV3Contracts,
-    builderLib,
   } = useAppState();
   const [updating, setUpdating] = useState(false);
 
@@ -32,15 +31,14 @@ export const CancelSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       }
 
       await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
-        builderLib,
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
       )
         .cancel({
           utxo: {
             hash,
             index: Number(index),
           },
-          ownerAddress: walletAddress,
+          ownerAddress: activeWalletAddr,
         })
         .then(async ({ build, fees }) => {
           setFees(fees);
@@ -63,7 +61,7 @@ export const CancelSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setUpdating(false);
-  }, [SDK, submit, walletAddress, useReferral, useV3Contracts, builderLib]);
+  }, [SDK, submit, activeWalletAddr, useReferral, useV3Contracts]);
 
   if (!SDK) {
     return null;

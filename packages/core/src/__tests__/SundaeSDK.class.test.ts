@@ -1,32 +1,16 @@
 import { afterAll, beforeAll, describe, expect, it, mock } from "bun:test";
 
-import { EmulatorProvider } from "@blaze-cardano/emulator";
-import { Blaze, ColdWallet } from "@blaze-cardano/sdk";
-import {
-  EContractVersion,
-  ETxBuilderType,
-  ISundaeSDKOptions,
-} from "../@types/index.js";
+import { EContractVersion, ISundaeSDKOptions } from "../@types/index.js";
 import { windowCardano } from "../exports/testing.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeSDK } from "../SundaeSDK.class.js";
 import { setupBlaze } from "../TestUtilities/setupBlaze.js";
-import { TxBuilderBlazeV1 } from "../TxBuilders/TxBuilder.Blaze.V1.class.js";
-import { TxBuilderBlazeV3 } from "../TxBuilders/TxBuilder.Blaze.V3.class.js";
-
-let lucidInstance: Blaze<EmulatorProvider, ColdWallet>;
-let defaultWallet: ISundaeSDKOptions["wallet"];
+import { TxBuilderV1 } from "../TxBuilders/TxBuilder.V1.class.js";
+import { TxBuilderV3 } from "../TxBuilders/TxBuilder.V3.class.js";
+let defaultWallet: ISundaeSDKOptions["blazeInstance"];
 
 setupBlaze(async (blaze) => {
-  lucidInstance = blaze;
-  defaultWallet = {
-    name: "eternl",
-    builder: {
-      type: ETxBuilderType.BLAZE,
-      blaze,
-    },
-    network: "preview",
-  };
+  defaultWallet = blaze;
 });
 
 beforeAll(() => {
@@ -42,64 +26,45 @@ afterAll(() => {
 
 describe("SundaeSDK", () => {
   it("should build settings with correct defaults", async () => {
-    const sdk = await SundaeSDK.new({
-      wallet: defaultWallet,
+    const sdk = SundaeSDK.new({
+      blazeInstance: defaultWallet,
     });
 
-    expect(sdk.getOptions()).toMatchObject({
+    expect(sdk.options).toMatchObject({
       debug: false,
       minLockAda: 5_000_000n,
-      wallet: defaultWallet,
+      blazeInstance: defaultWallet,
     } as ISundaeSDKOptions);
   });
 
   it("should build settings with correct overrides", async () => {
-    const sdk = await SundaeSDK.new({
+    const sdk = SundaeSDK.new({
       debug: true,
       minLockAda: 10_000_000n,
-      wallet: defaultWallet,
+      blazeInstance: defaultWallet,
     });
 
-    expect(sdk.getOptions()).toMatchObject({
+    expect(sdk.options).toMatchObject({
       debug: false,
       minLockAda: 5_000_000n,
-      wallet: defaultWallet,
+      blazeInstance: defaultWallet,
     } as ISundaeSDKOptions);
   });
 
   it("should populate correct TxBuilders", async () => {
-    const sdk = await SundaeSDK.new({
-      wallet: defaultWallet,
+    const sdk = SundaeSDK.new({
+      blazeInstance: defaultWallet,
     });
 
-    expect(sdk.builder()).toBeInstanceOf(TxBuilderBlazeV3);
-    expect(
-      sdk.builder(EContractVersion.V1, ETxBuilderType.BLAZE),
-    ).toBeInstanceOf(TxBuilderBlazeV1);
+    expect(sdk.builder()).toBeInstanceOf(TxBuilderV3);
+    expect(sdk.builder(EContractVersion.V1)).toBeInstanceOf(TxBuilderV1);
   });
 
   it("should populate correct QueryProvider", async () => {
-    const sdk = await SundaeSDK.new({
-      wallet: defaultWallet,
+    const sdk = SundaeSDK.new({
+      blazeInstance: defaultWallet,
     });
 
     expect(sdk.query()).toBeInstanceOf(QueryProviderSundaeSwap);
-  });
-
-  it("should throw an error if given an invalid provider type", async () => {
-    expect(() =>
-      SundaeSDK.new({
-        wallet: {
-          builder: {
-            // @ts-ignore
-            type: "invalid",
-          },
-        },
-      }),
-    ).toThrowError(
-      new Error(
-        "A valid wallet provider type must be defined in your options object.",
-      ),
-    );
   });
 });

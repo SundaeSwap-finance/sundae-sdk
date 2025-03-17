@@ -24,6 +24,7 @@ const convertedOutputs = PREVIEW_DATA.wallet.utxos.map((utxo) => {
 export const setupBlaze = (
   useBlaze?: (blaze: Blaze<EmulatorProvider, ColdWallet>) => Promise<void>,
   options?: {
+    network?: Core.NetworkId;
     customUtxos?: Core.TransactionOutput[];
     beforeAll?: () => void;
   },
@@ -61,7 +62,7 @@ export const setupBlaze = (
       provider,
       new ColdWallet(
         Core.addressFromBech32(PREVIEW_DATA.addresses.current),
-        Core.NetworkId.Testnet,
+        options?.network || Core.NetworkId.Testnet,
         new EmulatorProvider(emulator),
       ),
     );

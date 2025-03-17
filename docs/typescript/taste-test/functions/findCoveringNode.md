@@ -4,13 +4,13 @@
 
 # Function: findCoveringNode()
 
-> **findCoveringNode**(`utxos`, `userKey`, `ttType`): `undefined` \| `UTxO`
+> **findCoveringNode**(`utxos`, `userKey`, `ttType`): `undefined` \| `TransactionUnspentOutput`
 
 Finds the UTxO node that covers a given user key.
 
 ## Parameters
 
-• **utxos**: `UTxO`[]
+• **utxos**: `TransactionUnspentOutput`[]
 
 An array of UTxO objects to search through.
 
@@ -24,7 +24,7 @@ The type of Taste Test we are using.
 
 ## Returns
 
-`undefined` \| `UTxO`
+`undefined` \| `TransactionUnspentOutput`
 
 - The covering UTxO node, or undefined if no covering node is found.
 
@@ -38,4 +38,4 @@ const coveringNode = findCoveringNode(utxos, userKey);
 
 ## Defined in
 
-[taste-test/src/utils.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/utils.ts#L19)
+[taste-test/src/utils.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/utils.ts#L18)

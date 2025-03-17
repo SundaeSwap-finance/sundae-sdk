@@ -2,9 +2,7 @@
   "$schema": "https://typedoc.org/schema.json",
   "out": "../../docs/typescript/yield-farming",
   "entryPoints": [
-    "./src/exports/index.ts",
-    "./src/exports/lucid.ts",
-    "./src/exports/blaze.ts"
+    "./src/exports/index.ts"
   ],
   "entryModule": "README.md",
   "hideBreadcrumbs": true,

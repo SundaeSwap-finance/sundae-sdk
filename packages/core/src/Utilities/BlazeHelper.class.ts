@@ -235,4 +235,34 @@ export class BlazeHelper {
       `You supplied an invalid address: ${address}. Please check your arguments and try again. Error message: ${errorMessage}`,
     );
   }
+
+  /**
+   * Helper function to merge to Value instances together into one.
+   *
+   * @param {(Core.Value | undefined)[]} values - A list of values to merge together.
+   * @return {Core.Value}
+   */
+  static mergeValues(...values: (Core.Value | undefined)[]): Core.Value {
+    const newValue = new Core.Value(0n);
+    values
+      .filter((v) => v !== undefined)
+      .forEach((value) => {
+        newValue.setCoin(newValue.coin() + value.coin());
+
+        const thisMultiAsset = value.multiasset();
+        if (thisMultiAsset) {
+          newValue.setMultiasset(new Map());
+        } else {
+          return;
+        }
+
+        const newMultiAssets = newValue.multiasset() as Core.TokenMap;
+        thisMultiAsset.forEach((amount, assetId) => {
+          const existingAmount = newMultiAssets.get(assetId) || 0n;
+          newValue.multiasset()?.set(assetId, existingAmount + amount);
+        });
+      });
+
+    return newValue;
+  }
 }

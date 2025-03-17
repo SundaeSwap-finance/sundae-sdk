@@ -16,8 +16,8 @@ A type to describe the validator script.
 
 ### value
 
-> **value**: `SpendingValidator`
+> **value**: `Core.Script`
 
 ## Defined in
 
-[taste-test/src/@types/index.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L45)
+[taste-test/src/@types/index.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/@types/index.ts#L40)

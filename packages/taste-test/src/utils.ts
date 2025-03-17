@@ -1,15 +1,14 @@
-import { Data, UTxO } from "lucid-cardano";
-
+import { Core, Data } from "@blaze-cardano/sdk";
 import { LiquiditySetNode, SetNode } from "./@types/contracts.js";
 import { TTasteTestType } from "./@types/index.js";
 
 /**
  * Finds the UTxO node that covers a given user key.
  *
- * @param {UTxO[]} utxos - An array of UTxO objects to search through.
+ * @param {Core.TransactionUnspentOutput[]} utxos - An array of UTxO objects to search through.
  * @param {string} userKey - The user key to find the covering node for.
  * @param {TTasteTestType} ttType - The type of Taste Test we are using.
- * @returns {UTxO|undefined} - The covering UTxO node, or undefined if no covering node is found.
+ * @returns {Core.TransactionUnspentOutput|undefined} - The covering UTxO node, or undefined if no covering node is found.
  *
  * @example
  * const utxos = [...]; // your array of UTxO objects
@@ -17,17 +16,18 @@ import { TTasteTestType } from "./@types/index.js";
  * const coveringNode = findCoveringNode(utxos, userKey);
  */
 export const findCoveringNode = (
-  utxos: UTxO[],
+  utxos: Core.TransactionUnspentOutput[],
   userKey: string,
   ttType: TTasteTestType,
 ) =>
   utxos.find((value) => {
-    if (!value.datum) {
+    const plutusData = value.output().datum()?.asInlineData();
+    if (!plutusData) {
       return false;
     }
 
     const datum = Data.from(
-      value.datum,
+      plutusData,
       ttType === "Liquidity" ? LiquiditySetNode : SetNode,
     );
     return (
@@ -39,27 +39,28 @@ export const findCoveringNode = (
 /**
  * Searches through a list of UTXOs to find a node owned by the user, identified by a specific key.
  *
- * @param {UTxO[]} utxos - An array of unspent transaction outputs (UTXOs).
+ * @param {Core.TransactionUnspentOutput[]} utxos - An array of unspent transaction outputs (UTXOs).
  * @param {string} userKey - The unique identifier key for the user, used to find a specific node in the UTXOs.
  * @param {TTasteTestType} ttType - The type of Taste Test we are using.
- * @returns {UTxO | undefined} - Returns the UTXO that contains the user's node if found, otherwise returns undefined.
+ * @returns {Core.TransactionUnspentOutput | undefined} - Returns the UTXO that contains the user's node if found, otherwise returns undefined.
  *
  * This function iterates through the provided `utxos`, attempting to match the `userKey` with a key within the datum of each UTXO.
  * If a match is found, it indicates that the UTXO belongs to the user's node, and this UTXO is returned.
  * If no matching node is found in the list of UTXOs, the function returns undefined, indicating the user's node was not found.
  */
 export const findOwnNode = (
-  utxos: UTxO[],
+  utxos: Core.TransactionUnspentOutput[],
   userKey: string,
   ttType: TTasteTestType,
 ) =>
   utxos.find((value) => {
-    if (!value.datum) {
+    const plutusData = value.output().datum()?.asInlineData();
+    if (!plutusData) {
       return false;
     }
 
     const nodeData = Data.from(
-      value.datum,
+      plutusData,
       ttType === "Liquidity" ? LiquiditySetNode : SetNode,
     );
     return nodeData.key === userKey;
@@ -68,27 +69,28 @@ export const findOwnNode = (
 /**
  * Searches through a list of UTXOs to find a node owned by the user, identified by a specific key, and return the next reference (previous to the user's node).
  *
- * @param {UTxO[]} utxos - An array of unspent transaction outputs (UTXOs).
+ * @param {Core.TransactionUnspentOutput[]} utxos - An array of unspent transaction outputs (UTXOs).
  * @param {string} userKey - The unique identifier key for the user, used to find a specific node in the UTXOs.
  * @param {TTasteTestType} ttType - The type of Taste Test we are using.
- * @returns {UTxO | undefined} - Returns the UTXO that contains the previous node of the user's node if found, otherwise returns undefined.
+ * @returns {Core.TransactionUnspentOutput | undefined} - Returns the UTXO that contains the previous node of the user's node if found, otherwise returns undefined.
  *
  * This function iterates through the provided `utxos`, attempting to match the `userKey` with a key within the datum of each UTXO.
  * If a match is found, it indicates that the UTXO belongs to the user's node, and the UTXO referenced as the previous node is returned.
  * If no matching node is found in the list of UTXOs, the function returns undefined, indicating the previous node of the user's node was not found.
  */
 export const findPrevNode = (
-  utxos: UTxO[],
+  utxos: Core.TransactionUnspentOutput[],
   userKey: string,
   ttType: TTasteTestType,
 ) =>
   utxos.find((value) => {
-    if (!value.datum) {
+    const plutusData = value.output().datum()?.asInlineData();
+    if (!plutusData) {
       return false;
     }
 
     const datum = Data.from(
-      value.datum,
+      plutusData,
       ttType === "Liquidity" ? LiquiditySetNode : SetNode,
     );
     return datum?.next === userKey;

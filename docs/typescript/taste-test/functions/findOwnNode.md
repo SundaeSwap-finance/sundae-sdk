@@ -4,13 +4,13 @@
 
 # Function: findOwnNode()
 
-> **findOwnNode**(`utxos`, `userKey`, `ttType`): `undefined` \| `UTxO`
+> **findOwnNode**(`utxos`, `userKey`, `ttType`): `undefined` \| `TransactionUnspentOutput`
 
 Searches through a list of UTXOs to find a node owned by the user, identified by a specific key.
 
 ## Parameters
 
-• **utxos**: `UTxO`[]
+• **utxos**: `TransactionUnspentOutput`[]
 
 An array of unspent transaction outputs (UTXOs).
 
@@ -24,7 +24,7 @@ The type of Taste Test we are using.
 
 ## Returns
 
-`undefined` \| `UTxO`
+`undefined` \| `TransactionUnspentOutput`
 
 - Returns the UTXO that contains the user's node if found, otherwise returns undefined.
 

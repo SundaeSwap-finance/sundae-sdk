@@ -1,7 +1,8 @@
 import { AssetAmount } from "@sundaeswap/asset";
-import { EScriptType, TasteTestLucid } from "@sundaeswap/taste-test";
+import { EScriptType, TasteTestBuilder } from "@sundaeswap/taste-test";
 import { FC, useCallback, useState } from "react";
 
+import { Core } from "@blaze-cardano/sdk";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs } from "../Actions";
@@ -14,7 +15,7 @@ export const UpdateTasteTest: FC<IActionArgs> = ({
   const {
     SDK,
     ready,
-    activeWalletAddr: walletAddress,
+    activeWalletAddr,
     useReferral,
   } = useAppState();
   const [updating, setUpdating] = useState(false);
@@ -24,12 +25,7 @@ export const UpdateTasteTest: FC<IActionArgs> = ({
       return;
     }
 
-    const lucid = SDK.lucid();
-    if (!lucid) {
-      return;
-    }
-
-    const tt = new TasteTestLucid(lucid);
+    const tt = new TasteTestBuilder(SDK.blaze());
     setUpdating(true);
     try {
       await tt
@@ -41,22 +37,22 @@ export const UpdateTasteTest: FC<IActionArgs> = ({
               type: EScriptType.OUTREF,
               value: {
                 hash: "",
-                outRef: {
-                  txHash:
-                    "ba464546272ac37694ba86d3e2021a63189704259a708d83ded54b6eba9b721d",
-                  outputIndex: 0,
-                },
+                outRef: Core.TransactionInput.fromCore({
+                  txId:
+                    Core.TransactionId("ba464546272ac37694ba86d3e2021a63189704259a708d83ded54b6eba9b721d"),
+                  index: 0,
+                }),
               },
             },
             validator: {
               type: EScriptType.OUTREF,
               value: {
                 hash: "",
-                outRef: {
-                  txHash:
-                    "5ce83772dabedc1eeea992b68eb232c42dbd59ba260e057c890bfa77364bc7f3",
-                  outputIndex: 0,
-                },
+                outRef: Core.TransactionInput.fromCore({
+                  txId:
+                    Core.TransactionId("5ce83772dabedc1eeea992b68eb232c42dbd59ba260e057c890bfa77364bc7f3"),
+                  index: 0,
+                }),
               },
             },
           },
@@ -66,10 +62,7 @@ export const UpdateTasteTest: FC<IActionArgs> = ({
                 referralFee: {
                   destination:
                     "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-                  payment: new AssetAmount(1000000n, {
-                    assetId: "",
-                    decimals: 6,
-                  }),
+                  payment: new Core.Value(1000000n),
                 },
               }
             : {}),
@@ -95,7 +88,7 @@ export const UpdateTasteTest: FC<IActionArgs> = ({
     }
 
     setUpdating(false);
-  }, [SDK, submit, walletAddress, useReferral]);
+  }, [SDK, submit, activeWalletAddr, useReferral]);
 
   if (!SDK) {
     return null;

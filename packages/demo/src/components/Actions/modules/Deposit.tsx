@@ -2,6 +2,7 @@ import { AssetAmount } from "@sundaeswap/asset";
 import { EContractVersion, EDatumType } from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
 
+import { Core } from "@blaze-cardano/sdk";
 import { getSwapOutput } from "@sundaeswap/cpp";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
@@ -11,10 +12,9 @@ export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
   const {
     SDK,
     ready,
-    activeWalletAddr: walletAddress,
+    activeWalletAddr,
     useReferral,
     useV3Contracts,
-    builderLib,
   } = useAppState();
   const [depositing, setDepositing] = useState(false);
 
@@ -37,13 +37,12 @@ export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       ).output;
 
       await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
-        builderLib,
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
       )
         .deposit({
           orderAddresses: {
             DestinationAddress: {
-              address: walletAddress,
+              address: activeWalletAddr,
               datum: {
                 type: EDatumType.NONE,
               },
@@ -65,10 +64,7 @@ export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
                 referralFee: {
                   destination:
                     "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68",
-                  payment: new AssetAmount(1000000n, {
-                    assetId: "",
-                    decimals: 6,
-                  }),
+                  payment: new Core.Value(1000000n),
                 },
               }
             : {}),
@@ -94,7 +90,7 @@ export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setDepositing(false);
-  }, [SDK, submit, walletAddress, useReferral, useV3Contracts, builderLib]);
+  }, [SDK, submit, activeWalletAddr, useReferral, useV3Contracts]);
 
   if (!SDK) {
     return null;

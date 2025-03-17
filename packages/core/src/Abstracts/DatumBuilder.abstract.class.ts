@@ -1,4 +1,4 @@
 /**
  * Exported primarily for type controls.
  */
-export abstract class DatumBuilder {}
+export abstract class DatumBuilderAbstract {}

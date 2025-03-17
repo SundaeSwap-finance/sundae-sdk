@@ -11,7 +11,7 @@ const SettingsViewer: FC = () => {
   }
 
   const options = {
-    network: SDK.getOptions().wallet.network,
+    network: SDK.options.blazeInstance.provider.network ? "mainnet" : "preview",
   };
 
   return (

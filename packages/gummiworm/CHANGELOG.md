@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.0.0
+
+### Patch Changes
+
+- Updated dependencies [bfcf614]
+  - @sundaeswap/core@2.0.0
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 

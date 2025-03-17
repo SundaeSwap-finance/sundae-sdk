@@ -4,13 +4,13 @@
 
 # Function: findPrevNode()
 
-> **findPrevNode**(`utxos`, `userKey`, `ttType`): `undefined` \| `UTxO`
+> **findPrevNode**(`utxos`, `userKey`, `ttType`): `undefined` \| `TransactionUnspentOutput`
 
 Searches through a list of UTXOs to find a node owned by the user, identified by a specific key, and return the next reference (previous to the user's node).
 
 ## Parameters
 
-• **utxos**: `UTxO`[]
+• **utxos**: `TransactionUnspentOutput`[]
 
 An array of unspent transaction outputs (UTXOs).
 
@@ -24,7 +24,7 @@ The type of Taste Test we are using.
 
 ## Returns
 
-`undefined` \| `UTxO`
+`undefined` \| `TransactionUnspentOutput`
 
 - Returns the UTXO that contains the previous node of the user's node if found, otherwise returns undefined.
 
@@ -34,4 +34,4 @@ If no matching node is found in the list of UTXOs, the function returns undefine
 
 ## Defined in
 
-[taste-test/src/utils.ts:80](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/utils.ts#L80)
+[taste-test/src/utils.ts:81](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/utils.ts#L81)
