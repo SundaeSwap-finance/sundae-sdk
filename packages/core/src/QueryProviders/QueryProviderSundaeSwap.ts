@@ -70,9 +70,15 @@ interface IPoolDataQueryResult {
  */
 export class QueryProviderSundaeSwap implements QueryProvider {
   public baseUrl: string;
+  private protocolParams?: ISundaeProtocolParamsFull
+
 
   constructor(protected network: TSupportedNetworks) {
     this.baseUrl = providerBaseUrls[network];
+  }
+
+  setProtocolParams(protocolParams: ISundaeProtocolParamsFull) {
+    this.protocolParams = protocolParams;
   }
 
   async findPoolData({ ident }: IPoolByIdentQuery): Promise<IPoolData> {
@@ -220,6 +226,9 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   async getProtocolParamsWithScriptHashes(
     version?: EContractVersion,
   ): Promise<ISundaeProtocolParams[] | ISundaeProtocolParams> {
+    if (this.protocolParams) {
+      return this.protocolParams;
+    }
     const res: {
       data?: { protocols: ISundaeProtocolParams[] };
     } = await fetch(this.baseUrl, {
@@ -282,6 +291,9 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   async getProtocolParamsWithScripts(
     version?: EContractVersion,
   ): Promise<ISundaeProtocolParamsFull[] | ISundaeProtocolParamsFull> {
+    if (this.protocolParams) {
+      return this.protocolParams;
+    }
     const res: {
       data?: { protocols: ISundaeProtocolParamsFull[] };
     } = await fetch(this.baseUrl, {
