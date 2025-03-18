@@ -81,7 +81,7 @@ export class SundaeUtils {
     );
 
     if (!validator) {
-      throw new Error("Could not find a matching protocol for this version.");
+      return false;
     }
 
     if (version === EContractVersion.V1) {
