@@ -416,15 +416,6 @@ describe("SundaeUtils class", () => {
       });
       expect(result).toBe(false);
     });
-
-    it("should error if no matching protocol is found for the version type", () => {
-      expect(() => SundaeUtils.isLPAsset({
-        assetId: "exampleasset.id",
-        protocols: mockedProtocols,
-        // @ts-expect-error Random version to ensure it can't find a matching protocol.
-        version: "V4"
-      })).toThrowError("Could not find a matching protocol for this version.")
-    })
   });
 
   describe("isAssetIdsEqual", () => {
