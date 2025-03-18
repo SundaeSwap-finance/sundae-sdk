@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.0.2
+
+### Patch Changes
+
+- 622d0bf: Updates the `isLPAsset` function to more strictly check v3 LP tokens.
+
 ## 2.0.1
 
 ### Patch Changes
