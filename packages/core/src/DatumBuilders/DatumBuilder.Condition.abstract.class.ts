@@ -1,15 +1,15 @@
 import { Data } from "@blaze-cardano/sdk";
 import { sqrt } from "@sundaeswap/bigint-math";
 import { TDatumResult, TSupportedNetworks } from "src/@types";
-import { PoolDatum, TPoolDatum } from "./ContractTypes/Contract.Blaze.Condition";
-import { DatumBuilderBlazeV3, IDatumBuilderMintPoolV3Args } from "./DatumBuilder.Blaze.V3.class";
+import { PoolDatum, TPoolDatum } from "./ContractTypes/Contract.Condition";
+import { DatumBuilderV3, IDatumBuilderMintPoolV3Args } from "./DatumBuilder.V3.class";
 
 export interface IDatumBuilderMintPoolConditionArgs extends IDatumBuilderMintPoolV3Args {
-    condition: string,
-    conditionDatumArgs: any
+    condition?: string,
+    conditionDatumArgs?: any
 }
 
-export abstract class DatumBuilderBlazeCondition extends DatumBuilderBlazeV3 {
+export abstract class DatumBuilderCondition extends DatumBuilderV3 {
     constructor(network: TSupportedNetworks) {
         super(network);
     }
@@ -42,7 +42,7 @@ export abstract class DatumBuilderBlazeCondition extends DatumBuilderBlazeV3 {
         condition,
         conditionDatumArgs
       }: IDatumBuilderMintPoolConditionArgs): TDatumResult<TPoolDatum> {
-        const ident = DatumBuilderBlazeV3.computePoolId(seedUtxo);
+        const ident = DatumBuilderCondition.computePoolId(seedUtxo);
         const liquidity = sqrt(assetA.amount * assetB.amount);
     
         const assetsPair = this.buildLexicographicalAssetsDatum(
@@ -59,7 +59,7 @@ export abstract class DatumBuilderBlazeCondition extends DatumBuilderBlazeV3 {
           identifier: ident,
           marketOpen: marketOpen || 0n,
           protocolFee: depositFee,
-          condition,
+          condition: condition || null,
           conditionDatum: this.buildConditionDatum(conditionDatumArgs),
         };
     

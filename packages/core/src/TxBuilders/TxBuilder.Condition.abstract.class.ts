@@ -1,17 +1,21 @@
 import { TxBuilder as BlazeTx, Core, Data, makeValue } from "@blaze-cardano/sdk";
-import { EContractVersion, IComposedTx, ISundaeProtocolParamsFull } from "src/@types";
+import { EContractVersion, IComposedTx, IMintConditionPoolConfigArgs, ISundaeProtocolParamsFull, TDatumResult } from "src/@types";
+import { MintConditionPoolConfig } from "src/Configs/MintConditionPoolConfig.class";
 import { ORDER_DEPOSIT_DEFAULT, POOL_MIN_ADA } from "src/constants";
-import { DatumBuilderBlazeCondition } from "src/DatumBuilders/DatumBuilder.Blaze.Condition.abstract.class";
+import { TPoolDatum } from "src/DatumBuilders/ContractTypes/Contract.Condition";
+import { SettingsDatum } from "src/DatumBuilders/ContractTypes/Contract.v3";
+import { DatumBuilderCondition, IDatumBuilderMintPoolConditionArgs } from "src/DatumBuilders/DatumBuilder.Condition.abstract.class";
 import { SundaeUtils } from "src/Utilities";
-import { TxBuilderBlazeV3 } from "./TxBuilder.Blaze.V3.class";
+import { TxBuilderV3 } from "./TxBuilder.V3.class";
 
-export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
-    /**
+export abstract class TxBuilderCondition extends TxBuilderV3 {
+
+      /**
        * Retrieves the basic protocol parameters from the SundaeSwap API
        * and fills in a place-holder for the compiled code of any validators.
        *
        * This is to keep things lean until we really need to attach a validator,
-       * in which case, a subsequent method call to {@link TxBuilderBlazeV3#getValidatorScript}
+       * in which case, a subsequent method call to {@link TxBuilderV3#getValidatorScript}
        * will re-populate with real data.
        *
        * @returns {Promise<ISundaeProtocolParamsFull>}
@@ -27,12 +31,23 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
         return this.protocolParams;
       }
 
+      public abstract buildMintPoolDatum({
+              assetA,
+              assetB,
+              fees,
+              marketOpen,
+              depositFee,
+              seedUtxo,
+              condition,
+              conditionDatumArgs
+            }: IDatumBuilderMintPoolConditionArgs): TDatumResult<TPoolDatum>;
+
       /**
          * Mints a new liquidity pool on the Cardano blockchain. This method
          * constructs and submits a transaction that includes all the necessary generation
          * of pool NFTs, metadata, pool assets, and initial liquidity tokens,
          *
-         * @param {IMintV3PoolConfigArgs} mintPoolArgs - Configuration arguments for minting the pool, including assets,
+         * @param {IMintConditionPoolConfigArgs} mintPoolArgs - Configuration arguments for minting the pool, including assets,
          * fee parameters, owner address, protocol fee, and referral fee.
          *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
          *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
@@ -44,7 +59,7 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
          * @throws {Error} Throws an error if the transaction fails to build or submit.
          */
         async mintPool(
-          mintPoolArgs: IMintV3PoolConfigArgs,
+          mintPoolArgs: IMintConditionPoolConfigArgs,
         ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
           const {
             assetA,
@@ -54,7 +69,9 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
             ownerAddress,
             referralFee,
             donateToTreasury,
-          } = new MintV3PoolConfig(mintPoolArgs).buildArgs();
+            condition,
+            conditionDatumArgs
+          } = new MintConditionPoolConfig(mintPoolArgs).buildArgs();
       
           const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
             assetA,
@@ -65,7 +82,7 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
       
           const [userUtxos, { hash: poolPolicyId }, references, settings] =
             await Promise.all([
-              this.getUtxosForPoolMint(),
+              this.getUtxosForPoolMint(sortedAssets),
               this.getValidatorScript("pool.mint"),
               this.getAllReferenceUtxos(),
               this.getSettingsUtxo(),
@@ -76,15 +93,15 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
             txHash: userUtxos[0].input().transactionId(),
           };
       
-          const newPoolIdent = DatumBuilderBlazeCondition.computePoolId(seedUtxo);
+          const newPoolIdent = DatumBuilderCondition.computePoolId(seedUtxo);
       
-          const nftAssetName = DatumBuilderBlazeCondition.computePoolNftName(newPoolIdent);
+          const nftAssetName = DatumBuilderCondition.computePoolNftName(newPoolIdent);
           const poolNftAssetIdHex = `${poolPolicyId + nftAssetName}`;
       
-          const refAssetName = DatumBuilderBlazeCondition.computePoolRefName(newPoolIdent);
+          const refAssetName = DatumBuilderCondition.computePoolRefName(newPoolIdent);
           const poolRefAssetIdHex = `${poolPolicyId + refAssetName}`;
       
-          const poolLqAssetName = DatumBuilderBlazeCondition.computePoolLqName(newPoolIdent);
+          const poolLqAssetName = DatumBuilderCondition.computePoolLqName(newPoolIdent);
           const poolLqAssetIdHex = `${poolPolicyId + poolLqAssetName}`;
       
           const poolAssets = {
@@ -105,13 +122,15 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
           const {
             inline: mintPoolDatum,
             schema: { circulatingLp },
-          } = this.datumBuilder.buildMintPoolDatum({
+          } = this.buildMintPoolDatum({
             assetA: sortedAssets[0],
             assetB: sortedAssets[1],
             fees,
             marketOpen,
             depositFee: POOL_MIN_ADA,
             seedUtxo,
+            condition,
+            conditionDatumArgs
           });
       
           const { inline: mintRedeemerDatum } =
@@ -136,7 +155,7 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
             Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
             SettingsDatum,
           );
-          const metadataAddress = DatumBuilderBlazeCondition.addressSchemaToBech32(
+          const metadataAddress = DatumBuilderCondition.addressSchemaToBech32(
             { paymentCredential, stakeCredential },
             this.network === "mainnet"
               ? Core.NetworkId.Mainnet
@@ -148,7 +167,7 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
             ({ title }) => title === "pool.mint",
           );
       
-          const sundaeStakeAddress = DatumBuilderBlazeCondition.addressSchemaToBech32(
+          const sundaeStakeAddress = DatumBuilderCondition.addressSchemaToBech32(
             {
               paymentCredential: {
                 SCredential: {
@@ -171,7 +190,9 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
           mints.set(Core.AssetName(poolLqAssetName), circulatingLp);
       
           [...references, settings].forEach((utxo) => {
-            tx.addReferenceInput(utxo);
+            tx.addReferenceInput(
+              Core.TransactionUnspentOutput.fromCore(utxo.toCore()),
+            );
           });
           userUtxos.forEach((utxo) => tx.addInput(utxo));
       
@@ -214,7 +235,7 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
               Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
               SettingsDatum,
             );
-            const realTreasuryAddress = DatumBuilderBlazeCondition.addressSchemaToBech32(
+            const realTreasuryAddress = DatumBuilderCondition.addressSchemaToBech32(
               datum.treasuryAddress,
               this.network === "mainnet"
                 ? Core.NetworkId.Mainnet
@@ -250,6 +271,9 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
             );
           }
       
+          // Add collateral since coin selection is false.
+          tx.provideCollateral(userUtxos);
+      
           return this.completeTx({
             tx,
             datum: mintPoolDatum,
@@ -268,4 +292,5 @@ export abstract class TxBuilderBlazeCondition extends TxBuilderBlazeV3 {
             nativeUplc: false,
           });
         }
+
 }

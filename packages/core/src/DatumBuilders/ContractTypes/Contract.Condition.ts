@@ -1,5 +1,5 @@
 import { Data, Static } from "@blaze-cardano/sdk";
-import { AssetClassPairSchema, IdentSchema, MultiSigScriptSchema } from "./Contract.Blaze.v3";
+import { AssetClassPairSchema, IdentSchema, MultiSigScriptSchema } from "./Contract.v3";
 
 export const PoolDatumSchema = Data.Object({
     identifier: IdentSchema,

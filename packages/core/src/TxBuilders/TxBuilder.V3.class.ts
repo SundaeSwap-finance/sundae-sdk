@@ -1337,7 +1337,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     return sortedUtxos;
   }
 
-  private async completeTx({
+  protected async completeTx({
     tx,
     datum,
     referralFee,
