@@ -49,7 +49,7 @@
   "peerDependencies": {
     "@blaze-cardano/sdk": "^0.2.27",
     "@sundaeswap/asset": "^1.0.6",
-    "@sundaeswap/core": "^2.0.1"
+    "@sundaeswap/core": "^2.0.2"
   },
   "dependencies": {
     "graphql": "^16.8.1",
