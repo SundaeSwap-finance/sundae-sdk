@@ -61,17 +61,17 @@ export class SundaeUtils {
    * This method checks whether the asset's policy ID matches the hash of the 'pool.mint' validator in the specified protocol version.
    *
    * @param {Object} params - The parameters for the method.
-   * @param {string} params.assetPolicyId - The policy ID of the asset to be checked.
+   * @param {string} params.assetId - The asset ID, with or without the "." separator.
    * @param {IProtocol[]} params.protocols - An array of protocol objects, where each protocol corresponds to a different contract version.
    * @param {EContractVersion} params.version - The version of the contract to be used for validating the asset.
    * @returns {boolean} Returns true if the asset's policy ID matches the 'pool.mint' validator hash in the specified protocol version, otherwise false.
    */
   static isLPAsset({
-    assetPolicyId,
+    assetId,
     protocols,
     version,
   }: {
-    assetPolicyId: string;
+    assetId: string;
     protocols: ISundaeProtocolParams[];
     version: EContractVersion;
   }) {
@@ -79,7 +79,19 @@ export class SundaeUtils {
     const validator = protocol?.blueprint.validators.find(
       (v) => v.title === "pool.mint",
     );
-    return validator?.hash === assetPolicyId;
+
+    if (!validator) {
+      throw new Error("Could not find a matching protocol for this version.");
+    }
+
+    if (version === EContractVersion.V1) {
+      return validator.hash === assetId.slice(0, 56);
+    }
+
+    const id = assetId.replace(".", "");
+    const assetNamePrefix = `0014df10`;
+
+    return id.indexOf(`${validator.hash}${assetNamePrefix}`) === 0;
   }
 
   static sortSwapAssetsWithAmounts(
