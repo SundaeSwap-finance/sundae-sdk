@@ -52,6 +52,18 @@ export class DatumBuilderV1 implements DatumBuilderAbstract {
   }
 
   /**
+   * Utility to register a validator script hash.
+   * @param {string} hash The validator script hash.
+   */
+  registerValidatorScriptHash(hash: string) {
+    if (!this.validatorScriptHashes) {
+      this.validatorScriptHashes = new Set();
+    }
+
+    this.validatorScriptHashes!.add(hash);
+  }
+
+  /**
    * Constructs a swap datum object based on the provided swap arguments.
    * The function initializes a new datum with specific properties such as the pool ident,
    * order addresses, scooper fee, and swap direction schema. It then converts this datum

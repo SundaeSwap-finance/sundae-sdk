@@ -362,15 +362,18 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
           "order.spend",
           args.ownerAddress,
         )
-      : await this.getValidatorScript("escrow.spend").then(({ compiledCode }) =>
-          Core.addressFromValidator(
-            this.network === "mainnet" ? 1 : 0,
-            Core.Script.newPlutusV1Script(
-              new Core.PlutusV1Script(
-                Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex")),
+      : await this.getValidatorScript("escrow.spend").then(
+          ({ compiledCode, hash }) => {
+            this.datumBuilder.registerValidatorScriptHash(hash);
+            return Core.addressFromValidator(
+              this.network === "mainnet" ? 1 : 0,
+              Core.Script.newPlutusV1Script(
+                new Core.PlutusV1Script(
+                  Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex")),
+                ),
               ),
-            ),
-          ).toBech32(),
+            ).toBech32();
+          },
         );
 
     const swapA = new SwapConfig({

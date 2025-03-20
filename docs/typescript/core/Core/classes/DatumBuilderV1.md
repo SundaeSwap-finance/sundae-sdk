@@ -102,7 +102,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:100](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L100)
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:112](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L112)
 
 ***
 
@@ -184,7 +184,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L66)
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:78](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L78)
 
 ***
 
@@ -254,4 +254,26 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:145](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L145)
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:157](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L157)
+
+***
+
+### registerValidatorScriptHash()
+
+> **registerValidatorScriptHash**(`hash`): `void`
+
+Utility to register a validator script hash.
+
+#### Parameters
+
+• **hash**: `string`
+
+The validator script hash.
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L58)
