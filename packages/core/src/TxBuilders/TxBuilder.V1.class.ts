@@ -91,6 +91,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
   datumBuilder: DatumBuilderV1;
+  validatorScriptHashes: Set<string> = new Set();
   tracing: boolean = false;
 
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV1BlazeParams> = {
@@ -119,7 +120,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
 
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
-    this.datumBuilder = new DatumBuilderV1(network);
+    this.datumBuilder = new DatumBuilderV1(network, this.validatorScriptHashes);
   }
 
   /**
@@ -174,6 +175,9 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         `Could not find a validator that matched the key: ${name}`,
       );
     }
+
+    // Keep a log of validator scripts.
+    this.validatorScriptHashes.add(result.hash);
 
     return result;
   }

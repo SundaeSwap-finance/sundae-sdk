@@ -1,4 +1,4 @@
-import { Data } from "@blaze-cardano/sdk";
+import { Core, Data } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import {
@@ -44,7 +44,10 @@ export class DatumBuilderV1 implements DatumBuilderAbstract {
   static INVALID_POOL_IDENT =
     "You supplied a pool ident of an invalid length! The will prevent the scooper from processing this order.";
 
-  constructor(network: TSupportedNetworks) {
+  constructor(
+    network: TSupportedNetworks,
+    private validatorScriptHashes?: Set<string>,
+  ) {
     this.network = network;
   }
 
@@ -205,7 +208,23 @@ export class DatumBuilderV1 implements DatumBuilderAbstract {
 
     const { DestinationAddress, AlternateAddress } = addresses;
 
-    if (DestinationAddress.datum.type === EDatumType.INLINE) {
+    let destinationIsOrderScript = false;
+    const addressPaymentHash = Core.Address.fromBech32(
+      DestinationAddress.address,
+    );
+    for (const validatorScriptHash of this.validatorScriptHashes || new Set()) {
+      if (
+        addressPaymentHash.getProps().paymentPart?.hash === validatorScriptHash
+      ) {
+        destinationIsOrderScript = true;
+        break;
+      }
+    }
+
+    if (
+      DestinationAddress.datum.type !== EDatumType.HASH &&
+      destinationIsOrderScript
+    ) {
       throw new Error(
         "Inline datum types are not supported in V1 contracts! Convert this to a hash.",
       );

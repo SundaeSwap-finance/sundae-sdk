@@ -102,7 +102,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:97](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L97)
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:100](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L100)
 
 ***
 
@@ -184,7 +184,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L63)
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L66)
 
 ***
 
@@ -254,4 +254,4 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:142](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L142)
+[packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts:145](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V1.class.ts#L145)
