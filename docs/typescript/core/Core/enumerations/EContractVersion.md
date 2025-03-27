@@ -9,6 +9,16 @@ of any time that interact with SundaeSwap contracts.
 
 ## Enumeration Members
 
+### Condition
+
+> **Condition**: `"Condition"`
+
+#### Defined in
+
+[packages/core/src/@types/txbuilders.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L64)
+
+***
+
 ### V1
 
 > **V1**: `"V1"`

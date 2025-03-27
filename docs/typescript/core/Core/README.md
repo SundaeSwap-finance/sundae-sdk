@@ -53,6 +53,7 @@ SundaeSwap protocol.
 - [IMarketSwap](interfaces/IMarketSwap.md)
 - [IMigrateLiquidityConfig](interfaces/IMigrateLiquidityConfig.md)
 - [IMigrateYieldFarmingLiquidityConfig](interfaces/IMigrateYieldFarmingLiquidityConfig.md)
+- [IMintConditionPoolConfigArgs](interfaces/IMintConditionPoolConfigArgs.md)
 - [IMintV3PoolConfigArgs](interfaces/IMintV3PoolConfigArgs.md)
 - [IOrderConfigArgs](interfaces/IOrderConfigArgs.md)
 - [IOrderRouteSwapArgs](interfaces/IOrderRouteSwapArgs.md)

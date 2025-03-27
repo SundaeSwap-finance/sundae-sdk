@@ -7,17 +7,35 @@ import { QueryProviderSundaeSwap } from "src/QueryProviders";
 import { TxBuilderCondition } from "./TxBuilder.Condition.abstract.class";
 
 export class TxBuilderNftCheck extends TxBuilderCondition {
-    datumBuilder: DatumBuilderNftCheck;
+  datumBuilder: DatumBuilderNftCheck;
 
-    constructor(
-        public blaze: Blaze<Provider, Wallet>,
-        queryProvider?: QueryProviderSundaeSwap) {
-        super(blaze, queryProvider);
-        this.datumBuilder = new DatumBuilderNftCheck(this.network);
-    }
-    
-    public buildMintPoolDatum({ assetA, assetB, fees, marketOpen, depositFee, seedUtxo, condition, conditionDatumArgs }: IDatumBuilderMintPoolConditionArgs): TDatumResult<TPoolDatum> {
-        return this.datumBuilder.buildMintPoolDatum({ assetA, assetB, fees, marketOpen, depositFee, seedUtxo, condition, conditionDatumArgs });
-    }
-    
+  constructor(
+    blaze: Blaze<Provider, Wallet>,
+    queryProvider?: QueryProviderSundaeSwap,
+  ) {
+    super(blaze, queryProvider);
+    this.datumBuilder = new DatumBuilderNftCheck(this.network);
+  }
+
+  public buildMintPoolDatum({
+    assetA,
+    assetB,
+    fees,
+    marketOpen,
+    depositFee,
+    seedUtxo,
+    condition,
+    conditionDatumArgs,
+  }: IDatumBuilderMintPoolConditionArgs): TDatumResult<TPoolDatum> {
+    return this.datumBuilder.buildMintPoolDatum({
+      assetA,
+      assetB,
+      fees,
+      marketOpen,
+      depositFee,
+      seedUtxo,
+      condition,
+      conditionDatumArgs,
+    });
+  }
 }
