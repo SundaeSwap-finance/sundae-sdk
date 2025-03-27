@@ -24,6 +24,18 @@ const mockedProtocols: ISundaeProtocolParams[] = [
     references: [],
     version: EContractVersion.V1,
   },
+  {
+    blueprint: {
+      validators: [
+        {
+          hash: "e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b",
+          title: "pool.mint",
+        },
+      ],
+    },
+    references: [],
+    version: EContractVersion.V3,
+  },
 ];
 
 describe("SundaeUtils class", () => {
@@ -372,19 +384,35 @@ describe("SundaeUtils class", () => {
   describe("isLPAsset", () => {
     it("should return true for a matching LP asset policy ID", () => {
       const result = SundaeUtils.isLPAsset({
-        assetPolicyId:
-          "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9",
+        assetId:
+          "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.exampleAssetName",
         protocols: mockedProtocols,
         version: EContractVersion.V1,
+      });
+      expect(result).toBe(true);
+
+      const result2 = SundaeUtils.isLPAsset({
+        assetId:
+          "e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b.0014df100101",
+        protocols: mockedProtocols,
+        version: EContractVersion.V3,
       });
       expect(result).toBe(true);
     });
 
     it("should return false for a non-matching LP asset policy ID", () => {
       const result = SundaeUtils.isLPAsset({
-        assetPolicyId: "123",
+        assetId: "123.exampleAssetName",
         protocols: mockedProtocols,
         version: EContractVersion.V1,
+      });
+      expect(result).toBe(false);
+
+      const result2 = SundaeUtils.isLPAsset({
+        assetId:
+          "e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b.0101",
+        protocols: mockedProtocols,
+        version: EContractVersion.V3,
       });
       expect(result).toBe(false);
     });

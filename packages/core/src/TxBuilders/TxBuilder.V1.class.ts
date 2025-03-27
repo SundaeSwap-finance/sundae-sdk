@@ -91,6 +91,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
   datumBuilder: DatumBuilderV1;
+  validatorScriptHashes: Set<string> = new Set();
   tracing: boolean = false;
 
   static PARAMS: Record<TSupportedNetworks, ITxBuilderV1BlazeParams> = {
@@ -119,7 +120,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
 
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
-    this.datumBuilder = new DatumBuilderV1(network);
+    this.datumBuilder = new DatumBuilderV1(network, this.validatorScriptHashes);
   }
 
   /**
@@ -174,6 +175,9 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         `Could not find a validator that matched the key: ${name}`,
       );
     }
+
+    // Keep a log of validator scripts.
+    this.validatorScriptHashes.add(result.hash);
 
     return result;
   }
@@ -358,15 +362,18 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
           "order.spend",
           args.ownerAddress,
         )
-      : await this.getValidatorScript("escrow.spend").then(({ compiledCode }) =>
-          Core.addressFromValidator(
-            this.network === "mainnet" ? 1 : 0,
-            Core.Script.newPlutusV1Script(
-              new Core.PlutusV1Script(
-                Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex")),
+      : await this.getValidatorScript("escrow.spend").then(
+          ({ compiledCode, hash }) => {
+            this.datumBuilder.registerValidatorScriptHash(hash);
+            return Core.addressFromValidator(
+              this.network === "mainnet" ? 1 : 0,
+              Core.Script.newPlutusV1Script(
+                new Core.PlutusV1Script(
+                  Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex")),
+                ),
               ),
-            ),
-          ).toBech32(),
+            ).toBech32();
+          },
         );
 
     const swapA = new SwapConfig({

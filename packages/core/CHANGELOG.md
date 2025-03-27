@@ -1,5 +1,23 @@
 # Change Log
 
+## 2.0.4
+
+### Patch Changes
+
+- fd2afe7: Allows arbitrary datums on script destinations that are not SundaeSwap-related in the V1 transaction builder.
+
+## 2.0.3
+
+### Patch Changes
+
+- 7b32bc9: Gracefully fail `isLPAsset`
+
+## 2.0.2
+
+### Patch Changes
+
+- 622d0bf: Updates the `isLPAsset` function to more strictly check v3 LP tokens.
+
 ## 2.0.1
 
 ### Patch Changes
