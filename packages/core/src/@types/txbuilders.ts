@@ -61,7 +61,7 @@ export interface ITxBuilderReferralFee {
 export enum EContractVersion {
   V1 = "V1",
   V3 = "V3",
-  Condition = "Condition",
+  NftCheck = "NftCheck",
 }
 
 /**

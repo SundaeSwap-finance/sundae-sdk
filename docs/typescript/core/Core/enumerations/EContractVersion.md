@@ -9,9 +9,9 @@ of any time that interact with SundaeSwap contracts.
 
 ## Enumeration Members
 
-### Condition
+### NftCheck
 
-> **Condition**: `"Condition"`
+> **NftCheck**: `"NftCheck"`
 
 #### Defined in
 
