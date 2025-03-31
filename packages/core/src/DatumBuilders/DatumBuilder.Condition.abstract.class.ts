@@ -54,6 +54,9 @@ export abstract class DatumBuilderCondition extends DatumBuilderV3 {
       assetB,
     ).schema;
 
+    const conditionDatum = this.buildConditionDatum(conditionDatumArgs);
+    console.log("conditionDatum", conditionDatum);
+
     const newPoolDatum: TPoolDatum = {
       assets: assetsPair,
       circulatingLp: liquidity,
@@ -64,8 +67,10 @@ export abstract class DatumBuilderCondition extends DatumBuilderV3 {
       marketOpen: marketOpen || 0n,
       protocolFee: depositFee,
       condition: condition || null,
-      conditionDatum: this.buildConditionDatum(conditionDatumArgs),
+      conditionDatum: this.buildConditionDatum(conditionDatumArgs) || null,
     };
+
+    console.log("newPoolDatum", newPoolDatum);
 
     const data = Data.to(newPoolDatum, PoolDatum);
 

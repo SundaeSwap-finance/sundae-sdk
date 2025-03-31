@@ -123,7 +123,7 @@ export abstract class TxBuilderCondition extends TxBuilderV3 {
       condition,
       conditionDatumArgs,
     });
-
+    console.log("Mintpool datum cbor: ", mintPoolDatum);
     const { inline: mintRedeemerDatum } =
       this.datumBuilder.buildPoolMintRedeemerDatum({
         assetA: sortedAssets[0],

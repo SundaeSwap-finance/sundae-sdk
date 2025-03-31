@@ -33,7 +33,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.28.1",
     "@semantic-release/git": "^10.0.1",
-    "@sundaeswap/asset": "^1.0.6",
+    "@sundaeswap/asset": "^1.0.7",
     "@sundaeswap/babel-preset": "^2.0.15",
     "@sundaeswap/docgen": "^0.1.9",
     "@sundaeswap/eslint-config": "^2.0.15",
