@@ -9,6 +9,16 @@ of any time that interact with SundaeSwap contracts.
 
 ## Enumeration Members
 
+### Condition
+
+> **Condition**: `"Condition"`
+
+#### Defined in
+
+[packages/core/src/@types/txbuilders.ts:65](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L65)
+
+***
+
 ### NftCheck
 
 > **NftCheck**: `"NftCheck"`

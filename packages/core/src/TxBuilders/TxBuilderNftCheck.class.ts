@@ -19,7 +19,7 @@ import {
   IDatumBuilderNftCheckArgs,
 } from "src/DatumBuilders/DatumBuilder.NftCheck.class";
 import { QueryProviderSundaeSwap } from "src/QueryProviders";
-import { TxBuilderCondition } from "./TxBuilder.Condition.abstract.class";
+import { TxBuilderCondition } from "./TxBuilder.Condition.class";
 
 /**
  * Interface describing the method arguments for creating a pool
@@ -30,6 +30,7 @@ export interface IMintNftCheckPoolConfigArgs extends IMintV3PoolConfigArgs {
 }
 
 export class TxBuilderNftCheck extends TxBuilderCondition {
+  contractVersion: EContractVersion = EContractVersion.NftCheck;
   datumBuilder: DatumBuilderNftCheck;
 
   constructor(
