@@ -5,7 +5,7 @@ import {
   TCheck,
   TNftCheckDatum,
 } from "./ContractTypes/Contract.NftCheck";
-import { DatumBuilderCondition } from "./DatumBuilder.Condition.abstract.class";
+import { DatumBuilderCondition } from "./DatumBuilder.Condition.class";
 
 export interface IDatumBuilderNftCheckArgs {
   value: AssetAmount<IAssetAmountMetadata>[];

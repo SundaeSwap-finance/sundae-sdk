@@ -9,11 +9,10 @@ import {
   EContractVersion,
   IComposedTx,
   IMintV3PoolConfigArgs,
-  ISundaeProtocolParamsFull,
   TDatumResult,
 } from "src/@types";
 import { TPoolDatum } from "src/DatumBuilders/ContractTypes/Contract.Condition";
-import { IDatumBuilderMintPoolConditionArgs } from "src/DatumBuilders/DatumBuilder.Condition.abstract.class";
+import { IDatumBuilderMintPoolConditionArgs } from "src/DatumBuilders/DatumBuilder.Condition.class";
 import {
   DatumBuilderNftCheck,
   IDatumBuilderNftCheckArgs,
@@ -90,22 +89,5 @@ export class TxBuilderNftCheck extends TxBuilderCondition {
       condition,
       conditionDatumArgs,
     });
-  }
-
-  /**
-   * Retrieves the basic protocol parameters from the SundaeSwap API
-   * and fills in a place-holder for the compiled code of any validators.
-   *
-   * @returns {Promise<ISundaeProtocolParamsFull>}
-   */
-  public async getProtocolParams(): Promise<ISundaeProtocolParamsFull> {
-    if (!this.protocolParams) {
-      this.protocolParams =
-        await this.queryProvider.getProtocolParamsWithScripts(
-          EContractVersion.NftCheck,
-        );
-    }
-
-    return this.protocolParams;
   }
 }

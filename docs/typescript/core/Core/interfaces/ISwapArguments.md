@@ -20,7 +20,7 @@ The asset supplied (this is required to accurately determine the swap direction)
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:151](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L151)
+[packages/core/src/@types/datumbuilder.ts:152](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L152)
 
 ***
 
@@ -36,7 +36,7 @@ The unique pool identifier.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:138](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L138)
+[packages/core/src/@types/datumbuilder.ts:139](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L139)
 
 ***
 
@@ -52,7 +52,7 @@ The addresses that are allowed to cancel the Order.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:140](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L140)
+[packages/core/src/@types/datumbuilder.ts:141](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L141)
 
 ***
 
@@ -68,4 +68,4 @@ The fee paid to scoopers.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:142](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L142)
+[packages/core/src/@types/datumbuilder.ts:143](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L143)

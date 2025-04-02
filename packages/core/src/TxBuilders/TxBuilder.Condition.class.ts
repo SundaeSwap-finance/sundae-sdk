@@ -49,7 +49,7 @@ import {
   OrderDatum,
   SettingsDatum,
 } from "src/DatumBuilders/ContractTypes/Contract.Condition";
-import { DatumBuilderCondition } from "src/DatumBuilders/DatumBuilder.Condition.abstract.class";
+import { DatumBuilderCondition } from "src/DatumBuilders/DatumBuilder.Condition.class.js";
 import { QueryProviderSundaeSwap } from "src/QueryProviders";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
@@ -314,233 +314,11 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
   async mintPool(
     mintPoolArgs: IMintConditionPoolConfigArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const {
-      assetA,
-      assetB,
-      fees,
-      marketOpen,
-      ownerAddress,
-      referralFee,
-      donateToTreasury,
-    } = new MintConditionPoolConfig(mintPoolArgs).buildArgs();
-
-    const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
-      assetA,
-      assetB,
-    ]);
-
-    const exoticPair = !SundaeUtils.isAdaAsset(sortedAssets[0].metadata);
-
-    const [userUtxos, { hash: poolPolicyId }, references, settings] =
-      await Promise.all([
-        this.getUtxosForPoolMint(sortedAssets),
-        this.getValidatorScript("pool.mint"),
-        this.getAllReferenceUtxos(),
-        this.getSettingsUtxo(),
-      ]);
-
-    const seedUtxo = {
-      outputIndex: Number(userUtxos[0].input().index().toString()),
-      txHash: userUtxos[0].input().transactionId(),
+    const mintPoolArgsWithCondition = {
+      ...mintPoolArgs,
+      condition: undefined,
     };
-
-    const newPoolIdent = DatumBuilderCondition.computePoolId(seedUtxo);
-
-    const nftAssetName = DatumBuilderCondition.computePoolNftName(newPoolIdent);
-    const poolNftAssetIdHex = `${poolPolicyId + nftAssetName}`;
-
-    const refAssetName = DatumBuilderCondition.computePoolRefName(newPoolIdent);
-    const poolRefAssetIdHex = `${poolPolicyId + refAssetName}`;
-
-    const poolLqAssetName =
-      DatumBuilderCondition.computePoolLqName(newPoolIdent);
-    const poolLqAssetIdHex = `${poolPolicyId + poolLqAssetName}`;
-
-    const poolAssets = {
-      lovelace: POOL_MIN_ADA,
-      [poolNftAssetIdHex]: 1n,
-      [sortedAssets[1].metadata.assetId.replace(".", "")]:
-        sortedAssets[1].amount,
-    };
-
-    if (exoticPair) {
-      // Add non-ada asset.
-      poolAssets[sortedAssets[0].metadata.assetId.replace(".", "")] =
-        sortedAssets[0].amount;
-    } else {
-      poolAssets.lovelace += sortedAssets[0].amount;
-    }
-
-    const {
-      inline: mintPoolDatum,
-      schema: { circulatingLp },
-    } = this.datumBuilder.buildMintPoolDatum({
-      assetA: sortedAssets[0],
-      assetB: sortedAssets[1],
-      fees,
-      marketOpen,
-      depositFee: POOL_MIN_ADA,
-      seedUtxo,
-    });
-
-    const { inline: mintRedeemerDatum } =
-      this.datumBuilder.buildPoolMintRedeemerDatum({
-        assetA: sortedAssets[0],
-        assetB: sortedAssets[1],
-        // The metadata NFT is in the second output.
-        metadataOutput: 1n,
-        // The pool output is the first output.
-        poolOutput: 0n,
-      });
-
-    const settingsDatum = await this.getSettingsUtxoDatum();
-    if (!settingsDatum) {
-      throw new Error("Could not retrieve the datum from the settings UTXO.");
-    }
-
-    const {
-      metadataAdmin: { paymentCredential, stakeCredential },
-      authorizedStakingKeys: [poolStakingCredential],
-    } = Data.from(
-      Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
-      SettingsDatum,
-    );
-    const metadataAddress = DatumBuilderCondition.addressSchemaToBech32(
-      { paymentCredential, stakeCredential },
-      this.network === "mainnet"
-        ? Core.NetworkId.Mainnet
-        : Core.NetworkId.Testnet,
-    );
-
-    const { blueprint } = await this.getProtocolParams();
-    const poolContract = blueprint.validators.find(
-      ({ title }) => title === "pool.mint",
-    );
-
-    const sundaeStakeAddress = DatumBuilderCondition.addressSchemaToBech32(
-      {
-        paymentCredential: {
-          SCredential: {
-            bytes: poolContract?.hash as string,
-          },
-        },
-        stakeCredential: {
-          keyHash: poolStakingCredential,
-        },
-      },
-      this.network === "mainnet"
-        ? Core.NetworkId.Mainnet
-        : Core.NetworkId.Testnet,
-    );
-
-    const tx = this.newTxInstance(referralFee);
-    const mints = new Map<Core.AssetName, bigint>();
-    mints.set(Core.AssetName(nftAssetName), 1n);
-    mints.set(Core.AssetName(refAssetName), 1n);
-    mints.set(Core.AssetName(poolLqAssetName), circulatingLp);
-
-    [...references, settings].forEach((utxo) => {
-      tx.addReferenceInput(
-        Core.TransactionUnspentOutput.fromCore(utxo.toCore()),
-      );
-    });
-    userUtxos.forEach((utxo) => tx.addInput(utxo));
-
-    // Mint our assets.
-    tx.addMint(
-      Core.PolicyId(poolPolicyId),
-      mints,
-      Core.PlutusData.fromCbor(Core.HexBlob(mintRedeemerDatum)),
-    );
-
-    // Lock the pool assets at the pool script.
-    tx.lockAssets(
-      Core.addressFromBech32(sundaeStakeAddress),
-      makeValue(
-        poolAssets.lovelace,
-        ...Object.entries(poolAssets).filter(([key]) => key !== "lovelace"),
-      ),
-      Core.PlutusData.fromCbor(Core.HexBlob(mintPoolDatum)),
-    );
-
-    // Send the metadata reference NFT to the metadata address.
-    const address = Core.addressFromBech32(metadataAddress);
-    const type = address.getProps().paymentPart?.type;
-    if (type === Core.CredentialType.ScriptHash) {
-      tx.lockAssets(
-        address,
-        makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
-        Data.void(),
-      );
-    } else {
-      tx.payAssets(
-        address,
-        makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
-        Data.void(),
-      );
-    }
-
-    if (donateToTreasury) {
-      const datum = Data.from(
-        Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
-        SettingsDatum,
-      );
-      const realTreasuryAddress = DatumBuilderCondition.addressSchemaToBech32(
-        datum.treasuryAddress,
-        this.network === "mainnet"
-          ? Core.NetworkId.Mainnet
-          : Core.NetworkId.Testnet,
-      );
-
-      if (donateToTreasury === 100n) {
-        tx.payAssets(
-          Core.addressFromBech32(realTreasuryAddress),
-          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, circulatingLp]),
-          Data.void(),
-        );
-      } else {
-        const donation = (circulatingLp * donateToTreasury) / 100n;
-        tx.provideDatum(Data.void()).payAssets(
-          Core.addressFromBech32(realTreasuryAddress),
-          makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, donation]),
-          Data.void(),
-        );
-
-        tx.payAssets(
-          Core.addressFromBech32(ownerAddress),
-          makeValue(ORDER_DEPOSIT_DEFAULT, [
-            poolLqAssetIdHex,
-            circulatingLp - donation,
-          ]),
-        );
-      }
-    } else {
-      tx.payAssets(
-        Core.addressFromBech32(ownerAddress),
-        makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, circulatingLp]),
-      );
-    }
-
-    // Add collateral since coin selection is false.
-    tx.provideCollateral(userUtxos);
-
-    return this.completeTx({
-      tx,
-      datum: mintPoolDatum,
-      referralFee: referralFee?.payment,
-      deposit: ORDER_DEPOSIT_DEFAULT * (exoticPair ? 3n : 2n),
-      /**
-       * We avoid Blaze's version of coinSelection because we need to ensure
-       * that the first input is also the seed input for determining the pool
-       * ident.
-       */
-      coinSelection: false,
-      /**
-       * There are some issues with the way Blaze evaluates scripts sometimes,
-       * so we just use the Haskell Plutus core engine since we use Blockfrost.
-       */
-      nativeUplc: false,
-    });
+    return this.mintPoolGeneric(mintPoolArgsWithCondition);
   }
 
   /**
@@ -578,34 +356,18 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
     });
 
     let scooperFee = await this.getMaxScooperFeeAmount();
-    const v1TxBUilder = new TxBuilderV1(this.blaze);
-    const v1Address = await v1TxBUilder
-      .getValidatorScript("escrow.spend")
-      .then(({ compiledCode }) =>
-        Core.addressFromValidator(
-          this.network === "mainnet" ? 1 : 0,
-          Core.Script.newPlutusV1Script(
-            new Core.PlutusV1Script(
-              Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex")),
-            ),
-          ),
-        ).toBech32(),
-      );
-    const ConditionAddress = await this.generateScriptAddress(
-      "order.spend",
-      swapArgs?.ownerAddress ?? orderAddresses.DestinationAddress.address,
-    );
 
-    // Adjust scooper fee supply based on destination address.
-    if (orderAddresses.DestinationAddress.address === v1Address) {
-      scooperFee += v1TxBUilder.__getParam("maxScooperFee");
-    } else if (orderAddresses.DestinationAddress.address === ConditionAddress) {
-      scooperFee += await this.getMaxScooperFeeAmount();
+    let isOrderRoute = false;
+    if (swapArgs.orderAddresses.PoolDestinationVersion) {
+      const destinationBuilder = SundaeUtils.getTxBuilder(
+        this.blaze,
+        swapArgs.orderAddresses.PoolDestinationVersion,
+        this.queryProvider,
+      );
+      isOrderRoute = true;
+      scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
     }
 
-    const isOrderRoute = [v1Address, ConditionAddress].includes(
-      orderAddresses.DestinationAddress.address,
-    );
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: [suppliedAsset],
       scooperFee,
@@ -614,8 +376,12 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
         : ORDER_DEPOSIT_DEFAULT,
     });
 
+    const orderAddress = await this.getOrderAddress(
+      swapArgs?.ownerAddress ?? orderAddresses.DestinationAddress.address,
+    );
+
     txInstance.lockAssets(
-      Core.addressFromBech32(ConditionAddress),
+      Core.addressFromBech32(orderAddress),
       makeValue(
         payment.lovelace,
         ...Object.entries(payment).filter(([key]) => key !== "lovelace"),
@@ -642,23 +408,15 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
   async orderRouteSwap(
     args: IOrderRouteSwapArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const isSecondSwapV1 = args.swapB.pool.version === EContractVersion.V1;
+    const secondBuilder = SundaeUtils.getTxBuilder(
+      this.blaze,
+      args.swapB.pool.version,
+      this.queryProvider,
+    );
 
-    const secondSwapBuilder = isSecondSwapV1
-      ? new TxBuilderV1(this.blaze)
-      : this;
-    const secondSwapAddress = isSecondSwapV1
-      ? await (secondSwapBuilder as TxBuilderV1)
-          .getValidatorScript("escrow.spend")
-          .then(({ compiledCode }) =>
-            Core.addressFromValidator(
-              this.network === "mainnet" ? 1 : 0,
-              Core.Script.newPlutusV1Script(
-                new Core.PlutusV1Script(Core.HexBlob(compiledCode)),
-              ),
-            ).toBech32(),
-          )
-      : await this.generateScriptAddress("order.spend", args.ownerAddress);
+    const secondSwapAddress = await secondBuilder.getOrderAddress(
+      args.ownerAddress,
+    );
 
     const swapA = new SwapConfig({
       ...args.swapA,
@@ -670,6 +428,7 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
             type: EDatumType.NONE,
           },
         },
+        PoolDestinationVersion: args.swapB.pool.version,
       },
     }).buildArgs();
 
@@ -702,7 +461,7 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
       },
     }).buildArgs();
 
-    const secondSwapData = await secondSwapBuilder.swap({
+    const secondSwapData = await secondBuilder.swap({
       ...swapB,
       swapType: args.swapB.swapType,
     });
@@ -741,10 +500,11 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
         DestinationAddress: {
           ...swapA.orderAddresses.DestinationAddress,
           datum: {
-            type: isSecondSwapV1 ? EDatumType.HASH : EDatumType.INLINE,
-            value: isSecondSwapV1
-              ? datumHash
-              : (secondSwapData.datum as string),
+            type: secondBuilder.getDatumType(),
+            value:
+              secondBuilder.getDatumType() === EDatumType.HASH
+                ? datumHash
+                : (secondSwapData.datum as string),
           },
         },
         AlternateAddress: args.ownerAddress,
@@ -752,7 +512,7 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
       referralFee: mergedReferralFee,
     });
 
-    if (isSecondSwapV1) {
+    if (secondBuilder.getDatumType() === EDatumType.HASH) {
       const data = new Core.AuxiliaryData();
       const metadata = new Map<bigint, Core.Metadatum>();
       metadata.set(
@@ -1332,6 +1092,14 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
     });
 
     return sortedUtxos;
+  }
+
+  async getOrderAddress(address: string): Promise<string> {
+    return await this.generateScriptAddress("order.spend", address);
+  }
+
+  getDatumType(): EDatumType {
+    return EDatumType.INLINE;
   }
 
   protected async completeTx({

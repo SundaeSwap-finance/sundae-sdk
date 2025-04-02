@@ -11,7 +11,7 @@ import {
 import { DatumBuilderAbstractCondition } from "src/Abstracts/DatumBuilderCondition.abstract.class";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
-import * as ConditionTypes from "./ContractTypes/Contract.Condition";
+import * as ConditionTypes from "./ContractTypes/Contract.Condition.js";
 
 /**
  * The base arguments for the Condition DatumBuilder.

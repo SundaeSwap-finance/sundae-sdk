@@ -144,7 +144,7 @@ Merges the user's staking key to the contract payment address if present.
 
 #### Parameters
 
-• **type**: `"pool.mint"` \| `"order.spend"`
+• **type**: `"order.spend"` \| `"pool.mint"`
 
 • **ownerAddress?**: `string`
 
@@ -191,6 +191,10 @@ error or otherwise, we fallback to 1 ADA.
 `Promise`\<`bigint`\>
 
 The maxScooperFee as defined by the settings UTXO.
+
+#### Overrides
+
+`TxBuilderAbstractV3.getMaxScooperFeeAmount`
 
 #### Defined in
 

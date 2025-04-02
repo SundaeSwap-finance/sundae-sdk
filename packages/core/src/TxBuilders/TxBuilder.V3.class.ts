@@ -1337,6 +1337,14 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     return sortedUtxos;
   }
 
+  async getOrderAddress(address: string): Promise<string> {
+    return await this.generateScriptAddress("order.spend", address);
+  }
+
+  getDatumType(): EDatumType {
+    return EDatumType.INLINE;
+  }
+
   protected async completeTx({
     tx,
     datum,

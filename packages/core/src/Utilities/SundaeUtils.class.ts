@@ -2,6 +2,12 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getSwapOutput } from "@sundaeswap/cpp";
 import { Fraction } from "@sundaeswap/fraction";
 
+import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
+import { TxBuilderAbstract } from "src/Abstracts/TxBuilderAbstract.class.js";
+import { QueryProviderSundaeSwap } from "src/QueryProviders/index.js";
+import { TxBuilderV1 } from "src/TxBuilders/TxBuilder.V1.class.js";
+import { TxBuilderV3 } from "src/TxBuilders/TxBuilder.V3.class.js";
+import { TxBuilderNftCheck } from "src/TxBuilders/TxBuilderNftCheck.class.js";
 import {
   EContractVersion,
   EPoolCoin,
@@ -496,5 +502,24 @@ export class SundaeUtils {
     throw new Error(
       "Could not find a contract version prefix in the asset name!",
     );
+  }
+
+  static getTxBuilder(
+    blaze: Blaze<Provider, Wallet>,
+    version: EContractVersion | string,
+    queryProvider?: QueryProviderSundaeSwap,
+  ): TxBuilderAbstract {
+    switch (version) {
+      case EContractVersion.V1:
+        return new TxBuilderV1(blaze, queryProvider);
+      case EContractVersion.V3:
+        return new TxBuilderV3(blaze, queryProvider);
+      case EContractVersion.NftCheck:
+        return new TxBuilderNftCheck(blaze, queryProvider);
+      default:
+        throw new Error(
+          `Unsupported contract version: ${version}. Supported versions are V1, V3, and NftCheck.`,
+        );
+    }
   }
 }

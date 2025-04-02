@@ -21,4 +21,4 @@ which acts as the limit price of a swap.
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:103](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L103)
+[packages/core/src/@types/datumbuilder.ts:104](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L104)

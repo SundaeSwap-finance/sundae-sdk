@@ -2,13 +2,14 @@ import { EContractVersion, IComposedTx } from "../@types/txbuilders.js";
 import { TSupportedNetworks } from "../@types/utilities.js";
 import { DatumBuilderAbstractCondition } from "./DatumBuilderCondition.abstract.class.js";
 import { QueryProvider } from "./QueryProvider.abstract.class.js";
+import { TxBuilderAbstract } from "./TxBuilderAbstract.class.js";
 
 /**
  * The main class by which TxBuilder classes are extended.
  *
  * @group Exported TxBuilders
  */
-export abstract class TxBuilderAbstractCondition {
+export abstract class TxBuilderAbstractCondition extends TxBuilderAbstract {
   abstract queryProvider: QueryProvider;
   abstract datumBuilder: DatumBuilderAbstractCondition;
   abstract network: TSupportedNetworks;
