@@ -1345,6 +1345,10 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     return EDatumType.INLINE;
   }
 
+  getExtraSuppliedAssets(): AssetAmount<IAssetAmountMetadata>[] {
+    return [];
+  }
+
   protected async completeTx({
     tx,
     datum,

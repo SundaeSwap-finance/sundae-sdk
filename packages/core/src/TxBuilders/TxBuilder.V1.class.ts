@@ -1456,6 +1456,10 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     );
   }
 
+  getExtraSuppliedAssets(): AssetAmount<IAssetAmountMetadata>[] {
+    return [];
+  }
+
   getDatumType(): EDatumType {
     return EDatumType.HASH;
   }

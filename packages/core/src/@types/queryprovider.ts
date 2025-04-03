@@ -78,6 +78,7 @@ export interface IPoolData {
     lpTotal: bigint;
   };
   version: string;
+  conditionDatum?: string;
 }
 
 /**

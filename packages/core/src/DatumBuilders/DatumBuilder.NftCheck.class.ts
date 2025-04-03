@@ -39,4 +39,9 @@ export class DatumBuilderNftCheck extends DatumBuilderCondition {
 
     return data;
   }
+
+  public decodeConditionDatum(datum: Core.PlutusData): TNftCheckDatum {
+    const decoded = Data.from(datum, NftCheckDatum);
+    return decoded as TNftCheckDatum;
+  }
 }

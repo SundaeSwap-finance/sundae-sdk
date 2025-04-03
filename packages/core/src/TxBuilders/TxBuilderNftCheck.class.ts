@@ -2,16 +2,23 @@ import {
   Blaze,
   TxBuilder as BlazeTx,
   Core,
+  Data,
   Provider,
   Wallet,
 } from "@blaze-cardano/sdk";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   EContractVersion,
   IComposedTx,
   IMintV3PoolConfigArgs,
+  IPoolData,
   TDatumResult,
 } from "src/@types";
 import { TPoolDatum } from "src/DatumBuilders/ContractTypes/Contract.Condition";
+import {
+  NftCheckDatum,
+  TNftCheckDatum,
+} from "src/DatumBuilders/ContractTypes/Contract.NftCheck";
 import { IDatumBuilderMintPoolConditionArgs } from "src/DatumBuilders/DatumBuilder.Condition.class";
 import {
   DatumBuilderNftCheck,
@@ -89,5 +96,30 @@ export class TxBuilderNftCheck extends TxBuilderCondition {
       condition,
       conditionDatumArgs,
     });
+  }
+
+  getExtraSuppliedAssets(
+    poolData: IPoolData,
+  ): AssetAmount<IAssetAmountMetadata>[] {
+    if (!poolData.conditionDatum) {
+      return [];
+    }
+    const conditionDatum: TNftCheckDatum = Data.from(
+      Core.PlutusData.fromCbor(Core.HexBlob(poolData.conditionDatum)),
+      NftCheckDatum,
+    );
+    const result: AssetAmount<IAssetAmountMetadata>[] = [];
+    conditionDatum?.value.forEach((assets, policyId) => {
+      assets.forEach((amount, assetName) => {
+        const assetId = `${policyId}.${assetName}`;
+        result.push(
+          new AssetAmount(amount, {
+            assetId,
+            decimals: 0,
+          }),
+        );
+      });
+    });
+    return result;
   }
 }

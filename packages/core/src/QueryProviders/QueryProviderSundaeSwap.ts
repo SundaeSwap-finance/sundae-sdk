@@ -72,9 +72,11 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   public baseUrl: string;
   private protocolParamsFull?: ISundaeProtocolParamsFull;
   private protocolParams?: ISundaeProtocolParams;
+  private poolData: Map<string, IPoolData>;
 
   constructor(protected network: TSupportedNetworks) {
     this.baseUrl = providerBaseUrls[network];
+    this.poolData = new Map();
   }
 
   setProtocolParams(protocolParams: ISundaeProtocolParamsFull) {
@@ -91,7 +93,14 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     };
   }
 
+  setPoolData(ident: string, poolData: IPoolData) {
+    this.poolData.set(ident, poolData);
+  }
+
   async findPoolData({ ident }: IPoolByIdentQuery): Promise<IPoolData> {
+    if (this.poolData.has(ident)) {
+      return this.poolData.get(ident) as IPoolData;
+    }
     const res: {
       data?: {
         pools: {

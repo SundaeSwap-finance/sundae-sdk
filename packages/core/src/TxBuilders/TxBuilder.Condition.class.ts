@@ -18,6 +18,7 @@ import {
   IDepositConfigArgs,
   IMintConditionPoolConfigArgs,
   IOrderRouteSwapArgs,
+  IPoolData,
   ISundaeProtocolParamsFull,
   ISundaeProtocolReference,
   ISundaeProtocolValidatorFull,
@@ -368,8 +369,9 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
       scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
     }
 
+    const extraSuppliedAssets = this.getExtraSuppliedAssets(config.pool);
     const payment = SundaeUtils.accumulateSuppliedAssets({
-      suppliedAssets: [suppliedAsset],
+      suppliedAssets: [...extraSuppliedAssets, suppliedAsset],
       scooperFee,
       orderDeposit: isOrderRoute
         ? ORDER_ROUTE_DEPOSIT_DEFAULT
@@ -1100,6 +1102,12 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
 
   getDatumType(): EDatumType {
     return EDatumType.INLINE;
+  }
+
+  getExtraSuppliedAssets(
+    _poolData: IPoolData | undefined,
+  ): AssetAmount<IAssetAmountMetadata>[] {
+    return [];
   }
 
   protected async completeTx({
