@@ -58,6 +58,7 @@ SundaeSwap protocol.
 - [IMintV3PoolConfigArgs](interfaces/IMintV3PoolConfigArgs.md)
 - [IOrderConfigArgs](interfaces/IOrderConfigArgs.md)
 - [IOrderRouteSwapArgs](interfaces/IOrderRouteSwapArgs.md)
+- [IPoolByAssetQuery](interfaces/IPoolByAssetQuery.md)
 - [IPoolByIdentQuery](interfaces/IPoolByIdentQuery.md)
 - [IPoolByPairQuery](interfaces/IPoolByPairQuery.md)
 - [IPoolData](interfaces/IPoolData.md)

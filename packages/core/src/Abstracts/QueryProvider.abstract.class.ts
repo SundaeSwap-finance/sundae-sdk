@@ -16,7 +16,7 @@ export abstract class QueryProvider {
    * @returns {Promise<IPoolData>} Returns the queried pool's data.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  abstract findPoolData: (query: any) => Promise<IPoolData>;
+  abstract findPoolData: (query: any) => Promise<IPoolData | IPoolData[]>;
 
   /**
    * Finds the associated UTXO data of an open order.
