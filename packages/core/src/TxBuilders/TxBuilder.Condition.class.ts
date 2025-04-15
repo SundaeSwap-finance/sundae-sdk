@@ -52,6 +52,7 @@ import {
 } from "src/DatumBuilders/ContractTypes/Contract.Condition";
 import { DatumBuilderCondition } from "src/DatumBuilders/DatumBuilder.Condition.class.js";
 import { QueryProviderSundaeSwap } from "src/QueryProviders";
+import { SundaeSDK } from "src/SundaeSDK.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { TxBuilderV1 } from "./TxBuilder.V1.class";
@@ -360,10 +361,11 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
 
     let isOrderRoute = false;
     if (swapArgs.orderAddresses.PoolDestinationVersion) {
-      const destinationBuilder = SundaeUtils.getTxBuilder(
-        this.blaze,
-        swapArgs.orderAddresses.PoolDestinationVersion,
-        this.queryProvider,
+      const destinationBuilder = SundaeSDK.new({
+        blazeInstance: this.blaze,
+        customQueryProvider: this.queryProvider,
+      }).builder(
+        swapArgs.orderAddresses.PoolDestinationVersion as EContractVersion,
       );
       isOrderRoute = true;
       scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
@@ -410,11 +412,10 @@ export class TxBuilderCondition implements TxBuilderAbstractCondition {
   async orderRouteSwap(
     args: IOrderRouteSwapArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const secondBuilder = SundaeUtils.getTxBuilder(
-      this.blaze,
-      args.swapB.pool.version,
-      this.queryProvider,
-    );
+    const secondBuilder = SundaeSDK.new({
+      blazeInstance: this.blaze,
+      customQueryProvider: this.queryProvider,
+    }).builder(args.swapB.pool.version as EContractVersion);
 
     const secondSwapAddress = await secondBuilder.getOrderAddress(
       args.ownerAddress,

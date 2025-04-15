@@ -10,12 +10,17 @@ import {
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
+import { MintConditionPoolConfig } from "src/Configs/MintConditionPoolConfig.class.js";
+import { DatumBuilderCondition } from "src/DatumBuilders/DatumBuilder.Condition.class.js";
+import { SundaeSDK } from "src/SundaeSDK.class.js";
 import type {
   ICancelConfigArgs,
   IComposedTx,
   IDepositConfigArgs,
+  IMintConditionPoolConfigArgs,
   IMintV3PoolConfigArgs,
   IOrderRouteSwapArgs,
+  IPoolData,
   ISundaeProtocolParamsFull,
   ISundaeProtocolReference,
   ISundaeProtocolValidatorFull,
@@ -31,7 +36,6 @@ import { EContractVersion, EDatumType, ESwapType } from "../@types/index.js";
 import { TxBuilderAbstractV3 } from "../Abstracts/TxBuilderAbstract.V3..class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
-import { MintV3PoolConfig } from "../Configs/MintV3PoolConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
@@ -73,6 +77,7 @@ interface ITxBuilderCompleteTxArgs {
  * @extends {TxBuilderAbstractV3}
  */
 export class TxBuilderV3 extends TxBuilderAbstractV3 {
+  contractVersion: EContractVersion = EContractVersion.V3;
   datumBuilder: DatumBuilderV3;
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
@@ -126,7 +131,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     if (!this.protocolParams) {
       this.protocolParams =
         await this.queryProvider.getProtocolParamsWithScripts(
-          EContractVersion.V3,
+          this.contractVersion,
         );
     }
 
@@ -299,12 +304,18 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     return instance;
   }
 
+  async mintPool(
+    mintPoolArgsWithCondition: IMintConditionPoolConfigArgs,
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>>;
+  async mintPool(
+    mintPoolArgs: IMintV3PoolConfigArgs,
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>>;
   /**
    * Mints a new liquidity pool on the Cardano blockchain. This method
    * constructs and submits a transaction that includes all the necessary generation
    * of pool NFTs, metadata, pool assets, and initial liquidity tokens,
    *
-   * @param {IMintV3PoolConfigArgs} mintPoolArgs - Configuration arguments for minting the pool, including assets,
+   * @param {IMintV3PoolConfigArgs | IMintConditionPoolConfigArgs} args - Configuration arguments for minting the pool, including assets,
    * fee parameters, owner address, protocol fee, and referral fee.
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
@@ -316,7 +327,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
    * @throws {Error} Throws an error if the transaction fails to build or submit.
    */
   async mintPool(
-    mintPoolArgs: IMintV3PoolConfigArgs,
+    args: IMintV3PoolConfigArgs | IMintConditionPoolConfigArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const {
       assetA,
@@ -326,7 +337,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       ownerAddress,
       referralFee,
       donateToTreasury,
-    } = new MintV3PoolConfig(mintPoolArgs).buildArgs();
+      condition,
+      conditionDatumArgs,
+    } = new MintConditionPoolConfig(args).buildArgs();
 
     const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       assetA,
@@ -377,14 +390,26 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const {
       inline: mintPoolDatum,
       schema: { circulatingLp },
-    } = this.datumBuilder.buildMintPoolDatum({
-      assetA: sortedAssets[0],
-      assetB: sortedAssets[1],
-      fees,
-      marketOpen,
-      depositFee: POOL_MIN_ADA,
-      seedUtxo,
-    });
+    } =
+      this.datumBuilder instanceof DatumBuilderCondition
+        ? this.datumBuilder.buildMintPoolDatum({
+            assetA: sortedAssets[0],
+            assetB: sortedAssets[1],
+            fees,
+            marketOpen,
+            depositFee: POOL_MIN_ADA,
+            seedUtxo,
+            condition,
+            conditionDatumArgs,
+          })
+        : this.datumBuilder.buildMintPoolDatum({
+            assetA: sortedAssets[0],
+            assetB: sortedAssets[1],
+            fees,
+            marketOpen,
+            depositFee: POOL_MIN_ADA,
+            seedUtxo,
+          });
 
     const { inline: mintRedeemerDatum } =
       this.datumBuilder.buildPoolMintRedeemerDatum({
@@ -569,6 +594,8 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
     const txInstance = this.newTxInstance(referralFee);
 
+    let scooperFee = await this.getMaxScooperFeeAmount();
+
     const { inline } = this.datumBuilder.buildSwapDatum({
       ident,
       destinationAddress: orderAddresses.DestinationAddress,
@@ -577,48 +604,37 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
         minReceived: minReceivable,
         offered: suppliedAsset,
       },
-      scooperFee: await this.getMaxScooperFeeAmount(),
+      scooperFee,
     });
 
-    let scooperFee = await this.getMaxScooperFeeAmount();
-    const v1TxBUilder = new TxBuilderV1(this.blaze);
-    const v1Address = await v1TxBUilder
-      .getValidatorScript("escrow.spend")
-      .then(({ compiledCode }) =>
-        Core.addressFromValidator(
-          this.network === "mainnet" ? 1 : 0,
-          Core.Script.newPlutusV1Script(
-            new Core.PlutusV1Script(
-              Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex")),
-            ),
-          ),
-        ).toBech32(),
+    let isOrderRoute = false;
+    if (swapArgs.orderAddresses.PoolDestinationVersion) {
+      const destinationBuilder = SundaeSDK.new({
+        blazeInstance: this.blaze,
+        customQueryProvider: this.queryProvider,
+      }).builder(
+        swapArgs.orderAddresses.PoolDestinationVersion as EContractVersion,
       );
-    const v3Address = await this.generateScriptAddress(
-      "order.spend",
-      swapArgs?.ownerAddress ?? orderAddresses.DestinationAddress.address,
-    );
-
-    // Adjust scooper fee supply based on destination address.
-    if (orderAddresses.DestinationAddress.address === v1Address) {
-      scooperFee += v1TxBUilder.__getParam("maxScooperFee");
-    } else if (orderAddresses.DestinationAddress.address === v3Address) {
-      scooperFee += await this.getMaxScooperFeeAmount();
+      isOrderRoute = true;
+      scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
     }
 
-    const isOrderRoute = [v1Address, v3Address].includes(
-      orderAddresses.DestinationAddress.address,
-    );
+    const extraSuppliedAssets = this.getExtraSuppliedAssets(config.pool!);
+
     const payment = SundaeUtils.accumulateSuppliedAssets({
-      suppliedAssets: [suppliedAsset],
+      suppliedAssets: [...extraSuppliedAssets, suppliedAsset],
       scooperFee,
       orderDeposit: isOrderRoute
         ? ORDER_ROUTE_DEPOSIT_DEFAULT
         : ORDER_DEPOSIT_DEFAULT,
     });
 
+    const orderAddress = await this.getOrderAddress(
+      swapArgs?.ownerAddress ?? orderAddresses.DestinationAddress.address,
+    );
+
     txInstance.lockAssets(
-      Core.addressFromBech32(v3Address),
+      Core.addressFromBech32(orderAddress),
       makeValue(
         payment.lovelace,
         ...Object.entries(payment).filter(([key]) => key !== "lovelace"),
@@ -645,23 +661,14 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
   async orderRouteSwap(
     args: IOrderRouteSwapArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const isSecondSwapV1 = args.swapB.pool.version === EContractVersion.V1;
+    const secondBuilder = SundaeSDK.new({
+      blazeInstance: this.blaze,
+      customQueryProvider: this.queryProvider,
+    }).builder(args.swapB.pool.version as EContractVersion);
 
-    const secondSwapBuilder = isSecondSwapV1
-      ? new TxBuilderV1(this.blaze)
-      : this;
-    const secondSwapAddress = isSecondSwapV1
-      ? await (secondSwapBuilder as TxBuilderV1)
-          .getValidatorScript("escrow.spend")
-          .then(({ compiledCode }) =>
-            Core.addressFromValidator(
-              this.network === "mainnet" ? 1 : 0,
-              Core.Script.newPlutusV1Script(
-                new Core.PlutusV1Script(Core.HexBlob(compiledCode)),
-              ),
-            ).toBech32(),
-          )
-      : await this.generateScriptAddress("order.spend", args.ownerAddress);
+    const secondSwapAddress = await secondBuilder.getOrderAddress(
+      args.ownerAddress,
+    );
 
     const swapA = new SwapConfig({
       ...args.swapA,
@@ -673,6 +680,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
             type: EDatumType.NONE,
           },
         },
+        PoolDestinationVersion: args.swapB.pool.version,
       },
     }).buildArgs();
 
@@ -705,7 +713,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       },
     }).buildArgs();
 
-    const secondSwapData = await secondSwapBuilder.swap({
+    const secondSwapData = await secondBuilder.swap({
       ...swapB,
       swapType: args.swapB.swapType,
     });
@@ -744,10 +752,11 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
         DestinationAddress: {
           ...swapA.orderAddresses.DestinationAddress,
           datum: {
-            type: isSecondSwapV1 ? EDatumType.HASH : EDatumType.INLINE,
-            value: isSecondSwapV1
-              ? datumHash
-              : (secondSwapData.datum as string),
+            type: secondBuilder.getDatumType(),
+            value:
+              secondBuilder.getDatumType() === EDatumType.HASH
+                ? datumHash
+                : (secondSwapData.datum as string),
           },
         },
         AlternateAddress: args.ownerAddress,
@@ -755,7 +764,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       referralFee: mergedReferralFee,
     });
 
-    if (isSecondSwapV1) {
+    if (secondBuilder.getDatumType() === EDatumType.HASH) {
       const data = new Core.AuxiliaryData();
       const metadata = new Map<bigint, Core.Metadatum>();
       metadata.set(
@@ -1345,7 +1354,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     return EDatumType.INLINE;
   }
 
-  getExtraSuppliedAssets(): AssetAmount<IAssetAmountMetadata>[] {
+  getExtraSuppliedAssets(
+    _poolData: IPoolData,
+  ): AssetAmount<IAssetAmountMetadata>[] {
     return [];
   }
 

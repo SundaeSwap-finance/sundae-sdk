@@ -12,20 +12,17 @@ import {
   IComposedTx,
   IMintV3PoolConfigArgs,
   IPoolData,
-  TDatumResult,
 } from "src/@types";
-import { TPoolDatum } from "src/DatumBuilders/ContractTypes/Contract.Condition";
 import {
   NftCheckDatum,
   TNftCheckDatum,
 } from "src/DatumBuilders/ContractTypes/Contract.NftCheck";
-import { IDatumBuilderMintPoolConditionArgs } from "src/DatumBuilders/DatumBuilder.Condition.class";
 import {
   DatumBuilderNftCheck,
   IDatumBuilderNftCheckArgs,
 } from "src/DatumBuilders/DatumBuilder.NftCheck.class";
 import { QueryProviderSundaeSwap } from "src/QueryProviders";
-import { TxBuilderCondition } from "./TxBuilder.Condition.class";
+import { TxBuilderV3 } from "./TxBuilder.V3.class";
 
 /**
  * Interface describing the method arguments for creating a pool
@@ -35,7 +32,7 @@ export interface IMintNftCheckPoolConfigArgs extends IMintV3PoolConfigArgs {
   conditionDatumArgs: IDatumBuilderNftCheckArgs;
 }
 
-export class TxBuilderNftCheck extends TxBuilderCondition {
+export class TxBuilderNftCheck extends TxBuilderV3 {
   contractVersion: EContractVersion = EContractVersion.NftCheck;
   datumBuilder: DatumBuilderNftCheck;
 
@@ -73,29 +70,7 @@ export class TxBuilderNftCheck extends TxBuilderCondition {
       ...mintPoolArgs,
       condition,
     };
-    return this.mintPoolGeneric(mintPoolArgsWithCondition);
-  }
-
-  public buildMintPoolDatum({
-    assetA,
-    assetB,
-    fees,
-    marketOpen,
-    depositFee,
-    seedUtxo,
-    condition,
-    conditionDatumArgs,
-  }: IDatumBuilderMintPoolConditionArgs): TDatumResult<TPoolDatum> {
-    return this.datumBuilder.buildMintPoolDatum({
-      assetA,
-      assetB,
-      fees,
-      marketOpen,
-      depositFee,
-      seedUtxo,
-      condition,
-      conditionDatumArgs,
-    });
+    return super.mintPool(mintPoolArgsWithCondition);
   }
 
   getExtraSuppliedAssets(

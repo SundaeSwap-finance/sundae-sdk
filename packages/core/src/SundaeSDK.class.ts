@@ -2,7 +2,11 @@ import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 import { EContractVersion, ISundaeSDKOptions } from "./@types/index.js";
 import { QueryProvider } from "./Abstracts/QueryProvider.abstract.class.js";
 import { QueryProviderSundaeSwap } from "./QueryProviders/QueryProviderSundaeSwap.js";
-import { TxBuilderV1, TxBuilderV3 } from "./TxBuilders/index.js";
+import {
+  TxBuilderNftCheck,
+  TxBuilderV1,
+  TxBuilderV3,
+} from "./TxBuilders/index.js";
 
 export const SDK_OPTIONS_DEFAULTS: Pick<
   ISundaeSDKOptions,
@@ -37,7 +41,10 @@ export const SDK_OPTIONS_DEFAULTS: Pick<
  * ```
  */
 export class SundaeSDK {
-  public builders: Map<EContractVersion, TxBuilderV1 | TxBuilderV3> = new Map();
+  public builders: Map<
+    EContractVersion,
+    TxBuilderV1 | TxBuilderV3 | TxBuilderNftCheck
+  > = new Map();
   public queryProvider: QueryProvider;
   public options: ISundaeSDKOptions;
 
@@ -75,6 +82,10 @@ export class SundaeSDK {
       EContractVersion.V3,
       new TxBuilderV3(instance.options.blazeInstance),
     );
+    instance.builders.set(
+      EContractVersion.NftCheck,
+      new TxBuilderNftCheck(instance.options.blazeInstance),
+    );
 
     return instance;
   }
@@ -86,10 +97,13 @@ export class SundaeSDK {
    */
   builder(contractVersion: EContractVersion.V1): TxBuilderV1;
   builder(contractVersion: EContractVersion.V3): TxBuilderV3;
-  builder(contractVersion?: EContractVersion): TxBuilderV1 | TxBuilderV3;
+  builder(contractVersion: EContractVersion.NftCheck): TxBuilderNftCheck;
+  builder(
+    contractVersion?: EContractVersion,
+  ): TxBuilderV1 | TxBuilderV3 | TxBuilderNftCheck;
   builder(
     contractVersion: EContractVersion = EContractVersion.V3,
-  ): TxBuilderV1 | TxBuilderV3 {
+  ): TxBuilderV1 | TxBuilderV3 | TxBuilderNftCheck {
     const builder = this.builders.get(contractVersion);
     if (!builder) {
       throw new Error(
@@ -102,6 +116,8 @@ export class SundaeSDK {
         return builder as TxBuilderV1;
       case EContractVersion.V3:
         return builder as TxBuilderV3;
+      case EContractVersion.NftCheck:
+        return builder as TxBuilderNftCheck;
       default:
         throw new Error("Unreachable.");
     }
