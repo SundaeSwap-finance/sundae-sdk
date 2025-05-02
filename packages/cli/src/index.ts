@@ -1,12 +1,10 @@
 import { mainMenu } from "./menus/main";
 import { fillRemainingSettings, readSettings } from "./menus/settings";
-import type { IState } from "./types";
+import { State } from "./types";
 
-const state: IState = {
-  settings: {},
-};
+const state: State = new State();
 
-readSettings(state);
+await readSettings(state);
 
 await fillRemainingSettings(state);
 

@@ -1442,6 +1442,10 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     });
   }
 
+  setQueryProvider(queryProvider: QueryProviderSundaeSwap): void {
+    this.queryProvider = queryProvider;
+  }
+
   async getOrderAddress(_address: string): Promise<string> {
     return await this.getValidatorScript("escrow.spend").then(
       ({ compiledCode }) =>

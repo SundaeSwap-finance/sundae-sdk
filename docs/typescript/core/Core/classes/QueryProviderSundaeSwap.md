@@ -54,7 +54,7 @@ The transaction hash and index of the open order in the escrow contract.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:301](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L301)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:304](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L304)
 
 ***
 
@@ -84,7 +84,7 @@ Returns the queried pool's data.
 
 ##### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:194](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L194)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:197](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L197)
 
 #### findPoolData(assetArgs)
 
@@ -108,7 +108,7 @@ Returns the queried pool's data.
 
 ##### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:195](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L195)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:198](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L198)
 
 ***
 
@@ -130,7 +130,7 @@ The protocol script hashes.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:346](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L346)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:349](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L349)
 
 ***
 

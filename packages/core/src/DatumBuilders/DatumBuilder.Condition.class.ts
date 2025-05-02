@@ -698,4 +698,9 @@ export class DatumBuilderCondition implements DatumBuilderAbstractCondition {
       schema: newPoolDatum,
     };
   }
+
+  public decodeDatum(datum: Core.PlutusData): ConditionTypes.TPoolDatum {
+    const decoded = Data.from(datum, ConditionTypes.PoolDatum);
+    return decoded as ConditionTypes.TPoolDatum;
+  }
 }

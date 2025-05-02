@@ -138,6 +138,10 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     return this.protocolParams;
   }
 
+  setQueryProvider(queryProvider: QueryProviderSundaeSwap): void {
+    this.queryProvider = queryProvider;
+  }
+
   /**
    * Gets the reference UTxOs based on the transaction data
    * stored in the reference scripts of the protocol parameters

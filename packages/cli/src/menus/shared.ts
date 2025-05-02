@@ -2,7 +2,7 @@ import { input, select } from "@inquirer/prompts";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import { ADA_METADATA } from "@sundaeswap/core";
 import packageJson from "../../package.json" assert { type: "json" };
-import type { IState } from "../types";
+import type { State } from "../types";
 import { prettyAssetId } from "../utils";
 
 const asciify = (await import("asciify-image")).default;
@@ -24,7 +24,7 @@ export async function setAsciiLogo(size: number): Promise<void> {
     });
 }
 
-export async function printHeader(state: IState): Promise<void> {
+export async function printHeader(state: State): Promise<void> {
   console.clear();
   const version = packageJson.dependencies["@sundaeswap/core"];
   const headerText: string[] = [
@@ -58,11 +58,11 @@ export async function printHeader(state: IState): Promise<void> {
 }
 
 export async function getAssetAmount(
-  state: IState,
+  state: State,
   message: string,
   minAmt: bigint,
 ): Promise<AssetAmount<IAssetAmountMetadata>> {
-  const bal = await state.blaze?.wallet.getBalance();
+  const bal = await state.sdk!.blaze().wallet.getBalance();
   const choices = bal!
     .multiasset()!
     .entries()

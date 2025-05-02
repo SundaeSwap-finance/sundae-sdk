@@ -4,23 +4,24 @@ import {
   EContractVersion,
   EDatumType,
   ESwapType,
+  TxBuilderNftCheck,
   TxBuilderV3,
+  type IMintNftCheckPoolConfigArgs,
   type IMintV3PoolConfigArgs,
   type IPoolByAssetQuery,
   type IPoolData,
   type ISwapConfigArgs,
 } from "@sundaeswap/core";
-import type { IState } from "../types";
-import { getSDK, prettyAssetId } from "../utils";
+import type { State } from "../types";
+import { getPoolData, prettyAssetId } from "../utils";
 import { getAssetAmount, printHeader } from "./shared";
 import { transactionDialog } from "./transaction";
 
-export async function swapMenu(state: IState): Promise<IState> {
+export async function swapMenu(state: State): Promise<State> {
   await printHeader(state);
   console.log("\t==== Swap menu ====\n");
-  const sdk = await getSDK(state);
   const swapFrom = await getAssetAmount(state, "Select asset to swap from", 0n);
-  const pools = (await sdk.queryProvider.findPoolData({
+  const pools = (await state.sdk!.queryProvider.findPoolData({
     assetId: swapFrom.id,
   } as IPoolByAssetQuery)) as IPoolData[];
   let choices = pools!.map((pool) => {
@@ -44,20 +45,23 @@ export async function swapMenu(state: IState): Promise<IState> {
     message: "Select pool",
     choices: choices,
   });
+  let pool: IPoolData;
   if (choice === "manual") {
     const ident = await input({
       message: "Enter pool ident",
     });
     choice = ident;
+    pool = await getPoolData(state, ident, EContractVersion.NftCheck);
+  } else {
+    pool = (await state.sdk!.queryProvider.findPoolData({
+      ident: choice,
+    })) as IPoolData;
   }
-  const pool = (await sdk.queryProvider.findPoolData({
-    ident: choice,
-  })) as IPoolData;
   if (!pool) {
     console.log("Pool not found");
     return state;
   }
-  const builder = sdk.builders.get(pool.version as EContractVersion)!;
+  const builder = state.sdk!.builders.get(pool.version as EContractVersion)!;
   const swapArgs: ISwapConfigArgs = {
     suppliedAsset: swapFrom,
     pool: pool,
@@ -97,12 +101,11 @@ export async function getSlippage(): Promise<number> {
   return Number(slippage) / 100;
 }
 
-export async function mintPoolMenu(state: IState): Promise<IState> {
+export async function mintPoolMenu(state: State): Promise<State> {
   await printHeader(state);
   console.log("\t==== Mint pool menu ====\n");
-  const sdk = await getSDK(state);
-  const choices = sdk.builders
-    .keys()
+  const choices = state
+    .sdk!.builders.keys()
     .map((key) => {
       return {
         name: key as string,
@@ -122,10 +125,20 @@ export async function mintPoolMenu(state: IState): Promise<IState> {
     case "back":
       return state;
     case "V3":
-      const builder = sdk.builders.get(EContractVersion.V3)! as TxBuilderV3;
-      const args = await mintPoolV3Args(state, builder);
+      const builder = state.sdk!.builders.get(
+        EContractVersion.V3,
+      )! as TxBuilderV3;
+      const args = await mintPoolV3Args(state);
       const tx = (await builder.mintPool(args)).build();
       await transactionDialog((await tx).cbor, false);
+      break;
+    case "NftCheck":
+      const builderNftCheck = state.sdk!.builders.get(
+        EContractVersion.NftCheck,
+      )! as TxBuilderNftCheck;
+      const argsNftCheck = await mintPoolNftCheckArgs(state);
+      const txNftCheck = (await builderNftCheck.mintPool(argsNftCheck)).build();
+      await transactionDialog((await txNftCheck).cbor, false);
       break;
   }
   return state;
@@ -143,28 +156,15 @@ export async function getFeeChoice(): Promise<bigint> {
   return choice;
 }
 
-export async function mintPoolV3Args(
-  state: IState,
-  _builder: TxBuilderV3,
-): Promise<IMintV3PoolConfigArgs> {
-  return {
-    assetA: await getAssetAmount(state, "Select asset A", 2n),
-    assetB: await getAssetAmount(state, "Select asset B", 2n),
-    fees: await getFeeChoice(),
-    ownerAddress: state.settings.address!,
-  };
-}
-
-export async function cancelSwapMenu(state: IState): Promise<IState> {
+export async function cancelSwapMenu(state: State): Promise<State> {
   await printHeader(state);
   console.log("\t==== Cancel swap menu ====\n");
-  const sdk = await getSDK(state);
-  const v3OrderScriptAddress = await sdk.builders
-    .get(EContractVersion.V3)!
+  const v3OrderScriptAddress = await state
+    .sdk!.builders.get(EContractVersion.V3)!
     .getOrderAddress(state.settings.address!);
-  const orderUtxos = await state.blaze?.provider.getUnspentOutputs(
-    Core.Address.fromBech32(v3OrderScriptAddress),
-  );
+  const orderUtxos = await state
+    .sdk!.blaze()
+    .provider.getUnspentOutputs(Core.Address.fromBech32(v3OrderScriptAddress));
   const choices: { name: string; value: any }[] = orderUtxos!.map((utxo) => {
     return {
       name: `${utxo.input().transactionId()}#${utxo.input().index()}`,
@@ -182,14 +182,42 @@ export async function cancelSwapMenu(state: IState): Promise<IState> {
   if (choice === "back") {
     return state;
   }
-  const tx = await sdk.builders.get(EContractVersion.V3)!.cancel({
+  const tx = await state.sdk?.builders.get(EContractVersion.V3)!.cancel({
     ownerAddress: state.settings.address,
     utxo: {
       hash: choice.input().transactionId(),
       index: choice.input().index(),
     },
   });
-  const txCbor = (await tx.build()).cbor;
-  await transactionDialog(txCbor, false);
+  const txCbor = (await tx?.build())?.cbor;
+  await transactionDialog(txCbor!, false);
   return state;
+}
+
+export async function mintPoolV3Args(
+  state: State,
+): Promise<IMintV3PoolConfigArgs> {
+  return {
+    assetA: await getAssetAmount(state, "Select asset A", 2n),
+    assetB: await getAssetAmount(state, "Select asset B", 2n),
+    fees: await getFeeChoice(),
+    ownerAddress: state.settings.address!,
+  };
+}
+
+async function mintPoolNftCheckArgs(
+  state: State,
+): Promise<IMintNftCheckPoolConfigArgs> {
+  const v3Args = await mintPoolV3Args(state);
+  const nftCheck = await getAssetAmount(state, "Select NFT asset", 1n);
+  return {
+    assetA: v3Args.assetA,
+    assetB: v3Args.assetB,
+    fees: v3Args.fees,
+    ownerAddress: v3Args.ownerAddress,
+    conditionDatumArgs: {
+      value: [nftCheck],
+      check: "Any",
+    },
+  } as IMintNftCheckPoolConfigArgs;
 }

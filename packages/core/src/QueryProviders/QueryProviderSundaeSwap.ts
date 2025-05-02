@@ -71,8 +71,8 @@ interface IPoolDataQueryResult {
  */
 export class QueryProviderSundaeSwap implements QueryProvider {
   public baseUrl: string;
-  private protocolParamsFull?: ISundaeProtocolParamsFull;
-  private protocolParams?: ISundaeProtocolParams;
+  private protocolParamsFull: ISundaeProtocolParamsFull[] = [];
+  private protocolParams: ISundaeProtocolParams[] = [];
   private poolData: Map<string, IPoolData>;
 
   constructor(protected network: TSupportedNetworks) {
@@ -80,18 +80,21 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     this.poolData = new Map();
   }
 
-  setProtocolParams(protocolParams: ISundaeProtocolParamsFull) {
-    this.protocolParamsFull = protocolParams;
-    this.protocolParams = {
-      ...protocolParams,
+  addCustomProtocolParams(protocolParamsFull: ISundaeProtocolParamsFull): void {
+    this.protocolParamsFull = [protocolParamsFull, ...this.protocolParamsFull];
+    const protocolParams = {
+      ...protocolParamsFull,
       blueprint: {
-        ...protocolParams.blueprint,
-        validators: protocolParams.blueprint.validators.map((validator) => ({
-          ...validator,
-          compiledCode: undefined,
-        })),
+        ...protocolParamsFull.blueprint,
+        validators: protocolParamsFull.blueprint.validators.map(
+          (validator) => ({
+            ...validator,
+            compiledCode: undefined,
+          }),
+        ),
       },
     };
+    this.protocolParams = [protocolParams, ...this.protocolParams];
   }
 
   setPoolData(ident: string, poolData: IPoolData) {
@@ -352,20 +355,15 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   async getProtocolParamsWithScriptHashes(
     version?: EContractVersion,
   ): Promise<ISundaeProtocolParams[] | ISundaeProtocolParams> {
-    if (this.protocolParams) {
-      return this.protocolParams;
-    }
     const res: {
       data?: { protocols: ISundaeProtocolParams[] };
-    } = this.protocolParams
-      ? { data: { protocols: [this.protocolParams] } }
-      : await fetch(this.baseUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: `
+    } = await fetch(this.baseUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
         query ProtocolValidators {
           protocols {
             blueprint {
@@ -385,8 +383,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           }
         }
         `,
-          }),
-        }).then((res) => res.json());
+      }),
+    }).then((res) => res.json());
 
     if (!res?.data) {
       throw new Error(
@@ -395,6 +393,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         )}`,
       );
     }
+
+    res.data.protocols = this.protocolParams.concat(res.data.protocols);
 
     if (version) {
       return res.data.protocols.find(
@@ -421,17 +421,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   ): Promise<ISundaeProtocolParamsFull[] | ISundaeProtocolParamsFull> {
     const res: {
       data?: { protocols: ISundaeProtocolParamsFull[] };
-    } = this.protocolParamsFull
-      ? {
-          data: { protocols: [this.protocolParamsFull] },
-        }
-      : await fetch(this.baseUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: `
+    } = await fetch(this.baseUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
         query ProtocolValidators {
           protocols {
             blueprint {
@@ -452,8 +448,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           }
         }
         `,
-          }),
-        }).then((res) => res.json());
+      }),
+    }).then((res) => res.json());
 
     if (!res?.data) {
       throw new Error(
@@ -462,6 +458,10 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         )}`,
       );
     }
+
+    res.data.protocols = this.protocolParamsFull.concat(res.data.protocols);
+
+    console.log(this.protocolParamsFull);
 
     if (version) {
       return res.data.protocols.find(
