@@ -98,6 +98,15 @@ export interface IWithdrawConfigArgs extends Omit<IOrderConfigArgs, "pool"> {
   suppliedLPAsset: AssetAmount<IAssetAmountMetadata>;
 }
 
+/**
+ * The arguments configuration for building a valid Strategy.
+ */
+export interface IStrategyConfigArgs extends IOrderConfigArgs {
+  suppliedAsset: AssetAmount<IAssetAmountMetadata>;
+  authSigner?: string;
+  authScript?: string;
+}
+
 export interface IFeesConfig {
   ask: bigint;
   bid: bigint;

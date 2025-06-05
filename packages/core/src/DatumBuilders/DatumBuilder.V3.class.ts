@@ -57,6 +57,16 @@ export interface IDatumBuilderWithdrawV3Args extends IDatumBuilderBaseV3Args {
 }
 
 /**
+ * The arguments for building a strategy transaction against a V3 pool contract.
+ */
+export interface IDatumBuilderStrategyV3Args extends IDatumBuilderBaseV3Args {
+  order: {
+    signer?: string;
+    script?: string;
+  };
+}
+
+/**
  * The arguments for building a minting a new pool transaction against
  * the V3 pool contract.
  */
@@ -211,6 +221,43 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
       order: {
         Withdrawal: {
           amount: this.buildAssetAmountDatum(order.lpToken).schema,
+        },
+      },
+      owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
+        .schema,
+      poolIdent: this.validatePoolIdent(ident),
+      scooperFee: scooperFee,
+    };
+
+    const data = Data.to(datum, V3Types.OrderDatum);
+
+    return {
+      hash: data.hash(),
+      inline: data.toCbor(),
+      schema: datum,
+    };
+  }
+
+  public buildStrategyDatum({
+    destinationAddress,
+    ident,
+    order,
+    ownerAddress,
+    scooperFee,
+  }: IDatumBuilderStrategyV3Args): TDatumResult<V3Types.TOrderDatum> {
+    const auth = order.signer
+      ? {
+          Signature: { signer: order.signer },
+        }
+      : {
+          Script: { script: order.script! },
+        };
+    const datum: V3Types.TOrderDatum = {
+      destination: this.buildDestinationAddresses(destinationAddress).schema,
+      extension: Data.void().toCbor(),
+      order: {
+        Strategy: {
+          auth,
         },
       },
       owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)

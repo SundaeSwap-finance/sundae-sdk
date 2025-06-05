@@ -778,6 +778,73 @@ describe("TxBuilderBlazeV3", () => {
     }
   });
 
+  it("strategy()", async () => {
+    const spiedNewTx = spyOn(builder, "newTxInstance");
+    const spiedBuildStrategyDatum = spyOn(
+      builder.datumBuilder,
+      "buildStrategyDatum",
+    );
+
+    const { build, fees, datum } = await builder.strategy({
+      orderAddresses: {
+        DestinationAddress: {
+          address: PREVIEW_DATA.addresses.current,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+      },
+      pool: PREVIEW_DATA.pools.v3,
+      authSigner: "cafebabe",
+      suppliedAsset: PREVIEW_DATA.assets.tada,
+    });
+
+    expect(spiedNewTx).toHaveBeenNthCalledWith(1, undefined);
+    expect(spiedBuildStrategyDatum).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        ident: PREVIEW_DATA.pools.v3.ident,
+        order: {
+          signer: "cafebabe",
+        },
+      }),
+    );
+
+    expect(datum).toEqual(
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd8799fd8799f44cafebabeffff43d87980ff",
+    );
+    expect(fees).toMatchObject({
+      deposit: expect.objectContaining({
+        amount: ORDER_DEPOSIT_DEFAULT,
+        metadata: ADA_METADATA,
+      }),
+      scooperFee: expect.objectContaining({
+        amount: 1_000_000n,
+        metadata: ADA_METADATA,
+      }),
+    });
+
+    const { builtTx } = await build();
+    expect(fees.cardanoTxFee).not.toBeUndefined();
+
+    let strategyOutput: Core.TransactionOutput | undefined;
+    builtTx.body().outputs().forEach(output => {
+      if (getPaymentAddressFromOutput(output).toBech32() ===
+        "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
+        output.amount().coin().toString() === "23000000") {
+          strategyOutput = output;
+        }
+    });
+
+    expect(strategyOutput).not.toBeUndefined();
+    expect(strategyOutput?.datum()?.asDataHash()).toBeUndefined();
+    expect(builtTx.witnessSet().plutusData()?.values()?.[0]).toBeUndefined();
+
+    const inlineDatum = strategyOutput?.datum()?.asInlineData()?.toCbor();
+    expect(inlineDatum).not.toBeUndefined();
+    expect(inlineDatum).toEqual(datum as Core.HexBlob);
+  });
+
   it("mintPool() should build a transaction correctly when including ADA", async () => {
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tada,

@@ -7,6 +7,7 @@ import {
   IDatumBuilderDepositV3Args,
   IDatumBuilderMintPoolV3Args,
   IDatumBuilderPoolMintRedeemerV3Args,
+  IDatumBuilderStrategyV3Args,
   IDatumBuilderSwapV3Args,
   IDatumBuilderWithdrawV3Args,
 } from "../DatumBuilder.V3.class.js";
@@ -307,6 +308,48 @@ export const V3_EXPECTATIONS = {
             hex: "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0",
           },
         },
+      },
+    },
+  ],
+  buildStrategyDatum: [
+    {
+      args: {
+        destinationAddress: {
+          address: PREVIEW_DATA.addresses.current,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+        ident: PREVIEW_DATA.pools.v3.ident,
+        order: {
+          signer: "cafebabe",
+        },
+        scooperFee: 1_000_000n,
+      } as IDatumBuilderStrategyV3Args,
+      expectations: {
+        inline:
+          "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd8799fd8799f44cafebabeffff43d87980ff",
+        hash: "977056bb7f8b09effdc0df6c31c89698807e740a55a8b915e51a3103c8c6eb47",
+      },
+    },
+    {
+      args: {
+        destinationAddress: {
+          address: PREVIEW_DATA.addresses.current,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+        ident: PREVIEW_DATA.pools.v3.ident,
+        order: {
+          script: "cafebabe",
+        },
+        scooperFee: 1_000_000n,
+      } as IDatumBuilderStrategyV3Args,
+      expectations: {
+        inline:
+          "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd8799fd87a9f44cafebabeffff43d87980ff",
+        hash: "3d0cea773a728e9ea7df5c92decc7dc0226144d1cfbacb2b3a5667b54d33ea40",
       },
     },
   ],
