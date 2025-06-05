@@ -1,5 +1,5 @@
 ---
-"@sundaeswap/core": minor
+"@sundaeswap/core": patch
 ---
 
 Adds a `strategy()` method to the V3 transaction builder, to support strategy orders.
