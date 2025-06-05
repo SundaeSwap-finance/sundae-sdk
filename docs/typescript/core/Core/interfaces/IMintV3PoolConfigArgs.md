@@ -22,4 +22,4 @@ to the SundaeSwap Treasury wallet.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:121](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L121)
+[packages/core/src/@types/configs.ts:130](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L130)
