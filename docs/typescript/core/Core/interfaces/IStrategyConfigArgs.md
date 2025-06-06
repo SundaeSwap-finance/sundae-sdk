@@ -8,4 +8,4 @@ The arguments configuration for building a valid Strategy.
 
 ## Extends
 
-- [`IOrderConfigArgs`](IOrderConfigArgs.md)
+- `Omit`\<[`IOrderConfigArgs`](IOrderConfigArgs.md), `"orderAddresses"`\>

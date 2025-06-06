@@ -10,4 +10,4 @@ A union type to represent all possible swap types.
 
 ## Defined in
 
-[packages/core/src/@types/configs.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L57)
+[packages/core/src/@types/configs.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L58)

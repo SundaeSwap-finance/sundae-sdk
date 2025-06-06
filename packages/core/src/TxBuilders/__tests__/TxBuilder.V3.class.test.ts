@@ -8,7 +8,7 @@ import {
 import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 
 import { ESwapType } from "../../@types/configs.js";
-import { EDatumType } from "../../@types/datumbuilder.js";
+import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
 import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
@@ -786,14 +786,10 @@ describe("TxBuilderBlazeV3", () => {
     );
 
     const { build, fees, datum } = await builder.strategy({
-      orderAddresses: {
-        DestinationAddress: {
-          address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          },
-        },
+      destination: {
+        type: EDestinationType.SELF,
       },
+      ownerAddress: PREVIEW_DATA.addresses.current,
       pool: PREVIEW_DATA.pools.v3,
       authSigner: "cafebabe",
       suppliedAsset: PREVIEW_DATA.assets.tada,
@@ -811,7 +807,7 @@ describe("TxBuilderBlazeV3", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd8799fd8799f44cafebabeffff43d87980ff",
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d87a80d8799fd8799f44cafebabeffff43d87980ff",
     );
     expect(fees).toMatchObject({
       deposit: expect.objectContaining({

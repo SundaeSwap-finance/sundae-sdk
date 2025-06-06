@@ -13,6 +13,7 @@ SundaeSwap protocol.
 
 - [EContractVersion](enumerations/EContractVersion.md)
 - [EDatumType](enumerations/EDatumType.md)
+- [EDestinationType](enumerations/EDestinationType.md)
 - [EPoolCoin](enumerations/EPoolCoin.md)
 - [EPoolSearchType](enumerations/EPoolSearchType.md)
 - [ESwapType](enumerations/ESwapType.md)
@@ -91,7 +92,10 @@ SundaeSwap protocol.
 - [TDatumResult](type-aliases/TDatumResult.md)
 - [TDepositMixed](type-aliases/TDepositMixed.md)
 - [TDepositSingle](type-aliases/TDepositSingle.md)
+- [TDestination](type-aliases/TDestination.md)
 - [TDestinationAddress](type-aliases/TDestinationAddress.md)
+- [TDestinationFixed](type-aliases/TDestinationFixed.md)
+- [TDestinationSelf](type-aliases/TDestinationSelf.md)
 - [TFee](type-aliases/TFee.md)
 - [TIdent](type-aliases/TIdent.md)
 - [TOrderAddressesArgs](type-aliases/TOrderAddressesArgs.md)

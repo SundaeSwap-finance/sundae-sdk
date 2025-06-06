@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 
 import { AssetAmount } from "@sundaeswap/asset";
-import { EDatumType } from "../../@types/index.js";
+import { EDatumType, EDestinationType } from "../../@types/index.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { StrategyConfig } from "../StrategyConfig.class";
 
@@ -18,13 +18,12 @@ describe("StrategyConfig class", () => {
   it("should construct with a signer config", () => {
     const myConfig = new StrategyConfig({
       pool: PREVIEW_DATA.pools.v3,
-      orderAddresses: {
-        DestinationAddress: {
-          address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          }
-        }
+      destination: {
+        type: EDestinationType.FIXED,
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
+        },
       },
       authSigner: "cafed00d",
       suppliedAsset: PREVIEW_DATA.assets.tada,
@@ -32,14 +31,14 @@ describe("StrategyConfig class", () => {
 
     expect(myConfig.buildArgs()).toMatchObject({
       pool: PREVIEW_DATA.pools.v3,
-      orderAddresses: {
-        DestinationAddress: {
-          address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          }
+      destination: {
+        type: EDestinationType.FIXED,
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
         },
       },
+      ownerAddress: PREVIEW_DATA.addresses.current,
       authSigner: "cafed00d",
       suppliedAsset: expect.objectContaining({
         amount: PREVIEW_DATA.assets.tada.amount,
@@ -54,28 +53,20 @@ describe("StrategyConfig class", () => {
   it("should construct with a script config", () => {
     const myConfig = new StrategyConfig({
       pool: PREVIEW_DATA.pools.v3,
-      orderAddresses: {
-        DestinationAddress: {
-          address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          }
-        }
+      destination: {
+        type: EDestinationType.SELF,
       },
+      ownerAddress: PREVIEW_DATA.addresses.current,
       authScript: "cafed00d",
       suppliedAsset: PREVIEW_DATA.assets.tada,
     });
 
     expect(myConfig.buildArgs()).toMatchObject({
       pool: PREVIEW_DATA.pools.v3,
-      orderAddresses: {
-        DestinationAddress: {
-          address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          }
-        },
+      destination: {
+        type: EDestinationType.SELF,
       },
+      ownerAddress: PREVIEW_DATA.addresses.current,
       authScript: "cafed00d",
       suppliedAsset: expect.objectContaining({
         amount: PREVIEW_DATA.assets.tada.amount,
@@ -87,7 +78,7 @@ describe("StrategyConfig class", () => {
     });
   });
 
-  it("should throw when not calling setOrderAddresses()", () => {
+  it("should throw when not calling setDestination()", () => {
     config
       .setPool(PREVIEW_DATA.pools.v3)
       .setAuthSigner("cafebabe")
@@ -95,17 +86,16 @@ describe("StrategyConfig class", () => {
         new AssetAmount(20n, { assetId: "tINDY", decimals: 0 }),
       );
 
-    expect(() => config.buildArgs()).toThrowError(new Error("You haven't defined the OrderAddresses in your Config. Set with .setOrderAddresses()"))
+    expect(() => config.buildArgs()).toThrowError(new Error("You haven't defined the Destination in your Config. Set with .setDestination()"))
   });
 
   it("should throw when not calling setPool()", () => {
     config
-      .setOrderAddresses({
-        DestinationAddress: {
-          address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          },
+      .setDestination({
+        type: EDestinationType.FIXED,
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
         },
       })
       .setAuthSigner("cafebabe")
@@ -116,12 +106,11 @@ describe("StrategyConfig class", () => {
 
   it("should throw when not calling setAuthSigner() or setAuthScript()", () => {
     config
-      .setOrderAddresses({
-        DestinationAddress: {
-          address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          },
+      .setDestination({
+        type: EDestinationType.FIXED,
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
         },
       })
       .setPool(PREVIEW_DATA.pools.v3)
@@ -132,12 +121,11 @@ describe("StrategyConfig class", () => {
 
   it("should throw when calling both setAuthSigner() and setAuthScript()", () => {
     config
-      .setOrderAddresses({
-        DestinationAddress: {
-          address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          },
+      .setDestination({
+        type: EDestinationType.FIXED,
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
         },
       })
       .setPool(PREVIEW_DATA.pools.v3)

@@ -1,20 +1,53 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { IStrategyConfigArgs } from "src/@types";
-import { OrderConfig } from "../Abstracts/OrderConfig.abstract.class.js";
+import {
+  EDestinationType,
+  IPoolData,
+  IStrategyConfigArgs,
+  IStrategyConfigInputArgs,
+  TDestination,
+  TDestinationFixed,
+} from "../@types";
+import { Config } from "../Abstracts/Config.abstract.class.js";
 
-export class StrategyConfig extends OrderConfig<IStrategyConfigArgs> {
+export class StrategyConfig extends Config<IStrategyConfigArgs> {
+  /**
+   * The data for the pool involved in the order.
+   */
+  pool?: IPoolData;
+
+  /**
+   * The destination for the order.
+   */
+  destination?: TDestination;
+
+  ownerAddress?: string;
   suppliedAsset?: AssetAmount<IAssetAmountMetadata>;
   authSigner?: string;
   authScript?: string;
 
-  constructor(args?: IStrategyConfigArgs) {
+  constructor(args?: IStrategyConfigInputArgs) {
     super();
 
     args && this.setFromObject(args);
   }
 
+  setDestination(destination: TDestination) {
+    this.destination = destination;
+    return this;
+  }
+
+  setPool(pool: IPoolData) {
+    this.pool = pool;
+    return this;
+  }
+
   setSuppliedAsset(asset: AssetAmount<IAssetAmountMetadata>) {
     this.suppliedAsset = asset;
+    return this;
+  }
+
+  setOwnerAddress(ownerAddress: string) {
+    this.ownerAddress = ownerAddress;
     return this;
   }
 
@@ -32,8 +65,10 @@ export class StrategyConfig extends OrderConfig<IStrategyConfigArgs> {
     this.validate();
 
     return {
-      orderAddresses: this.orderAddresses!,
       pool: this.pool!,
+      destination: this.destination!,
+      ownerAddress:
+        this.ownerAddress || (this.destination as TDestinationFixed).address,
       referralFee: this.referralFee,
       suppliedAsset: this.suppliedAsset!,
       authSigner: this.authSigner,
@@ -42,15 +77,17 @@ export class StrategyConfig extends OrderConfig<IStrategyConfigArgs> {
   }
 
   setFromObject({
-    orderAddresses,
+    destination,
     pool,
+    ownerAddress,
     suppliedAsset,
     authSigner,
     authScript,
-  }: IStrategyConfigArgs): void {
-    this.setOrderAddresses(orderAddresses);
+  }: IStrategyConfigInputArgs): void {
+    this.setDestination(destination);
     this.setPool(pool);
     this.setSuppliedAsset(suppliedAsset);
+    ownerAddress && this.setOwnerAddress(ownerAddress);
     authSigner && this.setAuthSigner(authSigner);
     authScript && this.setAuthScript(authScript);
   }
@@ -58,9 +95,27 @@ export class StrategyConfig extends OrderConfig<IStrategyConfigArgs> {
   validate(): void {
     super.validate();
 
+    if (!this.pool) {
+      throw new Error(
+        "You haven't set a pool in your Config. Set a pool with .setPool()",
+      );
+    }
+
+    if (!this.destination) {
+      throw new Error(
+        "You haven't defined the Destination in your Config. Set with .setDestination()",
+      );
+    }
+
     if (!this.suppliedAsset) {
       throw new Error(
         "You haven't funded this strategy! Fund in with .setSuppliedAsset()",
+      );
+    }
+
+    if (!this.ownerAddress && this.destination.type === EDestinationType.SELF) {
+      throw new Error(
+        "If your destination is self, you must provide your owner address. Pass it with .setOwnerAddress()",
       );
     }
 

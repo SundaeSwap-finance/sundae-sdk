@@ -16,7 +16,7 @@ import type {
   IDepositConfigArgs,
   IMintV3PoolConfigArgs,
   IOrderRouteSwapArgs,
-  IStrategyConfigArgs,
+  IStrategyConfigInputArgs,
   ISundaeProtocolParamsFull,
   ISundaeProtocolReference,
   ISundaeProtocolValidatorFull,
@@ -1088,12 +1088,13 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
   }
 
   async strategy(
-    strategyArgs: IStrategyConfigArgs,
+    strategyArgs: IStrategyConfigInputArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const {
       suppliedAsset,
       pool,
-      orderAddresses,
+      destination,
+      ownerAddress,
       referralFee,
       authSigner,
       authScript,
@@ -1103,16 +1104,17 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
     const v3Address = await this.generateScriptAddress(
       "order.spend",
-      strategyArgs.ownerAddress ?? orderAddresses.DestinationAddress.address,
+      ownerAddress,
     );
 
     const { inline } = this.datumBuilder.buildStrategyDatum({
-      destinationAddress: orderAddresses.DestinationAddress,
+      destination,
       ident: pool.ident,
       order: {
         signer: authSigner,
         script: authScript,
       },
+      ownerAddress,
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 

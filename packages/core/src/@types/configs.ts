@@ -2,6 +2,7 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import {
   EPoolCoin,
+  TDestination,
   TDestinationAddress,
   TOrderAddressesArgs,
   TUTXO,
@@ -101,10 +102,18 @@ export interface IWithdrawConfigArgs extends Omit<IOrderConfigArgs, "pool"> {
 /**
  * The arguments configuration for building a valid Strategy.
  */
-export interface IStrategyConfigArgs extends IOrderConfigArgs {
+export interface IStrategyConfigArgs
+  extends Omit<IOrderConfigArgs, "orderAddresses"> {
   suppliedAsset: AssetAmount<IAssetAmountMetadata>;
+  destination: TDestination;
+  ownerAddress: string;
   authSigner?: string;
   authScript?: string;
+}
+
+export interface IStrategyConfigInputArgs
+  extends Omit<IStrategyConfigArgs, "ownerAddress"> {
+  ownerAddress?: string;
 }
 
 export interface IFeesConfig {

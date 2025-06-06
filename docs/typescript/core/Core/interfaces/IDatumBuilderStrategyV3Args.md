@@ -8,4 +8,4 @@ The arguments for building a strategy transaction against a V3 pool contract.
 
 ## Extends
 
-- [`IDatumBuilderBaseV3Args`](IDatumBuilderBaseV3Args.md)
+- `Omit`\<[`IDatumBuilderBaseV3Args`](IDatumBuilderBaseV3Args.md), `"destinationAddress"`\>

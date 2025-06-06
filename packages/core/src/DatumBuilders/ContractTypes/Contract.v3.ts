@@ -173,10 +173,12 @@ export const DatumSchema = Data.Enum([
 export type TDatumSchema = Static<typeof DatumSchema>;
 export const Datum = DatumSchema as unknown as TDatumSchema;
 
-export const DestinationSchema = Data.Object({
-  address: AddressSchema,
-  datum: DatumSchema,
-});
+export const DestinationSchema = Data.Enum([
+  Data.Object({
+    Fixed: Data.Object({ address: AddressSchema, datum: DatumSchema }),
+  }),
+  Data.Literal("Self"),
+]);
 export type TDestination = Static<typeof DestinationSchema>;
 export const Destination = DestinationSchema as unknown as TDestination;
 

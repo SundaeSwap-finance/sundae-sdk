@@ -11,4 +11,3 @@ The base arguments for the V3 DatumBuilder.
 - [`IDatumBuilderSwapV3Args`](IDatumBuilderSwapV3Args.md)
 - [`IDatumBuilderDepositV3Args`](IDatumBuilderDepositV3Args.md)
 - [`IDatumBuilderWithdrawV3Args`](IDatumBuilderWithdrawV3Args.md)
-- [`IDatumBuilderStrategyV3Args`](IDatumBuilderStrategyV3Args.md)

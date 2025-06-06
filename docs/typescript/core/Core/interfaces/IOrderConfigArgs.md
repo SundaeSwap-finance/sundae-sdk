@@ -15,4 +15,3 @@ The common arguments for any valid order.
 - [`ISwapConfigArgs`](ISwapConfigArgs.md)
 - [`IDepositConfigArgs`](IDepositConfigArgs.md)
 - [`IZapConfigArgs`](IZapConfigArgs.md)
-- [`IStrategyConfigArgs`](IStrategyConfigArgs.md)
