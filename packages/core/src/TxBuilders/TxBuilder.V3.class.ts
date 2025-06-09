@@ -21,6 +21,7 @@ import type {
   IMintV3PoolConfigArgs,
   IOrderRouteSwapArgs,
   IPoolData,
+  IStrategyConfigInputArgs,
   ISundaeProtocolParamsFull,
   ISundaeProtocolReference,
   ISundaeProtocolValidatorFull,
@@ -36,6 +37,7 @@ import { EContractVersion, EDatumType, ESwapType } from "../@types/index.js";
 import { TxBuilderAbstractV3 } from "../Abstracts/TxBuilderAbstract.V3..class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
+import { StrategyConfig } from "../Configs/StrategyConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
@@ -1088,6 +1090,58 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
         ),
       ),
       assets,
+      Core.PlutusData.fromCbor(Core.HexBlob(inline)),
+    );
+
+    return this.completeTx({
+      tx,
+      datum: inline,
+      referralFee: referralFee?.payment,
+    });
+  }
+
+  async strategy(
+    strategyArgs: IStrategyConfigInputArgs,
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
+    const {
+      suppliedAsset,
+      pool,
+      destination,
+      ownerAddress,
+      referralFee,
+      authSigner,
+      authScript,
+    } = new StrategyConfig(strategyArgs).buildArgs();
+
+    const tx = this.newTxInstance(referralFee);
+
+    const v3Address = await this.generateScriptAddress(
+      "order.spend",
+      ownerAddress,
+    );
+
+    const { inline } = this.datumBuilder.buildStrategyDatum({
+      destination,
+      ident: pool.ident,
+      order: {
+        signer: authSigner,
+        script: authScript,
+      },
+      ownerAddress,
+      scooperFee: await this.getMaxScooperFeeAmount(),
+    });
+
+    const payment = SundaeUtils.accumulateSuppliedAssets({
+      suppliedAssets: [suppliedAsset],
+      scooperFee: await this.getMaxScooperFeeAmount(),
+    });
+
+    tx.lockAssets(
+      Core.addressFromBech32(v3Address),
+      makeValue(
+        payment.lovelace,
+        ...Object.entries(payment).filter(([key]) => key !== "lovelace"),
+      ),
       Core.PlutusData.fromCbor(Core.HexBlob(inline)),
     );
 

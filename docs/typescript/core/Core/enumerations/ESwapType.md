@@ -14,7 +14,7 @@ An enum to represent a Swap order type.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:33](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L33)
+[packages/core/src/@types/configs.ts:34](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L34)
 
 ***
 
@@ -24,4 +24,4 @@ An enum to represent a Swap order type.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L32)
+[packages/core/src/@types/configs.ts:33](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L33)

@@ -21,4 +21,4 @@ receivable amount to satisfy a pool's CoinA/CoinB requirements.
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:119](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L119)
+[packages/core/src/@types/datumbuilder.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L148)
