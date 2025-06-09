@@ -16,4 +16,4 @@ The DatumNone type is used to describe a null datum.
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L41)
+[packages/core/src/@types/datumbuilder.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L42)

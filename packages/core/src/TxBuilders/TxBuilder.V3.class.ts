@@ -684,7 +684,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
             type: EDatumType.NONE,
           },
         },
-        PoolDestinationVersion: args.swapB.pool.version,
+        PoolDestinationVersion: args.swapB.pool.version as EContractVersion,
       },
     }).buildArgs();
 

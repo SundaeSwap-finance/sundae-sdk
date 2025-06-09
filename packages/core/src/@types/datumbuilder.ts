@@ -1,4 +1,5 @@
 import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { EContractVersion } from "./txbuilders";
 
 /**
  * The unique identifier of a pool, defined as a string.
@@ -94,7 +95,7 @@ export type TCancelerAddress = string;
 export type TOrderAddressesArgs = {
   DestinationAddress: TDestinationAddress;
   AlternateAddress?: TCancelerAddress;
-  PoolDestinationVersion?: string;
+  PoolDestinationVersion?: EContractVersion;
 };
 
 /**

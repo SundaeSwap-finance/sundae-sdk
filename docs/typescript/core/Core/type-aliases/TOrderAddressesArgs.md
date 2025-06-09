@@ -20,8 +20,8 @@ An Escrow address defines the destination address and an optional PubKeyHash
 
 ### PoolDestinationVersion?
 
-> `optional` **PoolDestinationVersion**: `string`
+> `optional` **PoolDestinationVersion**: [`EContractVersion`](../enumerations/EContractVersion.md)
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:94](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L94)
+[packages/core/src/@types/datumbuilder.ts:95](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L95)
