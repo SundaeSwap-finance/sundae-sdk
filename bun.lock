@@ -30,7 +30,7 @@
     },
     "packages/core": {
       "name": "@sundaeswap/core",
-      "version": "2.0.0",
+      "version": "2.0.4",
       "devDependencies": {
         "@blaze-cardano/emulator": "^0.3.21",
         "@sundaeswap/bigint-math": "^0.6.3",
@@ -55,10 +55,10 @@
         "@blaze-cardano/sdk": "^0.2.27",
         "@sundaeswap/asset": "^1.0.3",
         "@sundaeswap/bigint-math": "^0.6.3",
-        "@sundaeswap/core": "^2.0.0",
+        "@sundaeswap/core": "^2.0.4",
         "@sundaeswap/cpp": "^1.0.3",
         "@sundaeswap/fraction": "^1.0.3",
-        "@sundaeswap/taste-test": "^2.0.0",
+        "@sundaeswap/taste-test": "^2.0.1",
         "@tailwindcss/forms": "^0.5.2",
         "autoprefixer": "^9",
         "buffer": "^6.0.3",
@@ -122,24 +122,24 @@
       "peerDependencies": {
         "@blaze-cardano/sdk": "^0.2.27",
         "@sundaeswap/asset": "^1.0.6",
-        "@sundaeswap/core": "^2.0.0",
+        "@sundaeswap/core": "^2.0.4",
       },
     },
     "packages/taste-test": {
       "name": "@sundaeswap/taste-test",
-      "version": "2.0.0",
+      "version": "2.0.1",
       "devDependencies": {
         "@sundaeswap/core": "workspace:*",
       },
       "peerDependencies": {
         "@blaze-cardano/sdk": "^0.2.27",
         "@sundaeswap/asset": "^1.0.6",
-        "@sundaeswap/core": "^2.0.0",
+        "@sundaeswap/core": "^2.0.4",
       },
     },
     "packages/yield-farming": {
       "name": "@sundaeswap/yield-farming",
-      "version": "2.0.0",
+      "version": "2.0.1",
       "devDependencies": {
         "@blaze-cardano/emulator": "^0.3.21",
         "@sundaeswap/core": "workspace:*",
@@ -147,7 +147,7 @@
       "peerDependencies": {
         "@blaze-cardano/sdk": "^0.2.27",
         "@sundaeswap/asset": "^1.0.6",
-        "@sundaeswap/core": "^2.0.0",
+        "@sundaeswap/core": "^2.0.4",
       },
     },
   },

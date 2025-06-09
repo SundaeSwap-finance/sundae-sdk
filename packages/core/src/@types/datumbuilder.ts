@@ -97,6 +97,35 @@ export type TOrderAddressesArgs = {
 };
 
 /**
+ * The type of destination specified for an order.
+ */
+export enum EDestinationType {
+  FIXED = "FIXED",
+  SELF = "SELF",
+}
+
+/**
+ * The DestinationFixed type describes a "fixed" destination, with a fixed address and optional datum
+ */
+export type TDestinationFixed = {
+  type: EDestinationType.FIXED;
+  address: string;
+  datum: TDatum;
+};
+
+/**
+ * The DestinationSelf type describes a "self" destination, reusing the same address and datum for the order.
+ */
+export type TDestinationSelf = {
+  type: EDestinationType.SELF;
+};
+
+/**
+ * A union to define all possible destination types.
+ */
+export type TDestination = TDestinationFixed | TDestinationSelf;
+
+/**
  * The swap direction of a coin pair, and a minimum receivable amount
  * which acts as the limit price of a swap.
  */
