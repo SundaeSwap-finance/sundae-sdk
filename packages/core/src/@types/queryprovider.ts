@@ -39,6 +39,14 @@ export interface IPoolByIdentQuery {
 }
 
 /**
+ * Query arguments for finding pools by an asset.
+ */
+export interface IPoolByAssetQuery {
+  /** The assets's id. */
+  assetId: string;
+}
+
+/**
  * Asset data returned from {@link Core.QueryProvider.findPoolData}.
  */
 export interface IPoolDataAsset {
@@ -78,6 +86,7 @@ export interface IPoolData {
     lpTotal: bigint;
   };
   version: string;
+  conditionDatum?: string;
 }
 
 /**

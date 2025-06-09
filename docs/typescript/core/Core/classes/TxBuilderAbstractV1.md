@@ -6,6 +6,10 @@
 
 The main class by which TxBuilder classes are extended.
 
+## Extends
+
+- `TxBuilderAbstract`
+
 ## Extended by
 
 - [`TxBuilderV1`](TxBuilderV1.md)
@@ -24,4 +28,4 @@ Should create a new transaction instance from the supplied transaction library.
 
 #### Defined in
 
-[packages/core/src/Abstracts/TxBuilderAbstract.V1.class.ts:21](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/TxBuilderAbstract.V1.class.ts#L21)
+[packages/core/src/Abstracts/TxBuilderAbstract.V1.class.ts:22](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/TxBuilderAbstract.V1.class.ts#L22)

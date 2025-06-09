@@ -94,6 +94,7 @@ export type TCancelerAddress = string;
 export type TOrderAddressesArgs = {
   DestinationAddress: TDestinationAddress;
   AlternateAddress?: TCancelerAddress;
+  PoolDestinationVersion?: string;
 };
 
 /**
