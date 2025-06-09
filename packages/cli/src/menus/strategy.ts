@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { CredentialType } from "@blaze-cardano/core";
 import { input, select } from "@inquirer/prompts";
 import {

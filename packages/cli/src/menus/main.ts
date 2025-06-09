@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Core } from "@blaze-cardano/sdk";
 import { input, select } from "@inquirer/prompts";
 import type { State } from "../types";
