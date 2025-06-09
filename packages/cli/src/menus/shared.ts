@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { input, select } from "@inquirer/prompts";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import { ADA_METADATA } from "@sundaeswap/core";
@@ -45,7 +46,7 @@ export async function printHeader(state: State): Promise<void> {
     "",
   ];
   const lines: string[] = [];
-  if (asciiLogo.length != headerText.length) {
+  if (asciiLogo.length !== headerText.length) {
     await setAsciiLogo(headerText.length);
   }
   for (let i = 0; i < headerText.length; i++) {
@@ -77,7 +78,7 @@ export async function getAssetAmount(
     })
     .toArray();
   choices?.push({
-    name: `ADA` + ` (${bal!.coin().toString()})`,
+    name: `ADA (${bal!.coin().toString()})`,
     value: "ada.lovelace",
   });
   const choice = await select({

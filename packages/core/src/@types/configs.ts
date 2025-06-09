@@ -127,9 +127,8 @@ export interface IMintV3PoolConfigArgs extends IBaseConfig {
  */
 export interface IMintConditionPoolConfigArgs extends IMintV3PoolConfigArgs {
   condition?: string;
-  conditionDatumArgs?: any;
+  conditionDatumArgs?: unknown;
 }
-
 
 /**
  * Interface describing migrations for liquidity

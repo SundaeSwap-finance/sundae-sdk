@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Core } from "@blaze-cardano/sdk";
 import { input, select } from "@inquirer/prompts";
 import type { State } from "../types";
@@ -37,6 +38,9 @@ export async function mainMenu(state: State): Promise<State> {
         break;
       case "mintToken":
         await mintToken(state);
+        break;
+      default:
+        console.log("Exiting...");
         break;
     }
   }

@@ -110,4 +110,4 @@ _site
 .jekyll-metadata
 vendor
 
-settings.json
+settings.json*
