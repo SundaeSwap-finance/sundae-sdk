@@ -38,6 +38,11 @@ export async function mainMenu(state: State): Promise<State> {
       case "mintToken":
         await mintToken(state);
         break;
+      default:
+        if (choice !== "exit") {
+          console.log(`Unknown option: ${choice}`);
+        }
+        break;
     }
   }
   return state;

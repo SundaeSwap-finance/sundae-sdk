@@ -3,8 +3,10 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { sqrt } from "@sundaeswap/bigint-math";
 import {
   EDatumType,
+  EDestinationType,
   IFeesConfig,
   TDatumResult,
+  TDestination,
   TDestinationAddress,
   TSupportedNetworks,
 } from "src/@types";
@@ -12,6 +14,7 @@ import { DatumBuilderAbstractCondition } from "src/Abstracts/DatumBuilderConditi
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import * as ConditionTypes from "./ContractTypes/Contract.Condition.js";
+import { IDatumBuilderStrategyV3Args } from "./DatumBuilder.V3.class.js";
 
 /**
  * The base arguments for the Condition DatumBuilder.
@@ -70,7 +73,7 @@ export interface IDatumBuilderMintPoolConditionArgs {
   depositFee: bigint;
   marketOpen?: bigint;
   condition?: string;
-  conditionDatumArgs?: any;
+  conditionDatumArgs?: unknown;
 }
 
 /**
@@ -97,7 +100,7 @@ export class DatumBuilderCondition implements DatumBuilderAbstractCondition {
     this.network = network;
   }
 
-  public buildConditionDatum(_args: any): Core.PlutusData {
+  public buildConditionDatum(_args: unknown): Core.PlutusData {
     return Data.void();
   }
 
@@ -190,6 +193,62 @@ export class DatumBuilderCondition implements DatumBuilderAbstractCondition {
     };
   }
 
+  public buildStrategyDatum({
+    destination,
+    ident,
+    order,
+    ownerAddress,
+    scooperFee,
+  }: IDatumBuilderStrategyV3Args): TDatumResult<ConditionTypes.TOrderDatum> {
+    const auth = order.signer
+      ? {
+          Signature: { signer: order.signer },
+        }
+      : {
+          Script: { script: order.script! },
+        };
+    const datum: ConditionTypes.TOrderDatum = {
+      destination: this.buildDestination(destination).schema,
+      extension: Data.void().toCbor(),
+      order: {
+        Strategy: {
+          auth,
+        },
+      },
+      owner: this.buildOwnerDatum(ownerAddress).schema,
+      poolIdent: this.validatePoolIdent(ident),
+      scooperFee: scooperFee,
+    };
+
+    const data = Data.to(datum, ConditionTypes.OrderDatum);
+
+    return {
+      hash: data.hash(),
+      inline: data.toCbor(),
+      schema: datum,
+    };
+  }
+
+  public buildDestination(
+    destination: TDestination,
+  ): TDatumResult<ConditionTypes.TDestination> {
+    switch (destination.type) {
+      case EDestinationType.FIXED:
+        return this.buildDestinationAddresses(destination);
+      case EDestinationType.SELF: {
+        const value = "Self" as const;
+        const data = Data.to(value, ConditionTypes.DestinationSchema);
+        return {
+          hash: data.hash(),
+          inline: data.toCbor(),
+          schema: value,
+        };
+      }
+      default:
+        throw new Error("Unrecognized destination type");
+    }
+  }
+
   /**
    * Creates a withdraw datum object for Condition withdrawals, utilizing the provided arguments. This function
    * assembles a detailed withdraw datum structure, which encompasses the destination address, pool ident,
@@ -278,7 +337,7 @@ export class DatumBuilderCondition implements DatumBuilderAbstractCondition {
       network: this.network,
     });
 
-    let formattedDatum: ConditionTypes.TDestination["datum"];
+    let formattedDatum: ConditionTypes.TDatumSchema;
     switch (datum.type) {
       case EDatumType.NONE:
         formattedDatum = "VOID";
@@ -307,30 +366,32 @@ export class DatumBuilderCondition implements DatumBuilderAbstractCondition {
     const stakingPart = BlazeHelper.getStakingHashFromBech32(address);
 
     const destinationDatum: ConditionTypes.TDestination = {
-      address: {
-        paymentCredential: BlazeHelper.isScriptAddress(address)
-          ? {
-              SCredential: {
-                bytes: paymentPart,
-              },
-            }
-          : {
-              VKeyCredential: {
-                bytes: paymentPart,
-              },
-            },
-
-        stakeCredential: stakingPart
-          ? {
-              keyHash: {
+      Fixed: {
+        address: {
+          paymentCredential: BlazeHelper.isScriptAddress(address)
+            ? {
+                SCredential: {
+                  bytes: paymentPart,
+                },
+              }
+            : {
                 VKeyCredential: {
-                  bytes: stakingPart,
+                  bytes: paymentPart,
                 },
               },
-            }
-          : null,
+
+          stakeCredential: stakingPart
+            ? {
+                keyHash: {
+                  VKeyCredential: {
+                    bytes: stakingPart,
+                  },
+                },
+              }
+            : null,
+        },
+        datum: formattedDatum,
       },
-      datum: formattedDatum,
     };
 
     const data = Data.to(destinationDatum, ConditionTypes.Destination);
@@ -509,14 +570,19 @@ export class DatumBuilderCondition implements DatumBuilderAbstractCondition {
    *          if present, or `undefined` if the respective credential is not found in the address.
    */
   static getDestinationAddressesFromDatum(datum: string) {
-    const {
-      destination: { address },
-    } = Data.from(
+    let stakingKeyHash: string | undefined;
+    let paymentKeyHash: string | undefined;
+    const { destination } = Data.from(
       Core.PlutusData.fromCbor(Core.HexBlob(datum)),
       ConditionTypes.OrderDatum,
     );
-    let stakingKeyHash: string | undefined;
-    let paymentKeyHash: string | undefined;
+    if (destination === "Self") {
+      return { stakingKeyHash, paymentKeyHash };
+    }
+    const {
+      Fixed: { address },
+    } = destination;
+
     if (address.stakeCredential && address.stakeCredential.keyHash) {
       const hash = (
         address.stakeCredential.keyHash as ConditionTypes.TVKeyCredential

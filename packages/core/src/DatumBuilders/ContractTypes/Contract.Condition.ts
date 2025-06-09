@@ -107,8 +107,17 @@ export const DonationSchema = Data.Object({
   assets: Data.Tuple([SingletonValueSchema, SingletonValueSchema]),
 });
 
+export const StrategyAuthorizationSchema = Data.Enum([
+  Data.Object({ Signature: Data.Object({ signer: Data.Bytes() }) }),
+  Data.Object({ Script: Data.Object({ script: Data.Bytes() }) }),
+]);
+
+export const StrategySchema = Data.Object({
+  auth: StrategyAuthorizationSchema,
+});
+
 export const OrderSchema = Data.Enum([
-  Data.Object({ Strategies: Data.Nullable(Data.Literal("TODO")) }),
+  Data.Object({ Strategy: StrategySchema }),
   Data.Object({ Swap: SwapSchema }),
   Data.Object({ Deposit: DepositSchema }),
   Data.Object({ Withdrawal: WithdrawalSchema }),
@@ -164,10 +173,12 @@ export const DatumSchema = Data.Enum([
 export type TDatumSchema = Static<typeof DatumSchema>;
 export const Datum = DatumSchema as unknown as TDatumSchema;
 
-export const DestinationSchema = Data.Object({
-  address: AddressSchema,
-  datum: DatumSchema,
-});
+export const DestinationSchema = Data.Enum([
+  Data.Object({
+    Fixed: Data.Object({ address: AddressSchema, datum: DatumSchema }),
+  }),
+  Data.Literal("Self"),
+]);
 export type TDestination = Static<typeof DestinationSchema>;
 export const Destination = DestinationSchema as unknown as TDestination;
 
