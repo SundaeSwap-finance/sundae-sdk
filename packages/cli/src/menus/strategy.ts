@@ -1,0 +1,88 @@
+import { CredentialType } from "@blaze-cardano/core";
+import { input, select } from "@inquirer/prompts";
+import {
+  EContractVersion,
+  EDatumType,
+  EDestinationType,
+  type IStrategyConfigInputArgs,
+  type TDestination,
+} from "@sundaeswap/core";
+import type { State } from "../types";
+import {
+  addressOrHexToHash,
+  getAssetAmount,
+  maybeInput,
+  printHeader,
+  selectPool,
+} from "./shared";
+import { transactionDialog } from "./transaction";
+
+async function getDestination(): Promise<TDestination> {
+  const choice = await select({
+    message: "Select destination type for the strategy",
+    choices: [
+      { name: "Self", value: "self" },
+      { name: "Fixed", value: "fixed" },
+    ],
+  });
+  switch (choice) {
+    case "self":
+      return {
+        type: EDestinationType.SELF,
+      };
+    case "fixed":
+      return {
+        type: EDestinationType.FIXED,
+        address: await input({
+          message: "Enter the address for the fixed destination",
+          validate: (input) => {
+            // Basic validation for a Cardano address
+            //TODO: Implement more robust validation if needed
+            return input.length > 0 ? true : "Address cannot be empty";
+          },
+        }),
+        //TODO: add datum support
+        datum: {
+          type: EDatumType.NONE,
+        },
+      };
+    default:
+      throw new Error("Invalid destination type selected");
+  }
+}
+
+export async function strategyMenu(state: State): Promise<State> {
+  await printHeader(state);
+  console.log("\t==== Strategy menu ====\n");
+  const swapFrom = await getAssetAmount(
+    state,
+    "Select asset to swap from with this strategy",
+    0n,
+  );
+  const pool = await selectPool(swapFrom.id, state, [EContractVersion.V3]);
+  if (!pool) {
+    console.log("Pool not found");
+    return state;
+  }
+  const scriptOrAddress = await input({
+    message: "Enter the authorized script hash or address for the strategy",
+  });
+  const extracted = await addressOrHexToHash(
+    scriptOrAddress,
+    CredentialType.KeyHash,
+  );
+  const builder = state.sdk!.builders.get(pool.version as EContractVersion)!;
+  const strategyArgs: IStrategyConfigInputArgs = {
+    suppliedAsset: swapFrom,
+    pool: pool,
+    destination: await getDestination(),
+    ownerAddress: await maybeInput({
+      message: "Enter the owner address for the strategy (optional)",
+    }),
+    authScript: scriptOrAddress === extracted ? extracted : undefined,
+    authSigner: scriptOrAddress === extracted ? undefined : extracted,
+  };
+  const tx = await builder.strategy(strategyArgs);
+  await transactionDialog((await tx.build()).cbor, false);
+  return state;
+}

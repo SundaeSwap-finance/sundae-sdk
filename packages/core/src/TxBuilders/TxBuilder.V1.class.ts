@@ -1529,4 +1529,8 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
 
     return thisTx;
   }
+
+  strategy(_args: unknown): Promise<IComposedTx> {
+    throw new Error("Method not implemented.");
+  }
 }

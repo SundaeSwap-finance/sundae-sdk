@@ -1,9 +1,15 @@
+import { Address, CredentialType } from "@blaze-cardano/core";
 import { input, select } from "@inquirer/prompts";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
-import { ADA_METADATA } from "@sundaeswap/core";
+import {
+  ADA_METADATA,
+  EContractVersion,
+  type IPoolByAssetQuery,
+  type IPoolData,
+} from "@sundaeswap/core";
 import packageJson from "../../package.json" assert { type: "json" };
 import type { State } from "../types";
-import { prettyAssetId } from "../utils";
+import { getPoolData, prettyAssetId } from "../utils";
 
 const asciify = (await import("asciify-image")).default;
 
@@ -22,6 +28,47 @@ export async function setAsciiLogo(size: number): Promise<void> {
     .catch(function (err) {
       console.error(err);
     });
+}
+
+export async function addressOrHexToHash(
+  address_str: string,
+  expectedType: CredentialType,
+): Promise<string> {
+  if (/[0-9a-fA-F]{56}/.test(address_str)) {
+    return address_str;
+  }
+  if (address_str.startsWith("addr") || address_str.startsWith("stake")) {
+    const address = Address.fromBech32(address_str);
+    if (address_str.startsWith("addr")) {
+      const credType = address.getProps().paymentPart?.type;
+      if (credType !== expectedType) {
+        throw new Error(
+          `Expecting a ${expectedType} address, but got ${credType}`,
+        );
+      }
+      return address.getProps().paymentPart!.hash;
+    } else {
+      const credType = address.asReward()!.getPaymentCredential().type;
+      if (credType !== expectedType) {
+        throw new Error(
+          `Expecting a ${expectedType} address, but got ${credType}`,
+        );
+      }
+      return address.asReward()!.getPaymentCredential().hash;
+    }
+  }
+  throw new Error("Unrecognized format");
+}
+
+export async function maybeInput(opts: {
+  message: string;
+  validate?: (a: string) => boolean | string | Promise<boolean | string>;
+}): Promise<string | undefined> {
+  const resp = await input(opts);
+  if (resp === "") {
+    return undefined;
+  }
+  return resp;
 }
 
 export async function printHeader(state: State): Promise<void> {
@@ -96,4 +143,58 @@ export async function getAssetAmount(
         Number(await input({ message: "Enter amount" })),
         { decimals: 0, assetId: assetId },
       );
+}
+
+export async function selectPool(
+  assetId: string,
+  state: State,
+  typeFilter?: EContractVersion[],
+): Promise<IPoolData | undefined> {
+  const pools = (await state.sdk!.queryProvider.findPoolData({
+    assetId,
+  } as IPoolByAssetQuery)) as IPoolData[];
+  let choices = pools!
+    .filter((pool) => {
+      if (
+        typeFilter &&
+        !typeFilter.includes(pool.version as EContractVersion)
+      ) {
+        return false;
+      }
+      return true;
+    })
+    .map((pool) => {
+      const price =
+        Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
+      return {
+        name: `${prettyAssetId(pool.assetA.assetId.toString())} / ${prettyAssetId(
+          pool.assetB.assetId.toString(),
+        )} (p: ${price.toFixed(
+          6,
+        )}, l: (${pool.liquidity.aReserve.toString()} / ${pool.liquidity.bReserve.toString()}), id: ${
+          pool.ident
+        })`,
+        value: pool.ident,
+      };
+    });
+  choices = [{ name: "Enter pool ident manually", value: "manual" }].concat(
+    choices,
+  );
+  let choice = await select({
+    message: "Select pool",
+    choices: choices,
+  });
+  let pool: IPoolData;
+  if (choice === "manual") {
+    const ident = await input({
+      message: "Enter pool ident",
+    });
+    choice = ident;
+    pool = await getPoolData(state, ident, EContractVersion.NftCheck);
+  } else {
+    pool = (await state.sdk!.queryProvider.findPoolData({
+      ident: choice,
+    })) as IPoolData;
+  }
+  return pool;
 }

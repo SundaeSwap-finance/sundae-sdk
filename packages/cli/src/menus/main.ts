@@ -1,9 +1,11 @@
 import { Core } from "@blaze-cardano/sdk";
 import { input, select } from "@inquirer/prompts";
 import type { State } from "../types";
-import { cancelSwapMenu, mintPoolMenu, swapMenu } from "./pool";
+import { mintPoolMenu } from "./pool";
 import { settingsMenu } from "./settings";
 import { printHeader } from "./shared";
+import { strategyMenu } from "./strategy";
+import { cancelSwapMenu, swapMenu } from "./swap";
 import { transactionDialog } from "./transaction";
 
 export async function mainMenu(state: State): Promise<State> {
@@ -15,6 +17,7 @@ export async function mainMenu(state: State): Promise<State> {
       choices: [
         { name: "Mint Pool", value: "mintPool" },
         { name: "Swap", value: "swap" },
+        { name: "Strategy", value: "strategy" },
         { name: "Add/Remove Liquidity", value: "addRemoveLiquidity" },
         { name: "Cancel Swap", value: "cancelSwap" },
         { name: "Settings", value: "settings" },
@@ -31,6 +34,9 @@ export async function mainMenu(state: State): Promise<State> {
         break;
       case "swap":
         await swapMenu(state);
+        break;
+      case "strategy":
+        await strategyMenu(state);
         break;
       case "cancelSwap":
         await cancelSwapMenu(state);
