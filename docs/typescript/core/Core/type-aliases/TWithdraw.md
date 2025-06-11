@@ -11,4 +11,4 @@ for their provided assets.
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:114](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L114)
+[packages/core/src/@types/datumbuilder.ts:143](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L143)

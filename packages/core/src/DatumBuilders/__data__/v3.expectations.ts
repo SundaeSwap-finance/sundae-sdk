@@ -1,6 +1,10 @@
 import { AssetAmount } from "@sundaeswap/asset";
 
-import { EDatumType, TDestinationAddress } from "../../@types/index.js";
+import {
+  EDatumType,
+  EDestinationType,
+  TDestinationAddress,
+} from "../../@types/index.js";
 import { PREVIEW_DATA } from "../../TestUtilities/mockData.js";
 import { ADA_METADATA } from "../../constants.js";
 import {
@@ -307,6 +311,48 @@ export const V3_EXPECTATIONS = {
             hex: "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0",
           },
         },
+      },
+    },
+  ],
+  buildStrategyDatum: [
+    {
+      args: {
+        destination: {
+          type: EDestinationType.FIXED,
+          address: PREVIEW_DATA.addresses.current,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+        ownerAddress: PREVIEW_DATA.addresses.current,
+        ident: PREVIEW_DATA.pools.v3.ident,
+        order: {
+          signer: "cafebabe",
+        },
+        scooperFee: 1_000_000n,
+      } as const,
+      expectations: {
+        inline:
+          "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd8799fd8799f44cafebabeffff43d87980ff",
+        hash: "977056bb7f8b09effdc0df6c31c89698807e740a55a8b915e51a3103c8c6eb47",
+      },
+    },
+    {
+      args: {
+        destination: {
+          type: EDestinationType.SELF,
+        },
+        ownerAddress: PREVIEW_DATA.addresses.current,
+        ident: PREVIEW_DATA.pools.v3.ident,
+        order: {
+          script: "cafebabe",
+        },
+        scooperFee: 1_000_000n,
+      } as const,
+      expectations: {
+        inline:
+          "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d87a80d8799fd87a9f44cafebabeffff43d87980ff",
+        hash: "e998ba8280cc453aa5db5d73b3a3569dcad0c13a640bcb73af54a47ac7981c12",
       },
     },
   ],

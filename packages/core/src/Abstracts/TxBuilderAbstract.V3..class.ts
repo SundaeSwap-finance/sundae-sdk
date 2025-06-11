@@ -26,6 +26,7 @@ export abstract class TxBuilderAbstractV3 extends TxBuilderAbstract {
   abstract orderRouteSwap(args: unknown): Promise<IComposedTx>;
   abstract deposit(args: unknown): Promise<IComposedTx>;
   abstract withdraw(args: unknown): Promise<IComposedTx>;
+  abstract strategy(args: unknown): Promise<IComposedTx>;
   abstract update(args: unknown): Promise<IComposedTx>;
   abstract cancel(args: unknown): Promise<IComposedTx>;
   abstract zap(args: unknown): Promise<IComposedTx>;

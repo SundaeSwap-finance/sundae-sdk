@@ -4,8 +4,10 @@ import { sqrt } from "@sundaeswap/bigint-math";
 
 import {
   EDatumType,
+  EDestinationType,
   IFeesConfig,
   TDatumResult,
+  TDestination,
   TDestinationAddress,
   TSupportedNetworks,
 } from "../@types/index.js";
@@ -53,6 +55,19 @@ export interface IDatumBuilderDepositV3Args extends IDatumBuilderBaseV3Args {
 export interface IDatumBuilderWithdrawV3Args extends IDatumBuilderBaseV3Args {
   order: {
     lpToken: AssetAmount<IAssetAmountMetadata>;
+  };
+}
+
+/**
+ * The arguments for building a strategy transaction against a V3 pool contract.
+ */
+export interface IDatumBuilderStrategyV3Args
+  extends Omit<IDatumBuilderBaseV3Args, "destinationAddress"> {
+  destination: TDestination;
+  ownerAddress: string;
+  order: {
+    signer?: string;
+    script?: string;
   };
 }
 
@@ -228,6 +243,42 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     };
   }
 
+  public buildStrategyDatum({
+    destination,
+    ident,
+    order,
+    ownerAddress,
+    scooperFee,
+  }: IDatumBuilderStrategyV3Args): TDatumResult<V3Types.TOrderDatum> {
+    const auth = order.signer
+      ? {
+          Signature: { signer: order.signer },
+        }
+      : {
+          Script: { script: order.script! },
+        };
+    const datum: V3Types.TOrderDatum = {
+      destination: this.buildDestination(destination).schema,
+      extension: Data.void().toCbor(),
+      order: {
+        Strategy: {
+          auth,
+        },
+      },
+      owner: this.buildOwnerDatum(ownerAddress).schema,
+      poolIdent: this.validatePoolIdent(ident),
+      scooperFee: scooperFee,
+    };
+
+    const data = Data.to(datum, V3Types.OrderDatum);
+
+    return {
+      hash: data.hash(),
+      inline: data.toCbor(),
+      schema: datum,
+    };
+  }
+
   /**
    * Creates a new pool datum for minting a the pool. This is attached to the assets that are sent
    * to the pool minting contract. See {@link Core.TxBuilderV3} for more details.
@@ -315,6 +366,26 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     };
   }
 
+  public buildDestination(
+    destination: TDestination,
+  ): TDatumResult<V3Types.TDestination> {
+    switch (destination.type) {
+      case EDestinationType.FIXED:
+        return this.buildDestinationAddresses(destination);
+      case EDestinationType.SELF: {
+        const value = "Self" as const;
+        const data = Data.to(value, V3Types.DestinationSchema);
+        return {
+          hash: data.hash(),
+          inline: data.toCbor(),
+          schema: value,
+        };
+      }
+      default:
+        throw new Error("Unrecognized destination type");
+    }
+  }
+
   public buildDestinationAddresses({
     address,
     datum,
@@ -325,7 +396,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
       network: this.network,
     });
 
-    let formattedDatum: V3Types.TDestination["datum"];
+    let formattedDatum: V3Types.TDatumSchema;
     switch (datum.type) {
       case EDatumType.NONE:
         formattedDatum = "VOID";
@@ -354,30 +425,32 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     const stakingPart = BlazeHelper.getStakingHashFromBech32(address);
 
     const destinationDatum: V3Types.TDestination = {
-      address: {
-        paymentCredential: BlazeHelper.isScriptAddress(address)
-          ? {
-              SCredential: {
-                bytes: paymentPart,
-              },
-            }
-          : {
-              VKeyCredential: {
-                bytes: paymentPart,
-              },
-            },
-
-        stakeCredential: stakingPart
-          ? {
-              keyHash: {
+      Fixed: {
+        address: {
+          paymentCredential: BlazeHelper.isScriptAddress(address)
+            ? {
+                SCredential: {
+                  bytes: paymentPart,
+                },
+              }
+            : {
                 VKeyCredential: {
-                  bytes: stakingPart,
+                  bytes: paymentPart,
                 },
               },
-            }
-          : null,
+
+          stakeCredential: stakingPart
+            ? {
+                keyHash: {
+                  VKeyCredential: {
+                    bytes: stakingPart,
+                  },
+                },
+              }
+            : null,
+        },
+        datum: formattedDatum,
       },
-      datum: formattedDatum,
     };
 
     const data = Data.to(destinationDatum, V3Types.Destination);
@@ -554,14 +627,19 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
    *          if present, or `undefined` if the respective credential is not found in the address.
    */
   static getDestinationAddressesFromDatum(datum: string) {
-    const {
-      destination: { address },
-    } = Data.from(
+    let stakingKeyHash: string | undefined;
+    let paymentKeyHash: string | undefined;
+    const { destination } = Data.from(
       Core.PlutusData.fromCbor(Core.HexBlob(datum)),
       V3Types.OrderDatum,
     );
-    let stakingKeyHash: string | undefined;
-    let paymentKeyHash: string | undefined;
+    if (destination === "Self") {
+      return { stakingKeyHash, paymentKeyHash };
+    }
+    const {
+      Fixed: { address },
+    } = destination;
+
     if (address.stakeCredential && address.stakeCredential.keyHash) {
       const hash = (address.stakeCredential.keyHash as V3Types.TVKeyCredential)
         .VKeyCredential.bytes;

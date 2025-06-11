@@ -21,7 +21,7 @@ The current network id.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:90](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L90)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:105](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L105)
 
 ***
 
@@ -33,7 +33,7 @@ The error to throw when the pool ident does not match V1 constraints.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:92](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L92)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:107](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L107)
 
 ## Methods
 
@@ -64,23 +64,7 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 ##### destination
 
-> **destination**: `object`
-
-##### destination.address
-
-> **address**: `object`
-
-##### destination.address.paymentCredential
-
-> **paymentCredential**: `object` \| `object`
-
-##### destination.address.stakeCredential
-
-> **stakeCredential**: `null` \| `object`
-
-##### destination.datum
-
-> **datum**: `"VOID"` \| `object` \| `object`
+> **destination**: `"Self"` \| `object`
 
 ##### extension
 
@@ -104,7 +88,7 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:155](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L155)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:170](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L170)
 
 ***
 
@@ -169,7 +153,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:247](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L247)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:298](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L298)
 
 ***
 
@@ -199,7 +183,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:295](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L295)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:346](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L346)
 
 ***
 
@@ -229,23 +213,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 ##### destination
 
-> **destination**: `object`
-
-##### destination.address
-
-> **address**: `object`
-
-##### destination.address.paymentCredential
-
-> **paymentCredential**: `object` \| `object`
-
-##### destination.address.stakeCredential
-
-> **stakeCredential**: `null` \| `object`
-
-##### destination.datum
-
-> **datum**: `"VOID"` \| `object` \| `object`
+> **destination**: `"Self"` \| `object`
 
 ##### extension
 
@@ -269,7 +237,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:111](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L111)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:126](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L126)
 
 ***
 
@@ -300,23 +268,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 ##### destination
 
-> **destination**: `object`
-
-##### destination.address
-
-> **address**: `object`
-
-##### destination.address.paymentCredential
-
-> **paymentCredential**: `object` \| `object`
-
-##### destination.address.stakeCredential
-
-> **stakeCredential**: `null` \| `object`
-
-##### destination.datum
-
-> **datum**: `"VOID"` \| `object` \| `object`
+> **destination**: `"Self"` \| `object`
 
 ##### extension
 
@@ -340,7 +292,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:201](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L201)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:216](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L216)
 
 ***
 
@@ -366,7 +318,7 @@ The UTxO txHash and index.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:525](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L525)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:598](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L598)
 
 ***
 
@@ -388,7 +340,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:501](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L501)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:574](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L574)
 
 ***
 
@@ -410,7 +362,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:489](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L489)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:562](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L562)
 
 ***
 
@@ -432,7 +384,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:513](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L513)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:586](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L586)
 
 ***
 
@@ -470,7 +422,7 @@ An object containing the staking and
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:556](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L556)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:629](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L629)
 
 ***
 
@@ -499,4 +451,4 @@ The signing key associated with the owner, extracted from the datum. This key is
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:598](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L598)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:676](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L676)
