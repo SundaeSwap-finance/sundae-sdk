@@ -42,7 +42,9 @@ export class MintConditionPoolConfig extends Config<IMintConditionPoolConfigArgs
     this.setConditionDatumArgs(conditionDatumArgs);
   }
 
-  buildArgs(): Omit<IMintConditionPoolConfigArgs, "fees"> & { fees: IFeesConfig } {
+  buildArgs(): Omit<IMintConditionPoolConfigArgs, "fees"> & {
+    fees: IFeesConfig;
+  } {
     this.validate();
     return {
       assetA: this.assetA as AssetAmount<IAssetAmountMetadata>,
