@@ -54,35 +54,61 @@ The transaction hash and index of the open order in the escrow contract.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:169](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L169)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:304](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L304)
 
 ***
 
 ### findPoolData()
 
-> **findPoolData**(`query`): `Promise`\<[`IPoolData`](../interfaces/IPoolData.md)\>
+Finds a matching pool on the SundaeSwap protocol.
+
+#### findPoolData(identArgs)
+
+> **findPoolData**(`identArgs`): `Promise`\<[`IPoolData`](../interfaces/IPoolData.md)\>
 
 Finds a matching pool on the SundaeSwap protocol.
 
-#### Parameters
+##### Parameters
 
-• **query**: [`IPoolByIdentQuery`](../interfaces/IPoolByIdentQuery.md)
+• **identArgs**: [`IPoolByIdentQuery`](../interfaces/IPoolByIdentQuery.md)
 
-The query object as defined by the implementing class.
-
-#### Returns
+##### Returns
 
 `Promise`\<[`IPoolData`](../interfaces/IPoolData.md)\>
 
 Returns the queried pool's data.
 
-#### Implementation of
+##### Implementation of
 
 [`QueryProvider`](QueryProvider.md).[`findPoolData`](QueryProvider.md#findpooldata)
 
-#### Defined in
+##### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:78](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L78)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:197](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L197)
+
+#### findPoolData(assetArgs)
+
+> **findPoolData**(`assetArgs`): `Promise`\<[`IPoolData`](../interfaces/IPoolData.md)[]\>
+
+Finds a matching pool on the SundaeSwap protocol.
+
+##### Parameters
+
+• **assetArgs**: [`IPoolByAssetQuery`](../interfaces/IPoolByAssetQuery.md)
+
+##### Returns
+
+`Promise`\<[`IPoolData`](../interfaces/IPoolData.md)[]\>
+
+Returns the queried pool's data.
+
+##### Implementation of
+
+`QueryProvider.findPoolData`
+
+##### Defined in
+
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:198](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L198)
 
 ***
 
@@ -104,7 +130,7 @@ The protocol script hashes.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:214](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L214)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:349](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L349)
 
 ***
 
@@ -126,4 +152,4 @@ The protocol script hashes.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:276](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L276)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:413](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L413)

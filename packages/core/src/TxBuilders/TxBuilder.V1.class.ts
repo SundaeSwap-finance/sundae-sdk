@@ -1442,6 +1442,36 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     });
   }
 
+  setQueryProvider(queryProvider: QueryProviderSundaeSwap): void {
+    this.queryProvider = queryProvider;
+  }
+
+  async getOrderAddress(_address: string): Promise<string> {
+    return await this.getValidatorScript("escrow.spend").then(
+      ({ compiledCode }) =>
+        Core.addressFromValidator(
+          this.network === "mainnet" ? 1 : 0,
+          Core.Script.newPlutusV1Script(
+            new Core.PlutusV1Script(
+              Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex")),
+            ),
+          ),
+        ).toBech32(),
+    );
+  }
+
+  getExtraSuppliedAssets(): AssetAmount<IAssetAmountMetadata>[] {
+    return [];
+  }
+
+  getDatumType(): EDatumType {
+    return EDatumType.HASH;
+  }
+
+  async getMaxScooperFeeAmount(): Promise<bigint> {
+    return this.__getParam("maxScooperFee");
+  }
+
   private async completeTx({
     tx,
     datum,

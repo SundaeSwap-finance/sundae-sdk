@@ -40,7 +40,7 @@ The transaction hash and index of the open order in the escrow contract.
 
 ### findPoolData()
 
-> `abstract` **findPoolData**: (`query`) => `Promise`\<[`IPoolData`](../interfaces/IPoolData.md)\>
+> `abstract` **findPoolData**: (`query`) => `Promise`\<[`IPoolData`](../interfaces/IPoolData.md) \| [`IPoolData`](../interfaces/IPoolData.md)[]\>
 
 Finds a matching pool on the SundaeSwap protocol.
 
@@ -52,7 +52,7 @@ The query object as defined by the implementing class.
 
 #### Returns
 
-`Promise`\<[`IPoolData`](../interfaces/IPoolData.md)\>
+`Promise`\<[`IPoolData`](../interfaces/IPoolData.md) \| [`IPoolData`](../interfaces/IPoolData.md)[]\>
 
 Returns the queried pool's data.
 

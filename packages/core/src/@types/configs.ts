@@ -140,6 +140,15 @@ export interface IMintV3PoolConfigArgs extends IBaseConfig {
 }
 
 /**
+ * Interface describing the method arguments for creating a pool
+ * in the Condition Pool Contract.
+ */
+export interface IMintConditionPoolConfigArgs extends IMintV3PoolConfigArgs {
+  condition?: string;
+  conditionDatumArgs?: unknown;
+}
+
+/**
  * Interface describing migrations for liquidity
  * positions in a user's wallet.
  */
