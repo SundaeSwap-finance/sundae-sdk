@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   QueryProviderSundaeSwap,
   SundaeSDK,
@@ -38,7 +39,7 @@ export class State {
       const queryProvider = new QueryProviderSundaeSwap(
         this.settings.network! as TSupportedNetworks,
       );
-      queryProvider.addCustomProtocolParams(this.settings.customProtocolParams);
+      queryProvider.setProtocolParams(this.settings.customProtocolParams);
       this.sdk.queryProvider = queryProvider;
       this.sdk.builders.values().forEach((builder) => {
         builder.setQueryProvider(queryProvider);

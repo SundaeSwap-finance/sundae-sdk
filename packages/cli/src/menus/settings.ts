@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { input, select } from "@inquirer/prompts";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import type { ISettings, State } from "../types";
@@ -134,7 +135,7 @@ export async function settingsMenu(state: State): Promise<State> {
       case "addCustomProtocolParams":
         await addCustomProtocolParams(state);
         break;
-      case "exit":
+      default:
         break;
     }
     console.log(`Choice: ${choice}`);

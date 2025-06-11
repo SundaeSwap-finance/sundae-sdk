@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   Blaze,
   Blockfrost,
@@ -7,7 +8,7 @@ import {
   Wallet,
   type Provider,
 } from "@blaze-cardano/sdk";
-import { input } from "@inquirer/prompts";
+import { input, password, select } from "@inquirer/prompts";
 import {
   DatumBuilderNftCheck,
   EContractVersion,
@@ -20,12 +21,37 @@ export async function getWallet(
   state: State,
   provider: Provider,
 ): Promise<Wallet> {
+  if (!state.settings.address) {
+    state.settings.address = await input({
+      message: "Enter your wallet address (Bech32 format):",
+    });
+  }
   const address = Core.Address.fromBech32(state.settings.address!);
   const wallet = new ColdWallet(address, provider.network, provider);
   return wallet;
 }
 
 export async function getProvider(state: State): Promise<Provider> {
+  if (!("providerType" in state.settings) || !state.settings.providerType) {
+    state.settings.providerType = await select({
+      message: "Enter provider type (blockfrost, maestro, kupmios):",
+      choices: [
+        { name: "blockfrost", value: "blockfrost" },
+        { name: "maestro", value: "maestro" },
+        { name: "kupmios", value: "kupmios" },
+      ],
+    });
+    state.settings.network = await select({
+      message: "Select network",
+      choices: [
+        { name: "mainnet", value: "mainnet" },
+        { name: "preview", value: "preview" },
+      ],
+    });
+    state.settings.providerKey = await password({
+      message: "Enter provider key",
+    });
+  }
   switch (state.settings.providerType) {
     case "blockfrost":
       const bfNetwork: "cardano-mainnet" | "cardano-preview" =

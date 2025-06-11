@@ -461,8 +461,6 @@ export class QueryProviderSundaeSwap implements QueryProvider {
 
     res.data.protocols = this.protocolParamsFull.concat(res.data.protocols);
 
-    console.log(this.protocolParamsFull);
-
     if (version) {
       return res.data.protocols.find(
         ({ version: protocolVersion }) => version === protocolVersion,

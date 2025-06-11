@@ -1,5 +1,5 @@
 {
-  "name": "cli",
+  "name": "@sundaeswap/cli",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -7,6 +7,13 @@
   "license": "UNLICENSED",
   "version": "0.1.0",
   "description": "CLI for the SundaeSwap protocol SDK.",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf ./dist",
+    "build:cli": "bun build ./src/index.ts --outdir=./dist/cli --target=node",
+    "build": "bun clean && bun build:cli",
+    "watch": "bun clean && bun run build --watch"
+  },
   "devDependencies": {
     "@sundaeswap/core": "workspace:*",
     "@types/bun": "latest"
@@ -21,5 +28,6 @@
     "@sundaeswap/core": "^2.0.4",
     "asciify-image": "^0.1.10",
     "clipboardy": "^4.0.0"
-  }
+  },
+  "bin": "./dist/cli/index.js"
 }
