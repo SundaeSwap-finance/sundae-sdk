@@ -137,6 +137,10 @@ export interface IMintV3PoolConfigArgs extends IBaseConfig {
    * to the SundaeSwap Treasury wallet.
    */
   donateToTreasury?: bigint;
+  /**
+   * The fee manager address for the pool. If not provided, defaults to null.
+   */
+  feeManager?: string;
 }
 
 /**
