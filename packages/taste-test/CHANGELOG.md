@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.0.1
+
+### Patch Changes
+
+- 903192c: Adds support to the v3 mint pool method in /core for adding a custom fee manager.
+
 ## 3.0.0
 
 ### Patch Changes
