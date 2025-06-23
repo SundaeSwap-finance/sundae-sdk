@@ -1,5 +1,13 @@
 # Change Log
 
+## 4.0.0
+
+### Patch Changes
+
+- 903192c: Adds support to the v3 mint pool method in /core for adding a custom fee manager.
+- Updated dependencies [903192c]
+  - @sundaeswap/core@2.2.0
+
 ## 3.0.0
 
 ### Patch Changes
