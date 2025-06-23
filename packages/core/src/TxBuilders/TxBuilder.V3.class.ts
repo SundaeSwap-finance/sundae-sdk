@@ -328,6 +328,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       ownerAddress,
       referralFee,
       donateToTreasury,
+      feeManager,
     } = new MintV3PoolConfig(mintPoolArgs).buildArgs();
 
     const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
@@ -386,6 +387,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       marketOpen,
       depositFee: POOL_MIN_ADA,
       seedUtxo,
+      feeManager,
     });
 
     const { inline: mintRedeemerDatum } =

@@ -82,6 +82,7 @@ export interface IDatumBuilderMintPoolV3Args {
   fees: IFeesConfig;
   depositFee: bigint;
   marketOpen?: bigint;
+  feeManager?: string;
 }
 
 /**
@@ -279,6 +280,28 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     };
   }
 
+  private getFeeManagerFromAddress(
+    address?: string,
+  ): V3Types.TMultiSigScript | null {
+    if (!address) return null;
+
+    try {
+      const paymentHash =
+        Core.addressFromBech32(address).getProps().paymentPart?.hash;
+      if (!paymentHash) return null;
+
+      if (BlazeHelper.isScriptAddress(address)) {
+        return { Script: { hex: paymentHash } };
+      } else {
+        return { Address: { hex: paymentHash } };
+      }
+    } catch (error) {
+      throw new Error(
+        `Failed to extract payment hash from feeManager address: ${address}. Error: ${(error as Error).message}`,
+      );
+    }
+  }
+
   /**
    * Creates a new pool datum for minting a the pool. This is attached to the assets that are sent
    * to the pool minting contract. See {@link Core.TxBuilderV3} for more details.
@@ -302,6 +325,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     marketOpen,
     depositFee,
     seedUtxo,
+    feeManager,
   }: IDatumBuilderMintPoolV3Args): TDatumResult<V3Types.TPoolDatum> {
     const ident = DatumBuilderV3.computePoolId(seedUtxo);
     const liquidity = sqrt(assetA.amount * assetB.amount);
@@ -311,12 +335,14 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
       assetB,
     ).schema;
 
+    const feeManagerScript = this.getFeeManagerFromAddress(feeManager);
+
     const newPoolDatum: V3Types.TPoolDatum = {
       assets: assetsPair,
       circulatingLp: liquidity,
       bidFeePer10Thousand: fees.bid,
       askFeePer10Thousand: fees.ask,
-      feeManager: null,
+      feeManager: feeManagerScript,
       identifier: ident,
       marketOpen: marketOpen || 0n,
       protocolFee: depositFee,
