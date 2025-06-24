@@ -336,6 +336,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       ownerAddress,
       referralFee,
       donateToTreasury,
+      feeManager,
       condition,
       conditionDatumArgs,
     } = new MintConditionPoolConfig(args).buildArgs();
@@ -398,6 +399,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
             marketOpen,
             depositFee: POOL_MIN_ADA,
             seedUtxo,
+            feeManager,
             condition,
             conditionDatumArgs,
           })
@@ -408,6 +410,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
             marketOpen,
             depositFee: POOL_MIN_ADA,
             seedUtxo,
+            feeManager,
           });
 
     const { inline: mintRedeemerDatum } =

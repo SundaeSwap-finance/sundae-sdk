@@ -27,3 +27,19 @@ to the SundaeSwap Treasury wallet.
 #### Defined in
 
 [packages/core/src/@types/configs.ts:139](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L139)
+
+***
+
+### feeManager?
+
+> `optional` **feeManager**: `string`
+
+The fee manager address for the pool. If not provided, defaults to null.
+
+#### Inherited from
+
+[`IMintV3PoolConfigArgs`](IMintV3PoolConfigArgs.md).[`feeManager`](IMintV3PoolConfigArgs.md#feemanager)
+
+#### Defined in
+
+[packages/core/src/@types/configs.ts:143](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L143)
