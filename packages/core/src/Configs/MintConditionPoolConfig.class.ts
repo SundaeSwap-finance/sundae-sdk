@@ -12,6 +12,7 @@ export class MintConditionPoolConfig extends Config<IMintConditionPoolConfigArgs
   marketTimings?: bigint;
   donateToTreasury?: bigint;
   ownerAddress?: string;
+  feeManager?: string;
   condition?: string;
   conditionDatumArgs?: TConditionDatumArgs;
 
@@ -28,6 +29,7 @@ export class MintConditionPoolConfig extends Config<IMintConditionPoolConfigArgs
     ownerAddress,
     referralFee,
     donateToTreasury,
+    feeManager,
     condition,
     conditionDatumArgs,
   }: IMintConditionPoolConfigArgs): void {
@@ -38,6 +40,7 @@ export class MintConditionPoolConfig extends Config<IMintConditionPoolConfigArgs
     this.setMarketOpen(marketOpen || 0n);
     this.setOwnerAddress(ownerAddress);
     this.setDonateToTreasury(donateToTreasury);
+    this.setFeeManager(feeManager);
     this.setCondition(condition);
     this.setConditionDatumArgs(conditionDatumArgs);
   }
@@ -57,6 +60,11 @@ export class MintConditionPoolConfig extends Config<IMintConditionPoolConfigArgs
       condition: this.condition,
       conditionDatumArgs: this.conditionDatumArgs,
     };
+  }
+
+  setFeeManager(val?: string) {
+    this.feeManager = val;
+    return this;
   }
 
   setCondition(condition?: string) {

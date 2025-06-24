@@ -69,6 +69,7 @@ export interface IDatumBuilderMintPoolConditionArgs {
   fees: IFeesConfig;
   depositFee: bigint;
   marketOpen?: bigint;
+  feeManager?: string;
   condition?: string;
   conditionDatumArgs?: TConditionDatumArgs;
 }
