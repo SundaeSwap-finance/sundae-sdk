@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
-
-import { V3_EXPECTATIONS } from "src/DatumBuilders/__data__/v3.expectations.js";
 import { DatumBuilderV3 } from "../../DatumBuilder.V3.class.js";
+import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
 let builderInstance: DatumBuilderV3;
 

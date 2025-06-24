@@ -11,6 +11,11 @@ in the V3 Pool Contract.
 
 - [`IBaseConfig`](IBaseConfig.md)
 
+## Extended by
+
+- [`IMintConditionPoolConfigArgs`](IMintConditionPoolConfigArgs.md)
+- [`IMintNftCheckPoolConfigArgs`](IMintNftCheckPoolConfigArgs.md)
+
 ## Properties
 
 ### donateToTreasury?

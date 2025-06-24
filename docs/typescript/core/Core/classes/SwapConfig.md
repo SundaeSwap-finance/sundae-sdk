@@ -119,7 +119,7 @@ Useful for when building Transactions directly from the builder instance.
 
 #### Defined in
 
-[packages/core/src/Configs/SwapConfig.class.ts:77](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L77)
+[packages/core/src/Configs/SwapConfig.class.ts:76](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L76)
 
 ***
 
@@ -143,7 +143,7 @@ Helper function to build valid swap arguments from a JSON object.
 
 #### Defined in
 
-[packages/core/src/Configs/SwapConfig.class.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L91)
+[packages/core/src/Configs/SwapConfig.class.ts:90](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L90)
 
 ***
 
@@ -163,7 +163,7 @@ Set a minimum receivable asset amount for the swap. This is akin to setting a li
 
 #### Defined in
 
-[packages/core/src/Configs/SwapConfig.class.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L64)
+[packages/core/src/Configs/SwapConfig.class.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L63)
 
 ***
 
@@ -267,7 +267,7 @@ The provided asset and amount from a connected wallet.
 
 #### Defined in
 
-[packages/core/src/Configs/SwapConfig.class.ts:53](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L53)
+[packages/core/src/Configs/SwapConfig.class.ts:52](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L52)
 
 ***
 
@@ -292,4 +292,4 @@ If the pool or the order addresses are not set.
 
 #### Defined in
 
-[packages/core/src/Configs/SwapConfig.class.ts:121](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L121)
+[packages/core/src/Configs/SwapConfig.class.ts:120](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Configs/SwapConfig.class.ts#L120)
