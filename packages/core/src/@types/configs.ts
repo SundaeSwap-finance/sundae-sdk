@@ -1,5 +1,5 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-
+import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.Condition.class.js";
 import {
   EPoolCoin,
   TDestination,
@@ -145,7 +145,7 @@ export interface IMintV3PoolConfigArgs extends IBaseConfig {
  */
 export interface IMintConditionPoolConfigArgs extends IMintV3PoolConfigArgs {
   condition?: string;
-  conditionDatumArgs?: unknown;
+  conditionDatumArgs?: TConditionDatumArgs;
 }
 
 /**

@@ -38,7 +38,7 @@ A custom query provider if desired.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:101](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L101)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:100](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L100)
 
 ## Properties
 
@@ -50,7 +50,7 @@ A configured Blaze instance to use.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:102](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L102)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:101](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L101)
 
 ## Methods
 
@@ -80,7 +80,7 @@ A promise that resolves to the result of the cancel transaction.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:810](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L810)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:803](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L803)
 
 ***
 
@@ -110,7 +110,7 @@ A promise that resolves to the composed transaction object.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:999](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L999)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:992](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L992)
 
 ***
 
@@ -132,7 +132,7 @@ True to enable tracing, false to turn it off. (default: false)
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:121](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L121)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:120](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L120)
 
 ***
 
@@ -156,7 +156,7 @@ The generated Bech32 address.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:1317](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L1317)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:1310](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L1310)
 
 ***
 
@@ -174,7 +174,7 @@ using the Blaze provider.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:154](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L154)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:153](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L153)
 
 ***
 
@@ -192,13 +192,9 @@ error or otherwise, we fallback to 1 ADA.
 
 The maxScooperFee as defined by the settings UTXO.
 
-#### Overrides
-
-`TxBuilderAbstractV3.getMaxScooperFeeAmount`
-
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:226](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L226)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:225](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L225)
 
 ***
 
@@ -215,7 +211,7 @@ and fills in a place-holder for the compiled code of any validators.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:132](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L132)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:131](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L131)
 
 ***
 
@@ -235,7 +231,7 @@ The type of reference input to retrieve.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:177](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L177)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:176](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L176)
 
 ***
 
@@ -251,7 +247,7 @@ Gets the settings UTxO.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:194](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L194)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:193](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L193)
 
 ***
 
@@ -267,7 +263,7 @@ Gets the setting utxo's datum CBOR.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:206](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L206)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:205](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L205)
 
 ***
 
@@ -296,7 +292,7 @@ Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:1366](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L1366)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:1359](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L1359)
 
 ***
 
@@ -320,17 +316,21 @@ The name of the validator script to retrieve.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:271](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L271)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:270](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L270)
 
 ***
 
 ### mintPool()
 
+> **mintPool**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+
 Mints a new liquidity pool on the Cardano blockchain. This method
 constructs and submits a transaction that includes all the necessary generation
 of pool NFTs, metadata, pool assets, and initial liquidity tokens,
 
-#### Param
+#### Parameters
+
+• **args**: [`IMintV3PoolConfigArgs`](../interfaces/IMintV3PoolConfigArgs.md) \| [`IMintConditionPoolConfigArgs`](../interfaces/IMintConditionPoolConfigArgs.md)
 
 Configuration arguments for minting the pool, including assets,
 fee parameters, owner address, protocol fee, and referral fee.
@@ -339,86 +339,24 @@ fee parameters, owner address, protocol fee, and referral fee.
  - fee: The desired pool fee, denominated out of 10 thousand.
  - marketOpen: The POSIX timestamp for when the pool should allow trades (market open).
  - ownerAddress: Who the generated LP tokens should be sent to.
+
+#### Returns
+
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+
+A completed transaction object.
 
 #### Throws
 
 Throws an error if the transaction fails to build or submit.
 
-#### mintPool(mintPoolArgsWithCondition)
-
-> **mintPool**(`mintPoolArgsWithCondition`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
-
-Mints a new liquidity pool on the Cardano blockchain. This method
-constructs and submits a transaction that includes all the necessary generation
-of pool NFTs, metadata, pool assets, and initial liquidity tokens,
-
-##### Parameters
-
-• **mintPoolArgsWithCondition**: [`IMintConditionPoolConfigArgs`](../interfaces/IMintConditionPoolConfigArgs.md)
-
-##### Returns
-
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
-
-##### Param
-
-Configuration arguments for minting the pool, including assets,
-fee parameters, owner address, protocol fee, and referral fee.
- - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
- - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
- - fee: The desired pool fee, denominated out of 10 thousand.
- - marketOpen: The POSIX timestamp for when the pool should allow trades (market open).
- - ownerAddress: Who the generated LP tokens should be sent to.
-
-##### Throws
-
-Throws an error if the transaction fails to build or submit.
-
-##### Overrides
+#### Overrides
 
 `TxBuilderAbstractV3.mintPool`
 
-##### Defined in
+#### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:313](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L313)
-
-#### mintPool(mintPoolArgs)
-
-> **mintPool**(`mintPoolArgs`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
-
-Mints a new liquidity pool on the Cardano blockchain. This method
-constructs and submits a transaction that includes all the necessary generation
-of pool NFTs, metadata, pool assets, and initial liquidity tokens,
-
-##### Parameters
-
-• **mintPoolArgs**: [`IMintV3PoolConfigArgs`](../interfaces/IMintV3PoolConfigArgs.md)
-
-##### Returns
-
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
-
-##### Param
-
-Configuration arguments for minting the pool, including assets,
-fee parameters, owner address, protocol fee, and referral fee.
- - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
- - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
- - fee: The desired pool fee, denominated out of 10 thousand.
- - marketOpen: The POSIX timestamp for when the pool should allow trades (market open).
- - ownerAddress: Who the generated LP tokens should be sent to.
-
-##### Throws
-
-Throws an error if the transaction fails to build or submit.
-
-##### Overrides
-
-`TxBuilderAbstractV3.mintPool`
-
-##### Defined in
-
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:316](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L316)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:328](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L328)
 
 ***
 
@@ -442,7 +380,7 @@ Returns a new Tx instance from Blaze. Throws an error if not ready.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:291](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L291)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:290](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L290)
 
 ***
 
@@ -470,7 +408,7 @@ The result of the transaction.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:667](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L667)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:660](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L660)
 
 ***
 
@@ -486,7 +424,7 @@ Resets the max scooper fee to read from the settings UTXO.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:259](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L259)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:258](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L258)
 
 ***
 
@@ -508,7 +446,7 @@ The value in lovelace.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:250](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L250)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:249](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L249)
 
 ***
 
@@ -538,7 +476,7 @@ A promise that resolves to the result of the completed transaction.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:588](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L588)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:581](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L581)
 
 ***
 
@@ -572,7 +510,7 @@ A promise that resolves to the result of the updated transaction.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:908](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L908)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:901](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L901)
 
 ***
 
@@ -602,7 +540,7 @@ A promise that resolves to the composed transaction object.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:1053](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L1053)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:1046](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L1046)
 
 ***
 
@@ -632,4 +570,4 @@ A promise that resolves to the composed transaction object resulting from the za
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:1163](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L1163)
+[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:1156](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L1156)

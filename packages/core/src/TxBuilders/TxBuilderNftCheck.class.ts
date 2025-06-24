@@ -12,16 +12,17 @@ import {
   IComposedTx,
   IMintV3PoolConfigArgs,
   IPoolData,
-} from "src/@types";
-import {
-  NftCheckDatum,
-  TNftCheckDatum,
-} from "src/DatumBuilders/ContractTypes/Contract.NftCheck";
+} from "../@types";
+import { TxBuilderAbstractCondition } from "../Abstracts/TxBuilderAbstract.Condition";
 import {
   DatumBuilderNftCheck,
   IDatumBuilderNftCheckArgs,
-} from "src/DatumBuilders/DatumBuilder.NftCheck.class";
-import { QueryProviderSundaeSwap } from "src/QueryProviders";
+} from "../DatumBuilders";
+import {
+  NftCheckDatum,
+  TNftCheckDatum,
+} from "../DatumBuilders/ContractTypes/Contract.NftCheck";
+import { QueryProviderSundaeSwap } from "../QueryProviders";
 import { TxBuilderV3 } from "./TxBuilder.V3.class";
 
 /**
@@ -32,7 +33,10 @@ export interface IMintNftCheckPoolConfigArgs extends IMintV3PoolConfigArgs {
   conditionDatumArgs: IDatumBuilderNftCheckArgs;
 }
 
-export class TxBuilderNftCheck extends TxBuilderV3 {
+export class TxBuilderNftCheck
+  extends TxBuilderV3
+  implements TxBuilderAbstractCondition
+{
   contractVersion: EContractVersion = EContractVersion.NftCheck;
   datumBuilder: DatumBuilderNftCheck;
 

@@ -1,9 +1,11 @@
 import { Core, Data } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { sqrt } from "@sundaeswap/bigint-math";
-import { IFeesConfig, TDatumResult, TDestinationAddress } from "src/@types";
-import { DatumBuilderAbstractCondition } from "src/Abstracts/DatumBuilderCondition.abstract.class";
+import { IFeesConfig } from "../@types/configs.js";
+import { TDatumResult, TDestinationAddress } from "../@types/datumbuilder.js";
+import { DatumBuilderAbstractCondition } from "../Abstracts/DatumBuilderCondition.abstract.class.js";
 import * as ConditionTypes from "./ContractTypes/Contract.Condition.js";
+import { IDatumBuilderNftCheckArgs } from "./DatumBuilder.NftCheck.class.js";
 import { DatumBuilderV3 } from "./DatumBuilder.V3.class.js";
 
 /**
@@ -52,6 +54,11 @@ export interface IDatumBuilderWithdrawConditionArgs
 }
 
 /**
+ * A union type representing the potential arguments for building a Condition datum.
+ */
+export type TConditionDatumArgs = IDatumBuilderNftCheckArgs;
+
+/**
  * The arguments for building a minting a new pool transaction against
  * the Condition pool contract.
  */
@@ -63,7 +70,7 @@ export interface IDatumBuilderMintPoolConditionArgs {
   depositFee: bigint;
   marketOpen?: bigint;
   condition?: string;
-  conditionDatumArgs?: unknown;
+  conditionDatumArgs?: TConditionDatumArgs;
 }
 
 /**
@@ -148,6 +155,6 @@ export class DatumBuilderCondition
 
   public decodeDatum(datum: Core.PlutusData): ConditionTypes.TPoolDatum {
     const decoded = Data.from(datum, ConditionTypes.PoolDatum);
-    return decoded as ConditionTypes.TPoolDatum;
+    return decoded;
   }
 }

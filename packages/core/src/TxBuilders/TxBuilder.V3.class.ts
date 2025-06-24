@@ -9,10 +9,6 @@ import {
   Wallet,
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-
-import { MintConditionPoolConfig } from "src/Configs/MintConditionPoolConfig.class.js";
-import { DatumBuilderCondition } from "src/DatumBuilders/DatumBuilder.Condition.class.js";
-import { SundaeSDK } from "src/SundaeSDK.class.js";
 import type {
   ICancelConfigArgs,
   IComposedTx,
@@ -34,9 +30,10 @@ import type {
   TSupportedNetworks,
 } from "../@types/index.js";
 import { EContractVersion, EDatumType, ESwapType } from "../@types/index.js";
-import { TxBuilderAbstractV3 } from "../Abstracts/TxBuilderAbstract.V3..class.js";
+import { TxBuilderAbstractV3 } from "../Abstracts/TxBuilderAbstract.V3.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
+import { MintConditionPoolConfig } from "../Configs/MintConditionPoolConfig.class.js";
 import { StrategyConfig } from "../Configs/StrategyConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
@@ -45,8 +42,10 @@ import {
   OrderDatum,
   SettingsDatum,
 } from "../DatumBuilders/ContractTypes/Contract.v3.js";
+import { DatumBuilderCondition } from "../DatumBuilders/DatumBuilder.Condition.class.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
+import { SundaeSDK } from "../SundaeSDK.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
@@ -310,12 +309,6 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     return instance;
   }
 
-  async mintPool(
-    mintPoolArgsWithCondition: IMintConditionPoolConfigArgs,
-  ): Promise<IComposedTx<BlazeTx, Core.Transaction>>;
-  async mintPool(
-    mintPoolArgs: IMintV3PoolConfigArgs,
-  ): Promise<IComposedTx<BlazeTx, Core.Transaction>>;
   /**
    * Mints a new liquidity pool on the Cardano blockchain. This method
    * constructs and submits a transaction that includes all the necessary generation

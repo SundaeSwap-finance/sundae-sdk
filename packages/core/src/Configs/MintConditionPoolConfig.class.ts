@@ -1,7 +1,7 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { IFeesConfig, IMintConditionPoolConfigArgs } from "../@types/index.js";
-
 import { Config } from "../Abstracts/Config.abstract.class.js";
+import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.Condition.class.js";
 
 export class MintConditionPoolConfig extends Config<IMintConditionPoolConfigArgs> {
   static MAX_FEE: bigint = 500n;
@@ -13,7 +13,7 @@ export class MintConditionPoolConfig extends Config<IMintConditionPoolConfigArgs
   donateToTreasury?: bigint;
   ownerAddress?: string;
   condition?: string;
-  conditionDatumArgs?: any;
+  conditionDatumArgs?: TConditionDatumArgs;
 
   constructor(args?: IMintConditionPoolConfigArgs) {
     super();
@@ -64,7 +64,7 @@ export class MintConditionPoolConfig extends Config<IMintConditionPoolConfigArgs
     return this;
   }
 
-  setConditionDatumArgs(conditionDatumArgs?: any) {
+  setConditionDatumArgs(conditionDatumArgs?: TConditionDatumArgs) {
     this.conditionDatumArgs = conditionDatumArgs;
     return this;
   }

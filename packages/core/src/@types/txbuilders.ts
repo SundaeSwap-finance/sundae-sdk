@@ -1,6 +1,9 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import { Core } from "@blaze-cardano/sdk";
+import { TxBuilderV1 } from "../TxBuilders/TxBuilder.V1.class.js";
+import { TxBuilderV3 } from "../TxBuilders/TxBuilder.V3.class.js";
+import { TxBuilderNftCheck } from "../TxBuilders/TxBuilderNftCheck.class.js";
 import { ISwapConfigArgs } from "./configs.js";
 
 /**
@@ -77,3 +80,5 @@ export interface IOrderRouteSwapArgs {
     "suppliedAsset" | "orderAddresses" | "ownerAddress"
   >;
 }
+
+export type TTxBuilder = TxBuilderV1 | TxBuilderV3 | TxBuilderNftCheck;

@@ -41,7 +41,7 @@ Helper method to easily get the SDK's Blaze instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:135](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L135)
+[packages/core/src/SundaeSDK.class.ts:137](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L137)
 
 ***
 
@@ -61,7 +61,7 @@ Creates the appropriate transaction builder by which you can create valid transa
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:96](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L96)
+[packages/core/src/SundaeSDK.class.ts:99](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L99)
 
 ***
 
@@ -79,7 +79,7 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:126](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L126)
+[packages/core/src/SundaeSDK.class.ts:128](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L128)
 
 ***
 
@@ -102,4 +102,4 @@ The SundaeSDK arguments.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L73)
+[packages/core/src/SundaeSDK.class.ts:76](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L76)

@@ -1,7 +1,10 @@
 import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
-import { EContractVersion, ISundaeSDKOptions } from "./@types/index.js";
+import {
+  EContractVersion,
+  ISundaeSDKOptions,
+  TTxBuilder,
+} from "./@types/index.js";
 import { QueryProvider } from "./Abstracts/QueryProvider.abstract.class.js";
-import { TxBuilderAbstract } from "./Abstracts/TxBuilderAbstract.class.js";
 import { QueryProviderSundaeSwap } from "./QueryProviders/QueryProviderSundaeSwap.js";
 import {
   TxBuilderNftCheck,
@@ -42,7 +45,7 @@ export const SDK_OPTIONS_DEFAULTS: Pick<
  * ```
  */
 export class SundaeSDK {
-  public builders: Map<EContractVersion, TxBuilderAbstract> = new Map();
+  public builders: Map<EContractVersion, TTxBuilder> = new Map();
   public queryProvider: QueryProvider;
   public options: ISundaeSDKOptions;
 
@@ -91,14 +94,13 @@ export class SundaeSDK {
   /**
    * Creates the appropriate transaction builder by which you can create valid transactions.
    *
-   * @returns {TxBuilderAbstract}
+   * @returns {TTxBuilder}
    */
   builder(contractVersion: EContractVersion.V1): TxBuilderV1;
   builder(contractVersion: EContractVersion.V3): TxBuilderV3;
-  builder(contractVersion?: EContractVersion): TxBuilderAbstract;
-  builder(
-    contractVersion: EContractVersion = EContractVersion.V3,
-  ): TxBuilderAbstract {
+  builder(contractVersion: EContractVersion.NftCheck): TxBuilderNftCheck;
+  builder(contractVersion?: EContractVersion): TTxBuilder;
+  builder(contractVersion: EContractVersion = EContractVersion.V3): TTxBuilder {
     const builder = this.builders.get(contractVersion);
     if (!builder) {
       throw new Error(
