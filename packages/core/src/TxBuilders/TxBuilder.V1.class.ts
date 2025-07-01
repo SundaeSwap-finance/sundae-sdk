@@ -305,7 +305,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
     }
 
-    const orderAddress = await this.getOrderAddress(
+    const orderAddress = await this.getOrderScriptAddress(
       swapArgs?.ownerAddress ?? orderAddresses.DestinationAddress.address,
     );
 
@@ -348,7 +348,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       customQueryProvider: this.queryProvider,
     }).builder(args.swapB.pool.version as EContractVersion);
 
-    const secondSwapAddress = await secondBuilder.getOrderAddress(
+    const secondSwapAddress = await secondBuilder.getOrderScriptAddress(
       args.ownerAddress,
     );
 
@@ -1423,7 +1423,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     this.queryProvider = queryProvider;
   }
 
-  async getOrderAddress(_address: string): Promise<string> {
+  async getOrderScriptAddress(_address: string): Promise<string> {
     return await this.getValidatorScript("escrow.spend").then(
       ({ compiledCode }) =>
         Core.addressFromValidator(

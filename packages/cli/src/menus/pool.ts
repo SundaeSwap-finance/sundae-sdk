@@ -147,7 +147,7 @@ export async function cancelSwapMenu(state: State): Promise<State> {
   console.log("\t==== Cancel swap menu ====\n");
   const v3OrderScriptAddress = await state
     .sdk!.builders.get(EContractVersion.V3)!
-    .getOrderAddress(state.settings.address!);
+    .getOrderScriptAddress(state.settings.address!);
   const orderUtxos = await state
     .sdk!.blaze()
     .provider.getUnspentOutputs(Core.Address.fromBech32(v3OrderScriptAddress));

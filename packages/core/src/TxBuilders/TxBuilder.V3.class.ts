@@ -604,12 +604,12 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
         : ORDER_DEPOSIT_DEFAULT,
     });
 
-    const orderAddress = await this.getOrderAddress(
+    const orderScriptAddress = await this.getOrderScriptAddress(
       swapArgs?.ownerAddress ?? orderAddresses.DestinationAddress.address,
     );
 
     txInstance.lockAssets(
-      Core.addressFromBech32(orderAddress),
+      Core.addressFromBech32(orderScriptAddress),
       makeValue(
         payment.lovelace,
         ...Object.entries(payment).filter(([key]) => key !== "lovelace"),
@@ -641,7 +641,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       customQueryProvider: this.queryProvider,
     }).builder(args.swapB.pool.version);
 
-    const secondSwapAddress = await secondBuilder.getOrderAddress(
+    const secondSwapAddress = await secondBuilder.getOrderScriptAddress(
       args.ownerAddress,
     );
 
@@ -1340,7 +1340,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     return sortedUtxos;
   }
 
-  async getOrderAddress(address: string): Promise<string> {
+  async getOrderScriptAddress(address: string): Promise<string> {
     return await this.generateScriptAddress("order.spend", address);
   }
 
