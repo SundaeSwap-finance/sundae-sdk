@@ -13,8 +13,7 @@ import type {
   ICancelConfigArgs,
   IComposedTx,
   IDepositConfigArgs,
-  IMintConditionPoolConfigArgs,
-  IMintV3PoolConfigArgs,
+  IMintPoolConfigArgs,
   IOrderRouteSwapArgs,
   IPoolData,
   IStrategyConfigInputArgs,
@@ -33,7 +32,7 @@ import { EContractVersion, EDatumType, ESwapType } from "../@types/index.js";
 import { TxBuilderAbstractV3 } from "../Abstracts/TxBuilderAbstract.V3.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
-import { MintConditionPoolConfig } from "../Configs/MintConditionPoolConfig.class.js";
+import { MintPoolConfig } from "../Configs/MintPoolConfig.class.js";
 import { StrategyConfig } from "../Configs/StrategyConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
@@ -42,7 +41,6 @@ import {
   OrderDatum,
   SettingsDatum,
 } from "../DatumBuilders/ContractTypes/Contract.v3.js";
-import { DatumBuilderCondition } from "../DatumBuilders/DatumBuilder.Condition.class.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeSDK } from "../SundaeSDK.class.js";
@@ -314,7 +312,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
    * constructs and submits a transaction that includes all the necessary generation
    * of pool NFTs, metadata, pool assets, and initial liquidity tokens,
    *
-   * @param {IMintV3PoolConfigArgs | IMintConditionPoolConfigArgs} args - Configuration arguments for minting the pool, including assets,
+   * @param {IMintPoolConfigArgs} args - Configuration arguments for minting the pool, including assets,
    * fee parameters, owner address, protocol fee, and referral fee.
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
@@ -326,7 +324,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
    * @throws {Error} Throws an error if the transaction fails to build or submit.
    */
   async mintPool(
-    args: IMintV3PoolConfigArgs | IMintConditionPoolConfigArgs,
+    args: IMintPoolConfigArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const {
       assetA,
@@ -339,7 +337,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       feeManager,
       condition,
       conditionDatumArgs,
-    } = new MintConditionPoolConfig(args).buildArgs();
+    } = new MintPoolConfig(args).buildArgs();
 
     const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       assetA,
@@ -390,28 +388,17 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const {
       inline: mintPoolDatum,
       schema: { circulatingLp },
-    } =
-      this.datumBuilder instanceof DatumBuilderCondition
-        ? this.datumBuilder.buildMintPoolDatum({
-            assetA: sortedAssets[0],
-            assetB: sortedAssets[1],
-            fees,
-            marketOpen,
-            depositFee: POOL_MIN_ADA,
-            seedUtxo,
-            feeManager,
-            condition,
-            conditionDatumArgs,
-          })
-        : this.datumBuilder.buildMintPoolDatum({
-            assetA: sortedAssets[0],
-            assetB: sortedAssets[1],
-            fees,
-            marketOpen,
-            depositFee: POOL_MIN_ADA,
-            seedUtxo,
-            feeManager,
-          });
+    } = this.datumBuilder.buildMintPoolDatum({
+      assetA: sortedAssets[0],
+      assetB: sortedAssets[1],
+      fees,
+      marketOpen,
+      depositFee: POOL_MIN_ADA,
+      seedUtxo,
+      feeManager,
+      condition,
+      conditionDatumArgs,
+    });
 
     const { inline: mintRedeemerDatum } =
       this.datumBuilder.buildPoolMintRedeemerDatum({
@@ -450,13 +437,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const sundaeStakeAddress = DatumBuilderV3.addressSchemaToBech32(
       {
         paymentCredential: {
-          SCredential: {
-            bytes: poolContract?.hash as string,
-          },
+          SCredential: { bytes: poolContract?.hash as string },
         },
-        stakeCredential: {
-          keyHash: poolStakingCredential,
-        },
+        stakeCredential: { keyHash: poolStakingCredential },
       },
       this.network === "mainnet"
         ? Core.NetworkId.Mainnet
@@ -586,26 +569,18 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     const config = new SwapConfig(swapArgs);
 
-    const {
-      pool: { ident },
-      orderAddresses,
-      suppliedAsset,
-      minReceivable,
-      referralFee,
-    } = config.buildArgs();
+    const { pool, orderAddresses, suppliedAsset, minReceivable, referralFee } =
+      config.buildArgs();
 
     const txInstance = this.newTxInstance(referralFee);
 
     let scooperFee = await this.getMaxScooperFeeAmount();
 
     const { inline } = this.datumBuilder.buildSwapDatum({
-      ident,
+      ident: pool.ident,
       destinationAddress: orderAddresses.DestinationAddress,
       ownerAddress: swapArgs.ownerAddress,
-      order: {
-        minReceived: minReceivable,
-        offered: suppliedAsset,
-      },
+      order: { minReceived: minReceivable, offered: suppliedAsset },
       scooperFee,
     });
 
@@ -614,14 +589,12 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       const destinationBuilder = SundaeSDK.new({
         blazeInstance: this.blaze,
         customQueryProvider: this.queryProvider,
-      }).builder(
-        swapArgs.orderAddresses.PoolDestinationVersion as EContractVersion,
-      );
+      }).builder(swapArgs.orderAddresses.PoolDestinationVersion);
       isOrderRoute = true;
       scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
     }
 
-    const extraSuppliedAssets = this.getExtraSuppliedAssets(config.pool!);
+    const extraSuppliedAssets = this.getExtraSuppliedAssets(pool);
 
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: [...extraSuppliedAssets, suppliedAsset],
@@ -666,7 +639,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const secondBuilder = SundaeSDK.new({
       blazeInstance: this.blaze,
       customQueryProvider: this.queryProvider,
-    }).builder(args.swapB.pool.version as EContractVersion);
+    }).builder(args.swapB.pool.version);
 
     const secondSwapAddress = await secondBuilder.getOrderAddress(
       args.ownerAddress,
@@ -678,11 +651,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       orderAddresses: {
         DestinationAddress: {
           address: secondSwapAddress,
-          datum: {
-            type: EDatumType.NONE,
-          },
+          datum: { type: EDatumType.NONE },
         },
-        PoolDestinationVersion: args.swapB.pool.version as EContractVersion,
+        PoolDestinationVersion: args.swapB.pool.version,
       },
     }).buildArgs();
 
@@ -708,9 +679,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       orderAddresses: {
         DestinationAddress: {
           address: args.ownerAddress,
-          datum: {
-            type: EDatumType.NONE,
-          },
+          datum: { type: EDatumType.NONE },
         },
       },
     }).buildArgs();
@@ -727,15 +696,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
     let mergedReferralFee: ITxBuilderReferralFee | undefined;
     if (swapA.referralFee) {
-      mergedReferralFee = {
-        ...swapA.referralFee,
-        payment: referralFeeAmount,
-      };
+      mergedReferralFee = { ...swapA.referralFee, payment: referralFeeAmount };
     } else if (swapB.referralFee) {
-      mergedReferralFee = {
-        ...swapB.referralFee,
-        payment: referralFeeAmount,
-      };
+      mergedReferralFee = { ...swapB.referralFee, payment: referralFeeAmount };
     }
 
     const datumHash = Core.PlutusData.fromCbor(
@@ -744,10 +707,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
     const { tx, datum, fees } = await this.swap({
       ...swapA,
-      swapType: {
-        type: ESwapType.LIMIT,
-        minReceivable: swapA.minReceivable,
-      },
+      swapType: { type: ESwapType.LIMIT, minReceivable: swapA.minReceivable },
       ownerAddress: args.ownerAddress,
       orderAddresses: {
         ...swapA.orderAddresses,
@@ -925,10 +885,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const swapDatum = this.datumBuilder.buildSwapDatum({
       ident,
       destinationAddress: orderAddresses.DestinationAddress,
-      order: {
-        offered: suppliedAsset,
-        minReceived: minReceivable,
-      },
+      order: { offered: suppliedAsset, minReceived: minReceivable },
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
@@ -1010,10 +967,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const { inline } = this.datumBuilder.buildDepositDatum({
       destinationAddress: orderAddresses.DestinationAddress,
       ident: pool.ident,
-      order: {
-        assetA: coinA,
-        assetB: coinB,
-      },
+      order: { assetA: coinA, assetB: coinB },
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
@@ -1067,9 +1021,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const { inline } = this.datumBuilder.buildWithdrawDatum({
       ident,
       destinationAddress: orderAddresses.DestinationAddress,
-      order: {
-        lpToken: suppliedLPAsset,
-      },
+      order: { lpToken: suppliedLPAsset },
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
@@ -1119,10 +1071,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const { inline } = this.datumBuilder.buildStrategyDatum({
       destination,
       ident: pool.ident,
-      order: {
-        signer: authSigner,
-        script: authScript,
-      },
+      order: { signer: authSigner, script: authScript },
       ownerAddress,
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
@@ -1164,10 +1113,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       [zapArgs.pool.assetA, zapArgs.pool.assetB],
     );
     const { pool, suppliedAsset, orderAddresses, swapSlippage, referralFee } =
-      new ZapConfig({
-        ...zapArgs,
-        zapDirection,
-      }).buildArgs();
+      new ZapConfig({ ...zapArgs, zapDirection }).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
 
@@ -1249,16 +1195,10 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
          * Assuming that we can use inline datums in the V3 Scooper,
          * adjust this to use that and get rid of the metadata below.
          */
-        datum: {
-          type: EDatumType.HASH,
-          value: depositData.hash,
-        },
+        datum: { type: EDatumType.HASH, value: depositData.hash },
       },
       ownerAddress: orderAddresses.DestinationAddress.address,
-      order: {
-        offered: halfSuppliedAmount,
-        minReceived: minReceivable,
-      },
+      order: { offered: halfSuppliedAmount, minReceived: minReceivable },
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 

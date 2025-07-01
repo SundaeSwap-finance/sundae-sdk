@@ -87,10 +87,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
       blueprint: {
         ...protocolParamsFull.blueprint,
         validators: protocolParamsFull.blueprint.validators.map(
-          (validator) => ({
-            ...validator,
-            compiledCode: undefined,
-          }),
+          (validator) => ({ ...validator, compiledCode: undefined }),
         ),
       },
     };
@@ -101,20 +98,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     this.poolData.set(ident, poolData);
   }
 
-  private async findPoolDataByAssetId(assetId: string): Promise<IPoolData[]> {
-    const res: {
-      data?: {
-        pools: {
-          byAsset: IPoolDataQueryResult[];
-        };
-      };
-    } = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
+  async findPoolDataByAssetId(assetId: string): Promise<IPoolData[]> {
+    const res: { data?: { pools: { byAsset: IPoolDataQueryResult[] } } } =
+      await fetch(this.baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
           query poolByIdent($assetId: ID!) {
             pools {
               byAsset(asset: $assetId) {
@@ -155,11 +145,9 @@ export class QueryProviderSundaeSwap implements QueryProvider {
             }
           }
         `,
-        variables: {
-          assetId: assetId,
-        },
-      }),
-    }).then((res) => res.json());
+          variables: { assetId: assetId },
+        }),
+      }).then((res) => res.json());
 
     if (!res?.data) {
       throw new Error(
@@ -205,25 +193,16 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     return this.findPoolDataByIdent(args);
   }
 
-  protected async findPoolDataByIdent({
-    ident,
-  }: IPoolByIdentQuery): Promise<IPoolData> {
+  async findPoolDataByIdent({ ident }: IPoolByIdentQuery): Promise<IPoolData> {
     if (this.poolData.has(ident)) {
       return this.poolData.get(ident) as IPoolData;
     }
-    const res: {
-      data?: {
-        pools: {
-          byId: IPoolDataQueryResult;
-        };
-      };
-    } = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
+    const res: { data?: { pools: { byId: IPoolDataQueryResult } } } =
+      await fetch(this.baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
           query poolByIdent($id: ID!) {
             pools {
               byId(id: $id) {
@@ -264,11 +243,9 @@ export class QueryProviderSundaeSwap implements QueryProvider {
             }
           }
         `,
-        variables: {
-          id: ident,
-        },
-      }),
-    }).then((res) => res.json());
+          variables: { id: ident },
+        }),
+      }).then((res) => res.json());
 
     if (!res?.data) {
       throw new Error(
@@ -302,17 +279,11 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   }
 
   async findOpenOrderDatum(utxo: TUTXO) {
-    const res: {
-      data?: {
-        utxo: {
-          datum: string;
-          datumHash: string;
-        };
-      };
-    } = await fetch(this.baseUrl, {
-      method: "POST",
-      body: JSON.stringify({
-        query: `
+    const res: { data?: { utxo: { datum: string; datumHash: string } } } =
+      await fetch(this.baseUrl, {
+        method: "POST",
+        body: JSON.stringify({
+          query: `
         query UTXO($txHash: String!, $index: Int!) {
           utxo(txHash: $txHash, index: $index) {
             datum
@@ -320,12 +291,9 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           }
         }
         `,
-        variables: {
-          txHash: utxo.hash,
-          index: utxo.index,
-        },
-      }),
-    }).then((res) => res.json());
+          variables: { txHash: utxo.hash, index: utxo.index },
+        }),
+      }).then((res) => res.json());
 
     if (!res?.data) {
       throw new Error(
@@ -355,15 +323,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   async getProtocolParamsWithScriptHashes(
     version?: EContractVersion,
   ): Promise<ISundaeProtocolParams[] | ISundaeProtocolParams> {
-    const res: {
-      data?: { protocols: ISundaeProtocolParams[] };
-    } = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
+    const res: { data?: { protocols: ISundaeProtocolParams[] } } = await fetch(
+      this.baseUrl,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
         query ProtocolValidators {
           protocols {
             blueprint {
@@ -383,8 +349,9 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           }
         }
         `,
-      }),
-    }).then((res) => res.json());
+        }),
+      },
+    ).then((res) => res.json());
 
     if (!res?.data) {
       throw new Error(
@@ -419,15 +386,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   async getProtocolParamsWithScripts(
     version?: EContractVersion,
   ): Promise<ISundaeProtocolParamsFull[] | ISundaeProtocolParamsFull> {
-    const res: {
-      data?: { protocols: ISundaeProtocolParamsFull[] };
-    } = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
+    const res: { data?: { protocols: ISundaeProtocolParamsFull[] } } =
+      await fetch(this.baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
         query ProtocolValidators {
           protocols {
             blueprint {
@@ -448,8 +412,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           }
         }
         `,
-      }),
-    }).then((res) => res.json());
+        }),
+      }).then((res) => res.json());
 
     if (!res?.data) {
       throw new Error(

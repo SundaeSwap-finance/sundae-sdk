@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
-import { DatumBuilderNftCheck } from "../../DatumBuilder.NftCheck.class";
-import { NFTCHECK_EXPECTATIONS } from "../../__data__/NftCheck.expectations";
+import { DatumBuilderNftCheck } from "../../DatumBuilder.NftCheck.class.js";
+import { NFTCHECK_EXPECTATIONS } from "../../__data__/NftCheck.expectations.js";
 
 
 let builderInstance: DatumBuilderNftCheck;

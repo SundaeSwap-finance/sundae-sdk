@@ -2,14 +2,13 @@
 
 ***
 
-# Class: DatumBuilderV3
+# Class: DatumBuilderNftCheck
 
-This class is useful if you would rather just build valid CBOR strings for just the datum
-portion of a valid SundaeSwap transaction.
+This class extends the DatumBuilderCondition class to build a datum for NFT checks.
 
-## Implements
+## Extends
 
-- [`DatumBuilderAbstract`](DatumBuilderAbstract.md)
+- `DatumBuilderCondition`
 
 ## Properties
 
@@ -18,6 +17,10 @@ portion of a valid SundaeSwap transaction.
 > **network**: [`TSupportedNetworks`](../type-aliases/TSupportedNetworks.md)
 
 The current network id.
+
+#### Inherited from
+
+`DatumBuilderCondition.network`
 
 #### Defined in
 
@@ -31,9 +34,13 @@ The current network id.
 
 The error to throw when the pool ident does not match V1 constraints.
 
+#### Inherited from
+
+`DatumBuilderCondition.INVALID_POOL_IDENT`
+
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:116](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L116)
+[packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts#L16)
 
 ## Methods
 
@@ -86,6 +93,10 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 > **scooperFee**: `bigint`
 
+#### Inherited from
+
+`DatumBuilderCondition.buildDepositDatum`
+
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:179](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L179)
@@ -135,6 +146,14 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 > **circulatingLp**: `bigint`
 
+##### condition
+
+> **condition**: `null` \| `string`
+
+##### conditionDatum
+
+> **conditionDatum**: `unknown`
+
 ##### feeManager
 
 > **feeManager**: `null` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
@@ -151,9 +170,13 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 > **protocolFee**: `bigint`
 
+#### Inherited from
+
+`DatumBuilderCondition.buildMintPoolDatum`
+
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:329](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L329)
+[packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts#L39)
 
 ***
 
@@ -180,6 +203,10 @@ The assets being supplied to the new pool.
 An object containing the hash of the inline datum, the inline datum itself,
                                              and the schema of the original pool mint redeemer datum, crucial for the execution
                                              of the minting pool operation.
+
+#### Inherited from
+
+`DatumBuilderCondition.buildPoolMintRedeemerDatum`
 
 #### Defined in
 
@@ -234,6 +261,10 @@ An object containing the hash of the inline datum, the inline datum itself,
 ##### scooperFee
 
 > **scooperFee**: `bigint`
+
+#### Inherited from
+
+`DatumBuilderCondition.buildSwapDatum`
 
 #### Defined in
 
@@ -290,6 +321,10 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 > **scooperFee**: `bigint`
 
+#### Inherited from
+
+`DatumBuilderCondition.buildWithdrawDatum`
+
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:225](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L225)
@@ -316,6 +351,10 @@ The UTxO txHash and index.
 
 `string`
 
+#### Inherited from
+
+`DatumBuilderCondition.computePoolId`
+
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:632](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L632)
@@ -337,6 +376,10 @@ The hex encoded pool ident.
 #### Returns
 
 `string`
+
+#### Inherited from
+
+`DatumBuilderCondition.computePoolLqName`
 
 #### Defined in
 
@@ -360,6 +403,10 @@ The hex encoded pool ident.
 
 `string`
 
+#### Inherited from
+
+`DatumBuilderCondition.computePoolNftName`
+
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:596](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L596)
@@ -381,6 +428,10 @@ The hex encoded pool ident.
 #### Returns
 
 `string`
+
+#### Inherited from
+
+`DatumBuilderCondition.computePoolRefName`
 
 #### Defined in
 
@@ -420,6 +471,10 @@ An object containing the staking and
 
 > **stakingKeyHash**: `undefined` \| `string`
 
+#### Inherited from
+
+`DatumBuilderCondition.getDestinationAddressesFromDatum`
+
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:663](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L663)
@@ -448,6 +503,10 @@ The serialized datum string from which the owner's signing key is to be extracte
 
 The signing key associated with the owner, extracted from the datum. This key is used
          for transaction validation and authorization purposes.
+
+#### Inherited from
+
+`DatumBuilderCondition.getSignerKeyFromDatum`
 
 #### Defined in
 

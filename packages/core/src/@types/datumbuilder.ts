@@ -1,5 +1,5 @@
 import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { EContractVersion } from "./txbuilders";
+import { EContractVersion } from "./txbuilders.js";
 
 /**
  * The unique identifier of a pool, defined as a string.

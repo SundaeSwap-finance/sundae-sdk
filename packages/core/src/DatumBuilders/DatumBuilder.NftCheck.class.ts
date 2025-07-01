@@ -4,14 +4,20 @@ import {
   NftCheckDatum,
   TCheck,
   TNftCheckDatum,
-} from "./ContractTypes/Contract.NftCheck";
-import { DatumBuilderCondition } from "./DatumBuilder.Condition.class";
+} from "./ContractTypes/Contract.NftCheck.js";
+import { DatumBuilderCondition } from "./DatumBuilder.Condition.class.js";
 
+/**
+ * Interface for the arguments required to build a datum for NFT checks.
+ */
 export interface IDatumBuilderNftCheckArgs {
   value: AssetAmount<IAssetAmountMetadata>[];
   check: TCheck;
 }
 
+/**
+ * This class extends the DatumBuilderCondition class to build a datum for NFT checks.
+ */
 export class DatumBuilderNftCheck extends DatumBuilderCondition {
   public buildConditionDatum(args: IDatumBuilderNftCheckArgs): Core.PlutusData {
     const asset_map = new Map<string, Map<string, bigint>>();

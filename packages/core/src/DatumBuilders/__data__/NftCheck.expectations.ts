@@ -1,6 +1,6 @@
 import { AssetAmount } from "@sundaeswap/asset";
-import { PREVIEW_DATA } from "../../TestUtilities/mockData";
-import { IDatumBuilderNftCheckArgs } from "../DatumBuilder.NftCheck.class";
+import { PREVIEW_DATA } from "../../TestUtilities/mockData.js";
+import { IDatumBuilderNftCheckArgs } from "../DatumBuilder.NftCheck.class.js";
 
 export const NFTCHECK_EXPECTATIONS = {
   buildConditionDatum: [

@@ -10,10 +10,10 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   EContractVersion,
   IComposedTx,
-  IMintV3PoolConfigArgs,
+  IMintPoolConfigArgs,
   IPoolData,
 } from "../@types";
-import { TxBuilderAbstractCondition } from "../Abstracts/TxBuilderAbstract.Condition";
+import { TxBuilderAbstractCondition } from "../Abstracts/TxBuilderAbstract.Condition.js";
 import {
   DatumBuilderNftCheck,
   IDatumBuilderNftCheckArgs,
@@ -21,15 +21,15 @@ import {
 import {
   NftCheckDatum,
   TNftCheckDatum,
-} from "../DatumBuilders/ContractTypes/Contract.NftCheck";
+} from "../DatumBuilders/ContractTypes/Contract.NftCheck.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders";
-import { TxBuilderV3 } from "./TxBuilder.V3.class";
+import { TxBuilderV3 } from "./TxBuilder.V3.class.js";
 
 /**
  * Interface describing the method arguments for creating a pool
  * in the Condition Pool Contract.
  */
-export interface IMintNftCheckPoolConfigArgs extends IMintV3PoolConfigArgs {
+export interface IMintNftCheckPoolConfigArgs extends IMintPoolConfigArgs {
   conditionDatumArgs: IDatumBuilderNftCheckArgs;
 }
 

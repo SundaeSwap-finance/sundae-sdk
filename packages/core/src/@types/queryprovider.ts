@@ -85,7 +85,7 @@ export interface IPoolData {
     bReserve: bigint;
     lpTotal: bigint;
   };
-  version: string;
+  version: EContractVersion;
   conditionDatum?: string;
 }
 

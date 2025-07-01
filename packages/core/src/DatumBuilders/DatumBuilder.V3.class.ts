@@ -15,6 +15,7 @@ import { DatumBuilderAbstract } from "../Abstracts/DatumBuilder.abstract.class.j
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import * as V3Types from "./ContractTypes/Contract.v3.js";
+import { IDatumBuilderNftCheckArgs } from "./DatumBuilder.NftCheck.class.js";
 
 /**
  * The base arguments for the V3 DatumBuilder.
@@ -72,10 +73,15 @@ export interface IDatumBuilderStrategyV3Args
 }
 
 /**
- * The arguments for building a minting a new pool transaction against
- * the V3 pool contract.
+ * A union type representing the potential arguments for building a Condition datum.
  */
-export interface IDatumBuilderMintPoolV3Args {
+export type TConditionDatumArgs = IDatumBuilderNftCheckArgs;
+
+/**
+ * The arguments for building a minting a new pool transaction against
+ * the V3 & Condition pool contract.
+ */
+export interface IDatumBuilderMintPoolArgs {
   seedUtxo: { txHash: string; outputIndex: number };
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
@@ -83,6 +89,8 @@ export interface IDatumBuilderMintPoolV3Args {
   depositFee: bigint;
   marketOpen?: bigint;
   feeManager?: string;
+  condition?: string;
+  conditionDatumArgs?: TConditionDatumArgs;
 }
 
 /**
@@ -326,7 +334,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     depositFee,
     seedUtxo,
     feeManager,
-  }: IDatumBuilderMintPoolV3Args): TDatumResult<V3Types.TPoolDatum> {
+  }: IDatumBuilderMintPoolArgs): TDatumResult<V3Types.TPoolDatum> {
     const ident = DatumBuilderV3.computePoolId(seedUtxo);
     const liquidity = sqrt(assetA.amount * assetB.amount);
 

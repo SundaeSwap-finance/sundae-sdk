@@ -3,9 +3,9 @@ import {
   AssetClassPairSchema,
   IdentSchema,
   MultiSigScriptSchema,
-} from "./Contract.v3";
+} from "./Contract.v3.js";
 
-export const PoolDatumSchema = Data.Object({
+export const ConditionPoolDatumSchema = Data.Object({
   identifier: IdentSchema,
   assets: AssetClassPairSchema,
   circulatingLp: Data.Integer(),
@@ -17,5 +17,6 @@ export const PoolDatumSchema = Data.Object({
   condition: Data.Nullable(Data.Bytes()),
   conditionDatum: Data.Nullable(Data.Any()),
 });
-export type TPoolDatum = Static<typeof PoolDatumSchema>;
-export const PoolDatum = PoolDatumSchema as unknown as TPoolDatum;
+export type TConditionPoolDatum = Static<typeof ConditionPoolDatumSchema>;
+export const ConditionPoolDatum =
+  ConditionPoolDatumSchema as unknown as TConditionPoolDatum;

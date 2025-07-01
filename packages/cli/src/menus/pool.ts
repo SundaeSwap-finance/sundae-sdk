@@ -7,7 +7,7 @@ import {
   TxBuilderNftCheck,
   TxBuilderV3,
   type IMintNftCheckPoolConfigArgs,
-  type IMintV3PoolConfigArgs,
+  type IMintPoolConfigArgs,
   type IPoolByAssetQuery,
   type IPoolData,
   type ISwapConfigArgs,
@@ -41,15 +41,10 @@ export async function swapMenu(state: State): Promise<State> {
   choices = [{ name: "Enter pool ident manually", value: "manual" }].concat(
     choices,
   );
-  let choice = await select({
-    message: "Select pool",
-    choices: choices,
-  });
+  let choice = await select({ message: "Select pool", choices: choices });
   let pool: IPoolData;
   if (choice === "manual") {
-    const ident = await input({
-      message: "Enter pool ident",
-    });
+    const ident = await input({ message: "Enter pool ident" });
     choice = ident;
     pool = await getPoolData(state, ident, EContractVersion.NftCheck);
   } else {
@@ -71,10 +66,7 @@ export async function swapMenu(state: State): Promise<State> {
         datum: { type: EDatumType.NONE },
       },
     },
-    swapType: {
-      type: ESwapType.MARKET,
-      slippage: Number(await getSlippage()),
-    },
+    swapType: { type: ESwapType.MARKET, slippage: Number(await getSlippage()) },
   };
   const tx = await builder.swap(swapArgs);
   await transactionDialog((await tx.build()).cbor, false);
@@ -107,16 +99,10 @@ export async function mintPoolMenu(state: State): Promise<State> {
   const choices = state
     .sdk!.builders.keys()
     .map((key) => {
-      return {
-        name: key as string,
-        value: key as string,
-      };
+      return { name: key as string, value: key as string };
     })
     .toArray();
-  choices.push({
-    name: "Back",
-    value: "back",
-  });
+  choices.push({ name: "Back", value: "back" });
   const choice = await select({
     message: "Select pool type",
     choices: choices,
@@ -128,7 +114,7 @@ export async function mintPoolMenu(state: State): Promise<State> {
       const builder = state.sdk!.builders.get(
         EContractVersion.V3,
       )! as TxBuilderV3;
-      const args = await mintPoolV3Args(state);
+      const args = await mintPoolArgs(state);
       const tx = (await builder.mintPool(args)).build();
       await transactionDialog((await tx).cbor, false);
       break;
@@ -171,10 +157,7 @@ export async function cancelSwapMenu(state: State): Promise<State> {
       value: utxo,
     };
   });
-  choices.push({
-    name: "Back",
-    value: "back",
-  });
+  choices.push({ name: "Back", value: "back" });
   const choice = await select({
     message: "Select order to cancel",
     choices: choices,
@@ -194,9 +177,7 @@ export async function cancelSwapMenu(state: State): Promise<State> {
   return state;
 }
 
-export async function mintPoolV3Args(
-  state: State,
-): Promise<IMintV3PoolConfigArgs> {
+export async function mintPoolArgs(state: State): Promise<IMintPoolConfigArgs> {
   return {
     assetA: await getAssetAmount(state, "Select asset A", 2n),
     assetB: await getAssetAmount(state, "Select asset B", 2n),
@@ -208,16 +189,13 @@ export async function mintPoolV3Args(
 async function mintPoolNftCheckArgs(
   state: State,
 ): Promise<IMintNftCheckPoolConfigArgs> {
-  const v3Args = await mintPoolV3Args(state);
+  const v3Args = await mintPoolArgs(state);
   const nftCheck = await getAssetAmount(state, "Select NFT asset", 1n);
   return {
     assetA: v3Args.assetA,
     assetB: v3Args.assetB,
     fees: v3Args.fees,
     ownerAddress: v3Args.ownerAddress,
-    conditionDatumArgs: {
-      value: [nftCheck],
-      check: "Any",
-    },
+    conditionDatumArgs: { value: [nftCheck], check: "Any" },
   } as IMintNftCheckPoolConfigArgs;
 }

@@ -9,7 +9,7 @@ in the Condition Pool Contract.
 
 ## Extends
 
-- [`IMintV3PoolConfigArgs`](IMintV3PoolConfigArgs.md)
+- [`IMintPoolConfigArgs`](IMintPoolConfigArgs.md)
 
 ## Properties
 
@@ -22,7 +22,7 @@ to the SundaeSwap Treasury wallet.
 
 #### Inherited from
 
-[`IMintV3PoolConfigArgs`](IMintV3PoolConfigArgs.md).[`donateToTreasury`](IMintV3PoolConfigArgs.md#donatetotreasury)
+[`IMintPoolConfigArgs`](IMintPoolConfigArgs.md).[`donateToTreasury`](IMintPoolConfigArgs.md#donatetotreasury)
 
 #### Defined in
 
@@ -38,7 +38,7 @@ The fee manager address for the pool. If not provided, defaults to null.
 
 #### Inherited from
 
-[`IMintV3PoolConfigArgs`](IMintV3PoolConfigArgs.md).[`feeManager`](IMintV3PoolConfigArgs.md#feemanager)
+[`IMintPoolConfigArgs`](IMintPoolConfigArgs.md).[`feeManager`](IMintPoolConfigArgs.md#feemanager)
 
 #### Defined in
 

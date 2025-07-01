@@ -2,7 +2,7 @@
 
 ***
 
-# Interface: IMintV3PoolConfigArgs
+# Interface: IMintPoolConfigArgs
 
 Interface describing the method arguments for creating a pool
 in the V3 Pool Contract.
@@ -13,7 +13,6 @@ in the V3 Pool Contract.
 
 ## Extended by
 
-- [`IMintConditionPoolConfigArgs`](IMintConditionPoolConfigArgs.md)
 - [`IMintNftCheckPoolConfigArgs`](IMintNftCheckPoolConfigArgs.md)
 
 ## Properties
