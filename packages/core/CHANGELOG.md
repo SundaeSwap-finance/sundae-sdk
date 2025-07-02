@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.3.0
+
+### Minor Changes
+
+- a36c4ae: Updates pool mint UTXO selection and minimum ADA padding for creating a pool. Solves edge-cases where low balances are used, including insufficient inputs at times getting selected to cover the costs.
+
 ## 2.2.0
 
 ### Minor Changes
