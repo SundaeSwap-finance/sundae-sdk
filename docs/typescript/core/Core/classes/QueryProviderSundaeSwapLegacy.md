@@ -55,7 +55,7 @@ The transaction hash and index of the open order in the escrow contract.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwapLegacy.ts:150](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwapLegacy.ts#L150)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwapLegacy.ts:153](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwapLegacy.ts#L153)
 
 ***
 
@@ -83,4 +83,4 @@ Returns the queried pool's data.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwapLegacy.ts:69](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwapLegacy.ts#L69)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwapLegacy.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwapLegacy.ts#L72)

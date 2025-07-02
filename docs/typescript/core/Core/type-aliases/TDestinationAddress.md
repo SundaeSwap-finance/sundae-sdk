@@ -20,4 +20,4 @@ Defines the destination address of a swap along with an optional datum hash to a
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:78](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L78)
+[packages/core/src/@types/datumbuilder.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L79)

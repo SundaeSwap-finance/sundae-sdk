@@ -26,7 +26,7 @@ import {
   params,
   referenceUtxosBlaze,
   settingsUtxosBlaze,
-} from "../__data__/mockData.js";
+} from "../__data__/mockData.V3.js";
 
 spyOn(
   QueryProviderSundaeSwap.prototype,

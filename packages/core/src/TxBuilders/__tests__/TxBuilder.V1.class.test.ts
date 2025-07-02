@@ -16,7 +16,7 @@ import { DatumBuilderV1 } from "../../DatumBuilders/DatumBuilder.V1.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { PREVIEW_DATA } from "../../TestUtilities/mockData.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
-import { params, settingsUtxosBlaze } from "../__data__/mockData.js";
+import { params, settingsUtxosBlaze } from "../__data__/mockData.V3.js";
 import { TxBuilderV1 } from "../TxBuilder.V1.class.js";
 import { TxBuilderV3 } from "../TxBuilder.V3.class.js";
 

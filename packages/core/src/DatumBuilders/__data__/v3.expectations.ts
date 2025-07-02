@@ -9,7 +9,7 @@ import { PREVIEW_DATA } from "../../TestUtilities/mockData.js";
 import { ADA_METADATA } from "../../constants.js";
 import {
   IDatumBuilderDepositV3Args,
-  IDatumBuilderMintPoolV3Args,
+  IDatumBuilderMintPoolArgs,
   IDatumBuilderPoolMintRedeemerV3Args,
   IDatumBuilderSwapV3Args,
   IDatumBuilderWithdrawV3Args,
@@ -17,7 +17,7 @@ import {
 
 const DEFAULT_DESTINATION_ADDRESS = PREVIEW_DATA.addresses.alternatives[2];
 
-const defaultMintPoolArgs: IDatumBuilderMintPoolV3Args = {
+const defaultMintPoolArgs: IDatumBuilderMintPoolArgs = {
   assetA: PREVIEW_DATA.assets.tada,
   assetB: PREVIEW_DATA.assets.tindy,
   fees: {
@@ -284,7 +284,7 @@ export const V3_EXPECTATIONS = {
           outputIndex: 4,
           txHash: defaultMintPoolArgs.seedUtxo.txHash,
         },
-      } as IDatumBuilderMintPoolV3Args,
+      } as IDatumBuilderMintPoolArgs,
       expectations: {
         calledWith: [1, defaultMintPoolArgs.seedUtxo],
         returnedWith: [

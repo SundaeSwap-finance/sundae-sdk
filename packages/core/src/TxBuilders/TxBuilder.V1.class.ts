@@ -49,6 +49,7 @@ import { OrderDatum as V3OrderDatum } from "../DatumBuilders/ContractTypes/Contr
 import { DatumBuilderV1 } from "../DatumBuilders/DatumBuilder.V1.class.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
+import { SundaeSDK } from "../SundaeSDK.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
@@ -278,6 +279,8 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
 
     const txInstance = this.newTxInstance(referralFee);
 
+    let scooperFee = await this.getMaxScooperFeeAmount();
+
     const { inline, hash } = this.datumBuilder.buildSwapDatum({
       ident,
       swap: {
@@ -289,34 +292,22 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       },
       orderAddresses,
       fundedAsset: suppliedAsset,
-      scooperFee: this.__getParam("maxScooperFee"),
+      scooperFee,
     });
 
-    let scooperFee = this.__getParam("maxScooperFee");
-    const v3TxBuilder = new TxBuilderV3(this.blaze);
-
-    const v3Address = await v3TxBuilder.generateScriptAddress(
-      "order.spend",
-      swapArgs.ownerAddress ||
-        swapArgs.orderAddresses.DestinationAddress.address,
-    );
-
-    const { compiledCode } = await this.getValidatorScript("escrow.spend");
-    const scriptAddress = Core.addressFromValidator(
-      this.network === "mainnet" ? 1 : 0,
-      Core.Script.newPlutusV1Script(
-        new Core.PlutusV1Script(
-          Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex")),
-        ),
-      ),
-    ).toBech32();
-
-    // Adjust scooper fee supply based on destination address.
-    if (orderAddresses.DestinationAddress.address === v3Address) {
-      scooperFee += await v3TxBuilder.getMaxScooperFeeAmount();
-    } else if (orderAddresses.DestinationAddress.address === scriptAddress) {
-      scooperFee += this.__getParam("maxScooperFee");
+    if (swapArgs.orderAddresses.PoolDestinationVersion) {
+      const destinationBuilder = SundaeSDK.new({
+        blazeInstance: this.blaze,
+        customQueryProvider: this.queryProvider,
+      }).builder(
+        swapArgs.orderAddresses.PoolDestinationVersion as EContractVersion,
+      );
+      scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
     }
+
+    const orderAddress = await this.getOrderScriptAddress(
+      swapArgs?.ownerAddress ?? orderAddresses.DestinationAddress.address,
+    );
 
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: [suppliedAsset],
@@ -329,7 +320,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     );
 
     const datum = Core.DatumHash(Core.HexBlob(hash));
-    const script = Core.addressFromBech32(scriptAddress);
+    const script = Core.addressFromBech32(orderAddress);
 
     txInstance
       .provideDatum(Core.PlutusData.fromCbor(Core.HexBlob(inline)))
@@ -352,29 +343,14 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   async orderRouteSwap(
     args: IOrderRouteSwapArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const isSecondSwapV3 = args.swapB.pool.version === EContractVersion.V3;
+    const secondBuilder = SundaeSDK.new({
+      blazeInstance: this.blaze,
+      customQueryProvider: this.queryProvider,
+    }).builder(args.swapB.pool.version as EContractVersion);
 
-    const secondSwapBuilder = isSecondSwapV3
-      ? new TxBuilderV3(this.blaze)
-      : this;
-    const secondSwapAddress = isSecondSwapV3
-      ? await (secondSwapBuilder as TxBuilderV3).generateScriptAddress(
-          "order.spend",
-          args.ownerAddress,
-        )
-      : await this.getValidatorScript("escrow.spend").then(
-          ({ compiledCode, hash }) => {
-            this.datumBuilder.registerValidatorScriptHash(hash);
-            return Core.addressFromValidator(
-              this.network === "mainnet" ? 1 : 0,
-              Core.Script.newPlutusV1Script(
-                new Core.PlutusV1Script(
-                  Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex")),
-                ),
-              ),
-            ).toBech32();
-          },
-        );
+    const secondSwapAddress = await secondBuilder.getOrderScriptAddress(
+      args.ownerAddress,
+    );
 
     const swapA = new SwapConfig({
       ...args.swapA,
@@ -386,6 +362,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
             type: EDatumType.NONE,
           },
         },
+        PoolDestinationVersion: args.swapB.pool.version as EContractVersion,
       },
     }).buildArgs();
 
@@ -418,7 +395,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       },
     }).buildArgs();
 
-    const secondSwapData = await secondSwapBuilder.swap({
+    const secondSwapData = await secondBuilder.swap({
       ...swapB,
       swapType: args.swapB.swapType,
     });
@@ -1440,6 +1417,36 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       scooperFee: totalScooper,
       referralFee: totalReferralFees,
     });
+  }
+
+  setQueryProvider(queryProvider: QueryProviderSundaeSwap): void {
+    this.queryProvider = queryProvider;
+  }
+
+  async getOrderScriptAddress(_address: string): Promise<string> {
+    return await this.getValidatorScript("escrow.spend").then(
+      ({ compiledCode }) =>
+        Core.addressFromValidator(
+          this.network === "mainnet" ? 1 : 0,
+          Core.Script.newPlutusV1Script(
+            new Core.PlutusV1Script(
+              Core.HexBlob.fromBytes(Buffer.from(compiledCode, "hex")),
+            ),
+          ),
+        ).toBech32(),
+    );
+  }
+
+  getExtraSuppliedAssets(): AssetAmount<IAssetAmountMetadata>[] {
+    return [];
+  }
+
+  getDatumType(): EDatumType {
+    return EDatumType.HASH;
+  }
+
+  async getMaxScooperFeeAmount(): Promise<bigint> {
+    return this.__getParam("maxScooperFee");
   }
 
   private async completeTx({

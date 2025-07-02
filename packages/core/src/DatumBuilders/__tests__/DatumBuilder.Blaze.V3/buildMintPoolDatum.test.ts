@@ -10,7 +10,7 @@ import {
 
 import {
   DatumBuilderV3,
-  IDatumBuilderMintPoolV3Args,
+  IDatumBuilderMintPoolArgs
 } from "../../DatumBuilder.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
@@ -39,7 +39,7 @@ describe("builderMintPoolDatum()", () => {
     expect(spiedOnComputePoolId).toHaveBeenNthCalledWith(
       ...(V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.calledWith as [
         number,
-        IDatumBuilderMintPoolV3Args["seedUtxo"],
+        IDatumBuilderMintPoolArgs["seedUtxo"],
       ]),
     );
     expect(spiedOnComputePoolId).toHaveReturnedTimes(
