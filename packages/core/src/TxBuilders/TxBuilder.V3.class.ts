@@ -338,25 +338,6 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
     const exoticPair = !SundaeUtils.isAdaAsset(sortedAssets[0].metadata);
 
-    const settingsDatum = await this.getSettingsUtxoDatum();
-    if (!settingsDatum) {
-      throw new Error("Could not retrieve the datum from the settings UTXO.");
-    }
-
-    const {
-      metadataAdmin: { paymentCredential, stakeCredential },
-      authorizedStakingKeys: [poolStakingCredential],
-    } = Data.from(
-      Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
-      SettingsDatum,
-    );
-    const metadataAddress = DatumBuilderV3.addressSchemaToBech32(
-      { paymentCredential, stakeCredential },
-      this.network === "mainnet"
-        ? Core.NetworkId.Mainnet
-        : Core.NetworkId.Testnet,
-    );
-
     const [userUtxos, { hash: poolPolicyId }, references, settings] =
       await Promise.all([
         this.getUtxosForPoolMint(
@@ -390,16 +371,16 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const poolLqAssetName = DatumBuilderV3.computePoolLqName(newPoolIdent);
     const poolLqAssetIdHex = `${poolPolicyId + poolLqAssetName}`;
 
+    const POOL_MIN_ADA = 4_000_000n; // Give a 1 ADA buffer between the user supplied amount and the min deposit fee.
+
     const poolAssets = {
-      lovelace: 0n,
+      lovelace: POOL_MIN_ADA,
       [poolNftAssetIdHex]: 1n,
       [sortedAssets[1].metadata.assetId.replace(".", "")]:
         sortedAssets[1].amount,
     };
 
-    const POOL_MIN_ADA = 4_000_000n; // Give a 1 ADA buffer between the user supplied amount and the min deposit fee.
     if (exoticPair) {
-      poolAssets.lovelace = POOL_MIN_ADA;
       // Add non-ada asset.
       poolAssets[sortedAssets[0].metadata.assetId.replace(".", "")] =
         sortedAssets[0].amount;
@@ -431,6 +412,25 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
         // The pool output is the first output.
         poolOutput: 0n,
       });
+
+    const settingsDatum = await this.getSettingsUtxoDatum();
+    if (!settingsDatum) {
+      throw new Error("Could not retrieve the datum from the settings UTXO.");
+    }
+
+    const {
+      metadataAdmin: { paymentCredential, stakeCredential },
+      authorizedStakingKeys: [poolStakingCredential],
+    } = Data.from(
+      Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
+      SettingsDatum,
+    );
+    const metadataAddress = DatumBuilderV3.addressSchemaToBech32(
+      { paymentCredential, stakeCredential },
+      this.network === "mainnet"
+        ? Core.NetworkId.Mainnet
+        : Core.NetworkId.Testnet,
+    );
 
     const { blueprint } = await this.getProtocolParams();
     const poolContract = blueprint.validators.find(

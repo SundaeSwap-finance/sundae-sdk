@@ -841,6 +841,7 @@ describe("TxBuilderBlazeV3", () => {
   });
 
   it("mintPool() should build a transaction correctly when including ADA", async () => {
+    builder.enableTracing(true);
     const { fees, build } = await builder.mintPool({
       assetA: PREVIEW_DATA.assets.tada,
       assetB: PREVIEW_DATA.assets.tindy,
