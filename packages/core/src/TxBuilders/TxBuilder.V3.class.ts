@@ -337,6 +337,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     ]);
 
     const exoticPair = !SundaeUtils.isAdaAsset(sortedAssets[0].metadata);
+    const POOL_MIN_ADA = 4_000_000n; // Give a 1 ADA buffer between the user supplied amount and the min deposit fee.
 
     const [userUtxos, { hash: poolPolicyId }, references, settings] =
       await Promise.all([
@@ -344,7 +345,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
           sortedAssets.map((asset) => {
             if (SundaeUtils.isAdaAsset(asset.metadata)) {
               // Add an additional 4 ADA to cover LP and NFT minUTxoAmounts.
-              return asset.withAmount(asset.amount + 4_000_000n);
+              return asset.withAmount(asset.amount + POOL_MIN_ADA);
             }
 
             return asset;
@@ -371,10 +372,8 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const poolLqAssetName = DatumBuilderV3.computePoolLqName(newPoolIdent);
     const poolLqAssetIdHex = `${poolPolicyId + poolLqAssetName}`;
 
-    const POOL_MIN_ADA = 4_000_000n; // Give a 1 ADA buffer between the user supplied amount and the min deposit fee.
-
     const poolAssets = {
-      lovelace: POOL_MIN_ADA,
+      lovelace: POOL_MIN_FEE,
       [poolNftAssetIdHex]: 1n,
       [sortedAssets[1].metadata.assetId.replace(".", "")]:
         sortedAssets[1].amount,
@@ -384,10 +383,8 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       // Add non-ada asset.
       poolAssets[sortedAssets[0].metadata.assetId.replace(".", "")] =
         sortedAssets[0].amount;
-    } else if (sortedAssets[0].amount >= POOL_MIN_ADA) {
-      poolAssets.lovelace = sortedAssets[0].amount;
     } else {
-      poolAssets.lovelace = POOL_MIN_ADA;
+      poolAssets.lovelace += sortedAssets[0].amount;
     }
 
     const {
