@@ -19,14 +19,14 @@ import {
   POOL_MIN_ADA,
 } from "../../constants.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
+import { TxBuilderNftCheck } from "../TxBuilder.NftCheck.class.js";
 import { TxBuilderV1 } from "../TxBuilder.V1.class.js";
-import { TxBuilderV3 } from "../TxBuilder.V3.class.js";
 import {
   mockOrderToCancel,
   params,
   referenceUtxosBlaze,
   settingsUtxosBlaze,
-} from "../__data__/mockData.V3.js";
+} from "../__data__/mockData.NftCheck.js";
 
 spyOn(
   QueryProviderSundaeSwap.prototype,
@@ -38,15 +38,15 @@ spyOn(
   "getProtocolParamsWithScripts",
 ).mockResolvedValue(params);
 
-spyOn(TxBuilderV3.prototype, "getSettingsUtxo").mockResolvedValue(
+spyOn(TxBuilderNftCheck.prototype, "getSettingsUtxo").mockResolvedValue(
   settingsUtxosBlaze[0],
 );
 
-spyOn(TxBuilderV3.prototype, "getAllReferenceUtxos").mockResolvedValue(
+spyOn(TxBuilderNftCheck.prototype, "getAllReferenceUtxos").mockResolvedValue(
   referenceUtxosBlaze,
 );
 
-let builder: TxBuilderV3;
+let builder: TxBuilderNftCheck;
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
 
@@ -66,14 +66,14 @@ const getPaymentAddressFromOutput = (output: Core.TransactionOutput) => {
 };
 
 const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (blaze) => {
-  builder = new TxBuilderV3(blaze);
+  builder = new TxBuilderNftCheck(blaze);
 });
 
 afterAll(() => {
   mock.restore();
 });
 
-describe("TxBuilderBlazeV3", () => {
+describe("TxBuilderNftCheck", () => {
   it("should have the correct settings", () => {
     expect(builder.network).toEqual("preview");
     expect(builder.blaze).toBeInstanceOf(Blaze);
@@ -348,16 +348,17 @@ describe("TxBuilderBlazeV3", () => {
     let depositOutput: Core.TransactionOutput | undefined;
     [...Array(builtTx.body().outputs().length).keys()].forEach((index) => {
       const output = builtTx.body().outputs()[index];
-
       if (
         getPaymentAddressFromOutput(output).toBech32() ===
-          "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
+          "addr_test1wzmv9gtal8eagup28qmk55fd5eeppk5h7v5uurv7lt39cwgjjastu" &&
         // Supplied asset (20) + deposit (2) + scooper fee (1) = 23
         output.amount().coin().toString() === "23000000"
       ) {
         depositOutput = output;
       }
     });
+
+    console.log(depositOutput!.address().toBech32());
 
     expect(depositOutput).not.toBeUndefined();
     expect(depositOutput?.datum()?.asDataHash()).toBeUndefined();
@@ -396,7 +397,7 @@ describe("TxBuilderBlazeV3", () => {
     }
   });
 
-  it("orderRouteSwap() - v3 to v3", async () => {
+  it("orderRouteSwap() - NftCheck to NftCheck", async () => {
     const { build, fees, datum } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
@@ -404,7 +405,86 @@ describe("TxBuilderBlazeV3", () => {
           type: ESwapType.MARKET,
           slippage: 0.03,
         },
-        pool: PREVIEW_DATA.pools.v3,
+        pool: PREVIEW_DATA.pools.nftCheck,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
+        pool: {
+          ...PREVIEW_DATA.pools.nftCheck,
+          assetB: {
+            ...PREVIEW_DATA.pools.nftCheck.assetB,
+            assetId:
+              // iBTC
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          },
+          assetLP: {
+            ...PREVIEW_DATA.pools.nftCheck.assetLP,
+            assetId:
+              "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702004",
+          },
+        },
+      },
+    });
+
+    // Deposit carried over = 3 ADA
+    expect(fees.deposit.amount.toString()).toEqual("3000000");
+
+    // Two swaps = 1 + 1
+    expect(fees.scooperFee.amount.toString()).toEqual("2000000");
+
+    const { builtTx } = await build();
+
+    let swapOutput: Core.TransactionOutput | undefined;
+    [...Array(builtTx.body().outputs().length).keys()].forEach((index) => {
+      const output = builtTx.body().outputs()[index];
+      const paymentHex = output.address().asBase()?.getPaymentCredential().hash;
+      const stakingHex = output.address().asBase()?.getStakeCredential().hash;
+      const outputHex = `10${paymentHex}${stakingHex}`;
+
+      if (
+        outputHex ===
+          "10b6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0" &&
+        output
+          .amount()
+          .multiasset()
+          ?.get(
+            Core.AssetId(
+              PREVIEW_DATA.assets.tindy.metadata.assetId.replace(".", ""),
+            ),
+          )
+          ?.toString() === "20000000" &&
+        // deposit (3) + v3 scooper fee (1) + v3 scooper fee (1)
+        output.amount().coin().toString() === "5000000"
+      ) {
+        swapOutput = output;
+      }
+    });
+
+    expect(swapOutput).not.toBeUndefined();
+    expect(swapOutput).not.toBeUndefined();
+    const inlineDatum = swapOutput?.datum()?.asInlineData()?.toCbor();
+
+    expect(inlineDatum).not.toBeUndefined();
+    expect(inlineDatum).toEqual(
+      Core.HexBlob(
+        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581cb6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39ffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff",
+      ),
+    );
+  });
+
+  it("orderRouteSwap() - NftCheck to v3", async () => {
+    const { build, fees, datum } = await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      swapA: {
+        swapType: {
+          type: ESwapType.MARKET,
+          slippage: 0.03,
+        },
+        pool: PREVIEW_DATA.pools.nftCheck,
         suppliedAsset: PREVIEW_DATA.assets.tindy,
       },
       swapB: {
@@ -470,7 +550,7 @@ describe("TxBuilderBlazeV3", () => {
     expect(inlineDatum).not.toBeUndefined();
     expect(inlineDatum).toEqual(
       Core.HexBlob(
-        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff",
+        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581cb6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39ffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff",
       ),
     );
   });
@@ -526,7 +606,7 @@ describe("TxBuilderBlazeV3", () => {
 
       if (
         outputHex ===
-          "10484969d936f484c45f143d911f81636fe925048e205048ee1fe412aa121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0" &&
+          "10b6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0" &&
         output
           .amount()
           .multiasset()
@@ -626,7 +706,7 @@ describe("TxBuilderBlazeV3", () => {
       const output = builtTx.body().outputs()[index];
       if (
         getPaymentAddressFromOutput(output).toBech32() ===
-          "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
+          "addr_test1wzmv9gtal8eagup28qmk55fd5eeppk5h7v5uurv7lt39cwgjjastu" &&
         // Supplied asset (20) + deposit (2) + scooper fee (1) = 23
         output.amount().coin().toString() === "23000000" &&
         output.amount().multiasset() &&
@@ -731,7 +811,7 @@ describe("TxBuilderBlazeV3", () => {
       const output = builtTx.body().outputs()[index];
       if (
         getPaymentAddressFromOutput(output).toBech32() ===
-          "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
+          "addr_test1wzmv9gtal8eagup28qmk55fd5eeppk5h7v5uurv7lt39cwgjjastu" &&
         // deposit (2) + scooper fee (1) = 3
         output.amount().coin().toString() === "3000000" &&
         output.amount().multiasset() &&
@@ -826,7 +906,7 @@ describe("TxBuilderBlazeV3", () => {
     let strategyOutput: Core.TransactionOutput | undefined;
     builtTx.body().outputs().forEach(output => {
       if (getPaymentAddressFromOutput(output).toBech32() ===
-        "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
+        "addr_test1wzmv9gtal8eagup28qmk55fd5eeppk5h7v5uurv7lt39cwgjjastu" &&
         output.amount().coin().toString() === "23000000") {
           strategyOutput = output;
         }
@@ -848,6 +928,10 @@ describe("TxBuilderBlazeV3", () => {
       fees: 5n,
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
+      conditionDatumArgs: {
+        value: [PREVIEW_DATA.assets.usdc],
+        check: "All",
+      }
     });
 
     // Since we are depositing ADA, we only need ADA for the metadata and settings utxos.
@@ -973,6 +1057,10 @@ describe("TxBuilderBlazeV3", () => {
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
       donateToTreasury: 100n,
+      conditionDatumArgs: {
+        value: [PREVIEW_DATA.assets.usdc],
+        check: "All",
+      }
     });
 
     // Since we are depositing ADA, we only need ADA for the metadata and settings utxos.
@@ -1103,6 +1191,10 @@ describe("TxBuilderBlazeV3", () => {
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
       donateToTreasury: 43n,
+      conditionDatumArgs: {
+        value: [PREVIEW_DATA.assets.usdc],
+        check: "All",
+      }
     });
 
     // Since we are depositing ADA, we only need ADA for the metadata and settings utxos.
@@ -1247,6 +1339,10 @@ describe("TxBuilderBlazeV3", () => {
       fees: 5n,
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
+      conditionDatumArgs: {
+        value: [PREVIEW_DATA.assets.usdc],
+        check: "All",
+      }
     });
 
     /**
@@ -1306,10 +1402,14 @@ describe("TxBuilderBlazeV3", () => {
         fees: 5n,
         marketOpen: 5n,
         ownerAddress: PREVIEW_DATA.addresses.current,
+        conditionDatumArgs: {
+        value: [PREVIEW_DATA.assets.usdc],
+        check: "All",
+      }
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        TxBuilderV3.MIN_ADA_POOL_MINT_ERROR,
+        TxBuilderNftCheck.MIN_ADA_POOL_MINT_ERROR,
       );
     }
   });
@@ -1322,6 +1422,10 @@ describe("TxBuilderBlazeV3", () => {
         fees: 5n,
         marketOpen: 5n,
         ownerAddress: PREVIEW_DATA.addresses.current,
+        conditionDatumArgs: {
+        value: [PREVIEW_DATA.assets.usdc],
+        check: "All",
+      }
       });
     } catch (e) {
       expect((e as Error).message).toEqual(

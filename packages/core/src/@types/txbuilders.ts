@@ -1,9 +1,9 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import { Core } from "@blaze-cardano/sdk";
+import { TxBuilderNftCheck } from "../TxBuilders/TxBuilder.NftCheck.class.js";
 import { TxBuilderV1 } from "../TxBuilders/TxBuilder.V1.class.js";
 import { TxBuilderV3 } from "../TxBuilders/TxBuilder.V3.class.js";
-import { TxBuilderNftCheck } from "../TxBuilders/TxBuilderNftCheck.class.js";
 import { ISwapConfigArgs } from "./configs.js";
 
 /**
