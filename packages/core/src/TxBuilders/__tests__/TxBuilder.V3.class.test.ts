@@ -16,7 +16,7 @@ import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import {
   ADA_METADATA,
   ORDER_DEPOSIT_DEFAULT,
-  POOL_MIN_ADA,
+  POOL_MIN_FEE,
 } from "../../constants.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { TxBuilderV1 } from "../TxBuilder.V1.class.js";
@@ -390,9 +390,7 @@ describe("TxBuilderBlazeV3", () => {
         suppliedAsset: PREVIEW_DATA.assets.tada,
       });
     } catch (e) {
-      expect((e as Error).message).toEqual(
-        DatumBuilderV3.INVALID_POOL_IDENT,
-      );
+      expect((e as Error).message).toEqual(DatumBuilderV3.INVALID_POOL_IDENT);
     }
   });
 
@@ -671,9 +669,7 @@ describe("TxBuilderBlazeV3", () => {
         suppliedAssets: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
       });
     } catch (e) {
-      expect((e as Error).message).toEqual(
-        DatumBuilderV3.INVALID_POOL_IDENT,
-      );
+      expect((e as Error).message).toEqual(DatumBuilderV3.INVALID_POOL_IDENT);
     }
   });
 
@@ -772,9 +768,7 @@ describe("TxBuilderBlazeV3", () => {
         suppliedLPAsset: PREVIEW_DATA.assets.v3LpToken,
       });
     } catch (e) {
-      expect((e as Error).message).toEqual(
-        DatumBuilderV3.INVALID_POOL_IDENT,
-      );
+      expect((e as Error).message).toEqual(DatumBuilderV3.INVALID_POOL_IDENT);
     }
   });
 
@@ -824,13 +818,18 @@ describe("TxBuilderBlazeV3", () => {
     expect(fees.cardanoTxFee).not.toBeUndefined();
 
     let strategyOutput: Core.TransactionOutput | undefined;
-    builtTx.body().outputs().forEach(output => {
-      if (getPaymentAddressFromOutput(output).toBech32() ===
-        "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
-        output.amount().coin().toString() === "23000000") {
+    builtTx
+      .body()
+      .outputs()
+      .forEach((output) => {
+        if (
+          getPaymentAddressFromOutput(output).toBech32() ===
+            "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
+          output.amount().coin().toString() === "23000000"
+        ) {
           strategyOutput = output;
         }
-    });
+      });
 
     expect(strategyOutput).not.toBeUndefined();
     expect(strategyOutput?.datum()?.asDataHash()).toBeUndefined();
@@ -894,7 +893,7 @@ describe("TxBuilderBlazeV3", () => {
 
     // Should deposit assets without additional ADA.
     expect(poolDepositedAssetA).toEqual(
-      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString(),
+      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_FEE).toString(),
     );
     expect(poolDepositedAssetB?.toString()).toEqual("20000000");
     expect(poolDepositedNFT?.toString()).toEqual("1");
@@ -1022,7 +1021,7 @@ describe("TxBuilderBlazeV3", () => {
     );
     // Should deposit assets without additional ADA.
     expect(poolDepositedAssetA).toEqual(
-      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString(),
+      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_FEE).toString(),
     );
     expect(poolDepositedAssetB?.toString()).toEqual("20000000");
     expect(poolDepositedNFT?.toString()).toEqual("1");
@@ -1152,7 +1151,7 @@ describe("TxBuilderBlazeV3", () => {
 
     // Should deposit assets without additional ADA.
     expect(poolDepositedAssetA).toEqual(
-      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString(),
+      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_FEE).toString(),
     );
     expect(poolDepositedAssetB).toEqual("20000000");
     expect(poolDepositedNFT).toEqual("1");
@@ -1308,9 +1307,7 @@ describe("TxBuilderBlazeV3", () => {
         ownerAddress: PREVIEW_DATA.addresses.current,
       });
     } catch (e) {
-      expect((e as Error).message).toEqual(
-        TxBuilderV3.MIN_ADA_POOL_MINT_ERROR,
-      );
+      expect((e as Error).message).toEqual(TxBuilderV3.MIN_ADA_POOL_MINT_ERROR);
     }
   });
 

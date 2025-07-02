@@ -24,6 +24,8 @@ interface IAppState {
   setUseV3Contracts: Dispatch<SetStateAction<boolean>>;
   network: 0 | 1;
   setNetwork: Dispatch<SetStateAction<0 | 1>>;
+  wallet: string;
+  setWallet: Dispatch<SetStateAction<string>>;
 }
 
 const defaultState: IAppState = {
@@ -38,6 +40,8 @@ const defaultState: IAppState = {
   setUseV3Contracts: () => {},
   network: 0,
   setNetwork: () => {},
+  wallet: "eternl",
+  setWallet: () => {},
 };
 
 const AppState = createContext(defaultState);
@@ -49,6 +53,7 @@ export const AppStateProvider: FC<
   PropsWithChildren<{ defaultValue?: Partial<IAppState> }>
 > = ({ children, defaultValue }) => {
   const [SDK, setSDK] = useState<SundaeSDK>();
+  const [wallet, setWallet] = useState<string>("eternl");
   const [ready, setReady] = useState<boolean>(false);
   const [activeWalletAddr, setActiveWalletAddr] = useState("");
   const [nonStakedWalletAddr, setNonStakedWalletAddr] = useState("");
@@ -59,7 +64,7 @@ export const AppStateProvider: FC<
   useEffect(() => {
     (async () => {
       // @ts-expect-error Cardano is not defined by default.
-      const api = await window.cardano?.eternl.enable();
+      const api = await window.cardano?.[wallet].enable();
       if (!api) {
         return;
       }
@@ -73,9 +78,7 @@ export const AppStateProvider: FC<
       const activeAddress = Core.Address.fromString(address);
       if (activeAddress) {
         setActiveWalletAddr(activeAddress.toBech32());
-        const paymentHash = activeAddress
-          .asBase()
-          ?.getPaymentCredential().hash;
+        const paymentHash = activeAddress.asBase()?.getPaymentCredential().hash;
         const enterprise =
           paymentHash &&
           new Core.Address({
@@ -84,35 +87,37 @@ export const AppStateProvider: FC<
               hash: Core.Hash28ByteBase16(paymentHash),
               type: Core.CredentialType.KeyHash,
             },
-            networkId: network,
+            networkId: activeAddress.getNetworkId(),
           });
         if (enterprise) {
           setNonStakedWalletAddr(enterprise.toBech32());
         }
+
+        const blazeInstance = await Blaze.from(
+          new Blockfrost({
+            network: activeAddress.getNetworkId()
+              ? "cardano-mainnet"
+              : "cardano-preview",
+            projectId: activeAddress.getNetworkId()
+              ? // @ts-expect-error No types.
+                window.__APP_CONFIG.blockfrostAPIMainnet
+              : // @ts-expect-error No types.
+                window.__APP_CONFIG.blockfrostAPIPreview,
+          }),
+          new WebWallet(api),
+        );
+
+        const sdk = SundaeSDK.new({
+          blazeInstance,
+          debug: true,
+        });
+
+        setSDK(sdk);
       }
-
-      const blazeInstance = await Blaze.from(
-        new Blockfrost({
-          network: network ? "cardano-mainnet" : "cardano-preview",
-          projectId: network
-            ? // @ts-expect-error No types.
-              window.__APP_CONFIG.blockfrostAPIMainnet
-            : // @ts-expect-error No types.
-              window.__APP_CONFIG.blockfrostAPIPreview,
-        }),
-        new WebWallet(api),
-      );
-
-      const sdk = SundaeSDK.new({
-        blazeInstance,
-        debug: true
-      });
-
-      setSDK(sdk);
 
       setReady(true);
     })();
-  }, [network]);
+  }, [network, wallet]);
 
   return (
     <AppState.Provider
@@ -129,6 +134,8 @@ export const AppStateProvider: FC<
         setUseV3Contracts,
         network,
         setNetwork,
+        wallet,
+        setWallet,
         ...defaultValue,
       }}
     >
