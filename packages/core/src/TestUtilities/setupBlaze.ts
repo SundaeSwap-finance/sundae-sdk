@@ -26,6 +26,7 @@ export const setupBlaze = (
   options?: {
     network?: Core.NetworkId;
     customUtxos?: Core.TransactionOutput[];
+    walletAddress?: string;
     beforeAll?: () => void;
   },
 ): {
@@ -55,13 +56,15 @@ export const setupBlaze = (
       cardano: windowCardano,
     };
 
-    const emulator = new Emulator(options?.customUtxos ?? convertedOutputs);
+    const emulator = new Emulator(options?.customUtxos || convertedOutputs);
     const provider = new EmulatorProvider(emulator);
 
     const blaze = await Blaze.from(
       provider,
       new ColdWallet(
-        Core.addressFromBech32(PREVIEW_DATA.addresses.current),
+        Core.addressFromBech32(
+          options?.walletAddress || PREVIEW_DATA.addresses.current,
+        ),
         options?.network || Core.NetworkId.Testnet,
         new EmulatorProvider(emulator),
       ),
