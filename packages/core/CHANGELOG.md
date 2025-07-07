@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.4.0
+
+### Minor Changes
+
+- f6f077c: Fixes and issue where wallets with limited UTxO sets would not require the right amount of ADA for minting a pool.
+
 ## 2.3.0
 
 ### Minor Changes
