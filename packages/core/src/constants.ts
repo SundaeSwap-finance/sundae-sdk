@@ -48,6 +48,8 @@ export const ADA_METADATA = {
 };
 
 export const POOL_MIN_FEE = 3_000_000n;
+export const POOL_REF_DEPOSIT = 2_000_000n;
+export const POOL_LP_DEPOSIT = 2_000_000n;
 export const ORDER_DEPOSIT_DEFAULT = 2_000_000n;
 export const ORDER_ROUTE_DEPOSIT_DEFAULT = 3_000_000n;
 export const CANCEL_REDEEMER = "d87a80";
