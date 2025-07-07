@@ -2,14 +2,15 @@ import {
   Blaze,
   TxBuilder as BlazeTx,
   Core,
-  Data,
   Provider,
-  Wallet,
+  Wallet
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   EContractVersion,
+  ICancelConfigArgs,
   IComposedTx,
+  IMintConditionPoolConfigArgs,
   IMintPoolConfigArgs,
   IPoolData,
 } from "../@types";
@@ -18,12 +19,11 @@ import {
   DatumBuilderNftCheck,
   IDatumBuilderNftCheckArgs,
 } from "../DatumBuilders";
-import {
-  NftCheckDatum,
-  TNftCheckDatum,
-} from "../DatumBuilders/ContractTypes/Contract.NftCheck.js";
+import { IDatumBuilderMintConditionPoolArgs } from "../DatumBuilders/DatumBuilder.Condition.class.js";
+import { NftCheckTypes } from "../DatumBuilders/GeneratedContractTypes/index.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders";
-import { TxBuilderV3 } from "./TxBuilder.V3.class.js";
+import { TxBuilderV1 } from "./TxBuilder.V1.class.js";
+import { TxBuilderV3Like } from "./TxBuilder.V3Like.class.js";
 
 /**
  * Interface describing the method arguments for creating a pool
@@ -34,7 +34,7 @@ export interface IMintNftCheckPoolConfigArgs extends IMintPoolConfigArgs {
 }
 
 export class TxBuilderNftCheck
-  extends TxBuilderV3
+  extends TxBuilderV3Like
   implements TxBuilderAbstractCondition
 {
   contractVersion: EContractVersion = EContractVersion.NftCheck;
@@ -47,6 +47,21 @@ export class TxBuilderNftCheck
     super(blaze, queryProvider);
     this.datumBuilder = new DatumBuilderNftCheck(this.network);
   }
+
+  async buildMintPoolDatumArgs(sortedAssets: [
+        AssetAmount<IAssetAmountMetadata>,
+        AssetAmount<IAssetAmountMetadata>,
+      ], seedUtxo: { outputIndex: number, txHash: string}, args: IMintConditionPoolConfigArgs): Promise<IDatumBuilderMintConditionPoolArgs> {
+      const base = await super.buildMintPoolDatumArgs(sortedAssets, seedUtxo, args);
+      const condition = (
+        await this.getValidatorScript("conditions/nft_check.withdraw")
+      ).hash;
+      return {
+        ...base,
+        condition,
+        conditionDatumArgs: args.conditionDatumArgs,
+      }
+    }
 
   /**
    * Mints a new liquidity pool on the Cardano blockchain. This method
@@ -67,14 +82,7 @@ export class TxBuilderNftCheck
   public async mintPool(
     mintPoolArgs: IMintNftCheckPoolConfigArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const condition = (
-      await this.getValidatorScript("conditions/nft_check.withdraw")
-    ).hash;
-    const mintPoolArgsWithCondition = {
-      ...mintPoolArgs,
-      condition,
-    };
-    return super.mintPool(mintPoolArgsWithCondition);
+    return super.mintPool(mintPoolArgs);
   }
 
   getExtraSuppliedAssets(
@@ -83,16 +91,13 @@ export class TxBuilderNftCheck
     if (!poolData.conditionDatum) {
       return [];
     }
-    const conditionDatum: TNftCheckDatum = Data.from(
-      Core.PlutusData.fromCbor(Core.HexBlob(poolData.conditionDatum)),
-      NftCheckDatum,
-    );
+    const conditionDatum: NftCheckTypes.NftCheckDatum = this.datumBuilder.decodeConditionDatum(poolData.conditionDatum)
     const result: AssetAmount<IAssetAmountMetadata>[] = [];
-    conditionDatum?.value.forEach((assets, policyId) => {
+    Object.entries(conditionDatum?.value).forEach((assets, policyId) => {
       assets.forEach((amount, assetName) => {
         const assetId = `${policyId}.${assetName}`;
         result.push(
-          new AssetAmount(amount, {
+          new AssetAmount(Number(amount), {
             assetId,
             decimals: 0,
           }),
@@ -101,4 +106,9 @@ export class TxBuilderNftCheck
     });
     return result;
   }
+
+  async handleOtherOrderTypeCancellation(cancelArgs: ICancelConfigArgs) {
+      const v1Builder = new TxBuilderV1(this.blaze);
+      return v1Builder.cancel({ ...cancelArgs });
+    }
 }

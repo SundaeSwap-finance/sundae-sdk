@@ -1,7 +1,7 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import {
   EPoolCoin,
+  TConditionDatumArgs,
   TDestination,
   TDestinationAddress,
   TOrderAddressesArgs,
@@ -141,9 +141,19 @@ export interface IMintPoolConfigArgs extends IBaseConfig {
    * The fee manager address for the pool. If not provided, defaults to null.
    */
   feeManager?: string;
+}
+
+export interface IMintConditionPoolConfigArgs extends IMintPoolConfigArgs {
   condition?: string;
   conditionDatumArgs?: TConditionDatumArgs;
 }
+
+export interface IMintStablePoolConfigArgs extends IMintPoolConfigArgs {
+  linearAmplification: bigint;
+  linearAmplificationManager?: string;
+}
+
+export type TMintPoolConfigArgs = IMintPoolConfigArgs | IMintConditionPoolConfigArgs | IMintStablePoolConfigArgs;
 
 /**
  * Interface describing migrations for liquidity

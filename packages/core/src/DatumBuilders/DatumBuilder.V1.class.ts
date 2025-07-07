@@ -1,6 +1,7 @@
-import { Core, Data } from "@blaze-cardano/sdk";
+import { Core } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
+import { serialize } from "@blaze-cardano/data";
 import {
   EDatumType,
   EPoolCoin,
@@ -18,20 +19,7 @@ import {
 import { DatumBuilderAbstract } from "../Abstracts/DatumBuilder.abstract.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { V1_MAX_POOL_IDENT_LENGTH } from "../constants.js";
-import {
-  DepositOrder,
-  OrderAddresses,
-  SwapDirection,
-  SwapOrder,
-  TDepositOrder,
-  TDestination,
-  TOrderAddresses,
-  TSwapDirection,
-  TSwapOrder,
-  TWithdrawOrder,
-  WithdrawOrder,
-} from "./ContractTypes/Contract.v1.js";
-import { V1Types } from "./ContractTypes/index.js";
+import { V1Types } from "./GeneratedContractTypes/index.js";
 
 /**
  * The Blaze implementation for building valid Datums for
@@ -81,15 +69,15 @@ export class DatumBuilderV1 implements DatumBuilderAbstract {
     fundedAsset,
     swap,
     scooperFee,
-  }: ISwapArguments): TDatumResult<TSwapOrder> {
-    const datum: TSwapOrder = {
+  }: ISwapArguments): TDatumResult<V1Types.SwapOrder> {
+    const datum: V1Types.SwapOrder = {
       ident: this.buildPoolIdent(ident),
       orderAddresses: this.buildOrderAddresses(orderAddresses).schema,
       scooperFee: scooperFee,
       swapDirection: this.buildSwapDirection(swap, fundedAsset).schema,
     };
 
-    const data = Data.to(datum, SwapOrder);
+    const data = serialize(V1Types.SwapOrder, datum);
 
     return {
       hash: data.hash(),
@@ -114,26 +102,22 @@ export class DatumBuilderV1 implements DatumBuilderAbstract {
     orderAddresses,
     deposit,
     scooperFee,
-  }: IDepositArguments): TDatumResult<TDepositOrder> {
-    const datum: TDepositOrder = {
+  }: IDepositArguments): TDatumResult<V1Types.DepositOrder> {
+    const datum: V1Types.DepositOrder = {
       ident: this.buildPoolIdent(ident),
       orderAddresses: this.buildOrderAddresses(orderAddresses).schema,
       scooperFee,
       DepositPair: {
-        Parent: {
           Child: {
-            Value: {
               pair: {
                 a: deposit.CoinAAmount.amount,
                 b: deposit.CoinBAmount.amount,
               },
             },
           },
-        },
-      },
     };
 
-    const data = Data.to(datum, DepositOrder);
+    const data = serialize(V1Types.DepositOrder, datum);
 
     return {
       hash: data.hash(),
@@ -159,19 +143,19 @@ export class DatumBuilderV1 implements DatumBuilderAbstract {
     orderAddresses,
     suppliedLPAsset,
     scooperFee,
-  }: IWithdrawArguments): TDatumResult<TWithdrawOrder> {
-    const datum: TWithdrawOrder = {
+  }: IWithdrawArguments): TDatumResult<V1Types.WithdrawOrder> {
+    const datum: V1Types.WithdrawOrder = {
       ident: this.buildPoolIdent(ident),
       orderAddresses: this.buildOrderAddresses(orderAddresses).schema,
       scooperFee,
-      WithdrawAsset: {
-        LPToken: {
+      WithdrawAsset: 
+        {
           value: suppliedLPAsset.amount,
         },
-      },
+      
     };
 
-    const data = Data.to(datum, WithdrawOrder);
+    const data = serialize(V1Types.WithdrawOrder, datum);
 
     return {
       hash: data.hash(),
@@ -183,16 +167,16 @@ export class DatumBuilderV1 implements DatumBuilderAbstract {
   buildSwapDirection(
     swap: TSwap,
     amount: AssetAmount<IAssetAmountMetadata>,
-  ): TDatumResult<TSwapDirection> {
-    const datum: TSwapDirection = {
+  ): TDatumResult<V1Types.SwapDirection> {
+    const datum: V1Types.SwapDirection = {
       amount: amount.amount,
       minReceivable: swap.MinimumReceivable
         ? swap.MinimumReceivable.amount
-        : null,
+        : undefined,
       suppliedAssetIndex: swap.SuppliedCoin === EPoolCoin.A ? "A" : "B",
     };
 
-    const data = Data.to(datum, SwapDirection);
+    const data = serialize(V1Types.SwapDirection, datum);
 
     return {
       hash: data.hash(),
@@ -203,7 +187,7 @@ export class DatumBuilderV1 implements DatumBuilderAbstract {
 
   buildOrderAddresses(
     addresses: TOrderAddressesArgs,
-  ): TDatumResult<TOrderAddresses> {
+  ): TDatumResult<V1Types.OrderAddresses> {
     BlazeHelper.validateAddressAndDatumAreValid({
       ...addresses.DestinationAddress,
       network: this.network,
@@ -249,50 +233,50 @@ export class DatumBuilderV1 implements DatumBuilderAbstract {
       DestinationAddress.address,
     );
 
-    let paymentKeyData: V1Types.TPaymentStakingHash | undefined;
+    let paymentKeyData: V1Types.PaymentStakingHash | undefined;
     if (BlazeHelper.isScriptAddress(DestinationAddress.address)) {
       paymentKeyData = {
         ScriptHash: {
-          value: paymentPart,
+          scriptHash: paymentPart,
         },
       };
     } else {
       paymentKeyData = {
         KeyHash: {
-          value: paymentPart,
+          keyHash: paymentPart,
         },
       };
     }
 
-    let stakingKeyData: V1Types.TPaymentStakingHash | undefined;
+    let stakingKeyData: V1Types.PaymentStakingHash | undefined;
     if (stakingPart) {
       if (BlazeHelper.isScriptAddress(DestinationAddress.address)) {
         stakingKeyData = {
           ScriptHash: {
-            value: stakingPart,
+            scriptHash: stakingPart,
           },
         };
       } else {
         stakingKeyData = {
           KeyHash: {
-            value: stakingPart,
+            keyHash: stakingPart,
           },
         };
       }
     }
 
-    const destination: TDestination = {
+    const destination: V1Types.Destination = {
       credentials: {
         paymentKey: paymentKeyData,
-        stakingKey: stakingKeyData ? { value: stakingKeyData } : null,
+        stakingKey: stakingKeyData ? { value: stakingKeyData } : undefined,
       },
       datum:
         DestinationAddress.datum.type !== EDatumType.NONE
           ? DestinationAddress.datum.value
-          : null,
+          : undefined,
     };
 
-    let alternatePaymentPart: string | null = null;
+    let alternatePaymentPart: string | undefined = undefined;
     let alternateStakingPart: string | undefined;
 
     if (AlternateAddress) {
@@ -302,12 +286,12 @@ export class DatumBuilderV1 implements DatumBuilderAbstract {
         BlazeHelper.getStakingHashFromBech32(AlternateAddress);
     }
 
-    const datum: TOrderAddresses = {
+    const datum: V1Types.OrderAddresses = {
       destination,
       alternate: alternateStakingPart || alternatePaymentPart,
     };
 
-    const data = Data.to<TOrderAddresses>(datum, OrderAddresses);
+    const data = serialize(V1Types.OrderAddresses, datum);
 
     return {
       hash: data.hash(),

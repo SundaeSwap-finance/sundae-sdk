@@ -1,4 +1,4 @@
-import { Core, Data } from "@blaze-cardano/sdk";
+import { Core } from "@blaze-cardano/sdk";
 
 import { EDatumType, TDatum, TSupportedNetworks } from "../@types/index.js";
 
@@ -142,10 +142,7 @@ export class BlazeHelper {
         if (datum.type === EDatumType.HASH) {
           Core.DatumHash.fromHexBlob(Core.HexBlob(datum.value));
         } else {
-          Data.from(
-            Core.PlutusData.fromCbor(Core.HexBlob(datum.value)),
-            Data.Any(),
-          );
+          Core.PlutusData.fromCbor(Core.HexBlob(datum.value));
         }
       } catch (e) {
         BlazeHelper.throwInvalidOrderAddressesError(

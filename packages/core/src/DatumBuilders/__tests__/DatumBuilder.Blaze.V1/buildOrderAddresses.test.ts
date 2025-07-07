@@ -8,7 +8,8 @@ import {
   spyOn,
 } from "bun:test";
 
-import { Core, Data } from "@blaze-cardano/sdk";
+import { Void } from "@blaze-cardano/data";
+import { Core } from "@blaze-cardano/sdk";
 import {
   EDatumType,
   TOrderAddressesArgs,
@@ -170,7 +171,7 @@ describe("buildDestinationAddresses()", () => {
     expect(() => builderInstance.buildOrderAddresses({
       DestinationAddress: {
         address: orderAddress,
-        datum: { type: EDatumType.INLINE, value: Data.void().toCbor() }
+        datum: { type: EDatumType.INLINE, value: Void().toCbor() }
       }
     })).toThrowError("Inline datum types are not supported in V1 contracts! Convert this to a hash.")
   })
@@ -187,7 +188,7 @@ describe("buildDestinationAddresses()", () => {
     expect(() => builderInstance.buildOrderAddresses({
       DestinationAddress: {
         address: orderAddress,
-        datum: { type: EDatumType.INLINE, value: Data.void().toCbor() }
+        datum: { type: EDatumType.INLINE, value: Void().toCbor() }
       }
     })).not.toThrow()
   })

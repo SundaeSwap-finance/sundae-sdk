@@ -2,15 +2,16 @@ import {
   Blaze,
   TxBuilder as BlazeTx,
   Core,
-  Data,
   makeValue,
 } from "@blaze-cardano/sdk";
 import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 
+import { Void } from "@blaze-cardano/data";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
 import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
+import { DatumBuilderV3Like } from "../../DatumBuilders/DatumBuilder.V3Like.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import {
@@ -190,7 +191,7 @@ describe("TxBuilderBlazeV3", () => {
     ]);
 
     const spiedGetSignerKeyFromDatum = spyOn(
-      DatumBuilderV3,
+      DatumBuilderV3Like,
       "getSignerKeyFromDatum",
     );
 
@@ -1076,7 +1077,7 @@ describe("TxBuilderBlazeV3", () => {
       ),
     );
     expect(lpTokensOutput.datum()?.asInlineData()?.toCbor()).toEqual(
-      Data.void().toCbor(),
+      Void().toCbor(),
     );
     const lpTokensDepositAssets = lpTokensOutput.amount().multiasset();
     const lpTokensReturnedADA = lpTokensOutput.amount().coin().toString();
@@ -1196,7 +1197,7 @@ describe("TxBuilderBlazeV3", () => {
         "a300581d60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b01821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a158200014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc61a008339c0028201d81843d87980",
       ),
     );
-    expect(lpTokensDonation.datum()?.asInlineData()).toEqual(Data.void());
+    expect(lpTokensDonation.datum()?.asInlineData()).toEqual(Void());
     const lpTokensDonationAssets = lpTokensDonation.amount().multiasset();
     const lpTokensDonatedADA = lpTokensDonation.amount().coin().toString();
     const lpTokensDonated = lpTokensDonationAssets

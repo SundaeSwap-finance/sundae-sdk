@@ -2,7 +2,6 @@ import {
   Blaze,
   TxBuilder as BlazeTx,
   Core,
-  Data,
   makeValue,
   Provider,
   Wallet,
@@ -10,6 +9,7 @@ import {
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getTokensForLp } from "@sundaeswap/cpp";
 
+import { parse, Void } from "@blaze-cardano/data";
 import {
   EContractVersion,
   EDatumType,
@@ -36,18 +36,9 @@ import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
-import {
-  DepositOrder,
-  SwapOrder,
-  TDepositOrder,
-  TKeyHashSchema,
-  TSwapOrder,
-  TWithdrawOrder,
-  WithdrawOrder,
-} from "../DatumBuilders/ContractTypes/Contract.v1.js";
-import { OrderDatum as V3OrderDatum } from "../DatumBuilders/ContractTypes/Contract.v3.js";
 import { DatumBuilderV1 } from "../DatumBuilders/DatumBuilder.V1.class.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
+import { V1Types, V3Types } from "../DatumBuilders/GeneratedContractTypes/index.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeSDK } from "../SundaeSDK.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
@@ -525,7 +516,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
      * If not, then we can assume it is a normal V1 order.
      */
     try {
-      Data.from(spendingDatum, V3OrderDatum);
+      parse(V3Types.OrderDatum, spendingDatum);
       // eslint-disable-next-line no-console
       console.log("This is a V3 order! Calling appropriate builder...");
       const v3Builder = new TxBuilderV3(this.blaze);
@@ -546,14 +537,14 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     tx.provideScript(scriptValidator);
 
     // Must try deserializing the datum with each order type.
-    let data: TSwapOrder | TWithdrawOrder | TDepositOrder | undefined;
-    [SwapOrder, WithdrawOrder, DepositOrder].forEach((type) => {
+    let data: V1Types.SwapOrder | V1Types.WithdrawOrder | V1Types.DepositOrder | undefined;
+    [V1Types.SwapOrder, V1Types.WithdrawOrder, V1Types.DepositOrder].forEach((type) => {
       if (data) {
         return;
       }
 
       try {
-        data = Data.from(spendingDatum, type);
+        data = parse(type, spendingDatum);
       } catch (e) {}
     });
 
@@ -564,19 +555,12 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     }
 
     if (!data.orderAddresses.alternate) {
-      const paymentKeyCred = (
-        data.orderAddresses.destination.credentials.paymentKey as TKeyHashSchema
-      )?.KeyHash.value;
-      if (paymentKeyCred) {
-        tx.addRequiredSigner(Core.Ed25519KeyHashHex(paymentKeyCred));
+      if ("KeyHash" in data.orderAddresses.destination.credentials.paymentKey) {
+        tx.addRequiredSigner(Core.Ed25519KeyHashHex(data.orderAddresses.destination.credentials.paymentKey.KeyHash.keyHash));
       }
 
-      const stakingKeyCred = (
-        data.orderAddresses.destination.credentials.stakingKey
-          ?.value as TKeyHashSchema
-      )?.KeyHash.value;
-      if (stakingKeyCred) {
-        tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingKeyCred));
+      if (data.orderAddresses.destination.credentials.stakingKey && "KeyHash" in data.orderAddresses.destination.credentials.stakingKey.value) {
+        tx.addRequiredSigner(Core.Ed25519KeyHashHex(data.orderAddresses.destination.credentials.stakingKey.value.KeyHash.keyHash));
       }
     } else {
       tx.addRequiredSigner(
@@ -1138,7 +1122,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     ) {
       yfRefInputs.forEach((input) => finalTx.addReferenceInput(input));
       existingPositionsData.forEach((input) => {
-        finalTx.addInput(input, Data.void());
+        finalTx.addInput(input, Void());
       });
 
       const withdrawAssetsList = yieldFarming.migrations.reduce(

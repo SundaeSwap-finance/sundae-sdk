@@ -2,7 +2,6 @@ import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 import {
   EContractVersion,
   ISundaeSDKOptions,
-  TTxBuilder,
 } from "./@types/index.js";
 import { QueryProvider } from "./Abstracts/QueryProvider.abstract.class.js";
 import { QueryProviderSundaeSwap } from "./QueryProviders/QueryProviderSundaeSwap.js";
@@ -19,6 +18,8 @@ export const SDK_OPTIONS_DEFAULTS: Pick<
   minLockAda: 5_000_000n,
   debug: false,
 };
+
+export type TTxBuilder = TxBuilderV1 | TxBuilderV3 | TxBuilderNftCheck;
 
 /**
  * The main SundaeSDK class that contains all the necessary sub-classes for

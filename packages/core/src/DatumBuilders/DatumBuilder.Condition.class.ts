@@ -1,15 +1,19 @@
-import { Core, Data } from "@blaze-cardano/sdk";
+import { parse, serialize, Void } from "@blaze-cardano/data";
+import { Core } from "@blaze-cardano/sdk";
 import { sqrt } from "@sundaeswap/bigint-math";
-import { TDatumResult } from "../@types/datumbuilder.js";
+import { TConditionDatumArgs, TDatumResult } from "../@types/datumbuilder.js";
 import { DatumBuilderAbstractCondition } from "../Abstracts/DatumBuilderCondition.abstract.class.js";
-import * as ConditionTypes from "./ContractTypes/Contract.Condition.js";
-import {
-  DatumBuilderV3,
-  IDatumBuilderMintPoolArgs,
-} from "./DatumBuilder.V3.class.js";
+import { DatumBuilderV3Like, IDatumBuilderMintPoolArgs } from "./DatumBuilder.V3Like.class.js";
+import { ConditionTypes } from "./GeneratedContractTypes/index.js";
+
+export interface IDatumBuilderMintConditionPoolArgs
+  extends IDatumBuilderMintPoolArgs {
+  condition: string;
+  conditionDatumArgs?: TConditionDatumArgs;
+}
 
 export class DatumBuilderCondition
-  extends DatumBuilderV3
+  extends DatumBuilderV3Like
   implements DatumBuilderAbstractCondition
 {
   /** The error to throw when the pool ident does not match V1 constraints. */
@@ -17,7 +21,7 @@ export class DatumBuilderCondition
     "You supplied a pool ident of an invalid length! The will prevent the scooper from processing this order.";
 
   public buildConditionDatum(_args: unknown): Core.PlutusData {
-    return Data.void();
+    return Void();
   }
 
   /**
@@ -45,8 +49,8 @@ export class DatumBuilderCondition
     seedUtxo,
     condition,
     conditionDatumArgs,
-  }: IDatumBuilderMintPoolArgs): TDatumResult<ConditionTypes.TConditionPoolDatum> {
-    const ident = DatumBuilderCondition.computePoolId(seedUtxo);
+  }: IDatumBuilderMintConditionPoolArgs): TDatumResult<ConditionTypes.ConditionPoolDatum> {
+    const ident = DatumBuilderV3Like.computePoolId(seedUtxo);
     const liquidity = sqrt(assetA.amount * assetB.amount);
 
     const assetsPair = this.buildLexicographicalAssetsDatum(
@@ -54,28 +58,28 @@ export class DatumBuilderCondition
       assetB,
     ).schema;
 
-    const newPoolDatum: ConditionTypes.TConditionPoolDatum = {
+    const newPoolDatum: ConditionTypes.ConditionPoolDatum = {
       assets: assetsPair,
       circulatingLp: liquidity,
       bidFeePer10Thousand: fees.bid,
       askFeePer10Thousand: fees.ask,
-      feeManager: null,
+      feeManager: undefined,
       identifier: ident,
       marketOpen: marketOpen || 0n,
       protocolFee: depositFee,
-      condition: condition || null,
-      conditionDatum: this.buildConditionDatum(conditionDatumArgs) || null,
+      condition: condition,
+      conditionDatum: conditionDatumArgs ? this.buildConditionDatum(conditionDatumArgs) : undefined,
     };
 
-    const data = Data.to(newPoolDatum, ConditionTypes.ConditionPoolDatum);
+    const data = serialize(ConditionTypes.ConditionPoolDatum, newPoolDatum);
 
     return { hash: data.hash(), inline: data.toCbor(), schema: newPoolDatum };
   }
 
   public decodeDatum(
     datum: Core.PlutusData,
-  ): ConditionTypes.TConditionPoolDatum {
-    const decoded = Data.from(datum, ConditionTypes.ConditionPoolDatum);
+  ): ConditionTypes.ConditionPoolDatum {
+    const decoded = parse(ConditionTypes.ConditionPoolDatum, datum);
     return decoded;
   }
 }

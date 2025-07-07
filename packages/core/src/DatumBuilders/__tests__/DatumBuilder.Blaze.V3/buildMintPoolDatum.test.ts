@@ -8,11 +8,11 @@ import {
   spyOn,
 } from "bun:test";
 
-import {
-  DatumBuilderV3,
-  IDatumBuilderMintPoolArgs
-} from "../../DatumBuilder.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
+import {
+  DatumBuilderV3
+} from "../../DatumBuilder.V3.class.js";
+import { IDatumBuilderMintPoolArgs } from "../../DatumBuilder.V3Like.class.js";
 
 let builderInstance: DatumBuilderV3;
 
@@ -93,13 +93,13 @@ describe("builderMintPoolDatum()", () => {
       feeManager: feeManagerAddress,
     };
 
-    const { schema } = builderInstance.buildMintPoolDatum(argsWithFeeManager);
+    const { inline, schema } = builderInstance.buildMintPoolDatum(argsWithFeeManager);
 
-    expect(schema.feeManager).not.toBeNull();
-    if (schema.feeManager && "Address" in schema.feeManager) {
-      expect(schema.feeManager.Address).toHaveProperty("hex");
-      expect(typeof schema.feeManager.Address.hex).toBe("string");
-      expect(schema.feeManager.Address.hex.length).toBeGreaterThan(0);
+    expect(schema.feeManager).not.toBeUndefined();
+    if (schema.feeManager && "Signature" in schema.feeManager) {
+      expect(schema.feeManager.Signature).toHaveProperty("keyHash");
+      expect(typeof schema.feeManager.Signature.keyHash).toBe("string");
+      expect(schema.feeManager.Signature.keyHash.length).toBeGreaterThan(0);
     } else {
       expect().fail("Expected feeManager to be an Address type");
     }
@@ -115,11 +115,11 @@ describe("builderMintPoolDatum()", () => {
 
     const { schema } = builderInstance.buildMintPoolDatum(argsWithFeeManager);
 
-    expect(schema.feeManager).not.toBeNull();
+    expect(schema.feeManager).not.toBeUndefined();
     if (schema.feeManager && "Script" in schema.feeManager) {
-      expect(schema.feeManager.Script).toHaveProperty("hex");
-      expect(typeof schema.feeManager.Script.hex).toBe("string");
-      expect(schema.feeManager.Script.hex.length).toBeGreaterThan(0);
+      expect(schema.feeManager.Script).toHaveProperty("scriptHash");
+      expect(typeof schema.feeManager.Script.scriptHash).toBe("string");
+      expect(schema.feeManager.Script.scriptHash.length).toBeGreaterThan(0);
     } else {
       expect().fail("Expected feeManager to be a Script type");
     }
@@ -135,13 +135,13 @@ describe("builderMintPoolDatum()", () => {
 
     const { schema } = builderInstance.buildMintPoolDatum(argsWithFeeManager);
 
-    expect(schema.feeManager).not.toBeNull();
+    expect(schema.feeManager).not.toBeUndefined();
     if (schema.feeManager && "Script" in schema.feeManager) {
-      expect(schema.feeManager.Script.hex).toBeDefined();
-      expect(schema.feeManager.Script.hex).toBe(
+      expect(schema.feeManager.Script.scriptHash).toBeDefined();
+      expect(schema.feeManager.Script.scriptHash).toBe(
         "484969d936f484c45f143d911f81636fe925048e205048ee1fe412aa",
       );
-      expect(schema.feeManager.Script.hex.length).toBe(56);
+      expect(schema.feeManager.Script.scriptHash.length).toBe(56);
     } else {
       expect().fail("Expected feeManager to be a Script type");
     }
@@ -152,7 +152,7 @@ describe("builderMintPoolDatum()", () => {
       V3_EXPECTATIONS.buildMintPoolDatum[0].args,
     );
 
-    expect(schema.feeManager).toBeNull();
+    expect(schema.feeManager).toBeUndefined();
   });
 
   it("should build the pool mint datum with null feeManager when empty string provided", () => {
@@ -165,7 +165,7 @@ describe("builderMintPoolDatum()", () => {
       argsWithEmptyFeeManager,
     );
 
-    expect(schema.feeManager).toBeNull();
+    expect(schema.feeManager).toBeUndefined();
   });
 
   it("should throw an error for invalid feeManager address", () => {
@@ -178,7 +178,7 @@ describe("builderMintPoolDatum()", () => {
     expect(() =>
       builderInstance.buildMintPoolDatum(argsWithInvalidFeeManager),
     ).toThrowError(
-      'Failed to extract payment hash from feeManager address: invalid_address. Error: Letter "1" must be present between prefix and data only',
+      'Failed to extract payment hash from address: invalid_address. Error: Letter "1" must be present between prefix and data only',
     );
   });
 
@@ -192,13 +192,13 @@ describe("builderMintPoolDatum()", () => {
 
     const { schema } = builderInstance.buildMintPoolDatum(argsWithFeeManager);
 
-    expect(schema.feeManager).not.toBeNull();
-    if (schema.feeManager && "Address" in schema.feeManager) {
-      expect(schema.feeManager.Address.hex).toBeDefined();
-      expect(schema.feeManager.Address.hex).toBe(
+    expect(schema.feeManager).not.toBeUndefined();
+    if (schema.feeManager && "Signature" in schema.feeManager) {
+      expect(schema.feeManager.Signature.keyHash).toBeDefined();
+      expect(schema.feeManager.Signature.keyHash).toBe(
         "7581b8c44bbb7d5c9e6149ca3b4253aa2c729101bb6b1c93fb4e9460",
       );
-      expect(schema.feeManager.Address.hex.length).toBe(56);
+      expect(schema.feeManager.Signature.keyHash.length).toBe(56);
     } else {
       expect().fail("Expected feeManager to be an Address type");
     }
@@ -216,8 +216,8 @@ describe("builderMintPoolDatum()", () => {
     const { schema: schemaNonScript } = builderInstance.buildMintPoolDatum(
       argsWithNonScriptFeeManager,
     );
-    expect(schemaNonScript.feeManager).not.toBeNull();
-    expect("Address" in schemaNonScript.feeManager!).toBe(true);
+    expect(schemaNonScript.feeManager).not.toBeUndefined();
+    expect("Signature" in schemaNonScript.feeManager!).toBe(true);
     expect("Script" in schemaNonScript.feeManager!).toBe(false);
 
     // Test with a script address
@@ -231,8 +231,8 @@ describe("builderMintPoolDatum()", () => {
     const { schema: schemaScript } = builderInstance.buildMintPoolDatum(
       argsWithScriptFeeManager,
     );
-    expect(schemaScript.feeManager).not.toBeNull();
+    expect(schemaScript.feeManager).not.toBeUndefined();
     expect("Script" in schemaScript.feeManager!).toBe(true);
-    expect("Address" in schemaScript.feeManager!).toBe(false);
+    expect("Signature" in schemaScript.feeManager!).toBe(false);
   });
 });

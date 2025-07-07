@@ -5,16 +5,18 @@ import {
   EDatumType,
   ESwapType,
   TxBuilderNftCheck,
+  TxBuilderStableswaps,
   TxBuilderV3,
   type IMintNftCheckPoolConfigArgs,
   type IMintPoolConfigArgs,
+  type IMintStablePoolConfigArgs,
   type IPoolByAssetQuery,
   type IPoolData,
   type ISwapConfigArgs,
 } from "@sundaeswap/core";
 import type { State } from "../types";
 import { getPoolData, prettyAssetId } from "../utils";
-import { getAssetAmount, printHeader } from "./shared";
+import { ensureDeployment, getAssetAmount, printHeader } from "./shared";
 import { transactionDialog } from "./transaction";
 
 export async function swapMenu(state: State): Promise<State> {
@@ -126,6 +128,18 @@ export async function mintPoolMenu(state: State): Promise<State> {
       const txNftCheck = (await builderNftCheck.mintPool(argsNftCheck)).build();
       await transactionDialog((await txNftCheck).cbor, false);
       break;
+    case "Stableswaps":
+      const stableSwapBuilder = state.sdk!.builders.get(
+        EContractVersion.Stableswaps,
+      )! as TxBuilderStableswaps;
+      await ensureDeployment("pool.spend", stableSwapBuilder);
+      const argsStable = await mintStablePoolArgs(state);
+      const txStable = (await stableSwapBuilder.mintPool(argsStable)).build();
+      await transactionDialog((await txStable).cbor, false);
+      break;
+    default:
+      console.log("Unknown pool type");
+      return state;
   }
   return state;
 }
@@ -184,6 +198,29 @@ export async function mintPoolArgs(state: State): Promise<IMintPoolConfigArgs> {
     fees: await getFeeChoice(),
     ownerAddress: state.settings.address!,
   };
+}
+
+async function mintStablePoolArgs(
+  state: State,
+): Promise<IMintStablePoolConfigArgs> {
+  const v3Args = await mintPoolArgs(state);
+  const linearAmplification = await input({
+    message: "Enter linear amplification factor (>0):",
+    validate: (input) => {
+      const num = Number(input);
+      if (isNaN(num)) {
+        return "Please enter a number";
+      }
+      if (num <= 0) {
+        return "Please enter a number greater than 0";
+      }
+      return true;
+    },
+  });
+  return {
+    ...v3Args,
+    linearAmplification: BigInt(linearAmplification),
+  } as IMintStablePoolConfigArgs;
 }
 
 async function mintPoolNftCheckArgs(

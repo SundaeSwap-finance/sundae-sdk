@@ -1,4 +1,8 @@
 import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { IDatumBuilderMintConditionPoolArgs } from "../DatumBuilders/DatumBuilder.Condition.class.js";
+import { IDatumBuilderNftCheckArgs } from "../DatumBuilders/DatumBuilder.NftCheck.class.js";
+import { IDatumBuilderMintPoolArgs } from "../DatumBuilders/DatumBuilder.V3Like.class.js";
+import { ConditionTypes, V3Types } from "../DatumBuilders/GeneratedContractTypes/index.js";
 import { EContractVersion } from "./txbuilders.js";
 
 /**
@@ -203,3 +207,12 @@ export interface IDepositArguments extends IArguments {
 export interface IZapArguments extends IArguments {
   zap: TDepositSingle;
 }
+
+export type TDatumBuilderMintPoolArgs = IDatumBuilderMintPoolArgs | IDatumBuilderMintConditionPoolArgs;
+
+/**
+ * A union type representing the potential arguments for building a Condition datum.
+ */
+export type TConditionDatumArgs = IDatumBuilderNftCheckArgs;
+
+export type TPoolDatumTypes = V3Types.PoolDatum | ConditionTypes.ConditionPoolDatum;
