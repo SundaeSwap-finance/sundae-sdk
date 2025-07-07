@@ -50,7 +50,9 @@ import {
   CANCEL_REDEEMER,
   ORDER_DEPOSIT_DEFAULT,
   ORDER_ROUTE_DEPOSIT_DEFAULT,
+  POOL_LP_DEPOSIT,
   POOL_MIN_FEE,
+  POOL_REF_DEPOSIT,
 } from "../constants.js";
 import { TxBuilderV1 } from "./TxBuilder.V1.class.js";
 
@@ -337,7 +339,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     ]);
 
     const exoticPair = !SundaeUtils.isAdaAsset(sortedAssets[0].metadata);
-    const POOL_MIN_ADA = 4_000_000n; // Give a 1 ADA buffer between the user supplied amount and the min deposit fee.
+
+    const ESTIMATED_POOL_TX_FEE = 1_000_000n; // This is because we don't know the estimated fee.
+    const ESTIMATED_CHANGE_DEPOSIT = 2_000_000n; // The is to cover possible cnt returns.
 
     const [userUtxos, { hash: poolPolicyId }, references, settings] =
       await Promise.all([
@@ -345,7 +349,14 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
           sortedAssets.map((asset) => {
             if (SundaeUtils.isAdaAsset(asset.metadata)) {
               // Add an additional 4 ADA to cover LP and NFT minUTxoAmounts.
-              return asset.withAmount(asset.amount + POOL_MIN_ADA);
+              return asset.withAmount(
+                asset.amount +
+                  POOL_MIN_FEE +
+                  POOL_LP_DEPOSIT +
+                  POOL_REF_DEPOSIT +
+                  ESTIMATED_POOL_TX_FEE +
+                  ESTIMATED_CHANGE_DEPOSIT,
+              );
             }
 
             return asset;
