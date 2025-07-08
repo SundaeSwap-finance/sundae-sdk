@@ -196,7 +196,7 @@ describe("builderMintPoolDatum()", () => {
     if (schema.feeManager && "Address" in schema.feeManager) {
       expect(schema.feeManager.Address.hex).toBeDefined();
       expect(schema.feeManager.Address.hex).toBe(
-        "7581b8c44bbb7d5c9e6149ca3b4253aa2c729101bb6b1c93fb4e9460",
+        "26977346f8c25a12f6101e0a06385abad18d65530d420203a8560b71",
       );
       expect(schema.feeManager.Address.hex.length).toBe(56);
     } else {
