@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.4.1
+
+### Patch Changes
+
+- 9d52d55: Attempts to remove private class access when adding reference inputs during V3 pool creation. Also idealistically limits the number of collateral inputs.
+
 ## 2.4.0
 
 ### Minor Changes
