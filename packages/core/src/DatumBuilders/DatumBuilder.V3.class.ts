@@ -286,14 +286,14 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     if (!address) return null;
 
     try {
-      const paymentHash =
-        Core.addressFromBech32(address).getProps().paymentPart?.hash;
-      if (!paymentHash) return null;
+      const props = Core.addressFromBech32(address).getProps();
+      const keyHash = props.delegationPart?.hash || props.paymentPart?.hash;
+      if (!keyHash) return null;
 
       if (BlazeHelper.isScriptAddress(address)) {
-        return { Script: { hex: paymentHash } };
+        return { Script: { hex: keyHash } };
       } else {
-        return { Address: { hex: paymentHash } };
+        return { Address: { hex: keyHash } };
       }
     } catch (error) {
       throw new Error(

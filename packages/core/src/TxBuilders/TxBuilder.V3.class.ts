@@ -468,9 +468,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     mints.set(Core.AssetName(poolLqAssetName), circulatingLp);
 
     [...references, settings].forEach((utxo) => {
-      tx.addReferenceInput(
-        Core.TransactionUnspentOutput.fromCore(utxo.toCore()),
-      );
+      tx.addReferenceInput(utxo);
     });
 
     userUtxos.forEach((utxo) => tx.addInput(utxo));
@@ -551,7 +549,13 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     }
 
     // Add collateral since coin selection is false.
-    tx.provideCollateral(userUtxos);
+    // We select the highest value first so as to keep the input count to a minimum.
+    const { selectedInputs } = CoinSelector.hvfSelector(
+      userUtxos,
+      Core.Value.fromCore({ coins: 5_000_000n }),
+    );
+
+    tx.provideCollateral(selectedInputs.slice(0, 3));
 
     return this.completeTx({
       tx,
