@@ -555,7 +555,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       Core.Value.fromCore({ coins: 5_000_000n }),
     );
 
-    tx.provideCollateral(selectedInputs);
+    tx.provideCollateral(selectedInputs.slice(0,3));
 
     return this.completeTx({
       tx,
