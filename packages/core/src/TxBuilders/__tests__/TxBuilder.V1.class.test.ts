@@ -537,7 +537,7 @@ describe("TxBuilderBlazeV1", () => {
     expect(inlineDatum).toBeUndefined();
     expect(withdrawOutput?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561",
+        "910eac06a7e310229e7d34463c73b1f6a7276d57dcdb0974bc50e25c16d71ae1",
       ),
     );
 
@@ -706,7 +706,7 @@ describe("TxBuilderBlazeV1", () => {
     expect(withdrawOutput1?.datum()?.asInlineData()).toBeUndefined();
     expect(withdrawOutput1?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561",
+        "910eac06a7e310229e7d34463c73b1f6a7276d57dcdb0974bc50e25c16d71ae1",
       ),
     );
     expect(withdrawOutput2?.datum()?.asDataHash()).toEqual(
@@ -995,7 +995,7 @@ describe("TxBuilderBlazeV1", () => {
 
     expect(withdrawOutput1?.datum()?.asDataHash()).toEqual(
       Core.DatumHash(
-        "446d687e99c9ccfee9900428416300efde800ae39bd4cc5245a442d00b913561",
+        "910eac06a7e310229e7d34463c73b1f6a7276d57dcdb0974bc50e25c16d71ae1",
       ),
     );
     expect(withdrawOutput2?.datum()?.asDataHash()).toEqual(

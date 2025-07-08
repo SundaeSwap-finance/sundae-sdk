@@ -27,13 +27,12 @@ import type {
   TDatumBuilderMintPoolArgs,
   TDepositMixed,
   TMintPoolConfigArgs,
-  TSupportedNetworks
+  TSupportedNetworks,
 } from "../@types/index.js";
 import { EContractVersion, EDatumType, ESwapType } from "../@types/index.js";
 import { TxBuilderAbstractV3 } from "../Abstracts/TxBuilderAbstract.V3.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
-import { MintPoolConfig } from "../Configs/MintPoolConfig.class.js";
 import { StrategyConfig } from "../Configs/StrategyConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
@@ -187,7 +186,9 @@ export class TxBuilderV3Like extends TxBuilderAbstractV3 {
    */
   public async getSettingsUtxo(): Promise<Core.TransactionUnspentOutput> {
     const { hash } = await this.getValidatorScript("settings.mint");
-    console.log(`Retrieving settings UTXO with hash: ${hash}${this.SETTINGS_NFT_NAME}`);
+    console.log(
+      `Retrieving settings UTXO with hash: ${hash}${this.SETTINGS_NFT_NAME}`,
+    );
     return this.blaze.provider.getUnspentOutputByNFT(
       Core.AssetId(`${hash}${this.SETTINGS_NFT_NAME}`),
     );
@@ -305,25 +306,29 @@ export class TxBuilderV3Like extends TxBuilderAbstractV3 {
     return instance;
   }
 
-  async buildMintPoolDatumArgs(sortedAssets: [
+  async buildMintPoolDatumArgs(
+    sortedAssets: [
       AssetAmount<IAssetAmountMetadata>,
       AssetAmount<IAssetAmountMetadata>,
-    ], seedUtxo: { outputIndex: number, txHash: string}, args: TMintPoolConfigArgs): Promise<TDatumBuilderMintPoolArgs> {
-
+    ],
+    seedUtxo: { outputIndex: number; txHash: string },
+    args: TMintPoolConfigArgs,
+  ): Promise<TDatumBuilderMintPoolArgs> {
     return {
       assetA: sortedAssets[0],
       assetB: sortedAssets[1],
-      fees: typeof args.fees === "bigint"
-        ? {
-            ask: args.fees,
-            bid: args.fees,
-          }
-        : args.fees,
+      fees:
+        typeof args.fees === "bigint"
+          ? {
+              ask: args.fees,
+              bid: args.fees,
+            }
+          : args.fees,
       marketOpen: args.marketOpen,
       depositFee: POOL_MIN_ADA,
       seedUtxo,
       feeManager: args.feeManager,
-    }
+    };
   }
 
   /**
@@ -345,8 +350,6 @@ export class TxBuilderV3Like extends TxBuilderAbstractV3 {
   async mintPool(
     args: TMintPoolConfigArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const config = new MintPoolConfig(args).buildArgs();
-
     const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       args.assetA,
       args.assetB,
@@ -396,7 +399,9 @@ export class TxBuilderV3Like extends TxBuilderAbstractV3 {
     const {
       inline: mintPoolDatum,
       schema: { circulatingLp },
-    } = this.datumBuilder.buildMintPoolDatum(await this.buildMintPoolDatumArgs(sortedAssets, seedUtxo, args));
+    } = this.datumBuilder.buildMintPoolDatum(
+      await this.buildMintPoolDatumArgs(sortedAssets, seedUtxo, args),
+    );
 
     const { inline: mintRedeemerDatum } =
       this.datumBuilder.buildPoolMintRedeemerDatum({
@@ -413,30 +418,27 @@ export class TxBuilderV3Like extends TxBuilderAbstractV3 {
       throw new Error("Could not retrieve the datum from the settings UTXO.");
     }
 
-    const {
-      metadataAdmin: { paymentCredential, stakeCredential },
-      authorizedStakingKeys: [poolStakingCredential],
-    } = parse(
-      V3Types.SettingsDatum,
-      Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
-    );
-    const metadataAddress = DatumBuilderV3Like.getMetadataAddressFromSettingsDatum(
-      settingsDatum,
-      this.network === "mainnet"
-        ? Core.NetworkId.Mainnet
-        : Core.NetworkId.Testnet,
-    );
+    const metadataAddress =
+      DatumBuilderV3Like.getMetadataAddressFromSettingsDatum(
+        settingsDatum,
+        this.network === "mainnet"
+          ? Core.NetworkId.Mainnet
+          : Core.NetworkId.Testnet,
+      );
 
     const { blueprint } = await this.getProtocolParams();
     const poolContract = blueprint.validators.find(
       ({ title }) => title === "pool.mint",
     );
 
-    const sundaeStakeAddress = DatumBuilderV3Like.getStakeAddressFromSettingsDatum(settingsDatum, poolContract!.hash, 
-      this.network === "mainnet"
-        ? Core.NetworkId.Mainnet
-        : Core.NetworkId.Testnet,
-    );
+    const sundaeStakeAddress =
+      DatumBuilderV3Like.getStakeAddressFromSettingsDatum(
+        settingsDatum,
+        poolContract!.hash,
+        this.network === "mainnet"
+          ? Core.NetworkId.Mainnet
+          : Core.NetworkId.Testnet,
+      );
 
     const tx = this.newTxInstance(args.referralFee);
     const mints = new Map<Core.AssetName, bigint>();
@@ -743,7 +745,9 @@ export class TxBuilderV3Like extends TxBuilderAbstractV3 {
     });
   }
 
-  async handleOtherOrderTypeCancellation(_args: ICancelConfigArgs): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
+  async handleOtherOrderTypeCancellation(
+    _args: ICancelConfigArgs,
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     throw new Error(
       "Cancellation of other order types is not supported in this version.",
     );

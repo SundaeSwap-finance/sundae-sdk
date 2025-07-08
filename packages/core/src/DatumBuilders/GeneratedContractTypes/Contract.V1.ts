@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 import { Exact, Type } from "@blaze-cardano/data";
 
 const Contracts = Type.Module({
