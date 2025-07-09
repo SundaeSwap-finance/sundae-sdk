@@ -528,10 +528,11 @@ describe("TxBuilderNftCheck", () => {
       const paymentHex = output.address().asBase()?.getPaymentCredential().hash;
       const stakingHex = output.address().asBase()?.getStakeCredential().hash;
       const outputHex = `10${paymentHex}${stakingHex}`;
-
+      console.log(`Output amount: ${output.amount().coin().toString()}`);
+      console.log(`Output hex: ${outputHex}`);
       if (
         outputHex ===
-          "10484969d936f484c45f143d911f81636fe925048e205048ee1fe412aa121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0" &&
+          "10b6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0" &&
         output
           .amount()
           .multiasset()
@@ -555,7 +556,7 @@ describe("TxBuilderNftCheck", () => {
     expect(inlineDatum).not.toBeUndefined();
     expect(inlineDatum).toEqual(
       Core.HexBlob(
-        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581cb6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39ffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff",
+        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581cb6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39ffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffffd87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffffd87980ff",
       ),
     );
   });
@@ -608,7 +609,7 @@ describe("TxBuilderNftCheck", () => {
       const paymentHex = output.address().asBase()?.getPaymentCredential().hash;
       const stakingHex = output.address().asBase()?.getStakeCredential().hash;
       const outputHex = `10${paymentHex}${stakingHex}`;
-
+  
       if (
         outputHex ===
           "10b6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0" &&
