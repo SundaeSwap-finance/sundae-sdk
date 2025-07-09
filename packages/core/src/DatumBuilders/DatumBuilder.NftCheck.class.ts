@@ -17,7 +17,8 @@ export interface IDatumBuilderNftCheckArgs {
  */
 export class DatumBuilderNftCheck extends DatumBuilderCondition {
   public buildConditionDatum(args: IDatumBuilderNftCheckArgs): Core.PlutusData {
-    const asset_map: { [x: string]: { [x: string]: bigint; }; } = {};
+    const asset_map: { [policy_id: string]: { [assetName: string]: bigint } } =
+      {};
     args.value.forEach((asset) => {
       const [policy_id, asset_name] = asset.metadata.assetId.split(".");
       if (!(policy_id in asset_map)) {
@@ -39,7 +40,9 @@ export class DatumBuilderNftCheck extends DatumBuilderCondition {
     return data;
   }
 
-  public decodeConditionDatum(datum: Core.PlutusData | string): NftCheckTypes.NftCheckDatum {
+  public decodeConditionDatum(
+    datum: Core.PlutusData | string,
+  ): NftCheckTypes.NftCheckDatum {
     if (typeof datum === "string") {
       datum = Core.PlutusData.fromCbor(Core.HexBlob(datum));
     }

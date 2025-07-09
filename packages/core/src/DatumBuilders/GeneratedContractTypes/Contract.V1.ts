@@ -10,8 +10,8 @@ const Contracts = Type.Module({
     scriptHash: Type.String(),
   }, { ctor: 1n }),
   PaymentStakingHash: Type.Union([
-    Type.Object({ KeyHash: Type.Ref("KeyHash")}, { ctor: 0n }),
-    Type.Object({ ScriptHash: Type.Ref("ScriptHash")}, { ctor: 1n }),
+    Type.Object({ KeyHash: Type.Ref("KeyHash")}),
+    Type.Object({ ScriptHash: Type.Ref("ScriptHash")}),
   ]),
   Credential: Type.Object({
     paymentKey: Type.Ref("PaymentStakingHash"),
