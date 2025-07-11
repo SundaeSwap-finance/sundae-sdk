@@ -96,7 +96,7 @@ export const settingsUtxosBlaze: Core.TransactionUnspentOutput[] = [
   new Core.TransactionUnspentOutput(
     new Core.TransactionInput(
       Core.TransactionId(
-        "45ae0839622478c3ed2fbf5eea03c54ca3fd57607b7a2660445166ea8a42d98c",
+        "0d23405dd8848c32bbcdd31e3a06884b2220bb4f28ed45bdd5e6a129fc4fc9f4",
       ),
       BigInt(0),
     ),
@@ -104,13 +104,13 @@ export const settingsUtxosBlaze: Core.TransactionUnspentOutput[] = [
       address: Core.PaymentAddress(
         "addr_test1wzqnqgch86xj9j69zdelwdw4cy04dy9qk3g3sq7zky8ug5gmr2v4q",
       ),
-      value: makeValue(2_137_760n, [
+      value: makeValue(2_288_610n, [
         "85ed0c7060ccd4700927d8b60f0160abe2b3c30446fc0a9ac83b6b7673657474696e6773",
         1n,
       ]).toCore(),
       datum: Core.PlutusData.fromCbor(
         Core.HexBlob(
-          "d8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ffd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ff9f010affd8799f9f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffff9fd87a9f581c7467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808ffff1a000510e01a000a31601a000290400000ff",
+          "d8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ffd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd8799fd8799f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffd87a80ff9f010affd8799f9f581c035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73bffff9fd87a9f581ccc27980a8557fe9db2c9ac0a2677f4d1306dbf10689983758f0b8dbeffd8799f581cbc10fe312acd69e2e12cbc2cca05aa0e432e3dee65d5a9498344e4aaffff1a000510e01a000290401a000290400000ff",
         ),
       ).toCore(),
     }),
