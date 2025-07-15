@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.5.0
+
+### Minor Changes
+
+- 494e0d8: Adds support for condition pools such as the NFT check pool type
+
 ## 2.4.1
 
 ### Patch Changes
