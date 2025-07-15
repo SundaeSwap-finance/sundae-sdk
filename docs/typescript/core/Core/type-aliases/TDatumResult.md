@@ -28,4 +28,4 @@ The DatumResult for a DatumBuilder method.
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L64)
+[packages/core/src/@types/datumbuilder.ts:65](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L65)

@@ -1,8 +1,16 @@
 import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
-import { EContractVersion, ISundaeSDKOptions } from "./@types/index.js";
+import {
+  EContractVersion,
+  ISundaeSDKOptions,
+  TTxBuilder,
+} from "./@types/index.js";
 import { QueryProvider } from "./Abstracts/QueryProvider.abstract.class.js";
 import { QueryProviderSundaeSwap } from "./QueryProviders/QueryProviderSundaeSwap.js";
-import { TxBuilderV1, TxBuilderV3 } from "./TxBuilders/index.js";
+import {
+  TxBuilderNftCheck,
+  TxBuilderV1,
+  TxBuilderV3,
+} from "./TxBuilders/index.js";
 
 export const SDK_OPTIONS_DEFAULTS: Pick<
   ISundaeSDKOptions,
@@ -37,7 +45,7 @@ export const SDK_OPTIONS_DEFAULTS: Pick<
  * ```
  */
 export class SundaeSDK {
-  public builders: Map<EContractVersion, TxBuilderV1 | TxBuilderV3> = new Map();
+  public builders: Map<EContractVersion, TTxBuilder> = new Map();
   public queryProvider: QueryProvider;
   public options: ISundaeSDKOptions;
 
@@ -75,6 +83,10 @@ export class SundaeSDK {
       EContractVersion.V3,
       new TxBuilderV3(instance.options.blazeInstance),
     );
+    instance.builders.set(
+      EContractVersion.NftCheck,
+      new TxBuilderNftCheck(instance.options.blazeInstance),
+    );
 
     return instance;
   }
@@ -82,14 +94,13 @@ export class SundaeSDK {
   /**
    * Creates the appropriate transaction builder by which you can create valid transactions.
    *
-   * @returns {TxBuilderV1 | TxBuilderV3}
+   * @returns {TTxBuilder}
    */
   builder(contractVersion: EContractVersion.V1): TxBuilderV1;
   builder(contractVersion: EContractVersion.V3): TxBuilderV3;
-  builder(contractVersion?: EContractVersion): TxBuilderV1 | TxBuilderV3;
-  builder(
-    contractVersion: EContractVersion = EContractVersion.V3,
-  ): TxBuilderV1 | TxBuilderV3 {
+  builder(contractVersion: EContractVersion.NftCheck): TxBuilderNftCheck;
+  builder(contractVersion?: EContractVersion): TTxBuilder;
+  builder(contractVersion: EContractVersion = EContractVersion.V3): TTxBuilder {
     const builder = this.builders.get(contractVersion);
     if (!builder) {
       throw new Error(
@@ -102,6 +113,8 @@ export class SundaeSDK {
         return builder as TxBuilderV1;
       case EContractVersion.V3:
         return builder as TxBuilderV3;
+      case EContractVersion.NftCheck:
+        return builder as TxBuilderNftCheck;
       default:
         throw new Error("Unreachable.");
     }

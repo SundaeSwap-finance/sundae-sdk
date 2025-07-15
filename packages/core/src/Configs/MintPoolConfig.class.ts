@@ -1,9 +1,9 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { IFeesConfig, IMintV3PoolConfigArgs } from "../@types/index.js";
-
+import { IFeesConfig, IMintPoolConfigArgs } from "../@types/index.js";
 import { Config } from "../Abstracts/Config.abstract.class.js";
+import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.V3.class.js";
 
-export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
+export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
   static MAX_FEE: bigint = 500n;
 
   assetA?: AssetAmount<IAssetAmountMetadata>;
@@ -13,8 +13,10 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
   donateToTreasury?: bigint;
   ownerAddress?: string;
   feeManager?: string;
+  condition?: string;
+  conditionDatumArgs?: TConditionDatumArgs;
 
-  constructor(args?: IMintV3PoolConfigArgs) {
+  constructor(args?: IMintPoolConfigArgs) {
     super();
     args && this.setFromObject(args);
   }
@@ -28,7 +30,9 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     referralFee,
     donateToTreasury,
     feeManager,
-  }: IMintV3PoolConfigArgs): void {
+    condition,
+    conditionDatumArgs,
+  }: IMintPoolConfigArgs): void {
     referralFee && this.setReferralFee(referralFee);
     this.setAssetA(assetA);
     this.setAssetB(assetB);
@@ -37,9 +41,13 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     this.setOwnerAddress(ownerAddress);
     this.setDonateToTreasury(donateToTreasury);
     this.setFeeManager(feeManager);
+    this.setCondition(condition);
+    this.setConditionDatumArgs(conditionDatumArgs);
   }
 
-  buildArgs(): Omit<IMintV3PoolConfigArgs, "fees"> & { fees: IFeesConfig } {
+  buildArgs(): Omit<IMintPoolConfigArgs, "fees"> & {
+    fees: IFeesConfig;
+  } {
     this.validate();
     return {
       assetA: this.assetA as AssetAmount<IAssetAmountMetadata>,
@@ -50,16 +58,28 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
       referralFee: this.referralFee,
       donateToTreasury: this.donateToTreasury,
       feeManager: this.feeManager,
+      condition: this.condition,
+      conditionDatumArgs: this.conditionDatumArgs,
     };
-  }
-
-  setDonateToTreasury(val?: bigint) {
-    this.donateToTreasury = val;
-    return this;
   }
 
   setFeeManager(val?: string) {
     this.feeManager = val;
+    return this;
+  }
+
+  setCondition(condition?: string) {
+    this.condition = condition;
+    return this;
+  }
+
+  setConditionDatumArgs(conditionDatumArgs?: TConditionDatumArgs) {
+    this.conditionDatumArgs = conditionDatumArgs;
+    return this;
+  }
+
+  setDonateToTreasury(val?: bigint) {
+    this.donateToTreasury = val;
     return this;
   }
 
@@ -95,6 +115,7 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
     return this;
   }
 
+  /// TODO: validate condition against whitelisted conditions
   validate(): void {
     super.validate();
 
@@ -104,23 +125,23 @@ export class MintV3PoolConfig extends Config<IMintV3PoolConfigArgs> {
 
     if (this.fees.ask === this.fees.bid) {
       if (
-        this.fees.ask > MintV3PoolConfig.MAX_FEE ||
-        this.fees.bid > MintV3PoolConfig.MAX_FEE
+        this.fees.ask > MintPoolConfig.MAX_FEE ||
+        this.fees.bid > MintPoolConfig.MAX_FEE
       ) {
         throw new Error(
-          `Fees cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
+          `Fees cannot supersede the max fee of ${MintPoolConfig.MAX_FEE}.`,
         );
       }
     } else {
-      if (this.fees.ask > MintV3PoolConfig.MAX_FEE) {
+      if (this.fees.ask > MintPoolConfig.MAX_FEE) {
         throw new Error(
-          `Ask fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
+          `Ask fee cannot supersede the max fee of ${MintPoolConfig.MAX_FEE}.`,
         );
       }
 
-      if (this.fees.bid > MintV3PoolConfig.MAX_FEE) {
+      if (this.fees.bid > MintPoolConfig.MAX_FEE) {
         throw new Error(
-          `Bid fee cannot supersede the max fee of ${MintV3PoolConfig.MAX_FEE}.`,
+          `Bid fee cannot supersede the max fee of ${MintPoolConfig.MAX_FEE}.`,
         );
       }
     }

@@ -65,6 +65,9 @@ export class QueryProviderSundaeSwapLegacy implements QueryProvider {
   constructor(protected network: TSupportedNetworks) {
     this.baseUrl = providerBaseUrls[network];
   }
+  findPoolDataByAssetId(_assetId: string): Promise<IPoolData[] | undefined> {
+    throw new Error("Method not implemented.");
+  }
 
   async findPoolData({
     pair: [coinA, coinB],

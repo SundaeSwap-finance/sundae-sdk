@@ -1,5 +1,6 @@
 import {
   EContractVersion,
+  IPoolByAssetQuery,
   IPoolByIdentQuery,
   IPoolData,
   IPoolDataAsset,
@@ -70,25 +71,138 @@ interface IPoolDataQueryResult {
  */
 export class QueryProviderSundaeSwap implements QueryProvider {
   public baseUrl: string;
+  private protocolParamsFull: ISundaeProtocolParamsFull[] = [];
+  private protocolParams: ISundaeProtocolParams[] = [];
+  private poolData: Map<string, IPoolData>;
 
   constructor(protected network: TSupportedNetworks) {
     this.baseUrl = providerBaseUrls[network];
+    this.poolData = new Map();
   }
 
-  async findPoolData({ ident }: IPoolByIdentQuery): Promise<IPoolData> {
-    const res: {
-      data?: {
-        pools: {
-          byId: IPoolDataQueryResult;
-        };
-      };
-    } = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  addCustomProtocolParams(protocolParamsFull: ISundaeProtocolParamsFull): void {
+    this.protocolParamsFull = [protocolParamsFull, ...this.protocolParamsFull];
+    const protocolParams = {
+      ...protocolParamsFull,
+      blueprint: {
+        ...protocolParamsFull.blueprint,
+        validators: protocolParamsFull.blueprint.validators.map(
+          (validator) => ({ ...validator, compiledCode: undefined }),
+        ),
       },
-      body: JSON.stringify({
-        query: `
+    };
+    this.protocolParams = [protocolParams, ...this.protocolParams];
+  }
+
+  setPoolData(ident: string, poolData: IPoolData) {
+    this.poolData.set(ident, poolData);
+  }
+
+  async findPoolDataByAssetId(assetId: string): Promise<IPoolData[]> {
+    const res: { data?: { pools: { byAsset: IPoolDataQueryResult[] } } } =
+      await fetch(this.baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
+          query poolByIdent($assetId: ID!) {
+            pools {
+              byAsset(asset: $assetId) {
+                feesFinalized {
+                  slot
+                }
+                marketOpen {
+                  slot
+                }
+                openingFee
+                finalFee
+                id
+                assetA {
+                  assetId: id
+                  decimals
+                }
+                assetB {
+                  assetId: id
+                  decimals
+                }
+                assetLP {
+                  assetId: id
+                  decimals
+                }
+                current {
+                  quantityA {
+                    quantity
+                  }
+                  quantityB {
+                    quantity
+                  }
+                  quantityLP {
+                    quantity
+                  }
+                }
+                version
+              }
+            }
+          }
+        `,
+          variables: { assetId: assetId },
+        }),
+      }).then((res) => res.json());
+
+    if (!res?.data) {
+      throw new Error(
+        `Something went wrong when trying to fetch pool data. Full response: ${JSON.stringify(
+          res,
+        )}`,
+      );
+    }
+
+    const pools = res.data.pools.byAsset;
+
+    return pools.map((pool) => {
+      return {
+        assetA: pool.assetA,
+        assetB: pool.assetB,
+        assetLP: pool.assetLP,
+        currentFee: SundaeUtils.getCurrentFeeFromDecayingFee({
+          endFee: pool.finalFee,
+          endSlot: pool.feesFinalized.slot,
+          startFee: pool.openingFee,
+          startSlot: pool.marketOpen.slot,
+          network: this.network,
+        }),
+        ident: pool.id,
+        liquidity: {
+          aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
+          bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
+          lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+        },
+        version: pool.version,
+      };
+    });
+  }
+
+  async findPoolData(identArgs: IPoolByIdentQuery): Promise<IPoolData>;
+  async findPoolData(assetArgs: IPoolByAssetQuery): Promise<IPoolData[]>;
+  async findPoolData(
+    args: IPoolByIdentQuery | IPoolByAssetQuery,
+  ): Promise<IPoolData | IPoolData[]> {
+    if ("assetId" in args) {
+      return this.findPoolDataByAssetId(args.assetId);
+    }
+    return this.findPoolDataByIdent(args);
+  }
+
+  async findPoolDataByIdent({ ident }: IPoolByIdentQuery): Promise<IPoolData> {
+    if (this.poolData.has(ident)) {
+      return this.poolData.get(ident) as IPoolData;
+    }
+    const res: { data?: { pools: { byId: IPoolDataQueryResult } } } =
+      await fetch(this.baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
           query poolByIdent($id: ID!) {
             pools {
               byId(id: $id) {
@@ -129,11 +243,9 @@ export class QueryProviderSundaeSwap implements QueryProvider {
             }
           }
         `,
-        variables: {
-          id: ident,
-        },
-      }),
-    }).then((res) => res.json());
+          variables: { id: ident },
+        }),
+      }).then((res) => res.json());
 
     if (!res?.data) {
       throw new Error(
@@ -167,17 +279,11 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   }
 
   async findOpenOrderDatum(utxo: TUTXO) {
-    const res: {
-      data?: {
-        utxo: {
-          datum: string;
-          datumHash: string;
-        };
-      };
-    } = await fetch(this.baseUrl, {
-      method: "POST",
-      body: JSON.stringify({
-        query: `
+    const res: { data?: { utxo: { datum: string; datumHash: string } } } =
+      await fetch(this.baseUrl, {
+        method: "POST",
+        body: JSON.stringify({
+          query: `
         query UTXO($txHash: String!, $index: Int!) {
           utxo(txHash: $txHash, index: $index) {
             datum
@@ -185,12 +291,9 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           }
         }
         `,
-        variables: {
-          txHash: utxo.hash,
-          index: utxo.index,
-        },
-      }),
-    }).then((res) => res.json());
+          variables: { txHash: utxo.hash, index: utxo.index },
+        }),
+      }).then((res) => res.json());
 
     if (!res?.data) {
       throw new Error(
@@ -220,15 +323,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   async getProtocolParamsWithScriptHashes(
     version?: EContractVersion,
   ): Promise<ISundaeProtocolParams[] | ISundaeProtocolParams> {
-    const res: {
-      data?: { protocols: ISundaeProtocolParams[] };
-    } = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
+    const res: { data?: { protocols: ISundaeProtocolParams[] } } = await fetch(
+      this.baseUrl,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
         query ProtocolValidators {
           protocols {
             blueprint {
@@ -248,8 +349,9 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           }
         }
         `,
-      }),
-    }).then((res) => res.json());
+        }),
+      },
+    ).then((res) => res.json());
 
     if (!res?.data) {
       throw new Error(
@@ -258,6 +360,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         )}`,
       );
     }
+
+    res.data.protocols = this.protocolParams.concat(res.data.protocols);
 
     if (version) {
       return res.data.protocols.find(
@@ -282,15 +386,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   async getProtocolParamsWithScripts(
     version?: EContractVersion,
   ): Promise<ISundaeProtocolParamsFull[] | ISundaeProtocolParamsFull> {
-    const res: {
-      data?: { protocols: ISundaeProtocolParamsFull[] };
-    } = await fetch(this.baseUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
+    const res: { data?: { protocols: ISundaeProtocolParamsFull[] } } =
+      await fetch(this.baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
         query ProtocolValidators {
           protocols {
             blueprint {
@@ -311,8 +412,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           }
         }
         `,
-      }),
-    }).then((res) => res.json());
+        }),
+      }).then((res) => res.json());
 
     if (!res?.data) {
       throw new Error(
@@ -321,6 +422,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         )}`,
       );
     }
+
+    res.data.protocols = this.protocolParamsFull.concat(res.data.protocols);
 
     if (version) {
       return res.data.protocols.find(

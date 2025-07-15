@@ -2,7 +2,7 @@
 
 ***
 
-# Interface: IDatumBuilderMintPoolV3Args
+# Interface: IDatumBuilderMintPoolArgs
 
 The arguments for building a minting a new pool transaction against
-the V3 pool contract.
+the V3 & Condition pool contract.

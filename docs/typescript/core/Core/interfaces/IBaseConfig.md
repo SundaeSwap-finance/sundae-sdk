@@ -10,4 +10,4 @@ The base config that all configs extend.
 
 - [`IOrderConfigArgs`](IOrderConfigArgs.md)
 - [`ICancelConfigArgs`](ICancelConfigArgs.md)
-- [`IMintV3PoolConfigArgs`](IMintV3PoolConfigArgs.md)
+- [`IMintPoolConfigArgs`](IMintPoolConfigArgs.md)
