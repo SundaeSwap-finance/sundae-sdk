@@ -1,5 +1,23 @@
 # Change Log
 
+## 2.4.1
+
+### Patch Changes
+
+- 9d52d55: Attempts to remove private class access when adding reference inputs during V3 pool creation. Also idealistically limits the number of collateral inputs.
+
+## 2.4.0
+
+### Minor Changes
+
+- f6f077c: Fixes and issue where wallets with limited UTxO sets would not require the right amount of ADA for minting a pool.
+
+## 2.3.0
+
+### Minor Changes
+
+- a36c4ae: Updates pool mint UTXO selection and minimum ADA padding for creating a pool. Solves edge-cases where low balances are used, including insufficient inputs at times getting selected to cover the costs.
+
 ## 2.2.0
 
 ### Minor Changes

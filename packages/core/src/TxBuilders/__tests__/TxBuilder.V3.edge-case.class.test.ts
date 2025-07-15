@@ -1,0 +1,111 @@
+import { Core } from "@blaze-cardano/sdk";
+import { AssetAmount } from "@sundaeswap/asset";
+import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
+
+import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
+import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
+import { TxBuilderV3 } from "../TxBuilder.V3.class.js";
+import {
+  params,
+  referenceUtxosBlaze,
+  settingsUtxosBlaze,
+} from "../__data__/mockData.V3.js";
+
+spyOn(
+  QueryProviderSundaeSwap.prototype,
+  "getProtocolParamsWithScriptHashes",
+).mockResolvedValue(params);
+
+spyOn(
+  QueryProviderSundaeSwap.prototype,
+  "getProtocolParamsWithScripts",
+).mockResolvedValue(params);
+
+spyOn(TxBuilderV3.prototype, "getSettingsUtxo").mockResolvedValue(
+  settingsUtxosBlaze[0],
+);
+
+spyOn(TxBuilderV3.prototype, "getAllReferenceUtxos").mockResolvedValue(
+  referenceUtxosBlaze,
+);
+
+let builder: TxBuilderV3;
+
+const customUtxos = [
+  Core.TransactionUnspentOutput.fromCbor(
+    Core.HexBlob(
+      "828258201d58cd9dd9339f752cd1bfa22c041fa951bc4edf7ecad37a272801c310280c4f018258390196a76d0f179b25ff5d20435ef093361a7be63ca504b1962f8723d741854b8e99e5d0b49817dd0f258e545100ae29e9fc515d9723123d66441a00142440",
+    ),
+  ).output(),
+  Core.TransactionUnspentOutput.fromCbor(
+    Core.HexBlob(
+      "82825820312579f5fd8d638173a82f786ad92d1a1601f1740da604ec0f977b37dbedcd7a018258390196a76d0f179b25ff5d20435ef093361a7be63ca504b1962f8723d741854b8e99e5d0b49817dd0f258e545100ae29e9fc515d9723123d66441a003e9a33",
+    ),
+  ).output(),
+  Core.TransactionUnspentOutput.fromCbor(
+    Core.HexBlob(
+      "82825820c4195ea2a288f9521da072b7282b925b83c456297f9e62d9e28a0d6e54cd2a76028258390196a76d0f179b25ff5d20435ef093361a7be63ca504b1962f8723d741854b8e99e5d0b49817dd0f258e545100ae29e9fc515d9723123d6644821a001e8480a1581c9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d77a14653554e4441451a009ea327",
+    ),
+  ).output(),
+  Core.TransactionUnspentOutput.fromCbor(
+    Core.HexBlob(
+      "8282582078fd3f280aec4b7d644ebf6178f667d556cb489e0c7e28bc4076c89fcdce86b4008258390196a76d0f179b25ff5d20435ef093361a7be63ca504b1962f8723d741854b8e99e5d0b49817dd0f258e545100ae29e9fc515d9723123d66441a01312d00",
+    ),
+  ).output(),
+];
+
+const consolidatedUtxos = customUtxos.map((utxo) => {
+  const newUtxo = Core.TransactionOutput.fromCore({
+    ...utxo.toCore(),
+    address: Core.PaymentAddress(
+      "addr1qxt2wmg0z7djtl6aypp4auynxcd8he3u55ztr930su3awsv9fw8fnewskjvp0hg0yk89g5gq4c57nlz3tktjxy3avezqejdfyn",
+    ),
+  });
+
+  return newUtxo;
+});
+
+setupBlaze(
+  async (blaze) => {
+    builder = new TxBuilderV3(blaze);
+  },
+  {
+    network: Core.NetworkId.Mainnet,
+    walletAddress:
+      "addr1qxt2wmg0z7djtl6aypp4auynxcd8he3u55ztr930su3awsv9fw8fnewskjvp0hg0yk89g5gq4c57nlz3tktjxy3avezqejdfyn",
+    customUtxos: consolidatedUtxos,
+  },
+);
+
+afterAll(() => {
+  mock.restore();
+});
+
+describe("TxBuilderBlazeV3 Edge Case", () => {
+  it("should correctly retrieve UTxOs for a low-balance wallet.", async () => {
+    const { fees, build, tx } = await builder.mintPool({
+      assetA: new AssetAmount(1_000_000n, {
+        assetId: "ada.lovelace",
+        decimals: 6,
+      }),
+      assetB: new AssetAmount(8_000_000n, {
+        assetId:
+          "9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d77.53554e444145",
+        decimals: 6,
+      }),
+      fees: {
+        ask: 30n,
+        bid: 30n,
+      },
+      ownerAddress:
+        "addr1qxt2wmg0z7djtl6aypp4auynxcd8he3u55ztr930su3awsv9fw8fnewskjvp0hg0yk89g5gq4c57nlz3tktjxy3avezqejdfyn",
+      feeManager:
+        "addr1qxt2wmg0z7djtl6aypp4auynxcd8he3u55ztr930su3awsv9fw8fnewskjvp0hg0yk89g5gq4c57nlz3tktjxy3avezqejdfyn",
+    });
+
+    const finished = await build();
+    expect(finished.cbor).toEqual(
+      "84a900d90102828258200000000000000000000000000000000000000000000000000000000000000000028258200000000000000000000000000000000000000000000000000000000000000000030184a30058393044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f880801821a003d0900a2581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000de14099011825d369ff80f14ea072c9e1edb9d33635c2110f691ea051419a01581c9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d77a14653554e4441451a007a1200028201d8185884d8799f581c99011825d369ff80f14ea072c9e1edb9d33635c2110f691ea051419a9f9f4040ff9f581c9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d774653554e444145ffff1a002b288b181e181ed8799fd8799f581c854b8e99e5d0b49817dd0f258e545100ae29e9fc515d9723123d6644ffff001a002dc6c0ffa300581d60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b01821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000643b099011825d369ff80f14ea072c9e1edb9d33635c2110f691ea051419a01028201d81843d879808258390196a76d0f179b25ff5d20435ef093361a7be63ca504b1962f8723d741854b8e99e5d0b49817dd0f258e545100ae29e9fc515d9723123d6644821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a158200014df1099011825d369ff80f14ea072c9e1edb9d33635c2110f691ea051419a1a002b288b8258390196a76d0f179b25ff5d20435ef093361a7be63ca504b1962f8723d741854b8e99e5d0b49817dd0f258e545100ae29e9fc515d9723123d6644821a00cd4a64a1581c9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d77a14653554e4441451a00249127021a0008551c09a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a35820000643b099011825d369ff80f14ea072c9e1edb9d33635c2110f691ea051419a015820000de14099011825d369ff80f14ea072c9e1edb9d33635c2110f691ea051419a0158200014df1099011825d369ff80f14ea072c9e1edb9d33635c2110f691ea051419a1a002b288b0b5820649e48a799e5484c2e74f11fa2760b43e884ca5273e64381d9eb69a6e80b07460dd9010282825820000000000000000000000000000000000000000000000000000000000000000002825820000000000000000000000000000000000000000000000000000000000000000003108258390196a76d0f179b25ff5d20435ef093361a7be63ca504b1962f8723d741854b8e99e5d0b49817dd0f258e545100ae29e9fc515d9723123d6644821a014331d6a1581c9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d77a14653554e4441451a009ea327111a000c7faa12d9010288825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394700825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394701825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f24394702825820710112522d4e0b35640ca00213745982991b4a69b6f0a5de5a7af6547f243947038258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828008258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b828018258209756599b732c2507d9170ccb919c31e38fd392f4c53cfc11004a9254f2c2b8280282582045ae0839622478c3ed2fbf5eea03c54ca3fd57607b7a2660445166ea8a42d98c00a105a182010082d87a9f9f9f4040ff9f581c9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d774653554e444145ffff0001ff821a0009d8111a0cdea4e7f5f6",
+    );
+  });
+});

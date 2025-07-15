@@ -57,6 +57,7 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
       ownerAddress: this.ownerAddress as string,
       referralFee: this.referralFee,
       donateToTreasury: this.donateToTreasury,
+      feeManager: this.feeManager,
       condition: this.condition,
       conditionDatumArgs: this.conditionDatumArgs,
     };

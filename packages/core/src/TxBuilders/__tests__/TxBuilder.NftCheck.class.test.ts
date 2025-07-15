@@ -16,7 +16,7 @@ import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import {
   ADA_METADATA,
   ORDER_DEPOSIT_DEFAULT,
-  POOL_MIN_ADA,
+  POOL_MIN_FEE
 } from "../../constants.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { TxBuilderNftCheck } from "../TxBuilder.NftCheck.class.js";
@@ -994,7 +994,7 @@ describe("TxBuilderNftCheck", () => {
 
     // Should deposit assets without additional ADA.
     expect(poolDepositedAssetA).toEqual(
-      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString(),
+      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_FEE).toString(),
     );
     expect(poolDepositedAssetB?.toString()).toEqual("20000000");
     expect(poolDepositedNFT?.toString()).toEqual("1");
@@ -1127,7 +1127,7 @@ describe("TxBuilderNftCheck", () => {
     );
     // Should deposit assets without additional ADA.
     expect(poolDepositedAssetA).toEqual(
-      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString(),
+      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_FEE).toString(),
     );
     expect(poolDepositedAssetB?.toString()).toEqual("20000000");
     expect(poolDepositedNFT?.toString()).toEqual("1");
@@ -1263,7 +1263,7 @@ describe("TxBuilderNftCheck", () => {
 
     // Should deposit assets without additional ADA.
     expect(poolDepositedAssetA).toEqual(
-      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_ADA).toString(),
+      (PREVIEW_DATA.assets.tada.amount + POOL_MIN_FEE).toString(),
     );
     expect(poolDepositedAssetB).toEqual("20000000");
     expect(poolDepositedNFT).toEqual("1");

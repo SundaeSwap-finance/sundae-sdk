@@ -51,7 +51,9 @@ import {
   CANCEL_REDEEMER,
   ORDER_DEPOSIT_DEFAULT,
   ORDER_ROUTE_DEPOSIT_DEFAULT,
-  POOL_MIN_ADA,
+  POOL_LP_DEPOSIT,
+  POOL_MIN_FEE,
+  POOL_REF_DEPOSIT,
 } from "../constants.js";
 import { TxBuilderV1 } from "./TxBuilder.V1.class.js";
 
@@ -338,7 +340,6 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       condition,
       conditionDatumArgs,
     } = new MintPoolConfig(args).buildArgs();
-
     const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       assetA,
       assetB,
@@ -346,9 +347,28 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
     const exoticPair = !SundaeUtils.isAdaAsset(sortedAssets[0].metadata);
 
+    const ESTIMATED_POOL_TX_FEE = 1_000_000n; // This is because we don't know the estimated fee.
+    const ESTIMATED_CHANGE_DEPOSIT = 2_000_000n; // The is to cover possible cnt returns.
+
     const [userUtxos, { hash: poolPolicyId }, references, settings] =
       await Promise.all([
-        this.getUtxosForPoolMint(sortedAssets),
+        this.getUtxosForPoolMint(
+          sortedAssets.map((asset) => {
+            if (SundaeUtils.isAdaAsset(asset.metadata)) {
+              // Add an additional 4 ADA to cover LP and NFT minUTxoAmounts.
+              return asset.withAmount(
+                asset.amount +
+                  POOL_MIN_FEE +
+                  POOL_LP_DEPOSIT +
+                  POOL_REF_DEPOSIT +
+                  ESTIMATED_POOL_TX_FEE +
+                  ESTIMATED_CHANGE_DEPOSIT,
+              );
+            }
+
+            return asset;
+          }),
+        ),
         this.getValidatorScript("pool.mint"),
         this.getAllReferenceUtxos(),
         this.getSettingsUtxo(),
@@ -371,7 +391,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     const poolLqAssetIdHex = `${poolPolicyId + poolLqAssetName}`;
 
     const poolAssets = {
-      lovelace: POOL_MIN_ADA,
+      lovelace: POOL_MIN_FEE,
       [poolNftAssetIdHex]: 1n,
       [sortedAssets[1].metadata.assetId.replace(".", "")]:
         sortedAssets[1].amount,
@@ -393,7 +413,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       assetB: sortedAssets[1],
       fees,
       marketOpen,
-      depositFee: POOL_MIN_ADA,
+      depositFee: POOL_MIN_FEE,
       seedUtxo,
       feeManager,
       condition,
@@ -453,10 +473,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     mints.set(Core.AssetName(poolLqAssetName), circulatingLp);
 
     [...references, settings].forEach((utxo) => {
-      tx.addReferenceInput(
-        Core.TransactionUnspentOutput.fromCore(utxo.toCore()),
-      );
+      tx.addReferenceInput(utxo);
     });
+
     userUtxos.forEach((utxo) => tx.addInput(utxo));
 
     // Mint our assets.
@@ -535,7 +554,13 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     }
 
     // Add collateral since coin selection is false.
-    tx.provideCollateral(userUtxos);
+    // We select the highest value first so as to keep the input count to a minimum.
+    const { selectedInputs } = CoinSelector.hvfSelector(
+      userUtxos,
+      Core.Value.fromCore({ coins: 5_000_000n }),
+    );
+
+    tx.provideCollateral(selectedInputs.slice(0, 3));
 
     return this.completeTx({
       tx,
@@ -1300,10 +1325,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
    * @throws {Error} Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
    */
   public async getUtxosForPoolMint(
-    requiredAssets: [
-      AssetAmount<IAssetAmountMetadata>,
-      AssetAmount<IAssetAmountMetadata>,
-    ],
+    requiredAssets: AssetAmount<IAssetAmountMetadata>[],
   ): Promise<Core.TransactionUnspentOutput[]> {
     const utxos = await this.blaze.wallet.getUnspentOutputs();
     const neededValue = new Core.Value(5_000_000n); // Start with a 5 ADA requirement to cover fee and minting costs.
