@@ -2,7 +2,6 @@ import {
   type Blaze,
   type TxBuilder as BlazeTx,
   Core,
-  Data,
   makeValue,
   type Provider,
   TxBuilder,
@@ -19,6 +18,7 @@ import {
 } from "@sundaeswap/core";
 import { SundaeUtils } from "@sundaeswap/core/utilities";
 
+import { serialize } from "@blaze-cardano/data";
 import { PositionRedeemer, TDelegationPrograms } from "../../@types/blaze.js";
 import { ILockConfigArgs } from "../../@types/configs.js";
 import { YieldFarmingAbstract } from "../Abstracts/YieldFarmingAbstract.class.js";
@@ -416,10 +416,10 @@ export class YieldFarmingBuilder implements YieldFarmingAbstract {
       positions.map(async (p) => {
         const hash = p.output().datum()?.asDataHash();
         if (!hash) {
-          tx.addInput(p, Data.to("EMPTY", PositionRedeemer));
+          tx.addInput(p, serialize(PositionRedeemer, "EMPTY"));
         } else {
           const datum = await this.blaze.provider.resolveDatum(hash);
-          tx.addInput(p, Data.to("EMPTY", PositionRedeemer), datum);
+          tx.addInput(p, serialize(PositionRedeemer, "EMPTY"), datum);
         }
       }),
     );
