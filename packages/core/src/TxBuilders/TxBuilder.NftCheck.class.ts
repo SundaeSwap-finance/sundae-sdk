@@ -12,17 +12,17 @@ import {
   IComposedTx,
   IMintPoolConfigArgs,
   IPoolData,
-} from "../@types";
+} from "../@types/index.js";
 import { TxBuilderAbstractCondition } from "../Abstracts/TxBuilderAbstract.Condition.js";
-import {
-  DatumBuilderNftCheck,
-  IDatumBuilderNftCheckArgs,
-} from "../DatumBuilders";
 import {
   NftCheckDatum,
   TNftCheckDatum,
 } from "../DatumBuilders/ContractTypes/Contract.NftCheck.js";
-import { QueryProviderSundaeSwap } from "../QueryProviders";
+import {
+  DatumBuilderNftCheck,
+  IDatumBuilderNftCheckArgs,
+} from "../DatumBuilders/index.js";
+import { QueryProviderSundaeSwap } from "../QueryProviders/index.js";
 import { TxBuilderV3 } from "./TxBuilder.V3.class.js";
 
 /**
