@@ -65,8 +65,8 @@ interface ITxBuilderCompleteTxArgs {
 }
 
 /**
- * `TxBuilderBlazeV3` is a class extending `TxBuilder` to support transaction construction
- * for Blaze against the V3 SundaeSwap protocol. It includes capabilities to build and execute various transaction types
+ * `TxBuilderBlazeV3Like` is a class extending `TxBuilder` to support transaction construction
+ * for Blaze against the V3 SundaeSwap protocol and other compatible protocols. It includes capabilities to build and execute various transaction types
  * such as swaps, cancellations, updates, deposits, withdrawals, and zaps.
  *
  * @extends {TxBuilderAbstractV3}
@@ -186,9 +186,6 @@ export class TxBuilderV3Like extends TxBuilderAbstractV3 {
    */
   public async getSettingsUtxo(): Promise<Core.TransactionUnspentOutput> {
     const { hash } = await this.getValidatorScript("settings.mint");
-    console.log(
-      `Retrieving settings UTXO with hash: ${hash}${this.SETTINGS_NFT_NAME}`,
-    );
     return this.blaze.provider.getUnspentOutputByNFT(
       Core.AssetId(`${hash}${this.SETTINGS_NFT_NAME}`),
     );

@@ -3,73 +3,112 @@
 import { Exact, Type } from "@blaze-cardano/data";
 
 const Contracts = Type.Module({
-  KeyHash: Type.Object({
-    keyHash: Type.String(),
-  }, { ctor: 0n }),
-  ScriptHash: Type.Object({
-    scriptHash: Type.String(),
-  }, { ctor: 1n }),
   PaymentStakingHash: Type.Union([
-    Type.Object({ KeyHash: Type.Ref("KeyHash")}),
-    Type.Object({ ScriptHash: Type.Ref("ScriptHash")}),
+    Type.Object({
+      KeyHash: Type.Object(
+        {
+          keyHash: Type.String(),
+        },
+        { ctor: 0n },
+      ),
+    }),
+    Type.Object({
+      ScriptHash: Type.Object(
+        {
+          scriptHash: Type.String(),
+        },
+        { ctor: 1n },
+      ),
+    }),
   ]),
-  Credential: Type.Object({
-    paymentKey: Type.Ref("PaymentStakingHash"),
-    stakingKey: Type.Optional(Type.Object({ value: Type.Ref("PaymentStakingHash")}, { ctor: 0n })),
-  }, { ctor: 0n }),
-  Destination: Type.Object({
-    credentials: Type.Ref("Credential"),
-    datum: Type.Optional(Type.String()),
-  }, { ctor: 0n }),
-  OrderAddresses: Type.Object({
-    destination: Type.Ref("Destination"),
-    alternate: Type.Optional(Type.String()),
-  }, { ctor: 0n }),
-  SwapDirection: Type.Object({
-    suppliedAssetIndex: Type.Union([
-      Type.Literal("A", { ctor: 0n }),
-      Type.Literal("B", { ctor: 1n }),
-    ]),
-    amount: Type.BigInt(),
-    minReceivable: Type.Optional(Type.BigInt()),
-  }, { ctor: 0n }),
-  DepositPair: Type.Object({
-      Child: Type.Object({
-            pair: Type.Object({
+  Credential: Type.Object(
+    {
+      paymentKey: Type.Ref("PaymentStakingHash"),
+      stakingKey: Type.Optional(
+        Type.Object({ value: Type.Ref("PaymentStakingHash") }, { ctor: 0n }),
+      ),
+    },
+    { ctor: 0n },
+  ),
+  Destination: Type.Object(
+    {
+      credentials: Type.Ref("Credential"),
+      datum: Type.Optional(Type.String()),
+    },
+    { ctor: 0n },
+  ),
+  OrderAddresses: Type.Object(
+    {
+      destination: Type.Ref("Destination"),
+      alternate: Type.Optional(Type.String()),
+    },
+    { ctor: 0n },
+  ),
+  SwapDirection: Type.Object(
+    {
+      suppliedAssetIndex: Type.Union([
+        Type.Literal("A", { ctor: 0n }),
+        Type.Literal("B", { ctor: 1n }),
+      ]),
+      amount: Type.BigInt(),
+      minReceivable: Type.Optional(Type.BigInt()),
+    },
+    { ctor: 0n },
+  ),
+  DepositPair: Type.Object(
+    {
+      Child: Type.Object(
+        {
+          pair: Type.Object(
+            {
               a: Type.BigInt(),
               b: Type.BigInt(),
-            }, { ctor: 0n }),
-        }, { ctor: 1n  }),
-    }, { ctor: 2n }),
-  SwapOrder: Type.Object({
-    ident: Type.String(),
-    orderAddresses: Type.Ref("OrderAddresses"),
-    scooperFee: Type.BigInt(),
-    swapDirection: Type.Ref("SwapDirection"),
-  }, { ctor: 0n }),
-  DepositOrder: Type.Object({
-    ident: Type.String(),
-    orderAddresses: Type.Ref("OrderAddresses"),
-    scooperFee: Type.BigInt(),
-    DepositPair: Type.Ref("DepositPair"),
-  }, { ctor: 0n }),
+            },
+            { ctor: 0n },
+          ),
+        },
+        { ctor: 1n },
+      ),
+    },
+    { ctor: 2n },
+  ),
+  SwapOrder: Type.Object(
+    {
+      ident: Type.String(),
+      orderAddresses: Type.Ref("OrderAddresses"),
+      scooperFee: Type.BigInt(),
+      swapDirection: Type.Ref("SwapDirection"),
+    },
+    { ctor: 0n },
+  ),
+  DepositOrder: Type.Object(
+    {
+      ident: Type.String(),
+      orderAddresses: Type.Ref("OrderAddresses"),
+      scooperFee: Type.BigInt(),
+      DepositPair: Type.Ref("DepositPair"),
+    },
+    { ctor: 0n },
+  ),
   WithdrawAsset: Type.Union([
-    Type.Object({
-      value: Type.BigInt(),
-    }, { ctor: 1n }),
+    Type.Object(
+      {
+        value: Type.BigInt(),
+      },
+      { ctor: 1n },
+    ),
   ]),
-  WithdrawOrder: Type.Object({
-    ident: Type.String(),
-    orderAddresses: Type.Ref("OrderAddresses"),
-    scooperFee: Type.BigInt(),
-    WithdrawAsset: Type.Ref("WithdrawAsset"),
-  }, { ctor: 0n }),
+  WithdrawOrder: Type.Object(
+    {
+      ident: Type.String(),
+      orderAddresses: Type.Ref("OrderAddresses"),
+      scooperFee: Type.BigInt(),
+      WithdrawAsset: Type.Ref("WithdrawAsset"),
+    },
+    { ctor: 0n },
+  ),
 });
 
-export const KeyHash = Contracts.Import("KeyHash");
-export type KeyHash = Exact<typeof KeyHash>;
-export const ScriptHash = Contracts.Import("ScriptHash");
-export type ScriptHash = Exact<typeof ScriptHash>;
 export const PaymentStakingHash = Contracts.Import("PaymentStakingHash");
 export type PaymentStakingHash = Exact<typeof PaymentStakingHash>;
 export const Credential = Contracts.Import("Credential");

@@ -1262,7 +1262,6 @@ describe("TxBuilderBlazeV3", () => {
 
     const poolBalanceDatum = builtTx.witnessSet().redeemers()?.values()?.[0];
     expect(poolBalanceDatum).not.toBeUndefined();
-    console.log(poolBalanceDatum?.toCbor());
     expect(poolBalanceDatum?.toCbor()).toEqual(
       Core.HexBlob(
         "840100d87a9f9f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a000a93d71a0dc084ba",

@@ -38,7 +38,10 @@ import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
 import { DatumBuilderV1 } from "../DatumBuilders/DatumBuilder.V1.class.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
-import { V1Types, V3Types } from "../DatumBuilders/GeneratedContractTypes/index.js";
+import {
+  V1Types,
+  V3Types,
+} from "../DatumBuilders/GeneratedContractTypes/index.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeSDK } from "../SundaeSDK.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
@@ -537,16 +540,22 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     tx.provideScript(scriptValidator);
 
     // Must try deserializing the datum with each order type.
-    let data: V1Types.SwapOrder | V1Types.WithdrawOrder | V1Types.DepositOrder | undefined;
-    [V1Types.SwapOrder, V1Types.WithdrawOrder, V1Types.DepositOrder].forEach((type) => {
-      if (data) {
-        return;
-      }
+    let data:
+      | V1Types.SwapOrder
+      | V1Types.WithdrawOrder
+      | V1Types.DepositOrder
+      | undefined;
+    [V1Types.SwapOrder, V1Types.WithdrawOrder, V1Types.DepositOrder].forEach(
+      (type) => {
+        if (data) {
+          return;
+        }
 
-      try {
-        data = parse(type, spendingDatum);
-      } catch (e) {}
-    });
+        try {
+          data = parse(type, spendingDatum);
+        } catch (e) {}
+      },
+    );
 
     if (!data) {
       throw new Error(
@@ -556,11 +565,25 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
 
     if (!data.orderAddresses.alternate) {
       if ("KeyHash" in data.orderAddresses.destination.credentials.paymentKey) {
-        tx.addRequiredSigner(Core.Ed25519KeyHashHex(data.orderAddresses.destination.credentials.paymentKey.KeyHash.keyHash));
+        tx.addRequiredSigner(
+          Core.Ed25519KeyHashHex(
+            data.orderAddresses.destination.credentials.paymentKey.KeyHash
+              .keyHash,
+          ),
+        );
       }
 
-      if (data.orderAddresses.destination.credentials.stakingKey && "KeyHash" in data.orderAddresses.destination.credentials.stakingKey.value) {
-        tx.addRequiredSigner(Core.Ed25519KeyHashHex(data.orderAddresses.destination.credentials.stakingKey.value.KeyHash.keyHash));
+      if (
+        data.orderAddresses.destination.credentials.stakingKey &&
+        "KeyHash" in
+          data.orderAddresses.destination.credentials.stakingKey.value
+      ) {
+        tx.addRequiredSigner(
+          Core.Ed25519KeyHashHex(
+            data.orderAddresses.destination.credentials.stakingKey.value.KeyHash
+              .keyHash,
+          ),
+        );
       }
     } else {
       tx.addRequiredSigner(

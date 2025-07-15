@@ -11,7 +11,7 @@ import {
   TDestination,
   TDestinationAddress,
   TPoolDatumTypes,
-  TSupportedNetworks
+  TSupportedNetworks,
 } from "../@types/index.js";
 import { DatumBuilderAbstract } from "../Abstracts/DatumBuilder.abstract.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
@@ -308,7 +308,7 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
    * Creates a new pool datum for minting a the pool. This is attached to the assets that are sent
    * to the pool minting contract. See {@link Core.TxBuilderV3} for more details.
    *
-   * @param {IDatumBuilderMintPoolV3Args} params The arguments for building a pool mint datum.
+   * @param {IDatumBuilderMintPoolV3Args} _args The arguments for building a pool mint datum.
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - fee: The pool fee represented as per thousand.
@@ -320,7 +320,9 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
    *                                              and the schema of the original pool mint datum, crucial for the execution
    *                                              of the minting pool operation.
    */
-  public buildMintPoolDatum(_args: TDatumBuilderMintPoolArgs): TDatumResult<TPoolDatumTypes> {
+  public buildMintPoolDatum(
+    _args: TDatumBuilderMintPoolArgs,
+  ): TDatumResult<TPoolDatumTypes> {
     throw new Error(
       "This method is not implemented in the V3Like DatumBuilder. Use a specific implementation for V3 or Stableswaps.",
     );
@@ -403,7 +405,9 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
         break;
       case EDatumType.INLINE:
         formattedDatum = {
-          InlineDatum: [Core.PlutusData.fromCbor(Core.HexBlob(datum.value))] as [Core.PlutusData],
+          InlineDatum: [
+            Core.PlutusData.fromCbor(Core.HexBlob(datum.value)),
+          ] as [Core.PlutusData],
         };
         break;
       default:
@@ -428,9 +432,11 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
 
           stakeCredential: stakingPart
             ? {
-                Inline: [{
-                  VerificationKeyCredential: [stakingPart]
-                }],
+                Inline: [
+                  {
+                    VerificationKeyCredential: [stakingPart],
+                  },
+                ],
               }
             : undefined,
         },
@@ -495,7 +501,9 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
   public buildLexicographicalAssetsDatum(
     assetA: AssetAmount<IAssetAmountMetadata>,
     assetB: AssetAmount<IAssetAmountMetadata>,
-  ): TDatumResult<[V3Types.Tuple$ByteArray_ByteArray, V3Types.Tuple$ByteArray_ByteArray]> {
+  ): TDatumResult<
+    [V3Types.Tuple$ByteArray_ByteArray, V3Types.Tuple$ByteArray_ByteArray]
+  > {
     const lexicographicalAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       assetA,
       assetB,
@@ -518,10 +526,16 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
         result.push([policyId, assetName]);
         return result;
       },
-      [] as unknown as [V3Types.Tuple$ByteArray_ByteArray, V3Types.Tuple$ByteArray_ByteArray],
+      [] as unknown as [
+        V3Types.Tuple$ByteArray_ByteArray,
+        V3Types.Tuple$ByteArray_ByteArray,
+      ],
     );
 
-    const data = serialize(V3Types.Tuple$Tuple$ByteArray_ByteArray_Tuple$ByteArray_ByteArray, assets);
+    const data = serialize(
+      V3Types.Tuple$Tuple$ByteArray_ByteArray_Tuple$ByteArray_ByteArray,
+      assets,
+    );
 
     return {
       hash: data.hash(),
@@ -617,7 +631,6 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
     const { destination } = parse(
       V3Types.OrderDatum,
       Core.PlutusData.fromCbor(Core.HexBlob(datum)),
-      
     );
     if (destination === "Self") {
       return { stakingKeyHash, paymentKeyHash };
@@ -628,14 +641,18 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
 
     if (address.stakeCredential && "Inline" in address.stakeCredential) {
       if ("VerificationKeyCredential" in address.stakeCredential.Inline[0]) {
-        const [hash] = address.stakeCredential.Inline[0].VerificationKeyCredential;
+        const [hash] =
+          address.stakeCredential.Inline[0].VerificationKeyCredential;
         if (hash) {
           stakingKeyHash = hash;
         }
       }
     }
 
-    if (address.paymentCredential && "VerificationKeyCredential" in address.paymentCredential) {
+    if (
+      address.paymentCredential &&
+      "VerificationKeyCredential" in address.paymentCredential
+    ) {
       const [hash] = address.paymentCredential.VerificationKeyCredential;
       if (hash) {
         paymentKeyHash = hash;
@@ -676,11 +693,15 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
     return undefined;
   }
 
-  static credentialToCore(credential: {
-    VerificationKeyCredential: [string];
-} | {
-    ScriptCredential: [string];
-}): Core.Credential {
+  static credentialToCore(
+    credential:
+      | {
+          VerificationKeyCredential: [string];
+        }
+      | {
+          ScriptCredential: [string];
+        },
+  ): Core.Credential {
     if ("VerificationKeyCredential" in credential) {
       return Core.Credential.fromCore({
         hash: Core.Hash28ByteBase16(credential.VerificationKeyCredential[0]),
@@ -696,9 +717,12 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
         "Invalid credential type. Expected either VerificationKeyCredential or ScriptCredential.",
       );
     }
-  } 
+  }
 
-  static getMetadataAddressFromSettingsDatum(datum: string, network: Core.NetworkId): string {
+  static getMetadataAddressFromSettingsDatum(
+    datum: string,
+    network: Core.NetworkId,
+  ): string {
     const {
       metadataAdmin: { paymentCredential, stakeCredential },
     } = parse(
@@ -719,7 +743,11 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
     ).toBech32();
   }
 
-  static getStakeAddressFromSettingsDatum(datum: string, paymentHash: string, network: Core.NetworkId): string {
+  static getStakeAddressFromSettingsDatum(
+    datum: string,
+    paymentHash: string,
+    network: Core.NetworkId,
+  ): string {
     const {
       authorizedStakingKeys: [poolStakingCredential],
     } = parse(
@@ -747,7 +775,10 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
     }
 
     let stakeCoreCredential: Core.Credential | undefined;
-    if (treasuryAddress.stakeCredential && "Inline" in treasuryAddress.stakeCredential) {
+    if (
+      treasuryAddress.stakeCredential &&
+      "Inline" in treasuryAddress.stakeCredential
+    ) {
       const [credential] = treasuryAddress.stakeCredential.Inline;
       stakeCoreCredential = DatumBuilderV3Like.credentialToCore(credential);
     }
@@ -759,64 +790,64 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
     ).toBech32();
   }
 
-//   static addressSchemaToBech32(
-//     datum: V3Types.Destination.Fixed.Address,
-//     network: Core.NetworkId,
-//   ): string {
-//     let paymentKeyHash: string;
-//     let paymentAddressType: Core.CredentialType;
-//     if ((datum.paymentCredential as V3Types.TVKeyCredential)?.VKeyCredential) {
-//       paymentAddressType = Core.CredentialType.KeyHash;
-//       paymentKeyHash = (datum.paymentCredential as V3Types.TVKeyCredential)
-//         .VKeyCredential.bytes;
-//     } else if ((datum.paymentCredential as V3Types.TSCredential)?.SCredential) {
-//       paymentAddressType = Core.CredentialType.ScriptHash;
-//       paymentKeyHash = (datum.paymentCredential as V3Types.TSCredential)
-//         .SCredential.bytes;
-//     } else {
-//       throw new Error(
-//         "Could not determine the address type from supplied payment credential.",
-//       );
-//     }
+  //   static addressSchemaToBech32(
+  //     datum: V3Types.Destination.Fixed.Address,
+  //     network: Core.NetworkId,
+  //   ): string {
+  //     let paymentKeyHash: string;
+  //     let paymentAddressType: Core.CredentialType;
+  //     if ((datum.paymentCredential as V3Types.TVKeyCredential)?.VKeyCredential) {
+  //       paymentAddressType = Core.CredentialType.KeyHash;
+  //       paymentKeyHash = (datum.paymentCredential as V3Types.TVKeyCredential)
+  //         .VKeyCredential.bytes;
+  //     } else if ((datum.paymentCredential as V3Types.TSCredential)?.SCredential) {
+  //       paymentAddressType = Core.CredentialType.ScriptHash;
+  //       paymentKeyHash = (datum.paymentCredential as V3Types.TSCredential)
+  //         .SCredential.bytes;
+  //     } else {
+  //       throw new Error(
+  //         "Could not determine the address type from supplied payment credential.",
+  //       );
+  //     }
 
-//     const result: Record<string, Core.Credential> = {
-//       paymentCredential: Core.Credential.fromCore({
-//         hash: Core.Hash28ByteBase16(paymentKeyHash),
-//         type: paymentAddressType,
-//       }),
-//     };
+  //     const result: Record<string, Core.Credential> = {
+  //       paymentCredential: Core.Credential.fromCore({
+  //         hash: Core.Hash28ByteBase16(paymentKeyHash),
+  //         type: paymentAddressType,
+  //       }),
+  //     };
 
-//     if (datum.stakeCredential?.keyHash) {
-//       let stakingKeyHash: string | undefined;
-//       let stakingAddressType: Core.CredentialType | undefined;
-//       if (
-//         (datum.stakeCredential.keyHash as V3Types.TVKeyCredential)
-//           ?.VKeyCredential
-//       ) {
-//         stakingAddressType = Core.CredentialType.KeyHash;
-//         stakingKeyHash = (
-//           datum.stakeCredential.keyHash as V3Types.TVKeyCredential
-//         ).VKeyCredential.bytes;
-//       } else if (
-//         (datum.stakeCredential.keyHash as V3Types.TSCredential)?.SCredential
-//       ) {
-//         stakingAddressType = Core.CredentialType.ScriptHash;
-//         stakingKeyHash = (datum.stakeCredential.keyHash as V3Types.TSCredential)
-//           .SCredential.bytes;
-//       }
+  //     if (datum.stakeCredential?.keyHash) {
+  //       let stakingKeyHash: string | undefined;
+  //       let stakingAddressType: Core.CredentialType | undefined;
+  //       if (
+  //         (datum.stakeCredential.keyHash as V3Types.TVKeyCredential)
+  //           ?.VKeyCredential
+  //       ) {
+  //         stakingAddressType = Core.CredentialType.KeyHash;
+  //         stakingKeyHash = (
+  //           datum.stakeCredential.keyHash as V3Types.TVKeyCredential
+  //         ).VKeyCredential.bytes;
+  //       } else if (
+  //         (datum.stakeCredential.keyHash as V3Types.TSCredential)?.SCredential
+  //       ) {
+  //         stakingAddressType = Core.CredentialType.ScriptHash;
+  //         stakingKeyHash = (datum.stakeCredential.keyHash as V3Types.TSCredential)
+  //           .SCredential.bytes;
+  //       }
 
-//       if (stakingKeyHash && stakingAddressType) {
-//         result.stakeCredential = Core.Credential.fromCore({
-//           hash: Core.Hash28ByteBase16(stakingKeyHash),
-//           type: stakingAddressType,
-//         });
-//       }
-//     }
+  //       if (stakingKeyHash && stakingAddressType) {
+  //         result.stakeCredential = Core.Credential.fromCore({
+  //           hash: Core.Hash28ByteBase16(stakingKeyHash),
+  //           type: stakingAddressType,
+  //         });
+  //       }
+  //     }
 
-//     return Core.addressFromCredentials(
-//       network,
-//       result.paymentCredential,
-//       result.stakeCredential,
-//     ).toBech32();
-//   }
- }
+  //     return Core.addressFromCredentials(
+  //       network,
+  //       result.paymentCredential,
+  //       result.stakeCredential,
+  //     ).toBech32();
+  //   }
+}

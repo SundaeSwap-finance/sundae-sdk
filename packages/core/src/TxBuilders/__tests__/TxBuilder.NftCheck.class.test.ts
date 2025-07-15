@@ -29,6 +29,17 @@ import {
   referenceUtxosBlaze,
   settingsUtxosBlaze,
 } from "../__data__/mockData.NftCheck.js";
+import { params as v3Params } from "../__data__/mockData.V3.js";
+
+spyOn(
+  TxBuilderNftCheck.prototype,
+  "getProtocolParams",
+).mockResolvedValue(params);
+
+spyOn(
+  TxBuilderV3.prototype,
+  "getProtocolParams",
+).mockResolvedValue(v3Params);
 
 spyOn(
   QueryProviderSundaeSwap.prototype,
@@ -43,6 +54,7 @@ spyOn(
 spyOn(TxBuilderNftCheck.prototype, "getSettingsUtxo").mockResolvedValue(
   settingsUtxosBlaze[0],
 );
+
 spyOn(TxBuilderV3.prototype, "getSettingsUtxo").mockResolvedValue(
   settingsUtxosBlaze[0],
 );
@@ -86,18 +98,18 @@ describe("TxBuilderNftCheck", () => {
 
   it("should get the correct maxScooperFee", async () => {
     const result = await builder.getMaxScooperFeeAmount();
-    expect(result.toString()).toEqual("1000000");
+    expect(result.toString()).toEqual("500000");
   });
 
   it("should respect a max scooper fee override", async () => {
     const result = await builder.getMaxScooperFeeAmount();
-    expect(result.toString()).toEqual("1000000");
+    expect(result.toString()).toEqual("500000");
     builder.setMaxScooperFee(2_000_000n);
     const newResult = await builder.getMaxScooperFeeAmount();
     expect(newResult.toString()).toEqual("2000000");
     builder.resetMaxScooperFee();
     const finalResult = await builder.getMaxScooperFeeAmount();
-    expect(finalResult.toString()).toEqual("1000000");
+    expect(finalResult.toString()).toEqual("500000");
   });
 
   it("should create a new transaction instance correctly", async () => {
@@ -334,7 +346,7 @@ describe("TxBuilderNftCheck", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a010cd3b9ffffd87980ff",
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a010cd3b9ffffd87980ff",
     );
     expect(fees).toMatchObject({
       deposit: expect.objectContaining({
@@ -342,7 +354,7 @@ describe("TxBuilderNftCheck", () => {
         metadata: ADA_METADATA,
       }),
       scooperFee: expect.objectContaining({
-        amount: 1_000_000n,
+        amount: 500_000n,
         metadata: ADA_METADATA,
       }),
     } as ITxBuilderFees);
@@ -357,13 +369,11 @@ describe("TxBuilderNftCheck", () => {
         getPaymentAddressFromOutput(output).toBech32() ===
           "addr_test1wzmv9gtal8eagup28qmk55fd5eeppk5h7v5uurv7lt39cwgjjastu" &&
         // Supplied asset (20) + deposit (2) + scooper fee (1) = 23
-        output.amount().coin().toString() === "23000000"
+        output.amount().coin().toString() === "22500000"
       ) {
         depositOutput = output;
       }
     });
-
-    console.log(depositOutput!.address().toBech32());
 
     expect(depositOutput).not.toBeUndefined();
     expect(depositOutput?.datum()?.asDataHash()).toBeUndefined();
@@ -439,7 +449,7 @@ describe("TxBuilderNftCheck", () => {
     expect(fees.deposit.amount.toString()).toEqual("3000000");
 
     // Two swaps = 1 + 1
-    expect(fees.scooperFee.amount.toString()).toEqual("2000000");
+    expect(fees.scooperFee.amount.toString()).toEqual("1000000");
 
     const { builtTx } = await build();
 
@@ -463,7 +473,7 @@ describe("TxBuilderNftCheck", () => {
           )
           ?.toString() === "20000000" &&
         // deposit (3) + v3 scooper fee (1) + v3 scooper fee (1)
-        output.amount().coin().toString() === "5000000"
+        output.amount().coin().toString() === "4000000"
       ) {
         swapOutput = output;
       }
@@ -476,7 +486,7 @@ describe("TxBuilderNftCheck", () => {
     expect(inlineDatum).not.toBeUndefined();
     expect(inlineDatum).toEqual(
       Core.HexBlob(
-        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581cb6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39ffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffffd87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffffd87980ff",
+        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd87a9f581cb6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39ffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffffd87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffffd87980ff",
       ),
     );
   });
@@ -518,7 +528,7 @@ describe("TxBuilderNftCheck", () => {
     expect(fees.deposit.amount.toString()).toEqual("3000000");
 
     // Two swaps = 1 + 1
-    expect(fees.scooperFee.amount.toString()).toEqual("2000000");
+    expect(fees.scooperFee.amount.toString()).toEqual("1000000");
 
     const { builtTx } = await build();
 
@@ -528,8 +538,6 @@ describe("TxBuilderNftCheck", () => {
       const paymentHex = output.address().asBase()?.getPaymentCredential().hash;
       const stakingHex = output.address().asBase()?.getStakeCredential().hash;
       const outputHex = `10${paymentHex}${stakingHex}`;
-      console.log(`Output amount: ${output.amount().coin().toString()}`);
-      console.log(`Output hex: ${outputHex}`);
       if (
         outputHex ===
           "10b6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0" &&
@@ -542,8 +550,8 @@ describe("TxBuilderNftCheck", () => {
             ),
           )
           ?.toString() === "20000000" &&
-        // deposit (3) + v3 scooper fee (1) + v3 scooper fee (1)
-        output.amount().coin().toString() === "5000000"
+        // deposit (2) + nftcheck scooper fee (1) + v3 scooper fee (1)
+        output.amount().coin().toString() === "4000000"
       ) {
         swapOutput = output;
       }
@@ -556,7 +564,7 @@ describe("TxBuilderNftCheck", () => {
     expect(inlineDatum).not.toBeUndefined();
     expect(inlineDatum).toEqual(
       Core.HexBlob(
-        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581cb6c2a17df9f3d4702a38376a512da67210da97f329ce0d9efae25c39ffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffffd87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffffd87980ff",
+        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffffd87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffffd87980ff",
       ),
     );
   });
@@ -599,7 +607,7 @@ describe("TxBuilderNftCheck", () => {
     expect(fees.deposit.amount.toString()).toEqual("3000000");
 
     // Two swaps = 1 + 2.5
-    expect(fees.scooperFee.amount.toString()).toEqual("3500000");
+    expect(fees.scooperFee.amount.toString()).toEqual("3000000");
 
     const { builtTx } = await build();
 
@@ -623,7 +631,7 @@ describe("TxBuilderNftCheck", () => {
           )
           ?.toString() === "20000000" &&
         // deposit (3) + v3 scooper fee (1) + v1 scooper fee (2.5) = 5
-        output.amount().coin().toString() === "6500000"
+        output.amount().coin().toString() === "6000000"
       ) {
         swapOutput = output;
       }
@@ -636,7 +644,7 @@ describe("TxBuilderNftCheck", () => {
     expect(inlineDatum).not.toBeUndefined();
     expect(inlineDatum).toEqual(
       Core.HexBlob(
-        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977effd87a80ffd87a9f58208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fbffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffffd87980ff",
+        "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd87a9f581c730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977effd87a80ffd87a9f58208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fbffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffffd87980ff",
       ),
     );
 
@@ -691,7 +699,7 @@ describe("TxBuilderNftCheck", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87b9f9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ffffffd87980ff",
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87b9f9f9f40401a01312d00ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ffffffd87980ff",
     );
     expect(fees).toMatchObject({
       deposit: expect.objectContaining({
@@ -699,7 +707,7 @@ describe("TxBuilderNftCheck", () => {
         metadata: ADA_METADATA,
       }),
       scooperFee: expect.objectContaining({
-        amount: 1_000_000n,
+        amount: 500_000n,
         metadata: ADA_METADATA,
       }),
     } as ITxBuilderFees);
@@ -714,7 +722,7 @@ describe("TxBuilderNftCheck", () => {
         getPaymentAddressFromOutput(output).toBech32() ===
           "addr_test1wzmv9gtal8eagup28qmk55fd5eeppk5h7v5uurv7lt39cwgjjastu" &&
         // Supplied asset (20) + deposit (2) + scooper fee (1) = 23
-        output.amount().coin().toString() === "23000000" &&
+        output.amount().coin().toString() === "22500000" &&
         output.amount().multiasset() &&
         output
           .amount()
@@ -796,7 +804,7 @@ describe("TxBuilderNftCheck", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87c9f9f581c633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d928958200014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e21a05f5e100ffffd87980ff",
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87c9f9f581c633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d928958200014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e21a05f5e100ffffd87980ff",
     );
     expect(fees).toMatchObject({
       deposit: expect.objectContaining({
@@ -804,7 +812,7 @@ describe("TxBuilderNftCheck", () => {
         metadata: ADA_METADATA,
       }),
       scooperFee: expect.objectContaining({
-        amount: 1_000_000n,
+        amount: 500_000n,
         metadata: ADA_METADATA,
       }),
     } as ITxBuilderFees);
@@ -819,7 +827,7 @@ describe("TxBuilderNftCheck", () => {
         getPaymentAddressFromOutput(output).toBech32() ===
           "addr_test1wzmv9gtal8eagup28qmk55fd5eeppk5h7v5uurv7lt39cwgjjastu" &&
         // deposit (2) + scooper fee (1) = 3
-        output.amount().coin().toString() === "3000000" &&
+        output.amount().coin().toString() === "2500000" &&
         output.amount().multiasset() &&
         output
           .amount()
@@ -893,7 +901,7 @@ describe("TxBuilderNftCheck", () => {
     );
 
     expect(datum).toEqual(
-      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d87a80d8799fd8799f44cafebabeffffd87980ff",
+      "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a0007a120d87a80d8799fd8799f44cafebabeffffd87980ff",
     );
     expect(fees).toMatchObject({
       deposit: expect.objectContaining({
@@ -901,7 +909,7 @@ describe("TxBuilderNftCheck", () => {
         metadata: ADA_METADATA,
       }),
       scooperFee: expect.objectContaining({
-        amount: 1_000_000n,
+        amount: 500_000n,
         metadata: ADA_METADATA,
       }),
     });
@@ -913,7 +921,7 @@ describe("TxBuilderNftCheck", () => {
     builtTx.body().outputs().forEach(output => {
       if (getPaymentAddressFromOutput(output).toBech32() ===
         "addr_test1wzmv9gtal8eagup28qmk55fd5eeppk5h7v5uurv7lt39cwgjjastu" &&
-        output.amount().coin().toString() === "23000000") {
+        output.amount().coin().toString() === "22500000") {
           strategyOutput = output;
         }
     });
@@ -952,7 +960,7 @@ describe("TxBuilderNftCheck", () => {
     expect(poolBalanceDatum).not.toBeUndefined();
     expect(poolBalanceDatum?.toCbor()).toEqual(
       Core.HexBlob(
-        "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0009c4751a0cc6beab",
+        "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0008dbfb1a0b806bbf",
       ),
     );
 
@@ -962,7 +970,7 @@ describe("TxBuilderNftCheck", () => {
     const poolOutput = builtTx.body().outputs()[0];
     expect(poolOutput.toCbor()).toEqual(
       Core.HexBlob(
-        "a30058393044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f880801821a015ef3c0a2581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a01312d00028201d818585ed8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff",
+        "a300583930be4d215663909bb5935b923c2df611723480935bb4722d5f152b646acc27980a8557fe9db2c9ac0a2677f4d1306dbf10689983758f0b8dbe01821a015ef3c0a2581cbe4d215663909bb5935b923c2df611723480935bb4722d5f152b646aa15820000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a01312d00028201d81858b9d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0d8799f581c60c5ca218d3fa6ba7ecf4697a7a566ead9feb87068fc1229eddcf287ffd8799fd8799fd8799fa1581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a144555344431a01312d00d87980ffffffff",
       ),
     );
     const poolDepositAssets = poolOutput.amount().multiasset();
@@ -973,7 +981,7 @@ describe("TxBuilderNftCheck", () => {
     const poolDepositedNFT = poolDepositAssets?.get(
       Core.AssetId(
         `${
-          params.blueprint.validators[1].hash
+          params.blueprint.validators[2].hash
         }000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
       ),
     );
@@ -991,7 +999,7 @@ describe("TxBuilderNftCheck", () => {
     // Should have datum attached.
     expect(poolOutput.datum()?.asInlineData()?.toCbor()).toEqual(
       Core.HexBlob(
-        "d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff",
+        "d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0d8799f581c60c5ca218d3fa6ba7ecf4697a7a566ead9feb87068fc1229eddcf287ffd8799fd8799fd8799fa1581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a144555344431a01312d00d87980ffffffff",
       ),
     );
 
@@ -1011,7 +1019,7 @@ describe("TxBuilderNftCheck", () => {
     const metadataDepositedNFT = metadataDepositAssets?.get(
       Core.AssetId(
         `${
-          params.blueprint.validators[1].hash
+          params.blueprint.validators[2].hash
         }000643b0f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
       ),
     );
@@ -1043,7 +1051,7 @@ describe("TxBuilderNftCheck", () => {
     const lpTokensReturned = lpTokensDepositAssets?.get(
       Core.AssetId(
         `${
-          params.blueprint.validators[1].hash
+          params.blueprint.validators[2].hash
         }0014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
       ),
     );
@@ -1080,7 +1088,7 @@ describe("TxBuilderNftCheck", () => {
     expect(poolBalanceDatum).not.toBeUndefined();
     expect(poolBalanceDatum?.toCbor()).toEqual(
       Core.HexBlob(
-        "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0009c4751a0cc6beab",
+        "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0008dbfb1a0b806bbf",
       ),
     );
 
@@ -1098,7 +1106,7 @@ describe("TxBuilderNftCheck", () => {
       ?.getStakeCredential().hash;
     const poolOutputAddressHex = `30${poolOutputPaymentHash}${poolOutputStakeHash}`;
     expect(poolOutputAddressHex).toEqual(
-      "3044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f8808",
+      "30be4d215663909bb5935b923c2df611723480935bb4722d5f152b646acc27980a8557fe9db2c9ac0a2677f4d1306dbf10689983758f0b8dbe",
     );
     const poolDepositAssets = poolOutput.amount().multiasset();
     const poolDepositedAssetA = poolOutput.amount().coin().toString();
@@ -1107,7 +1115,9 @@ describe("TxBuilderNftCheck", () => {
     );
     const poolDepositedNFT = poolDepositAssets?.get(
       Core.AssetId(
-        "44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6",
+        `${
+          params.blueprint.validators[2].hash
+        }000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
       ),
     );
 
@@ -1123,7 +1133,7 @@ describe("TxBuilderNftCheck", () => {
     // Should have datum attached.
     expect(poolOutput.datum()?.asInlineData()?.toCbor()).toEqual(
       Core.HexBlob(
-        "d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff",
+        "d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0d8799f581c60c5ca218d3fa6ba7ecf4697a7a566ead9feb87068fc1229eddcf287ffd8799fd8799fd8799fa1581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a144555344431a01312d00d87980ffffffff",
       ),
     );
 
@@ -1145,7 +1155,7 @@ describe("TxBuilderNftCheck", () => {
     const metadataDepositedNFT = metadataDepositAssets?.get(
       Core.AssetId(
         `${
-          params.blueprint.validators[1].hash
+          params.blueprint.validators[2].hash
         }000643b0f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
       ),
     );
@@ -1177,7 +1187,7 @@ describe("TxBuilderNftCheck", () => {
     const lpTokensReturned = lpTokensDepositAssets?.get(
       Core.AssetId(
         `${
-          params.blueprint.validators[1].hash
+          params.blueprint.validators[2].hash
         }0014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
       ),
     );
@@ -1214,7 +1224,7 @@ describe("TxBuilderNftCheck", () => {
     expect(poolBalanceDatum).not.toBeUndefined();
     expect(poolBalanceDatum?.toCbor()).toEqual(
       Core.HexBlob(
-        "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0009c4751a0cc6beab",
+        "840100d87a9f9f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0008dbfb1a0b806bbf",
       ),
     );
 
@@ -1224,7 +1234,7 @@ describe("TxBuilderNftCheck", () => {
     const poolOutput = builtTx.body().outputs()[0];
     expect(poolOutput.toCbor()).toEqual(
       Core.HexBlob(
-        "a30058393044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f880801821a015ef3c0a2581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a01312d00028201d818585ed8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff",
+        "a300583930be4d215663909bb5935b923c2df611723480935bb4722d5f152b646acc27980a8557fe9db2c9ac0a2677f4d1306dbf10689983758f0b8dbe01821a015ef3c0a2581cbe4d215663909bb5935b923c2df611723480935bb4722d5f152b646aa15820000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a01312d00028201d81858b9d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0d8799f581c60c5ca218d3fa6ba7ecf4697a7a566ead9feb87068fc1229eddcf287ffd8799fd8799fd8799fa1581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a144555344431a01312d00d87980ffffffff",
       ),
     );
     const poolDepositAssets = poolOutput.amount().multiasset();
@@ -1239,7 +1249,9 @@ describe("TxBuilderNftCheck", () => {
     const poolDepositedNFT = poolDepositAssets
       ?.get(
         Core.AssetId(
-          `44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
+          `${
+          params.blueprint.validators[2].hash
+        }000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
         ),
       )
       ?.toString();
@@ -1257,7 +1269,7 @@ describe("TxBuilderNftCheck", () => {
     // Should have datum attached.
     expect(poolOutput.datum()?.asInlineData()?.toCbor()).toEqual(
       Core.HexBlob(
-        "d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff",
+        "d8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f4040ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0d8799f581c60c5ca218d3fa6ba7ecf4697a7a566ead9feb87068fc1229eddcf287ffd8799fd8799fd8799fa1581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a144555344431a01312d00d87980ffffffff",
       ),
     );
 
@@ -1267,7 +1279,7 @@ describe("TxBuilderNftCheck", () => {
     const metadataOutput = builtTx.body().outputs()[1];
     expect(metadataOutput.toCbor()).toEqual(
       Core.HexBlob(
-        "a300581d60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b01821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000643b0f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601028201d81843d87980",
+        "a300581d60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b01821a001e8480a1581cbe4d215663909bb5935b923c2df611723480935bb4722d5f152b646aa15820000643b0f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601028201d81843d87980",
       ),
     );
     const metadataDepositAssets = metadataOutput.amount().multiasset();
@@ -1275,7 +1287,7 @@ describe("TxBuilderNftCheck", () => {
     const metadataDepositedNFT = metadataDepositAssets
       ?.get(
         Core.AssetId(
-          `${params.blueprint.validators[1].hash}000643b0f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
+          `${params.blueprint.validators[2].hash}000643b0f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
         ),
       )
       ?.toString();
@@ -1291,7 +1303,7 @@ describe("TxBuilderNftCheck", () => {
     const lpTokensDonation = builtTx.body().outputs()[2];
     expect(lpTokensDonation.toCbor()).toEqual(
       Core.HexBlob(
-        "a300581d60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b01821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a158200014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc61a008339c0028201d81843d87980",
+        "a300581d60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b01821a001e8480a1581cbe4d215663909bb5935b923c2df611723480935bb4722d5f152b646aa158200014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc61a008339c0028201d81843d87980",
       ),
     );
     expect(lpTokensDonation.datum()?.asInlineData()).toEqual(Void());
@@ -1300,7 +1312,7 @@ describe("TxBuilderNftCheck", () => {
     const lpTokensDonated = lpTokensDonationAssets
       ?.get(
         Core.AssetId(
-          `${params.blueprint.validators[1].hash}0014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
+          `${params.blueprint.validators[2].hash}0014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
         ),
       )
       ?.toString();
@@ -1316,7 +1328,7 @@ describe("TxBuilderNftCheck", () => {
     const lpTokensOutput = builtTx.body().outputs()[3];
     expect(lpTokensOutput.toCbor()).toEqual(
       Core.HexBlob(
-        "82583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a158200014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc61a00adf340",
+        "82583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0821a001e8480a1581cbe4d215663909bb5935b923c2df611723480935bb4722d5f152b646aa158200014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc61a00adf340",
       ),
     );
     const lpTokensDepositAssets = lpTokensOutput.amount().multiasset();
@@ -1324,7 +1336,7 @@ describe("TxBuilderNftCheck", () => {
     const lpTokensReturned = lpTokensDepositAssets
       ?.get(
         Core.AssetId.fromParts(
-          Core.PolicyId(params.blueprint.validators[1].hash),
+          Core.PolicyId(params.blueprint.validators[2].hash),
           Core.AssetName(
             "0014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6",
           ),
@@ -1365,7 +1377,7 @@ describe("TxBuilderNftCheck", () => {
     expect(poolBalanceDatum).not.toBeUndefined();
     expect(poolBalanceDatum?.toCbor()).toEqual(
       Core.HexBlob(
-        "840100d87a9f9f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a000a93d71a0dc08acf",
+        "840100d87a9f9f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff0001ff821a0009826b1a0c509637",
       ),
     );
 
@@ -1375,7 +1387,7 @@ describe("TxBuilderNftCheck", () => {
     const poolOutput = builtTx.body().outputs()[0];
     expect(poolOutput.toCbor()).toEqual(
       Core.HexBlob(
-        "a30058393044a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a1104147467ae52afc8e9f5603c9265e7ce24853863a34f6b12d12a098f880801821a002dc6c0a3581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a144555344431a01312d00581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a01312d00028201d818587fd8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0ff",
+        "a300583930be4d215663909bb5935b923c2df611723480935bb4722d5f152b646acc27980a8557fe9db2c9ac0a2677f4d1306dbf10689983758f0b8dbe01821a002dc6c0a3581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a144555344431a01312d00581cbe4d215663909bb5935b923c2df611723480935bb4722d5f152b646aa15820000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183a14574494e44591a01312d00028201d81858dad8799f581cf6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc69f9f581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e154455534443ff9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e4459ffff1a01312d000505d87a80051a002dc6c0d8799f581c60c5ca218d3fa6ba7ecf4697a7a566ead9feb87068fc1229eddcf287ffd8799fd8799fd8799fa1581c99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15a144555344431a01312d00d87980ffffffff",
       ),
     );
 
@@ -1385,7 +1397,7 @@ describe("TxBuilderNftCheck", () => {
     const metadataOutput = builtTx.body().outputs()[1];
     expect(metadataOutput.toCbor()).toEqual(
       Core.HexBlob(
-        "a300581d60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b01821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a15820000643b0f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601028201d81843d87980",
+        "a300581d60035dee66d57cc271697711d63c8c35ffa0b6c4468a6a98024feac73b01821a001e8480a1581cbe4d215663909bb5935b923c2df611723480935bb4722d5f152b646aa15820000643b0f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc601028201d81843d87980",
       ),
     );
 
@@ -1395,7 +1407,7 @@ describe("TxBuilderNftCheck", () => {
     const lpTokensOutput = builtTx.body().outputs()[2];
     expect(lpTokensOutput.toCbor()).toEqual(
       Core.HexBlob(
-        "82583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0821a001e8480a1581c44a1eb2d9f58add4eb1932bd0048e6a1947e85e3fe4f32956a110414a158200014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc61a01312d00",
+        "82583900c279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775a121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0821a001e8480a1581cbe4d215663909bb5935b923c2df611723480935bb4722d5f152b646aa158200014df10f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc61a01312d00",
       ),
     );
   });
