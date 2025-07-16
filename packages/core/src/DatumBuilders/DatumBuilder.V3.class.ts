@@ -12,7 +12,7 @@ import {
   TSupportedNetworks,
 } from "../@types/index.js";
 import { DatumBuilderAbstract } from "../Abstracts/DatumBuilder.abstract.class.js";
-import { VOID } from "../constants.js";
+import { VOID_BYTES } from "../constants.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { V3Types } from "./ContractTypes/index.js";
@@ -152,7 +152,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
           minReceived: this.buildAssetAmountDatum(order.minReceived).schema,
         },
       },
-      extension: VOID,
+      extension: VOID_BYTES,
     };
 
     const data = serialize(V3Types.OrderDatum, datum);
@@ -198,7 +198,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
         .schema,
       poolIdent: this.validatePoolIdent(ident),
       maxProtocolFee: scooperFee,
-      extension: VOID,
+      extension: VOID_BYTES,
     };
 
     const data = serialize(V3Types.OrderDatum, datum);
@@ -232,7 +232,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
   }: IDatumBuilderWithdrawV3Args): TDatumResult<V3Types.OrderDatum> {
     const datum: V3Types.OrderDatum = {
       destination: this.buildDestinationAddresses(destinationAddress).schema,
-      extension: VOID,
+      extension: VOID_BYTES,
       details: {
         Withdrawal: {
           amount: this.buildAssetAmountDatum(order.lpToken).schema,
@@ -269,7 +269,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
         };
     const datum: V3Types.OrderDatum = {
       destination: this.buildDestination(destination).schema,
-      extension: VOID,
+      extension: VOID_BYTES,
       details: {
         Strategy: {
           auth,

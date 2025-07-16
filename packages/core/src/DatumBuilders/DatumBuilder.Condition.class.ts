@@ -3,7 +3,7 @@ import { Core } from "@blaze-cardano/sdk";
 import { sqrt } from "@sundaeswap/bigint-math";
 import { TDatumResult } from "../@types/datumbuilder.js";
 import { DatumBuilderAbstractCondition } from "../Abstracts/DatumBuilderCondition.abstract.class.js";
-import { VOID } from "../constants.js";
+import { VOID_BYTES } from "../constants.js";
 import * as ConditionTypes from "./ContractTypes/Contract.Condition.js";
 import {
   DatumBuilderV3,
@@ -19,7 +19,7 @@ export class DatumBuilderCondition
     "You supplied a pool ident of an invalid length! The will prevent the scooper from processing this order.";
 
   public buildConditionDatum(_args: unknown): Core.PlutusData {
-    return VOID;
+    return VOID_BYTES;
   }
 
   /**

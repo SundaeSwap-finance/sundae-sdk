@@ -59,6 +59,6 @@ export const CANCEL_REDEEMER = "d87a80";
 export const CONTRACT_V1_PREFIX = "6c7020";
 export const CONTRACT_V3_PREFIX = "0014df10";
 
-export const VOID = Core.PlutusData.newBytes(
+export const VOID_BYTES = Core.PlutusData.newBytes(
   Buffer.from(Void().toCbor(), "hex"),
 );
