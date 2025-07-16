@@ -307,8 +307,8 @@ export const V3_EXPECTATIONS = {
           "d8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff",
         hash: "eacbeb744f70afc638bd8e610fc8c91d5761da59ace673aeb3cb23a3f9fb5eab",
         schemaMatch: {
-          Address: {
-            hex: "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0",
+          Signature: {
+            keyHash: "121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0",
           },
         },
       },

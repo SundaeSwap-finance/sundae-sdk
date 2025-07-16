@@ -31,7 +31,7 @@ funds.
 
 • **\_\_namedParameters.owner**
 
-• **\_\_namedParameters.owner.address**: `string`
+• **\_\_namedParameters.owner.address**: `string` = `...`
 
 • **\_\_namedParameters.programs**: (`"None"` \| `object`)[]
 

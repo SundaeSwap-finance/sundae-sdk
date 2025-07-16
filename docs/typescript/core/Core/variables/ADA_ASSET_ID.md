@@ -10,4 +10,4 @@ The AssetID for the Cardano native token, $ADA.
 
 ## Defined in
 
-[packages/core/src/constants.ts:24](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/constants.ts#L24)
+[packages/core/src/constants.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/constants.ts#L27)

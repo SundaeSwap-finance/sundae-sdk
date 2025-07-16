@@ -1,9 +1,10 @@
-import { Core, Data, makeValue, TxBuilder } from "@blaze-cardano/sdk";
+import { Core, makeValue, TxBuilder } from "@blaze-cardano/sdk";
 import { AssetAmount } from "@sundaeswap/asset";
 import { ADA_METADATA } from "@sundaeswap/core";
 import { PREVIEW_DATA, setupBlaze } from "@sundaeswap/core/testing";
 import { afterEach, describe, expect, it, spyOn } from "bun:test";
 
+import { parse } from "@blaze-cardano/data";
 import { Delegation, TDelegation } from "../../../@types/blaze.js";
 import { delegation } from "../../__data__/delegationData.js";
 import { YieldFarmingBuilder } from "../YieldFarmingBuilder.class.js";
@@ -125,7 +126,7 @@ describe("YieldFarmingBlaze", () => {
       }
 
       lockedValueDatum = datum
-        ? Data.from(Core.PlutusData.fromCbor(Core.HexBlob(datum)), Delegation)
+        ? parse(Delegation, Core.PlutusData.fromCbor(Core.HexBlob(datum)))
         : undefined;
       hasLockedValuesOutput = true;
     });
@@ -304,7 +305,7 @@ describe("YieldFarmingBlaze", () => {
       }
 
       lockedValueDatum = datum
-        ? Data.from(Core.PlutusData.fromCbor(Core.HexBlob(datum)), Delegation)
+        ? parse(Delegation, Core.PlutusData.fromCbor(Core.HexBlob(datum)))
         : undefined;
       hasLockedValuesOutput = true;
     });

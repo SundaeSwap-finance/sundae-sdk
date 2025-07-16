@@ -1,26 +1,24 @@
-import { Data, Static } from "@blaze-cardano/sdk";
+/* eslint-disable */
+// @ts-nocheck
+import { Exact, Type } from "@blaze-cardano/data";
 
-export const CheckSchema = Data.Enum([
-  Data.Literal("All"),
-  Data.Literal("Any"),
-]);
-export type TCheck = Static<typeof CheckSchema>;
-export const Check = CheckSchema as unknown as TCheck;
+const Contracts = Type.Module({
+  Check: Type.Union([
+    Type.Literal("All", { ctor: 0n }),
+    Type.Literal("Any", { ctor: 1n }),
+  ]),
+  NftCheckAsset: Type.Record(Type.String(), Type.BigInt()),
+  NftCheckPolicy: Type.Record(Type.String(), Type.Ref("NftCheckAsset")),
+  NftCheckDatum: Type.Object(
+    {
+      value: Type.Ref("NftCheckPolicy"),
+      check: Type.Ref("Check"),
+    },
+    { ctor: 0n },
+  ),
+});
 
-export const NftCheckAssetSchema = Data.Map(Data.Bytes(), Data.Integer());
-export type TNftCheckAsset = Static<typeof NftCheckAssetSchema>;
-export const NftCheckAsset = NftCheckAssetSchema as unknown as TNftCheckAsset;
-
-export const NftCheckPolicySchema = Data.Map(Data.Bytes(), NftCheckAssetSchema);
-export type TNftCheckPolicy = Static<typeof NftCheckPolicySchema>;
-export const NftCheckPolicy =
-  NftCheckPolicySchema as unknown as TNftCheckPolicy;
-
-export const NftCheckDatumSchema = Data.Nullable(
-  Data.Object({
-    value: NftCheckPolicySchema,
-    check: CheckSchema,
-  }),
-);
-export type TNftCheckDatum = Static<typeof NftCheckDatumSchema>;
-export const NftCheckDatum = NftCheckDatumSchema as unknown as TNftCheckDatum;
+export const Check = Contracts.Import("Check");
+export type Check = Exact<typeof Check>;
+export const NftCheckDatum = Contracts.Import("NftCheckDatum");
+export type NftCheckDatum = Exact<typeof NftCheckDatum>;

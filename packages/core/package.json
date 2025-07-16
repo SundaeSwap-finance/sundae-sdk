@@ -76,7 +76,8 @@
     "cbor": "^9.0.0"
   },
   "peerDependencies": {
-    "@blaze-cardano/sdk": "^0.2.27",
+    "@blaze-cardano/sdk": "^0.2.31",
+    "@blaze-cardano/data": "^0.6.1",
     "@sundaeswap/asset": "^1.0.7",
     "@sundaeswap/bigint-math": "^0.6.3",
     "@sundaeswap/cpp": "^1.0.7",

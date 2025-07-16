@@ -1,9 +1,9 @@
+import { parse, Void } from "@blaze-cardano/data";
 import {
   Blaze,
   TxBuilder as BlazeTx,
   CoinSelector,
   Core,
-  Data,
   makeValue,
   Provider,
   Wallet,
@@ -232,9 +232,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       return 1_000_000n;
     }
 
-    const { baseFee, simpleFee } = Data.from(
-      Core.PlutusData.fromCbor(Core.HexBlob(settings)),
+    const { baseFee, simpleFee } = parse(
       SettingsDatum,
+      Core.PlutusData.fromCbor(Core.HexBlob(settings)),
     );
 
     return baseFee + simpleFee;
@@ -435,15 +435,8 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       throw new Error("Could not retrieve the datum from the settings UTXO.");
     }
 
-    const {
-      metadataAdmin: { paymentCredential, stakeCredential },
-      authorizedStakingKeys: [poolStakingCredential],
-    } = Data.from(
-      Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
-      SettingsDatum,
-    );
-    const metadataAddress = DatumBuilderV3.addressSchemaToBech32(
-      { paymentCredential, stakeCredential },
+    const metadataAddress = DatumBuilderV3.getMetadataAddressFromSettingsDatum(
+      settingsDatum,
       this.network === "mainnet"
         ? Core.NetworkId.Mainnet
         : Core.NetworkId.Testnet,
@@ -454,13 +447,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       ({ title }) => title === "pool.mint",
     );
 
-    const sundaeStakeAddress = DatumBuilderV3.addressSchemaToBech32(
-      {
-        paymentCredential: {
-          SCredential: { bytes: poolContract?.hash as string },
-        },
-        stakeCredential: { keyHash: poolStakingCredential },
-      },
+    const sundaeStakeAddress = DatumBuilderV3.getStakeAddressFromSettingsDatum(
+      settingsDatum,
+      poolContract!.hash,
       this.network === "mainnet"
         ? Core.NetworkId.Mainnet
         : Core.NetworkId.Testnet,
@@ -502,23 +491,19 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       tx.lockAssets(
         address,
         makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
-        Data.void(),
+        Void(),
       );
     } else {
       tx.payAssets(
         address,
         makeValue(ORDER_DEPOSIT_DEFAULT, [poolRefAssetIdHex, 1n]),
-        Data.void(),
+        Void(),
       );
     }
 
     if (donateToTreasury) {
-      const datum = Data.from(
-        Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
-        SettingsDatum,
-      );
-      const realTreasuryAddress = DatumBuilderV3.addressSchemaToBech32(
-        datum.treasuryAddress,
+      const realTreasuryAddress = DatumBuilderV3.getTreasuryAddress(
+        settingsDatum,
         this.network === "mainnet"
           ? Core.NetworkId.Mainnet
           : Core.NetworkId.Testnet,
@@ -528,14 +513,14 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
         tx.payAssets(
           Core.addressFromBech32(realTreasuryAddress),
           makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, circulatingLp]),
-          Data.void(),
+          Void(),
         );
       } else {
         const donation = (circulatingLp * donateToTreasury) / 100n;
-        tx.provideDatum(Data.void()).payAssets(
+        tx.provideDatum(Void()).payAssets(
           Core.addressFromBech32(realTreasuryAddress),
           makeValue(ORDER_DEPOSIT_DEFAULT, [poolLqAssetIdHex, donation]),
-          Data.void(),
+          Void(),
         );
 
         tx.payAssets(
@@ -828,7 +813,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
      * If not, then we can assume it is a normal V1 order, and call accordingly.
      */
     try {
-      Data.from(spendingDatum, OrderDatum);
+      parse(OrderDatum, spendingDatum);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log("This is a V1 order! Calling appropriate builder...");
