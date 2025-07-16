@@ -1,5 +1,17 @@
 # @sundaeswap/cli
 
+## 1.1.0
+
+### Minor Changes
+
+- c839c39: - Update blaze-cardano dependencies and use @blaze-cardano/data for serializing/parsing plutusdata.
+  - Contract types generated using @blaze-cardano/blueprint
+
+### Patch Changes
+
+- Updated dependencies [c839c39]
+  - @sundaeswap/core@2.6.0
+
 ## 1.0.0
 
 ### Major Changes
