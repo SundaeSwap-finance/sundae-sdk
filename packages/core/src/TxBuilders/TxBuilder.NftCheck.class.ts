@@ -2,7 +2,6 @@ import {
   Blaze,
   TxBuilder as BlazeTx,
   Core,
-  Data,
   Provider,
   Wallet,
 } from "@blaze-cardano/sdk";
@@ -14,10 +13,7 @@ import {
   IPoolData,
 } from "../@types/index.js";
 import { TxBuilderAbstractCondition } from "../Abstracts/TxBuilderAbstract.Condition.js";
-import {
-  NftCheckDatum,
-  TNftCheckDatum,
-} from "../DatumBuilders/ContractTypes/Contract.NftCheck.js";
+import { NftCheckTypes } from "../DatumBuilders/ContractTypes/index.js";
 import {
   DatumBuilderNftCheck,
   IDatumBuilderNftCheckArgs,
@@ -83,16 +79,14 @@ export class TxBuilderNftCheck
     if (!poolData.conditionDatum) {
       return [];
     }
-    const conditionDatum: TNftCheckDatum = Data.from(
-      Core.PlutusData.fromCbor(Core.HexBlob(poolData.conditionDatum)),
-      NftCheckDatum,
-    );
+    const conditionDatum: NftCheckTypes.NftCheckDatum =
+      this.datumBuilder.decodeConditionDatum(poolData.conditionDatum);
     const result: AssetAmount<IAssetAmountMetadata>[] = [];
-    conditionDatum?.value.forEach((assets, policyId) => {
+    Object.entries(conditionDatum?.value).forEach((assets, policyId) => {
       assets.forEach((amount, assetName) => {
         const assetId = `${policyId}.${assetName}`;
         result.push(
-          new AssetAmount(amount, {
+          new AssetAmount(Number(amount), {
             assetId,
             decimals: 0,
           }),

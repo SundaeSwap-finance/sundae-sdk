@@ -24,7 +24,7 @@ The current network id.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:114](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L114)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:115](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L115)
 
 ***
 
@@ -40,7 +40,7 @@ The error to throw when the pool ident does not match V1 constraints.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts#L16)
+[packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts#L18)
 
 ## Methods
 
@@ -73,25 +73,25 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 > **destination**: `"Self"` \| `object`
 
+##### details
+
+> **details**: `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+
 ##### extension
 
-> **extension**: `string`
+> **extension**: `PlutusData`
 
-##### order
+##### maxProtocolFee
 
-> **order**: `object` \| `object` \| `object` \| `object` \| `object`
+> **maxProtocolFee**: `bigint`
 
 ##### owner
 
 > **owner**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
 
-##### poolIdent
+##### poolIdent?
 
-> **poolIdent**: `null` \| `string`
-
-##### scooperFee
-
-> **scooperFee**: `bigint`
+> `optional` **poolIdent**: `string`
 
 #### Inherited from
 
@@ -99,7 +99,7 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:179](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L179)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L180)
 
 ***
 
@@ -130,33 +130,33 @@ An object containing the hash of the inline datum, the inline datum itself,
                                              and the schema of the original pool mint datum, crucial for the execution
                                              of the minting pool operation.
 
-##### askFeePer10Thousand
+##### askFeesPer\_10Thousand
 
-> **askFeePer10Thousand**: `bigint`
+> **askFeesPer\_10Thousand**: `bigint`
 
 ##### assets
 
 > **assets**: [[`string`, `string`], [`string`, `string`]]
 
-##### bidFeePer10Thousand
+##### bidFeesPer\_10Thousand
 
-> **bidFeePer10Thousand**: `bigint`
+> **bidFeesPer\_10Thousand**: `bigint`
 
 ##### circulatingLp
 
 > **circulatingLp**: `bigint`
 
-##### condition
+##### condition?
 
-> **condition**: `null` \| `string`
+> `optional` **condition**: `string`
 
-##### conditionDatum
+##### conditionDatum?
 
-> **conditionDatum**: `unknown`
+> `optional` **conditionDatum**: `any`
 
-##### feeManager
+##### feeManager?
 
-> **feeManager**: `null` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+> `optional` **feeManager**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
 
 ##### identifier
 
@@ -166,9 +166,9 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 > **marketOpen**: `bigint`
 
-##### protocolFee
+##### protocolFees
 
-> **protocolFee**: `bigint`
+> **protocolFees**: `bigint`
 
 #### Inherited from
 
@@ -176,13 +176,13 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts:39](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts#L39)
+[packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Condition.class.ts#L41)
 
 ***
 
 ### buildPoolMintRedeemerDatum()
 
-> **buildPoolMintRedeemerDatum**(`param`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object` \| `object`\>
+> **buildPoolMintRedeemerDatum**(`param`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object` \| `object` \| `object`\>
 
 Creates a redeemer datum for minting a new pool. This is attached to the new assets that
 creating a new pool mints on the blockchain. See [Core.TxBuilderV3](TxBuilderV3.md) for more
@@ -198,7 +198,7 @@ The assets being supplied to the new pool.
 
 #### Returns
 
-[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object` \| `object`\>
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object` \| `object` \| `object`\>
 
 An object containing the hash of the inline datum, the inline datum itself,
                                              and the schema of the original pool mint redeemer datum, crucial for the execution
@@ -210,7 +210,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:380](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L380)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:381](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L381)
 
 ***
 
@@ -242,25 +242,25 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 > **destination**: `"Self"` \| `object`
 
+##### details
+
+> **details**: `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+
 ##### extension
 
-> **extension**: `string`
+> **extension**: `PlutusData`
 
-##### order
+##### maxProtocolFee
 
-> **order**: `object` \| `object` \| `object` \| `object` \| `object`
+> **maxProtocolFee**: `bigint`
 
 ##### owner
 
 > **owner**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
 
-##### poolIdent
+##### poolIdent?
 
-> **poolIdent**: `null` \| `string`
-
-##### scooperFee
-
-> **scooperFee**: `bigint`
+> `optional` **poolIdent**: `string`
 
 #### Inherited from
 
@@ -268,7 +268,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:135](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L135)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:136](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L136)
 
 ***
 
@@ -301,25 +301,25 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 > **destination**: `"Self"` \| `object`
 
+##### details
+
+> **details**: `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+
 ##### extension
 
-> **extension**: `string`
+> **extension**: `PlutusData`
 
-##### order
+##### maxProtocolFee
 
-> **order**: `object` \| `object` \| `object` \| `object` \| `object`
+> **maxProtocolFee**: `bigint`
 
 ##### owner
 
 > **owner**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
 
-##### poolIdent
+##### poolIdent?
 
-> **poolIdent**: `null` \| `string`
-
-##### scooperFee
-
-> **scooperFee**: `bigint`
+> `optional` **poolIdent**: `string`
 
 #### Inherited from
 
@@ -327,7 +327,7 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:225](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L225)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:226](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L226)
 
 ***
 
@@ -357,7 +357,7 @@ The UTxO txHash and index.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:632](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L632)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:635](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L635)
 
 ***
 
@@ -383,7 +383,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:608](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L608)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:611](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L611)
 
 ***
 
@@ -409,7 +409,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:596](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L596)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:599](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L599)
 
 ***
 
@@ -435,7 +435,7 @@ The hex encoded pool ident.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:620](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L620)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:623](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L623)
 
 ***
 
@@ -477,7 +477,7 @@ An object containing the staking and
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:663](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L663)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:666](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L666)
 
 ***
 
@@ -510,4 +510,4 @@ The signing key associated with the owner, extracted from the datum. This key is
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:710](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L710)
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:717](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L717)

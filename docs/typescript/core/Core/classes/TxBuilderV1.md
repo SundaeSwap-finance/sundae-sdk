@@ -39,7 +39,7 @@ A custom query provider if desired.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:113](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L113)
+[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:105](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L105)
 
 ## Properties
 
@@ -51,7 +51,7 @@ A configured Blaze instance to use.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:114](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L114)
+[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:106](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L106)
 
 ## Methods
 
@@ -77,7 +77,7 @@ The parameter you want to retrieve.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:206](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L206)
+[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:198](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L198)
 
 ***
 
@@ -117,7 +117,7 @@ const txHash = await sdk.builder().cancel({
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:489](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L489)
+[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:481](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L481)
 
 ***
 
@@ -139,7 +139,7 @@ True to enable tracing, false to turn it off. (default: false)
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:133](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L133)
+[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:125](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L125)
 
 ***
 
@@ -160,7 +160,7 @@ will re-populate with real data.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L148)
+[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:140](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L140)
 
 ***
 
@@ -184,7 +184,7 @@ The name of the validator script to retrieve.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:167](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L167)
+[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:159](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L159)
 
 ***
 
@@ -277,7 +277,7 @@ Returns a new Tx instance from Blaze. Throws an error if not ready.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:216](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L216)
+[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:208](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L208)
 
 ***
 
@@ -305,7 +305,7 @@ The result of the transaction.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:343](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L343)
+[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:335](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L335)
 
 ***
 
@@ -345,7 +345,7 @@ const txHash = await sdk.builder().swap({
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:267](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L267)
+[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:259](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L259)
 
 ***
 
@@ -506,4 +506,4 @@ The protocol network.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:193](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L193)
+[packages/core/src/TxBuilders/TxBuilder.V1.class.ts:185](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V1.class.ts#L185)

@@ -11,4 +11,4 @@ rather a reasonable threshold by which we can test a pool ident.
 
 ## Defined in
 
-[packages/core/src/constants.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/constants.ts#L19)
+[packages/core/src/constants.ts:22](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/constants.ts#L22)

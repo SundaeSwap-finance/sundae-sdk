@@ -13,4 +13,4 @@ It is impossible for the v1 pool ident to be 28 bytes as:
 
 ## Defined in
 
-[packages/core/src/constants.ts:13](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/constants.ts#L13)
+[packages/core/src/constants.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/constants.ts#L16)

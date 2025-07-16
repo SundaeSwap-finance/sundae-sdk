@@ -1,10 +1,7 @@
-import { Core, Data } from "@blaze-cardano/sdk";
+import { parse, serialize } from "@blaze-cardano/data";
+import { Core } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import {
-  NftCheckDatum,
-  TCheck,
-  TNftCheckDatum,
-} from "./ContractTypes/Contract.NftCheck.js";
+import { NftCheckTypes } from "./ContractTypes/index.js";
 import { DatumBuilderCondition } from "./DatumBuilder.Condition.class.js";
 
 /**
@@ -12,7 +9,7 @@ import { DatumBuilderCondition } from "./DatumBuilder.Condition.class.js";
  */
 export interface IDatumBuilderNftCheckArgs {
   value: AssetAmount<IAssetAmountMetadata>[];
-  check: TCheck;
+  check: NftCheckTypes.Check;
 }
 
 /**
@@ -20,34 +17,35 @@ export interface IDatumBuilderNftCheckArgs {
  */
 export class DatumBuilderNftCheck extends DatumBuilderCondition {
   public buildConditionDatum(args: IDatumBuilderNftCheckArgs): Core.PlutusData {
-    const asset_map = new Map<string, Map<string, bigint>>();
+    const asset_map: { [policy_id: string]: { [assetName: string]: bigint } } =
+      {};
     args.value.forEach((asset) => {
       const [policy_id, asset_name] = asset.metadata.assetId.split(".");
-      if (!asset_map.has(policy_id)) {
-        asset_map.set(policy_id, new Map<string, bigint>());
+      if (!(policy_id in asset_map)) {
+        asset_map[policy_id] = {};
       }
-      const policy = asset_map.get(policy_id);
-      if (!policy?.has(asset_name)) {
-        policy?.set(asset_name, asset.amount);
+      if (!(asset_name in asset_map[policy_id])) {
+        asset_map[policy_id][asset_name] = asset.amount;
       } else {
-        const amount = policy.get(asset_name);
-        if (amount) {
-          policy.set(asset_name, amount + asset.amount);
-        }
+        asset_map[policy_id][asset_name] += asset.amount;
       }
     });
-    const datum: TNftCheckDatum = {
+    const datum: NftCheckTypes.NftCheckDatum = {
       value: asset_map,
       check: args.check,
     };
 
-    const data = Data.to(datum, NftCheckDatum);
+    const data = serialize(NftCheckTypes.NftCheckDatum, datum);
 
     return data;
   }
 
-  public decodeConditionDatum(datum: Core.PlutusData): TNftCheckDatum {
-    const decoded = Data.from(datum, NftCheckDatum);
-    return decoded as TNftCheckDatum;
+  public decodeConditionDatum(
+    datum: Core.PlutusData | string,
+  ): NftCheckTypes.NftCheckDatum {
+    if (typeof datum === "string") {
+      datum = Core.PlutusData.fromCbor(Core.HexBlob(datum));
+    }
+    return parse(NftCheckTypes.NftCheckDatum, datum);
   }
 }

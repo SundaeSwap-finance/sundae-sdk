@@ -1,133 +1,131 @@
-import { Data, Static } from "@blaze-cardano/sdk";
+/* eslint-disable */
+// @ts-nocheck
+import { Exact, Type } from "@blaze-cardano/data";
 
-export const KeyHashSchema = Data.Object({
-  KeyHash: Data.Object({
-    value: Data.Bytes(),
-  }),
-});
-export type TKeyHashSchema = Static<typeof KeyHashSchema>;
-export const KeyHash = KeyHashSchema as unknown as TKeyHashSchema;
-
-export const ScriptHashSchema = Data.Object({
-  ScriptHash: Data.Object({
-    value: Data.Bytes(),
-  }),
-});
-export type TScriptHashSchema = Static<typeof ScriptHashSchema>;
-export const ScriptHash = ScriptHashSchema as unknown as TScriptHashSchema;
-
-export const PaymentStakingHashSchema = Data.Enum([
-  KeyHashSchema,
-  ScriptHashSchema,
-]);
-export type TPaymentStakingHash = Static<typeof PaymentStakingHashSchema>;
-export const PaymentStakingHash =
-  PaymentStakingHashSchema as unknown as TPaymentStakingHash;
-
-export const CredentialSchema = Data.Object({
-  paymentKey: PaymentStakingHashSchema,
-  stakingKey: Data.Nullable(Data.Object({ value: PaymentStakingHashSchema })),
-});
-export type TCredential = Static<typeof CredentialSchema>;
-export const Credential = CredentialSchema as unknown as TCredential;
-
-export const DestinationSchema = Data.Object({
-  credentials: CredentialSchema,
-  datum: Data.Nullable(Data.Bytes()),
-});
-export type TDestination = Static<typeof DestinationSchema>;
-export const Destination = DestinationSchema as unknown as TDestination;
-
-export const OrderAddressesSchema = Data.Object({
-  destination: DestinationSchema,
-  alternate: Data.Nullable(Data.Bytes()),
-});
-export type TOrderAddresses = Static<typeof OrderAddressesSchema>;
-export const OrderAddresses =
-  OrderAddressesSchema as unknown as TOrderAddresses;
-
-export const SwapDirectionSchema = Data.Object({
-  suppliedAssetIndex: Data.Enum([Data.Literal("A"), Data.Literal("B")]),
-  amount: Data.Integer(),
-  minReceivable: Data.Nullable(Data.Integer()),
-});
-export type TSwapDirection = Static<typeof SwapDirectionSchema>;
-export const SwapDirection = SwapDirectionSchema as unknown as TSwapDirection;
-
-export const DepositPairSchema = Data.Enum([
-  Data.Literal("VOID"),
-  Data.Literal("VOID"),
-  // 123
-  Data.Object({
-    Parent: Data.Object({
-      Child: Data.Enum([
-        Data.Literal("VOID"),
-        // 122
-        Data.Object({
-          Value: Data.Object({
-            // 121
-            pair: Data.Object({
-              a: Data.Integer(),
-              b: Data.Integer(),
-            }),
-          }),
-        }),
+const Contracts = Type.Module({
+  PaymentStakingHash: Type.Union([
+    Type.Object({
+      KeyHash: Type.Object(
+        {
+          keyHash: Type.String(),
+        },
+        { ctor: 0n },
+      ),
+    }),
+    Type.Object({
+      ScriptHash: Type.Object(
+        {
+          scriptHash: Type.String(),
+        },
+        { ctor: 1n },
+      ),
+    }),
+  ]),
+  Credential: Type.Object(
+    {
+      paymentKey: Type.Ref("PaymentStakingHash"),
+      stakingKey: Type.Optional(
+        Type.Object({ value: Type.Ref("PaymentStakingHash") }, { ctor: 0n }),
+      ),
+    },
+    { ctor: 0n },
+  ),
+  Destination: Type.Object(
+    {
+      credentials: Type.Ref("Credential"),
+      datum: Type.Optional(Type.String()),
+    },
+    { ctor: 0n },
+  ),
+  OrderAddresses: Type.Object(
+    {
+      destination: Type.Ref("Destination"),
+      alternate: Type.Optional(Type.String()),
+    },
+    { ctor: 0n },
+  ),
+  SwapDirection: Type.Object(
+    {
+      suppliedAssetIndex: Type.Union([
+        Type.Literal("A", { ctor: 0n }),
+        Type.Literal("B", { ctor: 1n }),
       ]),
-    }),
-  }),
-]);
-export type TDepositPair = Static<typeof DepositPairSchema>;
-export const DepositPair = DepositPairSchema as unknown as TDepositPair;
-
-export const SwapOrderSchema = Data.Object({
-  ident: Data.Bytes(),
-  orderAddresses: OrderAddressesSchema,
-  scooperFee: Data.Integer(),
-  swapDirection: SwapDirectionSchema,
+      amount: Type.BigInt(),
+      minReceivable: Type.Optional(Type.BigInt()),
+    },
+    { ctor: 0n },
+  ),
+  DepositPair: Type.Object(
+    {
+      Child: Type.Object(
+        {
+          pair: Type.Object(
+            {
+              a: Type.BigInt(),
+              b: Type.BigInt(),
+            },
+            { ctor: 0n },
+          ),
+        },
+        { ctor: 1n },
+      ),
+    },
+    { ctor: 2n },
+  ),
+  SwapOrder: Type.Object(
+    {
+      ident: Type.String(),
+      orderAddresses: Type.Ref("OrderAddresses"),
+      scooperFee: Type.BigInt(),
+      swapDirection: Type.Ref("SwapDirection"),
+    },
+    { ctor: 0n },
+  ),
+  DepositOrder: Type.Object(
+    {
+      ident: Type.String(),
+      orderAddresses: Type.Ref("OrderAddresses"),
+      scooperFee: Type.BigInt(),
+      DepositPair: Type.Ref("DepositPair"),
+    },
+    { ctor: 0n },
+  ),
+  WithdrawAsset: Type.Union([
+    Type.Object(
+      {
+        value: Type.BigInt(),
+      },
+      { ctor: 1n },
+    ),
+  ]),
+  WithdrawOrder: Type.Object(
+    {
+      ident: Type.String(),
+      orderAddresses: Type.Ref("OrderAddresses"),
+      scooperFee: Type.BigInt(),
+      WithdrawAsset: Type.Ref("WithdrawAsset"),
+    },
+    { ctor: 0n },
+  ),
 });
-export type TSwapOrder = Static<typeof SwapOrderSchema>;
-export const SwapOrder = SwapOrderSchema as unknown as TSwapOrder;
 
-export const DepositOrderSchema = Data.Object({
-  ident: Data.Bytes(),
-  orderAddresses: OrderAddressesSchema,
-  scooperFee: Data.Integer(),
-  DepositPair: DepositPairSchema,
-});
-export type TDepositOrder = Static<typeof DepositOrderSchema>;
-export const DepositOrder = DepositOrderSchema as unknown as TDepositOrder;
-
-export const WithdrawAssetSchema = Data.Enum([
-  Data.Literal("VOID"),
-  // 122
-  Data.Object({
-    LPToken: Data.Object({
-      value: Data.Integer(),
-    }),
-  }),
-]);
-export type TWithdrawAsset = Static<typeof WithdrawAssetSchema>;
-export const WithdrawAsset = WithdrawAssetSchema as unknown as TWithdrawAsset;
-
-/**
- * @todo
- * The WithdrawAsset is using an enum that can be consolidated like V3 orders.
- * This will help simplify checking order datums with a single type.
- *
- * - OrderSchema
- * -- ident
- * -- orderAddresses
- * -- scooperFee
- * -- details (enum)
- * --- Swap (121)
- * --- Withdraw (122)
- * --- Deposit (123)
- */
-export const WithdrawOrderSchema = Data.Object({
-  ident: Data.Bytes(),
-  orderAddresses: OrderAddressesSchema,
-  scooperFee: Data.Integer(),
-  WithdrawAsset: WithdrawAssetSchema,
-});
-export type TWithdrawOrder = Static<typeof WithdrawOrderSchema>;
-export const WithdrawOrder = WithdrawOrderSchema as unknown as TWithdrawOrder;
+export const PaymentStakingHash = Contracts.Import("PaymentStakingHash");
+export type PaymentStakingHash = Exact<typeof PaymentStakingHash>;
+export const Credential = Contracts.Import("Credential");
+export type Credential = Exact<typeof Credential>;
+export const Destination = Contracts.Import("Destination");
+export type Destination = Exact<typeof Destination>;
+export const OrderAddresses = Contracts.Import("OrderAddresses");
+export type OrderAddresses = Exact<typeof OrderAddresses>;
+export const SwapDirection = Contracts.Import("SwapDirection");
+export type SwapDirection = Exact<typeof SwapDirection>;
+export const DepositPair = Contracts.Import("DepositPair");
+export type DepositPair = Exact<typeof DepositPair>;
+export const SwapOrder = Contracts.Import("SwapOrder");
+export type SwapOrder = Exact<typeof SwapOrder>;
+export const DepositOrder = Contracts.Import("DepositOrder");
+export type DepositOrder = Exact<typeof DepositOrder>;
+export const WithdrawAsset = Contracts.Import("WithdrawAsset");
+export type WithdrawAsset = Exact<typeof WithdrawAsset>;
+export const WithdrawOrder = Contracts.Import("WithdrawOrder");
+export type WithdrawOrder = Exact<typeof WithdrawOrder>;

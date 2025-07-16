@@ -11,4 +11,4 @@ This condition is ignored for the Cardano $ADA asset, which has a Policy ID and 
 
 ## Defined in
 
-[packages/core/src/constants.ts:5](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/constants.ts#L5)
+[packages/core/src/constants.ts:8](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/constants.ts#L8)

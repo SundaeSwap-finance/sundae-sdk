@@ -1,4 +1,3 @@
-import { Data } from "@blaze-cardano/sdk";
 import {
   BlazeHelper,
   DatumBuilderAbstract,
@@ -6,6 +5,7 @@ import {
   TSupportedNetworks,
 } from "@sundaeswap/core";
 
+import { serialize } from "@blaze-cardano/data";
 import { Delegation, TDelegation } from "../../@types/blaze.js";
 import { ILockArguments } from "../../@types/configs.js";
 
@@ -43,7 +43,7 @@ export class YieldFarmingDatumBuilder implements DatumBuilderAbstract {
       programs,
     };
 
-    const data = Data.to(delegationData, Delegation);
+    const data = serialize(Delegation, delegationData);
     return {
       hash: data.hash(),
       inline: data.toCbor(),

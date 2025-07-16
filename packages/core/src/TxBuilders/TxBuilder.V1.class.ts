@@ -2,7 +2,6 @@ import {
   Blaze,
   TxBuilder as BlazeTx,
   Core,
-  Data,
   makeValue,
   Provider,
   Wallet,
@@ -10,6 +9,7 @@ import {
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getTokensForLp } from "@sundaeswap/cpp";
 
+import { parse, Void } from "@blaze-cardano/data";
 import {
   EContractVersion,
   EDatumType,
@@ -36,16 +36,8 @@ import { DepositConfig } from "../Configs/DepositConfig.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
 import { ZapConfig } from "../Configs/ZapConfig.class.js";
-import {
-  DepositOrder,
-  SwapOrder,
-  TDepositOrder,
-  TKeyHashSchema,
-  TSwapOrder,
-  TWithdrawOrder,
-  WithdrawOrder,
-} from "../DatumBuilders/ContractTypes/Contract.v1.js";
 import { OrderDatum as V3OrderDatum } from "../DatumBuilders/ContractTypes/Contract.v3.js";
+import { V1Types } from "../DatumBuilders/ContractTypes/index.js";
 import { DatumBuilderV1 } from "../DatumBuilders/DatumBuilder.V1.class.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
@@ -525,7 +517,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
      * If not, then we can assume it is a normal V1 order.
      */
     try {
-      Data.from(spendingDatum, V3OrderDatum);
+      parse(V3OrderDatum, spendingDatum);
       // eslint-disable-next-line no-console
       console.log("This is a V3 order! Calling appropriate builder...");
       const v3Builder = new TxBuilderV3(this.blaze);
@@ -546,16 +538,22 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     tx.provideScript(scriptValidator);
 
     // Must try deserializing the datum with each order type.
-    let data: TSwapOrder | TWithdrawOrder | TDepositOrder | undefined;
-    [SwapOrder, WithdrawOrder, DepositOrder].forEach((type) => {
-      if (data) {
-        return;
-      }
+    let data:
+      | V1Types.SwapOrder
+      | V1Types.WithdrawOrder
+      | V1Types.DepositOrder
+      | undefined;
+    [V1Types.SwapOrder, V1Types.WithdrawOrder, V1Types.DepositOrder].forEach(
+      (type) => {
+        if (data) {
+          return;
+        }
 
-      try {
-        data = Data.from(spendingDatum, type);
-      } catch (e) {}
-    });
+        try {
+          data = parse(type, spendingDatum);
+        } catch (e) {}
+      },
+    );
 
     if (!data) {
       throw new Error(
@@ -564,18 +562,20 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     }
 
     if (!data.orderAddresses.alternate) {
-      const paymentKeyCred = (
-        data.orderAddresses.destination.credentials.paymentKey as TKeyHashSchema
-      )?.KeyHash.value;
-      if (paymentKeyCred) {
+      if ("KeyHash" in data.orderAddresses.destination.credentials.paymentKey) {
+        const paymentKeyCred =
+          data.orderAddresses.destination.credentials.paymentKey?.KeyHash
+            .keyHash;
         tx.addRequiredSigner(Core.Ed25519KeyHashHex(paymentKeyCred));
       }
-
-      const stakingKeyCred = (
-        data.orderAddresses.destination.credentials.stakingKey
-          ?.value as TKeyHashSchema
-      )?.KeyHash.value;
-      if (stakingKeyCred) {
+      if (
+        data.orderAddresses.destination.credentials.stakingKey &&
+        "KeyHash" in
+          data.orderAddresses.destination.credentials.stakingKey.value
+      ) {
+        const stakingKeyCred =
+          data.orderAddresses.destination.credentials.stakingKey.value.KeyHash
+            .keyHash;
         tx.addRequiredSigner(Core.Ed25519KeyHashHex(stakingKeyCred));
       }
     } else {
@@ -1138,7 +1138,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     ) {
       yfRefInputs.forEach((input) => finalTx.addReferenceInput(input));
       existingPositionsData.forEach((input) => {
-        finalTx.addInput(input, Data.void());
+        finalTx.addInput(input, Void());
       });
 
       const withdrawAssetsList = yieldFarming.migrations.reduce(

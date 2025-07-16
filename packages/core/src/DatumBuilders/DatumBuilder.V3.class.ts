@@ -1,7 +1,7 @@
-import { Core, Data } from "@blaze-cardano/sdk";
+import { parse, serialize } from "@blaze-cardano/data";
+import { Core } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { sqrt } from "@sundaeswap/bigint-math";
-
 import {
   EDatumType,
   EDestinationType,
@@ -12,9 +12,10 @@ import {
   TSupportedNetworks,
 } from "../@types/index.js";
 import { DatumBuilderAbstract } from "../Abstracts/DatumBuilder.abstract.class.js";
+import { VOID_BYTES } from "../constants.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
-import * as V3Types from "./ContractTypes/Contract.v3.js";
+import { V3Types } from "./ContractTypes/index.js";
 import { IDatumBuilderNftCheckArgs } from "./DatumBuilder.NftCheck.class.js";
 
 /**
@@ -129,7 +130,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
    * datum schema, facilitating the swap operation within a transactional context.
    *
    * @param {IDatumBuilderSwapV3Args} args - The swap arguments for constructing the V3 swap datum.
-   * @returns {TDatumResult<V3Types.TOrderDatum>} An object containing the hash of the inline datum, the inline datum itself,
+   * @returns {TDatumResult<V3Types.OrderDatum>} An object containing the hash of the inline datum, the inline datum itself,
    *                                              and the schema of the original swap datum, essential for the execution of the swap operation.
    */
   public buildSwapDatum({
@@ -138,23 +139,23 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     order,
     ownerAddress,
     scooperFee,
-  }: IDatumBuilderSwapV3Args): TDatumResult<V3Types.TOrderDatum> {
-    const datum: V3Types.TOrderDatum = {
+  }: IDatumBuilderSwapV3Args): TDatumResult<V3Types.OrderDatum> {
+    const datum: V3Types.OrderDatum = {
       poolIdent: this.validatePoolIdent(ident),
       destination: this.buildDestinationAddresses(destinationAddress).schema,
       owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
         .schema,
-      scooperFee: scooperFee,
-      order: {
+      maxProtocolFee: scooperFee,
+      details: {
         Swap: {
           offer: this.buildAssetAmountDatum(order.offered).schema,
           minReceived: this.buildAssetAmountDatum(order.minReceived).schema,
         },
       },
-      extension: Data.void().toCbor(),
+      extension: VOID_BYTES,
     };
 
-    const data = Data.to(datum, V3Types.OrderDatum);
+    const data = serialize(V3Types.OrderDatum, datum);
 
     return {
       hash: data.hash(),
@@ -173,7 +174,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
    * within a transactional framework.
    *
    * @param {IDatumBuilderDepositV3Args} args - The deposit arguments for constructing the V3 deposit datum.
-   * @returns {TDatumResult<V3Types.TOrderDatum>} An object comprising the hash of the inline datum, the inline datum itself,
+   * @returns {TDatumResult<V3Types.OrderDatum>} An object comprising the hash of the inline datum, the inline datum itself,
    *                                              and the schema of the original deposit datum, essential for the execution of the deposit operation.
    */
   public buildDepositDatum({
@@ -182,10 +183,10 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     order,
     ownerAddress,
     scooperFee,
-  }: IDatumBuilderDepositV3Args): TDatumResult<V3Types.TOrderDatum> {
-    const datum: V3Types.TOrderDatum = {
+  }: IDatumBuilderDepositV3Args): TDatumResult<V3Types.OrderDatum> {
+    const datum: V3Types.OrderDatum = {
       destination: this.buildDestinationAddresses(destinationAddress).schema,
-      order: {
+      details: {
         Deposit: {
           assets: [
             this.buildAssetAmountDatum(order.assetA).schema,
@@ -196,11 +197,11 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
       owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
         .schema,
       poolIdent: this.validatePoolIdent(ident),
-      scooperFee,
-      extension: Data.void().toCbor(),
+      maxProtocolFee: scooperFee,
+      extension: VOID_BYTES,
     };
 
-    const data = Data.to(datum, V3Types.OrderDatum);
+    const data = serialize(V3Types.OrderDatum, datum);
 
     return {
       hash: data.hash(),
@@ -219,7 +220,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
    * datum, facilitating the withdrawal operation within a transactional context.
    *
    * @param {IDatumBuilderWithdrawV3Args} args - The withdrawal arguments for constructing the V3 withdraw datum.
-   * @returns {TDatumResult<V3Types.TOrderDatum>} An object containing the hash of the inline datum, the inline datum itself,
+   * @returns {TDatumResult<V3Types.OrderDatum>} An object containing the hash of the inline datum, the inline datum itself,
    *                                              and the schema of the original withdraw datum, crucial for the execution of the withdrawal operation.
    */
   public buildWithdrawDatum({
@@ -228,11 +229,11 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     order,
     ownerAddress,
     scooperFee,
-  }: IDatumBuilderWithdrawV3Args): TDatumResult<V3Types.TOrderDatum> {
-    const datum: V3Types.TOrderDatum = {
+  }: IDatumBuilderWithdrawV3Args): TDatumResult<V3Types.OrderDatum> {
+    const datum: V3Types.OrderDatum = {
       destination: this.buildDestinationAddresses(destinationAddress).schema,
-      extension: Data.void().toCbor(),
-      order: {
+      extension: VOID_BYTES,
+      details: {
         Withdrawal: {
           amount: this.buildAssetAmountDatum(order.lpToken).schema,
         },
@@ -240,10 +241,10 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
       owner: this.buildOwnerDatum(ownerAddress ?? destinationAddress.address)
         .schema,
       poolIdent: this.validatePoolIdent(ident),
-      scooperFee: scooperFee,
+      maxProtocolFee: scooperFee,
     };
 
-    const data = Data.to(datum, V3Types.OrderDatum);
+    const data = serialize(V3Types.OrderDatum, datum);
 
     return {
       hash: data.hash(),
@@ -258,7 +259,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     order,
     ownerAddress,
     scooperFee,
-  }: IDatumBuilderStrategyV3Args): TDatumResult<V3Types.TOrderDatum> {
+  }: IDatumBuilderStrategyV3Args): TDatumResult<V3Types.OrderDatum> {
     const auth = order.signer
       ? {
           Signature: { signer: order.signer },
@@ -266,20 +267,20 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
       : {
           Script: { script: order.script! },
         };
-    const datum: V3Types.TOrderDatum = {
+    const datum: V3Types.OrderDatum = {
       destination: this.buildDestination(destination).schema,
-      extension: Data.void().toCbor(),
-      order: {
+      extension: VOID_BYTES,
+      details: {
         Strategy: {
           auth,
         },
       },
       owner: this.buildOwnerDatum(ownerAddress).schema,
       poolIdent: this.validatePoolIdent(ident),
-      scooperFee: scooperFee,
+      maxProtocolFee: scooperFee,
     };
 
-    const data = Data.to(datum, V3Types.OrderDatum);
+    const data = serialize(V3Types.OrderDatum, datum);
 
     return {
       hash: data.hash(),
@@ -290,18 +291,18 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
 
   private getFeeManagerFromAddress(
     address?: string,
-  ): V3Types.TMultiSigScript | null {
-    if (!address) return null;
+  ): V3Types.MultisigScript | undefined {
+    if (!address) return undefined;
 
     try {
       const props = Core.addressFromBech32(address).getProps();
       const keyHash = props.delegationPart?.hash || props.paymentPart?.hash;
-      if (!keyHash) return null;
+      if (!keyHash) return undefined;
 
       if (BlazeHelper.isScriptAddress(address)) {
-        return { Script: { hex: keyHash } };
+        return { Script: { scriptHash: keyHash } };
       } else {
-        return { Address: { hex: keyHash } };
+        return { Signature: { keyHash: keyHash } };
       }
     } catch (error) {
       throw new Error(
@@ -322,7 +323,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
    *  - protocolFee: The fee gathered for the protocol treasury.
    *  - seedUtxo: The UTXO to use as the seed, which generates asset names and the pool ident.
    *
-   * @returns {TDatumResult<V3Types.TPoolDatum>} An object containing the hash of the inline datum, the inline datum itself,
+   * @returns {TDatumResult<V3Types.PoolDatum>} An object containing the hash of the inline datum, the inline datum itself,
    *                                              and the schema of the original pool mint datum, crucial for the execution
    *                                              of the minting pool operation.
    */
@@ -334,7 +335,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     depositFee,
     seedUtxo,
     feeManager,
-  }: IDatumBuilderMintPoolArgs): TDatumResult<V3Types.TPoolDatum> {
+  }: IDatumBuilderMintPoolArgs): TDatumResult<V3Types.PoolDatum> {
     const ident = DatumBuilderV3.computePoolId(seedUtxo);
     const liquidity = sqrt(assetA.amount * assetB.amount);
 
@@ -345,18 +346,18 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
 
     const feeManagerScript = this.getFeeManagerFromAddress(feeManager);
 
-    const newPoolDatum: V3Types.TPoolDatum = {
+    const newPoolDatum: V3Types.PoolDatum = {
       assets: assetsPair,
       circulatingLp: liquidity,
-      bidFeePer10Thousand: fees.bid,
-      askFeePer10Thousand: fees.ask,
+      bidFeesPer_10Thousand: fees.bid,
+      askFeesPer_10Thousand: fees.ask,
       feeManager: feeManagerScript,
       identifier: ident,
       marketOpen: marketOpen || 0n,
-      protocolFee: depositFee,
+      protocolFees: depositFee,
     };
 
-    const data = Data.to(newPoolDatum, V3Types.PoolDatum);
+    const data = serialize(V3Types.PoolDatum, newPoolDatum);
 
     return {
       hash: data.hash(),
@@ -373,7 +374,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
    * @param {IDatumBuilderPoolMintRedeemerV3Args} param The assets being supplied to the new pool.
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
-   * @returns {TDatumResult<V3Types.TPoolMintRedeemer>} An object containing the hash of the inline datum, the inline datum itself,
+   * @returns {TDatumResult<V3Types.PoolMintRedeemer>} An object containing the hash of the inline datum, the inline datum itself,
    *                                              and the schema of the original pool mint redeemer datum, crucial for the execution
    *                                              of the minting pool operation.
    */
@@ -382,8 +383,8 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     assetB,
     metadataOutput,
     poolOutput,
-  }: IDatumBuilderPoolMintRedeemerV3Args): TDatumResult<V3Types.TPoolMintRedeemer> {
-    const poolMintRedeemer: V3Types.TPoolMintRedeemer = {
+  }: IDatumBuilderPoolMintRedeemerV3Args): TDatumResult<V3Types.PoolMintRedeemer> {
+    const poolMintRedeemer: V3Types.PoolMintRedeemer = {
       CreatePool: {
         assets: this.buildLexicographicalAssetsDatum(assetA, assetB).schema,
         poolOutput,
@@ -391,7 +392,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
       },
     };
 
-    const data = Data.to(poolMintRedeemer, V3Types.PoolMintRedeemer);
+    const data = serialize(V3Types.PoolMintRedeemer, poolMintRedeemer);
 
     return {
       hash: data.hash(),
@@ -402,13 +403,13 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
 
   public buildDestination(
     destination: TDestination,
-  ): TDatumResult<V3Types.TDestination> {
+  ): TDatumResult<V3Types.Destination> {
     switch (destination.type) {
       case EDestinationType.FIXED:
         return this.buildDestinationAddresses(destination);
       case EDestinationType.SELF: {
         const value = "Self" as const;
-        const data = Data.to(value, V3Types.DestinationSchema);
+        const data = serialize(V3Types.Destination, value);
         return {
           hash: data.hash(),
           inline: data.toCbor(),
@@ -423,30 +424,28 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
   public buildDestinationAddresses({
     address,
     datum,
-  }: TDestinationAddress): TDatumResult<V3Types.TDestination> {
+  }: TDestinationAddress): TDatumResult<V3Types.Destination> {
     BlazeHelper.validateAddressAndDatumAreValid({
       address: address,
       datum: datum,
       network: this.network,
     });
 
-    let formattedDatum: V3Types.TDatumSchema;
+    let formattedDatum;
     switch (datum.type) {
       case EDatumType.NONE:
-        formattedDatum = "VOID";
+        formattedDatum = "NoDatum" as const;
         break;
       case EDatumType.HASH:
         formattedDatum = {
-          Hash: {
-            value: datum.value,
-          },
+          DatumHash: [datum.value] as [string],
         };
         break;
       case EDatumType.INLINE:
         formattedDatum = {
-          Inline: {
-            value: Core.PlutusData.fromCbor(Core.HexBlob(datum.value)),
-          },
+          InlineDatum: [
+            Core.PlutusData.fromCbor(Core.HexBlob(datum.value)),
+          ] as [Core.PlutusData],
         };
         break;
       default:
@@ -458,36 +457,32 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     const paymentPart = BlazeHelper.getPaymentHashFromBech32(address);
     const stakingPart = BlazeHelper.getStakingHashFromBech32(address);
 
-    const destinationDatum: V3Types.TDestination = {
+    const destinationDatum: V3Types.Destination = {
       Fixed: {
         address: {
           paymentCredential: BlazeHelper.isScriptAddress(address)
             ? {
-                SCredential: {
-                  bytes: paymentPart,
-                },
+                ScriptCredential: [paymentPart],
               }
             : {
-                VKeyCredential: {
-                  bytes: paymentPart,
-                },
+                VerificationKeyCredential: [paymentPart],
               },
 
           stakeCredential: stakingPart
             ? {
-                keyHash: {
-                  VKeyCredential: {
-                    bytes: stakingPart,
+                Inline: [
+                  {
+                    VerificationKeyCredential: [stakingPart],
                   },
-                },
+                ],
               }
-            : null,
+            : undefined,
         },
         datum: formattedDatum,
       },
     };
 
-    const data = Data.to(destinationDatum, V3Types.Destination);
+    const data = serialize(V3Types.Destination, destinationDatum);
 
     return {
       hash: data.hash(),
@@ -496,23 +491,23 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     };
   }
 
-  public buildOwnerDatum(main: string): TDatumResult<V3Types.TMultiSigScript> {
+  public buildOwnerDatum(main: string): TDatumResult<V3Types.MultisigScript> {
     BlazeHelper.validateAddressNetwork(main, this.network);
     const paymentPart = BlazeHelper.getPaymentHashFromBech32(main);
     const stakingPart = BlazeHelper.getStakingHashFromBech32(main);
 
-    let ownerDatum: V3Types.TMultiSigScript;
+    let ownerDatum: V3Types.MultisigScript;
     if (BlazeHelper.isScriptAddress(main)) {
       ownerDatum = {
-        Script: { hex: stakingPart || paymentPart },
+        Script: { scriptHash: stakingPart || paymentPart },
       };
     } else {
       ownerDatum = {
-        Address: { hex: stakingPart || paymentPart },
+        Signature: { keyHash: stakingPart || paymentPart },
       };
     }
 
-    const data = Data.to(ownerDatum, V3Types.MultiSigScript);
+    const data = serialize(V3Types.MultisigScript, ownerDatum);
 
     return {
       hash: data.hash(),
@@ -523,16 +518,16 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
 
   public buildAssetAmountDatum(
     asset: AssetAmount<IAssetAmountMetadata>,
-  ): TDatumResult<V3Types.TSingletonValue> {
+  ): TDatumResult<V3Types.Tuple$ByteArray_ByteArray_Int> {
     const isAdaLovelace = SundaeUtils.isAdaAsset(asset.metadata);
 
-    const value: V3Types.TSingletonValue = [
+    const value: V3Types.Tuple$ByteArray_ByteArray_Int = [
       isAdaLovelace ? "" : asset.metadata.assetId.split(".")[0],
       isAdaLovelace ? "" : asset.metadata.assetId.split(".")[1],
       asset.amount,
     ];
 
-    const data = Data.to(value, V3Types.SingletonValue);
+    const data = serialize(V3Types.Tuple$ByteArray_ByteArray_Int, value);
 
     return {
       hash: data.hash(),
@@ -544,7 +539,9 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
   public buildLexicographicalAssetsDatum(
     assetA: AssetAmount<IAssetAmountMetadata>,
     assetB: AssetAmount<IAssetAmountMetadata>,
-  ): TDatumResult<[V3Types.TAssetClass, V3Types.TAssetClass]> {
+  ): TDatumResult<
+    [V3Types.Tuple$ByteArray_ByteArray, V3Types.Tuple$ByteArray_ByteArray]
+  > {
     const lexicographicalAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       assetA,
       assetB,
@@ -567,10 +564,16 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
         result.push([policyId, assetName]);
         return result;
       },
-      [] as unknown as [V3Types.TAssetClass, V3Types.TAssetClass],
+      [] as unknown as [
+        V3Types.Tuple$ByteArray_ByteArray,
+        V3Types.Tuple$ByteArray_ByteArray,
+      ],
     );
 
-    const data = Data.to(assets, V3Types.AssetClassPair);
+    const data = serialize(
+      V3Types.Tuple$Tuple$ByteArray_ByteArray_Tuple$ByteArray_ByteArray,
+      assets,
+    );
 
     return {
       hash: data.hash(),
@@ -663,9 +666,9 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
   static getDestinationAddressesFromDatum(datum: string) {
     let stakingKeyHash: string | undefined;
     let paymentKeyHash: string | undefined;
-    const { destination } = Data.from(
-      Core.PlutusData.fromCbor(Core.HexBlob(datum)),
+    const { destination } = parse(
       V3Types.OrderDatum,
+      Core.PlutusData.fromCbor(Core.HexBlob(datum)),
     );
     if (destination === "Self") {
       return { stakingKeyHash, paymentKeyHash };
@@ -674,17 +677,21 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
       Fixed: { address },
     } = destination;
 
-    if (address.stakeCredential && address.stakeCredential.keyHash) {
-      const hash = (address.stakeCredential.keyHash as V3Types.TVKeyCredential)
-        .VKeyCredential.bytes;
-      if (hash) {
-        stakingKeyHash = hash;
+    if (address.stakeCredential && "Inline" in address.stakeCredential) {
+      if ("VerificationKeyCredential" in address.stakeCredential.Inline[0]) {
+        const [hash] =
+          address.stakeCredential.Inline[0].VerificationKeyCredential;
+        if (hash) {
+          stakingKeyHash = hash;
+        }
       }
     }
 
-    if (address.paymentCredential) {
-      const hash = (address.paymentCredential as V3Types.TVKeyCredential)
-        .VKeyCredential.bytes;
+    if (
+      address.paymentCredential &&
+      "VerificationKeyCredential" in address.paymentCredential
+    ) {
+      const [hash] = address.paymentCredential.VerificationKeyCredential;
       if (hash) {
         paymentKeyHash = hash;
       }
@@ -708,86 +715,116 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
    *          for transaction validation and authorization purposes.
    */
   static getSignerKeyFromDatum(datum: string): string | undefined {
-    const { owner } = Data.from(
-      Core.PlutusData.fromCbor(Core.HexBlob(datum)),
+    const { owner } = parse(
       V3Types.OrderDatum,
+      Core.PlutusData.fromCbor(Core.HexBlob(datum)),
     );
 
-    if (
-      typeof (owner as V3Types.TSignatureSchema)?.Address === "object" &&
-      typeof (owner as V3Types.TSignatureSchema).Address.hex === "string"
-    ) {
-      return (owner as V3Types.TSignatureSchema).Address.hex;
+    if ("Signature" in owner) {
+      return owner.Signature.keyHash;
     }
 
-    if (
-      typeof (owner as V3Types.TScriptSchema)?.Script === "object" &&
-      typeof (owner as V3Types.TScriptSchema).Script.hex === "string"
-    ) {
-      return (owner as V3Types.TScriptSchema).Script.hex;
+    if ("Script" in owner) {
+      return owner.Script.scriptHash;
     }
 
     return undefined;
   }
 
-  static addressSchemaToBech32(
-    datum: V3Types.TAddressSchema,
-    network: Core.NetworkId,
-  ): string {
-    let paymentKeyHash: string;
-    let paymentAddressType: Core.CredentialType;
-    if ((datum.paymentCredential as V3Types.TVKeyCredential)?.VKeyCredential) {
-      paymentAddressType = Core.CredentialType.KeyHash;
-      paymentKeyHash = (datum.paymentCredential as V3Types.TVKeyCredential)
-        .VKeyCredential.bytes;
-    } else if ((datum.paymentCredential as V3Types.TSCredential)?.SCredential) {
-      paymentAddressType = Core.CredentialType.ScriptHash;
-      paymentKeyHash = (datum.paymentCredential as V3Types.TSCredential)
-        .SCredential.bytes;
+  static credentialToCore(
+    credential:
+      | {
+          VerificationKeyCredential: [string];
+        }
+      | {
+          ScriptCredential: [string];
+        },
+  ): Core.Credential {
+    if ("VerificationKeyCredential" in credential) {
+      return Core.Credential.fromCore({
+        hash: Core.Hash28ByteBase16(credential.VerificationKeyCredential[0]),
+        type: Core.CredentialType.KeyHash,
+      });
+    } else if ("ScriptCredential" in credential) {
+      return Core.Credential.fromCore({
+        hash: Core.Hash28ByteBase16(credential.ScriptCredential[0]),
+        type: Core.CredentialType.ScriptHash,
+      });
     } else {
       throw new Error(
-        "Could not determine the address type from supplied payment credential.",
+        "Invalid credential type. Expected either VerificationKeyCredential or ScriptCredential.",
       );
     }
+  }
 
-    const result: Record<string, Core.Credential> = {
-      paymentCredential: Core.Credential.fromCore({
-        hash: Core.Hash28ByteBase16(paymentKeyHash),
-        type: paymentAddressType,
-      }),
-    };
+  static getMetadataAddressFromSettingsDatum(
+    datum: string,
+    network: Core.NetworkId,
+  ): string {
+    const {
+      metadataAdmin: { paymentCredential, stakeCredential },
+    } = parse(
+      V3Types.SettingsDatum,
+      Core.PlutusData.fromCbor(Core.HexBlob(datum)),
+    );
 
-    if (datum.stakeCredential?.keyHash) {
-      let stakingKeyHash: string | undefined;
-      let stakingAddressType: Core.CredentialType | undefined;
-      if (
-        (datum.stakeCredential.keyHash as V3Types.TVKeyCredential)
-          ?.VKeyCredential
-      ) {
-        stakingAddressType = Core.CredentialType.KeyHash;
-        stakingKeyHash = (
-          datum.stakeCredential.keyHash as V3Types.TVKeyCredential
-        ).VKeyCredential.bytes;
-      } else if (
-        (datum.stakeCredential.keyHash as V3Types.TSCredential)?.SCredential
-      ) {
-        stakingAddressType = Core.CredentialType.ScriptHash;
-        stakingKeyHash = (datum.stakeCredential.keyHash as V3Types.TSCredential)
-          .SCredential.bytes;
-      }
-
-      if (stakingKeyHash && stakingAddressType) {
-        result.stakeCredential = Core.Credential.fromCore({
-          hash: Core.Hash28ByteBase16(stakingKeyHash),
-          type: stakingAddressType,
-        });
-      }
+    let stakeCoreCredential: Core.Credential | undefined;
+    if (stakeCredential && "Inline" in stakeCredential) {
+      const [credential] = stakeCredential.Inline;
+      stakeCoreCredential = DatumBuilderV3.credentialToCore(credential);
     }
 
     return Core.addressFromCredentials(
       network,
-      result.paymentCredential,
-      result.stakeCredential,
+      DatumBuilderV3.credentialToCore(paymentCredential),
+      stakeCoreCredential,
+    ).toBech32();
+  }
+
+  static getStakeAddressFromSettingsDatum(
+    datum: string,
+    paymentHash: string,
+    network: Core.NetworkId,
+  ): string {
+    const {
+      authorizedStakingKeys: [poolStakingCredential],
+    } = parse(
+      V3Types.SettingsDatum,
+      Core.PlutusData.fromCbor(Core.HexBlob(datum)),
+    );
+    return Core.addressFromCredentials(
+      network,
+      Core.Credential.fromCore({
+        hash: Core.Hash28ByteBase16(paymentHash),
+        type: Core.CredentialType.ScriptHash,
+      }),
+      DatumBuilderV3.credentialToCore(poolStakingCredential),
+    ).toBech32();
+  }
+
+  static getTreasuryAddress(datum: string, network: Core.NetworkId): string {
+    const { treasuryAddress } = parse(
+      V3Types.SettingsDatum,
+      Core.PlutusData.fromCbor(Core.HexBlob(datum)),
+    );
+
+    if (!treasuryAddress) {
+      throw new Error("Invalid treasury address in settings datum.");
+    }
+
+    let stakeCoreCredential: Core.Credential | undefined;
+    if (
+      treasuryAddress.stakeCredential &&
+      "Inline" in treasuryAddress.stakeCredential
+    ) {
+      const [credential] = treasuryAddress.stakeCredential.Inline;
+      stakeCoreCredential = DatumBuilderV3.credentialToCore(credential);
+    }
+
+    return Core.addressFromCredentials(
+      network,
+      DatumBuilderV3.credentialToCore(treasuryAddress.paymentCredential),
+      stakeCoreCredential,
     ).toBech32();
   }
 }

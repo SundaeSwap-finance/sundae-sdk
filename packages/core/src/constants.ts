@@ -1,3 +1,6 @@
+import { Void } from "@blaze-cardano/data";
+import { Core } from "@blaze-cardano/sdk";
+
 /**
  * The minimum asset length is determined by the hex-encoded byte string length of a Policy ID.
  * This condition is ignored for the Cardano $ADA asset, which has a Policy ID and Asset Name of "".
@@ -55,3 +58,7 @@ export const ORDER_ROUTE_DEPOSIT_DEFAULT = 3_000_000n;
 export const CANCEL_REDEEMER = "d87a80";
 export const CONTRACT_V1_PREFIX = "6c7020";
 export const CONTRACT_V3_PREFIX = "0014df10";
+
+export const VOID_BYTES = Core.PlutusData.newBytes(
+  Buffer.from(Void().toCbor(), "hex"),
+);

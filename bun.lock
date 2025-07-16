@@ -30,13 +30,13 @@
     },
     "packages/cli": {
       "name": "@sundaeswap/cli",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "bin": "./dist/cli/index.js",
       "dependencies": {
         "@blaze-cardano/sdk": "0.2.27",
         "@inquirer/prompts": "^7.5.0",
         "@sundaeswap/asset": "^1.0.7",
-        "@sundaeswap/core": "^2.0.4",
+        "@sundaeswap/core": "^2.5.0",
         "asciify-image": "^0.1.10",
         "clipboardy": "^4.0.0",
       },
@@ -50,7 +50,7 @@
     },
     "packages/core": {
       "name": "@sundaeswap/core",
-      "version": "2.4.1",
+      "version": "2.5.0",
       "devDependencies": {
         "@blaze-cardano/emulator": "^0.3.28",
         "@sundaeswap/bigint-math": "^0.6.3",
@@ -61,7 +61,8 @@
         "cbor": "^9.0.0",
       },
       "peerDependencies": {
-        "@blaze-cardano/sdk": "^0.2.27",
+        "@blaze-cardano/data": "^0.6.1",
+        "@blaze-cardano/sdk": "^0.2.31",
         "@sundaeswap/asset": "^1.0.7",
         "@sundaeswap/bigint-math": "^0.6.3",
         "@sundaeswap/cpp": "^1.0.7",
@@ -75,7 +76,7 @@
         "@blaze-cardano/sdk": "^0.2.27",
         "@sundaeswap/asset": "^1.0.3",
         "@sundaeswap/bigint-math": "^0.6.3",
-        "@sundaeswap/core": "^2.4.1",
+        "@sundaeswap/core": "^2.5.0",
         "@sundaeswap/cpp": "^1.0.3",
         "@sundaeswap/fraction": "^1.0.3",
         "@sundaeswap/taste-test": "^3.0.1",
@@ -165,7 +166,8 @@
         "@sundaeswap/core": "workspace:*",
       },
       "peerDependencies": {
-        "@blaze-cardano/sdk": "^0.2.27",
+        "@blaze-cardano/data": "^0.6.0",
+        "@blaze-cardano/sdk": "^0.2.31",
         "@sundaeswap/asset": "^1.0.6",
         "@sundaeswap/core": "^2.1.0",
       },
@@ -407,6 +409,8 @@
     "@biglup/is-cid": ["@biglup/is-cid@1.0.3", "", { "dependencies": { "@multiformats/mafmt": "^12.1.6", "@multiformats/multiaddr": "^12.1.14", "iso-url": "^1.1.3", "multiformats": "^13.0.1", "uint8arrays": "^5.0.1" } }, "sha512-R0XPZ/IQhU2TtetSFI9vI+7kJOJYNiCncn5ixEBW+/LNaZCo2HK37Mq3pRNzrM4FryuAkyeqY7Ujmj3I3e3t9g=="],
 
     "@blaze-cardano/core": ["@blaze-cardano/core@0.6.3", "", { "dependencies": { "@cardano-sdk/core": "^0.45.0", "@cardano-sdk/crypto": "^0.1.32", "@cardano-sdk/util": "^0.15.5", "@noble/curves": "^1.8.1", "@noble/ed25519": "^2.2.3", "@noble/hashes": "^1.7.1", "@scure/bip39": "^1.5.4", "blakejs": "^1.2.1" } }, "sha512-Ih8HdZLOIgmP1783uvE4IwOd8tEoOZp6yxmaWxpAYI1g9/jJbv+0s5WAAQhGq6cHDj/XRmYTpurVggFpdGQlNQ=="],
+
+    "@blaze-cardano/data": ["@blaze-cardano/data@0.6.1", "", { "dependencies": { "@blaze-cardano/core": "0.6.4", "@sinclair/typebox": "^0.34.28" } }, "sha512-z3SZUYJMoQQNphrNxUiBqOlbmK1I1RwsmMagC/qQShH8YMy7VZT3Y+Gs6/izCtRznabL5NRdJKx1vR19tyKt8Q=="],
 
     "@blaze-cardano/emulator": ["@blaze-cardano/emulator@0.3.28", "", { "dependencies": { "@blaze-cardano/core": "0.6.4", "@blaze-cardano/query": "0.5.0", "@blaze-cardano/tx": "0.12.3", "@blaze-cardano/vm": "0.1.10", "@blaze-cardano/wallet": "0.4.7" } }, "sha512-lcCNObqI3pZjkhdAMe8lccnrmDs9P7qe6IEut94t9w9cuna+UZkkj2BaEfovfVJOm0ZQKnX3cIkaW+nX2SUhmg=="],
 
@@ -1018,7 +1022,7 @@
 
     "@sigstore/verify": ["@sigstore/verify@1.2.1", "", { "dependencies": { "@sigstore/bundle": "^2.3.2", "@sigstore/core": "^1.1.0", "@sigstore/protobuf-specs": "^0.3.2" } }, "sha512-8iKx79/F73DKbGfRf7+t4dqrc0bRr0thdPrxAtCKWRm/F0tG71i6O1rvlnScncJLLBZHn3h8M3c1BSUAb9yu8g=="],
 
-    "@sinclair/typebox": ["@sinclair/typebox@0.24.51", "", {}, "sha512-1P1OROm/rdubP5aFDSZQILU0vrLCJ4fvHt6EoqHEM+2D/G5MK3bIaymUKLit8Js9gbns5UyJnkP/TZROLw4tUA=="],
+    "@sinclair/typebox": ["@sinclair/typebox@0.34.38", "", {}, "sha512-HpkxMmc2XmZKhvaKIZZThlHmx1L0I/V1hWK1NubtlFnr6ZqdiOpV72TKudZUNQjZNsyDBay72qFEhEvb+bcwcA=="],
 
     "@sindresorhus/is": ["@sindresorhus/is@4.6.0", "", {}, "sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw=="],
 
@@ -3928,6 +3932,8 @@
 
     "@babel/traverse/globals": ["globals@11.12.0", "", {}, "sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA=="],
 
+    "@blaze-cardano/data/@blaze-cardano/core": ["@blaze-cardano/core@0.6.4", "", { "dependencies": { "@cardano-sdk/core": "0.45.0", "@cardano-sdk/crypto": "^0.1.32", "@cardano-sdk/util": "^0.15.5", "@noble/curves": "^1.8.1", "@noble/ed25519": "^2.2.3", "@noble/hashes": "^1.7.1", "@scure/bip39": "^1.5.4", "blakejs": "^1.2.1" } }, "sha512-98rBWv9NwoASjYBUwfozIOdmwDe1F8B9q20Y2lw9tQG8bY2mcY1tGoZHxoCEfj+5cAU41giad1YbdGVjs4shCA=="],
+
     "@blaze-cardano/emulator/@blaze-cardano/core": ["@blaze-cardano/core@0.6.4", "", { "dependencies": { "@cardano-sdk/core": "0.45.0", "@cardano-sdk/crypto": "^0.1.32", "@cardano-sdk/util": "^0.15.5", "@noble/curves": "^1.8.1", "@noble/ed25519": "^2.2.3", "@noble/hashes": "^1.7.1", "@scure/bip39": "^1.5.4", "blakejs": "^1.2.1" } }, "sha512-98rBWv9NwoASjYBUwfozIOdmwDe1F8B9q20Y2lw9tQG8bY2mcY1tGoZHxoCEfj+5cAU41giad1YbdGVjs4shCA=="],
 
     "@blaze-cardano/emulator/@blaze-cardano/query": ["@blaze-cardano/query@0.5.0", "", { "dependencies": { "@blaze-cardano/core": "0.6.4", "@blaze-cardano/jest-config": "0.0.1", "@blaze-cardano/ogmios": "0.0.7", "@cardano-ogmios/schema": "^6.6.1", "ws": "^8.17.1" } }, "sha512-BSF7w2hqQr7a0qBbjoc4Ai7+6C9Jbqa1hhjKqOXen1Xfo6+IBcHzfVk/VnqcGYb0nE2xW21mGl/E8jhqIg+aog=="],
@@ -4029,6 +4035,8 @@
     "@jest/reporters/jest-message-util": ["jest-message-util@29.7.0", "", { "dependencies": { "@babel/code-frame": "^7.12.13", "@jest/types": "^29.6.3", "@types/stack-utils": "^2.0.0", "chalk": "^4.0.0", "graceful-fs": "^4.2.9", "micromatch": "^4.0.4", "pretty-format": "^29.7.0", "slash": "^3.0.0", "stack-utils": "^2.0.3" } }, "sha512-GBEV4GRADeP+qtB2+6u61stea8mGcOT4mCtrYISZwfu9/ISHFJ/5zOMXYbpBE9RsS5+Gb63DW4FgmnKJ79Kf6w=="],
 
     "@jest/reporters/strip-ansi": ["strip-ansi@6.0.1", "", { "dependencies": { "ansi-regex": "^5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
+
+    "@jest/schemas/@sinclair/typebox": ["@sinclair/typebox@0.24.51", "", {}, "sha512-1P1OROm/rdubP5aFDSZQILU0vrLCJ4fvHt6EoqHEM+2D/G5MK3bIaymUKLit8Js9gbns5UyJnkP/TZROLw4tUA=="],
 
     "@jest/transform/write-file-atomic": ["write-file-atomic@4.0.2", "", { "dependencies": { "imurmurhash": "^0.1.4", "signal-exit": "^3.0.7" } }, "sha512-7KxauUdBmSdWnmpaGFg+ppNjKF8uNLry8LyzjauQDOVONfFLNKrKvQOxZ/VuTIcS/gge/YNahf5RIIQWTSarlg=="],
 
