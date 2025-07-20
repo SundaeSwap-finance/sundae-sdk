@@ -1314,15 +1314,15 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
   ): Promise<Core.TransactionUnspentOutput[]> {
     const utxos = await this.blaze.wallet.getUnspentOutputs();
     const neededValue = new Core.Value(5_000_000n); // Start with a 5 ADA requirement to cover fee and minting costs.
+    const multiAsset = new Map<Core.AssetId, bigint>();
     requiredAssets.forEach((asset) => {
       if (SundaeUtils.isAdaAsset(asset.metadata)) {
         neededValue.setCoin(asset.amount);
       } else {
-        neededValue.setMultiasset(
-          new Map([[Core.AssetId(asset.metadata.assetId), asset.amount]]),
-        );
+        multiAsset.set(Core.AssetId(asset.metadata.assetId), asset.amount);
       }
     });
+    neededValue.setMultiasset(multiAsset);
 
     const chosenUtxos = CoinSelector.micahsSelector(
       utxos,
