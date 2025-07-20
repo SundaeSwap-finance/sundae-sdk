@@ -13,7 +13,7 @@ import {
   IDatumBuilderPoolMintRedeemerV3Args,
   IDatumBuilderSwapV3Args,
   IDatumBuilderWithdrawV3Args,
-} from "../DatumBuilder.V3.class.js";
+} from "../DatumBuilder.V3Like.class.js";
 
 const DEFAULT_DESTINATION_ADDRESS = PREVIEW_DATA.addresses.alternatives[2];
 

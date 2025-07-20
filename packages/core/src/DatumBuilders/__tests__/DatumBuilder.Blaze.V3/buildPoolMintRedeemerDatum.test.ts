@@ -8,13 +8,13 @@ import {
   spyOn,
 } from "bun:test";
 
-import { DatumBuilderV3 } from "../../DatumBuilder.V3.class.js";
+import { DatumBuilderV3Like } from "../../DatumBuilder.V3Like.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
-let builderInstance: DatumBuilderV3;
+let builderInstance: DatumBuilderV3Like;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderV3("preview");
+  builderInstance = new DatumBuilderV3Like("preview");
 });
 
 afterEach(() => {
@@ -24,7 +24,7 @@ afterEach(() => {
 describe("buildPoolMintRedeemerDatum()", () => {
   it("should build the pool mint redeemer datum properly", () => {
     const spiedOnBuildLexicographicalAssetsDatum = spyOn(
-      DatumBuilderV3.prototype,
+      DatumBuilderV3Like.prototype,
       "buildLexicographicalAssetsDatum",
     );
 

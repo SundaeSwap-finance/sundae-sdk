@@ -11,7 +11,7 @@ import { QueryProviderSundaeSwap } from "src/exports/core.js";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
-import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
+import { DatumBuilderV3Like } from "../../DatumBuilders/DatumBuilder.V3Like.class.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import {
   ADA_METADATA,
@@ -208,7 +208,7 @@ describe("TxBuilderNftCheck", () => {
     ]);
 
     const spiedGetSignerKeyFromDatum = spyOn(
-      DatumBuilderV3,
+      DatumBuilderV3Like,
       "getSignerKeyFromDatum",
     );
 
@@ -408,7 +408,7 @@ describe("TxBuilderNftCheck", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        DatumBuilderV3.INVALID_POOL_IDENT,
+        DatumBuilderV3Like.INVALID_POOL_IDENT,
       );
     }
   });
@@ -767,7 +767,7 @@ describe("TxBuilderNftCheck", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        DatumBuilderV3.INVALID_POOL_IDENT,
+        DatumBuilderV3Like.INVALID_POOL_IDENT,
       );
     }
   });
@@ -868,7 +868,7 @@ describe("TxBuilderNftCheck", () => {
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
-        DatumBuilderV3.INVALID_POOL_IDENT,
+        DatumBuilderV3Like.INVALID_POOL_IDENT,
       );
     }
   });

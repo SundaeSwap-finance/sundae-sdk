@@ -10,7 +10,7 @@ import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
-import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
+import { DatumBuilderV3Like } from "../../DatumBuilders/DatumBuilder.V3Like.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import {
@@ -190,7 +190,7 @@ describe("TxBuilderBlazeV3", () => {
     ]);
 
     const spiedGetSignerKeyFromDatum = spyOn(
-      DatumBuilderV3,
+      DatumBuilderV3Like,
       "getSignerKeyFromDatum",
     );
 
@@ -390,7 +390,7 @@ describe("TxBuilderBlazeV3", () => {
         suppliedAsset: PREVIEW_DATA.assets.tada,
       });
     } catch (e) {
-      expect((e as Error).message).toEqual(DatumBuilderV3.INVALID_POOL_IDENT);
+      expect((e as Error).message).toEqual(DatumBuilderV3Like.INVALID_POOL_IDENT);
     }
   });
 
@@ -669,7 +669,7 @@ describe("TxBuilderBlazeV3", () => {
         suppliedAssets: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
       });
     } catch (e) {
-      expect((e as Error).message).toEqual(DatumBuilderV3.INVALID_POOL_IDENT);
+      expect((e as Error).message).toEqual(DatumBuilderV3Like.INVALID_POOL_IDENT);
     }
   });
 
@@ -768,7 +768,7 @@ describe("TxBuilderBlazeV3", () => {
         suppliedLPAsset: PREVIEW_DATA.assets.v3LpToken,
       });
     } catch (e) {
-      expect((e as Error).message).toEqual(DatumBuilderV3.INVALID_POOL_IDENT);
+      expect((e as Error).message).toEqual(DatumBuilderV3Like.INVALID_POOL_IDENT);
     }
   });
 

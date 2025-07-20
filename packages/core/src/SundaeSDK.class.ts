@@ -11,6 +11,7 @@ import {
   TxBuilderV1,
   TxBuilderV3,
 } from "./TxBuilders/index.js";
+import { TxBuilderStableswaps } from "./TxBuilders/TxBuilder.Stableswaps.class.js";
 
 export const SDK_OPTIONS_DEFAULTS: Pick<
   ISundaeSDKOptions,
@@ -87,6 +88,10 @@ export class SundaeSDK {
       EContractVersion.NftCheck,
       new TxBuilderNftCheck(instance.options.blazeInstance),
     );
+    instance.builders.set(
+      EContractVersion.Stableswaps,
+      new TxBuilderStableswaps(instance.options.blazeInstance),
+    );
 
     return instance;
   }
@@ -99,6 +104,7 @@ export class SundaeSDK {
   builder(contractVersion: EContractVersion.V1): TxBuilderV1;
   builder(contractVersion: EContractVersion.V3): TxBuilderV3;
   builder(contractVersion: EContractVersion.NftCheck): TxBuilderNftCheck;
+  builder(contractVersion: EContractVersion.Stableswaps): TxBuilderStableswaps;
   builder(contractVersion?: EContractVersion): TTxBuilder;
   builder(contractVersion: EContractVersion = EContractVersion.V3): TTxBuilder {
     const builder = this.builders.get(contractVersion);
@@ -115,6 +121,8 @@ export class SundaeSDK {
         return builder as TxBuilderV3;
       case EContractVersion.NftCheck:
         return builder as TxBuilderNftCheck;
+      case EContractVersion.Stableswaps:
+        return builder as TxBuilderStableswaps;
       default:
         throw new Error("Unreachable.");
     }

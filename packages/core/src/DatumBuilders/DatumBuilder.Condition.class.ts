@@ -5,13 +5,27 @@ import { TDatumResult } from "../@types/datumbuilder.js";
 import { DatumBuilderAbstractCondition } from "../Abstracts/DatumBuilderCondition.abstract.class.js";
 import { VOID_BYTES } from "../constants.js";
 import * as ConditionTypes from "./ContractTypes/Contract.Condition.js";
-import {
-  DatumBuilderV3,
-  IDatumBuilderMintPoolArgs,
-} from "./DatumBuilder.V3.class.js";
+import { IDatumBuilderNftCheckArgs } from "./DatumBuilder.NftCheck.class.js";
+import { IDatumBuilderMintV3PoolArgs } from "./DatumBuilder.V3.class.js";
+import { DatumBuilderV3Like } from "./DatumBuilder.V3Like.class.js";
+
+/**
+ * A union type representing the potential arguments for building a Condition datum.
+ */
+export type TConditionDatumArgs = IDatumBuilderNftCheckArgs;
+
+/**
+ * The arguments for building a minting a new pool transaction against
+ * the V3 & Condition pool contract.
+ */
+export interface IDatumBuilderMintConditionPoolArgs
+  extends IDatumBuilderMintV3PoolArgs {
+  condition?: string;
+  conditionDatumArgs?: TConditionDatumArgs;
+}
 
 export class DatumBuilderCondition
-  extends DatumBuilderV3
+  extends DatumBuilderV3Like
   implements DatumBuilderAbstractCondition
 {
   /** The error to throw when the pool ident does not match V1 constraints. */
@@ -47,7 +61,7 @@ export class DatumBuilderCondition
     seedUtxo,
     condition,
     conditionDatumArgs,
-  }: IDatumBuilderMintPoolArgs): TDatumResult<ConditionTypes.ConditionPoolDatum> {
+  }: IDatumBuilderMintConditionPoolArgs): TDatumResult<ConditionTypes.ConditionPoolDatum> {
     const ident = DatumBuilderCondition.computePoolId(seedUtxo);
     const liquidity = sqrt(assetA.amount * assetB.amount);
 

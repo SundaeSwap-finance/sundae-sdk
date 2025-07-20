@@ -7,18 +7,17 @@ import {
   mock,
   spyOn,
 } from "bun:test";
-
-import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
+import { STABLESWAP_EXPECTATIONS } from "../../__data__/stableswaps.expectations.js";
 import {
-  DatumBuilderV3,
-  IDatumBuilderMintV3PoolArgs
-} from "../../DatumBuilder.V3.class.js";
+  DatumBuilderStableswaps,
+  IDatumBuilderMintStablePoolArgs,
+} from "../../DatumBuilder.Stableswaps.class.js";
 import { DatumBuilderV3Like } from "../../DatumBuilder.V3Like.class.js";
 
-let builderInstance: DatumBuilderV3;
+let builderInstance: DatumBuilderStableswaps;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderV3("preview");
+  builderInstance = new DatumBuilderStableswaps("preview");
 });
 
 afterEach(() => {
@@ -29,60 +28,35 @@ describe("builderMintPoolDatum()", () => {
   it("should build the pool mint datum properly", () => {
     const spiedOnComputePoolId = spyOn(DatumBuilderV3Like, "computePoolId");
     const spiedOnBuildLexicographicalAssetsDatum = spyOn(
-      DatumBuilderV3Like.prototype,
+      DatumBuilderStableswaps.prototype,
       "buildLexicographicalAssetsDatum",
     );
 
-    const { inline, hash } = builderInstance.buildMintPoolDatum(
-      V3_EXPECTATIONS.buildMintPoolDatum[0].args,
+    const { inline, hash, schema } = builderInstance.buildMintPoolDatum(
+      STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].args,
+    );
+
+    expect(schema.sumInvariant).toEqual(
+      STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].expectations.sumInvariant,
     );
 
     expect(spiedOnComputePoolId).toHaveBeenNthCalledWith(
-      ...(V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.calledWith as [
-        number,
-        IDatumBuilderMintV3PoolArgs["seedUtxo"],
-      ]),
+      ...(STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].expectations
+        .calledWith as [number, IDatumBuilderMintStablePoolArgs["seedUtxo"]]),
     );
     expect(spiedOnComputePoolId).toHaveReturnedTimes(
-      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations
+      STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].expectations
         .returnedWith[0] as number,
     );
     expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(
-      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations
+      STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].expectations
         .buildLexicographicalAssetsDatumCalls,
     );
     expect(inline).toEqual(
-      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.inline,
+      STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].expectations.inline,
     );
     expect(hash).toEqual(
-      V3_EXPECTATIONS.buildMintPoolDatum[0].expectations.hash,
-    );
-  });
-
-  it("should build the pool mint datum properly with split fees", () => {
-    const spiedOnComputePoolId = spyOn(DatumBuilderV3Like, "computePoolId");
-    const spiedOnBuildLexicographicalAssetsDatum = spyOn(
-      DatumBuilderV3Like.prototype,
-      "buildLexicographicalAssetsDatum",
-    );
-
-    const { inline, hash } = builderInstance.buildMintPoolDatum(
-      V3_EXPECTATIONS.buildMintPoolDatum[1].args,
-    );
-
-    expect(spiedOnComputePoolId).toHaveReturnedTimes(
-      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations
-        .returnedWith[0] as number,
-    );
-    expect(spiedOnBuildLexicographicalAssetsDatum).toHaveBeenCalledTimes(
-      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations
-        .buildLexicographicalAssetsDatumCalls,
-    );
-    expect(inline).toEqual(
-      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations.inline,
-    );
-    expect(hash).toEqual(
-      V3_EXPECTATIONS.buildMintPoolDatum[1].expectations.hash,
+      STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].expectations.hash,
     );
   });
 
@@ -90,19 +64,19 @@ describe("builderMintPoolDatum()", () => {
     const feeManagerAddress =
       "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68";
     const argsWithFeeManager = {
-      ...V3_EXPECTATIONS.buildMintPoolDatum[0].args,
+      ...STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].args,
       feeManager: feeManagerAddress,
     };
 
     const { schema } = builderInstance.buildMintPoolDatum(argsWithFeeManager);
 
-    expect(schema.feeManager).not.toBeUndefined();
+    expect(schema.feeManager).not.toBeNull();
     if (schema.feeManager && "Signature" in schema.feeManager) {
       expect(schema.feeManager.Signature).toHaveProperty("keyHash");
       expect(typeof schema.feeManager.Signature.keyHash).toBe("string");
       expect(schema.feeManager.Signature.keyHash.length).toBeGreaterThan(0);
     } else {
-      expect().fail("Expected feeManager to be an Address type");
+      expect().fail("Expected feeManager to be an Signature type");
     }
   });
 
@@ -110,13 +84,13 @@ describe("builderMintPoolDatum()", () => {
     const feeManagerScriptAddress =
       "addr_test1wpesulg5dtt5y73r4zzay9qmy3wnlrxdg944xg4rzuvewls7nrsf0";
     const argsWithFeeManager = {
-      ...V3_EXPECTATIONS.buildMintPoolDatum[0].args,
+      ...STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].args,
       feeManager: feeManagerScriptAddress,
     };
 
     const { schema } = builderInstance.buildMintPoolDatum(argsWithFeeManager);
 
-    expect(schema.feeManager).not.toBeUndefined();
+    expect(schema.feeManager).not.toBeNull();
     if (schema.feeManager && "Script" in schema.feeManager) {
       expect(schema.feeManager.Script).toHaveProperty("scriptHash");
       expect(typeof schema.feeManager.Script.scriptHash).toBe("string");
@@ -130,13 +104,13 @@ describe("builderMintPoolDatum()", () => {
     const feeManagerScriptAddress =
       "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe";
     const argsWithFeeManager = {
-      ...V3_EXPECTATIONS.buildMintPoolDatum[0].args,
+      ...STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].args,
       feeManager: feeManagerScriptAddress,
     };
 
     const { schema } = builderInstance.buildMintPoolDatum(argsWithFeeManager);
 
-    expect(schema.feeManager).not.toBeUndefined();
+    expect(schema.feeManager).not.toBeNull();
     if (schema.feeManager && "Script" in schema.feeManager) {
       expect(schema.feeManager.Script.scriptHash).toBeDefined();
       expect(schema.feeManager.Script.scriptHash).toBe(
@@ -148,17 +122,17 @@ describe("builderMintPoolDatum()", () => {
     }
   });
 
-  it("should build the pool mint datum with null feeManager when not provided", () => {
+  it("should build the pool mint datum with undefined feeManager when not provided", () => {
     const { schema } = builderInstance.buildMintPoolDatum(
-      V3_EXPECTATIONS.buildMintPoolDatum[0].args,
+      STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].args,
     );
 
     expect(schema.feeManager).toBeUndefined();
   });
 
-  it("should build the pool mint datum with null feeManager when empty string provided", () => {
+  it("should build the pool mint datum with undefined feeManager when empty string provided", () => {
     const argsWithEmptyFeeManager = {
-      ...V3_EXPECTATIONS.buildMintPoolDatum[0].args,
+      ...STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].args,
       feeManager: "",
     };
 
@@ -172,7 +146,7 @@ describe("builderMintPoolDatum()", () => {
   it("should throw an error for invalid feeManager address", () => {
     const invalidAddress = "invalid_address";
     const argsWithInvalidFeeManager = {
-      ...V3_EXPECTATIONS.buildMintPoolDatum[0].args,
+      ...STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].args,
       feeManager: invalidAddress,
     };
 
@@ -187,13 +161,13 @@ describe("builderMintPoolDatum()", () => {
     const feeManagerAddress =
       "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68";
     const argsWithFeeManager = {
-      ...V3_EXPECTATIONS.buildMintPoolDatum[0].args,
+      ...STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].args,
       feeManager: feeManagerAddress,
     };
 
     const { schema } = builderInstance.buildMintPoolDatum(argsWithFeeManager);
 
-    expect(schema.feeManager).not.toBeUndefined();
+    expect(schema.feeManager).not.toBeNull();
     if (schema.feeManager && "Signature" in schema.feeManager) {
       expect(schema.feeManager.Signature.keyHash).toBeDefined();
       expect(schema.feeManager.Signature.keyHash).toBe(
@@ -210,14 +184,14 @@ describe("builderMintPoolDatum()", () => {
     const nonScriptAddress =
       "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68";
     const argsWithNonScriptFeeManager = {
-      ...V3_EXPECTATIONS.buildMintPoolDatum[0].args,
+      ...STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].args,
       feeManager: nonScriptAddress,
     };
 
     const { schema: schemaNonScript } = builderInstance.buildMintPoolDatum(
       argsWithNonScriptFeeManager,
     );
-    expect(schemaNonScript.feeManager).not.toBeUndefined();
+    expect(schemaNonScript.feeManager).not.toBeNull();
     expect("Signature" in schemaNonScript.feeManager!).toBe(true);
     expect("Script" in schemaNonScript.feeManager!).toBe(false);
 
@@ -225,14 +199,14 @@ describe("builderMintPoolDatum()", () => {
     const scriptAddress =
       "addr_test1wpesulg5dtt5y73r4zzay9qmy3wnlrxdg944xg4rzuvewls7nrsf0";
     const argsWithScriptFeeManager = {
-      ...V3_EXPECTATIONS.buildMintPoolDatum[0].args,
+      ...STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].args,
       feeManager: scriptAddress,
     };
 
     const { schema: schemaScript } = builderInstance.buildMintPoolDatum(
       argsWithScriptFeeManager,
     );
-    expect(schemaScript.feeManager).not.toBeUndefined();
+    expect(schemaScript.feeManager).not.toBeNull();
     expect("Script" in schemaScript.feeManager!).toBe(true);
     expect("Signature" in schemaScript.feeManager!).toBe(false);
   });

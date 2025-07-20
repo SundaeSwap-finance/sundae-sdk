@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
-import { DatumBuilderV3 } from "../../DatumBuilder.V3.class.js";
+import { DatumBuilderV3Like } from "../../DatumBuilder.V3Like.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
-let builderInstance: DatumBuilderV3;
+let builderInstance: DatumBuilderV3Like;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderV3("preview");
+  builderInstance = new DatumBuilderV3Like("preview");
 });
 
 afterEach(() => {
@@ -16,7 +16,7 @@ afterEach(() => {
 describe("static getSignerKeyFromDatum()", () => {
   it("should properly extract the owner's key hash from the datum", () => {
     expect(
-      DatumBuilderV3.getSignerKeyFromDatum(
+      DatumBuilderV3Like.getSignerKeyFromDatum(
         V3_EXPECTATIONS.getSignerKeyFromDatum[0].args,
       ),
     ).toEqual(V3_EXPECTATIONS.getSignerKeyFromDatum[0].expectations.result);

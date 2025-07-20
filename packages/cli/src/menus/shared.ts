@@ -1,16 +1,73 @@
 /* eslint-disable no-console */
+import { cborToScript, Core } from "@blaze-cardano/sdk";
 import { input, select } from "@inquirer/prompts";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
-import { ADA_METADATA } from "@sundaeswap/core";
+import { ADA_METADATA, type TTxBuilder } from "@sundaeswap/core";
 import packageJson from "../../package.json" assert { type: "json" };
 import type { State } from "../types";
 import { prettyAssetId } from "../utils";
+import { transactionDialog } from "./transaction.ts";
 
 const asciify = (await import("asciify-image")).default;
 
 let asciiLogo: string[] = [];
 
 const logoPath = `${__dirname}/../../data/sundae.png`;
+
+export async function ensureDeployment<g extends TTxBuilder>(
+  validator: string,
+  txBuilder: g,
+): Promise<g> {
+  const protocolParams = await txBuilder.getProtocolParams();
+  if (!protocolParams) {
+    throw new Error(
+      "Protocol parameters not found. Please ensure the SDK is properly initialized.",
+    );
+  }
+  const validatorScript = protocolParams.blueprint.validators.find(
+    (v) => v.title === validator,
+  );
+  if (!validatorScript) {
+    throw new Error(
+      `Validator script with title "${validator}" not found in protocol parameters.`,
+    );
+  }
+  if (protocolParams.references.find((ref) => ref.key === validator)) {
+    return txBuilder;
+  }
+
+  let refUtxo = await txBuilder.blaze.provider.resolveScriptRef(
+    Core.Hash28ByteBase16(validatorScript.hash),
+  );
+  if (!refUtxo) {
+    const deployTx = await txBuilder.blaze
+      .newTransaction()
+      .deployScript(cborToScript(validatorScript.compiledCode, "PlutusV3"))
+      .complete();
+    await transactionDialog(deployTx.toCbor(), false);
+    await input({
+      message:
+        "Press enter to continue after the deployment transaction is confirmed.",
+    });
+    refUtxo = await txBuilder.blaze.provider.resolveScriptRef(
+      Core.Hash28ByteBase16(validatorScript.hash),
+    );
+    if (!refUtxo) {
+      throw new Error(
+        `Failed to resolve script reference for validator "${validator}".`,
+      );
+    }
+  }
+  protocolParams.references.push({
+    key: validator,
+    txIn: {
+      hash: refUtxo.input().transactionId().toString(),
+      index: Number(refUtxo.input().index()),
+    },
+  });
+  txBuilder.protocolParams = protocolParams;
+  return txBuilder;
+}
 
 export async function setAsciiLogo(size: number): Promise<void> {
   await asciify(logoPath, {
