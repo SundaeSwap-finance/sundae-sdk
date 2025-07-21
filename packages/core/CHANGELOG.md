@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.6.1
+
+### Patch Changes
+
+- 322374a: Fix coin selection for exotic pool minting.
+
 ## 2.6.0
 
 ### Minor Changes
