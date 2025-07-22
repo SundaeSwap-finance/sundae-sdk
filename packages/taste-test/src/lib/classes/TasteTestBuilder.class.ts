@@ -1,15 +1,9 @@
-import {
-  Blaze,
-  Core,
-  Data,
-  Provider,
-  TxBuilder,
-  Wallet,
-} from "@blaze-cardano/sdk";
+import { Blaze, Core, Provider, TxBuilder, Wallet } from "@blaze-cardano/sdk";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import type { IComposedTx, ITxBuilderReferralFee } from "@sundaeswap/core";
 import { ADA_METADATA } from "@sundaeswap/core/utilities";
 
+import { parse, serialize } from "@blaze-cardano/data";
 import {
   LiquidityNodeAction,
   LiquidityNodeValidatorAction,
@@ -187,39 +181,30 @@ export class TasteTestBuilder implements AbstractTasteTest {
       throw new Error("Could not find datum from covering node.");
     }
 
-    const coveringNodeDatum = Data.from(plutusData, LiquiditySetNode);
+    const coveringNodeDatum = parse(LiquiditySetNode, plutusData);
 
-    const prevNodeDatum = Data.to(
-      {
-        key: coveringNodeDatum.key,
-        next: userKey,
-        commitment: 0n,
+    const prevNodeDatum = serialize(LiquiditySetNode, {
+      key: coveringNodeDatum.key,
+      next: userKey,
+      commitment: 0n,
+    });
+
+    const nodeDatum = serialize(LiquiditySetNode, {
+      key: userKey,
+      next: coveringNodeDatum.next,
+      commitment: 0n,
+    });
+
+    const redeemerNodePolicy = serialize(LiquidityNodeAction, {
+      PInsert: {
+        keyToInsert: userKey,
+        coveringNode: coveringNodeDatum,
       },
-      LiquiditySetNode,
-    );
+    });
 
-    const nodeDatum = Data.to(
-      {
-        key: userKey,
-        next: coveringNodeDatum.next,
-        commitment: 0n,
-      },
-      LiquiditySetNode,
-    );
-
-    const redeemerNodePolicy = Data.to(
-      {
-        PInsert: {
-          keyToInsert: userKey,
-          coveringNode: coveringNodeDatum,
-        },
-      },
-      LiquidityNodeAction,
-    );
-
-    const redeemerNodeValidator = Data.to(
-      "LinkedListAct",
+    const redeemerNodeValidator = serialize(
       LiquidityNodeValidatorAction,
+      "LinkedListAct",
     );
 
     let nodePolicyId: string | undefined;
@@ -333,9 +318,9 @@ export class TasteTestBuilder implements AbstractTasteTest {
       throw new Error("Could not find covering node.");
     }
 
-    const redeemerNodeValidator = Data.to(
-      "ModifyCommitment",
+    const redeemerNodeValidator = serialize(
       LiquidityNodeValidatorAction,
+      "ModifyCommitment",
     );
 
     const newNodeAssets = new Core.Value(
@@ -411,8 +396,8 @@ export class TasteTestBuilder implements AbstractTasteTest {
       throw new Error("Could not find previous node.");
     }
 
-    const ownNodeDatum = Data.from(ownNodesPlutusData, LiquiditySetNode);
-    const prevNodeDatum = Data.from(prevNodesPlutusData, LiquiditySetNode);
+    const ownNodeDatum = parse(LiquiditySetNode, ownNodesPlutusData);
+    const prevNodeDatum = parse(LiquiditySetNode, prevNodesPlutusData);
 
     let nodePolicyId: string | undefined;
     if (args.scripts.policy.type === EScriptType.OUTREF) {
@@ -440,19 +425,19 @@ export class TasteTestBuilder implements AbstractTasteTest {
       commitment: 0n,
     };
 
-    const newPrevNodeDatum = Data.to(newPrevNodeSchema, LiquiditySetNode);
+    const newPrevNodeDatum = serialize(LiquiditySetNode, newPrevNodeSchema);
 
-    const redeemerNodePolicy = Data.to(
-      {
-        PRemove: {
-          keyToRemove: userKey,
-          coveringNode: newPrevNodeSchema,
-        },
+    const redeemerNodePolicy = serialize(LiquidityNodeAction, {
+      PRemove: {
+        keyToRemove: userKey,
+        coveringNode: newPrevNodeSchema,
       },
-      LiquidityNodeAction,
-    );
+    });
 
-    const redeemerNodeValidator = Data.to("LinkedListAct", NodeValidatorAction);
+    const redeemerNodeValidator = serialize(
+      NodeValidatorAction,
+      "LinkedListAct",
+    );
 
     const [lowerBound, upperBound] = this._getTxBounds(
       args.time,
@@ -569,24 +554,21 @@ export class TasteTestBuilder implements AbstractTasteTest {
       throw new Error("Could not find the user's node.");
     }
 
-    const redeemerNodeValidator = Data.to(
-      "ClaimAct",
+    const redeemerNodeValidator = serialize(
       LiquidityNodeValidatorAction,
+      "ClaimAct",
     );
 
-    const burnRedeemer = Data.to(
-      {
-        PRemove: {
-          keyToRemove: userKey,
-          coveringNode: {
-            commitment: 0n,
-            key: null,
-            next: null,
-          },
+    const burnRedeemer = serialize(LiquidityNodeAction, {
+      PRemove: {
+        keyToRemove: userKey,
+        coveringNode: {
+          commitment: 0n,
+          key: undefined,
+          next: undefined,
         },
       },
-      LiquidityNodeAction,
-    );
+    });
 
     let nodePolicyId: string | undefined;
     if (args.scripts.policy.type === EScriptType.OUTREF) {
