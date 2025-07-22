@@ -1,3 +1,4 @@
+import { Void } from "@blaze-cardano/data";
 import {
   Blaze,
   TxBuilder as BlazeTx,
@@ -6,17 +7,16 @@ import {
 } from "@blaze-cardano/sdk";
 import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 
-import { Void } from "@blaze-cardano/data";
-import { QueryProviderSundaeSwap } from "src/exports/core.js";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
 import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
+import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import {
   ADA_METADATA,
   ORDER_DEPOSIT_DEFAULT,
-  POOL_MIN_FEE
+  POOL_MIN_FEE,
 } from "../../constants.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { TxBuilderNftCheck } from "../TxBuilder.NftCheck.class.js";
@@ -28,19 +28,13 @@ import {
   referenceUtxosBlaze,
   settingsUtxosBlaze,
 } from "../__data__/mockData.NftCheck.js";
-import {
-  params as v3Params,
-} from "../__data__/mockData.V3.js";
+import { params as v3Params } from "../__data__/mockData.V3.js";
 
-spyOn(
-  TxBuilderNftCheck.prototype,
-  "getProtocolParams",
-).mockResolvedValue(params);
+spyOn(TxBuilderNftCheck.prototype, "getProtocolParams").mockResolvedValue(
+  params,
+);
 
-spyOn(
-  TxBuilderV3.prototype,
-  "getProtocolParams",
-).mockResolvedValue(v3Params);
+spyOn(TxBuilderV3.prototype, "getProtocolParams").mockResolvedValue(v3Params);
 
 spyOn(
   QueryProviderSundaeSwap.prototype,
@@ -320,15 +314,10 @@ describe("TxBuilderNftCheck", () => {
       orderAddresses: {
         DestinationAddress: {
           address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          },
+          datum: { type: EDatumType.NONE },
         },
       },
-      swapType: {
-        type: ESwapType.MARKET,
-        slippage: 0.03,
-      },
+      swapType: { type: ESwapType.MARKET, slippage: 0.03 },
       pool: PREVIEW_DATA.pools.v3,
       suppliedAsset: PREVIEW_DATA.assets.tada,
     });
@@ -391,25 +380,15 @@ describe("TxBuilderNftCheck", () => {
         orderAddresses: {
           DestinationAddress: {
             address: PREVIEW_DATA.addresses.current,
-            datum: {
-              type: EDatumType.NONE,
-            },
+            datum: { type: EDatumType.NONE },
           },
         },
-        swapType: {
-          type: ESwapType.MARKET,
-          slippage: 0.03,
-        },
-        pool: {
-          ...PREVIEW_DATA.pools.v3,
-          ident: "00",
-        },
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: { ...PREVIEW_DATA.pools.v3, ident: "00" },
         suppliedAsset: PREVIEW_DATA.assets.tada,
       });
     } catch (e) {
-      expect((e as Error).message).toEqual(
-        DatumBuilderV3.INVALID_POOL_IDENT,
-      );
+      expect((e as Error).message).toEqual(DatumBuilderV3.INVALID_POOL_IDENT);
     }
   });
 
@@ -417,18 +396,12 @@ describe("TxBuilderNftCheck", () => {
     const { build, fees, datum } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
-        swapType: {
-          type: ESwapType.MARKET,
-          slippage: 0.03,
-        },
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
         pool: PREVIEW_DATA.pools.nftCheck,
         suppliedAsset: PREVIEW_DATA.assets.tindy,
       },
       swapB: {
-        swapType: {
-          type: ESwapType.MARKET,
-          slippage: 0.03,
-        },
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
         pool: {
           ...PREVIEW_DATA.pools.nftCheck,
           assetB: {
@@ -496,18 +469,12 @@ describe("TxBuilderNftCheck", () => {
     const { build, fees, datum } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
-        swapType: {
-          type: ESwapType.MARKET,
-          slippage: 0.03,
-        },
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
         pool: PREVIEW_DATA.pools.nftCheck,
         suppliedAsset: PREVIEW_DATA.assets.tindy,
       },
       swapB: {
-        swapType: {
-          type: ESwapType.MARKET,
-          slippage: 0.03,
-        },
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
         pool: {
           ...PREVIEW_DATA.pools.v3,
           assetB: {
@@ -574,18 +541,12 @@ describe("TxBuilderNftCheck", () => {
     const { build, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
-        swapType: {
-          type: ESwapType.MARKET,
-          slippage: 0.03,
-        },
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
         suppliedAsset: PREVIEW_DATA.assets.tindy,
         pool: PREVIEW_DATA.pools.v3,
       },
       swapB: {
-        swapType: {
-          type: ESwapType.MARKET,
-          slippage: 0.03,
-        },
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
         pool: {
           ...PREVIEW_DATA.pools.v1,
           ident: "04",
@@ -674,9 +635,7 @@ describe("TxBuilderNftCheck", () => {
       orderAddresses: {
         DestinationAddress: {
           address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          },
+          datum: { type: EDatumType.NONE },
         },
       },
       pool: PREVIEW_DATA.pools.v3,
@@ -754,21 +713,14 @@ describe("TxBuilderNftCheck", () => {
         orderAddresses: {
           DestinationAddress: {
             address: PREVIEW_DATA.addresses.current,
-            datum: {
-              type: EDatumType.NONE,
-            },
+            datum: { type: EDatumType.NONE },
           },
         },
-        pool: {
-          ...PREVIEW_DATA.pools.v3,
-          ident: "00",
-        },
+        pool: { ...PREVIEW_DATA.pools.v3, ident: "00" },
         suppliedAssets: [PREVIEW_DATA.assets.tada, PREVIEW_DATA.assets.tindy],
       });
     } catch (e) {
-      expect((e as Error).message).toEqual(
-        DatumBuilderV3.INVALID_POOL_IDENT,
-      );
+      expect((e as Error).message).toEqual(DatumBuilderV3.INVALID_POOL_IDENT);
     }
   });
 
@@ -783,9 +735,7 @@ describe("TxBuilderNftCheck", () => {
       orderAddresses: {
         DestinationAddress: {
           address: PREVIEW_DATA.addresses.current,
-          datum: {
-            type: EDatumType.NONE,
-          },
+          datum: { type: EDatumType.NONE },
         },
       },
       suppliedLPAsset: PREVIEW_DATA.assets.v3LpToken,
@@ -797,9 +747,7 @@ describe("TxBuilderNftCheck", () => {
       expect.objectContaining({
         ident: PREVIEW_DATA.pools.v3.ident,
         order: expect.objectContaining({
-          lpToken: expect.objectContaining({
-            amount: 100_000_000n,
-          }),
+          lpToken: expect.objectContaining({ amount: 100_000_000n }),
         }),
       }),
     );
@@ -859,17 +807,13 @@ describe("TxBuilderNftCheck", () => {
         orderAddresses: {
           DestinationAddress: {
             address: PREVIEW_DATA.addresses.current,
-            datum: {
-              type: EDatumType.NONE,
-            },
+            datum: { type: EDatumType.NONE },
           },
         },
         suppliedLPAsset: PREVIEW_DATA.assets.v3LpToken,
       });
     } catch (e) {
-      expect((e as Error).message).toEqual(
-        DatumBuilderV3.INVALID_POOL_IDENT,
-      );
+      expect((e as Error).message).toEqual(DatumBuilderV3.INVALID_POOL_IDENT);
     }
   });
 
@@ -881,9 +825,7 @@ describe("TxBuilderNftCheck", () => {
     );
 
     const { build, fees, datum } = await builder.strategy({
-      destination: {
-        type: EDestinationType.SELF,
-      },
+      destination: { type: EDestinationType.SELF },
       ownerAddress: PREVIEW_DATA.addresses.current,
       pool: PREVIEW_DATA.pools.v3,
       authSigner: "cafebabe",
@@ -895,9 +837,7 @@ describe("TxBuilderNftCheck", () => {
       1,
       expect.objectContaining({
         ident: PREVIEW_DATA.pools.v3.ident,
-        order: {
-          signer: "cafebabe",
-        },
+        order: { signer: "cafebabe" },
       }),
     );
 
@@ -920,13 +860,18 @@ describe("TxBuilderNftCheck", () => {
     expect(fees.cardanoTxFee).not.toBeUndefined();
 
     let strategyOutput: Core.TransactionOutput | undefined;
-    builtTx.body().outputs().forEach(output => {
-      if (getPaymentAddressFromOutput(output).toBech32() ===
-        "addr_test1wzmv9gtal8eagup28qmk55fd5eeppk5h7v5uurv7lt39cwgjjastu" &&
-        output.amount().coin().toString() === "22500000") {
+    builtTx
+      .body()
+      .outputs()
+      .forEach((output) => {
+        if (
+          getPaymentAddressFromOutput(output).toBech32() ===
+            "addr_test1wzmv9gtal8eagup28qmk55fd5eeppk5h7v5uurv7lt39cwgjjastu" &&
+          output.amount().coin().toString() === "22500000"
+        ) {
           strategyOutput = output;
         }
-    });
+      });
 
     expect(strategyOutput).not.toBeUndefined();
     expect(strategyOutput?.datum()?.asDataHash()).toBeUndefined();
@@ -944,17 +889,14 @@ describe("TxBuilderNftCheck", () => {
       fees: 5n,
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
-      conditionDatumArgs: {
-        value: [PREVIEW_DATA.assets.usdc],
-        check: "All",
-      }
+      conditionDatumArgs: { value: [PREVIEW_DATA.assets.usdc], check: "All" },
     });
 
     // Since we are depositing ADA, we only need ADA for the metadata and settings utxos.
     expect(fees.deposit.amount.toString()).toEqual(
       (ORDER_DEPOSIT_DEFAULT * 2n).toString(),
     );
-    
+
     const { builtTx } = await build();
 
     const poolBalanceDatum = builtTx.witnessSet().redeemers()?.values()?.[0];
@@ -1073,10 +1015,7 @@ describe("TxBuilderNftCheck", () => {
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
       donateToTreasury: 100n,
-      conditionDatumArgs: {
-        value: [PREVIEW_DATA.assets.usdc],
-        check: "All",
-      }
+      conditionDatumArgs: { value: [PREVIEW_DATA.assets.usdc], check: "All" },
     });
 
     // Since we are depositing ADA, we only need ADA for the metadata and settings utxos.
@@ -1208,10 +1147,7 @@ describe("TxBuilderNftCheck", () => {
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
       donateToTreasury: 43n,
-      conditionDatumArgs: {
-        value: [PREVIEW_DATA.assets.usdc],
-        check: "All",
-      }
+      conditionDatumArgs: { value: [PREVIEW_DATA.assets.usdc], check: "All" },
     });
 
     // Since we are depositing ADA, we only need ADA for the metadata and settings utxos.
@@ -1251,8 +1187,8 @@ describe("TxBuilderNftCheck", () => {
       ?.get(
         Core.AssetId(
           `${
-          params.blueprint.validators[2].hash
-        }000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
+            params.blueprint.validators[2].hash
+          }000de140f6a207f7eb0b2aca50c96d0b83b7b6cf0cb2161aa73648e8161ddcc6`,
         ),
       )
       ?.toString();
@@ -1358,10 +1294,7 @@ describe("TxBuilderNftCheck", () => {
       fees: 5n,
       marketOpen: 5n,
       ownerAddress: PREVIEW_DATA.addresses.current,
-      conditionDatumArgs: {
-        value: [PREVIEW_DATA.assets.usdc],
-        check: "All",
-      }
+      conditionDatumArgs: { value: [PREVIEW_DATA.assets.usdc], check: "All" },
     });
 
     /**
@@ -1421,10 +1354,7 @@ describe("TxBuilderNftCheck", () => {
         fees: 5n,
         marketOpen: 5n,
         ownerAddress: PREVIEW_DATA.addresses.current,
-        conditionDatumArgs: {
-        value: [PREVIEW_DATA.assets.usdc],
-        check: "All",
-      }
+        conditionDatumArgs: { value: [PREVIEW_DATA.assets.usdc], check: "All" },
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
@@ -1441,10 +1371,7 @@ describe("TxBuilderNftCheck", () => {
         fees: 5n,
         marketOpen: 5n,
         ownerAddress: PREVIEW_DATA.addresses.current,
-        conditionDatumArgs: {
-        value: [PREVIEW_DATA.assets.usdc],
-        check: "All",
-      }
+        conditionDatumArgs: { value: [PREVIEW_DATA.assets.usdc], check: "All" },
       });
     } catch (e) {
       expect((e as Error).message).toEqual(
