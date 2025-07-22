@@ -74,7 +74,7 @@ Throws errors if the claim conditions are not met, such as missing keys, inabili
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:543](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L543)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:528](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L528)
 
 ***
 
@@ -119,7 +119,7 @@ Throws an error if no UTXOs are available, if reference scripts are missing, or 
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:145](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L145)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:139](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L139)
 
 ***
 
@@ -141,7 +141,7 @@ True to enable tracing, false to turn it off. (default: false)
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:107](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L107)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:101](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L101)
 
 ***
 
@@ -186,7 +186,7 @@ Throws an error if the user's payment credential hash is missing or if the node 
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:306](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L306)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:291](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L291)
 
 ***
 
@@ -230,4 +230,4 @@ Throws errors if the withdrawal conditions are not met, such as missing keys, in
 
 #### Defined in
 
-[taste-test/src/lib/classes/TasteTestBuilder.class.ts:383](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L383)
+[taste-test/src/lib/classes/TasteTestBuilder.class.ts:368](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/lib/classes/TasteTestBuilder.class.ts#L368)

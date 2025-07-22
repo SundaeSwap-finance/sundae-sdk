@@ -22,7 +22,7 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
-    "@blaze-cardano/sdk": "0.2.27",
+    "@blaze-cardano/sdk": "0.2.31",
     "@inquirer/prompts": "^7.5.0",
     "@sundaeswap/asset": "^1.0.7",
     "@sundaeswap/core": "^2.6.1",

@@ -1,4 +1,6 @@
-import { Core, Data } from "@blaze-cardano/sdk";
+import { parse } from "@blaze-cardano/data";
+import { Core } from "@blaze-cardano/sdk";
+
 import { LiquiditySetNode, SetNode } from "./@types/contracts.js";
 import { TTasteTestType } from "./@types/index.js";
 
@@ -26,10 +28,11 @@ export const findCoveringNode = (
       return false;
     }
 
-    const datum = Data.from(
-      plutusData,
+    const datum = parse(
       ttType === "Liquidity" ? LiquiditySetNode : SetNode,
+      plutusData,
     );
+
     return (
       (datum.key == null || datum.key < userKey) &&
       (datum.next == null || userKey < datum.next)
@@ -59,9 +62,9 @@ export const findOwnNode = (
       return false;
     }
 
-    const nodeData = Data.from(
-      plutusData,
+    const nodeData = parse(
       ttType === "Liquidity" ? LiquiditySetNode : SetNode,
+      plutusData,
     );
     return nodeData.key === userKey;
   });
@@ -89,9 +92,9 @@ export const findPrevNode = (
       return false;
     }
 
-    const datum = Data.from(
-      plutusData,
+    const datum = parse(
       ttType === "Liquidity" ? LiquiditySetNode : SetNode,
+      plutusData,
     );
     return datum?.next === userKey;
   });

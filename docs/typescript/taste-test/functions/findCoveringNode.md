@@ -38,4 +38,4 @@ const coveringNode = findCoveringNode(utxos, userKey);
 
 ## Defined in
 
-[taste-test/src/utils.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/utils.ts#L18)
+[taste-test/src/utils.ts:20](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/utils.ts#L20)
