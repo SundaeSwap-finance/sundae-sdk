@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/taste-test",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "The official SundaeSwap Taste Test SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {
