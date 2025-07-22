@@ -5,7 +5,7 @@
   "private": true,
   "author": "SundaeSwap Labs Inc.",
   "license": "UNLICENSED",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "CLI for the SundaeSwap protocol SDK.",
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -25,7 +25,7 @@
     "@blaze-cardano/sdk": "0.2.31",
     "@inquirer/prompts": "^7.5.0",
     "@sundaeswap/asset": "^1.0.7",
-    "@sundaeswap/core": "^2.6.1",
+    "@sundaeswap/core": "^2.6.2",
     "asciify-image": "^0.1.10",
     "clipboardy": "^4.0.0"
   },
