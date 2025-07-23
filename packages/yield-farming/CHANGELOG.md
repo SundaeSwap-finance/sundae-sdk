@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.1.1
+
+### Patch Changes
+
+- f7e612b: Updates contract types to use generated blueprints and removes old references to blaze versions.
+
 ## 3.1.0
 
 ### Minor Changes

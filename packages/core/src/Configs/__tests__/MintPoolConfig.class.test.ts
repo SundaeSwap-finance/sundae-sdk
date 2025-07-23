@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { IMintPoolConfigArgs } from "../../@types/index.js";
+import { IMintV3PoolConfigArgs } from "../../@types/index.js";
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { MintV3LikePoolConfig } from "../MintV3LikePoolConfig.class.js";
 
-const defaultArgs: IMintPoolConfigArgs = {
+const defaultArgs: IMintV3PoolConfigArgs = {
   assetA: PREVIEW_DATA.assets.tada,
   assetB: PREVIEW_DATA.assets.tindy,
   fees: 20n,

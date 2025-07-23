@@ -1,6 +1,5 @@
-import { Core } from "@blaze-cardano/sdk";
-
 import { parse, Type } from "@blaze-cardano/data";
+import { Core } from "@blaze-cardano/sdk";
 import { EDatumType, TDatum, TSupportedNetworks } from "../@types/index.js";
 
 /**
@@ -33,10 +32,7 @@ export class BlazeHelper {
     const details = Core.Address.fromBech32(address);
     const addressType = details.getType();
 
-    return {
-      address: details,
-      type: addressType,
-    };
+    return { address: details, type: addressType };
   }
 
   /**
@@ -152,10 +148,7 @@ export class BlazeHelper {
         BlazeHelper.throwInvalidOrderAddressesError(
           address,
           `The datum provided was not a valid hex string. Original error: ${JSON.stringify(
-            {
-              datum,
-              originalErrorMessage: (e as Error).message,
-            },
+            { datum, originalErrorMessage: (e as Error).message },
           )}`,
         );
       }

@@ -34,4 +34,4 @@ If no matching node is found in the list of UTXOs, the function returns undefine
 
 ## Defined in
 
-[taste-test/src/utils.ts:51](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/utils.ts#L51)
+[taste-test/src/utils.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/taste-test/src/utils.ts#L54)

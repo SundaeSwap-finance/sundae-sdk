@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/yield-farming",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "The official SundaeSwap Yield Farming SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {

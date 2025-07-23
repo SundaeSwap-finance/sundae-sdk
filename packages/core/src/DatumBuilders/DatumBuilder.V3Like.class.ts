@@ -308,7 +308,7 @@ export class DatumBuilderV3Like implements DatumBuilderAbstract {
    * Creates a new pool datum for minting a the pool. This is attached to the assets that are sent
    * to the pool minting contract. See {@link Core.TxBuilderV3} for more details.
    *
-   * @param {IDatumBuilderMintPoolV3Args} params The arguments for building a pool mint datum.
+   * @param {IDatumBuilderMintPoolV3Args} _args The arguments for building a pool mint datum.
    *  - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
    *  - fee: The pool fee represented as per thousand.

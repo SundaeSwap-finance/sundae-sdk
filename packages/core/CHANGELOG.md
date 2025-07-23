@@ -1,5 +1,17 @@
 # Change Log
 
+## 2.6.2
+
+### Patch Changes
+
+- f7e612b: Updates contract types to use generated blueprints and removes old references to blaze versions.
+
+## 2.6.1
+
+### Patch Changes
+
+- 322374a: Fix coin selection for exotic pool minting.
+
 ## 2.6.0
 
 ### Minor Changes
