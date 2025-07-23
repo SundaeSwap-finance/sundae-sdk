@@ -462,7 +462,10 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     mints.set(Core.AssetName(poolLqAssetName), circulatingLp);
 
     [...references, settings].forEach((utxo) => {
-      tx.addReferenceInput(utxo);
+      tx.addReferenceInput(
+        // Ensure that each reference is clean.
+        Core.TransactionUnspentOutput.fromCbor(utxo.toCbor()),
+      );
     });
 
     userUtxos.forEach((utxo) => tx.addInput(utxo));
@@ -843,7 +846,12 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       Core.PlutusData.fromCbor(Core.HexBlob(CANCEL_REDEEMER)),
       datum,
     );
-    cancelReadFrom.forEach((utxo) => tx.addReferenceInput(utxo));
+    cancelReadFrom.forEach((utxo) =>
+      tx.addReferenceInput(
+        // Ensure that each reference is clean.
+        Core.TransactionUnspentOutput.fromCbor(utxo.toCbor()),
+      ),
+    );
 
     const signerKey = DatumBuilderV3.getSignerKeyFromDatum(
       spendingDatum.toCbor(),
