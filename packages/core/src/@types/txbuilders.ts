@@ -2,6 +2,7 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import { Core } from "@blaze-cardano/sdk";
 import { TxBuilderNftCheck } from "../TxBuilders/TxBuilder.NftCheck.class.js";
+import { TxBuilderStableswaps } from "../TxBuilders/TxBuilder.Stableswaps.class.js";
 import { TxBuilderV1 } from "../TxBuilders/TxBuilder.V1.class.js";
 import { TxBuilderV3 } from "../TxBuilders/TxBuilder.V3.class.js";
 import { ISwapConfigArgs } from "./configs.js";
@@ -66,6 +67,7 @@ export enum EContractVersion {
   V3 = "V3",
   NftCheck = "NftCheck",
   Condition = "Condition",
+  Stableswaps = "Stableswaps",
 }
 
 /**
@@ -81,4 +83,8 @@ export interface IOrderRouteSwapArgs {
   >;
 }
 
-export type TTxBuilder = TxBuilderV1 | TxBuilderV3 | TxBuilderNftCheck;
+export type TTxBuilder =
+  | TxBuilderV1
+  | TxBuilderV3
+  | TxBuilderNftCheck
+  | TxBuilderStableswaps;
