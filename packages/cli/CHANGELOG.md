@@ -1,5 +1,13 @@
 # @sundaeswap/cli
 
+## 1.1.2
+
+### Patch Changes
+
+- 9448981: Updates class references when adding referenceInputs to Blaze's transaction builder. This is an attempt to avoid private class member access somewhere in the tree.
+- Updated dependencies [9448981]
+  - @sundaeswap/core@2.6.3
+
 ## 1.1.1
 
 ### Patch Changes
