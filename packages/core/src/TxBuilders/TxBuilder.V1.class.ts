@@ -1136,7 +1136,12 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       existingPositionsData &&
       existingPositionsData.length > 0
     ) {
-      yfRefInputs.forEach((input) => finalTx.addReferenceInput(input));
+      yfRefInputs.forEach((input) => {
+        finalTx.addReferenceInput(
+          // Ensure that each reference is clean.
+          Core.TransactionUnspentOutput.fromCbor(input.toCbor()),
+        );
+      });
       existingPositionsData.forEach((input) => {
         finalTx.addInput(input, Void());
       });
