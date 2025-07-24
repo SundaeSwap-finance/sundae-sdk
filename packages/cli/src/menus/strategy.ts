@@ -63,7 +63,7 @@ export async function strategyMenu(state: State): Promise<State> {
     message: "Select signing key or script for the strategy",
     choices: [
       { name: "Use signing key", value: "signingKey" },
-      { name: "Use script", value: "script" },
+      { name: "Use script", value: "script", disabled: true },
     ],
   });
   const builder = state.sdk!.builders.get(EContractVersion.V3)! as TxBuilderV3;
@@ -83,7 +83,8 @@ export async function strategyMenu(state: State): Promise<State> {
     authSigner:
       signingKeyOrScript === "signingKey"
         ? await input({
-            message: "Enter the signing key hash for the strategy",
+            message:
+              "Enter the signing key (public key, not hash!) for the strategy",
           })
         : undefined,
   };
