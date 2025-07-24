@@ -56,7 +56,7 @@ export async function swapMenu(state: State): Promise<State> {
     console.log("Pool not found");
     return state;
   }
-  const builder = state.sdk!.builders.get(pool.version as EContractVersion)!;
+  const builder = state.sdk!.builders.get(pool.version)!;
   const swapArgs: ISwapConfigArgs = {
     suppliedAsset: swapFrom,
     pool: pool,
