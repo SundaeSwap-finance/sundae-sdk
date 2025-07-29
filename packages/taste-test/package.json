@@ -48,7 +48,7 @@
   },
   "peerDependencies": {
     "@blaze-cardano/sdk": "^0.2.34",
-    "@sundaeswap/asset": "^1.0.6",
+    "@sundaeswap/asset": "^1.0.11",
     "@sundaeswap/core": "^2.6.2",
     "@blaze-cardano/data": "^0.6.1"
   }
