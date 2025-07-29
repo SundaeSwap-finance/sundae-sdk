@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.1.3
+
+### Patch Changes
+
+- eb04f24: Updates dependencies.
+
 ## 3.1.2
 
 ### Patch Changes

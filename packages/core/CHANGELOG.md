@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.6.5
+
+### Patch Changes
+
+- eb04f24: Updates dependencies.
+
 ## 2.6.4
 
 ### Patch Changes
