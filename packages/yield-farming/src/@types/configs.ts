@@ -19,6 +19,6 @@ export interface ILockArguments<Program> {
 export interface ILockConfigArgs<Program> extends IBaseConfig {
   programs?: Program | null;
   existingPositions?: TUTXO[];
-  lockedValues?: AssetAmount<{ assetId: string; decimals: number }>[] | null;
+  lockedValues?: AssetAmount[] | null;
   ownerAddress: string;
 }

@@ -59,10 +59,10 @@
   },
   "dependencies": {
     "@blaze-cardano/sdk": "^0.2.34",
-    "@sundaeswap/asset": "^1.0.10",
+    "@sundaeswap/asset": "^1.0.11",
     "@sundaeswap/bigint-math": "^0.6.3",
     "@sundaeswap/core": "latest",
-    "@sundaeswap/cpp": "^1.0.3",
+    "@sundaeswap/cpp": "^1.0.13",
     "@sundaeswap/fraction": "^1.0.3",
     "@sundaeswap/taste-test": "^3.0.3",
     "@tailwindcss/forms": "^0.5.2",
