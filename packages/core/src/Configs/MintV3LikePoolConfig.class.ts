@@ -1,9 +1,9 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { IFeesConfig, IMintPoolConfigArgs } from "../@types/index.js";
+import { IFeesConfig, TMintV3LikePoolConfigArgs } from "../@types/index.js";
 import { Config } from "../Abstracts/Config.abstract.class.js";
-import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.V3.class.js";
+import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.Condition.class.js";
 
-export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
+export class MintV3LikePoolConfig extends Config<TMintV3LikePoolConfigArgs> {
   static MAX_FEE: bigint = 500n;
 
   assetA?: AssetAmount<IAssetAmountMetadata>;
@@ -15,37 +15,42 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
   feeManager?: string;
   condition?: string;
   conditionDatumArgs?: TConditionDatumArgs;
+  protocolFees?: IFeesConfig;
+  linearAmplification?: bigint;
+  linearAmplificationManager?: string;
 
-  constructor(args?: IMintPoolConfigArgs) {
+  constructor(args?: TMintV3LikePoolConfigArgs) {
     super();
     args && this.setFromObject(args);
   }
 
-  setFromObject({
-    assetA,
-    assetB,
-    fees,
-    marketOpen,
-    ownerAddress,
-    referralFee,
-    donateToTreasury,
-    feeManager,
-    condition,
-    conditionDatumArgs,
-  }: IMintPoolConfigArgs): void {
-    referralFee && this.setReferralFee(referralFee);
-    this.setAssetA(assetA);
-    this.setAssetB(assetB);
-    this.setFees(fees);
-    this.setMarketOpen(marketOpen || 0n);
-    this.setOwnerAddress(ownerAddress);
-    this.setDonateToTreasury(donateToTreasury);
-    this.setFeeManager(feeManager);
-    this.setCondition(condition);
-    this.setConditionDatumArgs(conditionDatumArgs);
+  setFromObject(args: TMintV3LikePoolConfigArgs): void {
+    args.referralFee && this.setReferralFee(args.referralFee);
+    this.setAssetA(args.assetA);
+    this.setAssetB(args.assetB);
+    this.setFees(args.fees);
+    this.setMarketOpen(args.marketOpen || 0n);
+    this.setOwnerAddress(args.ownerAddress);
+    this.setDonateToTreasury(args.donateToTreasury);
+    this.setFeeManager(args.feeManager);
+    if ("condition" in args) {
+      this.setCondition(args.condition);
+    }
+    if ("conditionDatumArgs" in args) {
+      this.setConditionDatumArgs(args.conditionDatumArgs);
+    }
+    if ("protocolFees" in args) {
+      this.setProtocolFees(args.protocolFees);
+    }
+    if ("linearAmplification" in args) {
+      this.setLinearAmplification(args.linearAmplification);
+    }
+    if ("linearAmplificationManager" in args) {
+      this.setLinearAmplificationManager(args.linearAmplificationManager);
+    }
   }
 
-  buildArgs(): Omit<IMintPoolConfigArgs, "fees"> & {
+  buildArgs(): Omit<TMintV3LikePoolConfigArgs, "fees"> & {
     fees: IFeesConfig;
   } {
     this.validate();
@@ -58,9 +63,29 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
       referralFee: this.referralFee,
       donateToTreasury: this.donateToTreasury,
       feeManager: this.feeManager,
-      condition: this.condition,
-      conditionDatumArgs: this.conditionDatumArgs,
     };
+  }
+
+  setLinearAmplification(linearAmplification?: bigint) {
+    this.linearAmplification = linearAmplification;
+    return this;
+  }
+
+  setLinearAmplificationManager(linearAmplificationManager?: string) {
+    this.linearAmplificationManager = linearAmplificationManager;
+    return this;
+  }
+
+  setProtocolFees(protocolFees: bigint | IFeesConfig) {
+    this.protocolFees =
+      typeof protocolFees === "bigint"
+        ? {
+            ask: protocolFees,
+            bid: protocolFees,
+          }
+        : protocolFees;
+
+    return this;
   }
 
   setFeeManager(val?: string) {
@@ -125,23 +150,23 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
 
     if (this.fees.ask === this.fees.bid) {
       if (
-        this.fees.ask > MintPoolConfig.MAX_FEE ||
-        this.fees.bid > MintPoolConfig.MAX_FEE
+        this.fees.ask > MintV3LikePoolConfig.MAX_FEE ||
+        this.fees.bid > MintV3LikePoolConfig.MAX_FEE
       ) {
         throw new Error(
-          `Fees cannot supersede the max fee of ${MintPoolConfig.MAX_FEE}.`,
+          `Fees cannot supersede the max fee of ${MintV3LikePoolConfig.MAX_FEE}.`,
         );
       }
     } else {
-      if (this.fees.ask > MintPoolConfig.MAX_FEE) {
+      if (this.fees.ask > MintV3LikePoolConfig.MAX_FEE) {
         throw new Error(
-          `Ask fee cannot supersede the max fee of ${MintPoolConfig.MAX_FEE}.`,
+          `Ask fee cannot supersede the max fee of ${MintV3LikePoolConfig.MAX_FEE}.`,
         );
       }
 
-      if (this.fees.bid > MintPoolConfig.MAX_FEE) {
+      if (this.fees.bid > MintV3LikePoolConfig.MAX_FEE) {
         throw new Error(
-          `Bid fee cannot supersede the max fee of ${MintPoolConfig.MAX_FEE}.`,
+          `Bid fee cannot supersede the max fee of ${MintV3LikePoolConfig.MAX_FEE}.`,
         );
       }
     }

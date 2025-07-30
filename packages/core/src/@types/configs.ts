@@ -1,5 +1,5 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.V3.class.js";
+import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.Condition.class.js";
 import {
   EPoolCoin,
   TDestination,
@@ -125,7 +125,7 @@ export interface IFeesConfig {
  * Interface describing the method arguments for creating a pool
  * in the V3 Pool Contract.
  */
-export interface IMintPoolConfigArgs extends IBaseConfig {
+export interface IMintV3PoolConfigArgs extends IBaseConfig {
   assetA: AssetAmount<IAssetAmountMetadata>;
   assetB: AssetAmount<IAssetAmountMetadata>;
   fees: bigint | IFeesConfig;
@@ -141,9 +141,35 @@ export interface IMintPoolConfigArgs extends IBaseConfig {
    * The fee manager address for the pool. If not provided, defaults to null.
    */
   feeManager?: string;
+}
+
+/**
+ * Interface for arguments required when minting Condition pool configurations.
+ * Extends V3 pool configuration arguments with condition-specific parameters.
+ */
+export interface IMintConditionPoolConfigArgs extends IMintV3PoolConfigArgs {
   condition?: string;
   conditionDatumArgs?: TConditionDatumArgs;
 }
+
+/**
+ * Interface for arguments required when minting Stableswap pool configurations.
+ * Extends V3 pool configuration arguments with stableswap-specific parameters.
+ */
+export interface IMintStablePoolConfigArgs extends IMintV3PoolConfigArgs {
+  protocolFees: bigint | IFeesConfig;
+  linearAmplification: bigint;
+  linearAmplificationManager?: string;
+}
+
+/**
+ * Union type for all possible arguments when minting V3-like pool configurations.
+ * Includes V3, Condition, and Stableswap pool configuration arguments.
+ */
+export type TMintV3LikePoolConfigArgs =
+  | IMintV3PoolConfigArgs
+  | IMintConditionPoolConfigArgs
+  | IMintStablePoolConfigArgs;
 
 /**
  * Interface describing migrations for liquidity

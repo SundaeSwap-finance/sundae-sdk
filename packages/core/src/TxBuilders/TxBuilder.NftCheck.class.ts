@@ -8,29 +8,34 @@ import {
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   EContractVersion,
+  ICancelConfigArgs,
   IComposedTx,
-  IMintPoolConfigArgs,
+  IMintConditionPoolConfigArgs,
   IPoolData,
 } from "../@types/index.js";
 import { TxBuilderAbstractCondition } from "../Abstracts/TxBuilderAbstract.Condition.js";
+import { MintV3LikePoolConfig } from "../Configs/MintV3LikePoolConfig.class.js";
 import { NftCheckTypes } from "../DatumBuilders/ContractTypes/index.js";
+import { IDatumBuilderMintConditionPoolArgs } from "../DatumBuilders/DatumBuilder.Condition.class.js";
 import {
   DatumBuilderNftCheck,
   IDatumBuilderNftCheckArgs,
 } from "../DatumBuilders/index.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/index.js";
-import { TxBuilderV3 } from "./TxBuilder.V3.class.js";
+import { TxBuilderV1 } from "./TxBuilder.V1.class.js";
+import { TxBuilderV3Like } from "./TxBuilder.V3Like.class.js";
 
 /**
  * Interface describing the method arguments for creating a pool
  * in the Condition Pool Contract.
  */
-export interface IMintNftCheckPoolConfigArgs extends IMintPoolConfigArgs {
+export interface IMintNftCheckPoolConfigArgs
+  extends IMintConditionPoolConfigArgs {
   conditionDatumArgs: IDatumBuilderNftCheckArgs;
 }
 
 export class TxBuilderNftCheck
-  extends TxBuilderV3
+  extends TxBuilderV3Like
   implements TxBuilderAbstractCondition
 {
   contractVersion: EContractVersion = EContractVersion.NftCheck;
@@ -42,6 +47,29 @@ export class TxBuilderNftCheck
   ) {
     super(blaze, queryProvider);
     this.datumBuilder = new DatumBuilderNftCheck(this.network);
+  }
+
+  async buildMintPoolDatumArgs(
+    sortedAssets: [
+      AssetAmount<IAssetAmountMetadata>,
+      AssetAmount<IAssetAmountMetadata>,
+    ],
+    seedUtxo: { outputIndex: number; txHash: string },
+    args: MintV3LikePoolConfig,
+  ): Promise<IDatumBuilderMintConditionPoolArgs> {
+    const base = await super.buildMintPoolDatumArgs(
+      sortedAssets,
+      seedUtxo,
+      args,
+    );
+    const condition = (
+      await this.getValidatorScript("conditions/nft_check.withdraw")
+    ).hash;
+    return {
+      ...base,
+      condition,
+      conditionDatumArgs: args.conditionDatumArgs,
+    };
   }
 
   /**
@@ -94,5 +122,10 @@ export class TxBuilderNftCheck
       });
     });
     return result;
+  }
+
+  async handleOtherOrderTypeCancellation(cancelArgs: ICancelConfigArgs) {
+    const v1Builder = new TxBuilderV1(this.blaze);
+    return v1Builder.cancel({ ...cancelArgs });
   }
 }
