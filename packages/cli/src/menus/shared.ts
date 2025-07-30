@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import { Address, CredentialType } from "@blaze-cardano/core";
-import { input, select } from "@inquirer/prompts";
+import { Address, CredentialType, AssetId } from "@blaze-cardano/core";
+import { input, search, select } from "@inquirer/prompts";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   ADA_METADATA,
@@ -70,26 +70,26 @@ export async function getAssetAmount(
   minAmt: bigint,
 ): Promise<AssetAmount<IAssetAmountMetadata>> {
   const bal = await state.sdk!.blaze().wallet.getBalance();
-  const choices = bal!
-    .multiasset()!
-    .entries()
-    .filter((entry) => {
-      return entry[1] >= minAmt;
+  const choices = [...bal!.multiasset()!.entries()] // NOTE: .filter was only added to IterableIterator in ES2025
+    .filter(([_, amt]: [AssetId, bigint]) => {
+      return amt! >= minAmt;
     })
-    .map((entry) => {
+    .map(([assetId, amt]: [AssetId, bigint]) => {
       return {
-        name: `${prettyAssetId(entry[0].toString())} (${entry[1].toString()})`,
-        value: entry[0].toString(),
+        name: `${prettyAssetId(assetId.toString())} (${amt.toString()})`,
+        value: assetId.toString(),
       };
-    })
-    .toArray();
+    });
   choices?.push({
     name: `ADA (${bal!.coin().toString()})`,
     value: "ada.lovelace",
   });
-  const choice = await select({
+  const choice = await search({
     message: message,
-    choices: choices,
+    source: (prompt) =>
+      prompt
+        ? choices.filter((c: { name: string }) => c.name.includes(prompt))
+        : choices,
   });
   const assetId = choice as string;
 
@@ -138,6 +138,7 @@ export async function addressOrHexToHash(
 export async function maybeInput(opts: {
   message: string;
   validate?: (a: string) => boolean | string | Promise<boolean | string>;
+  default?: string;
 }): Promise<string | undefined> {
   const resp = await input(opts);
   if (resp === "") {
@@ -154,7 +155,7 @@ export async function selectPool(
   const pools = (await state.sdk!.queryProvider.findPoolData({
     assetId,
   } as IPoolByAssetQuery)) as IPoolData[];
-  let choices = pools!
+  const choices = pools!
     .filter((pool) => {
       if (
         typeFilter &&
@@ -178,9 +179,7 @@ export async function selectPool(
         value: pool.ident,
       };
     });
-  choices = [{ name: "Enter pool ident manually", value: "manual" }].concat(
-    choices,
-  );
+  choices.push({ name: "Enter pool ident manually", value: "manual" });
   let choice = await select({
     message: "Select pool",
     choices: choices,

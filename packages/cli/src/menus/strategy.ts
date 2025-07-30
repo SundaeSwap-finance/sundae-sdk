@@ -66,27 +66,30 @@ export async function strategyMenu(state: State): Promise<State> {
       { name: "Use script", value: "script", disabled: true },
     ],
   });
+  const authScript =
+    signingKeyOrScript === "script"
+      ? await input({
+          message: "Enter the authorized script hash for the strategy",
+        })
+      : undefined;
+  const authKey =
+    signingKeyOrScript === "signingKey"
+      ? await input({
+          message:
+            "Enter the signing public key (NOT the key hash) for the strategy",
+        })
+      : undefined;
   const builder = state.sdk!.builders.get(EContractVersion.V3)! as TxBuilderV3;
   const strategyArgs: IStrategyConfigInputArgs = {
     suppliedAsset: swapFrom,
     pool: pool,
     destination: await getDestination(),
     ownerAddress: await maybeInput({
-      message: "Enter the owner address for the strategy (optional)",
+      message: `Enter the owner address for the strategy`,
+      default: state.settings.address,
     }),
-    authScript:
-      signingKeyOrScript === "script"
-        ? await input({
-            message: "Enter the authorized script hash for the strategy",
-          })
-        : undefined,
-    authSigner:
-      signingKeyOrScript === "signingKey"
-        ? await input({
-            message:
-              "Enter the signing key (public key, not hash!) for the strategy",
-          })
-        : undefined,
+    authScript: authScript,
+    authSigner: authKey,
   };
   const tx = await builder.strategy(strategyArgs);
   await transactionDialog((await tx.build()).cbor, false);
