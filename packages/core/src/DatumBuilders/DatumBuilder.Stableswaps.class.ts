@@ -7,6 +7,10 @@ import { StableswapsTypes } from "./ContractTypes/index.js";
 import { IDatumBuilderMintV3PoolArgs } from "./DatumBuilder.V3.class.js";
 import { DatumBuilderV3Like } from "./DatumBuilder.V3Like.class.js";
 
+/**
+ * Interface for arguments required when minting Stableswap pool datums.
+ * Extends V3 pool arguments with additional stableswap-specific parameters.
+ */
 export interface IDatumBuilderMintStablePoolArgs
   extends IDatumBuilderMintV3PoolArgs {
   protocolFees: IFeesConfig;

@@ -13,6 +13,10 @@ import { DatumBuilderV3Like } from "./DatumBuilder.V3Like.class.js";
  * The arguments for building a minting a new pool transaction against
  * the V3 & Condition pool contract.
  */
+/**
+ * Interface for arguments required when minting V3 pool datums.
+ * Contains the essential configuration for creating a new V3 liquidity pool.
+ */
 export interface IDatumBuilderMintV3PoolArgs {
   seedUtxo: { txHash: string; outputIndex: number };
   assetA: AssetAmount<IAssetAmountMetadata>;

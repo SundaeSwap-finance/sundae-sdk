@@ -89,11 +89,19 @@ export interface IDatumBuilderPoolMintRedeemerV3Args {
   metadataOutput: bigint;
 }
 
+/**
+ * Union type for all possible arguments when minting V3-like pool datums.
+ * Includes V3, Condition, and Stableswap pool arguments.
+ */
 export type TDatumBuilderMintV3LikePoolArgs =
   | IDatumBuilderMintV3PoolArgs
   | IDatumBuilderMintConditionPoolArgs
   | IDatumBuilderMintStablePoolArgs;
 
+/**
+ * Union type for all possible pool datum types that can be built by V3-like datum builders.
+ * Includes V3, Condition, and Stableswap pool datums.
+ */
 export type TPoolDatumTypes =
   | V3Types.PoolDatum
   | ConditionTypes.ConditionPoolDatum

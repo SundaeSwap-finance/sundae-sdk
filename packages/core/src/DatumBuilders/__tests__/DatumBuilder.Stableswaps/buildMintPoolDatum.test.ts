@@ -68,13 +68,34 @@ describe("builderMintPoolDatum()", () => {
       feeManager: feeManagerAddress,
     };
 
-    const { schema } = builderInstance.buildMintPoolDatum(argsWithFeeManager);
+    const { schema, inline } = builderInstance.buildMintPoolDatum(argsWithFeeManager);
 
     expect(schema.feeManager).not.toBeNull();
     if (schema.feeManager && "Signature" in schema.feeManager) {
       expect(schema.feeManager.Signature).toHaveProperty("keyHash");
       expect(typeof schema.feeManager.Signature.keyHash).toBe("string");
       expect(schema.feeManager.Signature.keyHash.length).toBeGreaterThan(0);
+    } else {
+      expect().fail("Expected feeManager to be an Signature type");
+    }
+  });
+
+    it("should build the pool mint datum with linearAmplificationManager address (non-script)", () => {
+      const linearAmplificationManagerAddress =
+        "addr_test1qp6crwxyfwah6hy7v9yu5w6z2w4zcu53qxakk8ynld8fgcpxjae5d7xztgf0vyq7pgrrsk466xxk25cdggpq82zkpdcsdkpc68";
+      const argsWithLAManager = {
+        ...STABLESWAP_EXPECTATIONS.buildMintPoolDatum[0].args,
+        linearAmplificationManager: linearAmplificationManagerAddress,
+      };
+
+    const { schema, inline } = builderInstance.buildMintPoolDatum(argsWithLAManager);
+
+    expect(schema.linearAmplificationManager).not.toBeNull();
+    console.log("Inline:", inline);
+    if (schema.linearAmplificationManager && "Signature" in schema.linearAmplificationManager) {
+      expect(schema.linearAmplificationManager.Signature).toHaveProperty("keyHash");
+      expect(typeof schema.linearAmplificationManager.Signature.keyHash).toBe("string");
+      expect(schema.linearAmplificationManager.Signature.keyHash.length).toBeGreaterThan(0);
     } else {
       expect().fail("Expected feeManager to be an Signature type");
     }
