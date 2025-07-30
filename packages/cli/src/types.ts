@@ -5,7 +5,7 @@ import {
   type ISundaeProtocolParamsFull,
   type TSupportedNetworks,
 } from "@sundaeswap/core";
-import { getBlazeInstance } from "./utils";
+import { getBlazeInstance } from "./utils.js";
 
 export interface ISettings {
   network?: string;

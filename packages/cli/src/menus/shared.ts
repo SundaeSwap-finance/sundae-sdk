@@ -9,8 +9,8 @@ import {
   type IPoolData,
 } from "@sundaeswap/core";
 import packageJson from "../../package.json" assert { type: "json" };
-import type { State } from "../types";
-import { getPoolData, prettyAssetId } from "../utils";
+import type { State } from "../types.js";
+import { getPoolData, prettyAssetId } from "../utils.js";
 
 const asciify = (await import("asciify-image")).default;
 

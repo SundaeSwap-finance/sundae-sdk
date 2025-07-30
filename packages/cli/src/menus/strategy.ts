@@ -8,9 +8,14 @@ import {
   type IStrategyConfigInputArgs,
   type TDestination,
 } from "@sundaeswap/core";
-import type { State } from "../types";
-import { getAssetAmount, maybeInput, printHeader, selectPool } from "./shared";
-import { transactionDialog } from "./transaction";
+import type { State } from "../types.js";
+import {
+  getAssetAmount,
+  maybeInput,
+  printHeader,
+  selectPool,
+} from "./shared.js";
+import { transactionDialog } from "./transaction.js";
 
 async function getDestination(): Promise<TDestination> {
   const choice = await select({

@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 import { Core } from "@blaze-cardano/sdk";
 import { input, select } from "@inquirer/prompts";
-import type { State } from "../types";
-import { cancelSwapMenu, mintPoolMenu, swapMenu } from "./pool";
-import { settingsMenu } from "./settings";
-import { printHeader } from "./shared";
-import { strategyMenu } from "./strategy.ts";
-import { transactionDialog } from "./transaction";
+import type { State } from "../types.js";
+import { cancelSwapMenu, mintPoolMenu, swapMenu } from "./pool.js";
+import { settingsMenu } from "./settings.js";
+import { printHeader } from "./shared.js";
+import { strategyMenu } from "./strategy.js";
+import { transactionDialog } from "./transaction.js";
 
 export async function mainMenu(state: State): Promise<State> {
   let choice = "";

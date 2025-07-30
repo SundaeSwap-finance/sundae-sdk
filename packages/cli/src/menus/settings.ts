@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { input, select } from "@inquirer/prompts";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import type { ISettings, State } from "../types";
-import { printHeader } from "./shared";
+import type { ISettings, State } from "../types.js";
+import { printHeader } from "./shared.js";
 
 const settingsPath = `${__dirname}/../../settings.json`;
 

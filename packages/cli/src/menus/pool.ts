@@ -14,9 +14,9 @@ import {
   type ISwapConfigArgs,
 } from "@sundaeswap/core";
 import type { State } from "../types";
-import { getPoolData, prettyAssetId } from "../utils";
-import { getAssetAmount, printHeader } from "./shared";
-import { transactionDialog } from "./transaction";
+import { getPoolData, prettyAssetId } from "../utils.js";
+import { getAssetAmount, printHeader } from "./shared.js";
+import { transactionDialog } from "./transaction.js";
 
 export async function swapMenu(state: State): Promise<State> {
   await printHeader(state);

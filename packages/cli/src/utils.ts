@@ -15,7 +15,7 @@ import {
   TxBuilderNftCheck,
   type IPoolData,
 } from "@sundaeswap/core";
-import type { State } from "./types";
+import type { State } from "./types.js";
 
 export async function getWallet(
   state: State,
