@@ -124,7 +124,7 @@ export async function getPoolData(
   const conData = datum.conditionDatum as Core.PlutusData;
   console.log("Condition Datum: ", conData.toCbor().toString());
   console.log("Pool data:", {
-    currentFee: Number(datum.askFeePer10Thousand) / 10000,
+    currentFee: Number(datum.askFeesPer_10Thousand) / 10000,
     /** The pool identification hash. */
     ident,
     assetA: {
@@ -153,7 +153,7 @@ export async function getPoolData(
     conditionDatum: `d8799f${conData.toCbor().toString()}ff`,
   });
   return {
-    currentFee: Number(datum.askFeePer10Thousand / 10000n),
+    currentFee: Number(datum.askFeesPer_10Thousand / 10000n),
     /** The pool identification hash. */
     ident,
     assetA: {

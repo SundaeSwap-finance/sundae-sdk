@@ -39,9 +39,9 @@ export class State {
       const queryProvider = new QueryProviderSundaeSwap(
         this.settings.network! as TSupportedNetworks,
       );
-      queryProvider.setProtocolParams(this.settings.customProtocolParams);
+      queryProvider.addCustomProtocolParams(this.settings.customProtocolParams);
       this.sdk.queryProvider = queryProvider;
-      this.sdk.builders.values().forEach((builder) => {
+      [...this.sdk.builders.values()].forEach((builder) => {
         builder.setQueryProvider(queryProvider);
       });
     }
