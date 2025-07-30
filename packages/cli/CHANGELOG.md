@@ -1,5 +1,13 @@
 # @sundaeswap/cli
 
+## 1.1.3
+
+### Patch Changes
+
+- eb04f24: Updates dependencies.
+- Updated dependencies [eb04f24]
+  - @sundaeswap/core@2.6.5
+
 ## 1.1.2
 
 ### Patch Changes

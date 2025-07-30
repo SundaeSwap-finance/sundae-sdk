@@ -1,5 +1,17 @@
 # Change Log
 
+## 2.6.5
+
+### Patch Changes
+
+- eb04f24: Updates dependencies.
+
+## 2.6.4
+
+### Patch Changes
+
+- 081f794: Temporarily avoids caching reference utxos due to errors in @cardano-sdk/core where using these throws private member access errors.
+
 ## 2.6.3
 
 ### Patch Changes

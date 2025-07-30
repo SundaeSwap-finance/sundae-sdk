@@ -153,19 +153,33 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
   public async getAllReferenceUtxos(): Promise<
     Core.TransactionUnspentOutput[]
   > {
-    if (!this.referenceUtxos) {
-      const { references } = await this.getProtocolParams();
-      this.referenceUtxos = await this.blaze.provider.resolveUnspentOutputs(
-        references.map(({ txIn }) => {
-          return new Core.TransactionInput(
-            Core.TransactionId(txIn.hash),
-            BigInt(txIn.index),
-          );
-        }),
-      );
-    }
+    /**
+     * @TODO Investigate why caching utxos causes private member access errors
+     * when referencing later.
+     */
+    // if (!this.referenceUtxos) {
+    //   const { references } = await this.getProtocolParams();
+    //   this.referenceUtxos = await this.blaze.provider.resolveUnspentOutputs(
+    //     references.map(({ txIn }) => {
+    //       return new Core.TransactionInput(
+    //         Core.TransactionId(txIn.hash),
+    //         BigInt(txIn.index),
+    //       );
+    //     }),
+    //   );
+    // }
 
-    return this.referenceUtxos;
+    // return this.referenceUtxos;
+
+    const { references } = await this.getProtocolParams();
+    return await this.blaze.provider.resolveUnspentOutputs(
+      references.map(({ txIn }) => {
+        return new Core.TransactionInput(
+          Core.TransactionId(txIn.hash),
+          BigInt(txIn.index),
+        );
+      }),
+    );
   }
 
   /**
@@ -461,14 +475,14 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     mints.set(Core.AssetName(refAssetName), 1n);
     mints.set(Core.AssetName(poolLqAssetName), circulatingLp);
 
-    [...references, settings].forEach((utxo) => {
-      tx.addReferenceInput(
-        // Ensure that each reference is clean.
-        Core.TransactionUnspentOutput.fromCbor(utxo.toCbor()),
-      );
-    });
-
     userUtxos.forEach((utxo) => tx.addInput(utxo));
+
+    [...references, settings].forEach((utxo) => {
+      const cbor = utxo.toCbor();
+      const newInstance = Core.TransactionUnspentOutput.fromCbor(cbor);
+
+      tx.addReferenceInput(newInstance);
+    });
 
     // Mint our assets.
     tx.addMint(

@@ -110,7 +110,6 @@ const PREVIEW_DATA: INetworkData = {
       assetLP: {
         assetId:
           "633a136877ed6ad0ab33e69a22611319673474c8bd0a79a4c76d9289.0014df10a933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3f2",
-        decimals: 0,
       },
       currentFee: 0.05,
       liquidity: {

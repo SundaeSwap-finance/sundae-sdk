@@ -79,7 +79,7 @@ export interface IPoolData {
   ident: string;
   assetA: IPoolDataAsset;
   assetB: IPoolDataAsset;
-  assetLP: IPoolDataAsset;
+  assetLP: Omit<IPoolDataAsset, "decimals"> & { decimals?: number };
   liquidity: {
     aReserve: bigint;
     bReserve: bigint;
