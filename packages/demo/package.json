@@ -58,13 +58,13 @@
     "webpack-filter-warnings-plugin": "^1.2.1"
   },
   "dependencies": {
-    "@blaze-cardano/sdk": "^0.2.27",
-    "@sundaeswap/asset": "^1.0.3",
+    "@blaze-cardano/sdk": "^0.2.34",
+    "@sundaeswap/asset": "^1.0.11",
     "@sundaeswap/bigint-math": "^0.6.3",
-    "@sundaeswap/core": "^2.6.2",
-    "@sundaeswap/cpp": "^1.0.3",
+    "@sundaeswap/core": "latest",
+    "@sundaeswap/cpp": "^1.0.13",
     "@sundaeswap/fraction": "^1.0.3",
-    "@sundaeswap/taste-test": "^3.0.2",
+    "@sundaeswap/taste-test": "^3.0.4",
     "@tailwindcss/forms": "^0.5.2",
     "autoprefixer": "^9",
     "buffer": "^6.0.3",

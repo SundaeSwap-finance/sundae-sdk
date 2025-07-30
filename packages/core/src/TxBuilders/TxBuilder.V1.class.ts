@@ -1,3 +1,4 @@
+import { parse, Void } from "@blaze-cardano/data";
 import {
   Blaze,
   TxBuilder as BlazeTx,
@@ -9,7 +10,6 @@ import {
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { getTokensForLp } from "@sundaeswap/cpp";
 
-import { parse, Void } from "@blaze-cardano/data";
 import {
   EContractVersion,
   EDatumType,
@@ -1047,7 +1047,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       Record<string, AssetAmount<IAssetAmountMetadata>>
     >
   > {
-    const finalTx = this.blaze.newTransaction();
+    const finalTx = this.newTxInstance();
     let totalScooper = 0n;
     let totalDeposit = 0n;
     let totalReferralFees = new Core.Value(0n);
@@ -1081,7 +1081,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       },
     };
 
-    const yfRefInputs =
+    const yfRefUtxo =
       yieldFarming &&
       (await this.blaze.provider.resolveUnspentOutputs([
         new Core.TransactionInput(
@@ -1132,11 +1132,15 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
      */
     if (
       yieldFarming &&
-      yfRefInputs &&
+      yfRefUtxo &&
       existingPositionsData &&
       existingPositionsData.length > 0
     ) {
-      yfRefInputs.forEach((input) => finalTx.addReferenceInput(input));
+      yfRefUtxo.forEach((input) => {
+        const cbor = input.toCbor();
+        const newInstance = Core.TransactionUnspentOutput.fromCbor(cbor);
+        finalTx.addReferenceInput(newInstance);
+      });
       existingPositionsData.forEach((input) => {
         finalTx.addInput(input, Void());
       });

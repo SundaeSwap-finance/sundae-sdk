@@ -368,7 +368,7 @@ export class SundaeUtils {
       : [taken, given];
 
     if (availablePools && resolvedGiven?.metadata && resolvedTaken?.metadata) {
-      const givenDecimals = resolvedGiven.metadata.decimals;
+      const givenDecimals = resolvedGiven.decimals;
       const hundredGiven = BigInt(10 ** givenDecimals) * 100n;
 
       for (const pool of availablePools) {

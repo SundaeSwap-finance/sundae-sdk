@@ -153,21 +153,33 @@ export class TxBuilderV3Like extends TxBuilderAbstractV3 {
   public async getAllReferenceUtxos(): Promise<
     Core.TransactionUnspentOutput[]
   > {
-    if (!this.referenceUtxos) {
-      const { references } = await this.getProtocolParams();
-      console.log(`references: ${JSON.stringify(references)}`);
-      this.referenceUtxos = await this.blaze.provider.resolveUnspentOutputs(
-        references.map(({ txIn }) => {
-          console.log(`txIn: ${txIn.hash}`);
-          return new Core.TransactionInput(
-            Core.TransactionId(txIn.hash),
-            BigInt(txIn.index),
-          );
-        }),
-      );
-    }
+    /**
+     * @TODO Investigate why caching utxos causes private member access errors
+     * when referencing later.
+     */
+    // if (!this.referenceUtxos) {
+    //   const { references } = await this.getProtocolParams();
+    //   this.referenceUtxos = await this.blaze.provider.resolveUnspentOutputs(
+    //     references.map(({ txIn }) => {
+    //       return new Core.TransactionInput(
+    //         Core.TransactionId(txIn.hash),
+    //         BigInt(txIn.index),
+    //       );
+    //     }),
+    //   );
+    // }
 
-    return this.referenceUtxos;
+    // return this.referenceUtxos;
+
+    const { references } = await this.getProtocolParams();
+    return await this.blaze.provider.resolveUnspentOutputs(
+      references.map(({ txIn }) => {
+        return new Core.TransactionInput(
+          Core.TransactionId(txIn.hash),
+          BigInt(txIn.index),
+        );
+      }),
+    );
   }
 
   /**

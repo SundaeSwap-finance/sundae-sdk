@@ -1,5 +1,17 @@
 # Change Log
 
+## 3.1.3
+
+### Patch Changes
+
+- eb04f24: Updates dependencies.
+
+## 3.1.2
+
+### Patch Changes
+
+- 9448981: Updates class references when adding referenceInputs to Blaze's transaction builder. This is an attempt to avoid private class member access somewhere in the tree.
+
 ## 3.1.1
 
 ### Patch Changes

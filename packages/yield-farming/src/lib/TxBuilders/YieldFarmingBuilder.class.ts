@@ -245,7 +245,12 @@ export class YieldFarmingBuilder implements YieldFarmingAbstract {
     const stakingPart = BlazeHelper.getStakingHashFromBech32(ownerAddress);
     const txInstance = this.newTransaction();
 
-    referenceInputs.forEach((input) => txInstance.addReferenceInput(input));
+    referenceInputs.forEach((input) =>
+      txInstance.addReferenceInput(
+        // Ensure that each reference is clean.
+        Core.TransactionUnspentOutput.fromCbor(input.toCbor()),
+      ),
+    );
     txInstance.addRequiredSigner(Core.Ed25519KeyHashHex(paymentPart));
 
     if (stakingPart) {
