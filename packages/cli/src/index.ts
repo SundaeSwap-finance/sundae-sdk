@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { mainMenu } from "./menus/main.js";
 import { fillRemainingSettings, readSettings } from "./menus/settings.js";
 import { State } from "./types.js";
