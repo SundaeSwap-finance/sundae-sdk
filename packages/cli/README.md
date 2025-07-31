@@ -19,7 +19,7 @@ bun ./packages/cli/dist/cli/index.js
 
 ## Configuration
 
-The CLI will store settings in a `settings.json` file. Normally there is no need to edit this file manually as any missing settings will be prompted from the user. In the main menu you can choose the settings sub menu to change any settings later on.
+The CLI will store settings in a `settings.json` file located in your home directory at `~/.sundaeswap-cli/settings.json`. Normally there is no need to edit this file manually as any missing settings will be prompted from the user. In the main menu you can choose the settings sub menu to change any settings later on.
 
 ## Contributing
 

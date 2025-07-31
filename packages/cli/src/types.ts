@@ -5,7 +5,7 @@ import {
   type ISundaeProtocolParamsFull,
   type TSupportedNetworks,
 } from "@sundaeswap/core";
-import { getBlazeInstance } from "./utils";
+import { getBlazeInstance } from "./utils.js";
 
 export interface ISettings {
   network?: string;
@@ -39,9 +39,9 @@ export class State {
       const queryProvider = new QueryProviderSundaeSwap(
         this.settings.network! as TSupportedNetworks,
       );
-      queryProvider.setProtocolParams(this.settings.customProtocolParams);
+      queryProvider.addCustomProtocolParams(this.settings.customProtocolParams);
       this.sdk.queryProvider = queryProvider;
-      this.sdk.builders.values().forEach((builder) => {
+      [...this.sdk.builders.values()].forEach((builder) => {
         builder.setQueryProvider(queryProvider);
       });
     }

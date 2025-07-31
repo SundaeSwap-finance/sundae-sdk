@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { select } from "@inquirer/prompts";
 import clipboard from "clipboardy";
 
@@ -21,16 +22,23 @@ export async function transactionDialog(
   });
   switch (choice) {
     case "copy":
-      clipboard.writeSync(txCbor);
-      await select({
-        message: "Transaction cbor copied to clipboard.",
-        choices: [{ name: "Press enter to continue.", value: "continue" }],
-      });
+      try {
+        clipboard.writeSync(txCbor);
+        await select({
+          message: "Transaction cbor copied to clipboard.",
+          choices: [{ name: "Press enter to continue.", value: "continue" }],
+        });
+      } catch (e) {
+        console.log("Failed to copy to clipboard, expanding instead.");
+        await transactionDialog(txCbor, true);
+      }
       break;
     case "back":
       return;
     case "expand":
       await transactionDialog(txCbor, true);
+      break;
+    default:
       break;
   }
 }

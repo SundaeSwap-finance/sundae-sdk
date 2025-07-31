@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Core } from "@blaze-cardano/sdk";
 import { input, select } from "@inquirer/prompts";
 import {
@@ -13,9 +14,9 @@ import {
   type ISwapConfigArgs,
 } from "@sundaeswap/core";
 import type { State } from "../types";
-import { getPoolData, prettyAssetId } from "../utils";
-import { getAssetAmount, printHeader } from "./shared";
-import { transactionDialog } from "./transaction";
+import { getPoolData, prettyAssetId } from "../utils.js";
+import { getAssetAmount, printHeader } from "./shared.js";
+import { transactionDialog } from "./transaction.js";
 
 export async function swapMenu(state: State): Promise<State> {
   await printHeader(state);
@@ -56,7 +57,7 @@ export async function swapMenu(state: State): Promise<State> {
     console.log("Pool not found");
     return state;
   }
-  const builder = state.sdk!.builders.get(pool.version as EContractVersion)!;
+  const builder = state.sdk!.builders.get(pool.version)!;
   const swapArgs: ISwapConfigArgs = {
     suppliedAsset: swapFrom,
     pool: pool,
@@ -96,12 +97,10 @@ export async function getSlippage(): Promise<number> {
 export async function mintPoolMenu(state: State): Promise<State> {
   await printHeader(state);
   console.log("\t==== Mint pool menu ====\n");
-  const choices = state
-    .sdk!.builders.keys()
+  const choices = [...state.sdk!.builders.keys()] // IterableIterator doesn't have .map until ES2025
     .map((key) => {
       return { name: key as string, value: key as string };
-    })
-    .toArray();
+    });
   choices.push({ name: "Back", value: "back" });
   const choice = await select({
     message: "Select pool type",
@@ -125,6 +124,8 @@ export async function mintPoolMenu(state: State): Promise<State> {
       const argsNftCheck = await mintPoolNftCheckArgs(state);
       const txNftCheck = (await builderNftCheck.mintPool(argsNftCheck)).build();
       await transactionDialog((await txNftCheck).cbor, false);
+      break;
+    default:
       break;
   }
   return state;
@@ -151,25 +152,28 @@ export async function cancelSwapMenu(state: State): Promise<State> {
   const orderUtxos = await state
     .sdk!.blaze()
     .provider.getUnspentOutputs(Core.Address.fromBech32(v3OrderScriptAddress));
-  const choices: { name: string; value: any }[] = orderUtxos!.map((utxo) => {
+  const choices: {
+    name: string;
+    value: Core.TransactionUnspentOutput | undefined;
+  }[] = orderUtxos!.map((utxo) => {
     return {
       name: `${utxo.input().transactionId()}#${utxo.input().index()}`,
       value: utxo,
     };
   });
-  choices.push({ name: "Back", value: "back" });
+  choices.push({ name: "Back", value: undefined });
   const choice = await select({
     message: "Select order to cancel",
     choices: choices,
   });
-  if (choice === "back") {
+  if (choice === undefined) {
     return state;
   }
   const tx = await state.sdk?.builders.get(EContractVersion.V3)!.cancel({
     ownerAddress: state.settings.address,
     utxo: {
       hash: choice.input().transactionId(),
-      index: choice.input().index(),
+      index: Number(choice.input().index()),
     },
   });
   const txCbor = (await tx?.build())?.cbor;
