@@ -30,18 +30,16 @@
     "watch": "bun clean && bun run build --watch"
   },
   "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.7.2",
-    "@blaze-cardano/sdk": "^0.2.31"
-  },
-  "dependencies": {
-    "@sundaeswap/core": "workspace:*",
+    "@types/bun": "latest",
+    "@sundaeswap/core": "^2.6.5",
     "@inquirer/prompts": "^7.5.0",
     "@sundaeswap/asset": "^1.0.11",
     "asciify-image": "^0.1.10",
     "clipboardy": "^4.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.7.2",
+    "@blaze-cardano/sdk": "^0.2.31"
   },
   "bin": "./dist/cli/index.js",
   "files": [

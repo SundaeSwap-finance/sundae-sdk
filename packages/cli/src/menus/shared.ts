@@ -33,7 +33,7 @@ export async function setAsciiLogo(size: number): Promise<void> {
 
 export async function printHeader(state: State): Promise<void> {
   console.clear();
-  const version = packageJson.dependencies["@sundaeswap/core"];
+  const version = packageJson.devDependencies["@sundaeswap/core"];
   const headerText: string[] = [
     "",
     "----------------------",
