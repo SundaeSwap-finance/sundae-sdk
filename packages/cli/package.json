@@ -44,6 +44,7 @@
   "bin": "./dist/cli/index.js",
   "files": [
     "dist/",
+    "data/",
     "README.md"
   ],
   "engines": {

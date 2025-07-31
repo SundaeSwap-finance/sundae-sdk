@@ -8,6 +8,8 @@ import {
   type IPoolByAssetQuery,
   type IPoolData,
 } from "@sundaeswap/core";
+import path from "path";
+import { fileURLToPath } from "url";
 import packageJson from "../../package.json" assert { type: "json" };
 import type { State } from "../types.js";
 import { getPoolData, prettyAssetId } from "../utils.js";
@@ -16,19 +18,46 @@ const asciify = (await import("asciify-image")).default;
 
 let asciiLogo: string[] = [];
 
-const logoPath = `${__dirname}/../../data/sundae.png`;
+// Get the directory of the current module file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Construct path to logo file in the package
+// When built, this file is in dist/cli/, so we need to go up to package root then into data/
+const logoPath = path.join(__dirname, "..", "..", "data", "sundae.png");
 
 export async function setAsciiLogo(size: number): Promise<void> {
-  await asciify(logoPath, {
-    fit: "box",
-    height: size,
-  })
-    .then(function (asciified) {
-      asciiLogo = (asciified as string).split("\n");
-    })
-    .catch(function (err) {
-      console.error(err);
+  try {
+    const asciified = await asciify(logoPath, {
+      fit: "box",
+      height: size,
     });
+    asciiLogo = (asciified as string).split("\n");
+  } catch (err) {
+    console.error("Could not load logo, using fallback:", err);
+    // Fallback to a simple ASCII logo if the image fails to load
+    asciiLogo = [
+      "   ____                 _            ",
+      "  / ___| _   _ _ __   __| | __ _  ___ ",
+      "  \\___ \\| | | | '_ \\ / _` |/ _` |/ _ \\",
+      "   ___) | |_| | | | | (_| | (_| |  __/",
+      "  |____/ \\__,_|_| |_|\\__,_|\\__,_|\\___|",
+      "                                     ",
+      "           ____  ____  _  __         ",
+      "          / ___||  _ \\| |/ /         ",
+      "          \\___ \\| | | | ' /          ",
+      "           ___) | |_| | . \\          ",
+      "          |____/|____/|_|\\_\\         ",
+      "                                     ",
+    ];
+    // Adjust the fallback logo size to match requested height
+    while (asciiLogo.length < size) {
+      asciiLogo.push("                                     ");
+    }
+    if (asciiLogo.length > size) {
+      asciiLogo = asciiLogo.slice(0, size);
+    }
+  }
 }
 
 export async function printHeader(state: State): Promise<void> {
