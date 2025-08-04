@@ -828,7 +828,7 @@ describe("TxBuilderNftCheck", () => {
       destination: { type: EDestinationType.SELF },
       ownerAddress: PREVIEW_DATA.addresses.current,
       pool: PREVIEW_DATA.pools.v3,
-      authSigner: "cafebabe",
+      authSigner: "cfad1914b599d18bffd14d2bbd696019c2899cbdd6a03325cdf680bc",
       suppliedAsset: PREVIEW_DATA.assets.tada,
     });
 
@@ -837,7 +837,9 @@ describe("TxBuilderNftCheck", () => {
       1,
       expect.objectContaining({
         ident: PREVIEW_DATA.pools.v3.ident,
-        order: { signer: "cafebabe" },
+        order: {
+          signer: "cfad1914b599d18bffd14d2bbd696019c2899cbdd6a03325cdf680bc",
+        },
       }),
     );
 

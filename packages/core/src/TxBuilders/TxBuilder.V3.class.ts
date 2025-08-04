@@ -1108,10 +1108,16 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       scooperFee: await this.getMaxScooperFeeAmount(),
     });
 
-    const payment = SundaeUtils.accumulateSuppliedAssets({
-      suppliedAssets: [suppliedAsset],
-      scooperFee: await this.getMaxScooperFeeAmount(),
-    });
+    const payment: Record<string, bigint> = {
+      lovelace: 0n,
+    };
+
+    if (SundaeUtils.isAdaAsset(suppliedAsset.metadata)) {
+      payment.lovelace = suppliedAsset.amount;
+    } else {
+      payment.lovelace = ORDER_DEPOSIT_DEFAULT;
+      payment[suppliedAsset.id.replace(".", "")] = suppliedAsset.amount;
+    }
 
     tx.lockAssets(
       Core.addressFromBech32(v3Address),
