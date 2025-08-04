@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.2.0
+
+### Minor Changes
+
+- dfe05ed: Added support for creating strategy orders
+
 ## 1.1.3
 
 ### Patch Changes
