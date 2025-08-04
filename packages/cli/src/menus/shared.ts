@@ -1,33 +1,68 @@
 /* eslint-disable no-console */
-import { input, select } from "@inquirer/prompts";
+import { Address, CredentialType, AssetId } from "@blaze-cardano/core";
+import { input, search, select } from "@inquirer/prompts";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
-import { ADA_METADATA } from "@sundaeswap/core";
+import {
+  ADA_METADATA,
+  EContractVersion,
+  type IPoolByAssetQuery,
+  type IPoolData,
+} from "@sundaeswap/core";
+import path from "path";
+import { fileURLToPath } from "url";
 import packageJson from "../../package.json" assert { type: "json" };
-import type { State } from "../types";
-import { prettyAssetId } from "../utils";
+import type { State } from "../types.js";
+import { getPoolData, prettyAssetId } from "../utils.js";
 
 const asciify = (await import("asciify-image")).default;
 
 let asciiLogo: string[] = [];
 
-const logoPath = `${__dirname}/../../data/sundae.png`;
+// Get the directory of the current module file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Construct path to logo file in the package
+// When built, this file is in dist/cli/, so we need to go up to package root then into data/
+const logoPath = path.join(__dirname, "..", "..", "data", "sundae.png");
 
 export async function setAsciiLogo(size: number): Promise<void> {
-  await asciify(logoPath, {
-    fit: "box",
-    height: size,
-  })
-    .then(function (asciified) {
-      asciiLogo = (asciified as string).split("\n");
-    })
-    .catch(function (err) {
-      console.error(err);
+  try {
+    const asciified = await asciify(logoPath, {
+      fit: "box",
+      height: size,
     });
+    asciiLogo = (asciified as string).split("\n");
+  } catch (err) {
+    console.error("Could not load logo, using fallback:", err);
+    // Fallback to a simple ASCII logo if the image fails to load
+    asciiLogo = [
+      "   ____                 _            ",
+      "  / ___| _   _ _ __   __| | __ _  ___ ",
+      "  \\___ \\| | | | '_ \\ / _` |/ _` |/ _ \\",
+      "   ___) | |_| | | | | (_| | (_| |  __/",
+      "  |____/ \\__,_|_| |_|\\__,_|\\__,_|\\___|",
+      "                                     ",
+      "           ____  ____  _  __         ",
+      "          / ___||  _ \\| |/ /         ",
+      "          \\___ \\| | | | ' /          ",
+      "           ___) | |_| | . \\          ",
+      "          |____/|____/|_|\\_\\         ",
+      "                                     ",
+    ];
+    // Adjust the fallback logo size to match requested height
+    while (asciiLogo.length < size) {
+      asciiLogo.push("                                     ");
+    }
+    if (asciiLogo.length > size) {
+      asciiLogo = asciiLogo.slice(0, size);
+    }
+  }
 }
 
 export async function printHeader(state: State): Promise<void> {
   console.clear();
-  const version = packageJson.dependencies["@sundaeswap/core"];
+  const version = packageJson.devDependencies["@sundaeswap/core"];
   const headerText: string[] = [
     "",
     "----------------------",
@@ -64,26 +99,26 @@ export async function getAssetAmount(
   minAmt: bigint,
 ): Promise<AssetAmount<IAssetAmountMetadata>> {
   const bal = await state.sdk!.blaze().wallet.getBalance();
-  const choices = bal!
-    .multiasset()!
-    .entries()
-    .filter((entry) => {
-      return entry[1] >= minAmt;
+  const choices = [...bal!.multiasset()!.entries()] // NOTE: .filter was only added to IterableIterator in ES2025
+    .filter(([_, amt]: [AssetId, bigint]) => {
+      return amt! >= minAmt;
     })
-    .map((entry) => {
+    .map(([assetId, amt]: [AssetId, bigint]) => {
       return {
-        name: `${prettyAssetId(entry[0].toString())} (${entry[1].toString()})`,
-        value: entry[0].toString(),
+        name: `${prettyAssetId(assetId.toString())} (${amt.toString()})`,
+        value: assetId.toString(),
       };
-    })
-    .toArray();
+    });
   choices?.push({
     name: `ADA (${bal!.coin().toString()})`,
     value: "ada.lovelace",
   });
-  const choice = await select({
+  const choice = await search({
     message: message,
-    choices: choices,
+    source: (prompt) =>
+      prompt
+        ? choices.filter((c: { name: string }) => c.name.includes(prompt))
+        : choices,
   });
   const assetId = choice as string;
 
@@ -97,4 +132,98 @@ export async function getAssetAmount(
         Number(await input({ message: "Enter amount" })),
         { decimals: 0, assetId: assetId },
       );
+}
+
+export async function addressOrHexToHash(
+  address_str: string,
+  expectedType: CredentialType,
+): Promise<string> {
+  if (/[0-9a-fA-F]{56}/.test(address_str)) {
+    return address_str;
+  }
+  if (address_str.startsWith("addr") || address_str.startsWith("stake")) {
+    const address = Address.fromBech32(address_str);
+    if (address_str.startsWith("addr")) {
+      const credType = address.getProps().paymentPart?.type;
+      if (credType !== expectedType) {
+        throw new Error(
+          `Expecting a ${expectedType} address, but got ${credType}`,
+        );
+      }
+      return address.getProps().paymentPart!.hash;
+    } else {
+      const credType = address.asReward()!.getPaymentCredential().type;
+      if (credType !== expectedType) {
+        throw new Error(
+          `Expecting a ${expectedType} address, but got ${credType}`,
+        );
+      }
+      return address.asReward()!.getPaymentCredential().hash;
+    }
+  }
+  throw new Error("Unrecognized format");
+}
+
+export async function maybeInput(opts: {
+  message: string;
+  validate?: (a: string) => boolean | string | Promise<boolean | string>;
+  default?: string;
+}): Promise<string | undefined> {
+  const resp = await input(opts);
+  if (resp === "") {
+    return undefined;
+  }
+  return resp;
+}
+
+export async function selectPool(
+  assetId: string,
+  state: State,
+  typeFilter?: EContractVersion[],
+): Promise<IPoolData | undefined> {
+  const pools = (await state.sdk!.queryProvider.findPoolData({
+    assetId,
+  } as IPoolByAssetQuery)) as IPoolData[];
+  const choices = pools!
+    .filter((pool) => {
+      if (
+        typeFilter &&
+        !typeFilter.includes(pool.version as EContractVersion)
+      ) {
+        return false;
+      }
+      return true;
+    })
+    .map((pool) => {
+      const price =
+        Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
+      return {
+        name: `${prettyAssetId(pool.assetA.assetId.toString())} / ${prettyAssetId(
+          pool.assetB.assetId.toString(),
+        )} (p: ${price.toFixed(
+          6,
+        )}, l: (${pool.liquidity.aReserve.toString()} / ${pool.liquidity.bReserve.toString()}), id: ${
+          pool.ident
+        })`,
+        value: pool.ident,
+      };
+    });
+  choices.push({ name: "Enter pool ident manually", value: "manual" });
+  let choice = await select({
+    message: "Select pool",
+    choices: choices,
+  });
+  let pool: IPoolData;
+  if (choice === "manual") {
+    const ident = await input({
+      message: "Enter pool ident",
+    });
+    choice = ident;
+    pool = await getPoolData(state, ident, EContractVersion.NftCheck);
+  } else {
+    pool = (await state.sdk!.queryProvider.findPoolData({
+      ident: choice,
+    })) as IPoolData;
+  }
+  return pool;
 }
