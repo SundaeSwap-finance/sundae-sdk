@@ -70,7 +70,7 @@ export async function swapMenu(state: State): Promise<State> {
     swapType: { type: ESwapType.MARKET, slippage: Number(await getSlippage()) },
   };
   const tx = await builder.swap(swapArgs);
-  await transactionDialog((await tx.build()).cbor, false);
+  await transactionDialog((await tx.build()).cbor, false, state);
   return state;
 }
 
@@ -115,7 +115,7 @@ export async function mintPoolMenu(state: State): Promise<State> {
       )! as TxBuilderV3;
       const args = await mintPoolArgs(state);
       const tx = (await builder.mintPool(args)).build();
-      await transactionDialog((await tx).cbor, false);
+      await transactionDialog((await tx).cbor, false, state);
       break;
     case "NftCheck":
       const builderNftCheck = state.sdk!.builders.get(
@@ -123,7 +123,7 @@ export async function mintPoolMenu(state: State): Promise<State> {
       )! as TxBuilderNftCheck;
       const argsNftCheck = await mintPoolNftCheckArgs(state);
       const txNftCheck = (await builderNftCheck.mintPool(argsNftCheck)).build();
-      await transactionDialog((await txNftCheck).cbor, false);
+      await transactionDialog((await txNftCheck).cbor, false, state);
       break;
     default:
       break;
@@ -177,7 +177,7 @@ export async function cancelSwapMenu(state: State): Promise<State> {
     },
   });
   const txCbor = (await tx?.build())?.cbor;
-  await transactionDialog(txCbor!, false);
+  await transactionDialog(txCbor!, false, state);
   return state;
 }
 

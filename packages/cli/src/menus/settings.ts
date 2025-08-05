@@ -1,10 +1,18 @@
 /* eslint-disable no-console */
-import { input, select } from "@inquirer/prompts";
+import {
+  Bip32PrivateKey,
+  generateMnemonic,
+  mnemonicToEntropy,
+  wordlist,
+} from "@blaze-cardano/core";
+import { HotWallet } from "@blaze-cardano/wallet";
+import { input, password, select } from "@inquirer/prompts";
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import type { ISettings, State } from "../types.js";
 import { printHeader } from "./shared.js";
+import { getProvider, encrypt } from "../utils.js";
 
 // Create cross-platform config directory
 const configDir = join(homedir(), ".sundaeswap-cli");
@@ -34,11 +42,6 @@ export async function fillRemainingSettings(state: State): Promise<State> {
       ],
     });
   }
-  if (!state.settings.address) {
-    state.settings.address = await input({
-      message: "Enter address",
-    });
-  }
   if (!state.settings.providerType) {
     state.settings.providerType = await select({
       message: "Select provider type",
@@ -54,7 +57,91 @@ export async function fillRemainingSettings(state: State): Promise<State> {
       message: "Enter provider key",
     });
   }
+  if (!state.settings.address) {
+    state = await setWallet(state);
+  }
   await saveSettings(state);
+  return state;
+}
+
+export async function setWallet(state: State): Promise<State> {
+  const hotOrCold = await select({
+    message: "Select wallet type",
+    choices: [
+      { name: "Hot wallet (can sign from within this cli)", value: "hot" },
+      { name: "Cold wallet (sign transactions externally)", value: "cold" },
+    ],
+  });
+  switch (hotOrCold) {
+    case "hot":
+      state.settings.walletType = hotOrCold;
+      return await setHotWallet(state);
+    case "cold":
+      state.settings.walletType = hotOrCold;
+      state.settings.address = await input({
+        message: `Enter address for the wallet:`,
+      });
+      break;
+    default:
+      console.log("Invalid choice, please try again.");
+      return setWallet(state);
+  }
+  return state;
+}
+
+export async function setHotWallet(state: State): Promise<State> {
+  const newOrImport = await select({
+    message: "Select hot wallet type",
+    choices: [
+      { name: "New wallet", value: "new" },
+      { name: "Import existing wallet", value: "import" },
+    ],
+  });
+  let mnemonic = "";
+  switch (newOrImport) {
+    case "new":
+      mnemonic = generateMnemonic(wordlist);
+      console.log(`Generated mnemonic (store it safely!):\n${mnemonic}`);
+      await input({
+        message: "Press Enter to continue after storing the mnemonic",
+      });
+      break;
+    case "import":
+      mnemonic = await input({
+        message: "Enter mnemonic phrase (12, 15 or 24 words)",
+        validate: (input: string) => {
+          const words = input.trim().split(/\s+/);
+          for (const word of words) {
+            if (!wordlist.includes(word)) {
+              return `Invalid word: ${word}. Please use a valid bip39 mnemonic`;
+            }
+          }
+          if (
+            words.length !== 12 &&
+            words.length !== 15 &&
+            words.length !== 24
+          ) {
+            return "Mnemonic must be 12, 15 or 24 words.";
+          }
+          return true;
+        },
+      });
+      break;
+    default:
+      console.log("Invalid choice, please try again.");
+      return setHotWallet(state);
+  }
+  const entropy: Uint8Array = mnemonicToEntropy(mnemonic, wordlist);
+  const privateKey = Bip32PrivateKey.fromBip39Entropy(Buffer.from(entropy), "");
+  const pw = await password({
+    message: "Enter a password to encrypt your private key",
+  });
+  state.settings.privateKey = encrypt(privateKey.hex(), pw);
+
+  const provider = await getProvider(state);
+  const wallet = await HotWallet.fromMasterkey(privateKey.hex(), provider);
+  state.settings.address = (await wallet.getChangeAddress()).toBech32();
+
   return state;
 }
 
@@ -79,9 +166,7 @@ export async function setNetwork(state: State): Promise<State> {
 }
 
 export async function setAddress(state: State): Promise<State> {
-  state.settings.address = await input({
-    message: `Enter address (Current: ${state.settings.address})`,
-  });
+  state = await setWallet(state);
   return state;
 }
 

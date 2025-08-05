@@ -3,6 +3,7 @@ import {
   Blaze,
   Blockfrost,
   ColdWallet,
+  HotWallet,
   Core,
   Maestro,
   Wallet,
@@ -16,19 +17,37 @@ import {
   type IPoolData,
 } from "@sundaeswap/core";
 import type { State } from "./types.js";
+import { setWallet } from "./menus/settings.js";
+import * as crypto from "crypto";
 
 export async function getWallet(
   state: State,
   provider: Provider,
 ): Promise<Wallet> {
   if (!state.settings.address) {
-    state.settings.address = await input({
-      message: "Enter your wallet address (Bech32 format):",
-    });
+    state = await setWallet(state);
   }
-  const address = Core.Address.fromBech32(state.settings.address!);
-  const wallet = new ColdWallet(address, provider.network, provider);
-  return wallet;
+  if (state.settings.walletType && state.settings.walletType === "hot") {
+    if (!state.settings.privateKey) {
+      console.log(
+        "Something is wrong with the stored wallet, please re-import your wallet.",
+      );
+      state = await setWallet(state);
+    }
+    const pw = await password({
+      message: "Enter wallet password",
+    });
+    const privateKey = decrypt(state.settings.privateKey!, pw);
+    const wallet = await HotWallet.fromMasterkey(
+      Core.Bip32PrivateKeyHex(privateKey!),
+      provider,
+    );
+    return wallet;
+  } else {
+    const address = Core.Address.fromBech32(state.settings.address!);
+    const wallet = new ColdWallet(address, provider.network, provider);
+    return wallet;
+  }
 }
 
 export async function getProvider(state: State): Promise<Provider> {
@@ -181,4 +200,103 @@ export async function getPoolData(
     version,
     conditionDatum: `d8799f${conData.toCbor().toString()}ff`,
   };
+}
+
+function splitEncryptedText(encryptedText: string) {
+  return {
+    encryptedDataString: encryptedText.slice(56, -32),
+    ivString: encryptedText.slice(0, 24),
+    assocDataString: encryptedText.slice(24, 56),
+    tagString: encryptedText.slice(-32),
+  };
+}
+
+function passwordToHash(password: string): Buffer {
+  return crypto.createHash("sha256").update(password).digest();
+}
+
+export function encrypt(
+  plaintext: string,
+  password: string,
+  encoding:
+    | "ascii"
+    | "utf8"
+    | "utf-8"
+    | "utf16le"
+    | "ucs2"
+    | "ucs-2"
+    | "base64"
+    | "base64url"
+    | "latin1"
+    | "binary"
+    | "hex" = "hex",
+): string {
+  const key = passwordToHash(password);
+  try {
+    crypto.getCiphers().forEach((c) => console.log(c));
+    const iv = crypto.randomBytes(12);
+    const assocData = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv("aes-256-gcm", key, iv, {
+      authTagLength: 16,
+    });
+
+    cipher.setAAD(assocData, { plaintextLength: Buffer.byteLength(plaintext) });
+
+    const encrypted = Buffer.concat([
+      cipher.update(plaintext, "utf-8"),
+      cipher.final(),
+    ]);
+    const tag = cipher.getAuthTag();
+
+    return (
+      iv.toString(encoding) +
+      assocData.toString(encoding) +
+      encrypted.toString(encoding) +
+      tag.toString(encoding)
+    );
+  } catch (e) {
+    console.error(e);
+    return "";
+  }
+}
+
+export function decrypt(
+  cipherText: string,
+  password: string,
+  encoding:
+    | "ascii"
+    | "utf8"
+    | "utf-8"
+    | "utf16le"
+    | "ucs2"
+    | "ucs-2"
+    | "base64"
+    | "base64url"
+    | "latin1"
+    | "binary"
+    | "hex" = "hex",
+) {
+  const key = passwordToHash(password);
+
+  const { encryptedDataString, ivString, assocDataString, tagString } =
+    splitEncryptedText(cipherText);
+
+  try {
+    const iv = Buffer.from(ivString, encoding);
+    const encryptedText = Buffer.from(encryptedDataString, encoding);
+    const tag = Buffer.from(tagString, encoding);
+
+    const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv, {
+      authTagLength: 16,
+    });
+    decipher.setAAD(Buffer.from(assocDataString, encoding), {
+      plaintextLength: encryptedDataString.length,
+    });
+    decipher.setAuthTag(Buffer.from(tag));
+
+    const decrypted = decipher.update(encryptedText);
+    return Buffer.concat([decrypted, decipher.final()]).toString();
+  } catch (e) {
+    console.error(e);
+  }
 }

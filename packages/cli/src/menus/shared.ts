@@ -99,20 +99,27 @@ export async function getAssetAmount(
   minAmt: bigint,
 ): Promise<AssetAmount<IAssetAmountMetadata>> {
   const bal = await state.sdk!.blaze().wallet.getBalance();
-  const choices = [...bal!.multiasset()!.entries()] // NOTE: .filter was only added to IterableIterator in ES2025
-    .filter(([_, amt]: [AssetId, bigint]) => {
-      return amt! >= minAmt;
-    })
-    .map(([assetId, amt]: [AssetId, bigint]) => {
-      return {
-        name: `${prettyAssetId(assetId.toString())} (${amt.toString()})`,
-        value: assetId.toString(),
-      };
-    });
-  choices?.push({
-    name: `ADA (${bal!.coin().toString()})`,
-    value: "ada.lovelace",
-  });
+  let choices = [
+    {
+      name: `ADA (${bal.coin().toString()})`,
+      value: "ada.lovelace",
+    },
+  ];
+  if (bal.multiasset()) {
+    choices = [
+      ...choices,
+      ...[...bal.multiasset()!.entries()] // NOTE: .filter was only added to IterableIterator in ES2025
+        .filter(([_, amt]: [AssetId, bigint]) => {
+          return amt! >= minAmt;
+        })
+        .map(([assetId, amt]: [AssetId, bigint]) => {
+          return {
+            name: `${prettyAssetId(assetId.toString())} (${amt.toString()})`,
+            value: assetId.toString(),
+          };
+        }),
+    ];
+  }
   const choice = await search({
     message: message,
     source: (prompt) =>

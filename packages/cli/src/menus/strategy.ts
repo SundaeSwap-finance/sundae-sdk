@@ -97,6 +97,6 @@ export async function strategyMenu(state: State): Promise<State> {
     authSigner: authKey,
   };
   const tx = await builder.strategy(strategyArgs);
-  await transactionDialog((await tx.build()).cbor, false);
+  await transactionDialog((await tx.build()).cbor, false, state);
   return state;
 }
