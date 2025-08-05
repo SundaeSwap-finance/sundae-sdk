@@ -33,6 +33,7 @@ export async function readSettings(state: State): Promise<State> {
 }
 
 export async function fillRemainingSettings(state: State): Promise<State> {
+  let changed = false;
   if (!state.settings.network) {
     state.settings.network = await select({
       message: "Select network",
@@ -41,6 +42,7 @@ export async function fillRemainingSettings(state: State): Promise<State> {
         { name: "preview", value: "preview" },
       ],
     });
+    changed = true;
   }
   if (!state.settings.providerType) {
     state.settings.providerType = await select({
@@ -51,16 +53,21 @@ export async function fillRemainingSettings(state: State): Promise<State> {
         { name: "kupmios", value: "kupmios" },
       ],
     });
+    changed = true;
   }
   if (!state.settings.providerKey) {
     state.settings.providerKey = await input({
       message: "Enter provider key",
     });
+    changed = true;
   }
   if (!state.settings.address) {
     state = await setWallet(state);
+    changed = true;
   }
-  await saveSettings(state);
+  if (changed) {
+    await saveSettings(state);
+  }
   return state;
 }
 

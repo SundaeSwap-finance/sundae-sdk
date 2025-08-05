@@ -35,8 +35,6 @@ export class State {
       this.sdk.options.blazeInstance = await getBlazeInstance(this);
     }
 
-    console.log(this.settings);
-
     if (this.settings.customProtocolParams) {
       const queryProvider = new QueryProviderSundaeSwap(
         this.settings.network! as TSupportedNetworks,

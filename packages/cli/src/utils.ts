@@ -233,7 +233,6 @@ export function encrypt(
 ): string {
   const key = passwordToHash(password);
   try {
-    crypto.getCiphers().forEach((c) => console.log(c));
     const iv = crypto.randomBytes(12);
     const assocData = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv("aes-256-gcm", key, iv, {
