@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.6.6
+
+### Patch Changes
+
+- cc31dff: Adds support for a minimal pool fetch.
+
 ## 2.6.5
 
 ### Patch Changes

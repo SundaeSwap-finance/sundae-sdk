@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.3.1
+
+### Patch Changes
+
+- cc31dff: Adds support for a minimal pool fetch.
+
 ## 1.3.0
 
 ### Minor Changes
