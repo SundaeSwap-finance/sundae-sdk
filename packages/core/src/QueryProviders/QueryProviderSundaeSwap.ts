@@ -196,43 +196,29 @@ export class QueryProviderSundaeSwap implements QueryProvider {
 
     const pools = res.data.pools.byAsset;
 
-    return minimal
-      ? pools.map((pool) => {
-          return {
-            assetA: pool.assetA,
-            assetB: pool.assetB,
-            assetLP: pool.assetLP,
-            currentFee: new Fraction(...pool.finalFee).toNumber(), // TODO: bidirectional fees?
-            ident: pool.id,
-            liquidity: {
-              aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
-              bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
-              lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
-            },
-            version: pool.version,
-          };
-        })
-      : pools.map((pool) => {
-          return {
-            assetA: pool.assetA,
-            assetB: pool.assetB,
-            assetLP: pool.assetLP,
-            currentFee: SundaeUtils.getCurrentFeeFromDecayingFee({
+    return pools.map((pool) => {
+      return {
+        assetA: pool.assetA,
+        assetB: pool.assetB,
+        assetLP: pool.assetLP,
+        currentFee: minimal
+          ? new Fraction(...pool.finalFee).toNumber()
+          : SundaeUtils.getCurrentFeeFromDecayingFee({
               endFee: pool.finalFee,
               endSlot: pool.feesFinalized.slot,
               startFee: pool.openingFee,
               startSlot: pool.marketOpen.slot,
               network: this.network,
             }),
-            ident: pool.id,
-            liquidity: {
-              aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
-              bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
-              lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
-            },
-            version: pool.version,
-          };
-        });
+        ident: pool.id,
+        liquidity: {
+          aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
+          bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
+          lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+        },
+        version: pool.version,
+      };
+    });
   }
 
   async findPoolData(identArgs: IPoolByIdentQuery): Promise<IPoolData>;
