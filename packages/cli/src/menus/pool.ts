@@ -51,7 +51,17 @@ export async function swapMenu(state: State): Promise<State> {
   if (choice === "manual") {
     const ident = await input({ message: "Enter pool ident" });
     choice = ident;
-    pool = await getPoolData(state, ident, EContractVersion.NftCheck);
+    const version = await select({
+      message: "What version is this pool?",
+      choices: [
+        { name: "V3", value: EContractVersion.V3 },
+        { name: "V1", value: EContractVersion.V1 },
+        { name: "Condition", value: EContractVersion.Condition },
+        { name: "NftCheck", value: EContractVersion.NftCheck },
+      ],
+    });
+    console.log(version);
+    pool = await getPoolData(state, ident, version);
   } else {
     pool = (await state.sdk!.queryProvider.findPoolData({
       ident: choice,

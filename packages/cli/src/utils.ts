@@ -13,7 +13,6 @@ import { input, password, select } from "@inquirer/prompts";
 import {
   DatumBuilderNftCheck,
   EContractVersion,
-  TxBuilderNftCheck,
   type IPoolData,
 } from "@sundaeswap/core";
 import type { State } from "./types.js";
@@ -123,9 +122,7 @@ export async function getPoolData(
   ident: string,
   version: EContractVersion,
 ): Promise<IPoolData> {
-  const builder = state.sdk!.builders.get(
-    EContractVersion.NftCheck,
-  )! as TxBuilderNftCheck;
+  const builder = state.sdk!.builders.get(version)!;
   const { hash: poolPolicyId } = await builder.getValidatorScript("pool.mint");
   console.log("Pool Policy ID: ", poolPolicyId);
   const poolNft = DatumBuilderNftCheck.computePoolNftName(ident);

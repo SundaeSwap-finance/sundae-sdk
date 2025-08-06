@@ -827,4 +827,9 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
       stakeCoreCredential,
     ).toBech32();
   }
+
+  public decodeDatum(datum: Core.PlutusData): V3Types.PoolDatum {
+    const decoded = parse(V3Types.PoolDatum, datum);
+    return decoded;
+  }
 }

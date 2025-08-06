@@ -256,9 +256,11 @@ export async function settingsMenu(state: State): Promise<State> {
 }
 
 export async function saveSettings(state: State): Promise<void> {
+  console.log(`Settings saving to ${settingsPath}`);
   writeFileSync(settingsPath, JSON.stringify(state.settings, null, 2), {
     encoding: "utf-8",
   });
+  console.log(`Settings saved to ${settingsPath}`);
   await state.setSdk();
   console.log(`Settings saved to ${settingsPath}`);
 }

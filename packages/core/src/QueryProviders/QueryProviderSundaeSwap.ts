@@ -177,14 +177,16 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         }
       `;
     const res: { data?: { pools: { byAsset: IPoolDataQueryResult[] } } } =
-      await fetch(this.baseUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query,
-          variables: { assetId: assetId },
-        }),
-      }).then((res) => res.json());
+      await (
+        await fetch(this.baseUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query,
+            variables: { assetId: assetId },
+          }),
+        })
+      ).json();
 
     if (!res?.data) {
       throw new Error(
@@ -465,6 +467,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     res.data.protocols = this.protocolParamsFull.concat(res.data.protocols);
 
     if (version) {
+      console.log(version);
       return res.data.protocols.find(
         ({ version: protocolVersion }) => version === protocolVersion,
       ) as ISundaeProtocolParamsFull;

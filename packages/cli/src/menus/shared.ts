@@ -201,38 +201,49 @@ export async function selectPool(
   state: State,
   typeFilter?: EContractVersion[],
 ): Promise<IPoolData | undefined> {
-  const pools = (await state.sdk!.queryProvider.findPoolData({
-    assetId,
-    minimal: true,
-  } as IPoolByAssetQuery)) as IPoolData[];
-  const choices = pools!
-    .filter((pool) => {
-      if (
-        typeFilter &&
-        !typeFilter.includes(pool.version as EContractVersion)
-      ) {
-        return false;
-      }
-      return true;
-    })
-    .map((pool) => {
-      const price =
-        Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
-      return {
-        name: `${prettyAssetId(pool.assetA.assetId.toString())} / ${prettyAssetId(
-          pool.assetB.assetId.toString(),
-        )} (p: ${price.toFixed(
-          6,
-        )}, l: (${pool.liquidity.aReserve.toString()} / ${pool.liquidity.bReserve.toString()}), id: ${
-          pool.ident
-        })`,
-        value: pool.ident,
-      };
-    });
+  let choices: { name: string; value: string }[] = [];
+  try {
+    const pools = (await state.sdk!.queryProvider.findPoolData({
+      assetId,
+      minimal: true,
+    } as IPoolByAssetQuery)) as IPoolData[];
+    choices = pools!
+      .filter((pool) => {
+        if (
+          typeFilter &&
+          !typeFilter.includes(pool.version as EContractVersion)
+        ) {
+          return false;
+        }
+        return true;
+      })
+      .map((pool) => {
+        const price =
+          Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
+        return {
+          name: `${prettyAssetId(pool.assetA.assetId.toString())} / ${prettyAssetId(
+            pool.assetB.assetId.toString(),
+          )} (p: ${price.toFixed(
+            6,
+          )}, l: (${pool.liquidity.aReserve.toString()} / ${pool.liquidity.bReserve.toString()}), id: ${
+            pool.ident
+          })`,
+          value: pool.ident,
+        };
+      });
+  } catch (err) {
+    console.warn("Something went wrong when fetching pools: ", err);
+  }
   choices.push({ name: "Enter pool ident manually", value: "manual" });
-  let choice = await select({
+  let choice = await search({
     message: "Select pool",
-    choices: choices,
+    source: (term) => {
+      return !!term
+        ? choices.filter((c) =>
+            c.name.toLowerCase().includes(term.toLowerCase()),
+          )
+        : choices;
+    },
   });
   let pool: IPoolData;
   if (choice === "manual") {
@@ -240,7 +251,17 @@ export async function selectPool(
       message: "Enter pool ident",
     });
     choice = ident;
-    pool = await getPoolData(state, ident, EContractVersion.NftCheck);
+    const version = await select({
+      message: "What version is this pool?",
+      choices: [
+        { name: "V3", value: EContractVersion.V3 },
+        { name: "V1", value: EContractVersion.V1 },
+        { name: "Condition", value: EContractVersion.Condition },
+        { name: "NftCheck", value: EContractVersion.NftCheck },
+      ],
+    });
+    console.log(version);
+    pool = await getPoolData(state, ident, version);
   } else {
     pool = (await state.sdk!.queryProvider.findPoolData({
       ident: choice,
