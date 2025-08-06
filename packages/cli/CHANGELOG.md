@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.3.0
+
+### Minor Changes
+
+- c61c309: Added hotwallet support for in-cli transaction signing and submitting.
+
 ## 1.2.0
 
 ### Minor Changes
