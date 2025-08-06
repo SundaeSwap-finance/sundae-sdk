@@ -30,17 +30,15 @@
     },
     "packages/cli": {
       "name": "@sundaeswap/cli",
-      "version": "1.1.3",
+      "version": "1.3.0",
       "bin": "./dist/cli/index.js",
-      "dependencies": {
+      "devDependencies": {
         "@inquirer/prompts": "^7.5.0",
         "@sundaeswap/asset": "^1.0.11",
-        "@sundaeswap/core": "workspace:*",
+        "@sundaeswap/core": "^2.6.5",
+        "@types/bun": "latest",
         "asciify-image": "^0.1.10",
         "clipboardy": "^4.0.0",
-      },
-      "devDependencies": {
-        "@types/bun": "latest",
       },
       "peerDependencies": {
         "@blaze-cardano/sdk": "^0.2.31",

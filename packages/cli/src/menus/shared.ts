@@ -203,6 +203,7 @@ export async function selectPool(
 ): Promise<IPoolData | undefined> {
   const pools = (await state.sdk!.queryProvider.findPoolData({
     assetId,
+    minimal: true,
   } as IPoolByAssetQuery)) as IPoolData[];
   const choices = pools!
     .filter((pool) => {

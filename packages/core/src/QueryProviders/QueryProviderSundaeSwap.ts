@@ -1,3 +1,4 @@
+import { Fraction } from "@sundaeswap/fraction";
 import {
   EContractVersion,
   IPoolByAssetQuery,
@@ -98,53 +99,89 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     this.poolData.set(ident, poolData);
   }
 
-  async findPoolDataByAssetId(assetId: string): Promise<IPoolData[]> {
+  async findPoolDataByAssetId(
+    assetId: string,
+    minimal: boolean = false,
+  ): Promise<IPoolData[]> {
+    const query = minimal
+      ? `
+        query poolByIdent($assetId: ID!) {
+          pools {
+            byAsset(asset: $assetId) {
+              id
+              assetA {
+                assetId: id
+              }
+              assetB {
+                assetId: id
+              }
+              assetLP {
+                assetId: id
+              }
+              finalFee
+              current {
+                quantityA {
+                  quantity
+                }
+                quantityB {
+                  quantity
+                }
+                quantityLP {
+                  quantity
+                }
+              }
+              version
+            }
+          }
+        }
+      `
+      : `
+        query poolByIdent($assetId: ID!) {
+          pools {
+            byAsset(asset: $assetId) {
+              feesFinalized {
+                slot
+              }
+              marketOpen {
+                slot
+              }
+              openingFee
+              finalFee
+              id
+              assetA {
+                assetId: id
+                decimals
+              }
+              assetB {
+                assetId: id
+                decimals
+              }
+              assetLP {
+                assetId: id
+                decimals
+              }
+              current {
+                quantityA {
+                  quantity
+                }
+                quantityB {
+                  quantity
+                }
+                quantityLP {
+                  quantity
+                }
+              }
+              version
+            }
+          }
+        }
+      `;
     const res: { data?: { pools: { byAsset: IPoolDataQueryResult[] } } } =
       await fetch(this.baseUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query: `
-          query poolByIdent($assetId: ID!) {
-            pools {
-              byAsset(asset: $assetId) {
-                feesFinalized {
-                  slot
-                }
-                marketOpen {
-                  slot
-                }
-                openingFee
-                finalFee
-                id
-                assetA {
-                  assetId: id
-                  decimals
-                }
-                assetB {
-                  assetId: id
-                  decimals
-                }
-                assetLP {
-                  assetId: id
-                  decimals
-                }
-                current {
-                  quantityA {
-                    quantity
-                  }
-                  quantityB {
-                    quantity
-                  }
-                  quantityLP {
-                    quantity
-                  }
-                }
-                version
-              }
-            }
-          }
-        `,
+          query,
           variables: { assetId: assetId },
         }),
       }).then((res) => res.json());
@@ -159,27 +196,43 @@ export class QueryProviderSundaeSwap implements QueryProvider {
 
     const pools = res.data.pools.byAsset;
 
-    return pools.map((pool) => {
-      return {
-        assetA: pool.assetA,
-        assetB: pool.assetB,
-        assetLP: pool.assetLP,
-        currentFee: SundaeUtils.getCurrentFeeFromDecayingFee({
-          endFee: pool.finalFee,
-          endSlot: pool.feesFinalized.slot,
-          startFee: pool.openingFee,
-          startSlot: pool.marketOpen.slot,
-          network: this.network,
-        }),
-        ident: pool.id,
-        liquidity: {
-          aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
-          bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
-          lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
-        },
-        version: pool.version,
-      };
-    });
+    return minimal
+      ? pools.map((pool) => {
+          return {
+            assetA: pool.assetA,
+            assetB: pool.assetB,
+            assetLP: pool.assetLP,
+            currentFee: new Fraction(...pool.finalFee).toNumber(), // TODO: bidirectional fees?
+            ident: pool.id,
+            liquidity: {
+              aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
+              bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
+              lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+            },
+            version: pool.version,
+          };
+        })
+      : pools.map((pool) => {
+          return {
+            assetA: pool.assetA,
+            assetB: pool.assetB,
+            assetLP: pool.assetLP,
+            currentFee: SundaeUtils.getCurrentFeeFromDecayingFee({
+              endFee: pool.finalFee,
+              endSlot: pool.feesFinalized.slot,
+              startFee: pool.openingFee,
+              startSlot: pool.marketOpen.slot,
+              network: this.network,
+            }),
+            ident: pool.id,
+            liquidity: {
+              aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
+              bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
+              lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+            },
+            version: pool.version,
+          };
+        });
   }
 
   async findPoolData(identArgs: IPoolByIdentQuery): Promise<IPoolData>;
@@ -188,7 +241,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     args: IPoolByIdentQuery | IPoolByAssetQuery,
   ): Promise<IPoolData | IPoolData[]> {
     if ("assetId" in args) {
-      return this.findPoolDataByAssetId(args.assetId);
+      return this.findPoolDataByAssetId(args.assetId, args.minimal);
     }
     return this.findPoolDataByIdent(args);
   }

@@ -44,6 +44,8 @@ export interface IPoolByIdentQuery {
 export interface IPoolByAssetQuery {
   /** The assets's id. */
   assetId: string;
+  /** Whether to fetch a trimmed down version of the pool data, or everything; defaults to everything */
+  minimal?: boolean;
 }
 
 /**
