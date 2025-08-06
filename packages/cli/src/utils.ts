@@ -19,6 +19,7 @@ import {
 import type { State } from "./types.js";
 import { setWallet } from "./menus/settings.js";
 import * as crypto from "crypto";
+import { setTimeout } from "timers/promises";
 
 export async function getWallet(
   state: State,
@@ -34,10 +35,13 @@ export async function getWallet(
       );
       state = await setWallet(state);
     }
-    const pw = await password({
-      message: "Enter wallet password",
-    });
-    const privateKey = decrypt(state.settings.privateKey!, pw);
+    let privateKey;
+    do {
+      const pw = await password({
+        message: "Enter wallet password",
+      });
+      privateKey = await decrypt(state.settings.privateKey!, pw);
+    } while (!privateKey);
     const wallet = await HotWallet.fromMasterkey(
       Core.Bip32PrivateKeyHex(privateKey!),
       provider,
@@ -259,7 +263,7 @@ export function encrypt(
   }
 }
 
-export function decrypt(
+export async function decrypt(
   cipherText: string,
   password: string,
   encoding:
@@ -274,7 +278,7 @@ export function decrypt(
     | "latin1"
     | "binary"
     | "hex" = "hex",
-) {
+): Promise<string | undefined> {
   const key = passwordToHash(password);
 
   const { encryptedDataString, ivString, assocDataString, tagString } =
@@ -296,6 +300,9 @@ export function decrypt(
     const decrypted = decipher.update(encryptedText);
     return Buffer.concat([decrypted, decipher.final()]).toString();
   } catch (e) {
-    console.error(e);
+    console.log("Password incorrect!");
+    console.log("Waiting 3 seconds before retry...");
+    await setTimeout(3000);
+    return undefined;
   }
 }

@@ -104,6 +104,10 @@ export async function simpleSend(state: State): Promise<State> {
     "Which asset do you want to send?",
     0n,
   );
+  if (!amount) {
+    console.log("No asset selected, returning to main menu.");
+    return state;
+  }
   let value;
   if (amount.id === "ada.lovelace") {
     value = makeValue(amount.amount);

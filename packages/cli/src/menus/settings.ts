@@ -140,9 +140,19 @@ export async function setHotWallet(state: State): Promise<State> {
   }
   const entropy: Uint8Array = mnemonicToEntropy(mnemonic, wordlist);
   const privateKey = Bip32PrivateKey.fromBip39Entropy(Buffer.from(entropy), "");
-  const pw = await password({
-    message: "Enter a password to encrypt your private key",
-  });
+  let pw;
+  let repeatedPw;
+  do {
+    pw = await password({
+      message: "Enter a password to encrypt your private key",
+    });
+    repeatedPw = await password({
+      message: "Repeat the password",
+    });
+    if (pw !== repeatedPw) {
+      console.log("Passwords do not match, please try again.");
+    }
+  } while (pw !== repeatedPw);
   state.settings.privateKey = encrypt(privateKey.hex(), pw);
 
   const provider = await getProvider(state);

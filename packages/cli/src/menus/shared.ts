@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Address, CredentialType, AssetId } from "@blaze-cardano/core";
+import { Core } from "@blaze-cardano/sdk";
 import { input, search, select } from "@inquirer/prompts";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
@@ -13,6 +13,7 @@ import { fileURLToPath } from "url";
 import packageJson from "../../package.json" assert { type: "json" };
 import type { State } from "../types.js";
 import { getPoolData, prettyAssetId } from "../utils.js";
+import { makeValue } from "@blaze-cardano/sdk";
 
 const asciify = (await import("asciify-image")).default;
 
@@ -97,8 +98,20 @@ export async function getAssetAmount(
   state: State,
   message: string,
   minAmt: bigint,
-): Promise<AssetAmount<IAssetAmountMetadata>> {
-  const bal = await state.sdk!.blaze().wallet.getBalance();
+): Promise<AssetAmount<IAssetAmountMetadata> | undefined> {
+  let bal: Core.Value;
+  try {
+    bal = await state.sdk!.blaze().wallet.getBalance();
+  } catch (err) {
+    bal = makeValue(0n);
+    console.log(
+      `The wallet's balance could not be retrieved, it is probably empty. Make sure to fund the wallet with address: ${state.settings.address}\nA faucet exists for testnet at https://docs.cardano.org/cardano-testnets/tools/faucet`,
+    );
+    await input({
+      message: "Press enter to continue",
+    });
+    return undefined;
+  }
   let choices = [
     {
       name: `ADA (${bal.coin().toString()})`,
@@ -109,10 +122,10 @@ export async function getAssetAmount(
     choices = [
       ...choices,
       ...[...bal.multiasset()!.entries()] // NOTE: .filter was only added to IterableIterator in ES2025
-        .filter(([_, amt]: [AssetId, bigint]) => {
+        .filter(([_, amt]: [Core.AssetId, bigint]) => {
           return amt! >= minAmt;
         })
-        .map(([assetId, amt]: [AssetId, bigint]) => {
+        .map(([assetId, amt]: [Core.AssetId, bigint]) => {
           return {
             name: `${prettyAssetId(assetId.toString())} (${amt.toString()})`,
             value: assetId.toString(),
@@ -143,13 +156,13 @@ export async function getAssetAmount(
 
 export async function addressOrHexToHash(
   address_str: string,
-  expectedType: CredentialType,
+  expectedType: Core.CredentialType,
 ): Promise<string> {
   if (/[0-9a-fA-F]{56}/.test(address_str)) {
     return address_str;
   }
   if (address_str.startsWith("addr") || address_str.startsWith("stake")) {
-    const address = Address.fromBech32(address_str);
+    const address = Core.Address.fromBech32(address_str);
     if (address_str.startsWith("addr")) {
       const credType = address.getProps().paymentPart?.type;
       if (credType !== expectedType) {

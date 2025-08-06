@@ -22,6 +22,10 @@ export async function swapMenu(state: State): Promise<State> {
   await printHeader(state);
   console.log("\t==== Swap menu ====\n");
   const swapFrom = await getAssetAmount(state, "Select asset to swap from", 0n);
+  if (!swapFrom) {
+    console.log("No asset selected, returning to main menu.");
+    return state;
+  }
   const pools = (await state.sdk!.queryProvider.findPoolData({
     assetId: swapFrom.id,
   } as IPoolByAssetQuery)) as IPoolData[];
@@ -114,6 +118,10 @@ export async function mintPoolMenu(state: State): Promise<State> {
         EContractVersion.V3,
       )! as TxBuilderV3;
       const args = await mintPoolArgs(state);
+      if (!args) {
+        console.log("No args provided, returning to main menu.");
+        return state;
+      }
       const tx = (await builder.mintPool(args)).build();
       await transactionDialog((await tx).cbor, false, state);
       break;
@@ -122,6 +130,10 @@ export async function mintPoolMenu(state: State): Promise<State> {
         EContractVersion.NftCheck,
       )! as TxBuilderNftCheck;
       const argsNftCheck = await mintPoolNftCheckArgs(state);
+      if (!argsNftCheck) {
+        console.log("No args provided, returning to main menu.");
+        return state;
+      }
       const txNftCheck = (await builderNftCheck.mintPool(argsNftCheck)).build();
       await transactionDialog((await txNftCheck).cbor, false, state);
       break;
@@ -181,10 +193,22 @@ export async function cancelSwapMenu(state: State): Promise<State> {
   return state;
 }
 
-export async function mintPoolArgs(state: State): Promise<IMintPoolConfigArgs> {
+export async function mintPoolArgs(
+  state: State,
+): Promise<IMintPoolConfigArgs | undefined> {
+  const assetA = await getAssetAmount(state, "Select asset A", 2n);
+  if (!assetA) {
+    console.log("No asset A selected, returning to main menu.");
+    return {} as IMintPoolConfigArgs;
+  }
+  const assetB = await getAssetAmount(state, "Select asset B", 2n);
+  if (!assetB) {
+    console.log("No asset B selected, returning to main menu.");
+    return {} as IMintPoolConfigArgs;
+  }
   return {
-    assetA: await getAssetAmount(state, "Select asset A", 2n),
-    assetB: await getAssetAmount(state, "Select asset B", 2n),
+    assetA,
+    assetB,
     fees: await getFeeChoice(),
     ownerAddress: state.settings.address!,
   };
@@ -192,9 +216,17 @@ export async function mintPoolArgs(state: State): Promise<IMintPoolConfigArgs> {
 
 async function mintPoolNftCheckArgs(
   state: State,
-): Promise<IMintNftCheckPoolConfigArgs> {
+): Promise<IMintNftCheckPoolConfigArgs | undefined> {
   const v3Args = await mintPoolArgs(state);
+  if (!v3Args) {
+    console.log("No args provided, returning to main menu.");
+    return undefined;
+  }
   const nftCheck = await getAssetAmount(state, "Select NFT asset", 1n);
+  if (!nftCheck) {
+    console.log("No NFT asset selected, returning to main menu.");
+    return undefined;
+  }
   return {
     assetA: v3Args.assetA,
     assetB: v3Args.assetB,
