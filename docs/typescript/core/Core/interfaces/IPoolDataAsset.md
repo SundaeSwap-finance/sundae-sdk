@@ -22,7 +22,7 @@ POLICY_ID_HEX.ASSET_NAME_HEX
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L59)
+[packages/core/src/@types/queryprovider.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L61)
 
 ***
 
@@ -34,4 +34,4 @@ The registered decimal places of the asset.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:61](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L61)
+[packages/core/src/@types/queryprovider.ts:63](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L63)

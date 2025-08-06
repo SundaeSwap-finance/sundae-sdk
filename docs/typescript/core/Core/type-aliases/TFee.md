@@ -10,4 +10,4 @@ The fee structure, denoted as an array of numerator and denominator.
 
 ## Defined in
 
-[packages/core/src/@types/queryprovider.ts:70](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L70)
+[packages/core/src/@types/queryprovider.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L72)
