@@ -28,12 +28,10 @@ export async function readSettings(state: State): Promise<State> {
     const data = readFileSync(settingsPath);
     state.settings = JSON.parse(data.toString()) as ISettings;
   }
-  await state.setSdk();
   return state;
 }
 
 export async function fillRemainingSettings(state: State): Promise<State> {
-  let changed = false;
   if (!state.settings.network) {
     state.settings.network = await select({
       message: "Select network",
@@ -42,7 +40,6 @@ export async function fillRemainingSettings(state: State): Promise<State> {
         { name: "preview", value: "preview" },
       ],
     });
-    changed = true;
   }
   if (!state.settings.providerType) {
     state.settings.providerType = await select({
@@ -53,21 +50,18 @@ export async function fillRemainingSettings(state: State): Promise<State> {
         { name: "kupmios", value: "kupmios" },
       ],
     });
-    changed = true;
   }
   if (!state.settings.providerKey) {
     state.settings.providerKey = await input({
       message: "Enter provider key",
     });
-    changed = true;
   }
   if (!state.settings.address) {
     state = await setWallet(state);
-    changed = true;
   }
-  if (changed) {
-    await saveSettings(state);
-  }
+
+  await saveSettings(state);
+
   return state;
 }
 
@@ -208,6 +202,7 @@ export async function setProviderKey(state: State): Promise<State> {
 
 export async function settingsMenu(state: State): Promise<State> {
   let choice = "";
+  let changed = false;
   while (choice !== "exit") {
     await printHeader(state);
     choice = await select({
@@ -233,25 +228,34 @@ export async function settingsMenu(state: State): Promise<State> {
     switch (choice) {
       case "network":
         await setNetwork(state);
+        changed = true;
         break;
       case "address":
         await setAddress(state);
+        changed = true;
         break;
       case "providerType":
         await setProviderType(state);
+        changed = true;
         break;
       case "providerKey":
         await setProviderKey(state);
+        changed = true;
         break;
       case "addCustomProtocolParams":
         await addCustomProtocolParams(state);
+        changed = true;
         break;
       default:
         break;
     }
     console.log(`Choice: ${choice}`);
   }
-  await saveSettings(state);
+
+  if (changed) {
+    await saveSettings(state);
+  }
+
   return state;
 }
 
