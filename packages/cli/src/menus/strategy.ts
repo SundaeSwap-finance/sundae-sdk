@@ -59,6 +59,10 @@ export async function strategyMenu(state: State): Promise<State> {
     "Select asset to swap from with this strategy",
     0n,
   );
+  if (!swapFrom) {
+    console.log("No asset selected, returning to main menu.");
+    return state;
+  }
   const pool = await selectPool(swapFrom.id, state, [EContractVersion.V3]);
   if (!pool) {
     console.log("Pool not found");
@@ -97,6 +101,6 @@ export async function strategyMenu(state: State): Promise<State> {
     authSigner: authKey,
   };
   const tx = await builder.strategy(strategyArgs);
-  await transactionDialog((await tx.build()).cbor, false);
+  await transactionDialog((await tx.build()).cbor, false, state);
   return state;
 }

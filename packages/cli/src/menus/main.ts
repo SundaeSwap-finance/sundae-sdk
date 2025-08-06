@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import { Core } from "@blaze-cardano/sdk";
+import { Core, makeValue } from "@blaze-cardano/sdk";
 import { input, select } from "@inquirer/prompts";
 import type { State } from "../types.js";
 import { cancelSwapMenu, mintPoolMenu, swapMenu } from "./pool.js";
 import { settingsMenu } from "./settings.js";
-import { printHeader } from "./shared.js";
+import { getAssetAmount, printHeader } from "./shared.js";
 import { strategyMenu } from "./strategy.js";
 import { transactionDialog } from "./transaction.js";
 
@@ -22,6 +22,7 @@ export async function mainMenu(state: State): Promise<State> {
         { name: "Cancel Swap", value: "cancelSwap" },
         { name: "Settings", value: "settings" },
         { name: "Mint Token", value: "mintToken" },
+        { name: "Simple Send", value: "simpleSend" },
         { name: "Exit", value: "exit" },
       ],
     });
@@ -43,6 +44,9 @@ export async function mainMenu(state: State): Promise<State> {
         break;
       case "mintToken":
         await mintToken(state);
+        break;
+      case "simpleSend":
+        await simpleSend(state);
         break;
       default:
         console.log("Exiting...");
@@ -85,6 +89,36 @@ export async function mintToken(state: State): Promise<State> {
     .addMint(Core.PolicyId(policy.hash()), mints)
     .provideScript(policy)
     .complete();
-  await transactionDialog(tx.toCbor().toString(), false);
+  await transactionDialog(tx.toCbor().toString(), false, state);
+  return state;
+}
+
+export async function simpleSend(state: State): Promise<State> {
+  await printHeader(state);
+  console.log("\t==== Simple Send ====\n");
+  const recipient = await input({
+    message: "Enter recipient address",
+  });
+  const amount = await getAssetAmount(
+    state,
+    "Which asset do you want to send?",
+    0n,
+  );
+  if (!amount) {
+    console.log("No asset selected, returning to main menu.");
+    return state;
+  }
+  let value;
+  if (amount.id === "ada.lovelace") {
+    value = makeValue(amount.amount);
+  } else {
+    value = makeValue(0n, [amount.id, amount.amount]);
+  }
+  const tx = await state
+    .sdk!.blaze()
+    .newTransaction()
+    .payAssets(Core.Address.fromBech32(recipient), value)
+    .complete();
+  await transactionDialog(tx.toCbor().toString(), false, state);
   return state;
 }

@@ -9,7 +9,9 @@ import { getBlazeInstance } from "./utils.js";
 
 export interface ISettings {
   network?: string;
+  walletType?: string;
   address?: string;
+  privateKey?: string;
   providerType?: string;
   providerKey?: string;
   customProtocolParams?: ISundaeProtocolParamsFull;
@@ -32,8 +34,6 @@ export class State {
     } else {
       this.sdk.options.blazeInstance = await getBlazeInstance(this);
     }
-
-    console.log(this.settings);
 
     if (this.settings.customProtocolParams) {
       const queryProvider = new QueryProviderSundaeSwap(
