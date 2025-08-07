@@ -301,7 +301,6 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           }
         }
       `;
-    console.log(query);
     const res: { data?: { pools: { search: IPoolDataQueryResult[] } } } =
       await (
         await fetch(this.baseUrl, {
@@ -597,7 +596,6 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     res.data.protocols = this.protocolParamsFull.concat(res.data.protocols);
 
     if (version) {
-      console.log(version);
       return res.data.protocols.find(
         ({ version: protocolVersion }) => version === protocolVersion,
       ) as ISundaeProtocolParamsFull;

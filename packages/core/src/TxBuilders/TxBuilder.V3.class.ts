@@ -134,7 +134,6 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
         await this.queryProvider.getProtocolParamsWithScripts(
           this.contractVersion,
         );
-      console.log(this.protocolParams);
     }
 
     return this.protocolParams;

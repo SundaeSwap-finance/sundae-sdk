@@ -60,7 +60,6 @@ export async function swapMenu(state: State): Promise<State> {
         { name: "NftCheck", value: EContractVersion.NftCheck },
       ],
     });
-    console.log(version);
     pool = await getPoolData(state, ident, version);
   } else {
     pool = (await state.sdk!.queryProvider.findPoolData({
