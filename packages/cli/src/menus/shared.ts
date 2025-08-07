@@ -207,42 +207,27 @@ export async function selectPool(
       assetId,
       minimal: true,
     } as IPoolByAssetQuery)) as IPoolData[];
-    choices = pools!
-      .filter((pool) => {
-        if (
-          typeFilter &&
-          !typeFilter.includes(pool.version as EContractVersion)
-        ) {
-          return false;
-        }
-        return true;
-      })
-      .map((pool) => {
-        const price =
-          Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
-        return {
-          name: `${prettyAssetId(pool.assetA.assetId.toString())} / ${prettyAssetId(
-            pool.assetB.assetId.toString(),
-          )} (p: ${price.toFixed(
-            6,
-          )}, l: (${pool.liquidity.aReserve.toString()} / ${pool.liquidity.bReserve.toString()}), id: ${
-            pool.ident
-          })`,
-          value: pool.ident,
-        };
-      });
+    choices = poolsToChoices(pools, typeFilter);
   } catch (err) {
     console.warn("Something went wrong when fetching pools: ", err);
   }
   choices.push({ name: "Enter pool ident manually", value: "manual" });
   let choice = await search({
     message: "Select pool",
-    source: (term) => {
-      return !!term
-        ? choices.filter((c) =>
-            c.name.toLowerCase().includes(term.toLowerCase()),
-          )
-        : choices;
+    source: async (term) => {
+      if (!term) {
+        return choices;
+      }
+      const pools = (await state.sdk!.queryProvider.findPoolData({
+        search: term,
+        minimal: true,
+      })) as IPoolData[];
+      return poolsToChoices(
+        pools.filter(
+          (p) => p.assetA.assetId === assetId || p.assetB.assetId === assetId,
+        ),
+        typeFilter,
+      );
     },
   });
   let pool: IPoolData;
@@ -260,7 +245,6 @@ export async function selectPool(
         { name: "NftCheck", value: EContractVersion.NftCheck },
       ],
     });
-    console.log(version);
     pool = await getPoolData(state, ident, version);
   } else {
     pool = (await state.sdk!.queryProvider.findPoolData({
@@ -268,4 +252,29 @@ export async function selectPool(
     })) as IPoolData;
   }
   return pool;
+}
+
+function poolsToChoices(
+  pools: IPoolData[],
+  typeFilter?: EContractVersion[],
+): { name: string; value: string }[] {
+  return pools
+    .filter(
+      (pool) =>
+        !typeFilter || typeFilter.includes(pool.version as EContractVersion),
+    )
+    .map((pool) => {
+      const price =
+        Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
+      return {
+        name: `${prettyAssetId(pool.assetA.assetId.toString())} / ${prettyAssetId(
+          pool.assetB.assetId.toString(),
+        )} (p: ${price.toFixed(
+          6,
+        )}, l: (${pool.liquidity.aReserve.toString()} / ${pool.liquidity.bReserve.toString()}), id: ${
+          pool.ident
+        })`,
+        value: pool.ident,
+      };
+    });
 }

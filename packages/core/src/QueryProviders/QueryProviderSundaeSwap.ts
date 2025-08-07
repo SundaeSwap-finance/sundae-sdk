@@ -3,6 +3,7 @@ import {
   EContractVersion,
   IPoolByAssetQuery,
   IPoolByIdentQuery,
+  IPoolBySearchTermQuery,
   IPoolData,
   IPoolDataAsset,
   ISundaeProtocolParams,
@@ -223,11 +224,140 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     });
   }
 
+  async findPoolDataBySearchTerm(
+    search: string,
+    minimal: boolean = false,
+  ): Promise<IPoolData[]> {
+    const query = minimal
+      ? `
+        query queryPoolByTerm($term: String!) {
+          pools {
+            search(term: $term) {
+              id
+              assetA {
+                assetId: id
+              }
+              assetB {
+                assetId: id
+              }
+              assetLP {
+                assetId: id
+              }
+              finalFee
+              current {
+                quantityA {
+                  quantity
+                }
+                quantityB {
+                  quantity
+                }
+                quantityLP {
+                  quantity
+                }
+              }
+              version
+            }
+          }
+        }
+      `
+      : `
+        query poolByTerm($term: String!) {
+          pools {
+            search(term: $term) {
+              feesFinalized {
+                slot
+              }
+              marketOpen {
+                slot
+              }
+              openingFee
+              finalFee
+              id
+              assetA {
+                assetId: id
+                decimals
+              }
+              assetB {
+                assetId: id
+                decimals
+              }
+              assetLP {
+                assetId: id
+                decimals
+              }
+              current {
+                quantityA {
+                  quantity
+                }
+                quantityB {
+                  quantity
+                }
+                quantityLP {
+                  quantity
+                }
+              }
+              version
+            }
+          }
+        }
+      `;
+    console.log(query);
+    const res: { data?: { pools: { search: IPoolDataQueryResult[] } } } =
+      await (
+        await fetch(this.baseUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query,
+            variables: { term: search },
+          }),
+        })
+      ).json();
+
+    if (!res?.data) {
+      throw new Error(
+        `Something went wrong when trying to fetch pool data. Full response: ${JSON.stringify(
+          res,
+        )}`,
+      );
+    }
+
+    const pools = res.data.pools.search;
+
+    return pools.map((pool) => {
+      return {
+        assetA: pool.assetA,
+        assetB: pool.assetB,
+        assetLP: pool.assetLP,
+        currentFee: minimal
+          ? new Fraction(...pool.finalFee).toNumber()
+          : SundaeUtils.getCurrentFeeFromDecayingFee({
+              endFee: pool.finalFee,
+              endSlot: pool.feesFinalized.slot,
+              startFee: pool.openingFee,
+              startSlot: pool.marketOpen.slot,
+              network: this.network,
+            }),
+        ident: pool.id,
+        liquidity: {
+          aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
+          bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
+          lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+        },
+        version: pool.version,
+      };
+    });
+  }
+
   async findPoolData(identArgs: IPoolByIdentQuery): Promise<IPoolData>;
   async findPoolData(assetArgs: IPoolByAssetQuery): Promise<IPoolData[]>;
+  async findPoolData(searchArgs: IPoolBySearchTermQuery): Promise<IPoolData[]>;
   async findPoolData(
-    args: IPoolByIdentQuery | IPoolByAssetQuery,
+    args: IPoolByIdentQuery | IPoolByAssetQuery | IPoolBySearchTermQuery,
   ): Promise<IPoolData | IPoolData[]> {
+    if ("search" in args) {
+      return this.findPoolDataBySearchTerm(args.search, args.minimal);
+    }
     if ("assetId" in args) {
       return this.findPoolDataByAssetId(args.assetId, args.minimal);
     }

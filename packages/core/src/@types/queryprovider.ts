@@ -49,6 +49,16 @@ export interface IPoolByAssetQuery {
 }
 
 /**
+ * Query arguments for finding pools by a search term
+ */
+export interface IPoolBySearchTermQuery {
+  /** The search term to use */
+  search: string;
+  /** Whether to fetch a trimmed down version of the pool data, or everything; defaults to everything */
+  minimal?: boolean;
+}
+
+/**
  * Asset data returned from {@link Core.QueryProvider.findPoolData}.
  */
 export interface IPoolDataAsset {
