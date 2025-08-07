@@ -201,20 +201,68 @@ export async function selectPool(
   state: State,
   typeFilter?: EContractVersion[],
 ): Promise<IPoolData | undefined> {
-  const pools = (await state.sdk!.queryProvider.findPoolData({
-    assetId,
-    minimal: true,
-  } as IPoolByAssetQuery)) as IPoolData[];
-  const choices = pools!
-    .filter((pool) => {
-      if (
-        typeFilter &&
-        !typeFilter.includes(pool.version as EContractVersion)
-      ) {
-        return false;
+  let choices: { name: string; value: string }[] = [];
+  try {
+    const pools = (await state.sdk!.queryProvider.findPoolData({
+      assetId,
+      minimal: true,
+    } as IPoolByAssetQuery)) as IPoolData[];
+    choices = poolsToChoices(pools, typeFilter);
+  } catch (err) {
+    console.warn("Something went wrong when fetching pools: ", err);
+  }
+  choices.push({ name: "Enter pool ident manually", value: "manual" });
+  let choice = await search({
+    message: "Select pool",
+    source: async (term) => {
+      if (!term) {
+        return choices;
       }
-      return true;
-    })
+      const pools = (await state.sdk!.queryProvider.findPoolData({
+        search: term,
+        minimal: true,
+      })) as IPoolData[];
+      return poolsToChoices(
+        pools.filter(
+          (p) => p.assetA.assetId === assetId || p.assetB.assetId === assetId,
+        ),
+        typeFilter,
+      );
+    },
+  });
+  let pool: IPoolData;
+  if (choice === "manual") {
+    const ident = await input({
+      message: "Enter pool ident",
+    });
+    choice = ident;
+    const version = await select({
+      message: "What version is this pool?",
+      choices: [
+        { name: "V3", value: EContractVersion.V3 },
+        { name: "V1", value: EContractVersion.V1 },
+        { name: "Condition", value: EContractVersion.Condition },
+        { name: "NftCheck", value: EContractVersion.NftCheck },
+      ],
+    });
+    pool = await getPoolData(state, ident, version);
+  } else {
+    pool = (await state.sdk!.queryProvider.findPoolData({
+      ident: choice,
+    })) as IPoolData;
+  }
+  return pool;
+}
+
+function poolsToChoices(
+  pools: IPoolData[],
+  typeFilter?: EContractVersion[],
+): { name: string; value: string }[] {
+  return pools
+    .filter(
+      (pool) =>
+        !typeFilter || typeFilter.includes(pool.version as EContractVersion),
+    )
     .map((pool) => {
       const price =
         Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
@@ -229,22 +277,4 @@ export async function selectPool(
         value: pool.ident,
       };
     });
-  choices.push({ name: "Enter pool ident manually", value: "manual" });
-  let choice = await select({
-    message: "Select pool",
-    choices: choices,
-  });
-  let pool: IPoolData;
-  if (choice === "manual") {
-    const ident = await input({
-      message: "Enter pool ident",
-    });
-    choice = ident;
-    pool = await getPoolData(state, ident, EContractVersion.NftCheck);
-  } else {
-    pool = (await state.sdk!.queryProvider.findPoolData({
-      ident: choice,
-    })) as IPoolData;
-  }
-  return pool;
 }

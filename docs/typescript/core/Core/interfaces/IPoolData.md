@@ -16,7 +16,7 @@ Returns the current pool fee as a float.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L79)
+[packages/core/src/@types/queryprovider.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L89)
 
 ***
 
@@ -28,4 +28,4 @@ The pool identification hash.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:81](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L81)
+[packages/core/src/@types/queryprovider.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L91)

@@ -64,6 +64,7 @@ SundaeSwap protocol.
 - [IPoolByAssetQuery](interfaces/IPoolByAssetQuery.md)
 - [IPoolByIdentQuery](interfaces/IPoolByIdentQuery.md)
 - [IPoolByPairQuery](interfaces/IPoolByPairQuery.md)
+- [IPoolBySearchTermQuery](interfaces/IPoolBySearchTermQuery.md)
 - [IPoolData](interfaces/IPoolData.md)
 - [IPoolDataAsset](interfaces/IPoolDataAsset.md)
 - [IPoolDate](interfaces/IPoolDate.md)
