@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.6.7
+
+### Patch Changes
+
+- 3659bb0: Small usability improvements to the CLI
+
 ## 2.6.6
 
 ### Patch Changes

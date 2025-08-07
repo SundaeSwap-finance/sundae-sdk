@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.3.2
+
+### Patch Changes
+
+- 3659bb0: Small usability improvements to the CLI
+
 ## 1.3.1
 
 ### Patch Changes
