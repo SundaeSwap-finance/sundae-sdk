@@ -70,6 +70,7 @@
     "@blaze-cardano/emulator": "^0.3.28",
     "@sundaeswap/bigint-math": "^0.6.3",
     "@sundaeswap/fraction": "^1.0.3",
+    "@sundaeswap/math": "workspace:*",
     "@types/jest": "^28.1.3",
     "@types/node": "^18.11.18",
     "cbor": "^9.0.0"
@@ -79,7 +80,7 @@
     "@blaze-cardano/data": "^0.6.1",
     "@sundaeswap/asset": "^1.0.11",
     "@sundaeswap/bigint-math": "^0.6.3",
-    "@sundaeswap/cpp": "^1.0.13",
+    "@sundaeswap/math": "^0.0.1",
     "@sundaeswap/fraction": "^1.0.5"
   },
   "gitHead": "ddc937102065a5a581fe7affe02474c0e68ad9a0"

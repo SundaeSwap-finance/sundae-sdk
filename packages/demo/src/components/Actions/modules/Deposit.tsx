@@ -3,19 +3,15 @@ import { EContractVersion, EDatumType } from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
 
 import { Core } from "@blaze-cardano/sdk";
-import { getSwapOutput } from "@sundaeswap/cpp";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
+import { ConstantProductPool } from "@sundaeswap/math";
+import { IPoolData } from "@sundaeswap/core";
 
 export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const {
-    SDK,
-    ready,
-    activeWalletAddr,
-    useReferral,
-    useV3Contracts,
-  } = useAppState();
+  const { SDK, ready, activeWalletAddr, useReferral, useV3Contracts } =
+    useAppState();
   const [depositing, setDepositing] = useState(false);
 
   const handleDeposit = useCallback(async () => {
@@ -25,11 +21,11 @@ export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
 
     setDepositing(true);
     try {
-      const pool = await SDK.query().findPoolData(
+      const pool = (await SDK.query().findPoolData(
         useV3Contracts ? newPoolQuery : poolQuery,
-      );
+      )) as IPoolData;
       const baseAmount = 25000000n;
-      const altPairAmount = getSwapOutput(
+      const altPairAmount = ConstantProductPool.getSwapOutput(
         baseAmount,
         pool.liquidity.aReserve,
         pool.liquidity.bReserve,
@@ -37,7 +33,7 @@ export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       ).output;
 
       await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
       )
         .deposit({
           orderAddresses: {

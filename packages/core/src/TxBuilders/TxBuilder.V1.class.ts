@@ -8,7 +8,7 @@ import {
   Wallet,
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { getTokensForLp } from "@sundaeswap/cpp";
+import { ConstantProductPool } from "@sundaeswap/math";
 
 import {
   EContractVersion,
@@ -1272,7 +1272,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         );
       }
 
-      const [coinA, coinB] = getTokensForLp(
+      const [coinA, coinB] = ConstantProductPool.getTokensForLp(
         withdrawArgs.suppliedLPAsset.amount,
         withdrawConfig.pool.liquidity.aReserve,
         withdrawConfig.pool.liquidity.bReserve,

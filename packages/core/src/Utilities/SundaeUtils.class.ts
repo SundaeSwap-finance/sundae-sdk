@@ -1,5 +1,4 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { getSwapOutput } from "@sundaeswap/cpp";
 import { Fraction } from "@sundaeswap/fraction";
 
 import {
@@ -18,6 +17,7 @@ import {
   ORDER_DEPOSIT_DEFAULT,
   V3_POOL_IDENT_LENGTH,
 } from "../constants.js";
+import { ConstantProductPool } from "@sundaeswap/math";
 
 export class SundaeUtils {
   static ADA_ASSET_IDS = [
@@ -218,7 +218,7 @@ export class SundaeUtils {
       suppliedAsset.metadata.assetId,
     );
 
-    const output = getSwapOutput(
+    const output = ConstantProductPool.getSwapOutput(
       suppliedAsset.amount,
       supplyingPoolAssetA ? pool.liquidity.aReserve : pool.liquidity.bReserve,
       supplyingPoolAssetA ? pool.liquidity.bReserve : pool.liquidity.aReserve,
@@ -385,7 +385,7 @@ export class SundaeUtils {
           ? pool.liquidity.bReserve
           : pool.liquidity.aReserve;
 
-        const swapOutcome = getSwapOutput(
+        const swapOutcome = ConstantProductPool.getSwapOutput(
           hundredGiven,
           givenReserve,
           takenReserve,

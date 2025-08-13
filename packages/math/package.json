@@ -1,0 +1,51 @@
+{
+  "name": "@sundaeswap/math",
+  "version": "0.0.1",
+  "description": "SundaeSwap SDK Math Utilities",
+  "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
+  "author": {
+    "name": "SundaeSwap Labs, Inc.",
+    "url": "https://sundae.fi/"
+  },
+  "bugs": {
+    "url": "https://github.com/SundaeSwap-finance/sundae-sdk/issues"
+  },
+  "homepage": "https://github.com/SundaeSwap-finance/sundae-sdk#readme",
+  "license": "MIT",
+  "private": false,
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "src",
+    "package.json"
+  ],
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf ./dist",
+    "build:esm": "cross-env BABEL_ENV=esmUnbundled babel src --extensions '.ts,.tsx' --out-dir './dist/esm' --source-maps",
+    "build:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts,.tsx' --out-dir 'dist/cjs' --source-maps",
+    "types": "tsc --project ./tsconfig.build.json",
+    "build": "bun clean && bun types && bun build:esm && bun build:cjs && bun set-cjs",
+    "watch": "bun clean && bun run build && bun build:esm --watch",
+    "set-cjs": "echo '{ \"type\": \"commonjs\" }' > ./dist/cjs/package.json",
+    "docs": "docgen generate --typedoc-options ./typedoc.json",
+    "docs:ci": "bun docs --unsafe"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
