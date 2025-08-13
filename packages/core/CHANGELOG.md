@@ -1,5 +1,13 @@
 # Change Log
 
+## 3.0.0
+
+### Patch Changes
+
+- 37205b2: Moving constantproductpool (cpp) math from the current cpp package over to a new package called math
+- Updated dependencies [37205b2]
+  - @sundaeswap/math@1.0.0
+
 ## 2.6.7
 
 ### Patch Changes

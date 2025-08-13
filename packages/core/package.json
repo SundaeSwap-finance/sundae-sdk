@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/core",
-  "version": "2.6.7",
+  "version": "3.0.0",
   "description": "The official SundaeSwap protocol SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {
@@ -80,7 +80,7 @@
     "@blaze-cardano/data": "^0.6.1",
     "@sundaeswap/asset": "^1.0.11",
     "@sundaeswap/bigint-math": "^0.6.3",
-    "@sundaeswap/math": "^0.0.1",
+    "@sundaeswap/math": "^1.0.0",
     "@sundaeswap/fraction": "^1.0.5"
   },
   "gitHead": "ddc937102065a5a581fe7affe02474c0e68ad9a0"

@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/math",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "SundaeSwap SDK Math Utilities",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {
