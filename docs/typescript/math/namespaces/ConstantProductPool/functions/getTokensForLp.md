@@ -4,7 +4,7 @@
 
 # Function: getTokensForLp()
 
-> **getTokensForLp**(`lp`, `aReserve`, `bReserve`, `totalLp`): [`TPair`](../type-aliases/TPair.md)
+> **getTokensForLp**(`lp`, `aReserve`, `bReserve`, `totalLp`): [`TPair`](../../SharedPoolMath/type-aliases/TPair.md)
 
 Get the token amounts the given lp represents
 
@@ -28,10 +28,10 @@ the pool's total minted lp currently
 
 ## Returns
 
-[`TPair`](../type-aliases/TPair.md)
+[`TPair`](../../SharedPoolMath/type-aliases/TPair.md)
 
 [a, b] token amounts
 
 ## Defined in
 
-[ConstantProductPool.ts:163](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L163)
+[ConstantProductPool.ts:139](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L139)
