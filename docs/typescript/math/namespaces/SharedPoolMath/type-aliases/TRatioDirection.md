@@ -10,4 +10,4 @@ The direction of a ratio (A per B or B per A)
 
 ## Defined in
 
-[ConstantProductPool.ts:8](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L8)
+[SharedPoolMath.ts:7](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/SharedPoolMath.ts#L7)

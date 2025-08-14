@@ -1,36 +1,12 @@
 import { AssetAmount } from "@sundaeswap/asset";
 import { Fraction, type TFractionLike } from "@sundaeswap/fraction";
 import { sqrt } from "@sundaeswap/bigint-math";
-
-/**
- * The direction of a ratio (A per B or B per A)
- */
-export type TRatioDirection = "A_PER_B" | "B_PER_A";
-
-/**
- * Asset used in a ratio calculation
- */
-export interface IRatioCalculationAsset {
-  assetId: string;
-  quantity: bigint;
-  decimals: number;
-}
-
-/**
- * The result of a ratio calculation on a pool
- */
-export interface IRatioCalculationResult {
-  calculatedAmount: AssetAmount;
-  ratioAsFraction: Fraction;
-  display: string;
-  isDivisible: boolean;
-  belowMinimumRatio: boolean;
-}
-
-/**
- * The amounts for a token pair
- */
-export type TPair = [bigint, bigint];
+import {
+  IRatioCalculationAsset,
+  IRatioCalculationResult,
+  TPair,
+  TRatioDirection,
+} from "./SharedPoolMath";
 
 /**
  * Get the lp token amount for a, b

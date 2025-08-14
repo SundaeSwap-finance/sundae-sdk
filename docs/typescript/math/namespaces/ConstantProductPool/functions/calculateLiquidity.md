@@ -77,4 +77,4 @@ If either of the deposit amounts is zero.
 
 ## Defined in
 
-[ConstantProductPool.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L72)
+[ConstantProductPool.ts:48](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L48)

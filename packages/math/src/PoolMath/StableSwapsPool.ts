@@ -4,8 +4,6 @@ export function liquidityInvariant(
   linearAmplification: bigint,
   newSumInvariant: bigint,
 ) {
-  assetA = assetA * reservePrecision;
-  assetB = assetB * reservePrecision;
   // 4 * A * 4 * (x*y) * D + D^3 - (4(x*y) * (4A(x + y) + D))
   // 4A * 4xy * D + D^3 - (4xy * 4a * (x + y) + 4xy * D)
   // 16Axy * D + D^3 - (16Axy * (x + y) + 4xy * D)
@@ -55,14 +53,7 @@ export function getSumInvariant(a: bigint, x: bigint, y: bigint): bigint {
 
     if (d > d_prev) {
       if (d - d_prev <= 1) {
-        if (
-          liquidityInvariant(
-            x / reservePrecision,
-            y / reservePrecision,
-            a / aPrecision,
-            d,
-          )
-        ) {
+        if (liquidityInvariant(x, y, a / aPrecision, d)) {
           return d;
         } else {
           return d - 1n;
@@ -70,14 +61,7 @@ export function getSumInvariant(a: bigint, x: bigint, y: bigint): bigint {
       }
     } else {
       if (d_prev - d <= 1) {
-        if (
-          liquidityInvariant(
-            x / reservePrecision,
-            y / reservePrecision,
-            a / aPrecision,
-            d,
-          )
-        ) {
+        if (liquidityInvariant(x, y, a / aPrecision, d)) {
           return d;
         } else {
           return d - 1n;
@@ -86,4 +70,44 @@ export function getSumInvariant(a: bigint, x: bigint, y: bigint): bigint {
     }
   }
   throw new Error("Failed to converge on D value after 255 iterations.");
+}
+
+export function getNewY(
+  newX: bigint,
+  aRaw: bigint,
+  sumInvariant: bigint,
+): bigint {
+  newX = newX * reservePrecision;
+  const sum = newX;
+  let yPrev = 0n;
+  let c = sumInvariant;
+  const ann = aRaw * aPrecision * 2n;
+
+  c = (c * sumInvariant) / (newX * 2n);
+  c = (c * sumInvariant * aPrecision) / 2n;
+  c = c / (ann * 2n);
+  const b = sum + (sumInvariant * aPrecision) / 2n / ann;
+  let y = sumInvariant;
+  for (let i = 0; i < 255; i++) {
+    yPrev = y;
+    y = (y * y + c) / (y * 2n + b - sumInvariant);
+    if (y > yPrev) {
+      if (y - yPrev <= 1n) {
+        if (liquidityInvariant(newX, y, aRaw, sumInvariant)) {
+          return y;
+        } else {
+          return y + 1n;
+        }
+      }
+    } else {
+      if (yPrev - y <= 1n) {
+        if (liquidityInvariant(newX, y, aRaw, sumInvariant)) {
+          return y;
+        } else {
+          return y + 1n;
+        }
+      }
+    }
+  }
+  throw new Error("failed to converge on y value after 255 iterations.");
 }

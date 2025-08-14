@@ -10,4 +10,4 @@ The amounts for a token pair
 
 ## Defined in
 
-[ConstantProductPool.ts:33](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L33)
+[SharedPoolMath.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/SharedPoolMath.ts#L32)

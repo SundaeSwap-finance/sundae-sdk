@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@sundaeswap/core": "^2.6.7",
+    "@sundaeswap/core": "workspace:*",
     "@inquirer/prompts": "^7.5.0",
     "@sundaeswap/asset": "^1.0.11",
     "asciify-image": "^0.1.10",

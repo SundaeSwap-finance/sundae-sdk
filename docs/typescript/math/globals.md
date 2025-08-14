@@ -7,3 +7,4 @@
 ## Namespaces
 
 - [ConstantProductPool](namespaces/ConstantProductPool/README.md)
+- [SharedPoolMath](namespaces/SharedPoolMath/README.md)
