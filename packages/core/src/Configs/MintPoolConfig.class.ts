@@ -1,5 +1,9 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { IFeesConfig, IMintPoolConfigArgs } from "../@types/index.js";
+import {
+  EContractVersion,
+  IFeesConfig,
+  IMintPoolConfigArgs,
+} from "../@types/index.js";
 import { Config } from "../Abstracts/Config.abstract.class.js";
 import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.V3.class.js";
 
@@ -15,8 +19,12 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
   feeManager?: string;
   condition?: string;
   conditionDatumArgs?: TConditionDatumArgs;
+  linearAmplificationFactor?: bigint;
+  linearAmplificationFactorManager?: string;
+  protocolFees?: IFeesConfig;
+  version?: EContractVersion;
 
-  constructor(args?: IMintPoolConfigArgs) {
+  constructor(args?: IMintPoolConfigArgs & { version: EContractVersion }) {
     super();
     args && this.setFromObject(args);
   }
@@ -32,7 +40,11 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
     feeManager,
     condition,
     conditionDatumArgs,
-  }: IMintPoolConfigArgs): void {
+    linearAmplificationFactor,
+    linearAmplificationFactorManager,
+    protocolFees,
+    version,
+  }: IMintPoolConfigArgs & { version: EContractVersion }): void {
     referralFee && this.setReferralFee(referralFee);
     this.setAssetA(assetA);
     this.setAssetB(assetB);
@@ -43,6 +55,10 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
     this.setFeeManager(feeManager);
     this.setCondition(condition);
     this.setConditionDatumArgs(conditionDatumArgs);
+    this.setVersion(version);
+    this.setLinearAmplificationFactor(linearAmplificationFactor);
+    this.setLinearAmplificationFactorManager(linearAmplificationFactorManager);
+    this.setProtocolFees(protocolFees);
   }
 
   buildArgs(): Omit<IMintPoolConfigArgs, "fees"> & {
@@ -60,7 +76,39 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
       feeManager: this.feeManager,
       condition: this.condition,
       conditionDatumArgs: this.conditionDatumArgs,
+      linearAmplificationFactor: this.linearAmplificationFactor,
+      linearAmplificationFactorManager: this.linearAmplificationFactorManager,
+      protocolFees: this.protocolFees,
     };
+  }
+
+  setVersion(version?: EContractVersion) {
+    this.version = version;
+    return this;
+  }
+
+  setLinearAmplificationFactor(laf?: bigint) {
+    this.linearAmplificationFactor = laf;
+    return this;
+  }
+
+  setLinearAmplificationFactorManager(lafm?: string) {
+    this.linearAmplificationFactorManager = lafm;
+    return this;
+  }
+
+  setProtocolFees(fees: bigint | IFeesConfig | undefined) {
+    this.protocolFees =
+      typeof fees === "bigint"
+        ? {
+            ask: fees,
+            bid: fees,
+          }
+        : fees
+          ? fees
+          : undefined;
+
+    return this;
   }
 
   setFeeManager(val?: string) {
@@ -153,6 +201,32 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
       throw new Error(
         `Donation value is determined as a percentage between 0 and 100`,
       );
+    }
+
+    if (!this.version) {
+      throw new Error(`ProtocolVersion needs to be defined`);
+    }
+
+    if (this.version === EContractVersion.Stableswaps) {
+      if (!this.protocolFees) {
+        throw new Error(`ProtocolFees needs to be set for stableswaps pools.`);
+      }
+      if (
+        this.protocolFees.ask > MintPoolConfig.MAX_FEE ||
+        this.protocolFees.bid > MintPoolConfig.MAX_FEE
+      ) {
+        throw new Error(
+          `ProtocolFees cannot supersede the max fee of ${MintPoolConfig.MAX_FEE}.`,
+        );
+      }
+      if (!this.linearAmplificationFactor) {
+        throw new Error(`LinearAmplificationFactor needs to be set.`);
+      }
+      if (this.linearAmplificationFactor < 1n) {
+        throw new Error(
+          `LinearAmplificationFactor set too low, needs to be 1 or higher.`,
+        );
+      }
     }
   }
 }

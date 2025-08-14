@@ -353,7 +353,10 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       feeManager,
       condition,
       conditionDatumArgs,
-    } = new MintPoolConfig(args).buildArgs();
+    } = new MintPoolConfig({
+      ...args,
+      version: this.contractVersion,
+    }).buildArgs();
     const sortedAssets = SundaeUtils.sortSwapAssetsWithAmounts([
       assetA,
       assetB,
