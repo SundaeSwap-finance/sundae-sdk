@@ -20,4 +20,4 @@ Get the share ratio as Fraction
 
 ## Defined in
 
-[ConstantProductPool.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L30)
+[SharedPoolMath.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/SharedPoolMath.ts#L40)

@@ -60,4 +60,4 @@ Use [calculateLiquidity](calculateLiquidity.md) instead.
 
 ## Defined in
 
-[ConstantProductPool.ts:100](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L100)
+[ConstantProductPool.ts:86](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L86)

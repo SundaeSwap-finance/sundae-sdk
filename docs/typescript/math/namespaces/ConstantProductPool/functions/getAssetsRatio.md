@@ -30,4 +30,4 @@ Will throw an error if the inputs are not valid for the Fraction class's `asFrac
 
 ## Defined in
 
-[ConstantProductPool.ts:286](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L286)
+[ConstantProductPool.ts:272](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L272)

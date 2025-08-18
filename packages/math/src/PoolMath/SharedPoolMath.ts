@@ -30,3 +30,12 @@ export interface IRatioCalculationResult {
  * The amounts for a token pair
  */
 export type TPair = [bigint, bigint];
+
+/**
+ * Get the share ratio as Fraction
+ * @param lp
+ * @param totalLp
+ * @returns
+ */
+export const getShare = (lp: bigint, totalLp: bigint) =>
+  new Fraction(lp, totalLp);

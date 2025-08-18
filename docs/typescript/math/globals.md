@@ -8,3 +8,4 @@
 
 - [ConstantProductPool](namespaces/ConstantProductPool/README.md)
 - [SharedPoolMath](namespaces/SharedPoolMath/README.md)
+- [StableSwapsPool](namespaces/StableSwapsPool/README.md)

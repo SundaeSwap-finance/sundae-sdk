@@ -4,9 +4,11 @@
 
 # Function: calculateLiquidity()
 
-> **calculateLiquidity**(`a`, `b`, `aReserve`, `bReserve`, `totalLp`): `object`
+> **calculateLiquidity**(`a`, `b`, `aReserve`, `bReserve`, `totalLp`, `laf`): `object`
 
 Calculate the Add (Mixed-Deposit) Liquidity parameters
+
+TODO: Investigate way to optimize actualdeposited amounts
 
 ## Parameters
 
@@ -30,6 +32,10 @@ The current reserve of token B in the pool.
 
 The total lp tokens for the pool before the deposit.
 
+• **laf**: `bigint`
+
+The linear amplifciation factor of the pool.
+
 ## Returns
 
 `object`
@@ -45,11 +51,11 @@ An object containing:
 
 ### actualDepositedA
 
-> **actualDepositedA**: `bigint`
+> **actualDepositedA**: `bigint` = `a`
 
 ### actualDepositedB
 
-> **actualDepositedB**: `bigint`
+> **actualDepositedB**: `bigint` = `b`
 
 ### bChange
 
@@ -77,4 +83,4 @@ If either of the deposit amounts is zero.
 
 ## Defined in
 
-[ConstantProductPool.ts:34](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L34)
+[StableSwapsPool.ts:145](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L145)

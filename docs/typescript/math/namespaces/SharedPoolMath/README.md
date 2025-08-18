@@ -15,3 +15,7 @@
 
 - [TPair](type-aliases/TPair.md)
 - [TRatioDirection](type-aliases/TRatioDirection.md)
+
+### Functions
+
+- [getShare](functions/getShare.md)
