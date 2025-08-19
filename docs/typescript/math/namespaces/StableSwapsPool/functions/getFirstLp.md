@@ -4,7 +4,7 @@
 
 # Function: getFirstLp()
 
-> **getFirstLp**(`a`, `b`): `bigint`
+> **getFirstLp**(`a`, `b`, `laf`): `bigint`
 
 Get the lp token amount for a, b
 
@@ -18,6 +18,8 @@ tokenA amount
 
 tokenB amount
 
+• **laf**: `bigint`
+
 ## Returns
 
 `bigint`
@@ -26,4 +28,4 @@ the minted lp token amount
 
 ## Defined in
 
-[ConstantProductPool.ts:12](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L12)
+[StableSwapsPool.ts:124](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L124)

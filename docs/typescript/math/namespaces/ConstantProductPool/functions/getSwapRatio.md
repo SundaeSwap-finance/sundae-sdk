@@ -4,7 +4,7 @@
 
 # Function: getSwapRatio()
 
-> **getSwapRatio**(`direction`, `assets`): [`IRatioCalculationResult`](../interfaces/IRatioCalculationResult.md)
+> **getSwapRatio**(`direction`, `assets`): [`IRatioCalculationResult`](../../SharedPoolMath/interfaces/IRatioCalculationResult.md)
 
 Calculates the swap ratio between two assets and returns an AssetAmount instance representing this ratio.
 
@@ -20,17 +20,17 @@ of Asset A. In 'B_PER_A' direction, the lexicographically second asset (B) is re
 
 ## Parameters
 
-• **direction**: [`TRatioDirection`](../type-aliases/TRatioDirection.md)
+• **direction**: [`TRatioDirection`](../../SharedPoolMath/type-aliases/TRatioDirection.md)
 
 The direction of the swap: 'A_PER_B' means the first asset lexicographically is received and the second is given, 'B_PER_A' means the second asset lexicographically is received and the first is given.
 
-• **assets**: [[`IRatioCalculationAsset`](../interfaces/IRatioCalculationAsset.md), [`IRatioCalculationAsset`](../interfaces/IRatioCalculationAsset.md)]
+• **assets**: [[`IRatioCalculationAsset`](../../SharedPoolMath/interfaces/IRatioCalculationAsset.md), [`IRatioCalculationAsset`](../../SharedPoolMath/interfaces/IRatioCalculationAsset.md)]
 
 An array of two assets involved in the swap. The order of the assets in this array does not matter as they will be sorted lexicographically by their assetId inside the function.
 
 ## Returns
 
-[`IRatioCalculationResult`](../interfaces/IRatioCalculationResult.md)
+[`IRatioCalculationResult`](../../SharedPoolMath/interfaces/IRatioCalculationResult.md)
 
 The calculated swap ratio in different representations.
 
@@ -47,4 +47,4 @@ console.log(sameAmount.ratioAsFraction); // Same as above.
 
 ## Defined in
 
-[ConstantProductPool.ts:353](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L353)
+[ConstantProductPool.ts:315](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L315)

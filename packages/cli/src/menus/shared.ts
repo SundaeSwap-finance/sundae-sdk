@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Core } from "@blaze-cardano/sdk";
+import { cborToScript, Core } from "@blaze-cardano/sdk";
 import { input, search, select } from "@inquirer/prompts";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
@@ -7,6 +7,7 @@ import {
   EContractVersion,
   type IPoolByAssetQuery,
   type IPoolData,
+  type TTxBuilder,
 } from "@sundaeswap/core";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -14,6 +15,7 @@ import packageJson from "../../package.json" assert { type: "json" };
 import type { State } from "../types.js";
 import { getPoolData, prettyAssetId } from "../utils.js";
 import { makeValue } from "@blaze-cardano/sdk";
+import { transactionDialog } from "./transaction.js";
 
 const asciify = (await import("asciify-image")).default;
 
@@ -26,6 +28,62 @@ const __dirname = path.dirname(__filename);
 // Construct path to logo file in the package
 // When built, this file is in dist/cli/, so we need to go up to package root then into data/
 const logoPath = path.join(__dirname, "..", "..", "data", "sundae.png");
+
+export async function ensureDeployment<g extends TTxBuilder>(
+  validator: string,
+  txBuilder: g,
+  state: State,
+): Promise<g> {
+  const protocolParams = await txBuilder.getProtocolParams();
+  if (!protocolParams) {
+    throw new Error(
+      "Protocol parameters not found. Please ensure the SDK is properly initialized.",
+    );
+  }
+  const validatorScript = protocolParams.blueprint.validators.find(
+    (v) => v.title === validator,
+  );
+  if (!validatorScript) {
+    throw new Error(
+      `Validator script with title "${validator}" not found in protocol parameters.`,
+    );
+  }
+  if (protocolParams.references.find((ref) => ref.key === validator)) {
+    return txBuilder;
+  }
+
+  let refUtxo = await txBuilder.blaze.provider.resolveScriptRef(
+    Core.Hash28ByteBase16(validatorScript.hash),
+  );
+  if (!refUtxo) {
+    const deployTx = await txBuilder.blaze
+      .newTransaction()
+      .deployScript(cborToScript(validatorScript.compiledCode, "PlutusV3"))
+      .complete();
+    await transactionDialog(deployTx.toCbor(), false, state);
+    await input({
+      message:
+        "Press enter to continue after the deployment transaction is confirmed.",
+    });
+    refUtxo = await txBuilder.blaze.provider.resolveScriptRef(
+      Core.Hash28ByteBase16(validatorScript.hash),
+    );
+    if (!refUtxo) {
+      throw new Error(
+        `Failed to resolve script reference for validator "${validator}".`,
+      );
+    }
+  }
+  protocolParams.references.push({
+    key: validator,
+    txIn: {
+      hash: refUtxo.input().transactionId().toString(),
+      index: Number(refUtxo.input().index()),
+    },
+  });
+  txBuilder.protocolParams = protocolParams;
+  return txBuilder;
+}
 
 export async function setAsciiLogo(size: number): Promise<void> {
   try {

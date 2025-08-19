@@ -34,4 +34,4 @@ the pool's total minted lp currently
 
 ## Defined in
 
-[ConstantProductPool.ts:125](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L125)
+[StableSwapsPool.ts:189](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L189)

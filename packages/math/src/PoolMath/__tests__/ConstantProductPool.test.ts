@@ -4,14 +4,16 @@ import { AssetAmount } from "@sundaeswap/asset";
 import {
   getSwapOutput,
   getSwapInput,
-  TPair,
-  TRatioDirection,
-  IRatioCalculationAsset,
-  IRatioCalculationResult,
   getSwapRatio,
 } from "../ConstantProductPool.js";
 import { getFirstLp } from "../ConstantProductPool.js";
 import { calculateLiquidity } from "../ConstantProductPool.js";
+import {
+  IRatioCalculationAsset,
+  IRatioCalculationResult,
+  TPair,
+  TRatioDirection,
+} from "../SharedPoolMath.js";
 
 describe("getSwapOutput", () => {
   const zeroThreePct = new Fraction(3, 1000);

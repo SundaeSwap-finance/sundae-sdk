@@ -143,6 +143,9 @@ export interface IMintPoolConfigArgs extends IBaseConfig {
   feeManager?: string;
   condition?: string;
   conditionDatumArgs?: TConditionDatumArgs;
+  linearAmplificationFactor?: bigint;
+  linearAmplificationFactorManager?: string;
+  protocolFees?: bigint | IFeesConfig;
 }
 
 /**
