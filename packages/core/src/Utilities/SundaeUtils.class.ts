@@ -17,7 +17,11 @@ import {
   ORDER_DEPOSIT_DEFAULT,
   V3_POOL_IDENT_LENGTH,
 } from "../constants.js";
-import { ConstantProductPool } from "@sundaeswap/math";
+import { ConstantProductPool, StableSwapsPool } from "@sundaeswap/math";
+
+export type TGenericSwapOutcome =
+  | ConstantProductPool.TSwapOutcome
+  | StableSwapsPool.TSwapOutcome;
 
 export class SundaeUtils {
   static ADA_ASSET_IDS = [
@@ -218,13 +222,7 @@ export class SundaeUtils {
       suppliedAsset.metadata.assetId,
     );
 
-    const output = ConstantProductPool.getSwapOutput(
-      suppliedAsset.amount,
-      supplyingPoolAssetA ? pool.liquidity.aReserve : pool.liquidity.bReserve,
-      supplyingPoolAssetA ? pool.liquidity.bReserve : pool.liquidity.aReserve,
-      pool.currentFee,
-      false,
-    );
+    const output = SundaeUtils.getSwapOutput(pool, suppliedAsset);
 
     if (
       !SundaeUtils.isAssetIdsEqual(
@@ -370,27 +368,13 @@ export class SundaeUtils {
     if (availablePools && resolvedGiven?.metadata && resolvedTaken?.metadata) {
       const givenDecimals = resolvedGiven.decimals;
       const hundredGiven = BigInt(10 ** givenDecimals) * 100n;
+      const hundredGivenAmount = new AssetAmount<IAssetAmountMetadata>(
+        hundredGiven,
+        resolvedGiven.metadata,
+      );
 
       for (const pool of availablePools) {
-        const givenReserve = SundaeUtils.isAssetIdsEqual(
-          pool.assetA.assetId,
-          resolvedGiven.metadata.assetId,
-        )
-          ? pool.liquidity.aReserve
-          : pool.liquidity.bReserve;
-        const takenReserve = SundaeUtils.isAssetIdsEqual(
-          pool.assetB.assetId,
-          resolvedTaken.metadata.assetId,
-        )
-          ? pool.liquidity.bReserve
-          : pool.liquidity.aReserve;
-
-        const swapOutcome = ConstantProductPool.getSwapOutput(
-          hundredGiven,
-          givenReserve,
-          takenReserve,
-          pool.currentFee,
-        );
+        const swapOutcome = SundaeUtils.getSwapOutput(pool, hundredGivenAmount);
 
         if (!bestOutcome || swapOutcome.output > bestOutcome.output) {
           bestOutcome = swapOutcome;
@@ -496,5 +480,45 @@ export class SundaeUtils {
     throw new Error(
       "Could not find a contract version prefix in the asset name!",
     );
+  }
+
+  static getSwapOutput(
+    poolData: IPoolData,
+    suppliedAsset: AssetAmount<IAssetAmountMetadata>,
+  ): TGenericSwapOutcome {
+    const inputReserve =
+      poolData.assetA.assetId === suppliedAsset.metadata.assetId
+        ? poolData.liquidity.aReserve
+        : poolData.liquidity.bReserve;
+    const outputReserve =
+      poolData.assetA.assetId === suppliedAsset.metadata.assetId
+        ? poolData.liquidity.bReserve
+        : poolData.liquidity.aReserve;
+    switch (poolData.version) {
+      case EContractVersion.V1:
+      case EContractVersion.V3:
+      case EContractVersion.NftCheck:
+        return ConstantProductPool.getSwapOutput(
+          suppliedAsset.amount,
+          inputReserve,
+          outputReserve,
+          poolData.currentFee,
+          false,
+        );
+      case EContractVersion.Stableswaps:
+        return StableSwapsPool.getSwapOutput(
+          suppliedAsset.amount,
+          inputReserve,
+          outputReserve,
+          poolData.currentFee,
+          poolData.protocolFee ?? 0,
+          poolData.linearAmplificationFactor ?? 1n,
+        );
+      default:
+        // If the pool version is not supported, throw an error.
+        throw new Error(
+          `Unsupported pool version: ${poolData.version}. Cannot get swap output.`,
+        );
+    }
   }
 }

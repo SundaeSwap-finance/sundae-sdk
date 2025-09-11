@@ -14,10 +14,6 @@ Holds the calculated outcome of a swap
 
 > **input**: `bigint`
 
-### inputLpFee
-
-> **inputLpFee**: `bigint`
-
 ### nextInputReserve
 
 > **nextInputReserve**: `bigint`
@@ -26,9 +22,21 @@ Holds the calculated outcome of a swap
 
 > **nextOutputReserve**: `bigint`
 
+### nextSumInvariant
+
+> **nextSumInvariant**: `bigint`
+
 ### output
 
 > **output**: `bigint`
+
+### outputLpFee
+
+> **outputLpFee**: `bigint`
+
+### outputProtocolFee
+
+> **outputProtocolFee**: `bigint`
 
 ### priceImpact
 
@@ -36,4 +44,4 @@ Holds the calculated outcome of a swap
 
 ## Defined in
 
-[ConstantProductPool.ts:138](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L138)
+[StableSwapsPool.ts:202](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L202)

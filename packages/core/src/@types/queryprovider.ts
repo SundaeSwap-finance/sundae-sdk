@@ -99,6 +99,8 @@ export interface IPoolData {
   };
   version: EContractVersion;
   conditionDatum?: string;
+  protocolFee?: number;
+  linearAmplificationFactor?: bigint;
 }
 
 /**

@@ -4,7 +4,7 @@
 
 # Function: getSwapOutput()
 
-> **getSwapOutput**(`input`, `inputReserve`, `outputReserve`, `fee`, `roundOutputUp`?): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
+> **getSwapOutput**(`input`, `inputReserve`, `outputReserve`, `fee`, `protocolFee`, `laf`, `roundOutputUp`?): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
 
 Calculate swap outcome for a given input and pool parameters (input tokens, output tokens, fee).
 Throws if
@@ -29,6 +29,14 @@ The amount of tokens in the output reserve
 
 The liquidity provider fee
 
+• **protocolFee**: `TFractionLike`
+
+The protocol fee
+
+• **laf**: `bigint`
+
+The linear amplification factor
+
 • **roundOutputUp?**: `boolean`
 
 ## Returns
@@ -39,4 +47,4 @@ The swap details
 
 ## Defined in
 
-[ConstantProductPool.ts:159](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L159)
+[StableSwapsPool.ts:227](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L227)

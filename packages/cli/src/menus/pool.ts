@@ -7,6 +7,7 @@ import {
   ESwapType,
   TxBuilderNftCheck,
   TxBuilderV3,
+  TxBuilderStableswaps,
   type IMintNftCheckPoolConfigArgs,
   type IMintPoolConfigArgs,
   type IPoolByAssetQuery,
@@ -15,7 +16,7 @@ import {
 } from "@sundaeswap/core";
 import type { State } from "../types";
 import { getPoolData, prettyAssetId } from "../utils.js";
-import { getAssetAmount, printHeader } from "./shared.js";
+import { ensureDeployment, getAssetAmount, printHeader } from "./shared.js";
 import { transactionDialog } from "./transaction.js";
 
 export async function swapMenu(state: State): Promise<State> {
@@ -146,10 +147,42 @@ export async function mintPoolMenu(state: State): Promise<State> {
       const txNftCheck = (await builderNftCheck.mintPool(argsNftCheck)).build();
       await transactionDialog((await txNftCheck).cbor, false, state);
       break;
+    case "Stableswaps":
+      const stableSwapBuilder = state.sdk!.builders.get(
+        EContractVersion.Stableswaps,
+      )! as TxBuilderStableswaps;
+      await ensureDeployment("pool.spend", stableSwapBuilder, state);
+      const argsStable = await mintStablePoolArgs(state);
+      stableSwapBuilder.enableTracing(true);
+      const txStable = (await stableSwapBuilder.mintPool(argsStable)).build();
+      await transactionDialog((await txStable).cbor, false, state);
+      break;
     default:
       break;
   }
   return state;
+}
+
+async function mintStablePoolArgs(state: State): Promise<IMintPoolConfigArgs> {
+  const v3Args = await mintPoolArgs(state);
+  const linearAmplification = await input({
+    message: "Enter linear amplification factor (>0):",
+    validate: (input) => {
+      const num = Number(input);
+      if (isNaN(num)) {
+        return "Please enter a number";
+      }
+      if (num <= 0) {
+        return "Please enter a number greater than 0";
+      }
+      return true;
+    },
+  });
+  return {
+    ...v3Args,
+    protocolFees: await getFeeChoice(),
+    linearAmplification: BigInt(linearAmplification),
+  } as IMintPoolConfigArgs;
 }
 
 export async function getFeeChoice(): Promise<bigint> {
@@ -170,6 +203,9 @@ export async function cancelSwapMenu(state: State): Promise<State> {
   const v3OrderScriptAddress = await state
     .sdk!.builders.get(EContractVersion.V3)!
     .getOrderScriptAddress(state.settings.address!);
+  console.log(
+    `order address: ${Core.Address.fromBech32(v3OrderScriptAddress).toBech32()}`,
+  );
   const orderUtxos = await state
     .sdk!.blaze()
     .provider.getUnspentOutputs(Core.Address.fromBech32(v3OrderScriptAddress));
