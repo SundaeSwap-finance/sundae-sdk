@@ -23,8 +23,10 @@ import type {
   ISwapConfigArgs,
   ITxBuilderFees,
   ITxBuilderReferralFee,
+  IUpdateArgs,
   IWithdrawConfigArgs,
   IZapConfigArgs,
+  TDatumResult,
   TDepositMixed,
   TSupportedNetworks,
 } from "../@types/index.js";
@@ -886,89 +888,152 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
   /**
    * Updates a transaction by first executing a cancel transaction, spending that back into the
-   * contract, and then attaching a swap datum. It handles referral fees and ensures the correct
+   * contract, and then attaching the new datum. It handles referral fees and ensures the correct
    * accumulation of assets for the transaction.
    *
-   * @param {{ cancelArgs: ICancelConfigArgs, swapArgs: ISwapConfigArgs }}
+   * @param {IUpdateArgs}
    *        The arguments for cancel and swap configurations.
    * @returns {PromisePromise<IComposedTx<Tx, TxComplete, Datum | undefined>>} A promise that resolves to the result of the updated transaction.
    */
   async update({
-    cancelArgs,
-    swapArgs,
-  }: {
-    cancelArgs: ICancelConfigArgs;
-    swapArgs: ISwapConfigArgs;
-  }): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
+    cancelConfig,
+    updateConfig,
+  }: IUpdateArgs): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
     /**
      * First, build the cancel transaction.
      */
-    const { tx: cancelTx } = await this.cancel(cancelArgs);
+    const { tx: cancelTx } = await this.cancel(cancelConfig);
 
-    /**
-     * Then, build the swap datum to attach to the cancel transaction.
-     */
-    const {
-      pool: { ident },
-      orderAddresses,
-      suppliedAsset,
-      minReceivable,
-    } = new SwapConfig(swapArgs).buildArgs();
-    const swapDatum = this.datumBuilder.buildSwapDatum({
-      ident,
-      destinationAddress: orderAddresses.DestinationAddress,
-      order: { offered: suppliedAsset, minReceived: minReceivable },
-      scooperFee: await this.getMaxScooperFeeAmount(),
-    });
+    let updatedDatum: TDatumResult<OrderDatum>;
+    let destinationAddress: Core.Address | undefined;
+    let value: Core.Value | undefined;
 
-    if (!swapDatum) {
-      throw new Error("Swap datum is required.");
+    switch (updateConfig.type) {
+      case "Swap": {
+        /**
+         * Then, build the swap datum to attach to the cancel transaction.
+         */
+        const {
+          pool: { ident },
+          orderAddresses,
+          suppliedAsset,
+          minReceivable,
+        } = new SwapConfig(updateConfig.args).buildArgs();
+        updatedDatum = this.datumBuilder.buildSwapDatum({
+          ident,
+          destinationAddress: orderAddresses.DestinationAddress,
+          order: { offered: suppliedAsset, minReceived: minReceivable },
+          scooperFee: await this.getMaxScooperFeeAmount(),
+        });
+
+        destinationAddress = Core.addressFromBech32(
+          await this.generateScriptAddress(
+            "order.spend",
+            orderAddresses.DestinationAddress.address,
+          ),
+        );
+
+        const payment = SundaeUtils.accumulateSuppliedAssets({
+          suppliedAssets: [suppliedAsset],
+          scooperFee: await this.getMaxScooperFeeAmount(),
+        });
+
+        value = makeValue(
+          payment.lovelace,
+          ...Object.entries(payment).filter(([key]) => key !== "lovelace"),
+        );
+
+        break;
+      }
+
+      case "Strategy": {
+        const {
+          destination,
+          ownerAddress,
+          pool,
+          suppliedAsset,
+          authScript,
+          authSigner,
+        } = new StrategyConfig(updateConfig.args).buildArgs();
+
+        updatedDatum = this.datumBuilder.buildStrategyDatum({
+          destination: destination,
+          ident: pool.ident,
+          order: { signer: authSigner, script: authScript },
+          ownerAddress: ownerAddress,
+          scooperFee: await this.getMaxScooperFeeAmount(),
+        });
+
+        destinationAddress = Core.Address.fromBech32(
+          await this.generateScriptAddress("order.spend", ownerAddress),
+        );
+
+        const payment = SundaeUtils.accumulateSuppliedAssets({
+          suppliedAssets: [suppliedAsset],
+          scooperFee: await this.getMaxScooperFeeAmount(),
+        });
+
+        value = makeValue(
+          payment.lovelace,
+          ...Object.entries(payment).filter(([key]) => key !== "lovelace"),
+        );
+
+        break;
+      }
+
+      default:
+        throw new Error("Must choose an update config type.");
     }
 
-    const payment = SundaeUtils.accumulateSuppliedAssets({
-      suppliedAssets: [suppliedAsset],
-      scooperFee: await this.getMaxScooperFeeAmount(),
-    });
+    if (!updatedDatum) {
+      throw new Error(
+        "Something prevented this update from generating a new datum.",
+      );
+    }
+
+    if (!destinationAddress) {
+      throw new Error(
+        "Something prevented this update from generating a destination address.",
+      );
+    }
+
+    if (!value) {
+      throw new Error(
+        "Something prevented this update from generating a for locking at the destination address.",
+      );
+    }
 
     cancelTx.lockAssets(
-      Core.addressFromBech32(
-        await this.generateScriptAddress(
-          "order.spend",
-          orderAddresses.DestinationAddress.address,
-        ),
-      ),
-      makeValue(
-        payment.lovelace,
-        ...Object.entries(payment).filter(([key]) => key !== "lovelace"),
-      ),
-      Core.PlutusData.fromCbor(Core.HexBlob(swapDatum.inline)),
+      destinationAddress,
+      value,
+      Core.PlutusData.fromCbor(Core.HexBlob(updatedDatum.inline)),
     );
 
     /**
      * Accumulate any referral fees.
      */
     const accumulatedReferralFee = BlazeHelper.mergeValues(
-      cancelArgs.referralFee?.payment,
-      swapArgs.referralFee?.payment,
+      cancelConfig.referralFee?.payment,
+      updateConfig.args.referralFee?.payment,
     );
 
-    if (cancelArgs.referralFee) {
+    if (cancelConfig.referralFee) {
       cancelTx.payAssets(
-        Core.addressFromBech32(cancelArgs.referralFee.destination),
-        cancelArgs.referralFee.payment,
+        Core.addressFromBech32(cancelConfig.referralFee.destination),
+        cancelConfig.referralFee.payment,
       );
     }
 
-    if (swapArgs.referralFee) {
+    if (updateConfig.args.referralFee) {
       cancelTx.payAssets(
-        Core.addressFromBech32(swapArgs.referralFee.destination),
-        swapArgs.referralFee.payment,
+        Core.addressFromBech32(updateConfig.args.referralFee.destination),
+        updateConfig.args.referralFee.payment,
       );
     }
 
     return this.completeTx({
       tx: cancelTx,
-      datum: swapDatum.inline,
+      datum: updatedDatum.inline,
       referralFee: accumulatedReferralFee,
     });
   }

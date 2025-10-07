@@ -67,7 +67,8 @@
     "docs:ci": "bun docs --unsafe"
   },
   "devDependencies": {
-    "@blaze-cardano/emulator": "^0.3.28",
+    "@blaze-cardano/core": "^0.7.0",
+    "@blaze-cardano/emulator": "^0.3.34",
     "@sundaeswap/bigint-math": "^0.6.3",
     "@sundaeswap/fraction": "^1.0.3",
     "@sundaeswap/math": "workspace:*",

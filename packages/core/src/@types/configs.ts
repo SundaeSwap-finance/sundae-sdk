@@ -167,3 +167,20 @@ export interface IMigrateYieldFarmingLiquidityConfig {
     depositPool: IPoolData;
   }[];
 }
+
+export type TUpdateStrategy = {
+  type: "Strategy";
+  args: IStrategyConfigArgs;
+};
+
+export type TUpdateSwap = {
+  type: "Swap";
+  args: ISwapConfigArgs;
+};
+
+export type TUpdateConfig = TUpdateSwap | TUpdateStrategy;
+
+export interface IUpdateArgs {
+  cancelConfig: ICancelConfigArgs;
+  updateConfig: TUpdateConfig;
+}
