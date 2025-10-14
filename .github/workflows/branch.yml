@@ -41,6 +41,6 @@ jobs:
       # Release
       - name: Release (Canary)
         run: |
-          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_ACCESS_TOKEN }}
+          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
           bun changeset version --snapshot dev
           bun changeset publish --tag dev --no-git-tag --access public
