@@ -15,8 +15,7 @@
     "version:ci": "lerna version -y --ignore-scripts",
     "publish:ci": "lerna publish from-package -y",
     "docs": "lerna run docs:ci",
-    "dev": "concurrently \"cd packages/core && bun watch\" \"cd packages/yield-farming && bun watch\" \"cd packages/demo && bun start\"",
-    "scan-deps": "bunx depcruise packages --progress"
+    "scan-deps": "depcruise packages --progress"
   },
   "engines": {
     "node": ">=18"
