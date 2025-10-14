@@ -1,1 +1,1 @@
-bun lint-staged && bun test:all && bun docs && git add ./docs
+bun lint-staged && bun docs && git add ./docs && bun scan-deps

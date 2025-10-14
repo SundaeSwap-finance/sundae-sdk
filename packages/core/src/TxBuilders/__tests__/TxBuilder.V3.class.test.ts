@@ -1,3 +1,4 @@
+import { Void } from "@blaze-cardano/data";
 import {
   Blaze,
   TxBuilder as BlazeTx,
@@ -6,9 +7,7 @@ import {
 } from "@blaze-cardano/sdk";
 import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 
-import { Void } from "@blaze-cardano/data";
-import { ESwapType } from "../../@types/configs.js";
-import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
+import { EDatumType, EDestinationType, ESwapType } from "../../@types/enums.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
 import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
@@ -73,7 +72,7 @@ afterAll(() => {
   mock.restore();
 });
 
-describe("TxBuilderBlazeV3", () => {
+describe.concurrent("TxBuilderBlazeV3", () => {
   it("should have the correct settings", () => {
     expect(builder.network).toEqual("preview");
     expect(builder.blaze).toBeInstanceOf(Blaze);

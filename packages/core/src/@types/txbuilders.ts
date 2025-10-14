@@ -1,9 +1,5 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { Core } from "@blaze-cardano/sdk";
-import { TxBuilderNftCheck } from "../TxBuilders/TxBuilder.NftCheck.class.js";
-import { TxBuilderV1 } from "../TxBuilders/TxBuilder.V1.class.js";
-import { TxBuilderV3 } from "../TxBuilders/TxBuilder.V3.class.js";
 import { ISwapConfigArgs } from "./configs.js";
 
 /**
@@ -48,27 +44,6 @@ export interface IComposedTx<
 }
 
 /**
- * The referral fee object if set.
- */
-export interface ITxBuilderReferralFee {
-  destination: string;
-  payment: Core.Value;
-  /** The label that prefixes the fee amount in the metadata. */
-  feeLabel?: string;
-}
-
-/**
- * The contract version to be used when building transactions
- * of any time that interact with SundaeSwap contracts.
- */
-export enum EContractVersion {
-  V1 = "V1",
-  V3 = "V3",
-  NftCheck = "NftCheck",
-  Condition = "Condition",
-}
-
-/**
  * Special arguments for an Order-Route Swap. A combination of
  * two swap arguments, but simplified for ease-of-use.
  */
@@ -80,5 +55,3 @@ export interface IOrderRouteSwapArgs {
     "suppliedAsset" | "orderAddresses" | "ownerAddress"
   >;
 }
-
-export type TTxBuilder = TxBuilderV1 | TxBuilderV3 | TxBuilderNftCheck;

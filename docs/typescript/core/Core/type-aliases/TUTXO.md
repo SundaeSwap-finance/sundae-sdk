@@ -20,4 +20,4 @@ The structure for a UTXO.
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:12](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L12)
+[packages/core/src/@types/datumbuilder.ts:26](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L26)

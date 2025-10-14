@@ -4,10 +4,10 @@
 
 # Type Alias: TConditionDatumArgs
 
-> **TConditionDatumArgs**: [`IDatumBuilderNftCheckArgs`](../interfaces/IDatumBuilderNftCheckArgs.md)
+> **TConditionDatumArgs**: [`IBaseDatumBuilderNftCheckArgs`](../interfaces/IBaseDatumBuilderNftCheckArgs.md)
 
-A union type representing the potential arguments for building a Condition datum.
+Type alias for condition datum arguments.
 
 ## Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L79)
+[packages/core/src/@types/datumbuilder.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L16)

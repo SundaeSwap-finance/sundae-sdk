@@ -6,6 +6,7 @@ import {
   EDatumType,
   EDestinationType,
   IFeesConfig,
+  TConditionDatumArgs,
   TDatumResult,
   TDestination,
   TDestinationAddress,
@@ -16,7 +17,6 @@ import { VOID_BYTES } from "../constants.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { V3Types } from "./ContractTypes/index.js";
-import { IDatumBuilderNftCheckArgs } from "./DatumBuilder.NftCheck.class.js";
 
 /**
  * The base arguments for the V3 DatumBuilder.
@@ -72,11 +72,6 @@ export interface IDatumBuilderStrategyV3Args
     script?: string;
   };
 }
-
-/**
- * A union type representing the potential arguments for building a Condition datum.
- */
-export type TConditionDatumArgs = IDatumBuilderNftCheckArgs;
 
 /**
  * The arguments for building a minting a new pool transaction against

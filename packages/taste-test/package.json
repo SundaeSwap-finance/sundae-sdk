@@ -43,13 +43,10 @@
     "docs": "docgen generate --typedoc-options ./typedoc.json",
     "docs:ci": "bun docs --unsafe"
   },
-  "devDependencies": {
+  "dependencies": {
+    "@blaze-cardano/sdk": "0.2.43",
+    "@blaze-cardano/data": "^0.6.4",
+    "@sundaeswap/asset": "1.0.11",
     "@sundaeswap/core": "workspace:*"
-  },
-  "peerDependencies": {
-    "@blaze-cardano/sdk": "^0.2.34",
-    "@sundaeswap/asset": "^1.0.11",
-    "@sundaeswap/core": "^2.6.2",
-    "@blaze-cardano/data": "^0.6.1"
   }
 }

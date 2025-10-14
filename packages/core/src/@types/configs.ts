@@ -1,14 +1,25 @@
+import { Core } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import {
   EPoolCoin,
+  TConditionDatumArgs,
   TDestination,
   TDestinationAddress,
   TOrderAddressesArgs,
   TUTXO,
 } from "./datumbuilder.js";
+import { ESwapType } from "./enums.js";
 import { IPoolData } from "./queryprovider.js";
-import { ITxBuilderReferralFee } from "./txbuilders.js";
+
+/**
+ * The referral fee object if set.
+ */
+export interface ITxBuilderReferralFee {
+  destination: string;
+  payment: Core.Value;
+  /** The label that prefixes the fee amount in the metadata. */
+  feeLabel?: string;
+}
 
 /**
  * The base config that all configs extend.
@@ -24,14 +35,6 @@ export interface IOrderConfigArgs extends IBaseConfig {
   pool: IPoolData;
   orderAddresses: TOrderAddressesArgs;
   ownerAddress?: string;
-}
-
-/**
- * An enum to represent a Swap order type.
- */
-export enum ESwapType {
-  MARKET = "MARKET",
-  LIMIT = "LIMIT",
 }
 
 /**

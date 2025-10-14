@@ -32,20 +32,21 @@ import type {
 } from "../@types/index.js";
 import { EContractVersion, EDatumType, ESwapType } from "../@types/index.js";
 import { TxBuilderAbstractV3 } from "../Abstracts/TxBuilderAbstract.V3.class.js";
-import { CancelConfig } from "../Configs/CancelConfig.class.js";
-import { DepositConfig } from "../Configs/DepositConfig.class.js";
-import { MintPoolConfig } from "../Configs/MintPoolConfig.class.js";
-import { StrategyConfig } from "../Configs/StrategyConfig.class.js";
-import { SwapConfig } from "../Configs/SwapConfig.class.js";
-import { WithdrawConfig } from "../Configs/WithdrawConfig.class.js";
-import { ZapConfig } from "../Configs/ZapConfig.class.js";
+import {
+  CancelConfig,
+  DepositConfig,
+  MintPoolConfig,
+  StrategyConfig,
+  SwapConfig,
+  WithdrawConfig,
+  ZapConfig,
+} from "../Configs/index.js";
 import {
   OrderDatum,
   SettingsDatum,
 } from "../DatumBuilders/ContractTypes/Contract.v3.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
-import { SundaeSDK } from "../SundaeSDK.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
@@ -57,7 +58,8 @@ import {
   POOL_MIN_FEE,
   POOL_REF_DEPOSIT,
 } from "../constants.js";
-import { TxBuilderV1 } from "./TxBuilder.V1.class.js";
+import type { TxBuilderNftCheck } from "./TxBuilder.NftCheck.class.js";
+import type { TxBuilderV1 } from "./TxBuilder.V1.class.js";
 
 /**
  * Object arguments for completing a transaction.
@@ -615,10 +617,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
     let isOrderRoute = false;
     if (swapArgs.orderAddresses.PoolDestinationVersion) {
-      const destinationBuilder = SundaeSDK.new({
-        blazeInstance: this.blaze,
-        customQueryProvider: this.queryProvider,
-      }).builder(swapArgs.orderAddresses.PoolDestinationVersion);
+      const destinationBuilder = await this.getBuilderForVersion(
+        swapArgs.orderAddresses.PoolDestinationVersion,
+      );
       isOrderRoute = true;
       scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
     }
@@ -665,10 +666,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
   async orderRouteSwap(
     args: IOrderRouteSwapArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const secondBuilder = SundaeSDK.new({
-      blazeInstance: this.blaze,
-      customQueryProvider: this.queryProvider,
-    }).builder(args.swapB.pool.version);
+    const secondBuilder = await this.getBuilderForVersion(
+      args.swapB.pool.version,
+    );
 
     const secondSwapAddress = await secondBuilder.getOrderScriptAddress(
       args.ownerAddress,
@@ -836,7 +836,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log("This is a V1 order! Calling appropriate builder...");
-      const v1Builder = new TxBuilderV1(this.blaze);
+      const v1Builder = await this.getBuilderForVersion(EContractVersion.V1);
       return v1Builder.cancel({ ...cancelArgs });
     }
 
@@ -1367,7 +1367,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
     const paymentStakeCred = Core.Hash28ByteBase16(hash);
     const ownerStakeCred = ownerAddress
-      ? Core.addressFromBech32(ownerAddress).asBase()?.getStakeCredential()
+      ? Core.addressFromBech32(ownerAddress).getProps()?.delegationPart
       : undefined;
 
     if (!ownerStakeCred) {
@@ -1446,6 +1446,45 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     _poolData: IPoolData,
   ): AssetAmount<IAssetAmountMetadata>[] {
     return [];
+  }
+
+  /**
+   * Helper method to get a builder instance for a specific contract version.
+   * This allows dynamic builder instantiation for order routing scenarios.
+   *
+   * @param version The contract version to get a builder for
+   * @returns The appropriate builder instance
+   */
+  private getBuilderForVersion(
+    version: EContractVersion.NftCheck,
+  ): Promise<TxBuilderNftCheck>;
+  private getBuilderForVersion(
+    version: EContractVersion.V1,
+  ): Promise<TxBuilderV1>;
+  private getBuilderForVersion(
+    version: EContractVersion.V3,
+  ): Promise<TxBuilderV3>;
+  private getBuilderForVersion(
+    version: EContractVersion,
+  ): Promise<TxBuilderNftCheck | TxBuilderV3 | TxBuilderV1>;
+  private async getBuilderForVersion(
+    version: EContractVersion,
+  ): Promise<TxBuilderV3 | TxBuilderV1 | TxBuilderNftCheck> {
+    switch (version) {
+      case EContractVersion.V1:
+        return await import("./TxBuilder.V1.class.js").then(
+          (module) => new module.TxBuilderV1(this.blaze),
+        );
+      case EContractVersion.V3:
+        return new TxBuilderV3(this.blaze, this.queryProvider);
+      case EContractVersion.NftCheck:
+        return await import("./TxBuilder.NftCheck.class.js").then(
+          (module) =>
+            new module.TxBuilderNftCheck(this.blaze, this.queryProvider),
+        );
+      default:
+        throw new Error(`Unsupported contract version: ${version}`);
+    }
   }
 
   protected async completeTx({

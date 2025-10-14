@@ -1,11 +1,8 @@
 import { AssetAmount } from "@sundaeswap/asset";
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 
-import {
-  EDatumType,
-  EPoolCoin,
-  ISwapArguments,
-} from "../../../@types/datumbuilder.js";
+import { EPoolCoin, ISwapArguments } from "../../../@types/datumbuilder.js";
+import { EDatumType } from "../../../@types/enums.js";
 import { PREVIEW_DATA } from "../../../exports/testing.js";
 import { DatumBuilderV1 } from "../../DatumBuilder.V1.class.js";
 import { V1_EXPECTATIONS } from "../../__data__/v1.expectations.js";
