@@ -167,3 +167,33 @@ export interface IMigrateYieldFarmingLiquidityConfig {
     depositPool: IPoolData;
   }[];
 }
+
+/**
+ * Type interface to describe the Strategy config type.
+ */
+export type TUpdateStrategy = {
+  type: "Strategy";
+  args: IStrategyConfigArgs;
+};
+
+/**
+ * Type interface to describe the Swap config type.
+ */
+export type TUpdateSwap = {
+  type: "Swap";
+  args: ISwapConfigArgs;
+};
+
+/**
+ * Union to bind together the different config types.
+ */
+export type TUpdateConfig = TUpdateSwap | TUpdateStrategy;
+
+/**
+ * Interface for updating an order with a set of considered
+ * configuration types.
+ */
+export interface IUpdateArgs {
+  cancelConfig: ICancelConfigArgs;
+  updateConfig: TUpdateConfig;
+}
