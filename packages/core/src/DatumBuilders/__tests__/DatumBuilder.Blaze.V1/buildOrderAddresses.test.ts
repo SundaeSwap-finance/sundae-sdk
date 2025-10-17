@@ -1,3 +1,4 @@
+import { Core } from "@blaze-cardano/sdk";
 import {
   afterEach,
   beforeEach,
@@ -8,11 +9,8 @@ import {
   spyOn,
 } from "bun:test";
 
-import { Core } from "@blaze-cardano/sdk";
-import {
-  EDatumType,
-  TOrderAddressesArgs,
-} from "../../../@types/datumbuilder.js";
+import { TOrderAddressesArgs } from "../../../@types/datumbuilder.js";
+import { EDatumType } from "../../../@types/enums.js";
 import { VOID_BYTES } from "../../../constants.js";
 import { BlazeHelper } from "../../../Utilities/BlazeHelper.class.js";
 import { V1_EXPECTATIONS } from "../../__data__/v1.expectations.js";
@@ -23,7 +21,10 @@ let builderInstance: DatumBuilderV1;
 const expectations = V1_EXPECTATIONS.datums.buildOrderAddresses;
 
 beforeEach(() => {
-  builderInstance = new DatumBuilderV1("preview", new Set(["730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977e"]));
+  builderInstance = new DatumBuilderV1(
+    "preview",
+    new Set(["730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977e"]),
+  );
 });
 
 afterEach(() => {
@@ -163,33 +164,43 @@ describe("buildDestinationAddresses()", () => {
     const orderAddress = Core.addressFromCredential(
       0,
       Core.Credential.fromCore({
-        hash: Core.Hash28ByteBase16("730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977e"),
+        hash: Core.Hash28ByteBase16(
+          "730e7d146ad7427a23a885d2141b245d3f8ccd416b5322a31719977e",
+        ),
         type: Core.CredentialType.ScriptHash,
       }),
     ).toBech32();
 
-    expect(() => builderInstance.buildOrderAddresses({
-      DestinationAddress: {
-        address: orderAddress,
-        datum: { type: EDatumType.INLINE, value: VOID_BYTES.toCbor() }
-      }
-    })).toThrowError("Inline datum types are not supported in V1 contracts! Convert this to a hash.")
-  })
+    expect(() =>
+      builderInstance.buildOrderAddresses({
+        DestinationAddress: {
+          address: orderAddress,
+          datum: { type: EDatumType.INLINE, value: VOID_BYTES.toCbor() },
+        },
+      }),
+    ).toThrowError(
+      "Inline datum types are not supported in V1 contracts! Convert this to a hash.",
+    );
+  });
 
   it("should let me attach an inline datum if the destination is NOT a script we are aware of", () => {
     const orderAddress = Core.addressFromCredential(
       0,
       Core.Credential.fromCore({
-        hash: Core.Hash28ByteBase16("e6c8a314ae942401619460f00c69de3d1b996db588d4042243a4b259"),
+        hash: Core.Hash28ByteBase16(
+          "e6c8a314ae942401619460f00c69de3d1b996db588d4042243a4b259",
+        ),
         type: Core.CredentialType.ScriptHash,
       }),
     ).toBech32();
 
-    expect(() => builderInstance.buildOrderAddresses({
-      DestinationAddress: {
-        address: orderAddress,
-        datum: { type: EDatumType.INLINE, value: VOID_BYTES.toCbor() }
-      }
-    })).not.toThrow()
-  })
+    expect(() =>
+      builderInstance.buildOrderAddresses({
+        DestinationAddress: {
+          address: orderAddress,
+          datum: { type: EDatumType.INLINE, value: VOID_BYTES.toCbor() },
+        },
+      }),
+    ).not.toThrow();
+  });
 });

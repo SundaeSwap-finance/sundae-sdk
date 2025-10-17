@@ -33,7 +33,10 @@ jobs:
 
       # Run Tests
       - name: Run Tests
-        run: bun test:all
+        run: bun test
+
+      - name: Scan Dependencies
+        run: bun scan-deps
 
       # Release
       - name: Release (Canary)

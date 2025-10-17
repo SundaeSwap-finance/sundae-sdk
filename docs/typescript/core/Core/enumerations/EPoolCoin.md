@@ -14,7 +14,7 @@ The boolean type of a pool's coin, where 0 = CoinA and 1 = CoinB.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:26](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L26)
+[packages/core/src/@types/datumbuilder.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L40)
 
 ***
 
@@ -24,4 +24,4 @@ The boolean type of a pool's coin, where 0 = CoinA and 1 = CoinB.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L27)
+[packages/core/src/@types/datumbuilder.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L41)

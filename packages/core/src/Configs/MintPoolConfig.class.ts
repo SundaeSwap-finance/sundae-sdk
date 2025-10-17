@@ -1,7 +1,10 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { IFeesConfig, IMintPoolConfigArgs } from "../@types/index.js";
+import {
+  IFeesConfig,
+  IMintPoolConfigArgs,
+  TConditionDatumArgs,
+} from "../@types/index.js";
 import { Config } from "../Abstracts/Config.abstract.class.js";
-import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.V3.class.js";
 
 export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
   static MAX_FEE: bigint = 500n;

@@ -10,4 +10,4 @@ A union to define all possible destination types.
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:128](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L128)
+[packages/core/src/@types/datumbuilder.ts:125](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L125)

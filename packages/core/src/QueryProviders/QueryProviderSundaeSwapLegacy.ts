@@ -1,6 +1,6 @@
 import { TUTXO } from "../@types/datumbuilder.js";
+import { EContractVersion } from "../@types/enums.js";
 import { IPoolData, IPoolDataAsset } from "../@types/queryprovider.js";
-import { EContractVersion } from "../@types/txbuilders.js";
 import { TSupportedNetworks } from "../@types/utilities.js";
 import { QueryProvider } from "../Abstracts/QueryProvider.abstract.class.js";
 

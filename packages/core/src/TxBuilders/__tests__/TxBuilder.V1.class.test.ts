@@ -7,10 +7,9 @@ import {
 import { AssetAmount } from "@sundaeswap/asset";
 import { describe, expect, it, spyOn } from "bun:test";
 
-import { ESwapType } from "../../@types/configs.js";
-import { EDatumType } from "../../@types/datumbuilder.js";
-import { IPoolData } from "../../@types/queryprovider.js";
-import { EContractVersion, ITxBuilderFees } from "../../@types/txbuilders.js";
+import { EContractVersion, EDatumType, ESwapType } from "../../@types/enums.js";
+import type { IPoolData } from "../../@types/queryprovider.js";
+import type { ITxBuilderFees } from "../../@types/txbuilders.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../../constants.js";
 import { DatumBuilderV1 } from "../../DatumBuilders/DatumBuilder.V1.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
@@ -47,18 +46,14 @@ describe("TxBuilderBlazeV1", () => {
   });
 
   it("should have the correct parameters", () => {
-    expect(TxBuilderV1.getParam("cancelRedeemer", "preview")).toEqual(
-      "d87a80",
+    expect(TxBuilderV1.getParam("cancelRedeemer", "preview")).toEqual("d87a80");
+    expect(TxBuilderV1.getParam("cancelRedeemer", "mainnet")).toEqual("d87a80");
+    expect(TxBuilderV1.getParam("maxScooperFee", "preview").toString()).toEqual(
+      "2500000",
     );
-    expect(TxBuilderV1.getParam("cancelRedeemer", "mainnet")).toEqual(
-      "d87a80",
+    expect(TxBuilderV1.getParam("maxScooperFee", "mainnet").toString()).toEqual(
+      "2500000",
     );
-    expect(
-      TxBuilderV1.getParam("maxScooperFee", "preview").toString(),
-    ).toEqual("2500000");
-    expect(
-      TxBuilderV1.getParam("maxScooperFee", "mainnet").toString(),
-    ).toEqual("2500000");
   });
 
   it("newTxInstance()", async () => {
@@ -250,9 +245,7 @@ describe("TxBuilderBlazeV1", () => {
         suppliedAsset: PREVIEW_DATA.assets.tada,
       });
     } catch (e) {
-      expect((e as Error).message).toEqual(
-        DatumBuilderV1.INVALID_POOL_IDENT,
-      );
+      expect((e as Error).message).toEqual(DatumBuilderV1.INVALID_POOL_IDENT);
     }
   });
 

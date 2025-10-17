@@ -14,7 +14,7 @@ The type of destination specified for an order.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:105](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L105)
+[packages/core/src/@types/enums.ts:25](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/enums.ts#L25)
 
 ***
 
@@ -24,4 +24,4 @@ The type of destination specified for an order.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:106](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L106)
+[packages/core/src/@types/enums.ts:26](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/enums.ts#L26)

@@ -20,4 +20,4 @@ The DatumHash type is use to describe a datum hash.
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:49](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L49)
+[packages/core/src/@types/datumbuilder.ts:54](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L54)

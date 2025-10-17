@@ -1,5 +1,19 @@
 import type { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
-import { EContractVersion } from "./txbuilders.js";
+import { EContractVersion, EDatumType, EDestinationType } from "./enums.js";
+
+/**
+ * Arguments for NFT check datum builders.
+ * Exported here to avoid circular dependencies between DatumBuilders and Abstracts.
+ */
+export interface IBaseDatumBuilderNftCheckArgs {
+  value: AssetAmount<IAssetAmountMetadata>[];
+  check: unknown; // Using unknown to avoid importing NftCheckTypes here
+}
+
+/**
+ * Type alias for condition datum arguments.
+ */
+export type TConditionDatumArgs = IBaseDatumBuilderNftCheckArgs;
 
 /**
  * The unique identifier of a pool, defined as a string.
@@ -25,15 +39,6 @@ export type TPubKeyHash = string;
 export enum EPoolCoin {
   A = 0,
   B = 1,
-}
-
-/**
- * The Datum type to be passed along with an address.
- */
-export enum EDatumType {
-  HASH = "HASH",
-  INLINE = "INLINE",
-  NONE = "NONE",
 }
 
 /**
@@ -97,14 +102,6 @@ export type TOrderAddressesArgs = {
   AlternateAddress?: TCancelerAddress;
   PoolDestinationVersion?: EContractVersion;
 };
-
-/**
- * The type of destination specified for an order.
- */
-export enum EDestinationType {
-  FIXED = "FIXED",
-  SELF = "SELF",
-}
 
 /**
  * The DestinationFixed type describes a "fixed" destination, with a fixed address and optional datum

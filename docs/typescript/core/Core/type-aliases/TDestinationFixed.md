@@ -24,4 +24,4 @@ The DestinationFixed type describes a "fixed" destination, with a fixed address 
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:112](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L112)
+[packages/core/src/@types/datumbuilder.ts:109](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L109)

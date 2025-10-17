@@ -1,4 +1,5 @@
-import { EContractVersion, IComposedTx } from "../@types/txbuilders.js";
+import { EContractVersion } from "../@types/enums.js";
+import { IComposedTx } from "../@types/txbuilders.js";
 import { TSupportedNetworks } from "../@types/utilities.js";
 import { DatumBuilderAbstract } from "./DatumBuilder.abstract.class.js";
 import { QueryProvider } from "./QueryProvider.abstract.class.js";

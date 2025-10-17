@@ -7,8 +7,7 @@ import {
 } from "@blaze-cardano/sdk";
 import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 
-import { ESwapType } from "../../@types/configs.js";
-import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
+import { EDatumType, EDestinationType, ESwapType } from "../../@types/enums.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
 import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";

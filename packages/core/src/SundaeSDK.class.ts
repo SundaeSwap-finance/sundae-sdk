@@ -1,9 +1,5 @@
 import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
-import {
-  EContractVersion,
-  ISundaeSDKOptions,
-  TTxBuilder,
-} from "./@types/index.js";
+import { EContractVersion, ISundaeSDKOptions } from "./@types/index.js";
 import { QueryProvider } from "./Abstracts/QueryProvider.abstract.class.js";
 import { QueryProviderSundaeSwap } from "./QueryProviders/QueryProviderSundaeSwap.js";
 import {
@@ -11,6 +7,11 @@ import {
   TxBuilderV1,
   TxBuilderV3,
 } from "./TxBuilders/index.js";
+
+/**
+ * Union type of all TxBuilder implementations
+ */
+export type TTxBuilder = TxBuilderV1 | TxBuilderV3 | TxBuilderNftCheck;
 
 export const SDK_OPTIONS_DEFAULTS: Pick<
   ISundaeSDKOptions,
@@ -75,6 +76,7 @@ export class SundaeSDK {
    */
   static new(args: ISundaeSDKOptions): SundaeSDK {
     const instance = new this(args);
+
     instance.builders.set(
       EContractVersion.V1,
       new TxBuilderV1(instance.options.blazeInstance),

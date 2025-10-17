@@ -13,4 +13,4 @@ a consistently authorized alternate to cancel the Escrow.
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:90](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L90)
+[packages/core/src/@types/datumbuilder.ts:95](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L95)

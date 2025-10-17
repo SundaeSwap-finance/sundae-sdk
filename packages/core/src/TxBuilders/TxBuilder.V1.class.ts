@@ -9,11 +9,8 @@ import {
 } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { ConstantProductPool } from "@sundaeswap/math";
-
-import {
-  EContractVersion,
-  EDatumType,
-  ESwapType,
+import { EContractVersion, EDatumType, ESwapType } from "../@types/enums.js";
+import type {
   ICancelConfigArgs,
   IComposedTx,
   IDepositConfigArgs,
@@ -41,7 +38,6 @@ import { V1Types } from "../DatumBuilders/ContractTypes/index.js";
 import { DatumBuilderV1 } from "../DatumBuilders/DatumBuilder.V1.class.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
-import { SundaeSDK } from "../SundaeSDK.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
@@ -49,7 +45,8 @@ import {
   CANCEL_REDEEMER,
   ORDER_DEPOSIT_DEFAULT,
 } from "../constants.js";
-import { TxBuilderV3 } from "./TxBuilder.V3.class.js";
+import type { TxBuilderNftCheck } from "./TxBuilder.NftCheck.class.js";
+import type { TxBuilderV3 } from "./TxBuilder.V3.class.js";
 
 /**
  * Object arguments for completing a transaction.
@@ -288,10 +285,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     });
 
     if (swapArgs.orderAddresses.PoolDestinationVersion) {
-      const destinationBuilder = SundaeSDK.new({
-        blazeInstance: this.blaze,
-        customQueryProvider: this.queryProvider,
-      }).builder(
+      const destinationBuilder = await this.getBuilderForVersion(
         swapArgs.orderAddresses.PoolDestinationVersion as EContractVersion,
       );
       scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
@@ -335,10 +329,9 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   async orderRouteSwap(
     args: IOrderRouteSwapArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    const secondBuilder = SundaeSDK.new({
-      blazeInstance: this.blaze,
-      customQueryProvider: this.queryProvider,
-    }).builder(args.swapB.pool.version as EContractVersion);
+    const secondBuilder = await this.getBuilderForVersion(
+      args.swapB.pool.version,
+    );
 
     const secondSwapAddress = await secondBuilder.getOrderScriptAddress(
       args.ownerAddress,
@@ -520,7 +513,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       parse(V3OrderDatum, spendingDatum);
       // eslint-disable-next-line no-console
       console.log("This is a V3 order! Calling appropriate builder...");
-      const v3Builder = new TxBuilderV3(this.blaze);
+      const v3Builder = await this.getBuilderForVersion(EContractVersion.V3);
       return v3Builder.cancel({ ...cancelArgs });
     } catch (e) {}
 
@@ -1052,9 +1045,16 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     let totalDeposit = 0n;
     let totalReferralFees = new Core.Value(0n);
     const metadataDatums = new Core.MetadatumMap();
-    const v3TxBuilderInstance = new TxBuilderV3(this.blaze, this.queryProvider);
+    const v3TxBuilderInstance = await this.getBuilderForVersion(
+      EContractVersion.V3,
+    );
     const v3OrderScriptAddress =
       await v3TxBuilderInstance.generateScriptAddress("order.spend");
+    if (!v3OrderScriptAddress) {
+      throw new Error(
+        "Failed to generate V3 order script address for liquidity migration.",
+      );
+    }
     const v3MaxScooperFee = await v3TxBuilderInstance.getMaxScooperFeeAmount();
     const { compiledCode } = await this.getValidatorScript("escrow.spend");
     const scriptAddress = Core.addressFromValidator(
@@ -1447,6 +1447,45 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
 
   getDatumType(): EDatumType {
     return EDatumType.HASH;
+  }
+
+  /**
+   * Helper method to get a builder instance for a specific contract version.
+   * This allows dynamic builder instantiation for order routing scenarios.
+   *
+   * @param version The contract version to get a builder for
+   * @returns The appropriate builder instance
+   */
+  private getBuilderForVersion(
+    version: EContractVersion.NftCheck,
+  ): Promise<TxBuilderNftCheck>;
+  private getBuilderForVersion(
+    version: EContractVersion.V1,
+  ): Promise<TxBuilderV1>;
+  private getBuilderForVersion(
+    version: EContractVersion.V3,
+  ): Promise<TxBuilderV3>;
+  private getBuilderForVersion(
+    version: EContractVersion,
+  ): Promise<TxBuilderNftCheck | TxBuilderV3 | TxBuilderV1>;
+  private async getBuilderForVersion(
+    version: EContractVersion,
+  ): Promise<TxBuilderV3 | TxBuilderV1 | TxBuilderNftCheck> {
+    switch (version) {
+      case EContractVersion.V1:
+        return new TxBuilderV1(this.blaze);
+      case EContractVersion.V3:
+        return await import("./TxBuilder.V3.class.js").then(
+          (module) => new module.TxBuilderV3(this.blaze, this.queryProvider),
+        );
+      case EContractVersion.NftCheck:
+        return await import("./TxBuilder.NftCheck.class.js").then(
+          (module) =>
+            new module.TxBuilderNftCheck(this.blaze, this.queryProvider),
+        );
+      default:
+        throw new Error(`Unsupported contract version: ${version}`);
+    }
   }
 
   async getMaxScooperFeeAmount(): Promise<bigint> {

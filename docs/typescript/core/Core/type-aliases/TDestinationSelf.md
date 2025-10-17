@@ -16,4 +16,4 @@ The DestinationSelf type describes a "self" destination, reusing the same addres
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:121](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L121)
+[packages/core/src/@types/datumbuilder.ts:118](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L118)

@@ -22,4 +22,4 @@ the remaining asset gets sent to the [TDestinationAddress](TDestinationAddress.m
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:159](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L159)
+[packages/core/src/@types/datumbuilder.ts:156](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L156)

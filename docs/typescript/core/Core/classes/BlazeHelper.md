@@ -47,7 +47,7 @@ Helper function to parse addresses hashes from a Bech32 encoded address.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L30)
+[packages/core/src/Utilities/BlazeHelper.class.ts:29](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L29)
 
 ***
 
@@ -69,7 +69,7 @@ The address type.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L59)
+[packages/core/src/Utilities/BlazeHelper.class.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L58)
 
 ***
 
@@ -91,7 +91,7 @@ The address type.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L46)
+[packages/core/src/Utilities/BlazeHelper.class.ts:45](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L45)
 
 ***
 
@@ -115,7 +115,7 @@ Throws a useful error if the address, network, and instance network are on the w
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:199](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L199)
+[packages/core/src/Utilities/BlazeHelper.class.ts:198](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L198)
 
 ***
 
@@ -137,7 +137,7 @@ A list of values to merge together.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:241](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L241)
+[packages/core/src/Utilities/BlazeHelper.class.ts:240](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L240)
 
 ***
 
@@ -159,7 +159,7 @@ Throws an error describing the address and contextual information.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:226](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L226)
+[packages/core/src/Utilities/BlazeHelper.class.ts:225](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L225)
 
 ***
 
@@ -186,7 +186,7 @@ and that the address is on the correct network.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:111](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L111)
+[packages/core/src/Utilities/BlazeHelper.class.ts:110](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L110)
 
 ***
 
@@ -208,4 +208,4 @@ Validates that an address matches the provided network.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:163](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L163)
+[packages/core/src/Utilities/BlazeHelper.class.ts:162](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L162)

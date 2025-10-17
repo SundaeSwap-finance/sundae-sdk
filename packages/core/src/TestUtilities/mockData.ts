@@ -1,8 +1,8 @@
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
-import { EDatumType, TOrderAddressesArgs } from "../@types/datumbuilder.js";
+import type { TOrderAddressesArgs } from "../@types/datumbuilder.js";
+import { EContractVersion, EDatumType } from "../@types/enums.js";
 import { IPoolData } from "../@types/queryprovider.js";
-import { EContractVersion } from "../@types/txbuilders.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { ADA_METADATA } from "../constants.js";
 

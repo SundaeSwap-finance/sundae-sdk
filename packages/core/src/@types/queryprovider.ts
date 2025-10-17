@@ -3,7 +3,7 @@
  * @module ProviderTypes
  */
 
-import type { EContractVersion } from "./txbuilders";
+import type { EContractVersion } from "./enums.js";
 
 /**
  * Defines the type of pool list to retrieve.

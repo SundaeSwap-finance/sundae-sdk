@@ -24,4 +24,4 @@ Should create a new transaction instance from the supplied transaction library.
 
 #### Defined in
 
-[packages/core/src/Abstracts/TxBuilderAbstract.V3.class.ts:22](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/TxBuilderAbstract.V3.class.ts#L22)
+[packages/core/src/Abstracts/TxBuilderAbstract.V3.class.ts:23](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Abstracts/TxBuilderAbstract.V3.class.ts#L23)

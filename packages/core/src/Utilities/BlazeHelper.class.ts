@@ -1,4 +1,3 @@
-import { type PlutusData } from "@blaze-cardano/core";
 import { parse, Type } from "@blaze-cardano/data";
 import { Core } from "@blaze-cardano/sdk";
 
@@ -142,7 +141,7 @@ export class BlazeHelper {
           Core.DatumHash.fromHexBlob(Core.HexBlob(datum.value));
         } else {
           parse(
-            Type.Unsafe<PlutusData>(Type.Any()),
+            Type.Unsafe<Core.PlutusData>(Type.Any()),
             Core.PlutusData.fromCbor(Core.HexBlob(datum.value)),
           );
         }
