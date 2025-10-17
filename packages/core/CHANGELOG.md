@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.7.0
+
+### Minor Changes
+
+- 412f119: Changes the TxBuilderV3 update method to receive different update configs based on the order type.
+
 ## 2.6.8
 
 ### Patch Changes
