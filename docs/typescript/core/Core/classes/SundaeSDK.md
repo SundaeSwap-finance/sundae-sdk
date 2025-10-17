@@ -31,13 +31,13 @@ sdk.builder().buildSwapTx({ ...args })
 
 ### blaze()
 
-> **blaze**(): `Blaze`\<`Provider`, `Wallet$1`\>
+> **blaze**(): `Blaze`\<`Provider`, `Wallet`\>
 
 Helper method to easily get the SDK's Blaze instance.
 
 #### Returns
 
-`Blaze`\<`Provider`, `Wallet$1`\>
+`Blaze`\<`Provider`, `Wallet`\>
 
 #### Defined in
 

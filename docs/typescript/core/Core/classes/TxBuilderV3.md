@@ -20,7 +20,7 @@ such as swaps, cancellations, updates, deposits, withdrawals, and zaps.
 
 #### Parameters
 
-• **blaze**: `Blaze`\<`Provider`, `Wallet$1`\>
+• **blaze**: `Blaze`\<`Provider`, `Wallet`\>
 
 A configured Blaze instance to use.
 
@@ -44,7 +44,7 @@ A custom query provider if desired.
 
 ### blaze
 
-> **blaze**: `Blaze`\<`Provider`, `Wallet$1`\>
+> **blaze**: `Blaze`\<`Provider`, `Wallet`\>
 
 A configured Blaze instance to use.
 
