@@ -33,7 +33,7 @@
   },
   "scripts": {
     "clean": "rm -rf ./dist",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "compile:esm": "tsc --outDir dist/esm",
     "compile:cjs": "tsc --outDir dist/cjs --module commonjs",
     "compile:types": "tsc --outDir dist/types --emitDeclarationOnly --declarationMap --declaration",

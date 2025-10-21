@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "executor": "@nx/workspace:run-commands",
+      "options": { "command": "bun run build" },
+      "outputs": ["{projectRoot}/dist"],
+      "cache": true
+    },
+    "typecheck": {
+      "executor": "@nx/workspace:run-commands",
+      "options": { "command": "bun typecheck" },
+      "dependsOn": ["^typecheck"]
+    },
+    "docs:ci": {
+      "executor": "@nx/workspace:run-commands",
+      "options": { "command": "bun docs:ci" },
+      "outputs": ["./docs"],
+      "cache": true
+    }
+  }
+}
