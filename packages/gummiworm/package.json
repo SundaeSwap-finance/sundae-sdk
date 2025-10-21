@@ -46,8 +46,8 @@
   "dependencies": {
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
-    "@sundaeswap/asset": "^1.0.11",
+    "@sundaeswap/asset": "catalog:",
     "@sundaeswap/core": "workspace:*",
-    "@blaze-cardano/sdk": "^0.2.43"
+    "@blaze-cardano/sdk": "catalog:"
   }
 }

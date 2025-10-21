@@ -42,7 +42,15 @@
     "docs": "docgen generate --typedoc-options ./typedoc.json",
     "docs:ci": "bun docs --unsafe"
   },
+  "peerDependencies": {
+    "@sundaeswap/fraction": "catalog:",
+    "@sundaeswap/asset": "catalog:",
+    "@sundaeswap/bigint-math": "catalog:"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "catalog:",
+    "@sundaeswap/fraction": "catalog:",
+    "@sundaeswap/asset": "catalog:",
+    "@sundaeswap/bigint-math": "catalog:"
   }
 }

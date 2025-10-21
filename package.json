@@ -3,18 +3,33 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "./packages/*"
+    ],
+    "catalog": {
+      "@blaze-cardano/core": "0.7.0",
+      "@blaze-cardano/sdk": "0.2.43",
+      "@blaze-cardano/data": "0.6.4",
+      "@sundaeswap/asset": "1.0.11",
+      "@sundaeswap/bigint-math": "0.6.3",
+      "@sundaeswap/fraction": "1.0.8",
+      "@blaze-cardano/emulator": "0.3.34",
+      "@types/jest": "^30",
+      "@types/node": "^20",
+      "@types/bun": "1.3.0",
+      "typescript": "^5.7.2"
+    }
+  },
   "scripts": {
     "lint": "eslint --ignore-pattern '**/dist/**'",
     "lint:fix": "bun run lint --fix",
     "prepare": "husky",
-    "typecheck": "lerna run typecheck",
-    "build": "lerna run build",
-    "version:ci": "lerna version -y --ignore-scripts",
-    "publish:ci": "lerna publish from-package -y",
-    "docs": "lerna run docs:ci",
+    "typecheck": "sh ./scripts/typecheck.sh",
+    "build": "sh ./scripts/build.sh",
+    "ci:publish": "sh ./scripts/publish.sh",
+    "ci:canary": "sh ./scripts/canary.sh",
+    "docs": "sh ./scripts/docs.sh",
     "scan-deps": "depcruise packages --progress"
   },
   "engines": {
@@ -40,7 +55,6 @@
     "globals": "^15.15.0",
     "husky": "^9.1.7",
     "jest-fetch-mock": "^3.0.3",
-    "lerna": "^8.2.2",
     "lint-staged": "^15.5.1",
     "log-update": "^6.1.0",
     "prettier": "^3.5.3",

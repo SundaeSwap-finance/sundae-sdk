@@ -45,12 +45,16 @@
     "docs:ci": "bun docs --unsafe"
   },
   "devDependencies": {
-    "@blaze-cardano/emulator": "0.3.34"
-  },
-  "dependencies": {
+    "@blaze-cardano/emulator": "catalog:",
     "@sundaeswap/core": "workspace:*",
-    "@blaze-cardano/sdk": "0.2.43",
-    "@blaze-cardano/data": "0.6.4",
-    "@sundaeswap/asset": "1.0.11"
+    "@blaze-cardano/sdk": "catalog:",
+    "@blaze-cardano/data": "catalog:",
+    "@sundaeswap/asset": "catalog:"
+  },
+  "peerDependencies": {
+    "@sundaeswap/core": "workspace:*",
+    "@blaze-cardano/sdk": "catalog:",
+    "@blaze-cardano/data": "catalog:",
+    "@sundaeswap/asset": "catalog:"
   }
 }
