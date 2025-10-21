@@ -31,7 +31,7 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "clean": "rm -rf ./dist",
     "build:esm": "cross-env BABEL_ENV=esmUnbundled babel src --extensions '.ts,.tsx' --out-dir './dist/esm' --source-maps",
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts,.tsx' --out-dir 'dist/cjs' --source-maps",
@@ -42,10 +42,15 @@
     "docs": "docgen generate --typedoc-options ./typedoc.json",
     "docs:ci": "bun docs --unsafe"
   },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
   "peerDependencies": {
-    "typescript": "^5"
+    "@sundaeswap/fraction": "catalog:",
+    "@sundaeswap/asset": "catalog:",
+    "@sundaeswap/bigint-math": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@sundaeswap/fraction": "catalog:",
+    "@sundaeswap/asset": "catalog:",
+    "@sundaeswap/bigint-math": "catalog:"
   }
 }

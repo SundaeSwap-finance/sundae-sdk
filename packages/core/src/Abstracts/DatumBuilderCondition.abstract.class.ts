@@ -1,5 +1,5 @@
 import { Core } from "@blaze-cardano/sdk";
-import { TConditionDatumArgs } from "../DatumBuilders/DatumBuilder.V3.class.js";
+import { TConditionDatumArgs } from "../@types/datumbuilder.js";
 
 /**
  * Exported primarily for type controls.

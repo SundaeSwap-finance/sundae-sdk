@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Core } from "@blaze-cardano/sdk";
+import { Core, makeValue } from "@blaze-cardano/sdk";
 import { input, search, select } from "@inquirer/prompts";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
@@ -10,10 +10,10 @@ import {
 } from "@sundaeswap/core";
 import path from "path";
 import { fileURLToPath } from "url";
-import packageJson from "../../package.json" assert { type: "json" };
+
+import corePackageJson from "../../../core/package.json" assert { type: "json" };
 import type { State } from "../types.js";
 import { getPoolData, prettyAssetId } from "../utils.js";
-import { makeValue } from "@blaze-cardano/sdk";
 
 const asciify = (await import("asciify-image")).default;
 
@@ -63,7 +63,7 @@ export async function setAsciiLogo(size: number): Promise<void> {
 
 export async function printHeader(state: State): Promise<void> {
   console.clear();
-  const version = packageJson.devDependencies["@sundaeswap/core"];
+  const version = corePackageJson.version;
   const headerText: string[] = [
     "",
     "----------------------",

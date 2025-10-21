@@ -10,4 +10,4 @@ A union to define all possible datum types.
 
 ## Defined in
 
-[packages/core/src/@types/datumbuilder.ts:74](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L74)
+[packages/core/src/@types/datumbuilder.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L79)

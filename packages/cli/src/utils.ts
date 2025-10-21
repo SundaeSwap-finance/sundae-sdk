@@ -3,8 +3,8 @@ import {
   Blaze,
   Blockfrost,
   ColdWallet,
-  HotWallet,
   Core,
+  HotWallet,
   Maestro,
   Wallet,
   type Provider,
@@ -15,10 +15,10 @@ import {
   EContractVersion,
   type IPoolData,
 } from "@sundaeswap/core";
-import type { State } from "./types.js";
-import { setWallet } from "./menus/settings.js";
 import * as crypto from "crypto";
 import { setTimeout } from "timers/promises";
+import { setWallet } from "./menus/settings.js";
+import type { State } from "./types.js";
 
 export async function getWallet(
   state: State,
@@ -135,6 +135,7 @@ export async function getPoolData(
         Core.AssetName(poolNft),
       ),
     );
+
   const datum = builder.datumBuilder.decodeDatum(
     poolUtxo.output().datum()!.asInlineData()!,
   );

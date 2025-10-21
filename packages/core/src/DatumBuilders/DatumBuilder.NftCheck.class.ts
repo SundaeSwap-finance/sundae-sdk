@@ -1,14 +1,15 @@
 import { parse, serialize } from "@blaze-cardano/data";
 import { Core } from "@blaze-cardano/sdk";
-import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
+import { IBaseDatumBuilderNftCheckArgs } from "../@types/datumbuilder.js";
 import { NftCheckTypes } from "./ContractTypes/index.js";
 import { DatumBuilderCondition } from "./DatumBuilder.Condition.class.js";
 
 /**
  * Interface for the arguments required to build a datum for NFT checks.
+ * Extends the base interface with the specific Check type.
  */
-export interface IDatumBuilderNftCheckArgs {
-  value: AssetAmount<IAssetAmountMetadata>[];
+export interface IDatumBuilderNftCheckArgs
+  extends IBaseDatumBuilderNftCheckArgs {
   check: NftCheckTypes.Check;
 }
 

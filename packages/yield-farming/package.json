@@ -33,7 +33,7 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "clean": "rm -rf ./dist",
     "build:esm": "cross-env BABEL_ENV=esmUnbundled babel src --extensions '.ts,.tsx' --out-dir './dist/esm' --source-maps",
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts,.tsx' --out-dir 'dist/cjs' --source-maps",
@@ -45,13 +45,16 @@
     "docs:ci": "bun docs --unsafe"
   },
   "devDependencies": {
-    "@blaze-cardano/emulator": "^0.3.28",
-    "@sundaeswap/core": "workspace:*"
+    "@blaze-cardano/emulator": "catalog:",
+    "@sundaeswap/core": "workspace:*",
+    "@blaze-cardano/sdk": "catalog:",
+    "@blaze-cardano/data": "catalog:",
+    "@sundaeswap/asset": "catalog:"
   },
   "peerDependencies": {
-    "@blaze-cardano/sdk": "^0.2.34",
-    "@blaze-cardano/data": "^0.6.1",
-    "@sundaeswap/asset": "^1.0.11",
-    "@sundaeswap/core": "^2.6.2"
+    "@sundaeswap/core": "workspace:*",
+    "@blaze-cardano/sdk": "catalog:",
+    "@blaze-cardano/data": "catalog:",
+    "@sundaeswap/asset": "catalog:"
   }
 }

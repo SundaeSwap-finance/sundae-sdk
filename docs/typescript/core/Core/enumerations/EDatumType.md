@@ -14,7 +14,7 @@ The Datum type to be passed along with an address.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:34](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L34)
+[packages/core/src/@types/enums.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/enums.ts#L16)
 
 ***
 
@@ -24,7 +24,7 @@ The Datum type to be passed along with an address.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:35](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L35)
+[packages/core/src/@types/enums.ts:17](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/enums.ts#L17)
 
 ***
 
@@ -34,4 +34,4 @@ The Datum type to be passed along with an address.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:36](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L36)
+[packages/core/src/@types/enums.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/enums.ts#L18)

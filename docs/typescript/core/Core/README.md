@@ -40,6 +40,7 @@ SundaeSwap protocol.
 
 - [IArguments](interfaces/IArguments.md)
 - [IBaseConfig](interfaces/IBaseConfig.md)
+- [IBaseDatumBuilderNftCheckArgs](interfaces/IBaseDatumBuilderNftCheckArgs.md)
 - [ICancelConfigArgs](interfaces/ICancelConfigArgs.md)
 - [IComposedTx](interfaces/IComposedTx.md)
 - [ICurrentFeeFromDecayingFeeArgs](interfaces/ICurrentFeeFromDecayingFeeArgs.md)
