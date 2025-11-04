@@ -2,11 +2,18 @@
 import { Core, makeValue } from "@blaze-cardano/sdk";
 import { input, select } from "@inquirer/prompts";
 import type { State } from "../types.js";
-import { cancelSwapMenu, mintPoolMenu, swapMenu } from "./pool.js";
+import {
+  addLiquidityMenu,
+  cancelSwapMenu,
+  mintPoolMenu,
+  removeLiquidityMenu,
+  swapMenu,
+} from "./pool.js";
 import { settingsMenu } from "./settings.js";
 import { getAssetAmount, printHeader } from "./shared.js";
 import { strategyMenu } from "./strategy.js";
 import { transactionDialog } from "./transaction.js";
+import { Hash28ByteBase16 } from "@cardano-sdk/crypto";
 
 export async function mainMenu(state: State): Promise<State> {
   let choice = "";
@@ -18,11 +25,13 @@ export async function mainMenu(state: State): Promise<State> {
         { name: "Mint Pool", value: "mintPool" },
         { name: "Swap", value: "swap" },
         { name: "Strategy", value: "strategy" },
-        { name: "Add/Remove Liquidity", value: "addRemoveLiquidity" },
+        { name: "Add Liquidity", value: "addLiquidity" },
+        { name: "Remove Liquidity", value: "removeLiquidity" },
         { name: "Cancel Swap", value: "cancelSwap" },
         { name: "Settings", value: "settings" },
         { name: "Mint Token", value: "mintToken" },
         { name: "Simple Send", value: "simpleSend" },
+        { name: "Register Stake Key", value: "registerStakeKey" },
         { name: "Exit", value: "exit" },
       ],
     });
@@ -47,6 +56,15 @@ export async function mainMenu(state: State): Promise<State> {
         break;
       case "simpleSend":
         await simpleSend(state);
+        break;
+      case "registerStakeKey":
+        await registerStakeKey(state);
+        break;
+      case "addLiquidity":
+        await addLiquidityMenu(state);
+        break;
+      case "removeLiquidity":
+        await removeLiquidityMenu(state);
         break;
       default:
         console.log("Exiting...");
@@ -118,6 +136,26 @@ export async function simpleSend(state: State): Promise<State> {
     .sdk!.blaze()
     .newTransaction()
     .payAssets(Core.Address.fromBech32(recipient), value)
+    .complete();
+  await transactionDialog(tx.toCbor().toString(), false, state);
+  return state;
+}
+
+export async function registerStakeKey(state: State): Promise<State> {
+  await printHeader(state);
+  console.log("\t==== Register Stake Key ====\n");
+  const stakeHash = await input({
+    message: "Enter stake key hash (in hex)",
+  });
+  const tx = await state
+    .sdk!.blaze()
+    .newTransaction()
+    .addRegisterStake(
+      Core.Credential.fromCore({
+        hash: Hash28ByteBase16(stakeHash),
+        type: Core.CredentialType.ScriptHash,
+      }),
+    )
     .complete();
   await transactionDialog(tx.toCbor().toString(), false, state);
   return state;

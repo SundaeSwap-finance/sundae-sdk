@@ -60,6 +60,34 @@ export class SundaeUtils {
     return poolIdent.length === V3_POOL_IDENT_LENGTH;
   }
 
+  static isAnyLPAsset({
+    assetId,
+    protocols,
+  }: {
+    assetId: string;
+    protocols: ISundaeProtocolParams[];
+  }): boolean {
+    try {
+      const version = SundaeUtils.getPoolVersionFromAssetId(assetId);
+      if (!version) {
+        return false;
+      }
+      if (version === EContractVersion.V3) {
+        return (
+          SundaeUtils.isLPAsset({ assetId, protocols, version }) ||
+          SundaeUtils.isLPAsset({
+            assetId,
+            protocols,
+            version: EContractVersion.Stableswaps,
+          })
+        );
+      }
+      return SundaeUtils.isLPAsset({ assetId, protocols, version });
+    } catch {
+      return false;
+    }
+  }
+
   /**
    * Determines if a given asset is a Liquidity Pool (LP) asset based on its policy ID, associated protocols, and version.
    * This method checks whether the asset's policy ID matches the hash of the 'pool.mint' validator in the specified protocol version.
@@ -506,6 +534,7 @@ export class SundaeUtils {
           false,
         );
       case EContractVersion.Stableswaps:
+        console.log("pooldata: ", poolData);
         return StableSwapsPool.getSwapOutput(
           suppliedAsset.amount,
           inputReserve,

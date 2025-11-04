@@ -156,6 +156,7 @@ export async function getAssetAmount(
   state: State,
   message: string,
   minAmt: bigint,
+  filterFn?: (assetId: string, amount: bigint) => boolean,
 ): Promise<AssetAmount<IAssetAmountMetadata> | undefined> {
   let bal: Core.Value;
   try {
@@ -180,7 +181,10 @@ export async function getAssetAmount(
     choices = [
       ...choices,
       ...[...bal.multiasset()!.entries()] // NOTE: .filter was only added to IterableIterator in ES2025
-        .filter(([_, amt]: [Core.AssetId, bigint]) => {
+        .filter(([id, amt]: [Core.AssetId, bigint]) => {
+          if (filterFn) {
+            return filterFn(id.toString(), amt);
+          }
           return amt! >= minAmt;
         })
         .map(([assetId, amt]: [Core.AssetId, bigint]) => {

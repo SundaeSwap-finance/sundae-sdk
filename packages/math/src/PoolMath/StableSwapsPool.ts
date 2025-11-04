@@ -31,6 +31,7 @@ export function liquidityInvariant(
 
 export const aPrecision = 200n;
 export const reservePrecision = 1_000_000_000_000n;
+export const feePrecision = 10_000n;
 
 export function getSumInvariant(a: bigint, x: bigint, y: bigint): bigint {
   if (a <= 0n) {
@@ -122,7 +123,7 @@ export function getNewY(
  * @returns the minted lp token amount
  */
 export const getFirstLp = (a: bigint, b: bigint, laf: bigint) =>
-  getSumInvariant(laf, a, b);
+  getSumInvariant(laf, a, b) / reservePrecision;
 
 /**
  * Calculate the Add (Mixed-Deposit) Liquidity parameters
@@ -247,24 +248,26 @@ export const getSwapOutput = (
   const combinedFee = fee.add(protocolFee);
   if (combinedFee.gte(Fraction.ONE))
     throw new Error("Combined fee must be less than 1");
-
   const sumInvariant = getSumInvariant(laf, inputReserve, outputReserve);
   const nextInputReserve = inputReserve + input;
   const newY = getNewY(nextInputReserve, laf, sumInvariant);
 
   const deltaYPrec = outputReserve * reservePrecision - newY;
   const deltaY = new Fraction(deltaYPrec, reservePrecision);
-
-  const totalFee = combinedFee.multiply(deltaY);
-  const totalProtocolFee = protocolFee.multiply(deltaY);
-
-  const totalLpFee = totalFee.quotient - totalProtocolFee.quotient;
-
+  const totalFee = combinedFee
+    .multiply(feePrecision)
+    .multiply(deltaY.quotient)
+    .add(Fraction.asFraction(feePrecision - 1n))
+    .divide(feePrecision).quotient;
+  const totalProtocolFee = protocolFee
+    .multiply(totalFee)
+    .divide(combinedFee).quotient;
+  const totalLpFee = totalFee - totalProtocolFee;
   const output = deltaY.subtract(totalFee);
   const safeOutput = roundOutputUp
     ? (output.numerator + output.denominator - 1n) / output.denominator
     : output.quotient;
-  const nextOutputReserve = outputReserve - safeOutput + totalLpFee;
+  const nextOutputReserve = outputReserve - safeOutput - totalProtocolFee;
 
   // PRICEIMPACT: "priceImpact" is slightly misleadingly named in the industry as a whole
   // just by it's name, it would imply that it's the percentage difference between
@@ -279,7 +282,7 @@ export const getSwapOutput = (
     input,
     output: safeOutput,
     outputLpFee: totalLpFee,
-    outputProtocolFee: totalProtocolFee.quotient,
+    outputProtocolFee: totalProtocolFee,
     nextInputReserve,
     nextOutputReserve,
     nextSumInvariant: getSumInvariant(laf, nextInputReserve, nextOutputReserve),
@@ -291,11 +294,108 @@ export function getPrice(
   aReserve: bigint,
   bReserve: bigint,
   laf: bigint,
-  dA: bigint = 100n,
 ): Fraction {
-  dA = aReserve <= dA ? aReserve - 1n : dA;
-  const sumInvariant = getSumInvariant(laf, aReserve, bReserve);
-  const lowY = getNewY(aReserve + dA, laf, sumInvariant);
-  const highY = getNewY(aReserve - dA, laf, sumInvariant);
-  return new Fraction(2n * dA * reservePrecision, highY - lowY);
+  // dx_0 / dx_1 only, however can have any number of coins in pool
+  const ann = laf * 2n * aPrecision;
+  const sumInvariant =
+    getSumInvariant(laf, aReserve, bReserve) / reservePrecision;
+  // D / n^n with n = 2
+  let dR = sumInvariant / 4n;
+  dR = (dR * sumInvariant) / aReserve;
+  dR = (dR * sumInvariant) / bReserve;
+  const xpA = (ann * aReserve) / aPrecision;
+  const p = new Fraction(xpA + (dR * aReserve) / bReserve, xpA + dR);
+  return p;
 }
+
+/**
+ * Calculate input required for a swap outcome for a given output and pool parameters (input tokens, output tokens, fee).
+ * Throws if
+ *  - any of the arguments are negative
+ *  - fee is greater than or equal 1
+ *  - output is greater than or equal to output reserve
+ *
+ * @param output
+ * @param inputReserve
+ * @param outputReserve
+ * @param fee
+ * @param protocolFee The protocol fee
+ * @param laf The linear amplification factor
+ * @returns The swap details
+ */
+export const getSwapInput = (
+  output: bigint,
+  inputReserve: bigint,
+  outputReserve: bigint,
+  fee: TFractionLike,
+  protocolFee: TFractionLike,
+  laf: bigint,
+): TSwapOutcome => {
+  if (output <= 0 || inputReserve <= 0 || outputReserve <= 0)
+    throw new Error("Output and reserves must be positive");
+
+  if (output >= outputReserve)
+    throw new Error("Output must be less than output reserve");
+
+  fee = Fraction.asFraction(fee);
+  if (fee.lt(Fraction.ZERO) || fee.gte(Fraction.ONE))
+    throw new Error("fee must be [0,1)");
+
+  protocolFee = Fraction.asFraction(protocolFee);
+  if (protocolFee.lt(Fraction.ZERO) || protocolFee.gte(Fraction.ONE))
+    throw new Error("protocolFee must be between 0 and 1");
+
+  const combinedFee = fee.add(protocolFee);
+  if (combinedFee.gte(Fraction.ONE))
+    throw new Error("Combined fee must be less than 1");
+
+  // output = rawOutput * (1-fee)
+  // rawOutput = output / (1-fee)
+  const rawOutputF = Fraction.asFraction(output).divide(
+    Fraction.ONE.sub(combinedFee),
+  );
+  const rawOutput =
+    (rawOutputF.numerator + rawOutputF.denominator - 1n) /
+    rawOutputF.denominator;
+  const sumInvariant = getSumInvariant(laf, inputReserve, outputReserve);
+  const newX = getNewY(outputReserve - rawOutput, laf, sumInvariant);
+  const input =
+    (newX - inputReserve * reservePrecision + reservePrecision - 1n) /
+    reservePrecision;
+
+  const totalFee =
+    (combinedFee.multiply(feePrecision).quotient * rawOutput +
+      feePrecision -
+      1n) /
+    feePrecision;
+  const totalProtocolFee = protocolFee
+    .multiply(totalFee)
+    .divide(combinedFee).quotient;
+
+  const totalLpFee = totalFee - totalProtocolFee;
+
+  const nextInputReserve = inputReserve + input;
+  const nextOutputReserve = outputReserve - output - totalProtocolFee;
+
+  // See PRICEIMPACT
+  const idealPrice = getPrice(inputReserve, outputReserve, laf);
+  const actualPrice = new Fraction(input, output);
+  const priceImpact = Fraction.ONE.subtract(idealPrice.divide(actualPrice));
+
+  const nextSumInvariant = getSumInvariant(
+    laf,
+    nextInputReserve,
+    nextOutputReserve,
+  );
+
+  return {
+    input,
+    output,
+    outputLpFee: totalLpFee,
+    outputProtocolFee: totalProtocolFee,
+    nextInputReserve,
+    nextOutputReserve,
+    priceImpact,
+    nextSumInvariant,
+  };
+};

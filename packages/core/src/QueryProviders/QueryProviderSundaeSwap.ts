@@ -3,6 +3,7 @@ import {
   EContractVersion,
   IPoolByAssetQuery,
   IPoolByIdentQuery,
+  IPoolByPairQuery,
   IPoolBySearchTermQuery,
   IPoolData,
   IPoolDataAsset,
@@ -53,6 +54,8 @@ interface IPoolDataQueryResult {
     };
   };
   version: EContractVersion;
+  protocolAskFee: TFee;
+  linearAmplificationFactor: string;
 }
 
 /**
@@ -100,6 +103,137 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     this.poolData.set(ident, poolData);
   }
 
+  async findPoolDataByAssetPair(
+    assetA: string,
+    assetB: string,
+    minimal: boolean = false,
+  ): Promise<IPoolData[]> {
+    const query = minimal
+      ? `
+        query poolByIdent($assetA: ID!, $assetB: ID!) {
+          pools {
+            byPair(assetA: $assetA, assetB: $assetB) {
+              id
+              assetA {
+                assetId: id
+              }
+              assetB {
+                assetId: id
+              }
+              assetLP {
+                assetId: id
+              }
+              finalFee
+              current {
+                quantityA {
+                  quantity
+                }
+                quantityB {
+                  quantity
+                }
+                quantityLP {
+                  quantity
+                }
+              }
+              linearAmplificationFactor
+              protocolAskFee
+              version
+            }
+          }
+        }
+      `
+      : `
+      query poolByIdent($assetA: ID!, $assetB: ID!) {
+        pools {
+          byPair(assetA: $assetA, assetB: $assetB) {
+              feesFinalized {
+                slot
+              }
+              marketOpen {
+                slot
+              }
+              openingFee
+              finalFee
+              id
+              assetA {
+                assetId: id
+                decimals
+              }
+              assetB {
+                assetId: id
+                decimals
+              }
+              assetLP {
+                assetId: id
+                decimals
+              }
+              current {
+                quantityA {
+                  quantity
+                }
+                quantityB {
+                  quantity
+                }
+                quantityLP {
+                  quantity
+                }
+              }
+              linearAmplificationFactor
+              protocolAskFee
+              version
+            }
+          }
+        }
+      `;
+    const res: { data?: { pools: { byPair: IPoolDataQueryResult[] } } } =
+      await (
+        await fetch(this.baseUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query,
+            variables: { assetA: assetA, assetB: assetB },
+          }),
+        })
+      ).json();
+
+    if (!res?.data) {
+      throw new Error(
+        `Something went wrong when trying to fetch pool data. Full response: ${JSON.stringify(
+          res,
+        )}`,
+      );
+    }
+
+    const pools = res.data.pools.byPair;
+
+    return pools.map((pool) => {
+      return {
+        assetA: pool.assetA,
+        assetB: pool.assetB,
+        assetLP: pool.assetLP,
+        currentFee: minimal
+          ? new Fraction(...pool.finalFee).toNumber()
+          : SundaeUtils.getCurrentFeeFromDecayingFee({
+              endFee: pool.finalFee,
+              endSlot: pool.feesFinalized.slot,
+              startFee: pool.openingFee,
+              startSlot: pool.marketOpen.slot,
+              network: this.network,
+            }),
+        ident: pool.id,
+        liquidity: {
+          aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
+          bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
+          lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+        },
+        linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
+        protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
+        version: pool.version,
+      };
+    });
+  }
+
   async findPoolDataByAssetId(
     assetId: string,
     minimal: boolean = false,
@@ -131,6 +265,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                   quantity
                 }
               }
+              linearAmplificationFactor
+              protocolAskFee
               version
             }
           }
@@ -172,6 +308,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                   quantity
                 }
               }
+              linearAmplificationFactor
+              protocolAskFee
               version
             }
           }
@@ -219,6 +357,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
           lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
         },
+        linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
+        protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
         version: pool.version,
       };
     });
@@ -255,6 +395,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                   quantity
                 }
               }
+              linearAmplificationFactor
+              protocolAskFee
               version
             }
           }
@@ -296,6 +438,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                   quantity
                 }
               }
+              linearAmplificationFactor
+              protocolAskFee
               version
             }
           }
@@ -343,6 +487,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
           lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
         },
+        linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
+        protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
         version: pool.version,
       };
     });
@@ -350,15 +496,23 @@ export class QueryProviderSundaeSwap implements QueryProvider {
 
   async findPoolData(identArgs: IPoolByIdentQuery): Promise<IPoolData>;
   async findPoolData(assetArgs: IPoolByAssetQuery): Promise<IPoolData[]>;
+  async findPoolData(assetPairArgs: IPoolByPairQuery): Promise<IPoolData[]>;
   async findPoolData(searchArgs: IPoolBySearchTermQuery): Promise<IPoolData[]>;
   async findPoolData(
-    args: IPoolByIdentQuery | IPoolByAssetQuery | IPoolBySearchTermQuery,
+    args:
+      | IPoolByIdentQuery
+      | IPoolByAssetQuery
+      | IPoolBySearchTermQuery
+      | IPoolByPairQuery,
   ): Promise<IPoolData | IPoolData[]> {
     if ("search" in args) {
       return this.findPoolDataBySearchTerm(args.search, args.minimal);
     }
     if ("assetId" in args) {
       return this.findPoolDataByAssetId(args.assetId, args.minimal);
+    }
+    if ("pair" in args) {
+      return this.findPoolDataByAssetPair(args.pair[0], args.pair[1], false);
     }
     return this.findPoolDataByIdent(args);
   }
@@ -408,6 +562,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                     quantity
                   }
                 }
+                linearAmplificationFactor
+                protocolAskFee
                 version
               }
             }
@@ -444,6 +600,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
         lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
       },
+      linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
+      protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
       version: pool.version,
     };
   }

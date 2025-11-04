@@ -47,4 +47,4 @@ The swap details
 
 ## Defined in
 
-[StableSwapsPool.ts:227](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L227)
+[StableSwapsPool.ts:228](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L228)

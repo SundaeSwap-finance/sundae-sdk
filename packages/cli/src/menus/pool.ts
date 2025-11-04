@@ -13,11 +13,18 @@ import {
   type IPoolByAssetQuery,
   type IPoolData,
   type ISwapConfigArgs,
+  type IDepositConfigArgs,
+  type IPoolByPairQuery,
+  SundaeUtils,
+  QueryProviderSundaeSwap,
+  type IPoolByIdentQuery,
+  type IWithdrawConfigArgs,
 } from "@sundaeswap/core";
 import type { State } from "../types";
 import { getPoolData, prettyAssetId } from "../utils.js";
 import { ensureDeployment, getAssetAmount, printHeader } from "./shared.js";
 import { transactionDialog } from "./transaction.js";
+import { StableSwapsPool } from "@sundaeswap/math";
 
 export async function swapMenu(state: State): Promise<State> {
   await printHeader(state);
@@ -32,7 +39,13 @@ export async function swapMenu(state: State): Promise<State> {
   } as IPoolByAssetQuery)) as IPoolData[];
   let choices = pools!.map((pool) => {
     const price =
-      Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
+      pool.version === "Stableswaps"
+        ? StableSwapsPool.getPrice(
+            pool.liquidity.aReserve,
+            pool.liquidity.bReserve,
+            pool.linearAmplificationFactor!,
+          ).toNumber()
+        : Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
     return {
       name: `${prettyAssetId(pool.assetA.assetId.toString())} / ${prettyAssetId(
         pool.assetB.assetId.toString(),
@@ -83,7 +96,128 @@ export async function swapMenu(state: State): Promise<State> {
     },
     swapType: { type: ESwapType.MARKET, slippage: Number(await getSlippage()) },
   };
+  await ensureDeployment("order.spend", builder, state);
   const tx = await builder.swap(swapArgs);
+  await transactionDialog((await tx.build()).cbor, false, state);
+  return state;
+}
+
+export async function removeLiquidityMenu(state: State): Promise<State> {
+  await printHeader(state);
+  console.log("\t==== Remove Liquidity ====\n");
+  const protocols = await (
+    state.sdk!.queryProvider as QueryProviderSundaeSwap
+  ).getProtocolParamsWithScriptHashes(undefined);
+  const lpAsset = await getAssetAmount(
+    state,
+    "Select the liquidity you want to remove",
+    0n,
+    (assetId: string, _: bigint) => {
+      return SundaeUtils.isAnyLPAsset({
+        assetId: assetId,
+        protocols: protocols,
+      });
+    },
+  );
+  const pool = (await state.sdk!.queryProvider.findPoolData({
+    ident: SundaeUtils.getIdentFromAssetId(lpAsset!.id),
+  } as IPoolByIdentQuery)) as IPoolData;
+  if (!pool) {
+    console.log("Pool not found");
+    return state;
+  }
+  const builder = state.sdk!.builders.get(pool.version)!;
+  const withdrawArgs: IWithdrawConfigArgs = {
+    suppliedLPAsset: lpAsset!,
+    orderAddresses: {
+      DestinationAddress: {
+        address: state.settings.address!,
+        datum: { type: EDatumType.NONE },
+      },
+    },
+  };
+  await ensureDeployment("order.spend", builder, state);
+  const tx = await builder.withdraw(withdrawArgs);
+  await transactionDialog((await tx.build()).cbor, false, state);
+  return state;
+}
+
+export async function addLiquidityMenu(state: State): Promise<State> {
+  await printHeader(state);
+  console.log("\t==== Add Liquidity ====\n");
+  const asset1 = await getAssetAmount(
+    state,
+    "Select the first half of the pair you want to add liquidity",
+    0n,
+  );
+  const asset2 = await getAssetAmount(
+    state,
+    "Select the second half of the pair you want to add liquidity",
+    0n,
+  );
+  const pools = (await state.sdk!.queryProvider.findPoolData({
+    pair: [asset1!.id, asset2!.id],
+  } as IPoolByPairQuery)) as IPoolData[];
+  let choices = pools!.map((pool) => {
+    const price =
+      pool.version === "Stableswaps"
+        ? StableSwapsPool.getPrice(
+            pool.liquidity.aReserve,
+            pool.liquidity.bReserve,
+            pool.linearAmplificationFactor!,
+          ).toNumber()
+        : Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
+    return {
+      name: `${prettyAssetId(pool.assetA.assetId.toString())} / ${prettyAssetId(
+        pool.assetB.assetId.toString(),
+      )} (p: ${price.toFixed(
+        6,
+      )}, l: (${pool.liquidity.aReserve.toString()} / ${pool.liquidity.bReserve.toString()}), id: ${
+        pool.ident
+      })`,
+      value: pool.ident,
+    };
+  });
+  choices = [{ name: "Enter pool ident manually", value: "manual" }].concat(
+    choices,
+  );
+  let choice = await select({ message: "Select pool", choices: choices });
+  let pool: IPoolData;
+  if (choice === "manual") {
+    const ident = await input({ message: "Enter pool ident" });
+    choice = ident;
+    const version = await select({
+      message: "What version is this pool?",
+      choices: [
+        { name: "V3", value: EContractVersion.V3 },
+        { name: "V1", value: EContractVersion.V1 },
+        { name: "Condition", value: EContractVersion.Condition },
+        { name: "NftCheck", value: EContractVersion.NftCheck },
+      ],
+    });
+    pool = await getPoolData(state, ident, version);
+  } else {
+    pool = (await state.sdk!.queryProvider.findPoolData({
+      ident: choice,
+    })) as IPoolData;
+  }
+  if (!pool) {
+    console.log("Pool not found");
+    return state;
+  }
+  const builder = state.sdk!.builders.get(pool.version)!;
+  const depositArgs: IDepositConfigArgs = {
+    suppliedAssets: [asset1!, asset2!],
+    pool: pool,
+    orderAddresses: {
+      DestinationAddress: {
+        address: state.settings.address!,
+        datum: { type: EDatumType.NONE },
+      },
+    },
+  };
+  await ensureDeployment("order.spend", builder, state);
+  const tx = await builder.deposit(depositArgs);
   await transactionDialog((await tx.build()).cbor, false, state);
   return state;
 }
@@ -153,6 +287,7 @@ export async function mintPoolMenu(state: State): Promise<State> {
       )! as TxBuilderStableswaps;
       await ensureDeployment("pool.spend", stableSwapBuilder, state);
       const argsStable = await mintStablePoolArgs(state);
+      console.log(argsStable);
       stableSwapBuilder.enableTracing(true);
       const txStable = (await stableSwapBuilder.mintPool(argsStable)).build();
       await transactionDialog((await txStable).cbor, false, state);
@@ -180,7 +315,6 @@ async function mintStablePoolArgs(state: State): Promise<IMintPoolConfigArgs> {
   });
   return {
     ...v3Args,
-    protocolFees: await getFeeChoice(),
     linearAmplification: BigInt(linearAmplification),
   } as IMintPoolConfigArgs;
 }

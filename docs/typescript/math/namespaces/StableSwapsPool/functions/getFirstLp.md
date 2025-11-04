@@ -28,4 +28,4 @@ the minted lp token amount
 
 ## Defined in
 
-[StableSwapsPool.ts:124](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L124)
+[StableSwapsPool.ts:125](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L125)

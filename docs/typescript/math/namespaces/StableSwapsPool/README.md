@@ -14,5 +14,6 @@
 
 - [calculateLiquidity](functions/calculateLiquidity.md)
 - [getFirstLp](functions/getFirstLp.md)
+- [getSwapInput](functions/getSwapInput.md)
 - [getSwapOutput](functions/getSwapOutput.md)
 - [getTokensForLp](functions/getTokensForLp.md)

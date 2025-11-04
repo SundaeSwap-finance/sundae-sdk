@@ -2,6 +2,7 @@ import {
   getNewY,
   getPrice,
   getSumInvariant,
+  getSwapInput,
   getSwapOutput,
   liquidityInvariant,
   reservePrecision,
@@ -175,7 +176,7 @@ describe("getSwapOutput()", () => {
       out: 1n,
       outReserve: [3n, 2n],
       lpFee: 0n,
-      impact: new Fraction(13n, 40000n),
+      impact: new Fraction(249n, 1000000n),
     },
     {
       id: 3,
@@ -185,7 +186,7 @@ describe("getSwapOutput()", () => {
       out: 2n,
       outReserve: [102n, 1n],
       lpFee: 0n,
-      impact: new Fraction(490003n, 500000n),
+      impact: new Fraction(245001n, 250000n),
     },
     {
       id: 4,
@@ -195,7 +196,7 @@ describe("getSwapOutput()", () => {
       out: 99n,
       outReserve: [102n, 1n],
       lpFee: 0n,
-      impact: new Fraction(184251n, 1000000n),
+      impact: new Fraction(244453n, 1000000n),
     },
     {
       id: 5,
@@ -205,7 +206,7 @@ describe("getSwapOutput()", () => {
       out: 98n,
       outReserve: [200n, 2n],
       lpFee: 0n,
-      impact: new Fraction(6601n, 250000n),
+      impact: new Fraction(1n, 50n),
     },
     {
       id: 6,
@@ -215,9 +216,8 @@ describe("getSwapOutput()", () => {
       out: 49n,
       outReserve: [150n, 51n],
       lpFee: 0n,
-      impact: new Fraction(6601n, 250000n),
+      impact: new Fraction(1n, 50n),
     },
-
     // Simple boundary cases
     {
       id: 7,
@@ -236,8 +236,8 @@ describe("getSwapOutput()", () => {
       fee: zeroThreePct,
       out: 0n,
       outReserve: [3n, 3n],
-      lpFee: 0n,
-      impact: new Fraction(13n, 40000n),
+      lpFee: 1n,
+      impact: new Fraction(249n, 1000000n),
     },
     {
       id: 9,
@@ -246,28 +246,28 @@ describe("getSwapOutput()", () => {
       fee: zeroThreePct,
       out: 0n,
       outReserve: [3n, 6n],
-      lpFee: 0n,
-      impact: new Fraction(19n, 15625n),
+      lpFee: 1n,
+      impact: new Fraction(499n, 1000000n),
     },
     {
       id: 10,
       input: 100n,
       inReserve: [2n, 3n],
       fee: zeroThreePct,
-      out: 2n,
-      outReserve: [102n, 1n],
-      lpFee: 0n,
-      impact: new Fraction(490003n, 500000n),
+      out: 1n,
+      outReserve: [102n, 2n],
+      lpFee: 1n,
+      impact: new Fraction(495001n, 500000n),
     },
     {
       id: 11,
       input: 200n,
       inReserve: [2n, 200n],
       fee: zeroThreePct,
-      out: 197n,
-      outReserve: [202n, 4n],
+      out: 196n,
+      outReserve: [202n, 3n],
       lpFee: 1n,
-      impact: new Fraction(460627n, 1000000n),
+      impact: new Fraction(559n, 1000n),
     },
     {
       id: 12,
@@ -276,18 +276,18 @@ describe("getSwapOutput()", () => {
       fee: zeroThreePct,
       out: 97n,
       outReserve: [200n, 3n],
-      lpFee: 0n,
-      impact: new Fraction(36339n, 1000000n),
+      lpFee: 1n,
+      impact: new Fraction(3n, 100n),
     },
     {
       id: 13,
       input: 50n,
       inReserve: [100n, 100n],
       fee: zeroThreePct,
-      out: 49n,
-      outReserve: [150n, 51n],
-      lpFee: 0n,
-      impact: new Fraction(6601n, 250000n),
+      out: 48n,
+      outReserve: [150n, 52n],
+      lpFee: 1n,
+      impact: new Fraction(1n, 25n),
     },
 
     // Real world examples
@@ -296,20 +296,20 @@ describe("getSwapOutput()", () => {
       input: 1291591603n,
       inReserve: [5753371381n, 672426600000n],
       fee: onePct,
-      out: 2139306698n,
-      outReserve: [7044962984n, 670309122962n],
-      lpFee: 21829660n,
-      impact: new Fraction(101761n, 1000000n),
+      out: 2139306697n,
+      outReserve: [7044962984n, 670265463643n],
+      lpFee: 21829661n,
+      impact: new Fraction(380983n, 1000000n),
     },
     {
       id: 15,
       input: 1000000n,
       inReserve: [3696260028076n, 77871393827281n],
       fee: zeroThreePct,
-      out: 1024032n,
-      outReserve: [3696261028076n, 77871392806340n],
+      out: 1024031n,
+      outReserve: [3696261028076n, 77871392800159n],
       lpFee: 3091n,
-      impact: new Fraction(3n, 500n),
+      impact: new Fraction(34239n, 1000000n),
     },
   ] as {
     input: bigint;
@@ -330,9 +330,189 @@ describe("getSwapOutput()", () => {
       expect(actual.nextInputReserve).toBe(input + inReserve[0]);
       expect(actual.nextOutputReserve).toBe(outReserve[1]);
       expect(
-        actual.nextOutputReserve + actual.output - actual.outputLpFee,
+        actual.nextOutputReserve + actual.output + actual.outputProtocolFee,
       ).toBe(inReserve[1]);
       expect(actual.priceImpact.toPrecision(6)).toStrictEqual(impact);
+    },
+  );
+});
+
+describe("getSwapInput", () => {
+  const fivePct = new Fraction(5, 100);
+  const threePct = new Fraction(3, 100);
+  const onePct = new Fraction(1, 100);
+  const zeroPct = Fraction.ZERO;
+
+  test("throws if any of the arguments are negative", () => {
+    expect(() =>
+      getSwapInput(-1n, 10n, 10n, Fraction.ZERO, Fraction.ZERO, 1000n),
+    ).toThrow();
+    expect(() =>
+      getSwapInput(1n, -10n, 10n, Fraction.ZERO, Fraction.ZERO, 1000n),
+    ).toThrow();
+    expect(() =>
+      getSwapInput(1n, 10n, -10n, Fraction.ZERO, Fraction.ZERO, 1000n),
+    ).toThrow();
+    expect(() =>
+      getSwapInput(
+        1n,
+        10n,
+        10n,
+        Fraction.asFraction(-0.1),
+        Fraction.ZERO,
+        1000n,
+      ),
+    ).toThrow();
+  });
+
+  test("throws if fee is greater than or equal 1", () => {
+    expect(() =>
+      getSwapInput(1n, 10n, 10n, Fraction.asFraction(1), Fraction.ZERO, 1000n),
+    ).toThrow();
+    expect(() =>
+      getSwapInput(
+        1n,
+        10n,
+        10n,
+        Fraction.asFraction(1.132),
+        Fraction.ZERO,
+        1000n,
+      ),
+    ).toThrow();
+  });
+
+  test("throws if output is greater than or equal to output reserve", () => {
+    expect(() =>
+      getSwapInput(
+        10n,
+        10n,
+        10n,
+        Fraction.asFraction(0.1),
+        Fraction.ZERO,
+        1000n,
+      ),
+    ).toThrow();
+    expect(() =>
+      getSwapInput(1n, 1n, 1n, Fraction.asFraction(0.1), Fraction.ZERO, 1000n),
+    ).toThrow();
+    expect(() =>
+      getSwapInput(10n, 1n, 1n, Fraction.asFraction(0.1), Fraction.ZERO, 1000n),
+    ).toThrow();
+  });
+
+  test.each([
+    // Ideal 0% fee pool
+    {
+      input: 1n,
+      reserves: [1n, 2n],
+      fee: zeroPct,
+      impact: new Fraction(0n, 2000n),
+    },
+    {
+      input: 100n,
+      reserves: [1n, 2n],
+      fee: zeroPct,
+      impact: new Fraction(0n, 2000n),
+    },
+    {
+      input: 100n,
+      reserves: [1n, 100n],
+      fee: zeroPct,
+      impact: new Fraction(245025n, 445500n),
+    },
+    {
+      input: 100n,
+      reserves: [100n, 100n],
+      fee: zeroPct,
+      impact: new Fraction(400400n, 20020000n),
+    },
+    {
+      input: 50n,
+      reserves: [100n, 100n],
+      fee: zeroPct,
+      impact: new Fraction(200200n, 10010000n),
+    },
+
+    // Simple boundary cases
+    {
+      input: 10n,
+      reserves: [10n, 30n],
+      fee: threePct,
+      impact: new Fraction(20315n, 200450n),
+    },
+    {
+      input: 100n,
+      reserves: [1n, 100n],
+      fee: threePct,
+      impact: new Fraction(251100n, 445500n),
+    },
+    {
+      input: 100n,
+      reserves: [100n, 100n],
+      fee: threePct,
+      impact: new Fraction(1001000n, 20020000n),
+    },
+    {
+      input: 50n,
+      reserves: [100n, 100n],
+      fee: threePct,
+      impact: new Fraction(600600n, 10010000n),
+    },
+
+    // // Real world examples
+    {
+      input: 5n,
+      reserves: [84159832107n, 123172010729n],
+      fee: fivePct,
+      impact: new Fraction(168806906319235n, 842673001141955n),
+    },
+    {
+      input: 100n,
+      reserves: [84159832107n, 123172010729n],
+      fee: fivePct,
+      impact: new Fraction(849140270799500n, 16853460022839100n),
+    },
+    {
+      input: 1291591603n,
+      reserves: [5753371381n, 672426600000n],
+      fee: onePct,
+      impact: new Fraction(15118057654414078594677n, 40350603201831427592080n),
+    },
+  ] as {
+    input: bigint;
+    reserves: TPair;
+    fee: TFractionLike;
+    impact: Fraction;
+  }[])(
+    "gets the correct swap input, given different swap outputs (%#)",
+    ({ input, reserves, fee, impact }) => {
+      const outcome = getSwapOutput(
+        input,
+        ...reserves,
+        fee,
+        Fraction.ZERO,
+        1000n,
+      );
+      const actual = getSwapInput(
+        outcome.output,
+        ...reserves,
+        fee,
+        Fraction.ZERO,
+        1000n,
+      );
+      const outcomeForActual = getSwapOutput(
+        actual.input,
+        ...reserves,
+        fee,
+        Fraction.ZERO,
+        1000n,
+      );
+      expect(outcome.output).toBe(outcomeForActual.output);
+      expect(actual.outputLpFee).toBe(outcomeForActual.outputLpFee);
+      expect(actual.nextInputReserve).toBe(outcomeForActual.nextInputReserve);
+      expect(actual.nextOutputReserve).toBe(outcomeForActual.nextOutputReserve);
+      expect(actual.priceImpact).toEqual(outcomeForActual.priceImpact);
+      expect(actual.priceImpact).toStrictEqual(impact);
     },
   );
 });

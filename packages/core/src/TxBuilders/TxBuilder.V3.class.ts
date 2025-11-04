@@ -353,6 +353,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       feeManager,
       condition,
       conditionDatumArgs,
+      protocolFees,
+      linearAmplification,
+      linearAmplificationManager,
     } = new MintPoolConfig({
       ...args,
       version: this.contractVersion,
@@ -435,6 +438,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       feeManager,
       condition,
       conditionDatumArgs,
+      protocolFees,
+      linearAmplification,
+      linearAmplificationManager,
     });
 
     const { inline: mintRedeemerDatum } =

@@ -19,8 +19,8 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
   feeManager?: string;
   condition?: string;
   conditionDatumArgs?: TConditionDatumArgs;
-  linearAmplificationFactor?: bigint;
-  linearAmplificationFactorManager?: string;
+  linearAmplification?: bigint;
+  linearAmplificationManager?: string;
   protocolFees?: IFeesConfig;
   version?: EContractVersion;
 
@@ -40,8 +40,8 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
     feeManager,
     condition,
     conditionDatumArgs,
-    linearAmplificationFactor,
-    linearAmplificationFactorManager,
+    linearAmplification,
+    linearAmplificationManager,
     protocolFees,
     version,
   }: IMintPoolConfigArgs & { version: EContractVersion }): void {
@@ -56,13 +56,14 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
     this.setCondition(condition);
     this.setConditionDatumArgs(conditionDatumArgs);
     this.setVersion(version);
-    this.setLinearAmplificationFactor(linearAmplificationFactor);
-    this.setLinearAmplificationFactorManager(linearAmplificationFactorManager);
+    this.setLinearAmplification(linearAmplification);
+    this.setLinearAmplificationManager(linearAmplificationManager);
     this.setProtocolFees(protocolFees);
   }
 
-  buildArgs(): Omit<IMintPoolConfigArgs, "fees"> & {
+  buildArgs(): Omit<IMintPoolConfigArgs, "fees" | "protocolFees"> & {
     fees: IFeesConfig;
+    protocolFees?: IFeesConfig;
   } {
     this.validate();
     return {
@@ -76,8 +77,8 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
       feeManager: this.feeManager,
       condition: this.condition,
       conditionDatumArgs: this.conditionDatumArgs,
-      linearAmplificationFactor: this.linearAmplificationFactor,
-      linearAmplificationFactorManager: this.linearAmplificationFactorManager,
+      linearAmplification: this.linearAmplification,
+      linearAmplificationManager: this.linearAmplificationManager,
       protocolFees: this.protocolFees,
     };
   }
@@ -87,13 +88,13 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
     return this;
   }
 
-  setLinearAmplificationFactor(laf?: bigint) {
-    this.linearAmplificationFactor = laf;
+  setLinearAmplification(laf?: bigint) {
+    this.linearAmplification = laf;
     return this;
   }
 
-  setLinearAmplificationFactorManager(lafm?: string) {
-    this.linearAmplificationFactorManager = lafm;
+  setLinearAmplificationManager(lafm?: string) {
+    this.linearAmplificationManager = lafm;
     return this;
   }
 
@@ -219,10 +220,10 @@ export class MintPoolConfig extends Config<IMintPoolConfigArgs> {
           `ProtocolFees cannot supersede the max fee of ${MintPoolConfig.MAX_FEE}.`,
         );
       }
-      if (!this.linearAmplificationFactor) {
+      if (!this.linearAmplification) {
         throw new Error(`LinearAmplificationFactor needs to be set.`);
       }
-      if (this.linearAmplificationFactor < 1n) {
+      if (this.linearAmplification < 1n) {
         throw new Error(
           `LinearAmplificationFactor set too low, needs to be 1 or higher.`,
         );

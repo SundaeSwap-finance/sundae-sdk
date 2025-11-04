@@ -501,10 +501,16 @@ const Contracts = Type.Module({
       simpleFee: Type.BigInt(),
       strategyFee: Type.BigInt(),
       poolCreationFee: Type.BigInt(),
-      extensions: Type.Unsafe<PlutusData>(Type.Any()),
+      extensions: Type.Record(
+        Type.Number(),
+        Type.Unsafe<PlutusData>(Type.Any()),
+      ),
     },
     { ctor: 0n },
   ),
+  ProtocolFeeBasisPointsExtension: Type.Object({
+    protocol_fee_basis_points: Type.Tuple([Type.BigInt(), Type.BigInt()]),
+  }),
   SettingsRedeemer: Type.Union([
     Type.Literal("SettingsAdminUpdate", { ctor: 0n }),
     Type.Literal("TreasuryAdminUpdate", { ctor: 1n }),
@@ -572,6 +578,12 @@ export const StablePoolDatum = Contracts.Import("StablePoolDatum");
 export type StablePoolDatum = Exact<typeof StablePoolDatum>;
 export const SettingsDatum = Contracts.Import("SettingsDatum");
 export type SettingsDatum = Exact<typeof SettingsDatum>;
+export const ProtocolFeeBasisPointsExtension = Contracts.Import(
+  "ProtocolFeeBasisPointsExtension",
+);
+export type ProtocolFeeBasisPointsExtension = Exact<
+  typeof ProtocolFeeBasisPointsExtension
+>;
 export const SettingsRedeemer = Contracts.Import("SettingsRedeemer");
 export type SettingsRedeemer = Exact<typeof SettingsRedeemer>;
 

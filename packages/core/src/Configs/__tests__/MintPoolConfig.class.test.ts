@@ -99,7 +99,7 @@ describe("MintV3PoolConfig class", () => {
     expect(() =>
       new MintPoolConfig({
         ...defaultArgs,
-        linearAmplificationFactor: 100n,
+        linearAmplification: 100n,
         version: EContractVersion.Stableswaps,
       }).buildArgs(),
     ).toThrowError(`ProtocolFees needs to be set for stableswaps pools.`);
@@ -120,7 +120,7 @@ describe("MintV3PoolConfig class", () => {
       new MintPoolConfig({
         ...defaultArgs,
         protocolFees: 100n,
-        linearAmplificationFactor: -100n,
+        linearAmplification: -100n,
         version: EContractVersion.Stableswaps,
       }).buildArgs(),
     ).toThrowError(

@@ -1,5 +1,4 @@
-import { serialize } from "@blaze-cardano/data";
-import { sqrt } from "@sundaeswap/bigint-math";
+import { parse, serialize } from "@blaze-cardano/data";
 import { TDatumResult } from "../@types/datumbuilder.js";
 import { StableswapsTypes } from "./ContractTypes/index.js";
 import {
@@ -8,6 +7,7 @@ import {
 } from "./DatumBuilder.V3.class.js";
 import { IFeesConfig } from "../@types/configs.js";
 import { StableSwapsPool } from "@sundaeswap/math";
+import { Core } from "@blaze-cardano/sdk";
 
 export interface IDatumBuilderMintStablePoolArgs
   extends IDatumBuilderMintPoolArgs {
@@ -29,7 +29,6 @@ export class DatumBuilderStableswaps extends DatumBuilderV3 {
     linearAmplificationManager,
   }: IDatumBuilderMintStablePoolArgs): TDatumResult<StableswapsTypes.StablePoolDatum> {
     const ident = DatumBuilderV3.computePoolId(seedUtxo);
-    const liquidity = sqrt(assetA.amount * assetB.amount);
 
     const assetsPair = this.buildLexicographicalAssetsDatum(
       assetA,
@@ -47,6 +46,8 @@ export class DatumBuilderStableswaps extends DatumBuilderV3 {
       assetA.amount,
       assetB.amount,
     );
+
+    const liquidity = sumInvariant / StableSwapsPool.reservePrecision;
 
     const newPoolDatum: StableswapsTypes.StablePoolDatum = {
       assets: assetsPair,
@@ -68,6 +69,29 @@ export class DatumBuilderStableswaps extends DatumBuilderV3 {
       hash: data.hash(),
       inline: data.toCbor(),
       schema: newPoolDatum,
+    };
+  }
+
+  public protocolFeesFromSettingsDatum(settingsDatum: string): IFeesConfig {
+    const parsedDatum = parse(
+      StableswapsTypes.SettingsDatum,
+      Core.PlutusData.fromCbor(Core.HexBlob(settingsDatum)),
+    );
+
+    const protocolExtension = parsedDatum.extensions[0];
+    if (!protocolExtension) {
+      throw new Error("No protocol extension found in settings datum");
+    }
+    const protocolFees = parse(
+      StableswapsTypes.ProtocolFeeBasisPointsExtension,
+      protocolExtension,
+    );
+    if (!protocolFees) {
+      throw new Error("Could not parse protocol fees in settings datum");
+    }
+    return {
+      bid: protocolFees.protocol_fee_basis_points[0],
+      ask: protocolFees.protocol_fee_basis_points[1],
     };
   }
 }

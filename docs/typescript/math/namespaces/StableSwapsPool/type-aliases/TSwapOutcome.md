@@ -44,4 +44,4 @@ Holds the calculated outcome of a swap
 
 ## Defined in
 
-[StableSwapsPool.ts:202](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L202)
+[StableSwapsPool.ts:203](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L203)

@@ -83,4 +83,4 @@ If either of the deposit amounts is zero.
 
 ## Defined in
 
-[StableSwapsPool.ts:145](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L145)
+[StableSwapsPool.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L146)
