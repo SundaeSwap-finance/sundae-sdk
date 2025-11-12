@@ -24,7 +24,7 @@ jobs:
       - uses: oven-sh/setup-bun@v1
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
 
       # Install dependencies
       - name: Install
@@ -46,7 +46,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   # Deploy Documentation
   docs:

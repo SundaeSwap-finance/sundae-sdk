@@ -1,5 +1,19 @@
 # Change Log
 
+## 2.7.0
+
+### Minor Changes
+
+- 412f119: Changes the TxBuilderV3 update method to receive different update configs based on the order type.
+
+## 2.6.8
+
+### Patch Changes
+
+- 637dd97: Publishes a new math library for calculations, and updates core to use it.
+- Updated dependencies [637dd97]
+  - @sundaeswap/math@0.0.2
+
 ## 2.6.7
 
 ### Patch Changes
