@@ -534,7 +534,6 @@ export class SundaeUtils {
           false,
         );
       case EContractVersion.Stableswaps:
-        console.log("pooldata: ", poolData);
         return StableSwapsPool.getSwapOutput(
           suppliedAsset.amount,
           inputReserve,
