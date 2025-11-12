@@ -83,7 +83,7 @@ export function getNewY(
 ): bigint {
   newX = newX * reservePrecision;
   const sum = newX;
-  let yPrev = 0n;
+  let yPrev: bigint;
   let c = sumInvariant;
   const ann = aRaw * aPrecision * 2n;
 

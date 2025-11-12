@@ -181,11 +181,10 @@ export async function addLiquidityMenu(state: State): Promise<State> {
   choices = [{ name: "Enter pool ident manually", value: "manual" }].concat(
     choices,
   );
-  let choice = await select({ message: "Select pool", choices: choices });
+  const choice = await select({ message: "Select pool", choices: choices });
   let pool: IPoolData;
   if (choice === "manual") {
     const ident = await input({ message: "Enter pool ident" });
-    choice = ident;
     const version = await select({
       message: "What version is this pool?",
       choices: [

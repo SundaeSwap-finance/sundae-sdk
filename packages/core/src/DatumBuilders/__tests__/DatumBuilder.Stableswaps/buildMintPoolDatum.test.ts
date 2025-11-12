@@ -68,7 +68,7 @@ describe("builderMintPoolDatum()", () => {
       feeManager: feeManagerAddress,
     };
 
-    const { schema, inline } =
+    const { schema, inline: _ } =
       builderInstance.buildMintPoolDatum(argsWithFeeManager);
 
     expect(schema.feeManager).not.toBeNull();
