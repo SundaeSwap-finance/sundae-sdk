@@ -176,7 +176,7 @@ export function getNewY(
       }
     }
   }
-  throw new Error("failed to converge on y value after 255 iterations.");
+  throw new Error("Failed to converge on y value after 255 iterations.");
 }
 
 /**

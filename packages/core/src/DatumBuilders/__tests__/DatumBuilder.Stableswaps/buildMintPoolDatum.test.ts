@@ -93,7 +93,6 @@ describe("builderMintPoolDatum()", () => {
       builderInstance.buildMintPoolDatum(argsWithLAManager);
 
     expect(schema.linearAmplificationManager).not.toBeNull();
-    console.log("Inline:", inline);
     if (
       schema.linearAmplificationManager &&
       "Signature" in schema.linearAmplificationManager

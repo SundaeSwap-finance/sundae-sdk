@@ -32,7 +32,7 @@ export class State {
   }
 
   async setSdk(): Promise<void> {
-    if (!this.sdk) {
+    if (!this.sundaesdk) {
       const blazeInstance = await getBlazeInstance(this);
       this.sundaesdk = SundaeSDK.new({
         blazeInstance,
