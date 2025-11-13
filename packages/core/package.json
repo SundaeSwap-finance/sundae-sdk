@@ -76,12 +76,12 @@
     "@types/node": "^18.11.18",
     "cbor": "^9.0.0"
   },
-  "peerDependencies": {
+  "dependencies": {
     "@blaze-cardano/sdk": "^0.2.31",
     "@blaze-cardano/data": "^0.6.1",
     "@sundaeswap/asset": "^1.0.11",
     "@sundaeswap/bigint-math": "^0.6.3",
-    "@sundaeswap/math": "^0.0.2",
+    "@sundaeswap/math": "workspace:*",
     "@sundaeswap/fraction": "^1.0.5"
   },
   "gitHead": "ddc937102065a5a581fe7affe02474c0e68ad9a0"

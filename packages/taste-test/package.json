@@ -46,10 +46,10 @@
   "devDependencies": {
     "@sundaeswap/core": "workspace:*"
   },
-  "peerDependencies": {
+  "dependencies": {
     "@blaze-cardano/sdk": "^0.2.34",
     "@sundaeswap/asset": "^1.0.11",
-    "@sundaeswap/core": "^2.6.2",
+    "@sundaeswap/core": "workspace:*",
     "@blaze-cardano/data": "^0.6.1"
   }
 }
