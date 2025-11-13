@@ -36,11 +36,8 @@ jobs:
         run: bun test:all
 
       # Release
-      - name: Release
-        uses: changesets/action@v1
-        with:
-          publish: bun publish:canary:ci
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Release (Canary)
+        run: |
+          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+          bun changeset version --snapshot dev
+          bun publish:canary:ci
