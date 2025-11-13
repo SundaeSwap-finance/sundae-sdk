@@ -17,21 +17,28 @@ export interface ISettings {
 }
 
 export class State {
-  sdk?: SundaeSDK;
+  private sundaesdk?: SundaeSDK;
   settings: ISettings;
 
   constructor() {
     this.settings = {};
   }
 
+  sdk(): SundaeSDK {
+    if (!this.sdk) {
+      throw new Error("SDK not initialized. Call setSdk() first.");
+    }
+    return this.sundaesdk!;
+  }
+
   async setSdk(): Promise<void> {
     if (!this.sdk) {
       const blazeInstance = await getBlazeInstance(this);
-      this.sdk = SundaeSDK.new({
+      this.sundaesdk = SundaeSDK.new({
         blazeInstance,
       });
     } else {
-      this.sdk.options.blazeInstance = await getBlazeInstance(this);
+      this.sdk().options.blazeInstance = await getBlazeInstance(this);
     }
 
     if (this.settings.customProtocolParams) {
@@ -39,8 +46,8 @@ export class State {
         this.settings.network! as TSupportedNetworks,
       );
       queryProvider.addCustomProtocolParams(this.settings.customProtocolParams);
-      this.sdk.queryProvider = queryProvider;
-      [...this.sdk.builders.values()].forEach((builder) => {
+      this.sdk().queryProvider = queryProvider;
+      [...this.sdk().builders.values()].forEach((builder) => {
         builder.setQueryProvider(queryProvider);
       });
     }

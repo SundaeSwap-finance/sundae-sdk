@@ -34,7 +34,7 @@ export async function swapMenu(state: State): Promise<State> {
     console.log("No asset selected, returning to main menu.");
     return state;
   }
-  const pools = (await state.sdk!.queryProvider.findPoolData({
+  const pools = (await state.sdk().queryProvider.findPoolData({
     assetId: swapFrom.id,
   } as IPoolByAssetQuery)) as IPoolData[];
   let choices = pools!.map((pool) => {
@@ -76,7 +76,7 @@ export async function swapMenu(state: State): Promise<State> {
     });
     pool = await getPoolData(state, ident, version);
   } else {
-    pool = (await state.sdk!.queryProvider.findPoolData({
+    pool = (await state.sdk().queryProvider.findPoolData({
       ident: choice,
     })) as IPoolData;
   }
@@ -84,7 +84,7 @@ export async function swapMenu(state: State): Promise<State> {
     console.log("Pool not found");
     return state;
   }
-  const builder = state.sdk!.builders.get(pool.version)!;
+  const builder = state.sdk().builders.get(pool.version)!;
   const swapArgs: ISwapConfigArgs = {
     suppliedAsset: swapFrom,
     pool: pool,
@@ -106,7 +106,7 @@ export async function removeLiquidityMenu(state: State): Promise<State> {
   await printHeader(state);
   console.log("\t==== Remove Liquidity ====\n");
   const protocols = await (
-    state.sdk!.queryProvider as QueryProviderSundaeSwap
+    state.sdk().queryProvider as QueryProviderSundaeSwap
   ).getProtocolParamsWithScriptHashes(undefined);
   const lpAsset = await getAssetAmount(
     state,
@@ -119,14 +119,14 @@ export async function removeLiquidityMenu(state: State): Promise<State> {
       });
     },
   );
-  const pool = (await state.sdk!.queryProvider.findPoolData({
+  const pool = (await state.sdk().queryProvider.findPoolData({
     ident: SundaeUtils.getIdentFromAssetId(lpAsset!.id),
   } as IPoolByIdentQuery)) as IPoolData;
   if (!pool) {
     console.log("Pool not found");
     return state;
   }
-  const builder = state.sdk!.builders.get(pool.version)!;
+  const builder = state.sdk().builders.get(pool.version)!;
   const withdrawArgs: IWithdrawConfigArgs = {
     suppliedLPAsset: lpAsset!,
     orderAddresses: {
@@ -155,7 +155,7 @@ export async function addLiquidityMenu(state: State): Promise<State> {
     "Select the second half of the pair you want to add liquidity",
     0n,
   );
-  const pools = (await state.sdk!.queryProvider.findPoolData({
+  const pools = (await state.sdk().queryProvider.findPoolData({
     pair: [asset1!.id, asset2!.id],
   } as IPoolByPairQuery)) as IPoolData[];
   let choices = pools!.map((pool) => {
@@ -196,7 +196,7 @@ export async function addLiquidityMenu(state: State): Promise<State> {
     });
     pool = await getPoolData(state, ident, version);
   } else {
-    pool = (await state.sdk!.queryProvider.findPoolData({
+    pool = (await state.sdk().queryProvider.findPoolData({
       ident: choice,
     })) as IPoolData;
   }
@@ -204,7 +204,7 @@ export async function addLiquidityMenu(state: State): Promise<State> {
     console.log("Pool not found");
     return state;
   }
-  const builder = state.sdk!.builders.get(pool.version)!;
+  const builder = state.sdk().builders.get(pool.version)!;
   const depositArgs: IDepositConfigArgs = {
     suppliedAssets: [asset1!, asset2!],
     pool: pool,
@@ -244,7 +244,7 @@ export async function getSlippage(): Promise<number> {
 export async function mintPoolMenu(state: State): Promise<State> {
   await printHeader(state);
   console.log("\t==== Mint pool menu ====\n");
-  const choices = [...state.sdk!.builders.keys()] // IterableIterator doesn't have .map until ES2025
+  const choices = [...state.sdk().builders.keys()] // IterableIterator doesn't have .map until ES2025
     .map((key) => {
       return { name: key as string, value: key as string };
     });
@@ -257,9 +257,9 @@ export async function mintPoolMenu(state: State): Promise<State> {
     case "back":
       return state;
     case "V3":
-      const builder = state.sdk!.builders.get(
-        EContractVersion.V3,
-      )! as TxBuilderV3;
+      const builder = state
+        .sdk()
+        .builders.get(EContractVersion.V3)! as TxBuilderV3;
       const args = await mintPoolArgs(state);
       if (!args) {
         console.log("No args provided, returning to main menu.");
@@ -269,9 +269,9 @@ export async function mintPoolMenu(state: State): Promise<State> {
       await transactionDialog((await tx).cbor, false, state);
       break;
     case "NftCheck":
-      const builderNftCheck = state.sdk!.builders.get(
-        EContractVersion.NftCheck,
-      )! as TxBuilderNftCheck;
+      const builderNftCheck = state
+        .sdk()
+        .builders.get(EContractVersion.NftCheck)! as TxBuilderNftCheck;
       const argsNftCheck = await mintPoolNftCheckArgs(state);
       if (!argsNftCheck) {
         console.log("No args provided, returning to main menu.");
@@ -281,9 +281,9 @@ export async function mintPoolMenu(state: State): Promise<State> {
       await transactionDialog((await txNftCheck).cbor, false, state);
       break;
     case "Stableswaps":
-      const stableSwapBuilder = state.sdk!.builders.get(
-        EContractVersion.Stableswaps,
-      )! as TxBuilderStableswaps;
+      const stableSwapBuilder = state
+        .sdk()
+        .builders.get(EContractVersion.Stableswaps)! as TxBuilderStableswaps;
       await ensureDeployment("pool.spend", stableSwapBuilder, state);
       const argsStable = await mintStablePoolArgs(state);
       console.log(argsStable);
@@ -334,13 +334,15 @@ export async function cancelSwapMenu(state: State): Promise<State> {
   await printHeader(state);
   console.log("\t==== Cancel swap menu ====\n");
   const v3OrderScriptAddress = await state
-    .sdk!.builders.get(EContractVersion.V3)!
+    .sdk()
+    .builders.get(EContractVersion.V3)!
     .getOrderScriptAddress(state.settings.address!);
   console.log(
     `order address: ${Core.Address.fromBech32(v3OrderScriptAddress).toBech32()}`,
   );
   const orderUtxos = await state
-    .sdk!.blaze()
+    .sdk()
+    .blaze()
     .provider.getUnspentOutputs(Core.Address.fromBech32(v3OrderScriptAddress));
   const choices: {
     name: string;
@@ -359,13 +361,16 @@ export async function cancelSwapMenu(state: State): Promise<State> {
   if (choice === undefined) {
     return state;
   }
-  const tx = await state.sdk?.builders.get(EContractVersion.V3)!.cancel({
-    ownerAddress: state.settings.address,
-    utxo: {
-      hash: choice.input().transactionId(),
-      index: Number(choice.input().index()),
-    },
-  });
+  const tx = await state
+    .sdk()
+    .builders.get(EContractVersion.V3)!
+    .cancel({
+      ownerAddress: state.settings.address,
+      utxo: {
+        hash: choice.input().transactionId(),
+        index: Number(choice.input().index()),
+      },
+    });
   const txCbor = (await tx?.build())?.cbor;
   await transactionDialog(txCbor!, false, state);
   return state;

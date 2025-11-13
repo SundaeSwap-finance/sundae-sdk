@@ -102,7 +102,8 @@ export async function mintToken(state: State): Promise<State> {
     BigInt(tokenAmount),
   );
   const tx = await state
-    .sdk!.blaze()
+    .sdk()
+    .blaze()
     .newTransaction()
     .addMint(Core.PolicyId(policy.hash()), mints)
     .provideScript(policy)
@@ -133,7 +134,8 @@ export async function simpleSend(state: State): Promise<State> {
     value = makeValue(0n, [amount.id, amount.amount]);
   }
   const tx = await state
-    .sdk!.blaze()
+    .sdk()
+    .blaze()
     .newTransaction()
     .payAssets(Core.Address.fromBech32(recipient), value)
     .complete();
@@ -148,7 +150,8 @@ export async function registerStakeKey(state: State): Promise<State> {
     message: "Enter stake key hash (in hex)",
   });
   const tx = await state
-    .sdk!.blaze()
+    .sdk()
+    .blaze()
     .newTransaction()
     .addRegisterStake(
       Core.Credential.fromCore({
