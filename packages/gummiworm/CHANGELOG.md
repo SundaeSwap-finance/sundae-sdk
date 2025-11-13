@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.0.3
+
+### Patch Changes
+
+- dd140ed: Updates the versioning because dependencies were not getting their workspace:\* version updated at publish time.
+- Updated dependencies [dd140ed]
+  - @sundaeswap/core@2.8.1
+
 ## 2.0.2
 
 ### Patch Changes

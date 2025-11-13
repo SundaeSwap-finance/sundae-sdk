@@ -1,5 +1,11 @@
 # @sundaeswap/math
 
+## 0.1.1
+
+### Patch Changes
+
+- dd140ed: Updates the versioning because dependencies were not getting their workspace:\* version updated at publish time.
+
 ## 0.1.0
 
 ### Minor Changes
