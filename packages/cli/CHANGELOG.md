@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.4.0
+
+### Minor Changes
+
+- 76f871e: Addition of stableswap logic and other stableswap relevant features.
+
 ## 1.3.2
 
 ### Patch Changes

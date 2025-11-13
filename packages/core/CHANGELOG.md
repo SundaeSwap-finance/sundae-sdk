@@ -1,5 +1,16 @@
 # Change Log
 
+## 3.0.0
+
+### Minor Changes
+
+- 76f871e: Addition of stableswap logic and other stableswap relevant features.
+
+### Patch Changes
+
+- Updated dependencies [76f871e]
+  - @sundaeswap/math@0.1.0
+
 ## 2.7.0
 
 ### Minor Changes
