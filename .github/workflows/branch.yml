@@ -40,4 +40,4 @@ jobs:
         run: |
           npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
           bun changeset version --snapshot dev
-          bun changeset publish --tag dev --no-git-tag --access public
+          bun publish:canary:ci

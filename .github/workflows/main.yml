@@ -42,7 +42,7 @@ jobs:
       - name: Release
         uses: changesets/action@v1
         with:
-          publish: bun changeset publish
+          publish: bun publish:ci
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
