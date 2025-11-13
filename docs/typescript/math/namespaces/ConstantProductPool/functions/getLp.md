@@ -26,4 +26,4 @@ the minted lp token amount
 
 ## Defined in
 
-[ConstantProductPool.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L46)
+[ConstantProductPool.ts:17](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L17)

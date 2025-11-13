@@ -15,7 +15,7 @@ import { DatumBuilderAbstract } from "../Abstracts/DatumBuilder.abstract.class.j
 import { VOID_BYTES } from "../constants.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
-import { V3Types } from "./ContractTypes/index.js";
+import { StableswapsTypes, V3Types } from "./ContractTypes/index.js";
 import { IDatumBuilderNftCheckArgs } from "./DatumBuilder.NftCheck.class.js";
 
 /**
@@ -80,7 +80,7 @@ export type TConditionDatumArgs = IDatumBuilderNftCheckArgs;
 
 /**
  * The arguments for building a minting a new pool transaction against
- * the V3 & Condition pool contract.
+ * the V3 & Condition and other V3 like pool contracts.
  */
 export interface IDatumBuilderMintPoolArgs {
   seedUtxo: { txHash: string; outputIndex: number };
@@ -92,6 +92,9 @@ export interface IDatumBuilderMintPoolArgs {
   feeManager?: string;
   condition?: string;
   conditionDatumArgs?: TConditionDatumArgs;
+  protocolFees?: IFeesConfig;
+  linearAmplification?: bigint;
+  linearAmplificationManager?: string;
 }
 
 /**
@@ -289,9 +292,9 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     };
   }
 
-  private getFeeManagerFromAddress(
+  getMultiSigFromAddress(
     address?: string,
-  ): V3Types.MultisigScript | undefined {
+  ): V3Types.MultisigScript | StableswapsTypes.MultisigScript | undefined {
     if (!address) return undefined;
 
     try {
@@ -306,7 +309,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
       }
     } catch (error) {
       throw new Error(
-        `Failed to extract payment hash from feeManager address: ${address}. Error: ${(error as Error).message}`,
+        `Failed to extract payment hash from address: ${address}. Error: ${(error as Error).message}`,
       );
     }
   }
@@ -335,7 +338,9 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     depositFee,
     seedUtxo,
     feeManager,
-  }: IDatumBuilderMintPoolArgs): TDatumResult<V3Types.PoolDatum> {
+  }: IDatumBuilderMintPoolArgs): TDatumResult<
+    V3Types.PoolDatum | StableswapsTypes.StablePoolDatum
+  > {
     const ident = DatumBuilderV3.computePoolId(seedUtxo);
     const liquidity = sqrt(assetA.amount * assetB.amount);
 
@@ -344,7 +349,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
       assetB,
     ).schema;
 
-    const feeManagerScript = this.getFeeManagerFromAddress(feeManager);
+    const feeManagerScript = this.getMultiSigFromAddress(feeManager);
 
     const newPoolDatum: V3Types.PoolDatum = {
       assets: assetsPair,

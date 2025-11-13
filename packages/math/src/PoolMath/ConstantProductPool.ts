@@ -1,36 +1,7 @@
 import { AssetAmount } from "@sundaeswap/asset";
 import { Fraction, type TFractionLike } from "@sundaeswap/fraction";
 import { sqrt } from "@sundaeswap/bigint-math";
-
-/**
- * The direction of a ratio (A per B or B per A)
- */
-export type TRatioDirection = "A_PER_B" | "B_PER_A";
-
-/**
- * Asset used in a ratio calculation
- */
-export interface IRatioCalculationAsset {
-  assetId: string;
-  quantity: bigint;
-  decimals: number;
-}
-
-/**
- * The result of a ratio calculation on a pool
- */
-export interface IRatioCalculationResult {
-  calculatedAmount: AssetAmount;
-  ratioAsFraction: Fraction;
-  display: string;
-  isDivisible: boolean;
-  belowMinimumRatio: boolean;
-}
-
-/**
- * The amounts for a token pair
- */
-export type TPair = [bigint, bigint];
+import { SharedPoolMath } from "./index.js";
 
 /**
  * Get the lp token amount for a, b
@@ -44,15 +15,6 @@ export const getFirstLp = (a: bigint, b: bigint) => sqrt(a * b);
  * @deprecated
  */
 export const getLp = getFirstLp;
-
-/**
- * Get the share ratio as Fraction
- * @param lp
- * @param totalLp
- * @returns
- */
-export const getShare = (lp: bigint, totalLp: bigint) =>
-  new Fraction(lp, totalLp);
 
 /**
  * Calculate the Add (Mixed-Deposit) Liquidity parameters
@@ -108,7 +70,7 @@ export const calculateLiquidity = (
   return {
     nextTotalLp: newTotalLpTokens,
     generatedLp: newLpTokens,
-    shareAfterDeposit: getShare(newLpTokens, newTotalLpTokens),
+    shareAfterDeposit: SharedPoolMath.getShare(newLpTokens, newTotalLpTokens),
     bChange,
     aChange,
     actualDepositedA,
@@ -130,7 +92,7 @@ export const addLiquidity = (
   const nextTotalLp = new Fraction(totalLp * (a + aReserve), aReserve).quotient;
   const lp = nextTotalLp - totalLp;
   const b = new Fraction(bReserve * a, aReserve);
-  const share = getShare(lp, nextTotalLp);
+  const share = SharedPoolMath.getShare(lp, nextTotalLp);
 
   if (b.quotient === 0n) {
     throw new Error(
@@ -165,7 +127,7 @@ export const getTokensForLp = (
   aReserve: bigint,
   bReserve: bigint,
   totalLp: bigint,
-): TPair => [
+): SharedPoolMath.TPair => [
   new Fraction(lp * aReserve, totalLp).quotient,
   new Fraction(lp * bReserve, totalLp).quotient,
 ];
@@ -351,9 +313,12 @@ export const getAssetsRatio = (
  * ```
  */
 export function getSwapRatio(
-  direction: TRatioDirection,
-  assets: [IRatioCalculationAsset, IRatioCalculationAsset],
-): IRatioCalculationResult {
+  direction: SharedPoolMath.TRatioDirection,
+  assets: [
+    SharedPoolMath.IRatioCalculationAsset,
+    SharedPoolMath.IRatioCalculationAsset,
+  ],
+): SharedPoolMath.IRatioCalculationResult {
   let calculatedAmount: AssetAmount;
   let rawRatio: string;
   const adaIds = ["", ".", "ada.lovelace"];

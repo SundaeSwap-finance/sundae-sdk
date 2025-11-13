@@ -36,4 +36,4 @@ Holds the calculated outcome of a swap
 
 ## Defined in
 
-[ConstantProductPool.ts:176](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L176)
+[ConstantProductPool.ts:138](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L138)

@@ -17,7 +17,11 @@ import {
   ORDER_DEPOSIT_DEFAULT,
   V3_POOL_IDENT_LENGTH,
 } from "../constants.js";
-import { ConstantProductPool } from "@sundaeswap/math";
+import { ConstantProductPool, StableSwapsPool } from "@sundaeswap/math";
+
+export type TGenericSwapOutcome =
+  | ConstantProductPool.TSwapOutcome
+  | StableSwapsPool.TSwapOutcome;
 
 export class SundaeUtils {
   static ADA_ASSET_IDS = [
@@ -54,6 +58,44 @@ export class SundaeUtils {
    */
   static isV3PoolIdent(poolIdent: string): boolean {
     return poolIdent.length === V3_POOL_IDENT_LENGTH;
+  }
+
+  /**
+   * Helper function to check if an asset is a Liquidity Pool (LP) asset for any protocol version.
+   * This method attempts to determine the pool version from the asset ID and then checks if it's
+   * a valid LP asset for that version. For V3, it checks both V3 and Stableswaps versions.
+   *
+   * @param {Object} params - The parameters for the method.
+   * @param {string} params.assetId - The asset ID to check.
+   * @param {ISundaeProtocolParams[]} params.protocols - An array of protocol objects for different contract versions.
+   * @returns {boolean} Returns true if the asset is a valid LP asset for any supported version, otherwise false.
+   */
+  static isAnyLPAsset({
+    assetId,
+    protocols,
+  }: {
+    assetId: string;
+    protocols: ISundaeProtocolParams[];
+  }): boolean {
+    try {
+      const version = SundaeUtils.getPoolVersionFromAssetId(assetId);
+      if (!version) {
+        return false;
+      }
+      if (version === EContractVersion.V3) {
+        return (
+          SundaeUtils.isLPAsset({ assetId, protocols, version }) ||
+          SundaeUtils.isLPAsset({
+            assetId,
+            protocols,
+            version: EContractVersion.Stableswaps,
+          })
+        );
+      }
+      return SundaeUtils.isLPAsset({ assetId, protocols, version });
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -94,6 +136,13 @@ export class SundaeUtils {
     return id.indexOf(`${validator.hash}${assetNamePrefix}`) === 0;
   }
 
+  /**
+   * Sorts a pair of swap assets with their amounts, prioritizing ADA assets first,
+   * followed by lexicographic sorting of asset IDs.
+   *
+   * @param {[AssetAmount<IAssetAmountMetadata>, AssetAmount<IAssetAmountMetadata>]} assets - A tuple of two assets to sort.
+   * @returns {[AssetAmount<IAssetAmountMetadata>, AssetAmount<IAssetAmountMetadata>]} The sorted array of assets.
+   */
   static sortSwapAssetsWithAmounts(
     assets: [
       AssetAmount<IAssetAmountMetadata>,
@@ -116,6 +165,14 @@ export class SundaeUtils {
     });
   }
 
+  /**
+   * Determines the swap direction of a given asset within a pool.
+   * Returns the position (0 or 1) of the asset after sorting the pool assets.
+   *
+   * @param {IAssetAmountMetadata} asset - The asset metadata to check direction for.
+   * @param {[IAssetAmountMetadata, IAssetAmountMetadata]} assets - A tuple of the two pool assets.
+   * @returns {EPoolCoin} Returns 0 if the asset is the first in the sorted pair, 1 if it's second.
+   */
   static getAssetSwapDirection(
     asset: IAssetAmountMetadata,
     assets: [IAssetAmountMetadata, IAssetAmountMetadata],
@@ -149,6 +206,14 @@ export class SundaeUtils {
     return Number(amount.amount) * (1 - percent);
   }
 
+  /**
+   * Calculates the current fee based on a decaying fee structure between a start and end point in time.
+   * The fee decays linearly from the start fee to the end fee over the period from the start slot to the end slot.
+   * If the current time is before the start slot, returns the start fee. If after the end slot, returns the end fee.
+   *
+   * @param {ICurrentFeeFromDecayingFeeArgs} args - An object containing necessary arguments.
+   * @returns {number} The interpolated fee percentage as a number, based on the current time within the decay period.
+   */
   static getCurrentFeeFromDecayingFee({
     endFee,
     endSlot,
@@ -184,29 +249,14 @@ export class SundaeUtils {
   }
 
   /**
-   * Calculates the current fee based on a decaying fee structure between a start and an end point in time.
-   * The fee decays linearly from the start fee to the end fee over the period from the start slot to the end slot.
+   * Calculates the minimum receivable amount from a swap given a slippage tolerance.
+   * This ensures that the actual received amount won't be less than the calculated minimum.
    *
-   * @param {ICurrentFeeFromDecayingFeeArgs} args - An object containing necessary arguments:
-   *   @param {number[]} args.endFee - The fee percentage at the end of the decay period, represented as a Fraction.
-   *   @param {number} args.endSlot - The slot number representing the end of the fee decay period.
-   *   @param {TSupportedNetworks} args.network - The network identifier to be used for slot to Unix time conversion.
-   *   @param {number[]} args.startFee - The starting fee percentage at the beginning of the decay period, represented as a Fraction.
-   *   @param {number} args.startSlot - The slot number representing the start of the fee decay period.
-   *
-   * @returns {number} The interpolated fee percentage as a number, based on the current time within the decay period.
-   *
-   * @example
-   * ```ts
-   * const currentFee = getCurrentFeeFromDecayingFee({
-   *   endFee: [1, 100], // 1%
-   *   endSlot: 12345678,
-   *   network: 'preview',
-   *   startFee: [2, 100], // 2%
-   *   startSlot: 12345600
-   * });
-   * console.log(currentFee); // Outputs the current fee percentage based on the current time
-   * ```
+   * @param {IPoolData} pool - The pool data containing asset reserves and metadata.
+   * @param {AssetAmount<IAssetAmountMetadata>} suppliedAsset - The asset being supplied for the swap.
+   * @param {number} slippage - The slippage tolerance as a decimal (e.g., 0.01 for 1%).
+   * @returns {AssetAmount<IAssetAmountMetadata>} The minimum amount that should be received after accounting for slippage.
+   * @throws {Error} If the supplied asset doesn't match either pool asset or if the calculated amount is negative.
    */
   static getMinReceivableFromSlippage(
     pool: IPoolData,
@@ -218,13 +268,7 @@ export class SundaeUtils {
       suppliedAsset.metadata.assetId,
     );
 
-    const output = ConstantProductPool.getSwapOutput(
-      suppliedAsset.amount,
-      supplyingPoolAssetA ? pool.liquidity.aReserve : pool.liquidity.bReserve,
-      supplyingPoolAssetA ? pool.liquidity.bReserve : pool.liquidity.aReserve,
-      pool.currentFee,
-      false,
-    );
+    const output = SundaeUtils.getSwapOutput(pool, suppliedAsset);
 
     if (
       !SundaeUtils.isAssetIdsEqual(
@@ -370,27 +414,13 @@ export class SundaeUtils {
     if (availablePools && resolvedGiven?.metadata && resolvedTaken?.metadata) {
       const givenDecimals = resolvedGiven.decimals;
       const hundredGiven = BigInt(10 ** givenDecimals) * 100n;
+      const hundredGivenAmount = new AssetAmount<IAssetAmountMetadata>(
+        hundredGiven,
+        resolvedGiven.metadata,
+      );
 
       for (const pool of availablePools) {
-        const givenReserve = SundaeUtils.isAssetIdsEqual(
-          pool.assetA.assetId,
-          resolvedGiven.metadata.assetId,
-        )
-          ? pool.liquidity.aReserve
-          : pool.liquidity.bReserve;
-        const takenReserve = SundaeUtils.isAssetIdsEqual(
-          pool.assetB.assetId,
-          resolvedTaken.metadata.assetId,
-        )
-          ? pool.liquidity.bReserve
-          : pool.liquidity.aReserve;
-
-        const swapOutcome = ConstantProductPool.getSwapOutput(
-          hundredGiven,
-          givenReserve,
-          takenReserve,
-          pool.currentFee,
-        );
+        const swapOutcome = SundaeUtils.getSwapOutput(pool, hundredGivenAmount);
 
         if (!bestOutcome || swapOutcome.output > bestOutcome.output) {
           bestOutcome = swapOutcome;
@@ -496,5 +526,72 @@ export class SundaeUtils {
     throw new Error(
       "Could not find a contract version prefix in the asset name!",
     );
+  }
+
+  /**
+   * Calculates the output amount for a swap based on the pool data and supplied asset.
+   * Supports different pool versions including V1, V3, NftCheck, and Stableswaps.
+   *
+   * @param {IPoolData} poolData - The pool data containing reserves, fees, and version information.
+   * @param {AssetAmount<IAssetAmountMetadata>} suppliedAsset - The asset being supplied for the swap.
+   * @returns {TGenericSwapOutcome} The swap outcome including the output amount and other relevant data.
+   * @throws {Error} If the pool version is not supported.
+   */
+  static getSwapOutput(
+    poolData: IPoolData,
+    suppliedAsset: AssetAmount<IAssetAmountMetadata>,
+  ): TGenericSwapOutcome {
+    const inputReserve =
+      poolData.assetA.assetId === suppliedAsset.metadata.assetId
+        ? poolData.liquidity.aReserve
+        : poolData.liquidity.bReserve;
+    const outputReserve =
+      poolData.assetA.assetId === suppliedAsset.metadata.assetId
+        ? poolData.liquidity.bReserve
+        : poolData.liquidity.aReserve;
+    switch (poolData.version) {
+      case EContractVersion.V1:
+      case EContractVersion.V3:
+      case EContractVersion.NftCheck:
+        return ConstantProductPool.getSwapOutput(
+          suppliedAsset.amount,
+          inputReserve,
+          outputReserve,
+          poolData.currentFee,
+          false,
+        );
+      case EContractVersion.Stableswaps:
+        return StableSwapsPool.getSwapOutput(
+          suppliedAsset.amount,
+          inputReserve,
+          outputReserve,
+          poolData.currentFee,
+          poolData.protocolFee ?? 0,
+          poolData.linearAmplificationFactor ?? 1n,
+        );
+      default:
+        // If the pool version is not supported, throw an error.
+        throw new Error(
+          `Unsupported pool version: ${poolData.version}. Cannot get swap output.`,
+        );
+    }
+  }
+
+  /**
+   * Calculates the price ratio between assets in a pool.
+   * For Stableswaps pools, uses the amplification factor for accurate pricing.
+   * For other pool types, returns the simple ratio of reserves.
+   *
+   * @param {IPoolData} pool - The pool data containing reserves and version information.
+   * @returns {number} The price as a number representing the ratio of asset A to asset B.
+   */
+  static getPrice(pool: IPoolData): number {
+    return pool.version === "Stableswaps"
+      ? StableSwapsPool.getPrice(
+          pool.liquidity.aReserve,
+          pool.liquidity.bReserve,
+          pool.linearAmplificationFactor!,
+        ).toNumber()
+      : Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
   }
 }

@@ -39,4 +39,4 @@ The swap details
 
 ## Defined in
 
-[ConstantProductPool.ts:197](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L197)
+[ConstantProductPool.ts:159](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L159)

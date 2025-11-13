@@ -10,7 +10,7 @@ import {
 
 import {
   DatumBuilderV3,
-  IDatumBuilderMintPoolArgs
+  IDatumBuilderMintPoolArgs,
 } from "../../DatumBuilder.V3.class.js";
 import { V3_EXPECTATIONS } from "../../__data__/v3.expectations.js";
 
@@ -168,7 +168,7 @@ describe("builderMintPoolDatum()", () => {
     expect(schema.feeManager).toBeUndefined();
   });
 
-  it("should throw an error for invalid feeManager address", () => {
+  it("should throw an error for invalid address", () => {
     const invalidAddress = "invalid_address";
     const argsWithInvalidFeeManager = {
       ...V3_EXPECTATIONS.buildMintPoolDatum[0].args,
@@ -178,7 +178,7 @@ describe("builderMintPoolDatum()", () => {
     expect(() =>
       builderInstance.buildMintPoolDatum(argsWithInvalidFeeManager),
     ).toThrowError(
-      'Failed to extract payment hash from feeManager address: invalid_address. Error: Letter "1" must be present between prefix and data only',
+      'Failed to extract payment hash from address: invalid_address. Error: Letter "1" must be present between prefix and data only',
     );
   });
 

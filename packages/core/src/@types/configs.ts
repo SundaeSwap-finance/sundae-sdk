@@ -116,8 +116,25 @@ export interface IStrategyConfigInputArgs
   ownerAddress?: string;
 }
 
+/**
+ * Configuration interface for fee basis points in liquidity pools.
+ * Fees are represented as basis points (1 basis point = 0.01%).
+ *
+ * In trading terminology:
+ * - "bid" typically refers to buying (swapping into the pool)
+ * - "ask" typically refers to selling (swapping out of the pool)
+ *
+ * For example, a value of 30n represents 0.30% (30 basis points).
+ */
 export interface IFeesConfig {
+  /**
+   * The ask fee in basis points, applied when swapping out of the pool.
+   */
   ask: bigint;
+
+  /**
+   * The bid fee in basis points, applied when swapping into the pool.
+   */
   bid: bigint;
 }
 
@@ -143,6 +160,9 @@ export interface IMintPoolConfigArgs extends IBaseConfig {
   feeManager?: string;
   condition?: string;
   conditionDatumArgs?: TConditionDatumArgs;
+  linearAmplification?: bigint;
+  linearAmplificationManager?: string;
+  protocolFees?: bigint | IFeesConfig;
 }
 
 /**
