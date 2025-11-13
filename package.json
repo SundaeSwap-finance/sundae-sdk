@@ -28,7 +28,8 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "bun lint:fix --quiet"
+      "bun lint:fix --quiet",
+      "bun docs"
     ]
   },
   "devDependencies": {
