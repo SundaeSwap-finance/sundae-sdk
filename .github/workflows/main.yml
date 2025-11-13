@@ -36,7 +36,11 @@ jobs:
 
       # Run Tests
       - name: Run Tests
-        run: bun test:all
+        run: bun test
+
+      # Authenticate
+      - name: Authenticate
+        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
 
       # Bump Versions (reinstate after release)
       - name: Release
