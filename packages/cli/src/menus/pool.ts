@@ -159,14 +159,7 @@ export async function addLiquidityMenu(state: State): Promise<State> {
     pair: [asset1!.id, asset2!.id],
   } as IPoolByPairQuery)) as IPoolData[];
   let choices = pools!.map((pool) => {
-    const price =
-      pool.version === "Stableswaps"
-        ? StableSwapsPool.getPrice(
-            pool.liquidity.aReserve,
-            pool.liquidity.bReserve,
-            pool.linearAmplificationFactor!,
-          ).toNumber()
-        : Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
+    const price = SundaeUtils.getPrice(pool);
     return {
       name: `${prettyAssetId(pool.assetA.assetId.toString())} / ${prettyAssetId(
         pool.assetB.assetId.toString(),
