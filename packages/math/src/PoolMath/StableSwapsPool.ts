@@ -1,6 +1,20 @@
 import { SharedPoolMath } from "./index.js";
 import { Fraction, type TFractionLike } from "@sundaeswap/fraction";
 
+/**
+ * Validates that a given sum invariant (D) satisfies the liquidity invariant equation
+ * for the Stableswaps curve. This function checks if D is within the valid range by
+ * evaluating the invariant function at D and D+1.
+ *
+ * The liquidity invariant ensures that the curve equation is satisfied:
+ * 4A * 4xy * D + D^3 - (4xy * 4A * (x + y) + 4xy * D) should be <= 0 at D and > 0 at D+1
+ *
+ * @param {bigint} assetA - The reserve amount of asset A (already scaled by RESERVE_PRECISION).
+ * @param {bigint} assetB - The reserve amount of asset B (already scaled by RESERVE_PRECISION).
+ * @param {bigint} linearAmplification - The amplification coefficient for the pool.
+ * @param {bigint} newSumInvariant - The proposed sum invariant (D) to validate.
+ * @returns {boolean} True if the sum invariant satisfies the liquidity invariant equation, false otherwise.
+ */
 export function liquidityInvariant(
   assetA: bigint,
   assetB: bigint,
@@ -29,10 +43,43 @@ export function liquidityInvariant(
   return f1 <= 0n && f2 > 0n;
 }
 
+/**
+ * Precision factor for the amplification coefficient calculations.
+ * Used to scale the amplification factor for more precise arithmetic operations.
+ */
 export const A_PRECISION: bigint = 200n;
+
+/**
+ * Precision factor for reserve calculations in the Stableswaps curve.
+ * Reserves are multiplied by this value to maintain precision during calculations.
+ * This allows for accurate fractional calculations with integer arithmetic.
+ */
 export const RESERVE_PRECISION: bigint = 1_000_000_000_000n;
+
+/**
+ * Precision factor for fee calculations, representing basis points.
+ * A value of 10,000 means fees are calculated with 0.01% precision (1 basis point).
+ */
 export const FEE_PRECISION: bigint = 10_000n;
 
+/**
+ * Calculates the sum invariant (D) for a Stableswaps pool using Newton's method.
+ * The sum invariant represents the total value in the pool and is used to determine
+ * the fair exchange rate between assets.
+ *
+ * This function iteratively solves for D in the Stableswaps invariant equation:
+ * Ann * sum + D_p * 2 = Ann * D + D_p * 3
+ * where D_p = D^3 / (4 * x * y) and Ann = A * n^n (with n=2)
+ *
+ * The iteration continues until convergence (difference <= 1) or fails after 255 iterations.
+ *
+ * @param {bigint} a - The amplification coefficient for the pool (will be scaled by A_PRECISION).
+ * @param {bigint} x - The reserve amount of the first asset (will be scaled by RESERVE_PRECISION).
+ * @param {bigint} y - The reserve amount of the second asset (will be scaled by RESERVE_PRECISION).
+ * @returns {bigint} The calculated sum invariant (D) scaled by RESERVE_PRECISION.
+ * @throws {Error} If the amplification coefficient is not positive.
+ * @throws {Error} If convergence fails after 255 iterations.
+ */
 export function getSumInvariant(a: bigint, x: bigint, y: bigint): bigint {
   if (a <= 0n) {
     throw new Error("Amplification coefficient must be positive.");
@@ -76,6 +123,22 @@ export function getSumInvariant(a: bigint, x: bigint, y: bigint): bigint {
   throw new Error("Failed to converge on D value after 255 iterations.");
 }
 
+/**
+ * Calculates the new Y reserve value given a new X reserve value and the sum invariant.
+ * This function uses Newton's method to iteratively solve for Y in the Stableswaps equation
+ * while maintaining the pool's invariant (D).
+ *
+ * The function solves: Y^2 + (sum + (D * A_PRECISION) / (2 * Ann) - D) * Y - c = 0
+ * where c is derived from D and the pool parameters.
+ *
+ * This is used during swaps to determine the output reserve after an input is added.
+ *
+ * @param {bigint} newX - The new reserve amount for asset X (will be scaled by RESERVE_PRECISION internally).
+ * @param {bigint} aRaw - The raw amplification coefficient for the pool (will be scaled by A_PRECISION).
+ * @param {bigint} sumInvariant - The pool's sum invariant (D), already scaled.
+ * @returns {bigint} The calculated Y reserve value scaled by RESERVE_PRECISION.
+ * @throws {Error} If convergence fails after 255 iterations.
+ */
 export function getNewY(
   newX: bigint,
   aRaw: bigint,
@@ -117,31 +180,45 @@ export function getNewY(
 }
 
 /**
- * Get the lp token amount for a, b
- * @param a tokenA amount
- * @param b tokenB amount
- * @returns the minted lp token amount
+ * Calculates the initial LP token amount for the first liquidity provision to a pool.
+ * This is used when bootstrapping a new pool with initial reserves of assets A and B.
+ *
+ * The LP tokens minted are derived from the sum invariant (D) divided by the reserve precision,
+ * effectively representing the pool's total value at inception.
+ *
+ * @param {bigint} a - The initial amount of token A being deposited.
+ * @param {bigint} b - The initial amount of token B being deposited.
+ * @param {bigint} laf - The linear amplification factor for the pool.
+ * @returns {bigint} The amount of LP tokens to mint for the first liquidity provision.
  */
 export const getFirstLp = (a: bigint, b: bigint, laf: bigint) =>
   getSumInvariant(laf, a, b) / RESERVE_PRECISION;
 
 /**
- * Calculate the Add (Mixed-Deposit) Liquidity parameters
+ * Calculates the liquidity parameters for adding liquidity to a Stableswaps pool.
+ * This function supports mixed deposits where both assets can be deposited in any proportion.
  *
- * TODO: Investigate way to optimize actualdeposited amounts
+ * The calculation is based on the change in the sum invariant (D) before and after the deposit.
+ * LP tokens are minted proportionally to the increase in D relative to the old D value.
+ *
+ * TODO: Investigate way to optimize actual deposited amounts
  *
  * @param {bigint} a - The amount of token A to deposit.
  * @param {bigint} b - The amount of token B to deposit.
  * @param {bigint} aReserve - The current reserve of token A in the pool.
  * @param {bigint} bReserve - The current reserve of token B in the pool.
- * @param {bigint} totalLp - The total lp tokens for the pool before the deposit.
- * @param {bigint} laf - The linear amplifciation factor of the pool.
- * @throws {Error} If the pool doesn't have enough liquidity.
- * @throws {Error} If either of the deposit amounts is zero.
+ * @param {bigint} totalLp - The total LP tokens for the pool before the deposit.
+ * @param {bigint} laf - The linear amplification factor of the pool.
+ * @throws {Error} If the pool doesn't have enough liquidity (both reserves are zero).
+ * @throws {Error} If both deposit amounts are zero.
  * @returns {Object} An object containing:
- *   - nextTotalLp: The total lp tokens for the pool after the deposit.
- *   - generatedLp: The amount of lp tokens generated by the deposit.
- *   - shareAfterDeposit: The depositor's share of the pool after the deposit.
+ *   - nextTotalLp: The total LP tokens for the pool after the deposit.
+ *   - generatedLp: The amount of LP tokens generated by the deposit.
+ *   - shareAfterDeposit: The depositor's share of the pool after the deposit (as a Fraction).
+ *   - aChange: Always 0n for Stableswaps (no refund needed).
+ *   - bChange: Always 0n for Stableswaps (no refund needed).
+ *   - actualDepositedA: The actual amount of A deposited (always equal to input a).
+ *   - actualDepositedB: The actual amount of B deposited (always equal to input b).
  */
 export const calculateLiquidity = (
   a: bigint,
@@ -180,12 +257,17 @@ export const calculateLiquidity = (
 };
 
 /**
- * Get the token amounts the given lp represents
- * @param lp the lp amount
- * @param aReserve the pool's reserveA amount
- * @param bReserve the pool's reserveB amount
- * @param totalLp the pool's total minted lp currently
- * @returns [a, b] token amounts
+ * Calculates the token amounts that a given LP token amount represents when withdrawing
+ * from a Stableswaps pool. The withdrawal is proportional to the LP tokens being redeemed
+ * relative to the total LP supply.
+ *
+ * This uses a simple linear proportion: amount = (lp * reserve) / totalLp for each asset.
+ *
+ * @param {bigint} lp - The amount of LP tokens being redeemed.
+ * @param {bigint} aReserve - The pool's current reserve amount of token A.
+ * @param {bigint} bReserve - The pool's current reserve amount of token B.
+ * @param {bigint} totalLp - The pool's total minted LP tokens currently in circulation.
+ * @returns {SharedPoolMath.TPair} A tuple [a, b] containing the amounts of tokens A and B to withdraw.
  */
 export const getTokensForLp = (
   lp: bigint,
@@ -198,32 +280,53 @@ export const getTokensForLp = (
 ];
 
 /**
- * Holds the calculated outcome of a swap
+ * Represents the complete outcome of a swap operation in a Stableswaps pool.
+ * Contains all relevant information about the swap including amounts, fees, updated reserves,
+ * and price impact.
  */
 export type TSwapOutcome = {
+  /** The amount of input tokens being swapped */
   input: bigint;
+  /** The amount of output tokens received (after all fees) */
   output: bigint;
+  /** The portion of fees that goes to liquidity providers */
   outputLpFee: bigint;
+  /** The portion of fees that goes to the protocol */
   outputProtocolFee: bigint;
+  /** The input asset reserve amount after the swap */
   nextInputReserve: bigint;
+  /** The output asset reserve amount after the swap (excluding protocol fees) */
   nextOutputReserve: bigint;
+  /** The pool's sum invariant (D) after the swap */
   nextSumInvariant: bigint;
+  /** The price impact of the swap as a fraction (difference between ideal and actual price) */
   priceImpact: Fraction;
 };
 
 /**
- * Calculate swap outcome for a given input and pool parameters (input tokens, output tokens, fee).
- * Throws if
- *  - any of the arguments are negative
- *  - fee is greater than or equal 1
+ * Calculates the output amount and all swap parameters for a given input amount in a Stableswaps pool.
+ * This function determines how many output tokens will be received for a given input, accounting for
+ * the Stableswaps curve, LP fees, and protocol fees.
  *
- * @param input The given amount of tokens to be swapped
- * @param inputReserve The amount of tokens in the input reserve
- * @param outputReserve The amount of tokens in the output reserve
- * @param fee The liquidity provider fee
- * @param protocolFee The protocol fee
- * @param laf The linear amplification factor
- * @returns The swap details
+ * The calculation process:
+ * 1. Validates inputs and fees
+ * 2. Calculates the current sum invariant (D)
+ * 3. Determines the new Y value after adding input to X
+ * 4. Calculates raw output and applies fees (LP + protocol)
+ * 5. Computes price impact by comparing ideal vs actual execution price
+ *
+ * @param {bigint} input - The amount of input tokens to swap.
+ * @param {bigint} inputReserve - The current reserve amount of the input token in the pool.
+ * @param {bigint} outputReserve - The current reserve amount of the output token in the pool.
+ * @param {TFractionLike} fee - The liquidity provider fee as a fraction (e.g., 0.003 for 0.3%).
+ * @param {TFractionLike} protocolFee - The protocol fee as a fraction.
+ * @param {bigint} laf - The linear amplification factor of the pool.
+ * @param {boolean} [roundOutputUp] - Optional flag to round output up instead of down (default: false).
+ * @returns {TSwapOutcome} The complete swap outcome including output, fees, reserves, and price impact.
+ * @throws {Error} If input or reserves are not positive.
+ * @throws {Error} If fee is not in the range [0, 1).
+ * @throws {Error} If protocol fee is not in the range [0, 1).
+ * @throws {Error} If combined fee is greater than or equal to 1.
  */
 export const getSwapOutput = (
   input: bigint,
@@ -290,6 +393,19 @@ export const getSwapOutput = (
   };
 };
 
+/**
+ * Calculates the current price (exchange rate) of asset A in terms of asset B for a Stableswaps pool.
+ * The price is derived from the Stableswaps curve equation and takes into account the amplification factor.
+ *
+ * The calculation uses the formula:
+ * price = (xpA + (dR * aReserve) / bReserve) / (xpA + dR)
+ * where xpA = (Ann * aReserve) / A_PRECISION and dR is derived from the sum invariant
+ *
+ * @param {bigint} aReserve - The current reserve amount of asset A in the pool.
+ * @param {bigint} bReserve - The current reserve amount of asset B in the pool.
+ * @param {bigint} laf - The linear amplification factor of the pool.
+ * @returns {Fraction} The price of asset A in terms of asset B as a Fraction.
+ */
 export function getPrice(
   aReserve: bigint,
   bReserve: bigint,
@@ -309,19 +425,29 @@ export function getPrice(
 }
 
 /**
- * Calculate input required for a swap outcome for a given output and pool parameters (input tokens, output tokens, fee).
- * Throws if
- *  - any of the arguments are negative
- *  - fee is greater than or equal 1
- *  - output is greater than or equal to output reserve
+ * Calculates the required input amount and all swap parameters for a desired output amount in a Stableswaps pool.
+ * This is the reverse operation of getSwapOutput - given how much you want to receive, it determines
+ * how much you need to provide as input, accounting for fees and the Stableswaps curve.
  *
- * @param output
- * @param inputReserve
- * @param outputReserve
- * @param fee
- * @param protocolFee The protocol fee
- * @param laf The linear amplification factor
- * @returns The swap details
+ * The calculation process:
+ * 1. Validates inputs, fees, and output constraints
+ * 2. Calculates raw output needed before fees
+ * 3. Determines the new X value to achieve the desired Y reduction
+ * 4. Calculates required input and separates LP and protocol fees
+ * 5. Computes price impact by comparing ideal vs actual execution price
+ *
+ * @param {bigint} output - The desired amount of output tokens to receive.
+ * @param {bigint} inputReserve - The current reserve amount of the input token in the pool.
+ * @param {bigint} outputReserve - The current reserve amount of the output token in the pool.
+ * @param {TFractionLike} fee - The liquidity provider fee as a fraction (e.g., 0.003 for 0.3%).
+ * @param {TFractionLike} protocolFee - The protocol fee as a fraction.
+ * @param {bigint} laf - The linear amplification factor of the pool.
+ * @returns {TSwapOutcome} The complete swap outcome including required input, fees, reserves, and price impact.
+ * @throws {Error} If output or reserves are not positive.
+ * @throws {Error} If output is greater than or equal to the output reserve.
+ * @throws {Error} If fee is not in the range [0, 1).
+ * @throws {Error} If protocol fee is not in the range [0, 1).
+ * @throws {Error} If combined fee is greater than or equal to 1.
  */
 export const getSwapInput = (
   output: bigint,

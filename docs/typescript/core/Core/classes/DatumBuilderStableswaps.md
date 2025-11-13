@@ -2,18 +2,19 @@
 
 ***
 
-# Class: DatumBuilderV3
+# Class: DatumBuilderStableswaps
 
-This class is useful if you would rather just build valid CBOR strings for just the datum
-portion of a valid SundaeSwap transaction.
+`DatumBuilderStableswaps` is a specialized datum builder class for constructing and parsing
+datums specific to the Stableswaps protocol. It extends `DatumBuilderV3` and provides methods
+for building pool datums with Stableswaps-specific parameters such as linear amplification factors
+and protocol fees.
 
-## Extended by
+The Stableswaps protocol uses a different automated market maker (AMM) curve optimized for
+trading assets with similar values, requiring additional parameters compared to standard V3 pools.
 
-- [`DatumBuilderStableswaps`](DatumBuilderStableswaps.md)
+## Extends
 
-## Implements
-
-- [`DatumBuilderAbstract`](DatumBuilderAbstract.md)
+- [`DatumBuilderV3`](DatumBuilderV3.md)
 
 ## Properties
 
@@ -22,6 +23,10 @@ portion of a valid SundaeSwap transaction.
 > **network**: [`TSupportedNetworks`](../type-aliases/TSupportedNetworks.md)
 
 The current network id.
+
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`network`](DatumBuilderV3.md#network)
 
 #### Defined in
 
@@ -34,6 +39,10 @@ The current network id.
 > `static` **INVALID\_POOL\_IDENT**: `string` = `"You supplied a pool ident of an invalid length! The will prevent the scooper from processing this order."`
 
 The error to throw when the pool ident does not match V1 constraints.
+
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`INVALID_POOL_IDENT`](DatumBuilderV3.md#invalid_pool_ident)
 
 #### Defined in
 
@@ -90,6 +99,10 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 > `optional` **poolIdent**: `string`
 
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`buildDepositDatum`](DatumBuilderV3.md#builddepositdatum)
+
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:183](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L183)
@@ -98,34 +111,93 @@ An object comprising the hash of the inline datum, the inline datum itself,
 
 ### buildMintPoolDatum()
 
-> **buildMintPoolDatum**(`params`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object` \| `object`\>
+> **buildMintPoolDatum**(`params`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
-Creates a new pool datum for minting a the pool. This is attached to the assets that are sent
-to the pool minting contract. See [Core.TxBuilderV3](TxBuilderV3.md) for more details.
+Builds the datum required for minting a new Stableswaps liquidity pool.
+This method constructs the complete pool datum including assets, fees, amplification factors,
+and calculates the initial invariant and liquidity based on the Stableswaps curve formula.
+
+The method performs the following key operations:
+- Computes a unique pool identifier from the seed UTXO
+- Orders assets lexicographically
+- Extracts multisig scripts from manager addresses
+- Calculates the sum invariant using the Stableswaps formula
+- Determines initial liquidity based on the invariant
 
 #### Parameters
 
-• **params**: [`IDatumBuilderMintPoolArgs`](../interfaces/IDatumBuilderMintPoolArgs.md)
+• **params**: [`IDatumBuilderMintStablePoolArgs`](../interfaces/IDatumBuilderMintStablePoolArgs.md)
 
-The arguments for building a pool mint datum.
- - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
- - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
- - fee: The pool fee represented as per thousand.
- - marketOpen: The POSIX timestamp for when pool trades should start executing.
- - protocolFee: The fee gathered for the protocol treasury.
- - seedUtxo: The UTXO to use as the seed, which generates asset names and the pool ident.
+The arguments for building a Stableswaps pool mint datum.
+ - assetA: The first asset in the pool with its amount and metadata.
+ - assetB: The second asset in the pool with its amount and metadata.
+ - fees: The LP fee configuration (bid/ask).
+ - marketOpen: Optional timestamp when the market opens (0 for immediate).
+ - seedUtxo: The UTXO used to generate the unique pool identifier.
+ - feeManager: Address of the fee manager who can update pool fees.
+ - depositFee: The deposit fee for the pool.
+ - protocolFees: The protocol fee configuration (bid/ask).
+ - linearAmplification: The amplification factor for the Stableswaps curve.
+ - linearAmplificationManager: Address of the manager who can update the amplification factor.
 
 #### Returns
 
-[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object` \| `object`\>
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
-An object containing the hash of the inline datum, the inline datum itself,
-                                             and the schema of the original pool mint datum, crucial for the execution
-                                             of the minting pool operation.
+An object containing the datum hash, inline CBOR representation,
+                                             and the schema of the original Stableswaps pool mint datum.
+
+##### assets
+
+> **assets**: [[`string`, `string`], [`string`, `string`]]
+
+##### circulatingLp
+
+> **circulatingLp**: `bigint`
+
+##### feeManager?
+
+> `optional` **feeManager**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+
+##### identifier
+
+> **identifier**: `string`
+
+##### linearAmplification
+
+> **linearAmplification**: `bigint`
+
+##### linearAmplificationManager?
+
+> `optional` **linearAmplificationManager**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+
+##### lpFeeBasisPoints
+
+> **lpFeeBasisPoints**: [`bigint`, `bigint`]
+
+##### marketOpen
+
+> **marketOpen**: `bigint`
+
+##### protocolFeeBasisPoints
+
+> **protocolFeeBasisPoints**: [`bigint`, `bigint`]
+
+##### protocolFees
+
+> **protocolFees**: [`bigint`, `bigint`, `bigint`]
+
+##### sumInvariant
+
+> **sumInvariant**: `bigint`
+
+#### Overrides
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`buildMintPoolDatum`](DatumBuilderV3.md#buildmintpooldatum)
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:333](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L333)
+[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L72)
 
 ***
 
@@ -152,6 +224,10 @@ The assets being supplied to the new pool.
 An object containing the hash of the inline datum, the inline datum itself,
                                              and the schema of the original pool mint redeemer datum, crucial for the execution
                                              of the minting pool operation.
+
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`buildPoolMintRedeemerDatum`](DatumBuilderV3.md#buildpoolmintredeemerdatum)
 
 #### Defined in
 
@@ -206,6 +282,10 @@ An object containing the hash of the inline datum, the inline datum itself,
 ##### poolIdent?
 
 > `optional` **poolIdent**: `string`
+
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`buildSwapDatum`](DatumBuilderV3.md#buildswapdatum)
 
 #### Defined in
 
@@ -262,9 +342,50 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 > `optional` **poolIdent**: `string`
 
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`buildWithdrawDatum`](DatumBuilderV3.md#buildwithdrawdatum)
+
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:229](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L229)
+
+***
+
+### protocolFeesFromSettingsDatum()
+
+> **protocolFeesFromSettingsDatum**(`settingsDatum`): [`IFeesConfig`](../interfaces/IFeesConfig.md)
+
+Extracts the protocol fees from a Stableswaps settings datum.
+This method parses the settings datum CBOR to retrieve the protocol fee basis points
+configured for the Stableswaps protocol.
+
+The settings datum contains protocol extensions, and this method specifically looks for
+the protocol fee extension to extract the bid and ask fee basis points.
+
+#### Parameters
+
+• **settingsDatum**: `string`
+
+The CBOR-encoded settings datum string from the settings UTXO.
+
+#### Returns
+
+[`IFeesConfig`](../interfaces/IFeesConfig.md)
+
+The protocol fees configuration containing bid and ask fee basis points.
+
+#### Throws
+
+If no protocol extension is found in the settings datum.
+
+#### Throws
+
+If the protocol fees cannot be parsed from the settings datum.
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:141](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L141)
 
 ***
 
@@ -288,6 +409,10 @@ The UTxO txHash and index.
 
 `string`
 
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`computePoolId`](DatumBuilderV3.md#computepoolid)
+
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:640](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L640)
@@ -309,6 +434,10 @@ The hex encoded pool ident.
 #### Returns
 
 `string`
+
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`computePoolLqName`](DatumBuilderV3.md#computepoollqname)
 
 #### Defined in
 
@@ -332,6 +461,10 @@ The hex encoded pool ident.
 
 `string`
 
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`computePoolNftName`](DatumBuilderV3.md#computepoolnftname)
+
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:604](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L604)
@@ -353,6 +486,10 @@ The hex encoded pool ident.
 #### Returns
 
 `string`
+
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`computePoolRefName`](DatumBuilderV3.md#computepoolrefname)
 
 #### Defined in
 
@@ -392,6 +529,10 @@ An object containing the staking and
 
 > **stakingKeyHash**: `undefined` \| `string`
 
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`getDestinationAddressesFromDatum`](DatumBuilderV3.md#getdestinationaddressesfromdatum)
+
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:671](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L671)
@@ -420,6 +561,10 @@ The serialized datum string from which the owner's signing key is to be extracte
 
 The signing key associated with the owner, extracted from the datum. This key is used
          for transaction validation and authorization purposes.
+
+#### Inherited from
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`getSignerKeyFromDatum`](DatumBuilderV3.md#getsignerkeyfromdatum)
 
 #### Defined in
 

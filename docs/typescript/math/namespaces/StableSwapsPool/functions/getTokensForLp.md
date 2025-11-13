@@ -6,32 +6,36 @@
 
 > **getTokensForLp**(`lp`, `aReserve`, `bReserve`, `totalLp`): [`TPair`](../../SharedPoolMath/type-aliases/TPair.md)
 
-Get the token amounts the given lp represents
+Calculates the token amounts that a given LP token amount represents when withdrawing
+from a Stableswaps pool. The withdrawal is proportional to the LP tokens being redeemed
+relative to the total LP supply.
+
+This uses a simple linear proportion: amount = (lp * reserve) / totalLp for each asset.
 
 ## Parameters
 
 • **lp**: `bigint`
 
-the lp amount
+The amount of LP tokens being redeemed.
 
 • **aReserve**: `bigint`
 
-the pool's reserveA amount
+The pool's current reserve amount of token A.
 
 • **bReserve**: `bigint`
 
-the pool's reserveB amount
+The pool's current reserve amount of token B.
 
 • **totalLp**: `bigint`
 
-the pool's total minted lp currently
+The pool's total minted LP tokens currently in circulation.
 
 ## Returns
 
 [`TPair`](../../SharedPoolMath/type-aliases/TPair.md)
 
-[a, b] token amounts
+A tuple [a, b] containing the amounts of tokens A and B to withdraw.
 
 ## Defined in
 
-[StableSwapsPool.ts:190](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L190)
+[StableSwapsPool.ts:272](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L272)

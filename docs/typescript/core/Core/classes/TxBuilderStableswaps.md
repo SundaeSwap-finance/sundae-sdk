@@ -2,47 +2,50 @@
 
 ***
 
-# Class: TxBuilderV3
+# Class: TxBuilderStableswaps
 
-`TxBuilderBlazeV3` is a class extending `TxBuilder` to support transaction construction
-for Blaze against the V3 SundaeSwap protocol. It includes capabilities to build and execute various transaction types
-such as swaps, cancellations, updates, deposits, withdrawals, and zaps.
+`TxBuilderStableswaps` is a specialized transaction builder class for constructing transactions
+against the Stableswaps protocol variant of SundaeSwap V3. It extends `TxBuilderV3` and provides
+specific implementations for Stableswaps pool operations, including pool minting with protocol fees
+derived from the settings datum.
+
+The Stableswaps protocol is designed for assets with similar values (e.g., stablecoins) and uses
+a different AMM curve than standard constant product pools.
 
 ## Extends
 
-- [`TxBuilderAbstractV3`](TxBuilderAbstractV3.md)
-
-## Extended by
-
-- [`TxBuilderStableswaps`](TxBuilderStableswaps.md)
+- [`TxBuilderV3`](TxBuilderV3.md)
 
 ## Constructors
 
-### new TxBuilderV3()
+### new TxBuilderStableswaps()
 
-> **new TxBuilderV3**(`blaze`, `queryProvider`?): [`TxBuilderV3`](TxBuilderV3.md)
+> **new TxBuilderStableswaps**(`blaze`, `queryProvider`?): [`TxBuilderStableswaps`](TxBuilderStableswaps.md)
+
+Constructs a new TxBuilderStableswaps instance.
 
 #### Parameters
 
 • **blaze**: `Blaze`\<`Provider`, `Wallet$1`\>
 
-A configured Blaze instance to use.
+A configured Blaze instance for transaction building and signing.
 
 • **queryProvider?**: [`QueryProviderSundaeSwap`](QueryProviderSundaeSwap.md)
 
-A custom query provider if desired.
+Optional custom query provider for fetching blockchain data.
+       If not provided, a default QueryProviderSundaeSwap instance will be created.
 
 #### Returns
 
-[`TxBuilderV3`](TxBuilderV3.md)
+[`TxBuilderStableswaps`](TxBuilderStableswaps.md)
 
 #### Overrides
 
-`TxBuilderAbstractV3.constructor`
+[`TxBuilderV3`](TxBuilderV3.md).[`constructor`](TxBuilderV3.md#constructors)
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:102](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L102)
+[packages/core/src/TxBuilders/TxBuilder.Stableswaps.class.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Stableswaps.class.ts#L42)
 
 ## Properties
 
@@ -50,11 +53,48 @@ A custom query provider if desired.
 
 > **blaze**: `Blaze`\<`Provider`, `Wallet$1`\>
 
-A configured Blaze instance to use.
+A configured Blaze instance for transaction building and signing.
+
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`blaze`](TxBuilderV3.md#blaze)
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:103](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L103)
+[packages/core/src/TxBuilders/TxBuilder.Stableswaps.class.ts:43](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Stableswaps.class.ts#L43)
+
+***
+
+### contractVersion
+
+> **contractVersion**: [`EContractVersion`](../enumerations/EContractVersion.md) = `EContractVersion.Stableswaps`
+
+The contract version identifier for Stableswaps protocol.
+
+#### Overrides
+
+`TxBuilderV3.contractVersion`
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.Stableswaps.class.ts:27](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Stableswaps.class.ts#L27)
+
+***
+
+### datumBuilder
+
+> **datumBuilder**: [`DatumBuilderStableswaps`](DatumBuilderStableswaps.md)
+
+The datum builder instance specifically for Stableswaps protocol, handling
+datum construction and parsing for Stableswaps transactions.
+
+#### Overrides
+
+`TxBuilderV3.datumBuilder`
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.Stableswaps.class.ts:33](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Stableswaps.class.ts#L33)
 
 ## Methods
 
@@ -78,9 +118,9 @@ The configuration arguments for the cancel transaction.
 
 A promise that resolves to the result of the cancel transaction.
 
-#### Overrides
+#### Inherited from
 
-`TxBuilderAbstractV3.cancel`
+[`TxBuilderV3`](TxBuilderV3.md).[`cancel`](TxBuilderV3.md#cancel)
 
 #### Defined in
 
@@ -108,9 +148,9 @@ The configuration arguments for the deposit.
 
 A promise that resolves to the composed transaction object.
 
-#### Overrides
+#### Inherited from
 
-`TxBuilderAbstractV3.deposit`
+[`TxBuilderV3`](TxBuilderV3.md).[`deposit`](TxBuilderV3.md#deposit)
 
 #### Defined in
 
@@ -133,6 +173,10 @@ True to enable tracing, false to turn it off. (default: false)
 #### Returns
 
 [`TxBuilderV3`](TxBuilderV3.md)
+
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`enableTracing`](TxBuilderV3.md#enabletracing)
 
 #### Defined in
 
@@ -158,6 +202,10 @@ Merges the user's staking key to the contract payment address if present.
 
 The generated Bech32 address.
 
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`generateScriptAddress`](TxBuilderV3.md#generatescriptaddress)
+
 #### Defined in
 
 [packages/core/src/TxBuilders/TxBuilder.V3.class.ts:1359](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L1359)
@@ -175,6 +223,10 @@ using the Blaze provider.
 #### Returns
 
 `Promise`\<`TransactionUnspentOutput`[]\>
+
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`getAllReferenceUtxos`](TxBuilderV3.md#getallreferenceutxos)
 
 #### Defined in
 
@@ -196,6 +248,10 @@ error or otherwise, we fallback to 1 ADA.
 
 The maxScooperFee as defined by the settings UTXO.
 
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`getMaxScooperFeeAmount`](TxBuilderV3.md#getmaxscooperfeeamount)
+
 #### Defined in
 
 [packages/core/src/TxBuilders/TxBuilder.V3.class.ts:241](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L241)
@@ -212,6 +268,10 @@ and fills in a place-holder for the compiled code of any validators.
 #### Returns
 
 `Promise`\<[`ISundaeProtocolParamsFull`](../interfaces/ISundaeProtocolParamsFull.md)\>
+
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`getProtocolParams`](TxBuilderV3.md#getprotocolparams)
 
 #### Defined in
 
@@ -233,6 +293,10 @@ The type of reference input to retrieve.
 
 `Promise`\<[`ISundaeProtocolReference`](../interfaces/ISundaeProtocolReference.md)\>
 
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`getReferenceScript`](TxBuilderV3.md#getreferencescript)
+
 #### Defined in
 
 [packages/core/src/TxBuilders/TxBuilder.V3.class.ts:192](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L192)
@@ -249,6 +313,10 @@ Gets the settings UTxO.
 
 `Promise`\<`TransactionUnspentOutput`\>
 
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`getSettingsUtxo`](TxBuilderV3.md#getsettingsutxo)
+
 #### Defined in
 
 [packages/core/src/TxBuilders/TxBuilder.V3.class.ts:209](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L209)
@@ -264,6 +332,10 @@ Gets the setting utxo's datum CBOR.
 #### Returns
 
 `Promise`\<`string`\>
+
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`getSettingsUtxoDatum`](TxBuilderV3.md#getsettingsutxodatum)
 
 #### Defined in
 
@@ -294,6 +366,10 @@ because the first UTXO in the sorted list is the seed (used for generating a uni
 
 Throws an error if the retrieval of UTXOs fails or if no UTXOs are available.
 
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`getUtxosForPoolMint`](TxBuilderV3.md#getutxosforpoolmint)
+
 #### Defined in
 
 [packages/core/src/TxBuilders/TxBuilder.V3.class.ts:1408](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L1408)
@@ -318,6 +394,10 @@ The name of the validator script to retrieve.
 
 `Promise`\<[`ISundaeProtocolValidatorFull`](../interfaces/ISundaeProtocolValidatorFull.md)\>
 
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`getValidatorScript`](TxBuilderV3.md#getvalidatorscript)
+
 #### Defined in
 
 [packages/core/src/TxBuilders/TxBuilder.V3.class.ts:286](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L286)
@@ -328,39 +408,41 @@ The name of the validator script to retrieve.
 
 > **mintPool**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
 
-Mints a new liquidity pool on the Cardano blockchain. This method
-constructs and submits a transaction that includes all the necessary generation
-of pool NFTs, metadata, pool assets, and initial liquidity tokens,
+Mints a new Stableswaps liquidity pool with the specified configuration.
+This method extends the parent `mintPool` implementation by automatically fetching
+and applying protocol fees from the settings datum before pool creation.
+
+The protocol fees are required for Stableswaps pools and are retrieved from the
+on-chain settings UTXO to ensure they match the current protocol parameters.
 
 #### Parameters
 
 • **args**: [`IMintPoolConfigArgs`](../interfaces/IMintPoolConfigArgs.md)
 
-Configuration arguments for minting the pool, including assets,
-fee parameters, owner address, protocol fee, and referral fee.
- - assetA: The amount and metadata of assetA. This is a bit misleading because the assets are lexicographically ordered anyway.
- - assetB: The amount and metadata of assetB. This is a bit misleading because the assets are lexicographically ordered anyway.
- - fee: The desired pool fee, denominated out of 10 thousand.
- - marketOpen: The POSIX timestamp for when the pool should allow trades (market open).
- - ownerAddress: Who the generated LP tokens should be sent to.
+The configuration arguments for minting the pool, including:
+  - Pool assets and their initial amounts
+  - Pool fees
+  - Owner address
+  - Other pool-specific parameters
 
 #### Returns
 
 `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
 
-A completed transaction object.
+A promise that resolves to the composed transaction
+         ready for signing and submission.
 
 #### Throws
 
-Throws an error if the transaction fails to build or submit.
+If the settings datum cannot be retrieved or protocol fees cannot be extracted.
 
 #### Overrides
 
-`TxBuilderAbstractV3.mintPool`
+[`TxBuilderV3`](TxBuilderV3.md).[`mintPool`](TxBuilderV3.md#mintpool)
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V3.class.ts:344](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V3.class.ts#L344)
+[packages/core/src/TxBuilders/TxBuilder.Stableswaps.class.ts:67](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.Stableswaps.class.ts#L67)
 
 ***
 
@@ -378,9 +460,9 @@ Returns a new Tx instance from Blaze. Throws an error if not ready.
 
 `TxBuilder`
 
-#### Overrides
+#### Inherited from
 
-[`TxBuilderAbstractV3`](TxBuilderAbstractV3.md).[`newTxInstance`](TxBuilderAbstractV3.md#newtxinstance)
+[`TxBuilderV3`](TxBuilderV3.md).[`newTxInstance`](TxBuilderV3.md#newtxinstance)
 
 #### Defined in
 
@@ -406,9 +488,9 @@ The arguments for the order route swap.
 
 The result of the transaction.
 
-#### Overrides
+#### Inherited from
 
-`TxBuilderAbstractV3.orderRouteSwap`
+[`TxBuilderV3`](TxBuilderV3.md).[`orderRouteSwap`](TxBuilderV3.md#orderrouteswap)
 
 #### Defined in
 
@@ -425,6 +507,10 @@ Resets the max scooper fee to read from the settings UTXO.
 #### Returns
 
 `void`
+
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`resetMaxScooperFee`](TxBuilderV3.md#resetmaxscooperfee)
 
 #### Defined in
 
@@ -447,6 +533,10 @@ The value in lovelace.
 #### Returns
 
 `void`
+
+#### Inherited from
+
+[`TxBuilderV3`](TxBuilderV3.md).[`setMaxScooperFee`](TxBuilderV3.md#setmaxscooperfee)
 
 #### Defined in
 
@@ -474,9 +564,9 @@ The configuration arguments for the swap.
 
 A promise that resolves to the result of the completed transaction.
 
-#### Overrides
+#### Inherited from
 
-`TxBuilderAbstractV3.swap`
+[`TxBuilderV3`](TxBuilderV3.md).[`swap`](TxBuilderV3.md#swap)
 
 #### Defined in
 
@@ -504,9 +594,9 @@ arguments for cancel and swap configurations.
 
 A promise that resolves to the result of the updated transaction.
 
-#### Overrides
+#### Inherited from
 
-`TxBuilderAbstractV3.update`
+[`TxBuilderV3`](TxBuilderV3.md).[`update`](TxBuilderV3.md#update)
 
 #### Defined in
 
@@ -534,9 +624,9 @@ The configuration arguments for the withdrawal.
 
 A promise that resolves to the composed transaction object.
 
-#### Overrides
+#### Inherited from
 
-`TxBuilderAbstractV3.withdraw`
+[`TxBuilderV3`](TxBuilderV3.md).[`withdraw`](TxBuilderV3.md#withdraw)
 
 #### Defined in
 
@@ -564,9 +654,9 @@ The configuration arguments for the zap, excluding the zap direction.
 
 A promise that resolves to the composed transaction object resulting from the zap operation.
 
-#### Overrides
+#### Inherited from
 
-`TxBuilderAbstractV3.zap`
+[`TxBuilderV3`](TxBuilderV3.md).[`zap`](TxBuilderV3.md#zap)
 
 #### Defined in
 
