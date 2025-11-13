@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.4.1
+
+### Patch Changes
+
+- dd140ed: Updates the versioning because dependencies were not getting their workspace:\* version updated at publish time.
+
 ## 1.4.0
 
 ### Minor Changes
