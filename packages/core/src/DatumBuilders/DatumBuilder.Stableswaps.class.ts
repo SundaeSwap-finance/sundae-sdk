@@ -47,7 +47,7 @@ export class DatumBuilderStableswaps extends DatumBuilderV3 {
       assetB.amount,
     );
 
-    const liquidity = sumInvariant / StableSwapsPool.reservePrecision;
+    const liquidity = sumInvariant / StableSwapsPool.RESERVE_PRECISION;
 
     const newPoolDatum: StableswapsTypes.StablePoolDatum = {
       assets: assetsPair,

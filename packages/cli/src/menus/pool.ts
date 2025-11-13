@@ -17,7 +17,6 @@ import {
   type IPoolByPairQuery,
   SundaeUtils,
   QueryProviderSundaeSwap,
-  type IPoolByIdentQuery,
   type IWithdrawConfigArgs,
 } from "@sundaeswap/core";
 import type { State } from "../types";
@@ -112,7 +111,7 @@ export async function removeLiquidityMenu(state: State): Promise<State> {
     state,
     "Select the liquidity you want to remove",
     0n,
-    (assetId: string, _: bigint) => {
+    (assetId: string) => {
       return SundaeUtils.isAnyLPAsset({
         assetId: assetId,
         protocols: protocols,
@@ -121,7 +120,7 @@ export async function removeLiquidityMenu(state: State): Promise<State> {
   );
   const pool = (await state.sdk().queryProvider.findPoolData({
     ident: SundaeUtils.getIdentFromAssetId(lpAsset!.id),
-  } as IPoolByIdentQuery)) as IPoolData;
+  })) as IPoolData;
   if (!pool) {
     console.log("Pool not found");
     return state;

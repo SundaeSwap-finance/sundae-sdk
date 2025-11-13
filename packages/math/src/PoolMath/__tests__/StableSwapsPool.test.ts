@@ -5,7 +5,7 @@ import {
   getSwapInput,
   getSwapOutput,
   liquidityInvariant,
-  reservePrecision,
+  RESERVE_PRECISION,
 } from "../StableSwapsPool.js";
 import { TPair } from "../SharedPoolMath.js";
 import { Fraction, type TFractionLike } from "@sundaeswap/fraction";
@@ -14,8 +14,8 @@ describe("liquidityInvariant()", () => {
   test("Should be true for normal balanced case", () => {
     expect(
       liquidityInvariant(
-        20_000_000n * reservePrecision,
-        20_000_000n * reservePrecision,
+        20_000_000n * RESERVE_PRECISION,
+        20_000_000n * RESERVE_PRECISION,
         200n,
         40000000000000000000n,
       ),
@@ -27,8 +27,8 @@ describe("liquidityInvariant()", () => {
   test("Should be true after a swap", () => {
     expect(
       liquidityInvariant(
-        1010000000n * reservePrecision,
-        1000000000n * reservePrecision - rawSwap,
+        1010000000n * RESERVE_PRECISION,
+        1000000000n * RESERVE_PRECISION - rawSwap,
         200n,
         2000000000000000000000n,
       ),
@@ -38,8 +38,8 @@ describe("liquidityInvariant()", () => {
   test("Should be false after a swap minus 1", () => {
     expect(
       liquidityInvariant(
-        1010000000n * reservePrecision,
-        1000000000n * reservePrecision - rawSwap - 1n,
+        1010000000n * RESERVE_PRECISION,
+        1000000000n * RESERVE_PRECISION - rawSwap - 1n,
         200n,
         2000000000000000000000n,
       ),
@@ -49,8 +49,8 @@ describe("liquidityInvariant()", () => {
   test("Should be false after a swap plus 1", () => {
     expect(
       liquidityInvariant(
-        1010000000n * reservePrecision,
-        1000000000n * reservePrecision - rawSwap + 1n,
+        1010000000n * RESERVE_PRECISION,
+        1000000000n * RESERVE_PRECISION - rawSwap + 1n,
         200n,
         2000000000000000000000n,
       ),
@@ -78,7 +78,7 @@ describe("getNewY()", () => {
   const oldY = 1000000000n;
   test("Should find the correct swap amount", () => {
     const newY = getNewY(newX, 200n, sumInvariant);
-    expect(newY).toEqual(oldY * reservePrecision - rawSwap);
+    expect(newY).toEqual(oldY * RESERVE_PRECISION - rawSwap);
   });
 });
 

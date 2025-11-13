@@ -16,6 +16,12 @@ import {
 import { QueryProvider } from "../Abstracts/QueryProvider.abstract.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 
+export type TFindPoolDataArgs =
+  | IPoolByIdentQuery
+  | IPoolByAssetQuery
+  | IPoolBySearchTermQuery
+  | IPoolByPairQuery;
+
 const providerBaseUrls: Record<TSupportedNetworks, string> = {
   mainnet: "https://api.sundae.fi/graphql",
   preview: "https://api.preview.sundae.fi/graphql",
@@ -110,7 +116,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   ): Promise<IPoolData[]> {
     const query = minimal
       ? `
-        query poolByIdent($assetA: ID!, $assetB: ID!) {
+        query poolByPair($assetA: ID!, $assetB: ID!) {
           pools {
             byPair(assetA: $assetA, assetB: $assetB) {
               id
@@ -143,7 +149,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         }
       `
       : `
-      query poolByIdent($assetA: ID!, $assetB: ID!) {
+      query poolByPair($assetA: ID!, $assetB: ID!) {
         pools {
           byPair(assetA: $assetA, assetB: $assetB) {
               feesFinalized {
@@ -499,11 +505,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   async findPoolData(assetPairArgs: IPoolByPairQuery): Promise<IPoolData[]>;
   async findPoolData(searchArgs: IPoolBySearchTermQuery): Promise<IPoolData[]>;
   async findPoolData(
-    args:
-      | IPoolByIdentQuery
-      | IPoolByAssetQuery
-      | IPoolBySearchTermQuery
-      | IPoolByPairQuery,
+    args: TFindPoolDataArgs,
   ): Promise<IPoolData | IPoolData[]> {
     if ("search" in args) {
       return this.findPoolDataBySearchTerm(args.search, args.minimal);

@@ -5,7 +5,7 @@ import { TxBuilderNftCheck } from "../TxBuilders/TxBuilder.NftCheck.class.js";
 import { TxBuilderV1 } from "../TxBuilders/TxBuilder.V1.class.js";
 import { TxBuilderV3 } from "../TxBuilders/TxBuilder.V3.class.js";
 import { ISwapConfigArgs } from "./configs.js";
-import { TxBuilderStableswaps } from "src/TxBuilders/TxBuilder.Stableswaps.class.js";
+import { TxBuilderStableswaps } from "../TxBuilders/TxBuilder.Stableswaps.class.js";
 
 /**
  * The full list of calculated fees for a transaction built by a TxBuilder instance.

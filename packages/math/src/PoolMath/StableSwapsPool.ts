@@ -29,17 +29,17 @@ export function liquidityInvariant(
   return f1 <= 0n && f2 > 0n;
 }
 
-export const aPrecision = 200n;
-export const reservePrecision = 1_000_000_000_000n;
-export const feePrecision = 10_000n;
+export const A_PRECISION: bigint = 200n;
+export const RESERVE_PRECISION: bigint = 1_000_000_000_000n;
+export const FEE_PRECISION: bigint = 10_000n;
 
 export function getSumInvariant(a: bigint, x: bigint, y: bigint): bigint {
   if (a <= 0n) {
     throw new Error("Amplification coefficient must be positive.");
   }
-  x = x * reservePrecision;
-  y = y * reservePrecision;
-  a = a * aPrecision;
+  x = x * RESERVE_PRECISION;
+  y = y * RESERVE_PRECISION;
+  a = a * A_PRECISION;
   const sum: bigint = x + y;
   if (sum === 0n) {
     return 0n;
@@ -57,7 +57,7 @@ export function getSumInvariant(a: bigint, x: bigint, y: bigint): bigint {
 
     if (d > d_prev) {
       if (d - d_prev <= 1) {
-        if (liquidityInvariant(x, y, a / aPrecision, d)) {
+        if (liquidityInvariant(x, y, a / A_PRECISION, d)) {
           return d;
         } else {
           return d - 1n;
@@ -65,7 +65,7 @@ export function getSumInvariant(a: bigint, x: bigint, y: bigint): bigint {
       }
     } else {
       if (d_prev - d <= 1) {
-        if (liquidityInvariant(x, y, a / aPrecision, d)) {
+        if (liquidityInvariant(x, y, a / A_PRECISION, d)) {
           return d;
         } else {
           return d - 1n;
@@ -81,16 +81,16 @@ export function getNewY(
   aRaw: bigint,
   sumInvariant: bigint,
 ): bigint {
-  newX = newX * reservePrecision;
+  newX = newX * RESERVE_PRECISION;
   const sum = newX;
   let yPrev: bigint;
   let c = sumInvariant;
-  const ann = aRaw * aPrecision * 2n;
+  const ann = aRaw * A_PRECISION * 2n;
 
   c = (c * sumInvariant) / (newX * 2n);
-  c = (c * sumInvariant * aPrecision) / 2n;
+  c = (c * sumInvariant * A_PRECISION) / 2n;
   c = c / (ann * 2n);
-  const b = sum + (sumInvariant * aPrecision) / 2n / ann;
+  const b = sum + (sumInvariant * A_PRECISION) / 2n / ann;
   let y = sumInvariant;
   for (let i = 0; i < 255; i++) {
     yPrev = y;
@@ -123,7 +123,7 @@ export function getNewY(
  * @returns the minted lp token amount
  */
 export const getFirstLp = (a: bigint, b: bigint, laf: bigint) =>
-  getSumInvariant(laf, a, b) / reservePrecision;
+  getSumInvariant(laf, a, b) / RESERVE_PRECISION;
 
 /**
  * Calculate the Add (Mixed-Deposit) Liquidity parameters
@@ -252,13 +252,13 @@ export const getSwapOutput = (
   const nextInputReserve = inputReserve + input;
   const newY = getNewY(nextInputReserve, laf, sumInvariant);
 
-  const deltaYPrec = outputReserve * reservePrecision - newY;
-  const deltaY = new Fraction(deltaYPrec, reservePrecision);
+  const deltaYPrec = outputReserve * RESERVE_PRECISION - newY;
+  const deltaY = new Fraction(deltaYPrec, RESERVE_PRECISION);
   const totalFee = combinedFee
-    .multiply(feePrecision)
+    .multiply(FEE_PRECISION)
     .multiply(deltaY.quotient)
-    .add(Fraction.asFraction(feePrecision - 1n))
-    .divide(feePrecision).quotient;
+    .add(Fraction.asFraction(FEE_PRECISION - 1n))
+    .divide(FEE_PRECISION).quotient;
   const totalProtocolFee = protocolFee
     .multiply(totalFee)
     .divide(combinedFee).quotient;
@@ -296,14 +296,14 @@ export function getPrice(
   laf: bigint,
 ): Fraction {
   // dx_0 / dx_1 only, however can have any number of coins in pool
-  const ann = laf * 2n * aPrecision;
+  const ann = laf * 2n * A_PRECISION;
   const sumInvariant =
-    getSumInvariant(laf, aReserve, bReserve) / reservePrecision;
+    getSumInvariant(laf, aReserve, bReserve) / RESERVE_PRECISION;
   // D / n^n with n = 2
   let dR = sumInvariant / 4n;
   dR = (dR * sumInvariant) / aReserve;
   dR = (dR * sumInvariant) / bReserve;
-  const xpA = (ann * aReserve) / aPrecision;
+  const xpA = (ann * aReserve) / A_PRECISION;
   const p = new Fraction(xpA + (dR * aReserve) / bReserve, xpA + dR);
   return p;
 }
@@ -360,14 +360,14 @@ export const getSwapInput = (
   const sumInvariant = getSumInvariant(laf, inputReserve, outputReserve);
   const newX = getNewY(outputReserve - rawOutput, laf, sumInvariant);
   const input =
-    (newX - inputReserve * reservePrecision + reservePrecision - 1n) /
-    reservePrecision;
+    (newX - inputReserve * RESERVE_PRECISION + RESERVE_PRECISION - 1n) /
+    RESERVE_PRECISION;
 
   const totalFee =
-    (combinedFee.multiply(feePrecision).quotient * rawOutput +
-      feePrecision -
+    (combinedFee.multiply(FEE_PRECISION).quotient * rawOutput +
+      FEE_PRECISION -
       1n) /
-    feePrecision;
+    FEE_PRECISION;
   const totalProtocolFee = protocolFee
     .multiply(totalFee)
     .divide(combinedFee).quotient;
