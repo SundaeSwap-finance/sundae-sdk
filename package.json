@@ -18,7 +18,8 @@
     "typecheck": "lerna run typecheck",
     "build": "lerna run build",
     "version:ci": "lerna version -y --ignore-scripts",
-    "publish:ci": "lerna publish from-package -y",
+    "publish:ci": "sh ./scripts/publish.sh",
+    "publish:canary:ci": "sh ./scripts/canary.sh",
     "docs": "lerna run docs:ci",
     "dev": "concurrently \"cd packages/core && bun watch\" \"cd packages/yield-farming && bun watch\" \"cd packages/demo && bun start\""
   },
@@ -27,7 +28,8 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "bun lint:fix --quiet"
+      "bun lint:fix --quiet",
+      "bun docs"
     ]
   },
   "devDependencies": {
