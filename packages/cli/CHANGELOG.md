@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.4.0
+
+### Minor Changes
+
+- 786dff4: Adds stableswap support to the `core` library and also updates packages to be self-supporting (i.e. no more peer dependency management).
+
 ## 1.3.2
 
 ### Patch Changes
