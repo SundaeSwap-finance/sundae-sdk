@@ -1,6 +1,6 @@
 {
   "name": "@sundaeswap/gummiworm",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "The official SundaeSwap GummiWorm SDK for clients.",
   "repository": "git@github.com:SundaeSwap-finance/sundae-sdk.git",
   "author": {

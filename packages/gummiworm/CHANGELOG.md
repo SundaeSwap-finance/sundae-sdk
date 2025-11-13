@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.0.2
+
+### Patch Changes
+
+- 786dff4: Adds stableswap support to the `core` library and also updates packages to be self-supporting (i.e. no more peer dependency management).
+- Updated dependencies [786dff4]
+  - @sundaeswap/core@2.8.0
+
 ## 2.0.1
 
 ### Patch Changes
