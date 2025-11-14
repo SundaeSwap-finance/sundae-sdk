@@ -88,7 +88,7 @@ export async function strategyMenu(state: State): Promise<State> {
             "Enter the signing public key (NOT the key hash) for the strategy",
         })
       : undefined;
-  const builder = state.sdk!.builders.get(EContractVersion.V3)! as TxBuilderV3;
+  const builder = state.sdk().builders.get(EContractVersion.V3)! as TxBuilderV3;
   const strategyArgs: IStrategyConfigInputArgs = {
     suppliedAsset: swapFrom,
     pool: pool,
