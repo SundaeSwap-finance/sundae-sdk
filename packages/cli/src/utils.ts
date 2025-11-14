@@ -122,13 +122,14 @@ export async function getPoolData(
   ident: string,
   version: EContractVersion,
 ): Promise<IPoolData> {
-  const builder = state.sdk!.builders.get(version)!;
+  const builder = state.sdk().builders.get(version)!;
   const { hash: poolPolicyId } = await builder.getValidatorScript("pool.mint");
   console.log("Pool Policy ID: ", poolPolicyId);
   const poolNft = DatumBuilderNftCheck.computePoolNftName(ident);
   console.log("Pool NFT: ", poolNft);
   const poolUtxo = await state
-    .sdk!.blaze()
+    .sdk()
+    .blaze()
     .provider.getUnspentOutputByNFT(
       Core.AssetId.fromParts(
         Core.PolicyId(poolPolicyId),

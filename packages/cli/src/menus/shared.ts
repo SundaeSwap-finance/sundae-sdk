@@ -160,7 +160,7 @@ export async function getAssetAmount(
 ): Promise<AssetAmount<IAssetAmountMetadata> | undefined> {
   let bal: Core.Value;
   try {
-    bal = await state.sdk!.blaze().wallet.getBalance();
+    bal = await state.sdk().blaze().wallet.getBalance();
   } catch (err) {
     bal = makeValue(0n);
     console.log(
@@ -265,7 +265,7 @@ export async function selectPool(
 ): Promise<IPoolData | undefined> {
   let choices: { name: string; value: string }[] = [];
   try {
-    const pools = (await state.sdk!.queryProvider.findPoolData({
+    const pools = (await state.sdk().queryProvider.findPoolData({
       assetId,
       minimal: true,
     } as IPoolByAssetQuery)) as IPoolData[];
@@ -280,7 +280,7 @@ export async function selectPool(
       if (!term) {
         return choices;
       }
-      const pools = (await state.sdk!.queryProvider.findPoolData({
+      const pools = (await state.sdk().queryProvider.findPoolData({
         search: term,
         minimal: true,
       })) as IPoolData[];
@@ -309,7 +309,7 @@ export async function selectPool(
     });
     pool = await getPoolData(state, ident, version);
   } else {
-    pool = (await state.sdk!.queryProvider.findPoolData({
+    pool = (await state.sdk().queryProvider.findPoolData({
       ident: choice,
     })) as IPoolData;
   }

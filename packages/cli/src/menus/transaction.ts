@@ -28,7 +28,7 @@ export async function transactionDialog(
   });
   switch (choice) {
     case "sign":
-      const blaze = state.sdk?.blaze();
+      const blaze = state.sdk().blaze();
       if (!blaze) {
         console.error("Blaze instance is not available.");
         return;
