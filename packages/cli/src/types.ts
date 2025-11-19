@@ -25,7 +25,7 @@ export class State {
   }
 
   sdk(): SundaeSDK {
-    if (!this.sdk) {
+    if (!this.sdkInstance) {
       throw new Error("SDK not initialized. Call setSdk() first.");
     }
     return this.sdkInstance!;
