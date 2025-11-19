@@ -29,7 +29,7 @@
   "lint-staged": {
     "*.{ts,tsx}": [
       "bun lint:fix --quiet",
-      "bun docs"
+      "bash -c 'bun docs'"
     ]
   },
   "devDependencies": {

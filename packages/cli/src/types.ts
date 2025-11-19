@@ -17,7 +17,7 @@ export interface ISettings {
 }
 
 export class State {
-  private sundaesdk?: SundaeSDK;
+  private sdkInstance?: SundaeSDK;
   settings: ISettings;
 
   constructor() {
@@ -25,16 +25,16 @@ export class State {
   }
 
   sdk(): SundaeSDK {
-    if (!this.sdk) {
+    if (!this.sdkInstance) {
       throw new Error("SDK not initialized. Call setSdk() first.");
     }
-    return this.sundaesdk!;
+    return this.sdkInstance!;
   }
 
   async setSdk(): Promise<void> {
-    if (!this.sundaesdk) {
+    if (!this.sdkInstance) {
       const blazeInstance = await getBlazeInstance(this);
-      this.sundaesdk = SundaeSDK.new({
+      this.sdkInstance = SundaeSDK.new({
         blazeInstance,
       });
     } else {
