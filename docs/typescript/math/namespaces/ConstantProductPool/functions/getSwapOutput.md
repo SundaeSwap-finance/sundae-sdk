@@ -4,7 +4,7 @@
 
 # Function: getSwapOutput()
 
-> **getSwapOutput**(`input`, `inputReserve`, `outputReserve`, `fee`, `roundOutputUp`?): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
+> **getSwapOutput**(`inputMetadata`, `input`, `inputReserve`, `outputReserve`, `fee`, `roundOutputUp`?): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
 
 Calculate swap outcome for a given input and pool parameters (input tokens, output tokens, fee).
 Throws if
@@ -12,6 +12,8 @@ Throws if
  - fee is greater than or equal 1
 
 ## Parameters
+
+• **inputMetadata**: `IAssetAmountMetadata`
 
 • **input**: `bigint`
 

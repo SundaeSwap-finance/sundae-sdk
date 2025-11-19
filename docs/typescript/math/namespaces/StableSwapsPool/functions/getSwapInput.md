@@ -4,7 +4,7 @@
 
 # Function: getSwapInput()
 
-> **getSwapInput**(`output`, `inputReserve`, `outputReserve`, `fee`, `protocolFee`, `laf`): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
+> **getSwapInput**(`outputMetadata`, `output`, `inputReserve`, `outputReserve`, `fee`, `protocolFee`, `laf`): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
 
 Calculates the required input amount and all swap parameters for a desired output amount in a Stableswaps pool.
 This is the reverse operation of getSwapOutput - given how much you want to receive, it determines
@@ -18,6 +18,8 @@ The calculation process:
 5. Computes price impact by comparing ideal vs actual execution price
 
 ## Parameters
+
+• **outputMetadata**: `IAssetAmountMetadata`
 
 • **output**: `bigint`
 
@@ -71,4 +73,4 @@ If combined fee is greater than or equal to 1.
 
 ## Defined in
 
-[StableSwapsPool.ts:452](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L452)
+[StableSwapsPool.ts:454](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L454)

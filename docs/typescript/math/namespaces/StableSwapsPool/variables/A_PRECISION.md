@@ -11,4 +11,4 @@ Used to scale the amplification factor for more precise arithmetic operations.
 
 ## Defined in
 
-[StableSwapsPool.ts:50](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L50)
+[StableSwapsPool.ts:51](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L51)

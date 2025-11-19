@@ -39,4 +39,4 @@ True if the sum invariant satisfies the liquidity invariant equation, false othe
 
 ## Defined in
 
-[StableSwapsPool.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L18)
+[StableSwapsPool.ts:19](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L19)

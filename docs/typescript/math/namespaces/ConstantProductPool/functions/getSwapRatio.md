@@ -47,4 +47,4 @@ console.log(sameAmount.ratioAsFraction); // Same as above.
 
 ## Defined in
 
-[ConstantProductPool.ts:315](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L315)
+[ConstantProductPool.ts:317](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L317)

@@ -34,4 +34,4 @@ The amount of LP tokens to mint for the first liquidity provision.
 
 ## Defined in
 
-[StableSwapsPool.ts:194](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L194)
+[StableSwapsPool.ts:195](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L195)
