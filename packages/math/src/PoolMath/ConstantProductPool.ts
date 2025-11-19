@@ -196,7 +196,7 @@ export const getSwapOutput = (
   const actualPrice = new Fraction(amountInLessFee, safeOutput);
   const priceImpact = Fraction.ONE.subtract(idealPrice.divide(actualPrice));
   return {
-    input: input,
+    input,
     output: safeOutput,
     lpFee: new AssetAmount(inputLpFee, inputMetadata),
     nextInputReserve,

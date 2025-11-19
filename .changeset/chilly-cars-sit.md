@@ -4,4 +4,4 @@
 "@sundaeswap/cli": patch
 ---
 
-Add asset metadata to lp fee field in swapoutcome
+Add asset metadata to lp fee field in TSwapOutcome
