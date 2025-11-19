@@ -554,6 +554,7 @@ export class SundaeUtils {
       case EContractVersion.V3:
       case EContractVersion.NftCheck:
         return ConstantProductPool.getSwapOutput(
+          suppliedAsset.metadata,
           suppliedAsset.amount,
           inputReserve,
           outputReserve,
@@ -562,6 +563,9 @@ export class SundaeUtils {
         );
       case EContractVersion.Stableswaps:
         return StableSwapsPool.getSwapOutput(
+          poolData.assetA.assetId === suppliedAsset.metadata.assetId
+            ? poolData.assetB
+            : poolData.assetA,
           suppliedAsset.amount,
           inputReserve,
           outputReserve,

@@ -1,4 +1,4 @@
-import { AssetAmount } from "@sundaeswap/asset";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { Fraction, type TFractionLike } from "@sundaeswap/fraction";
 import { sqrt } from "@sundaeswap/bigint-math";
 import { SharedPoolMath } from "./index.js";
@@ -138,7 +138,7 @@ export const getTokensForLp = (
 export type TSwapOutcome = {
   input: bigint;
   output: bigint;
-  inputLpFee: bigint;
+  lpFee: AssetAmount<IAssetAmountMetadata>;
   nextInputReserve: bigint;
   nextOutputReserve: bigint;
   priceImpact: Fraction;
@@ -157,6 +157,7 @@ export type TSwapOutcome = {
  * @returns The swap details
  */
 export const getSwapOutput = (
+  inputMetadata: IAssetAmountMetadata,
   input: bigint,
   inputReserve: bigint,
   outputReserve: bigint,
@@ -195,9 +196,9 @@ export const getSwapOutput = (
   const actualPrice = new Fraction(amountInLessFee, safeOutput);
   const priceImpact = Fraction.ONE.subtract(idealPrice.divide(actualPrice));
   return {
-    input,
+    input: input,
     output: safeOutput,
-    inputLpFee,
+    lpFee: new AssetAmount(inputLpFee, inputMetadata),
     nextInputReserve,
     nextOutputReserve,
     priceImpact,
@@ -218,6 +219,7 @@ export const getSwapOutput = (
  * @returns The swap details
  */
 export const getSwapInput = (
+  inputMetadata: IAssetAmountMetadata,
   output: bigint,
   inputReserve: bigint,
   outputReserve: bigint,
@@ -254,7 +256,7 @@ export const getSwapInput = (
   return {
     input,
     output,
-    inputLpFee,
+    lpFee: new AssetAmount(inputLpFee, inputMetadata),
     nextInputReserve,
     nextOutputReserve,
     priceImpact,

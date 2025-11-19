@@ -1,3 +1,4 @@
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { SharedPoolMath } from "./index.js";
 import { Fraction, type TFractionLike } from "@sundaeswap/fraction";
 
@@ -290,9 +291,9 @@ export type TSwapOutcome = {
   /** The amount of output tokens received (after all fees) */
   output: bigint;
   /** The portion of fees that goes to liquidity providers */
-  outputLpFee: bigint;
+  lpFee: AssetAmount<IAssetAmountMetadata>;
   /** The portion of fees that goes to the protocol */
-  outputProtocolFee: bigint;
+  protocolFee: AssetAmount<IAssetAmountMetadata>;
   /** The input asset reserve amount after the swap */
   nextInputReserve: bigint;
   /** The output asset reserve amount after the swap (excluding protocol fees) */
@@ -329,6 +330,7 @@ export type TSwapOutcome = {
  * @throws {Error} If combined fee is greater than or equal to 1.
  */
 export const getSwapOutput = (
+  outputMetadata: IAssetAmountMetadata,
   input: bigint,
   inputReserve: bigint,
   outputReserve: bigint,
@@ -384,8 +386,8 @@ export const getSwapOutput = (
   return {
     input,
     output: safeOutput,
-    outputLpFee: totalLpFee,
-    outputProtocolFee: totalProtocolFee,
+    lpFee: new AssetAmount(totalLpFee, outputMetadata),
+    protocolFee: new AssetAmount(totalProtocolFee, outputMetadata),
     nextInputReserve,
     nextOutputReserve,
     nextSumInvariant: getSumInvariant(laf, nextInputReserve, nextOutputReserve),
@@ -450,6 +452,7 @@ export function getPrice(
  * @throws {Error} If combined fee is greater than or equal to 1.
  */
 export const getSwapInput = (
+  outputMetadata: IAssetAmountMetadata,
   output: bigint,
   inputReserve: bigint,
   outputReserve: bigint,
@@ -517,8 +520,8 @@ export const getSwapInput = (
   return {
     input,
     output,
-    outputLpFee: totalLpFee,
-    outputProtocolFee: totalProtocolFee,
+    lpFee: new AssetAmount(totalLpFee, outputMetadata),
+    protocolFee: new AssetAmount(totalProtocolFee, outputMetadata),
     nextInputReserve,
     nextOutputReserve,
     priceImpact,
