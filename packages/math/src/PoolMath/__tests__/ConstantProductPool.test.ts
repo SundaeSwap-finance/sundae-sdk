@@ -1,6 +1,6 @@
 import { test, describe, it, expect } from "bun:test";
 import { Fraction, TFractionLike } from "@sundaeswap/fraction";
-import { AssetAmount } from "@sundaeswap/asset";
+import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   getSwapOutput,
   getSwapInput,
@@ -15,34 +15,41 @@ import {
   TRatioDirection,
 } from "../SharedPoolMath.js";
 
+const usdc: IAssetAmountMetadata = {
+  assetId: "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15.55534443",
+  decimals: 6,
+};
+
 describe("getSwapOutput", () => {
   const zeroThreePct = new Fraction(3, 1000);
   const onePct = new Fraction(1, 100);
   const zeroPct = Fraction.ZERO;
 
   test("throws if any of the arguments are negative", () => {
-    expect(() => getSwapOutput(-1n, 10n, 10n, Fraction.ZERO)).toThrow();
-    expect(() => getSwapOutput(1n, -10n, 10n, Fraction.ZERO)).toThrow();
-    expect(() => getSwapOutput(1n, 10n, -10n, Fraction.ZERO)).toThrow();
+    expect(() => getSwapOutput(usdc, -1n, 10n, 10n, Fraction.ZERO)).toThrow();
+    expect(() => getSwapOutput(usdc, 1n, -10n, 10n, Fraction.ZERO)).toThrow();
+    expect(() => getSwapOutput(usdc, 1n, 10n, -10n, Fraction.ZERO)).toThrow();
     expect(() =>
-      getSwapOutput(1n, 1n, 1n, Fraction.asFraction(-0.1)),
+      getSwapOutput(usdc, 1n, 1n, 1n, Fraction.asFraction(-0.1)),
     ).toThrow();
   });
 
   test("throws if fee is greater than or equal 1", () => {
     expect(() =>
-      getSwapOutput(1n, 10n, 10n, Fraction.asFraction(1)),
+      getSwapOutput(usdc, 1n, 10n, 10n, Fraction.asFraction(1)),
     ).not.toThrow();
     expect(() =>
-      getSwapOutput(1n, 10n, 10n, Fraction.asFraction(1.132)),
+      getSwapOutput(usdc, 1n, 10n, 10n, Fraction.asFraction(1.132)),
     ).toThrow();
   });
 
   test("rounds up for non-fractional assets", () => {
-    expect(getSwapOutput(83n, 10000n, 500n, zeroThreePct).output).toEqual(4n);
-    expect(getSwapOutput(83n, 10000n, 500n, zeroThreePct, true).output).toEqual(
-      5n,
+    expect(getSwapOutput(usdc, 83n, 10000n, 500n, zeroThreePct).output).toEqual(
+      4n,
     );
+    expect(
+      getSwapOutput(usdc, 83n, 10000n, 500n, zeroThreePct, true).output,
+    ).toEqual(5n);
   });
 
   test.each([
@@ -213,9 +220,9 @@ describe("getSwapOutput", () => {
   }[])(
     "gets the correct swap output, given different inputs (%#)",
     ({ input, inReserve, fee, out, outReserve, lpFee, impact }) => {
-      const actual = getSwapOutput(input, ...inReserve, fee);
+      const actual = getSwapOutput(usdc, input, ...inReserve, fee);
       expect(actual.output).toBe(out);
-      expect(actual.inputLpFee).toBe(lpFee);
+      expect(actual.lpFee.amount).toBe(lpFee);
       expect(actual.nextInputReserve).toBe(outReserve[0]);
       expect(actual.nextInputReserve).toBe(input + inReserve[0]);
       expect(actual.nextOutputReserve).toBe(outReserve[1]);
@@ -232,27 +239,33 @@ describe("getSwapInput", () => {
   const zeroPct = Fraction.ZERO;
 
   test("throws if any of the arguments are negative", () => {
-    expect(() => getSwapInput(-1n, 10n, 10n, Fraction.ZERO)).toThrow();
-    expect(() => getSwapInput(1n, -10n, 10n, Fraction.ZERO)).toThrow();
-    expect(() => getSwapInput(1n, 10n, -10n, Fraction.ZERO)).toThrow();
+    expect(() => getSwapInput(usdc, -1n, 10n, 10n, Fraction.ZERO)).toThrow();
+    expect(() => getSwapInput(usdc, 1n, -10n, 10n, Fraction.ZERO)).toThrow();
+    expect(() => getSwapInput(usdc, 1n, 10n, -10n, Fraction.ZERO)).toThrow();
     expect(() =>
-      getSwapInput(1n, 10n, 10n, Fraction.asFraction(-0.1)),
+      getSwapInput(usdc, 1n, 10n, 10n, Fraction.asFraction(-0.1)),
     ).toThrow();
   });
 
   test("throws if fee is greater than or equal 1", () => {
-    expect(() => getSwapInput(1n, 10n, 10n, Fraction.asFraction(1))).toThrow();
     expect(() =>
-      getSwapInput(1n, 10n, 10n, Fraction.asFraction(1.132)),
+      getSwapInput(usdc, 1n, 10n, 10n, Fraction.asFraction(1)),
+    ).toThrow();
+    expect(() =>
+      getSwapInput(usdc, 1n, 10n, 10n, Fraction.asFraction(1.132)),
     ).toThrow();
   });
 
   test("throws if output is greater than or equal to output reserve", () => {
     expect(() =>
-      getSwapInput(10n, 10n, 10n, Fraction.asFraction(0.1)),
+      getSwapInput(usdc, 10n, 10n, 10n, Fraction.asFraction(0.1)),
     ).toThrow();
-    expect(() => getSwapInput(1n, 1n, 1n, Fraction.asFraction(0.1))).toThrow();
-    expect(() => getSwapInput(10n, 1n, 1n, Fraction.asFraction(0.1))).toThrow();
+    expect(() =>
+      getSwapInput(usdc, 1n, 1n, 1n, Fraction.asFraction(0.1)),
+    ).toThrow();
+    expect(() =>
+      getSwapInput(usdc, 10n, 1n, 1n, Fraction.asFraction(0.1)),
+    ).toThrow();
   });
 
   test.each([
@@ -347,11 +360,16 @@ describe("getSwapInput", () => {
   }[])(
     "gets the correct swap input, given different swap outputs (%#)",
     ({ input, reserves, fee, impact }) => {
-      const outcome = getSwapOutput(input, ...reserves, fee);
-      const actual = getSwapInput(outcome.output, ...reserves, fee);
-      const outcomeForActual = getSwapOutput(actual.input, ...reserves, fee);
+      const outcome = getSwapOutput(usdc, input, ...reserves, fee);
+      const actual = getSwapInput(usdc, outcome.output, ...reserves, fee);
+      const outcomeForActual = getSwapOutput(
+        usdc,
+        actual.input,
+        ...reserves,
+        fee,
+      );
       expect(outcome.output).toBe(outcomeForActual.output);
-      expect(actual.inputLpFee).toBe(outcomeForActual.inputLpFee);
+      expect(actual.lpFee.amount).toBe(outcomeForActual.lpFee.amount);
       expect(actual.nextInputReserve).toBe(outcomeForActual.nextInputReserve);
       expect(actual.nextOutputReserve).toBe(outcomeForActual.nextOutputReserve);
       expect(actual.priceImpact).toEqual(outcomeForActual.priceImpact);

@@ -14,9 +14,9 @@ Holds the calculated outcome of a swap
 
 > **input**: `bigint`
 
-### inputLpFee
+### lpFee
 
-> **inputLpFee**: `bigint`
+> **lpFee**: `AssetAmount`\<`IAssetAmountMetadata`\>
 
 ### nextInputReserve
 

@@ -35,4 +35,4 @@ The price of asset A in terms of asset B as a Fraction.
 
 ## Defined in
 
-[StableSwapsPool.ts:409](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L409)
+[StableSwapsPool.ts:411](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L411)

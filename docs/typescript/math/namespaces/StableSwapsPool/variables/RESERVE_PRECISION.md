@@ -12,4 +12,4 @@ This allows for accurate fractional calculations with integer arithmetic.
 
 ## Defined in
 
-[StableSwapsPool.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L57)
+[StableSwapsPool.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L58)

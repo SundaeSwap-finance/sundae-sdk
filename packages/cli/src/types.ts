@@ -28,7 +28,7 @@ export class State {
     if (!this.sdkInstance) {
       throw new Error("SDK not initialized. Call setSdk() first.");
     }
-    return this.sdkInstance!;
+    return this.sdkInstance;
   }
 
   async setSdk(): Promise<void> {

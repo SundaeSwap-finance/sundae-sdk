@@ -4,7 +4,7 @@
 
 # Function: getSwapInput()
 
-> **getSwapInput**(`output`, `inputReserve`, `outputReserve`, `fee`): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
+> **getSwapInput**(`inputMetadata`, `output`, `inputReserve`, `outputReserve`, `fee`): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
 
 Calculate input required for a swap outcome for a given output and pool parameters (input tokens, output tokens, fee).
 Throws if
@@ -13,6 +13,8 @@ Throws if
  - output is greater than or equal to output reserve
 
 ## Parameters
+
+• **inputMetadata**: `IAssetAmountMetadata`
 
 • **output**: `bigint`
 
@@ -30,4 +32,4 @@ The swap details
 
 ## Defined in
 
-[ConstantProductPool.ts:220](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L220)
+[ConstantProductPool.ts:221](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantProductPool.ts#L221)

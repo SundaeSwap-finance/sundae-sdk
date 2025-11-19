@@ -18,6 +18,12 @@ and price impact.
 
 The amount of input tokens being swapped
 
+### lpFee
+
+> **lpFee**: `AssetAmount`\<`IAssetAmountMetadata`\>
+
+The portion of fees that goes to liquidity providers
+
 ### nextInputReserve
 
 > **nextInputReserve**: `bigint`
@@ -42,24 +48,18 @@ The pool's sum invariant (D) after the swap
 
 The amount of output tokens received (after all fees)
 
-### outputLpFee
-
-> **outputLpFee**: `bigint`
-
-The portion of fees that goes to liquidity providers
-
-### outputProtocolFee
-
-> **outputProtocolFee**: `bigint`
-
-The portion of fees that goes to the protocol
-
 ### priceImpact
 
 > **priceImpact**: `Fraction`
 
 The price impact of the swap as a fraction (difference between ideal and actual price)
 
+### protocolFee
+
+> **protocolFee**: `AssetAmount`\<`IAssetAmountMetadata`\>
+
+The portion of fees that goes to the protocol
+
 ## Defined in
 
-[StableSwapsPool.ts:287](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L287)
+[StableSwapsPool.ts:288](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L288)
