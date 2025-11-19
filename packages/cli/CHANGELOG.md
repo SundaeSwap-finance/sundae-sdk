@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.4.2
+
+### Patch Changes
+
+- 77e7193: Fix sdk access on the state class
+
 ## 1.4.1
 
 ### Patch Changes
