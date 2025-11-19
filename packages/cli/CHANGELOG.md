@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.4.3
+
+### Patch Changes
+
+- 17f73cc: Add asset metadata to lp fee field in TSwapOutcome
+
 ## 1.4.2
 
 ### Patch Changes
