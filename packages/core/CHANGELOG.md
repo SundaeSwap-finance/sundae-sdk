@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.8.3
+
+### Patch Changes
+
+- 78a3a40: Fixes publish scripts so that they can be run with lerna and in order of their deps.
+- Updated dependencies [78a3a40]
+  - @sundaeswap/math@0.2.1
+
 ## 2.8.2
 
 ### Patch Changes
