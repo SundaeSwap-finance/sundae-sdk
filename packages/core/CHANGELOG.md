@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.8.2
+
+### Patch Changes
+
+- 17f73cc: Add asset metadata to lp fee field in TSwapOutcome
+- Updated dependencies [17f73cc]
+  - @sundaeswap/math@0.2.0
+
 ## 2.8.1
 
 ### Patch Changes
