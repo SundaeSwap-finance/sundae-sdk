@@ -28,6 +28,7 @@
     "build:cli": "bun build ./src/index.ts --outdir=./dist/cli --target=node",
     "build": "bun clean && bun build:cli",
     "watch": "bun clean && bun run build --watch",
+    "publish:prod": "bun publish",
     "publish:canary": "bun publish --tag dev"
   },
   "devDependencies": {

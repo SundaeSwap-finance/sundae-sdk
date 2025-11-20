@@ -18,7 +18,7 @@
     "typecheck": "lerna run typecheck",
     "build": "lerna run build",
     "version:ci": "lerna version -y --ignore-scripts",
-    "publish:ci": "lerna run publish",
+    "publish:ci": "lerna run publish:prod",
     "publish:canary:ci": "lerna run publish:canary",
     "docs": "lerna run docs:ci",
     "dev": "concurrently \"cd packages/core && bun watch\" \"cd packages/yield-farming && bun watch\" \"cd packages/demo && bun start\""
