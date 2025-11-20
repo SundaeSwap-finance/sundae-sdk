@@ -1,5 +1,11 @@
 # @sundaeswap/math
 
+## 0.2.2
+
+### Patch Changes
+
+- 4b5718b: Attempts to remove double publish scripts
+
 ## 0.2.1
 
 ### Patch Changes
