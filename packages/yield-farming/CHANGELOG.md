@@ -1,5 +1,13 @@
 # Change Log
 
+## 3.1.8
+
+### Patch Changes
+
+- 4b5718b: Attempts to remove double publish scripts
+- Updated dependencies [4b5718b]
+  - @sundaeswap/core@2.8.4
+
 ## 3.1.7
 
 ### Patch Changes

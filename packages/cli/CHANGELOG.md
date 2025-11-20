@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.4.5
+
+### Patch Changes
+
+- 4b5718b: Attempts to remove double publish scripts
+
 ## 1.4.4
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.8.4
+
+### Patch Changes
+
+- 4b5718b: Attempts to remove double publish scripts
+- Updated dependencies [4b5718b]
+  - @sundaeswap/math@0.2.2
+
 ## 2.8.3
 
 ### Patch Changes
