@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.4.4
+
+### Patch Changes
+
+- 78a3a40: Fixes publish scripts so that they can be run with lerna and in order of their deps.
+
 ## 1.4.3
 
 ### Patch Changes
