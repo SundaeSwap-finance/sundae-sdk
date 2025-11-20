@@ -18,8 +18,8 @@
     "typecheck": "lerna run typecheck",
     "build": "lerna run build",
     "version:ci": "lerna version -y --ignore-scripts",
-    "publish:ci": "sh ./scripts/publish.sh",
-    "publish:canary:ci": "sh ./scripts/canary.sh",
+    "publish:ci": "lerna run publish -y --ignore-scripts",
+    "publish:canary:ci": "lerna run \"bun publish --tag dev --access public\" -y --ignore-scripts",
     "docs": "lerna run docs:ci",
     "dev": "concurrently \"cd packages/core && bun watch\" \"cd packages/yield-farming && bun watch\" \"cd packages/demo && bun start\""
   },
