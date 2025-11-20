@@ -30,7 +30,7 @@
     },
     "packages/cli": {
       "name": "@sundaeswap/cli",
-      "version": "1.4.1",
+      "version": "1.4.3",
       "bin": "./dist/cli/index.js",
       "dependencies": {
         "@blaze-cardano/sdk": "^0.2.31",
@@ -49,7 +49,7 @@
     },
     "packages/core": {
       "name": "@sundaeswap/core",
-      "version": "2.8.1",
+      "version": "2.8.2",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.1",
         "@blaze-cardano/sdk": "^0.2.31",
@@ -79,7 +79,7 @@
         "@sundaeswap/core": "latest",
         "@sundaeswap/fraction": "^1.0.3",
         "@sundaeswap/math": "workspace:*",
-        "@sundaeswap/taste-test": "^3.0.6",
+        "@sundaeswap/taste-test": "^3.0.7",
         "@tailwindcss/forms": "^0.5.2",
         "autoprefixer": "^9",
         "buffer": "^6.0.3",
@@ -132,7 +132,7 @@
     },
     "packages/gummiworm": {
       "name": "@sundaeswap/gummiworm",
-      "version": "2.0.3",
+      "version": "2.0.4",
       "dependencies": {
         "@blaze-cardano/sdk": "^0.2.34",
         "@sundaeswap/asset": "^1.0.11",
@@ -146,7 +146,7 @@
     },
     "packages/math": {
       "name": "@sundaeswap/math",
-      "version": "0.1.1",
+      "version": "0.2.0",
       "devDependencies": {
         "@types/bun": "latest",
       },
@@ -156,7 +156,7 @@
     },
     "packages/taste-test": {
       "name": "@sundaeswap/taste-test",
-      "version": "3.0.6",
+      "version": "3.0.7",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.1",
         "@blaze-cardano/sdk": "^0.2.34",
@@ -169,7 +169,7 @@
     },
     "packages/yield-farming": {
       "name": "@sundaeswap/yield-farming",
-      "version": "3.1.5",
+      "version": "3.1.6",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.1",
         "@blaze-cardano/sdk": "^0.2.34",
@@ -4405,7 +4405,7 @@
 
     "del/rimraf": ["rimraf@2.7.1", "", { "dependencies": { "glob": "^7.1.3" }, "bin": { "rimraf": "./bin.js" } }, "sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w=="],
 
-    "demo/@sundaeswap/core": ["@sundaeswap/core@2.8.1", "", { "dependencies": { "@blaze-cardano/data": "^0.6.1", "@blaze-cardano/sdk": "^0.2.31", "@sundaeswap/asset": "^1.0.11", "@sundaeswap/bigint-math": "^0.6.3", "@sundaeswap/fraction": "^1.0.5", "@sundaeswap/math": "0.1.0" } }, "sha512-touf+FHyyO1p9jylBJRPgDN8CG59GtUqzi20SCcGReqox98gR5gxAZCeuNi3SUYK8Ks7Ake5vq9AV0xPS2spvQ=="],
+    "demo/@sundaeswap/core": ["@sundaeswap/core@2.8.2", "", { "dependencies": { "@blaze-cardano/data": "^0.6.1", "@blaze-cardano/sdk": "^0.2.31", "@sundaeswap/asset": "^1.0.11", "@sundaeswap/bigint-math": "^0.6.3", "@sundaeswap/fraction": "^1.0.5", "@sundaeswap/math": "0.1.1" } }, "sha512-KLTRX2gX6lnY3uGC0TIkWf4ebcpmJx7pvvNGyb0Vdk7tFHD+FGoWNZ1MrxGgA7QKwlAPIOJ7GQbrGqJk8WQEEQ=="],
 
     "demo/lerna": ["lerna@5.6.2", "", { "dependencies": { "@lerna/add": "5.6.2", "@lerna/bootstrap": "5.6.2", "@lerna/changed": "5.6.2", "@lerna/clean": "5.6.2", "@lerna/cli": "5.6.2", "@lerna/command": "5.6.2", "@lerna/create": "5.6.2", "@lerna/diff": "5.6.2", "@lerna/exec": "5.6.2", "@lerna/import": "5.6.2", "@lerna/info": "5.6.2", "@lerna/init": "5.6.2", "@lerna/link": "5.6.2", "@lerna/list": "5.6.2", "@lerna/publish": "5.6.2", "@lerna/run": "5.6.2", "@lerna/version": "5.6.2", "@nrwl/devkit": ">=14.8.1 < 16", "import-local": "^3.0.2", "inquirer": "^8.2.4", "npmlog": "^6.0.2", "nx": ">=14.8.1 < 16", "typescript": "^3 || ^4" }, "bin": { "lerna": "cli.js" } }, "sha512-Y0yMPslvnBnTZi7Nrs/gDyYZYauNf61xWNCehISHIORxZmmpoluNkcWTfcyb47is5uJQCv5QJX5xKKubbs+a6w=="],
 
@@ -6375,7 +6375,7 @@
 
     "del/rimraf/glob": ["glob@7.1.4", "", { "dependencies": { "fs.realpath": "^1.0.0", "inflight": "^1.0.4", "inherits": "2", "minimatch": "^3.0.4", "once": "^1.3.0", "path-is-absolute": "^1.0.0" } }, "sha512-hkLPepehmnKk41pUGm3sYxoFs/umurYfYJCerbXEyFIWcAzvpipAgVkBqqT9RBKMGjnq6kMuyYwha6csxbiM1A=="],
 
-    "demo/@sundaeswap/core/@sundaeswap/math": ["@sundaeswap/math@0.1.0", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-nkUHN3MHToCtcj4bfys4omizy+ZIfo301C7g+I0Cy1Y0qXQVrIYYpQOuKoYHZ2KKEyRHjQkJ/T4cGvhO1i6PkA=="],
+    "demo/@sundaeswap/core/@sundaeswap/math": ["@sundaeswap/math@0.1.1", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-8e5cw/yrO3ZPIquuW2evJAVkS8SHzMB1gIrvRmYwI+T/3RGbGWuZmaFZX+9nfhKeI9zTEvGCcxClCtDzZpEBhw=="],
 
     "demo/lerna/@lerna/create": ["@lerna/create@5.6.2", "", { "dependencies": { "@lerna/child-process": "5.6.2", "@lerna/command": "5.6.2", "@lerna/npm-conf": "5.6.2", "@lerna/validation-error": "5.6.2", "dedent": "^0.7.0", "fs-extra": "^9.1.0", "init-package-json": "^3.0.2", "npm-package-arg": "8.1.1", "p-reduce": "^2.1.0", "pacote": "^13.6.1", "pify": "^5.0.0", "semver": "^7.3.4", "slash": "^3.0.0", "validate-npm-package-license": "^3.0.4", "validate-npm-package-name": "^4.0.0", "yargs-parser": "20.2.4" } }, "sha512-+Y5cMUxMNXjTTU9IHpgRYIwKo39w+blui1P+s+qYlZUSCUAew0xNpOBG8iN0Nc5X9op4U094oIdHxv7Dyz6tWQ=="],
 
