@@ -65,7 +65,6 @@
     "set-cjs": "echo '{ \"type\": \"commonjs\" }' > ./dist/cjs/package.json",
     "docs": "docgen generate --typedoc-options ./typedoc.json",
     "docs:ci": "bun docs --unsafe",
-    "publish": "bun publish",
     "publish:canary": "bun publish --tag dev"
   },
   "devDependencies": {
