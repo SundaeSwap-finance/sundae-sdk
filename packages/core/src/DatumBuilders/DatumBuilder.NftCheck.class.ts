@@ -17,21 +17,27 @@ export interface IDatumBuilderNftCheckArgs {
  */
 export class DatumBuilderNftCheck extends DatumBuilderCondition {
   public buildConditionDatum(args: IDatumBuilderNftCheckArgs): Core.PlutusData {
-    const asset_map: { [policy_id: string]: { [assetName: string]: bigint } } =
-      {};
+    // Use Map objects to prevent prototype pollution
+    const asset_map: Map<string, Map<string, bigint>> = new Map();
     args.value.forEach((asset) => {
       const [policy_id, asset_name] = asset.metadata.assetId.split(".");
-      if (!(policy_id in asset_map)) {
-        asset_map[policy_id] = {};
+      if (!asset_map.has(policy_id)) {
+        asset_map.set(policy_id, new Map());
       }
-      if (!(asset_name in asset_map[policy_id])) {
-        asset_map[policy_id][asset_name] = asset.amount;
+      const assets_for_policy = asset_map.get(policy_id)!;
+      if (!assets_for_policy.has(asset_name)) {
+        assets_for_policy.set(asset_name, asset.amount);
       } else {
-        asset_map[policy_id][asset_name] += asset.amount;
+        assets_for_policy.set(asset_name, assets_for_policy.get(asset_name)! + asset.amount);
       }
     });
+    // Convert Map back to plain object for datum construction
+    const object_asset_map: { [policy_id: string]: { [assetName: string]: bigint } } = {};
+    for (const [policy_id, assets_map] of asset_map.entries()) {
+      object_asset_map[policy_id] = Object.fromEntries(assets_map);
+    }
     const datum: NftCheckTypes.NftCheckDatum = {
-      value: asset_map,
+      value: object_asset_map,
       check: args.check,
     };
 
