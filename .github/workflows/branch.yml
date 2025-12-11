@@ -35,9 +35,9 @@ jobs:
       - name: Run Tests
         run: bun test:all
 
-      # Release
-      - name: Release (Canary)
-        run: |
-          npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
-          bun changeset version --snapshot dev
-          bun publish:canary:ci
+      # Release TODO: Fix
+      # - name: Release (Canary)
+      #   run: |
+      #     npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+      #     bun changeset version --snapshot dev
+      #     bun publish:canary:ci
