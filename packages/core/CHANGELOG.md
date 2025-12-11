@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.8.5
+
+### Patch Changes
+
+- 5fcfe64: Include Contract types as an export.
+
 ## 2.8.4
 
 ### Patch Changes
