@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "@sundaeswap/sdk",
@@ -50,7 +49,7 @@
     },
     "packages/core": {
       "name": "@sundaeswap/core",
-      "version": "2.8.4",
+      "version": "2.8.5",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.1",
         "@blaze-cardano/sdk": "^0.2.31",
@@ -80,7 +79,7 @@
         "@sundaeswap/core": "latest",
         "@sundaeswap/fraction": "^1.0.3",
         "@sundaeswap/math": "workspace:*",
-        "@sundaeswap/taste-test": "^3.0.9",
+        "@sundaeswap/taste-test": "^3.0.10",
         "@tailwindcss/forms": "^0.5.2",
         "autoprefixer": "^9",
         "buffer": "^6.0.3",
@@ -133,7 +132,7 @@
     },
     "packages/gummiworm": {
       "name": "@sundaeswap/gummiworm",
-      "version": "2.0.6",
+      "version": "2.0.7",
       "dependencies": {
         "@blaze-cardano/sdk": "^0.2.34",
         "@sundaeswap/asset": "^1.0.11",
@@ -157,7 +156,7 @@
     },
     "packages/taste-test": {
       "name": "@sundaeswap/taste-test",
-      "version": "3.0.9",
+      "version": "3.0.10",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.1",
         "@blaze-cardano/sdk": "^0.2.34",
@@ -170,7 +169,7 @@
     },
     "packages/yield-farming": {
       "name": "@sundaeswap/yield-farming",
-      "version": "3.1.8",
+      "version": "3.1.9",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.1",
         "@blaze-cardano/sdk": "^0.2.34",
@@ -4292,9 +4291,9 @@
 
     "@semantic-release/release-notes-generator/get-stream": ["get-stream@7.0.1", "", {}, "sha512-3M8C1EOFN6r8AMUhwUAACIoXZJEOufDU5+0gFFN5uNs6XYOralD2Pqkl7m046va6x77FwposWXbAhPPIOus7mQ=="],
 
-    "@sundaeswap/cli/@types/bun": ["@types/bun@1.3.4", "", { "dependencies": { "bun-types": "1.3.4" } }, "sha512-EEPTKXHP+zKGPkhRLv+HI0UEX8/o+65hqARxLy8Ov5rIxMBPNTjeZww00CIihrIQGEQBYg+0roO5qOnS/7boGA=="],
+    "@sundaeswap/cli/@types/bun": ["@types/bun@1.3.6", "", { "dependencies": { "bun-types": "1.3.6" } }, "sha512-uWCv6FO/8LcpREhenN1d1b6fcspAB+cefwD7uti8C8VffIv0Um08TKMn98FynpTiU38+y2dUO55T11NgDt8VAA=="],
 
-    "@sundaeswap/math/@types/bun": ["@types/bun@1.3.4", "", { "dependencies": { "bun-types": "1.3.4" } }, "sha512-EEPTKXHP+zKGPkhRLv+HI0UEX8/o+65hqARxLy8Ov5rIxMBPNTjeZww00CIihrIQGEQBYg+0roO5qOnS/7boGA=="],
+    "@sundaeswap/math/@types/bun": ["@types/bun@1.3.6", "", { "dependencies": { "bun-types": "1.3.6" } }, "sha512-uWCv6FO/8LcpREhenN1d1b6fcspAB+cefwD7uti8C8VffIv0Um08TKMn98FynpTiU38+y2dUO55T11NgDt8VAA=="],
 
     "@testing-library/dom/aria-query": ["aria-query@5.1.3", "", { "dependencies": { "deep-equal": "^2.0.5" } }, "sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ=="],
 
@@ -4406,7 +4405,7 @@
 
     "del/rimraf": ["rimraf@2.7.1", "", { "dependencies": { "glob": "^7.1.3" }, "bin": { "rimraf": "./bin.js" } }, "sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w=="],
 
-    "demo/@sundaeswap/core": ["@sundaeswap/core@2.8.4", "", { "dependencies": { "@blaze-cardano/data": "^0.6.1", "@blaze-cardano/sdk": "^0.2.31", "@sundaeswap/asset": "^1.0.11", "@sundaeswap/bigint-math": "^0.6.3", "@sundaeswap/fraction": "^1.0.5", "@sundaeswap/math": "0.2.0" } }, "sha512-7Cw/dsq4tOCkod5HVPlQ2L6QQNPI5wEgxFo6J3wKSe458RR4RxYcumsyVP746MtoubN7V1qwLvlNUWr9aDm8hA=="],
+    "demo/@sundaeswap/core": ["@sundaeswap/core@2.8.5", "", { "dependencies": { "@blaze-cardano/data": "^0.6.1", "@blaze-cardano/sdk": "^0.2.31", "@sundaeswap/asset": "^1.0.11", "@sundaeswap/bigint-math": "^0.6.3", "@sundaeswap/fraction": "^1.0.5", "@sundaeswap/math": "0.2.2" } }, "sha512-La8OJTimjQ7bcEB0Gsm0yA+a7PqvPmksAvIASDiuMWdYManNrHOLxRWtu5pDu3uEzdNwncieTB6jQabUNvoeUA=="],
 
     "demo/lerna": ["lerna@5.6.2", "", { "dependencies": { "@lerna/add": "5.6.2", "@lerna/bootstrap": "5.6.2", "@lerna/changed": "5.6.2", "@lerna/clean": "5.6.2", "@lerna/cli": "5.6.2", "@lerna/command": "5.6.2", "@lerna/create": "5.6.2", "@lerna/diff": "5.6.2", "@lerna/exec": "5.6.2", "@lerna/import": "5.6.2", "@lerna/info": "5.6.2", "@lerna/init": "5.6.2", "@lerna/link": "5.6.2", "@lerna/list": "5.6.2", "@lerna/publish": "5.6.2", "@lerna/run": "5.6.2", "@lerna/version": "5.6.2", "@nrwl/devkit": ">=14.8.1 < 16", "import-local": "^3.0.2", "inquirer": "^8.2.4", "npmlog": "^6.0.2", "nx": ">=14.8.1 < 16", "typescript": "^3 || ^4" }, "bin": { "lerna": "cli.js" } }, "sha512-Y0yMPslvnBnTZi7Nrs/gDyYZYauNf61xWNCehISHIORxZmmpoluNkcWTfcyb47is5uJQCv5QJX5xKKubbs+a6w=="],
 
@@ -6300,9 +6299,9 @@
 
     "@semantic-release/release-notes-generator/conventional-commits-parser/meow": ["meow@13.2.0", "", {}, "sha512-pxQJQzB6djGPXh08dacEloMFopsOqGVRKFPYvPOt9XDZ1HasbgDZA74CJGreSU4G3Ak7EFJGoiH2auq+yXISgA=="],
 
-    "@sundaeswap/cli/@types/bun/bun-types": ["bun-types@1.3.4", "", { "dependencies": { "@types/node": "*" } }, "sha512-5ua817+BZPZOlNaRgGBpZJOSAQ9RQ17pkwPD0yR7CfJg+r8DgIILByFifDTa+IPDDxzf5VNhtNlcKqFzDgJvlQ=="],
+    "@sundaeswap/cli/@types/bun/bun-types": ["bun-types@1.3.6", "", { "dependencies": { "@types/node": "*" } }, "sha512-OlFwHcnNV99r//9v5IIOgQ9Uk37gZqrNMCcqEaExdkVq3Avwqok1bJFmvGMCkCE0FqzdY8VMOZpfpR3lwI+CsQ=="],
 
-    "@sundaeswap/math/@types/bun/bun-types": ["bun-types@1.3.4", "", { "dependencies": { "@types/node": "*" } }, "sha512-5ua817+BZPZOlNaRgGBpZJOSAQ9RQ17pkwPD0yR7CfJg+r8DgIILByFifDTa+IPDDxzf5VNhtNlcKqFzDgJvlQ=="],
+    "@sundaeswap/math/@types/bun/bun-types": ["bun-types@1.3.6", "", { "dependencies": { "@types/node": "*" } }, "sha512-OlFwHcnNV99r//9v5IIOgQ9Uk37gZqrNMCcqEaExdkVq3Avwqok1bJFmvGMCkCE0FqzdY8VMOZpfpR3lwI+CsQ=="],
 
     "@testing-library/dom/pretty-format/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
 
@@ -6375,8 +6374,6 @@
     "del/globby/pify": ["pify@2.3.0", "", {}, "sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog=="],
 
     "del/rimraf/glob": ["glob@7.1.4", "", { "dependencies": { "fs.realpath": "^1.0.0", "inflight": "^1.0.4", "inherits": "2", "minimatch": "^3.0.4", "once": "^1.3.0", "path-is-absolute": "^1.0.0" } }, "sha512-hkLPepehmnKk41pUGm3sYxoFs/umurYfYJCerbXEyFIWcAzvpipAgVkBqqT9RBKMGjnq6kMuyYwha6csxbiM1A=="],
-
-    "demo/@sundaeswap/core/@sundaeswap/math": ["@sundaeswap/math@0.2.0", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-2NeFWNqjTVV1uGw0myZ1iLbWF+1j7JBWvNnRW8T8aIpYWTpk/h8SQr4BJjcwOSa37yKMXcbpCIozqmZ/zRp08Q=="],
 
     "demo/lerna/@lerna/create": ["@lerna/create@5.6.2", "", { "dependencies": { "@lerna/child-process": "5.6.2", "@lerna/command": "5.6.2", "@lerna/npm-conf": "5.6.2", "@lerna/validation-error": "5.6.2", "dedent": "^0.7.0", "fs-extra": "^9.1.0", "init-package-json": "^3.0.2", "npm-package-arg": "8.1.1", "p-reduce": "^2.1.0", "pacote": "^13.6.1", "pify": "^5.0.0", "semver": "^7.3.4", "slash": "^3.0.0", "validate-npm-package-license": "^3.0.4", "validate-npm-package-name": "^4.0.0", "yargs-parser": "20.2.4" } }, "sha512-+Y5cMUxMNXjTTU9IHpgRYIwKo39w+blui1P+s+qYlZUSCUAew0xNpOBG8iN0Nc5X9op4U094oIdHxv7Dyz6tWQ=="],
 
