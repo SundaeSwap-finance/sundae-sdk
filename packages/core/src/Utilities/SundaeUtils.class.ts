@@ -583,19 +583,44 @@ export class SundaeUtils {
 
   /**
    * Calculates the price ratio between assets in a pool.
-   * For Stableswaps pools, uses the amplification factor for accurate pricing.
-   * For other pool types, returns the simple ratio of reserves.
+   * - Accounts for decimal differences between assets
+   * - For ADA pairs: returns ADA per token (assetA / assetB since ADA is always assetA)
+   * - For exotic pairs: returns inverted ratio (assetB / assetA)
+   * - For Stableswaps pools, uses the amplification factor for accurate pricing
    *
-   * @param {IPoolData} pool - The pool data containing reserves and version information.
-   * @returns {number} The price as a number representing the ratio of asset A to asset B.
+   * @param {IPoolData} pool - The pool data containing reserves, decimals, and version information.
+   * @returns {number} The price ratio adjusted for decimals.
    */
   static getPrice(pool: IPoolData): number {
-    return pool.version === "Stableswaps"
-      ? StableSwapsPool.getPrice(
-          pool.liquidity.aReserve,
-          pool.liquidity.bReserve,
-          pool.linearAmplificationFactor!,
-        ).toNumber()
-      : Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
+    // Create AssetAmounts to handle decimal normalization
+    const assetAmountA = new AssetAmount<IAssetAmountMetadata>(
+      pool.liquidity.aReserve,
+      pool.assetA,
+    );
+    const assetAmountB = new AssetAmount<IAssetAmountMetadata>(
+      pool.liquidity.bReserve,
+      pool.assetB,
+    );
+
+    const isAdaPair = SundaeUtils.isAdaAsset(pool.assetA);
+
+    if (pool.version === EContractVersion.Stableswaps) {
+      // For stableswaps, both assets always have the same decimals
+      const price = StableSwapsPool.getPrice(
+        pool.liquidity.aReserve,
+        pool.liquidity.bReserve,
+        pool.linearAmplificationFactor!,
+      ).toNumber();
+
+      // For exotic pairs, invert the price
+      return isAdaPair ? price : 1 / price;
+    }
+
+    // For constant product pools, use the decimal-aware AssetAmount values
+    // ADA pairs: assetA (ADA) / assetB
+    // Exotic pairs: assetB / assetA (inverted)
+    return isAdaPair
+      ? assetAmountA.value.divide(assetAmountB.value).toNumber()
+      : assetAmountB.value.divide(assetAmountA.value).toNumber();
   }
 }

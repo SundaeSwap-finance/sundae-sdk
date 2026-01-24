@@ -23,7 +23,6 @@ import type { State } from "../types";
 import { getPoolData, prettyAssetId } from "../utils.js";
 import { ensureDeployment, getAssetAmount, printHeader } from "./shared.js";
 import { transactionDialog } from "./transaction.js";
-import { StableSwapsPool } from "@sundaeswap/math";
 
 export async function swapMenu(state: State): Promise<State> {
   await printHeader(state);
@@ -37,14 +36,7 @@ export async function swapMenu(state: State): Promise<State> {
     assetId: swapFrom.id,
   } as IPoolByAssetQuery)) as IPoolData[];
   let choices = pools!.map((pool) => {
-    const price =
-      pool.version === "Stableswaps"
-        ? StableSwapsPool.getPrice(
-            pool.liquidity.aReserve,
-            pool.liquidity.bReserve,
-            pool.linearAmplificationFactor!,
-          ).toNumber()
-        : Number(pool.liquidity.aReserve) / Number(pool.liquidity.bReserve);
+    const price = SundaeUtils.getPrice(pool);
     return {
       name: `${prettyAssetId(pool.assetA.assetId.toString())} / ${prettyAssetId(
         pool.assetB.assetId.toString(),
