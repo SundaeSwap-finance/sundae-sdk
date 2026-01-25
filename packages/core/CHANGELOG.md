@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.8.6
+
+### Patch Changes
+
+- 06a6ee8: getPrice method changed to use decimals in price calculations and be consistent with price logic elsewhere
+
 ## 2.8.5
 
 ### Patch Changes

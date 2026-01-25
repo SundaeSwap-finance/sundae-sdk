@@ -1,5 +1,11 @@
 # @sundaeswap/cli
 
+## 1.4.6
+
+### Patch Changes
+
+- 06a6ee8: getPrice method changed to use decimals in price calculations and be consistent with price logic elsewhere
+
 ## 1.4.5
 
 ### Patch Changes
