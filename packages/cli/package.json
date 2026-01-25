@@ -4,7 +4,7 @@
   "type": "module",
   "author": "SundaeSwap Labs Inc.",
   "license": "UNLICENSED",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "CLI for the SundaeSwap protocol SDK.",
   "keywords": [
     "cardano",
