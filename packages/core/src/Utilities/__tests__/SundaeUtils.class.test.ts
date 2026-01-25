@@ -523,4 +523,135 @@ describe("SundaeUtils class", () => {
       );
     });
   });
+
+  describe("getPrice", () => {
+    it("should return price with decimal adjustment for ADA pairs (v1 pool)", () => {
+      // v1 pool: ADA (6 decimals) / TINDY (0 decimals)
+      // aReserve: 500000000n (500 ADA), bReserve: 250000000n (250M TINDY)
+      // Price should be: (500 ADA) / (250M TINDY) = 0.000002 ADA per TINDY
+      const price = SundaeUtils.getPrice(PREVIEW_DATA.pools.v1);
+      // Raw ratio without decimals would be: 500000000 / 250000000 = 2
+      // With decimal adjustment (ADA has 6 decimals, TINDY has 0):
+      // 2 * 10^(0-6) = 2 * 0.000001 = 0.000002
+      expect(price).toBeCloseTo(0.000002, 8);
+    });
+
+    it("should return price with decimal adjustment for ADA pairs (v3 pool)", () => {
+      // v3 pool: ADA (6 decimals) / TINDY (0 decimals)
+      // aReserve: 1018800000n (~1018.8 ADA), bReserve: 992067448n (~992M TINDY)
+      const price = SundaeUtils.getPrice(PREVIEW_DATA.pools.v3);
+      // Raw ratio: 1018800000 / 992067448 ≈ 1.0269
+      // With decimal adjustment: 1.0269 * 10^(0-6) ≈ 0.0000010269
+      expect(price).toBeCloseTo(0.0000010269, 8);
+    });
+
+    it("should handle exotic pairs (neither asset is ADA)", () => {
+      // Create a mock exotic pair pool
+      const exoticPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        assetA: {
+          assetId:
+            "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15.55534443",
+          decimals: 6, // USDC
+        },
+        assetB: {
+          assetId:
+            "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
+          decimals: 0, // TINDY
+        },
+        liquidity: {
+          aReserve: 1000000000n, // 1000 USDC
+          bReserve: 500000000n, // 500M TINDY
+          lpTotal: 353553390n,
+        },
+      };
+
+      const price = SundaeUtils.getPrice(exoticPool);
+      // For exotic pairs, returns B/A (inverted) with decimal adjustment
+      // 500M TINDY / 1000 USDC = 500000 TINDY per USDC
+      expect(price).toBeCloseTo(500000, 0);
+    });
+
+    it("should handle same decimal assets", () => {
+      // Two assets with same decimals (e.g., two 6-decimal stablecoins)
+      const sameDecimalPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        assetA: {
+          assetId: "ada.lovelace",
+          decimals: 6,
+        },
+        assetB: {
+          assetId:
+            "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15.55534443",
+          decimals: 6, // USDC
+        },
+        liquidity: {
+          aReserve: 1000000000n, // 1000 ADA
+          bReserve: 1000000000n, // 1000 USDC
+          lpTotal: 1000000000n,
+        },
+      };
+
+      const price = SundaeUtils.getPrice(sameDecimalPool);
+      // 1000 ADA / 1000 USDC = 1.0 ADA per USDC
+      expect(price).toBeCloseTo(1.0, 6);
+    });
+
+    it("should handle stableswap pools", () => {
+      // Create a stableswap pool mock
+      const stableswapPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: EContractVersion.Stableswaps,
+        assetA: {
+          assetId: "ada.lovelace",
+          decimals: 6,
+        },
+        assetB: {
+          assetId:
+            "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15.55534443",
+          decimals: 6, // USDC
+        },
+        liquidity: {
+          aReserve: 20_000_000n, // 20 ADA
+          bReserve: 20_000_000n, // 20 USDC
+          lpTotal: 40_000_000n,
+        },
+        linearAmplificationFactor: 200n,
+      };
+
+      const price = SundaeUtils.getPrice(stableswapPool);
+      // For balanced stableswap pool, price should be close to 1.0
+      expect(price).toBeCloseTo(1.0, 4);
+    });
+
+    it("should handle unbalanced stableswap pools", () => {
+      // Stableswap with slightly unbalanced reserves (exotic pair)
+      const stableswapPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: EContractVersion.Stableswaps,
+        assetA: {
+          assetId:
+            "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15.55534443",
+          decimals: 6, // USDC
+        },
+        assetB: {
+          assetId:
+            "99b071ce8580d6a3a11b4902145adb8bfd0d2a03935af8cf66403e15.55534454",
+          decimals: 6, // USDT
+        },
+        liquidity: {
+          aReserve: 1010000000n, // 1010 USDC
+          bReserve: 1000000000n, // 1000 USDT
+          lpTotal: 2000000000n,
+        },
+        linearAmplificationFactor: 200n,
+      };
+
+      const price = SundaeUtils.getPrice(stableswapPool);
+      // For exotic pair stableswap, price is inverted (1/rawPrice)
+      // Raw price is slightly > 1.0, so inverted is slightly < 1.0
+      expect(price).toBeGreaterThan(0.98);
+      expect(price).toBeLessThan(1.0);
+    });
+  });
 });
