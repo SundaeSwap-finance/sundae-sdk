@@ -135,4 +135,77 @@ describe("StrategyConfig class", () => {
 
       expect(() => config.buildArgs()).toThrowError(new Error("You may authorize with either a signer or a script, but not both."))
   });
+
+  it("should default executionCount to 1n when not provided", () => {
+    const myConfig = new StrategyConfig({
+      pool: PREVIEW_DATA.pools.v3,
+      destination: {
+        type: EDestinationType.FIXED,
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
+      authSigner: "cafed00d",
+      suppliedAsset: PREVIEW_DATA.assets.tada,
+    });
+
+    expect(myConfig.buildArgs().executionCount).toBe(1n);
+  });
+
+  it("should use provided executionCount when explicitly set", () => {
+    const myConfig = new StrategyConfig({
+      pool: PREVIEW_DATA.pools.v3,
+      destination: {
+        type: EDestinationType.FIXED,
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      },
+      authSigner: "cafed00d",
+      suppliedAsset: PREVIEW_DATA.assets.tada,
+      executionCount: 5n,
+    });
+
+    expect(myConfig.buildArgs().executionCount).toBe(5n);
+  });
+
+  it("should throw when executionCount is 0n", () => {
+    config
+      .setDestination({
+        type: EDestinationType.FIXED,
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      })
+      .setPool(PREVIEW_DATA.pools.v3)
+      .setAuthSigner("cafebabe")
+      .setSuppliedAsset(new AssetAmount(20n, { assetId: "tINDY", decimals: 0 }))
+      .setExecutionCount(0n);
+
+    expect(() => config.buildArgs()).toThrowError(
+      new Error("executionCount must be a positive bigint or undefined")
+    );
+  });
+
+  it("should throw when executionCount is negative", () => {
+    config
+      .setDestination({
+        type: EDestinationType.FIXED,
+        address: PREVIEW_DATA.addresses.current,
+        datum: {
+          type: EDatumType.NONE,
+        },
+      })
+      .setPool(PREVIEW_DATA.pools.v3)
+      .setAuthSigner("cafebabe")
+      .setSuppliedAsset(new AssetAmount(20n, { assetId: "tINDY", decimals: 0 }))
+      .setExecutionCount(-1n);
+
+    expect(() => config.buildArgs()).toThrowError(
+      new Error("executionCount must be a positive bigint or undefined")
+    );
+  });
 });
