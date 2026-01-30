@@ -24,6 +24,12 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
   suppliedAsset?: AssetAmount<IAssetAmountMetadata>;
   authSigner?: string;
   authScript?: string;
+  /**
+   * The number of executions planned for this strategy.
+   * Used to calculate the total scooper fees required.
+   * Defaults to 1n if not provided.
+   */
+  executionCount?: bigint;
 
   constructor(args?: IStrategyConfigInputArgs) {
     super();
@@ -61,7 +67,17 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
     return this;
   }
 
+  setExecutionCount(count: bigint) {
+    if (count < 1n) {
+      throw new Error("executionCount must be a positive bigint");
+    }
+    this.executionCount = count;
+    return this;
+  }
   buildArgs(): IStrategyConfigArgs {
+    if (this.executionCount !== undefined && this.executionCount < 1n) {
+      throw new Error("executionCount must be a positive bigint or undefined");
+    }
     this.validate();
 
     return {
@@ -73,6 +89,7 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
       suppliedAsset: this.suppliedAsset!,
       authSigner: this.authSigner,
       authScript: this.authScript,
+      executionCount: this.executionCount,
     };
   }
 
@@ -83,6 +100,7 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
     suppliedAsset,
     authSigner,
     authScript,
+    executionCount,
   }: IStrategyConfigInputArgs): void {
     this.setDestination(destination);
     this.setPool(pool);
@@ -90,6 +108,9 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
     ownerAddress && this.setOwnerAddress(ownerAddress);
     authSigner && this.setAuthSigner(authSigner);
     authScript && this.setAuthScript(authScript);
+    if (executionCount !== undefined) {
+      this.setExecutionCount(executionCount);
+    }
   }
 
   validate(): void {

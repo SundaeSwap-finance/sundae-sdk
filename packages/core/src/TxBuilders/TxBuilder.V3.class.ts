@@ -963,23 +963,28 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
           suppliedAsset,
           authScript,
           authSigner,
+          executionCount = 1n,
         } = new StrategyConfig(updateConfig.args).buildArgs();
 
+        const scooperFee = await this.getMaxScooperFeeAmount();
+
+        // Datum stores single scooper fee (per-execution)
         updatedDatum = this.datumBuilder.buildStrategyDatum({
           destination: destination,
           ident: pool.ident,
           order: { signer: authSigner, script: authScript },
           ownerAddress: ownerAddress,
-          scooperFee: await this.getMaxScooperFeeAmount(),
+          scooperFee,
         });
 
         destinationAddress = Core.Address.fromBech32(
           await this.generateScriptAddress("order.spend", ownerAddress),
         );
 
+        // Payment uses total fees for all executions
         const payment = SundaeUtils.accumulateSuppliedAssets({
           suppliedAssets: [suppliedAsset],
-          scooperFee: await this.getMaxScooperFeeAmount(),
+          scooperFee: scooperFee * executionCount,
         });
 
         value = makeValue(
@@ -1165,6 +1170,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       referralFee,
       authSigner,
       authScript,
+      executionCount = 1n,
     } = new StrategyConfig(strategyArgs).buildArgs();
 
     const tx = this.newTxInstance(referralFee);
@@ -1174,17 +1180,21 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       ownerAddress,
     );
 
+    const scooperFee = await this.getMaxScooperFeeAmount();
+
+    // Datum stores single scooper fee (per-execution)
     const { inline } = this.datumBuilder.buildStrategyDatum({
       destination,
       ident: pool.ident,
       order: { signer: authSigner, script: authScript },
       ownerAddress,
-      scooperFee: await this.getMaxScooperFeeAmount(),
+      scooperFee,
     });
 
+    // Payment uses total fees for all executions
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: [suppliedAsset],
-      scooperFee: await this.getMaxScooperFeeAmount(),
+      scooperFee: scooperFee * executionCount,
     });
 
     tx.lockAssets(

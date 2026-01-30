@@ -109,6 +109,12 @@ export interface IStrategyConfigArgs
   ownerAddress: string;
   authSigner?: string;
   authScript?: string;
+  /**
+   * The number of executions planned for this strategy.
+   * Used to calculate the total scooper fees required.
+   * Defaults to 1n if not provided.
+   */
+  executionCount?: bigint;
 }
 
 export interface IStrategyConfigInputArgs
