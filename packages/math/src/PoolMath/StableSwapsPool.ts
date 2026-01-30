@@ -58,10 +58,17 @@ export const A_PRECISION: bigint = 200n;
 export const RESERVE_PRECISION: bigint = 1_000_000_000_000n;
 
 /**
- * Precision factor for fee calculations, representing basis points.
+ * Default precision factor for fee calculations, representing basis points.
  * A value of 10,000 means fees are calculated with 0.01% precision (1 basis point).
+ * V2 pools can use a different fee denominator for finer precision.
  */
 export const FEE_PRECISION: bigint = 10_000n;
+
+/**
+ * Default prescale factors for V1 pools (no scaling).
+ * V2 pools can specify different prescale values to normalize tokens with different decimals.
+ */
+export const DEFAULT_PRESCALE: [bigint, bigint] = [1n, 1n];
 
 /**
  * Calculates the sum invariant (D) for a Stableswaps pool using Newton's method.
@@ -190,10 +197,20 @@ export function getNewY(
  * @param {bigint} a - The initial amount of token A being deposited.
  * @param {bigint} b - The initial amount of token B being deposited.
  * @param {bigint} laf - The linear amplification factor for the pool.
+ * @param {IStableswapsV2Options} [v2Options] - Optional V2 parameters (prescale).
  * @returns {bigint} The amount of LP tokens to mint for the first liquidity provision.
  */
-export const getFirstLp = (a: bigint, b: bigint, laf: bigint) =>
-  getSumInvariant(laf, a, b) / RESERVE_PRECISION;
+export const getFirstLp = (
+  a: bigint,
+  b: bigint,
+  laf: bigint,
+  v2Options?: IStableswapsV2Options,
+) => {
+  const prescale = v2Options?.prescale ?? DEFAULT_PRESCALE;
+  return (
+    getSumInvariant(laf, a * prescale[0], b * prescale[1]) / RESERVE_PRECISION
+  );
+};
 
 /**
  * Calculates the liquidity parameters for adding liquidity to a Stableswaps pool.
@@ -210,6 +227,7 @@ export const getFirstLp = (a: bigint, b: bigint, laf: bigint) =>
  * @param {bigint} bReserve - The current reserve of token B in the pool.
  * @param {bigint} totalLp - The total LP tokens for the pool before the deposit.
  * @param {bigint} laf - The linear amplification factor of the pool.
+ * @param {IStableswapsV2Options} [v2Options] - Optional V2 parameters (prescale).
  * @throws {Error} If the pool doesn't have enough liquidity (both reserves are zero).
  * @throws {Error} If both deposit amounts are zero.
  * @returns {Object} An object containing:
@@ -228,6 +246,7 @@ export const calculateLiquidity = (
   bReserve: bigint,
   totalLp: bigint,
   laf: bigint,
+  v2Options?: IStableswapsV2Options,
 ) => {
   if (aReserve === 0n && bReserve === 0n) {
     throw new Error("Not enough pool liquidity");
@@ -237,9 +256,24 @@ export const calculateLiquidity = (
     throw new Error("Cannot use a deposit asset amount of 0");
   }
 
-  const oldSumInvariant = getSumInvariant(laf, aReserve, bReserve);
+  // Apply prescaling for invariant calculations
+  const prescale = v2Options?.prescale ?? DEFAULT_PRESCALE;
+  const prescaledAReserve = aReserve * prescale[0];
+  const prescaledBReserve = bReserve * prescale[1];
+  const prescaledA = a * prescale[0];
+  const prescaledB = b * prescale[1];
 
-  const newSumInvariant = getSumInvariant(laf, aReserve + a, bReserve + b);
+  const oldSumInvariant = getSumInvariant(
+    laf,
+    prescaledAReserve,
+    prescaledBReserve,
+  );
+
+  const newSumInvariant = getSumInvariant(
+    laf,
+    prescaledAReserve + prescaledA,
+    prescaledBReserve + prescaledB,
+  );
 
   const newLpTokens =
     ((newSumInvariant - oldSumInvariant) * totalLp) / oldSumInvariant;
@@ -305,6 +339,24 @@ export type TSwapOutcome = {
 };
 
 /**
+ * Optional parameters for V2 Stableswaps pools.
+ */
+export interface IStableswapsV2Options {
+  /**
+   * Fee precision denominator. Defaults to FEE_PRECISION (10,000n for basis points).
+   * V2 pools can use higher values for finer fee precision.
+   */
+  feeDenominator?: bigint;
+
+  /**
+   * Prescale factors [prescaleA, prescaleB] for normalizing tokens with different decimals.
+   * Reserves are multiplied by these factors before invariant calculations.
+   * Defaults to [1n, 1n] (no scaling).
+   */
+  prescale?: [bigint, bigint];
+}
+
+/**
  * Calculates the output amount and all swap parameters for a given input amount in a Stableswaps pool.
  * This function determines how many output tokens will be received for a given input, accounting for
  * the Stableswaps curve, LP fees, and protocol fees.
@@ -323,6 +375,7 @@ export type TSwapOutcome = {
  * @param {TFractionLike} protocolFee - The protocol fee as a fraction.
  * @param {bigint} laf - The linear amplification factor of the pool.
  * @param {boolean} [roundOutputUp] - Optional flag to round output up instead of down (default: false).
+ * @param {IStableswapsV2Options} [v2Options] - Optional V2 parameters (feeDenominator, prescale).
  * @returns {TSwapOutcome} The complete swap outcome including output, fees, reserves, and price impact.
  * @throws {Error} If input or reserves are not positive.
  * @throws {Error} If fee is not in the range [0, 1).
@@ -338,6 +391,7 @@ export const getSwapOutput = (
   protocolFee: TFractionLike,
   laf: bigint,
   roundOutputUp?: boolean,
+  v2Options?: IStableswapsV2Options,
 ): TSwapOutcome => {
   if (input <= 0 || inputReserve <= 0 || outputReserve <= 0)
     throw new Error("Input and reserves must be positive");
@@ -353,17 +407,34 @@ export const getSwapOutput = (
   const combinedFee = fee.add(protocolFee);
   if (combinedFee.gte(Fraction.ONE))
     throw new Error("Combined fee must be less than 1");
-  const sumInvariant = getSumInvariant(laf, inputReserve, outputReserve);
-  const nextInputReserve = inputReserve + input;
-  const newY = getNewY(nextInputReserve, laf, sumInvariant);
 
-  const deltaYPrec = outputReserve * RESERVE_PRECISION - newY;
-  const deltaY = new Fraction(deltaYPrec, RESERVE_PRECISION);
+  // V2 options with defaults
+  const feeDenom = v2Options?.feeDenominator ?? FEE_PRECISION;
+  const prescale = v2Options?.prescale ?? DEFAULT_PRESCALE;
+
+  // Apply prescaling for invariant calculations
+  const prescaledInputReserve = inputReserve * prescale[0];
+  const prescaledOutputReserve = outputReserve * prescale[1];
+  const prescaledInput = input * prescale[0];
+
+  const sumInvariant = getSumInvariant(
+    laf,
+    prescaledInputReserve,
+    prescaledOutputReserve,
+  );
+  const nextPrescaledInputReserve = prescaledInputReserve + prescaledInput;
+  const newY = getNewY(nextPrescaledInputReserve, laf, sumInvariant);
+
+  // Calculate delta in prescaled space, then convert back to actual output units
+  // by dividing by prescale[1] (the output token's prescale factor)
+  const deltaYPrec = prescaledOutputReserve * RESERVE_PRECISION - newY;
+  const deltaY = new Fraction(deltaYPrec, RESERVE_PRECISION * prescale[1]);
+
   const totalFee = combinedFee
-    .multiply(FEE_PRECISION)
+    .multiply(feeDenom)
     .multiply(deltaY.quotient)
-    .add(Fraction.asFraction(FEE_PRECISION - 1n))
-    .divide(FEE_PRECISION).quotient;
+    .add(Fraction.asFraction(feeDenom - 1n))
+    .divide(feeDenom).quotient;
   const totalProtocolFee = protocolFee
     .multiply(totalFee)
     .divide(combinedFee).quotient;
@@ -372,6 +443,7 @@ export const getSwapOutput = (
   const safeOutput = roundOutputUp
     ? (output.numerator + output.denominator - 1n) / output.denominator
     : output.quotient;
+  const nextInputReserve = inputReserve + input;
   const nextOutputReserve = outputReserve - safeOutput - totalProtocolFee;
 
   // PRICEIMPACT: "priceImpact" is slightly misleadingly named in the industry as a whole
@@ -380,7 +452,7 @@ export const getSwapOutput = (
   // difference between the real price of your swap, and the price implied by the current
   // reserves; We got this wrong in v1, but this aligns it with the industry standard
   // Source: https://dailydefi.org/articles/price-impact-and-how-to-calculate/
-  const idealPrice = getPrice(inputReserve, outputReserve, laf);
+  const idealPrice = getPrice(inputReserve, outputReserve, laf, v2Options);
   const actualPrice = new Fraction(input, safeOutput);
   const priceImpact = Fraction.ONE.subtract(idealPrice.divide(actualPrice));
   return {
@@ -390,7 +462,11 @@ export const getSwapOutput = (
     protocolFee: new AssetAmount(totalProtocolFee, outputMetadata),
     nextInputReserve,
     nextOutputReserve,
-    nextSumInvariant: getSumInvariant(laf, nextInputReserve, nextOutputReserve),
+    nextSumInvariant: getSumInvariant(
+      laf,
+      nextInputReserve * prescale[0],
+      nextOutputReserve * prescale[1],
+    ),
     priceImpact,
   };
 };
@@ -406,23 +482,34 @@ export const getSwapOutput = (
  * @param {bigint} aReserve - The current reserve amount of asset A in the pool.
  * @param {bigint} bReserve - The current reserve amount of asset B in the pool.
  * @param {bigint} laf - The linear amplification factor of the pool.
+ * @param {IStableswapsV2Options} [v2Options] - Optional V2 parameters (prescale).
  * @returns {Fraction} The price of asset A in terms of asset B as a Fraction.
  */
 export function getPrice(
   aReserve: bigint,
   bReserve: bigint,
   laf: bigint,
+  v2Options?: IStableswapsV2Options,
 ): Fraction {
+  // Apply prescaling for price calculation
+  const prescale = v2Options?.prescale ?? DEFAULT_PRESCALE;
+  const prescaledA = aReserve * prescale[0];
+  const prescaledB = bReserve * prescale[1];
+
   // dx_0 / dx_1 only, however can have any number of coins in pool
   const ann = laf * 2n * A_PRECISION;
   const sumInvariant =
-    getSumInvariant(laf, aReserve, bReserve) / RESERVE_PRECISION;
+    getSumInvariant(laf, prescaledA, prescaledB) / RESERVE_PRECISION;
   // D / n^n with n = 2
   let dR = sumInvariant / 4n;
-  dR = (dR * sumInvariant) / aReserve;
-  dR = (dR * sumInvariant) / bReserve;
-  const xpA = (ann * aReserve) / A_PRECISION;
-  const p = new Fraction(xpA + (dR * aReserve) / bReserve, xpA + dR);
+  dR = (dR * sumInvariant) / prescaledA;
+  dR = (dR * sumInvariant) / prescaledB;
+  const xpA = (ann * prescaledA) / A_PRECISION;
+  // Adjust price ratio for prescale factors
+  const p = new Fraction(
+    (xpA + (dR * prescaledA) / prescaledB) * prescale[1],
+    (xpA + dR) * prescale[0],
+  );
   return p;
 }
 
@@ -444,6 +531,7 @@ export function getPrice(
  * @param {TFractionLike} fee - The liquidity provider fee as a fraction (e.g., 0.003 for 0.3%).
  * @param {TFractionLike} protocolFee - The protocol fee as a fraction.
  * @param {bigint} laf - The linear amplification factor of the pool.
+ * @param {IStableswapsV2Options} [v2Options] - Optional V2 parameters (feeDenominator, prescale).
  * @returns {TSwapOutcome} The complete swap outcome including required input, fees, reserves, and price impact.
  * @throws {Error} If output or reserves are not positive.
  * @throws {Error} If output is greater than or equal to the output reserve.
@@ -459,6 +547,7 @@ export const getSwapInput = (
   fee: TFractionLike,
   protocolFee: TFractionLike,
   laf: bigint,
+  v2Options?: IStableswapsV2Options,
 ): TSwapOutcome => {
   if (output <= 0 || inputReserve <= 0 || outputReserve <= 0)
     throw new Error("Output and reserves must be positive");
@@ -478,6 +567,14 @@ export const getSwapInput = (
   if (combinedFee.gte(Fraction.ONE))
     throw new Error("Combined fee must be less than 1");
 
+  // V2 options with defaults
+  const feeDenom = v2Options?.feeDenominator ?? FEE_PRECISION;
+  const prescale = v2Options?.prescale ?? DEFAULT_PRESCALE;
+
+  // Apply prescaling for invariant calculations
+  const prescaledInputReserve = inputReserve * prescale[0];
+  const prescaledOutputReserve = outputReserve * prescale[1];
+
   // output = rawOutput * (1-fee)
   // rawOutput = output / (1-fee)
   const rawOutputF = Fraction.asFraction(output).divide(
@@ -486,17 +583,33 @@ export const getSwapInput = (
   const rawOutput =
     (rawOutputF.numerator + rawOutputF.denominator - 1n) /
     rawOutputF.denominator;
-  const sumInvariant = getSumInvariant(laf, inputReserve, outputReserve);
-  const newX = getNewY(outputReserve - rawOutput, laf, sumInvariant);
-  const input =
-    (newX - inputReserve * RESERVE_PRECISION + RESERVE_PRECISION - 1n) /
+
+  // Prescale the raw output for invariant calculation
+  const prescaledRawOutput = rawOutput * prescale[1];
+
+  const sumInvariant = getSumInvariant(
+    laf,
+    prescaledInputReserve,
+    prescaledOutputReserve,
+  );
+  const newX = getNewY(
+    prescaledOutputReserve - prescaledRawOutput,
+    laf,
+    sumInvariant,
+  );
+
+  // Convert prescaled input back to actual units
+  const prescaledInput =
+    (newX -
+      prescaledInputReserve * RESERVE_PRECISION +
+      RESERVE_PRECISION -
+      1n) /
     RESERVE_PRECISION;
+  const input = (prescaledInput + prescale[0] - 1n) / prescale[0];
 
   const totalFee =
-    (combinedFee.multiply(FEE_PRECISION).quotient * rawOutput +
-      FEE_PRECISION -
-      1n) /
-    FEE_PRECISION;
+    (combinedFee.multiply(feeDenom).quotient * rawOutput + feeDenom - 1n) /
+    feeDenom;
   const totalProtocolFee = protocolFee
     .multiply(totalFee)
     .divide(combinedFee).quotient;
@@ -507,14 +620,14 @@ export const getSwapInput = (
   const nextOutputReserve = outputReserve - output - totalProtocolFee;
 
   // See PRICEIMPACT
-  const idealPrice = getPrice(inputReserve, outputReserve, laf);
+  const idealPrice = getPrice(inputReserve, outputReserve, laf, v2Options);
   const actualPrice = new Fraction(input, output);
   const priceImpact = Fraction.ONE.subtract(idealPrice.divide(actualPrice));
 
   const nextSumInvariant = getSumInvariant(
     laf,
-    nextInputReserve,
-    nextOutputReserve,
+    nextInputReserve * prescale[0],
+    nextOutputReserve * prescale[1],
   );
 
   return {

@@ -377,6 +377,7 @@ const Contracts = Type.Module({
     }),
     Type.Literal("Manage", { ctor: 1n }),
   ]),
+  // V1 StablePoolDatum (11 fields) - uses hardcoded 10,000 basis points, no prescaling
   StablePoolDatum: Type.Object(
     {
       identifier: Type.Ref("Ident"),
@@ -390,6 +391,25 @@ const Contracts = Type.Module({
       linearAmplification: Type.BigInt(),
       sumInvariant: Type.BigInt(),
       linearAmplificationManager: Type.Optional(Type.Ref("MultisigScript")),
+    },
+    { ctor: 0n },
+  ),
+  // V2 StablePoolDatum (13 fields) - configurable fee_denominator and prescale factors
+  StablePoolDatumV2: Type.Object(
+    {
+      identifier: Type.Ref("Ident"),
+      assets: Type.Ref("Tuple$AssetClass_AssetClass"),
+      circulatingLp: Type.BigInt(),
+      lpFees: Type.Ref("Tuple$Int_Int"),
+      protocolFees: Type.Ref("Tuple$Int_Int"),
+      feeDenominator: Type.BigInt(),
+      feeManager: Type.Optional(Type.Ref("MultisigScript")),
+      marketOpen: Type.BigInt(),
+      accumulatedProtocolFees: Type.Ref("Tuple$Int_Int_Int"),
+      linearAmplification: Type.BigInt(),
+      sumInvariant: Type.BigInt(),
+      linearAmplificationManager: Type.Optional(Type.Ref("MultisigScript")),
+      prescale: Type.Ref("Tuple$Int_Int"),
     },
     { ctor: 0n },
   ),
@@ -576,6 +596,8 @@ export const PoolRedeemer = Contracts.Import("PoolRedeemer");
 export type PoolRedeemer = Exact<typeof PoolRedeemer>;
 export const StablePoolDatum = Contracts.Import("StablePoolDatum");
 export type StablePoolDatum = Exact<typeof StablePoolDatum>;
+export const StablePoolDatumV2 = Contracts.Import("StablePoolDatumV2");
+export type StablePoolDatumV2 = Exact<typeof StablePoolDatumV2>;
 export const SettingsDatum = Contracts.Import("SettingsDatum");
 export type SettingsDatum = Exact<typeof SettingsDatum>;
 export const ProtocolFeeBasisPointsExtension = Contracts.Import(

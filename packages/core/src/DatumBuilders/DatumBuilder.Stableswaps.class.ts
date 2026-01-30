@@ -31,6 +31,28 @@ export interface IDatumBuilderMintStablePoolArgs
 }
 
 /**
+ * Arguments interface for minting a Stableswaps V2 pool, extending the V1 args
+ * with V2-specific parameters for configurable fee precision and token prescaling.
+ *
+ * @extends {IDatumBuilderMintStablePoolArgs}
+ */
+export interface IDatumBuilderMintStablePoolArgsV2
+  extends IDatumBuilderMintStablePoolArgs {
+  /**
+   * The fee denominator for calculating fees. Defaults to 10,000 (basis points).
+   * Higher values allow for finer fee precision.
+   */
+  feeDenominator?: bigint;
+
+  /**
+   * Prescale factors for normalizing tokens with different decimals.
+   * [prescaleA, prescaleB] - reserves are multiplied by these before invariant calculations.
+   * Defaults to [1n, 1n] (no scaling).
+   */
+  prescale?: [bigint, bigint];
+}
+
+/**
  * `DatumBuilderStableswaps` is a specialized datum builder class for constructing and parsing
  * datums specific to the Stableswaps protocol. It extends `DatumBuilderV3` and provides methods
  * for building pool datums with Stableswaps-specific parameters such as linear amplification factors
@@ -117,6 +139,100 @@ export class DatumBuilderStableswaps extends DatumBuilderV3 {
     };
 
     const data = serialize(StableswapsTypes.StablePoolDatum, newPoolDatum);
+
+    return {
+      hash: data.hash(),
+      inline: data.toCbor(),
+      schema: newPoolDatum,
+    };
+  }
+
+  /**
+   * Builds the datum required for minting a new Stableswaps V2 liquidity pool.
+   * V2 pools support configurable fee denominators and prescale factors for
+   * normalizing tokens with different decimal places.
+   *
+   * The method performs the following key operations:
+   * - Computes a unique pool identifier from the seed UTXO
+   * - Orders assets lexicographically
+   * - Extracts multisig scripts from manager addresses
+   * - Applies prescaling to reserves before calculating the sum invariant
+   * - Calculates the sum invariant using the Stableswaps formula
+   * - Determines initial liquidity based on the invariant
+   *
+   * @param {IDatumBuilderMintStablePoolArgsV2} params The arguments for building a Stableswaps V2 pool mint datum.
+   *  - assetA: The first asset in the pool with its amount and metadata.
+   *  - assetB: The second asset in the pool with its amount and metadata.
+   *  - fees: The LP fee configuration (bid/ask).
+   *  - marketOpen: Optional timestamp when the market opens (0 for immediate).
+   *  - seedUtxo: The UTXO used to generate the unique pool identifier.
+   *  - feeManager: Address of the fee manager who can update pool fees.
+   *  - depositFee: The deposit fee for the pool.
+   *  - protocolFees: The protocol fee configuration (bid/ask).
+   *  - linearAmplification: The amplification factor for the Stableswaps curve.
+   *  - linearAmplificationManager: Address of the manager who can update the amplification factor.
+   *  - feeDenominator: Optional fee precision denominator (default: 10000n for basis points).
+   *  - prescale: Optional prescale factors [prescaleA, prescaleB] (default: [1n, 1n]).
+   *
+   * @returns {TDatumResult<StableswapsTypes.StablePoolDatumV2>} An object containing the datum hash, inline CBOR representation,
+   *                                              and the schema of the Stableswaps V2 pool mint datum.
+   */
+  public buildMintPoolDatumV2({
+    assetA,
+    assetB,
+    fees,
+    marketOpen,
+    seedUtxo,
+    feeManager,
+    depositFee,
+    protocolFees,
+    linearAmplification,
+    linearAmplificationManager,
+    feeDenominator = 10_000n,
+    prescale = [1n, 1n],
+  }: IDatumBuilderMintStablePoolArgsV2): TDatumResult<StableswapsTypes.StablePoolDatumV2> {
+    const ident = DatumBuilderV3.computePoolId(seedUtxo);
+
+    const assetsPair = this.buildLexicographicalAssetsDatum(
+      assetA,
+      assetB,
+    ).schema;
+
+    const feeManagerScript = this.getMultiSigFromAddress(feeManager);
+
+    const linearAmplificationScript = this.getMultiSigFromAddress(
+      linearAmplificationManager,
+    );
+
+    // Apply prescaling to reserves before calculating invariant
+    const prescaledA = assetA.amount * prescale[0];
+    const prescaledB = assetB.amount * prescale[1];
+
+    const sumInvariant = StableSwapsPool.getSumInvariant(
+      linearAmplification,
+      prescaledA,
+      prescaledB,
+    );
+
+    const liquidity = sumInvariant / StableSwapsPool.RESERVE_PRECISION;
+
+    const newPoolDatum: StableswapsTypes.StablePoolDatumV2 = {
+      assets: assetsPair,
+      circulatingLp: liquidity,
+      lpFees: [fees.bid, fees.ask],
+      protocolFees: [protocolFees.bid, protocolFees.ask],
+      feeDenominator,
+      feeManager: feeManagerScript,
+      identifier: ident,
+      marketOpen: marketOpen || 0n,
+      accumulatedProtocolFees: [depositFee, 0n, 0n],
+      linearAmplification,
+      linearAmplificationManager: linearAmplificationScript,
+      sumInvariant,
+      prescale,
+    };
+
+    const data = serialize(StableswapsTypes.StablePoolDatumV2, newPoolDatum);
 
     return {
       hash: data.hash(),

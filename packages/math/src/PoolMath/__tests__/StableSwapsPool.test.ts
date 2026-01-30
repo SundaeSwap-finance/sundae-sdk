@@ -1,4 +1,6 @@
 import {
+  calculateLiquidity,
+  getFirstLp,
   getNewY,
   getPrice,
   getSumInvariant,
@@ -6,6 +8,8 @@ import {
   getSwapOutput,
   liquidityInvariant,
   RESERVE_PRECISION,
+  FEE_PRECISION,
+  type IStableswapsV2Options,
 } from "../StableSwapsPool.js";
 import { TPair } from "../SharedPoolMath.js";
 import { Fraction, type TFractionLike } from "@sundaeswap/fraction";
@@ -578,4 +582,219 @@ describe("getSwapInput", () => {
       expect(actual.priceImpact).toStrictEqual(impact);
     },
   );
+});
+
+describe("V2 Options - prescale and feeDenominator", () => {
+  const zeroThreePct = new Fraction(3, 1000);
+  const laf = 1000n;
+
+  describe("getSwapOutput with V2 options", () => {
+    test("default v2Options produces same result as no options", () => {
+      const withoutOptions = getSwapOutput(
+        usdc,
+        100n,
+        10000n,
+        10000n,
+        zeroThreePct,
+        zeroThreePct,
+        laf,
+      );
+      const withDefaultOptions = getSwapOutput(
+        usdc,
+        100n,
+        10000n,
+        10000n,
+        zeroThreePct,
+        zeroThreePct,
+        laf,
+        false,
+        { feeDenominator: FEE_PRECISION, prescale: [1n, 1n] },
+      );
+      expect(withoutOptions.output).toEqual(withDefaultOptions.output);
+      expect(withoutOptions.lpFee.amount).toEqual(withDefaultOptions.lpFee.amount);
+    });
+
+    test("prescale normalizes tokens with different decimals", () => {
+      // Simulate a pool with 6-decimal token A and 8-decimal token B
+      // prescale[0] = 100 (multiply A by 100 to normalize to 8 decimals)
+      const prescale: [bigint, bigint] = [100n, 1n];
+
+      // Without prescale: swapping 100 units of A into pool with 1000 A and 100000 B
+      const withoutPrescale = getSwapOutput(
+        usdc,
+        100n,
+        1000n,
+        100000n,
+        zeroThreePct,
+        zeroThreePct,
+        laf,
+      );
+
+      // With prescale: the invariant sees normalized reserves
+      const withPrescale = getSwapOutput(
+        usdc,
+        100n,
+        1000n,
+        100000n,
+        zeroThreePct,
+        zeroThreePct,
+        laf,
+        false,
+        { prescale },
+      );
+
+      // Results should differ because the curve shape changes with prescaling
+      expect(withPrescale.output).not.toEqual(withoutPrescale.output);
+    });
+
+    test("custom feeDenominator changes fee calculation precision", () => {
+      // Using a higher fee denominator for finer precision
+      const highPrecisionFeeDenom = 1_000_000n;
+
+      // Fee as 3000/1_000_000 = 0.3% (same as 30/10_000)
+      const fineFee = new Fraction(3000n, 1_000_000n);
+      const coarseFee = new Fraction(30n, 10_000n);
+
+      const withHighPrecision = getSwapOutput(
+        usdc,
+        1000n,
+        100000n,
+        100000n,
+        fineFee,
+        fineFee,
+        laf,
+        false,
+        { feeDenominator: highPrecisionFeeDenom },
+      );
+
+      const withDefaultPrecision = getSwapOutput(
+        usdc,
+        1000n,
+        100000n,
+        100000n,
+        coarseFee,
+        coarseFee,
+        laf,
+      );
+
+      // Both should produce similar results since the fee rates are equivalent
+      // (may differ slightly due to rounding at different precisions)
+      expect(
+        Math.abs(Number(withHighPrecision.output - withDefaultPrecision.output)),
+      ).toBeLessThanOrEqual(1);
+    });
+  });
+
+  describe("getSwapInput with V2 options", () => {
+    test("default v2Options produces same result as no options", () => {
+      const withoutOptions = getSwapInput(
+        usdc,
+        50n,
+        10000n,
+        10000n,
+        zeroThreePct,
+        zeroThreePct,
+        laf,
+      );
+      const withDefaultOptions = getSwapInput(
+        usdc,
+        50n,
+        10000n,
+        10000n,
+        zeroThreePct,
+        zeroThreePct,
+        laf,
+        { feeDenominator: FEE_PRECISION, prescale: [1n, 1n] },
+      );
+      expect(withoutOptions.input).toEqual(withDefaultOptions.input);
+      expect(withoutOptions.lpFee.amount).toEqual(withDefaultOptions.lpFee.amount);
+    });
+  });
+
+  describe("getPrice with V2 options", () => {
+    test("default v2Options produces same result as no options", () => {
+      const withoutOptions = getPrice(10000n, 10000n, laf);
+      const withDefaultOptions = getPrice(10000n, 10000n, laf, {
+        prescale: [1n, 1n],
+      });
+      expect(withoutOptions.toNumber()).toEqual(withDefaultOptions.toNumber());
+    });
+
+    test("prescale affects price ratio", () => {
+      // With prescale, the price should account for the normalization
+      const withoutPrescale = getPrice(1000n, 100000n, laf);
+      const withPrescale = getPrice(1000n, 100000n, laf, {
+        prescale: [100n, 1n],
+      });
+
+      // Prices should differ
+      expect(withPrescale.toNumber()).not.toEqual(withoutPrescale.toNumber());
+    });
+  });
+
+  describe("calculateLiquidity with V2 options", () => {
+    test("default v2Options produces same result as no options", () => {
+      const withoutOptions = calculateLiquidity(
+        100n,
+        100n,
+        10000n,
+        10000n,
+        1000n,
+        laf,
+      );
+      const withDefaultOptions = calculateLiquidity(
+        100n,
+        100n,
+        10000n,
+        10000n,
+        1000n,
+        laf,
+        { prescale: [1n, 1n] },
+      );
+      expect(withoutOptions.generatedLp).toEqual(withDefaultOptions.generatedLp);
+    });
+
+    test("prescale affects LP token calculation", () => {
+      const withoutPrescale = calculateLiquidity(
+        100n,
+        100n,
+        1000n,
+        100000n,
+        1000n,
+        laf,
+      );
+      const withPrescale = calculateLiquidity(
+        100n,
+        100n,
+        1000n,
+        100000n,
+        1000n,
+        laf,
+        { prescale: [100n, 1n] },
+      );
+
+      // LP calculations should differ with prescaling
+      expect(withPrescale.generatedLp).not.toEqual(withoutPrescale.generatedLp);
+    });
+  });
+
+  describe("getFirstLp with V2 options", () => {
+    test("default v2Options produces same result as no options", () => {
+      const withoutOptions = getFirstLp(10000n, 10000n, laf);
+      const withDefaultOptions = getFirstLp(10000n, 10000n, laf, {
+        prescale: [1n, 1n],
+      });
+      expect(withoutOptions).toEqual(withDefaultOptions);
+    });
+
+    test("prescale affects initial LP calculation", () => {
+      const withoutPrescale = getFirstLp(1000n, 100000n, laf);
+      const withPrescale = getFirstLp(1000n, 100000n, laf, {
+        prescale: [100n, 1n],
+      });
+
+      // First LP should differ with prescaling
+      expect(withPrescale).not.toEqual(withoutPrescale);
+    });
+  });
 });
