@@ -68,11 +68,16 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
   }
 
   setExecutionCount(count: bigint) {
+    if (count < 1n) {
+      throw new Error("executionCount must be a positive bigint");
+    }
     this.executionCount = count;
     return this;
   }
-
   buildArgs(): IStrategyConfigArgs {
+    if (this.executionCount !== undefined && this.executionCount < 1n) {
+      throw new Error("executionCount must be a positive bigint or undefined");
+    }
     this.validate();
 
     return {
@@ -103,7 +108,9 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
     ownerAddress && this.setOwnerAddress(ownerAddress);
     authSigner && this.setAuthSigner(authSigner);
     authScript && this.setAuthScript(authScript);
-    executionCount && this.setExecutionCount(executionCount);
+    if (executionCount !== undefined) {
+      this.setExecutionCount(executionCount);
+    }
   }
 
   validate(): void {
