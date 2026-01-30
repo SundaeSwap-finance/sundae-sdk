@@ -68,16 +68,10 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
   }
 
   setExecutionCount(count: bigint) {
-    if (count < 1n) {
-      throw new Error("executionCount must be a positive bigint");
-    }
     this.executionCount = count;
     return this;
   }
   buildArgs(): IStrategyConfigArgs {
-    if (this.executionCount !== undefined && this.executionCount < 1n) {
-      throw new Error("executionCount must be a positive bigint or undefined");
-    }
     this.validate();
 
     return {
@@ -89,7 +83,7 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
       suppliedAsset: this.suppliedAsset!,
       authSigner: this.authSigner,
       authScript: this.authScript,
-      executionCount: this.executionCount,
+      executionCount: this.executionCount ?? 1n,
     };
   }
 
@@ -149,6 +143,10 @@ export class StrategyConfig extends Config<IStrategyConfigArgs> {
       throw new Error(
         "You may authorize with either a signer or a script, but not both.",
       );
+    }
+
+    if (this.executionCount !== undefined && this.executionCount < 1n) {
+      throw new Error("executionCount must be a positive bigint or undefined");
     }
   }
 }
