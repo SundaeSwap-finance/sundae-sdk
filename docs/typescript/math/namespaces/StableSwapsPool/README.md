@@ -6,6 +6,10 @@
 
 ## Index
 
+### Interfaces
+
+- [IStableswapsV2Options](interfaces/IStableswapsV2Options.md)
+
 ### Type Aliases
 
 - [TSwapOutcome](type-aliases/TSwapOutcome.md)
@@ -13,6 +17,7 @@
 ### Variables
 
 - [A\_PRECISION](variables/A_PRECISION.md)
+- [DEFAULT\_PRESCALE](variables/DEFAULT_PRESCALE.md)
 - [FEE\_PRECISION](variables/FEE_PRECISION.md)
 - [RESERVE\_PRECISION](variables/RESERVE_PRECISION.md)
 

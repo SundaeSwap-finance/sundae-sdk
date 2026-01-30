@@ -49,6 +49,7 @@ SundaeSwap protocol.
 - [IDatumBuilderDepositV3Args](interfaces/IDatumBuilderDepositV3Args.md)
 - [IDatumBuilderMintPoolArgs](interfaces/IDatumBuilderMintPoolArgs.md)
 - [IDatumBuilderMintStablePoolArgs](interfaces/IDatumBuilderMintStablePoolArgs.md)
+- [IDatumBuilderMintStablePoolArgsV2](interfaces/IDatumBuilderMintStablePoolArgsV2.md)
 - [IDatumBuilderNftCheckArgs](interfaces/IDatumBuilderNftCheckArgs.md)
 - [IDatumBuilderPoolMintRedeemerV3Args](interfaces/IDatumBuilderPoolMintRedeemerV3Args.md)
 - [IDatumBuilderStrategyV3Args](interfaces/IDatumBuilderStrategyV3Args.md)

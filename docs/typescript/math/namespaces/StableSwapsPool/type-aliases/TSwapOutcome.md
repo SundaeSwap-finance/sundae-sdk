@@ -62,4 +62,4 @@ The portion of fees that goes to the protocol
 
 ## Defined in
 
-[StableSwapsPool.ts:288](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L288)
+[StableSwapsPool.ts:322](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L322)

@@ -41,4 +41,4 @@ If convergence fails after 255 iterations.
 
 ## Defined in
 
-[StableSwapsPool.ts:143](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L143)
+[StableSwapsPool.ts:150](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L150)

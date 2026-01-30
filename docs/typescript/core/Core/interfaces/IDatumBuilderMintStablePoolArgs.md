@@ -11,6 +11,10 @@ with Stableswaps-specific parameters.
 
 - [`IDatumBuilderMintPoolArgs`](IDatumBuilderMintPoolArgs.md)
 
+## Extended by
+
+- [`IDatumBuilderMintStablePoolArgsV2`](IDatumBuilderMintStablePoolArgsV2.md)
+
 ## Properties
 
 ### linearAmplification

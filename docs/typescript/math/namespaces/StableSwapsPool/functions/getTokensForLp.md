@@ -38,4 +38,4 @@ A tuple [a, b] containing the amounts of tokens A and B to withdraw.
 
 ## Defined in
 
-[StableSwapsPool.ts:273](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L273)
+[StableSwapsPool.ts:307](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L307)

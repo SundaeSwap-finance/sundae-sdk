@@ -4,7 +4,7 @@
 
 # Function: calculateLiquidity()
 
-> **calculateLiquidity**(`a`, `b`, `aReserve`, `bReserve`, `totalLp`, `laf`): `object`
+> **calculateLiquidity**(`a`, `b`, `aReserve`, `bReserve`, `totalLp`, `laf`, `v2Options`?): `object`
 
 Calculates the liquidity parameters for adding liquidity to a Stableswaps pool.
 This function supports mixed deposits where both assets can be deposited in any proportion.
@@ -39,6 +39,10 @@ The total LP tokens for the pool before the deposit.
 • **laf**: `bigint`
 
 The linear amplification factor of the pool.
+
+• **v2Options?**: [`IStableswapsV2Options`](../interfaces/IStableswapsV2Options.md)
+
+Optional V2 parameters (prescale).
 
 ## Returns
 
@@ -91,4 +95,4 @@ If both deposit amounts are zero.
 
 ## Defined in
 
-[StableSwapsPool.ts:224](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L224)
+[StableSwapsPool.ts:242](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L242)

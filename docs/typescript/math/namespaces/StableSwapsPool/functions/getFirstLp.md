@@ -4,7 +4,7 @@
 
 # Function: getFirstLp()
 
-> **getFirstLp**(`a`, `b`, `laf`): `bigint`
+> **getFirstLp**(`a`, `b`, `laf`, `v2Options`?): `bigint`
 
 Calculates the initial LP token amount for the first liquidity provision to a pool.
 This is used when bootstrapping a new pool with initial reserves of assets A and B.
@@ -26,6 +26,10 @@ The initial amount of token B being deposited.
 
 The linear amplification factor for the pool.
 
+• **v2Options?**: [`IStableswapsV2Options`](../interfaces/IStableswapsV2Options.md)
+
+Optional V2 parameters (prescale).
+
 ## Returns
 
 `bigint`
@@ -34,4 +38,4 @@ The amount of LP tokens to mint for the first liquidity provision.
 
 ## Defined in
 
-[StableSwapsPool.ts:195](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L195)
+[StableSwapsPool.ts:203](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L203)

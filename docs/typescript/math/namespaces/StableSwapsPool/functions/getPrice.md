@@ -4,7 +4,7 @@
 
 # Function: getPrice()
 
-> **getPrice**(`aReserve`, `bReserve`, `laf`): `Fraction`
+> **getPrice**(`aReserve`, `bReserve`, `laf`, `v2Options`?): `Fraction`
 
 Calculates the current price (exchange rate) of asset A in terms of asset B for a Stableswaps pool.
 The price is derived from the Stableswaps curve equation and takes into account the amplification factor.
@@ -27,6 +27,10 @@ The current reserve amount of asset B in the pool.
 
 The linear amplification factor of the pool.
 
+• **v2Options?**: [`IStableswapsV2Options`](../interfaces/IStableswapsV2Options.md)
+
+Optional V2 parameters (prescale).
+
 ## Returns
 
 `Fraction`
@@ -35,4 +39,4 @@ The price of asset A in terms of asset B as a Fraction.
 
 ## Defined in
 
-[StableSwapsPool.ts:411](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L411)
+[StableSwapsPool.ts:488](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L488)

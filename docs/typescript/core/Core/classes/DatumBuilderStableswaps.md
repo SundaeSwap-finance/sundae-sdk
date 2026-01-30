@@ -197,7 +197,106 @@ An object containing the datum hash, inline CBOR representation,
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L72)
+[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:94](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L94)
+
+***
+
+### buildMintPoolDatumV2()
+
+> **buildMintPoolDatumV2**(`params`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+Builds the datum required for minting a new Stableswaps V2 liquidity pool.
+V2 pools support configurable fee denominators and prescale factors for
+normalizing tokens with different decimal places.
+
+The method performs the following key operations:
+- Computes a unique pool identifier from the seed UTXO
+- Orders assets lexicographically
+- Extracts multisig scripts from manager addresses
+- Applies prescaling to reserves before calculating the sum invariant
+- Calculates the sum invariant using the Stableswaps formula
+- Determines initial liquidity based on the invariant
+
+#### Parameters
+
+• **params**: [`IDatumBuilderMintStablePoolArgsV2`](../interfaces/IDatumBuilderMintStablePoolArgsV2.md)
+
+The arguments for building a Stableswaps V2 pool mint datum.
+ - assetA: The first asset in the pool with its amount and metadata.
+ - assetB: The second asset in the pool with its amount and metadata.
+ - fees: The LP fee configuration (bid/ask).
+ - marketOpen: Optional timestamp when the market opens (0 for immediate).
+ - seedUtxo: The UTXO used to generate the unique pool identifier.
+ - feeManager: Address of the fee manager who can update pool fees.
+ - depositFee: The deposit fee for the pool.
+ - protocolFees: The protocol fee configuration (bid/ask).
+ - linearAmplification: The amplification factor for the Stableswaps curve.
+ - linearAmplificationManager: Address of the manager who can update the amplification factor.
+ - feeDenominator: Optional fee precision denominator (default: 10000n for basis points).
+ - prescale: Optional prescale factors [prescaleA, prescaleB] (default: [1n, 1n]).
+
+#### Returns
+
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+An object containing the datum hash, inline CBOR representation,
+                                             and the schema of the Stableswaps V2 pool mint datum.
+
+##### accumulatedProtocolFees
+
+> **accumulatedProtocolFees**: [`bigint`, `bigint`, `bigint`]
+
+##### assets
+
+> **assets**: [[`string`, `string`], [`string`, `string`]]
+
+##### circulatingLp
+
+> **circulatingLp**: `bigint`
+
+##### feeDenominator
+
+> **feeDenominator**: `bigint`
+
+##### feeManager?
+
+> `optional` **feeManager**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+
+##### identifier
+
+> **identifier**: `string`
+
+##### linearAmplification
+
+> **linearAmplification**: `bigint`
+
+##### linearAmplificationManager?
+
+> `optional` **linearAmplificationManager**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+
+##### lpFees
+
+> **lpFees**: [`bigint`, `bigint`]
+
+##### marketOpen
+
+> **marketOpen**: `bigint`
+
+##### prescale
+
+> **prescale**: [`bigint`, `bigint`]
+
+##### protocolFees
+
+> **protocolFees**: [`bigint`, `bigint`]
+
+##### sumInvariant
+
+> **sumInvariant**: `bigint`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L180)
 
 ***
 
@@ -385,7 +484,7 @@ If the protocol fees cannot be parsed from the settings datum.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:141](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L141)
+[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:257](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L257)
 
 ***
 

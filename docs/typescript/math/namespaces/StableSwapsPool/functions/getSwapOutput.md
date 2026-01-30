@@ -4,7 +4,7 @@
 
 # Function: getSwapOutput()
 
-> **getSwapOutput**(`outputMetadata`, `input`, `inputReserve`, `outputReserve`, `fee`, `protocolFee`, `laf`, `roundOutputUp`?): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
+> **getSwapOutput**(`outputMetadata`, `input`, `inputReserve`, `outputReserve`, `fee`, `protocolFee`, `laf`, `roundOutputUp`?, `v2Options`?): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
 
 Calculates the output amount and all swap parameters for a given input amount in a Stableswaps pool.
 This function determines how many output tokens will be received for a given input, accounting for
@@ -49,6 +49,10 @@ The linear amplification factor of the pool.
 
 Optional flag to round output up instead of down (default: false).
 
+• **v2Options?**: [`IStableswapsV2Options`](../interfaces/IStableswapsV2Options.md)
+
+Optional V2 parameters (feeDenominator, prescale).
+
 ## Returns
 
 [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
@@ -73,4 +77,4 @@ If combined fee is greater than or equal to 1.
 
 ## Defined in
 
-[StableSwapsPool.ts:332](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L332)
+[StableSwapsPool.ts:385](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L385)
