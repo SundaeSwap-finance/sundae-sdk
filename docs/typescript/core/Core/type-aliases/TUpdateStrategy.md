@@ -20,4 +20,4 @@ Type interface to describe the Strategy config type.
 
 ## Defined in
 
-[packages/core/src/@types/configs.ts:200](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L200)
+[packages/core/src/@types/configs.ts:205](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L205)

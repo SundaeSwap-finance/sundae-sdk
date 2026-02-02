@@ -368,6 +368,48 @@ describe("TxBuilderBlazeV3", () => {
     expect(inlineDatum).toEqual(datum as Core.HexBlob);
   });
 
+  it("swap() with feePadding adds to order deposit", async () => {
+    const spiedDate = spyOn(Date, "now");
+    spiedDate.mockImplementation(() => new Date("2023-12-10").getTime());
+
+    const { build, fees } = await builder.swap({
+      orderAddresses: {
+        DestinationAddress: {
+          address: PREVIEW_DATA.addresses.current,
+          datum: {
+            type: EDatumType.NONE,
+          },
+        },
+      },
+      swapType: {
+        type: ESwapType.MARKET,
+        slippage: 0.03,
+      },
+      pool: PREVIEW_DATA.pools.v3,
+      suppliedAsset: PREVIEW_DATA.assets.tada,
+      feePadding: 1_000_000n,
+    });
+
+    expect(fees.deposit.amount).toEqual(
+      ORDER_DEPOSIT_DEFAULT + 1_000_000n,
+    );
+    expect(fees.deposit.amount).toEqual(3_000_000n);
+
+    const { builtTx } = await build();
+    let depositOutput: Core.TransactionOutput | undefined;
+    [...Array(builtTx.body().outputs().length).keys()].forEach((index) => {
+      const output = builtTx.body().outputs()[index];
+      if (
+        getPaymentAddressFromOutput(output).toBech32() ===
+          "addr_test1wpyyj6wexm6gf3zlzs7ez8upvdh7jfgy3cs9qj8wrljp92su9hpfe" &&
+        output.amount().coin().toString() === "24000000"
+      ) {
+        depositOutput = output;
+      }
+    });
+    expect(depositOutput).not.toBeUndefined();
+  });
+
   it("swap() with incorrect idents should throw", async () => {
     try {
       await builder.swap({
