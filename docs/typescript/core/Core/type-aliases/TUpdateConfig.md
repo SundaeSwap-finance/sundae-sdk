@@ -10,4 +10,4 @@ Union to bind together the different config types.
 
 ## Defined in
 
-[packages/core/src/@types/configs.ts:216](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L216)
+[packages/core/src/@types/configs.ts:221](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L221)

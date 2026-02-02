@@ -632,14 +632,17 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
     }
 
+    const baseOrderDeposit = isOrderRoute
+      ? ORDER_ROUTE_DEPOSIT_DEFAULT
+      : ORDER_DEPOSIT_DEFAULT;
+    const orderDeposit = baseOrderDeposit + (swapArgs.feePadding ?? 0n);
+
     const extraSuppliedAssets = this.getExtraSuppliedAssets(pool);
 
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: [...extraSuppliedAssets, suppliedAsset],
       scooperFee,
-      orderDeposit: isOrderRoute
-        ? ORDER_ROUTE_DEPOSIT_DEFAULT
-        : ORDER_DEPOSIT_DEFAULT,
+      orderDeposit,
     });
 
     const orderScriptAddress = await this.getOrderScriptAddress(
@@ -659,9 +662,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       tx: txInstance,
       datum: inline,
       referralFee: referralFee?.payment,
-      deposit: isOrderRoute
-        ? ORDER_ROUTE_DEPOSIT_DEFAULT
-        : ORDER_DEPOSIT_DEFAULT,
+      deposit: orderDeposit,
     });
   }
 

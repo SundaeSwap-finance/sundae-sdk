@@ -1,13 +1,13 @@
 import { parse, serialize } from "@blaze-cardano/data";
+import { Core } from "@blaze-cardano/sdk";
+import { StableSwapsPool } from "@sundaeswap/math";
+import { IFeesConfig } from "../@types/configs.js";
 import { TDatumResult } from "../@types/datumbuilder.js";
 import { StableswapsTypes } from "./ContractTypes/index.js";
 import {
   DatumBuilderV3,
   IDatumBuilderMintPoolArgs,
 } from "./DatumBuilder.V3.class.js";
-import { IFeesConfig } from "../@types/configs.js";
-import { StableSwapsPool } from "@sundaeswap/math";
-import { Core } from "@blaze-cardano/sdk";
 
 /**
  * Arguments interface for minting a Stableswaps pool, extending the base V3 pool minting arguments
@@ -104,7 +104,7 @@ export class DatumBuilderStableswaps extends DatumBuilderV3 {
 
     const newPoolDatum: StableswapsTypes.StablePoolDatum = {
       assets: assetsPair,
-      circulatingLp: liquidity,
+      circulatingLp: BigInt(liquidity),
       lpFeeBasisPoints: [fees.bid, fees.ask],
       protocolFeeBasisPoints: [protocolFees.bid, protocolFees.ask],
       feeManager: feeManagerScript,

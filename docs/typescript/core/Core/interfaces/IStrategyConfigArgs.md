@@ -22,4 +22,4 @@ Defaults to 1n if not provided.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:117](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L117)
+[packages/core/src/@types/configs.ts:122](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L122)

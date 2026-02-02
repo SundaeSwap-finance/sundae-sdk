@@ -20,4 +20,4 @@ Type interface to describe the Swap config type.
 
 ## Defined in
 
-[packages/core/src/@types/configs.ts:208](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L208)
+[packages/core/src/@types/configs.ts:213](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L213)

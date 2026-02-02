@@ -63,6 +63,11 @@ export type TSwapType = IMarketSwap | ILimitSwap;
 export interface ISwapConfigArgs extends IOrderConfigArgs {
   suppliedAsset: AssetAmount<IAssetAmountMetadata>;
   swapType: TSwapType;
+  /**
+   * Optional extra ADA (lovelace) added to the order deposit. Use when the order output
+   * will fund a subsequent execution (e.g. strategy second swap). If omitted, defaults to 0n.
+   */
+  feePadding?: bigint;
 }
 
 /**

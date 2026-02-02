@@ -23,7 +23,7 @@ The ask fee in basis points, applied when swapping out of the pool.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:139](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L139)
+[packages/core/src/@types/configs.ts:144](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L144)
 
 ***
 
@@ -35,4 +35,4 @@ The bid fee in basis points, applied when swapping into the pool.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:144](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L144)
+[packages/core/src/@types/configs.ts:149](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L149)

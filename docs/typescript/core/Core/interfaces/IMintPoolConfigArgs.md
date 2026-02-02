@@ -26,7 +26,7 @@ to the SundaeSwap Treasury wallet.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:162](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L162)
+[packages/core/src/@types/configs.ts:167](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L167)
 
 ***
 
@@ -38,4 +38,4 @@ The fee manager address for the pool. If not provided, defaults to null.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:166](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L166)
+[packages/core/src/@types/configs.ts:171](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L171)
