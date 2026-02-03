@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.0.9
+
+### Patch Changes
+
+- Updated dependencies [c0c6651]
+  - @sundaeswap/core@2.8.7
+
 ## 2.0.8
 
 ### Patch Changes

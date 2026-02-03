@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.8.7
+
+### Patch Changes
+
+- c0c6651: Add swap fee padding support to TxBuilder V1 and V3. Extends config types for swap fee padding options and applies fee padding when building swap transactions.
+
 ## 2.8.6
 
 ### Patch Changes
