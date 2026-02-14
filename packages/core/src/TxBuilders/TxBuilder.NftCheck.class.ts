@@ -11,6 +11,7 @@ import {
   IComposedTx,
   IMintPoolConfigArgs,
   IPoolData,
+  TSupportedNetworks,
 } from "../@types/index.js";
 import { TxBuilderAbstractCondition } from "../Abstracts/TxBuilderAbstract.Condition.js";
 import { NftCheckTypes } from "../DatumBuilders/ContractTypes/index.js";
@@ -39,8 +40,9 @@ export class TxBuilderNftCheck
   constructor(
     blaze: Blaze<Provider, Wallet>,
     queryProvider?: QueryProviderSundaeSwap,
+    network?: TSupportedNetworks,
   ) {
-    super(blaze, queryProvider);
+    super(blaze, queryProvider, network);
     this.datumBuilder = new DatumBuilderNftCheck(this.network);
   }
 

@@ -68,6 +68,7 @@ export async function getProvider(state: State): Promise<Provider> {
       choices: [
         { name: "mainnet", value: "mainnet" },
         { name: "preview", value: "preview" },
+        { name: "preprod", value: "preprod" },
       ],
     });
     state.settings.providerKey = await password({
@@ -76,17 +77,22 @@ export async function getProvider(state: State): Promise<Provider> {
   }
   switch (state.settings.providerType) {
     case "blockfrost":
-      const bfNetwork: "cardano-mainnet" | "cardano-preview" =
+      const bfNetwork:
+        | "cardano-mainnet"
+        | "cardano-preview"
+        | "cardano-preprod" =
         state.settings.network === "mainnet"
           ? "cardano-mainnet"
-          : "cardano-preview";
+          : state.settings.network === "preprod"
+            ? "cardano-preprod"
+            : "cardano-preview";
       return new Blockfrost({
         network: bfNetwork,
         projectId: state.settings.providerKey!,
       });
     case "maestro":
       return new Maestro({
-        network: state.settings.network! as "mainnet" | "preview",
+        network: state.settings.network! as "mainnet" | "preview" | "preprod",
         apiKey: state.settings.providerKey!,
       });
     case "kupmios":

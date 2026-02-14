@@ -92,6 +92,10 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
+    preprod: {
+      cancelRedeemer: CANCEL_REDEEMER,
+      maxScooperFee: 2_500_000n,
+    },
     preview: {
       cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
@@ -105,15 +109,19 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   constructor(
     public blaze: Blaze<Provider, Wallet>,
     queryProvider?: QueryProviderSundaeSwap,
+    network?: TSupportedNetworks,
   ) {
     super();
-    const network: TSupportedNetworks = blaze.provider.network
-      ? "mainnet"
-      : "preview";
+    const resolvedNetwork: TSupportedNetworks =
+      network ?? (blaze.provider.network ? "mainnet" : "preview");
 
-    this.network = network;
-    this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
-    this.datumBuilder = new DatumBuilderV1(network, this.validatorScriptHashes);
+    this.network = resolvedNetwork;
+    this.queryProvider =
+      queryProvider ?? new QueryProviderSundaeSwap(resolvedNetwork);
+    this.datumBuilder = new DatumBuilderV1(
+      resolvedNetwork,
+      this.validatorScriptHashes,
+    );
   }
 
   /**
@@ -1064,7 +1072,10 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       ),
     );
 
-    const YF_V2_PARAMS = {
+    const YF_V2_PARAMS: Record<
+      string,
+      { stakeKeyHash: string; scriptHash: string; referenceInput: string }
+    > = {
       mainnet: {
         stakeKeyHash:
           "d7244b4a8777b7dc6909f4640cf02ea4757a557a99fb483b05f87dfe",
@@ -1078,6 +1089,11 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         scriptHash: "73275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c",
         referenceInput:
           "aaaf193b8418253f4169ab869b77dedd4ee3df4f2837c226cee3c2f7fa955189#0",
+      },
+      preprod: {
+        stakeKeyHash: "",
+        scriptHash: "",
+        referenceInput: "",
       },
     };
 
