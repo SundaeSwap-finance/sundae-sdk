@@ -57,13 +57,14 @@ export class SundaeSDK {
    * @returns {SundaeSDK}
    */
   private constructor(args: ISundaeSDKOptions) {
+    const network =
+      args.network ??
+      (args.blazeInstance.provider.network ? "mainnet" : "preview");
     this.queryProvider =
-      args.customQueryProvider ||
-      new QueryProviderSundaeSwap(
-        args.blazeInstance.provider.network ? "mainnet" : "preview",
-      );
+      args.customQueryProvider || new QueryProviderSundaeSwap(network);
     this.options = {
       ...args,
+      network,
       ...SDK_OPTIONS_DEFAULTS,
     };
   }
@@ -76,21 +77,26 @@ export class SundaeSDK {
    */
   static new(args: ISundaeSDKOptions): SundaeSDK {
     const instance = new this(args);
+    const network = instance.options.network;
     instance.builders.set(
       EContractVersion.V1,
-      new TxBuilderV1(instance.options.blazeInstance),
+      new TxBuilderV1(instance.options.blazeInstance, undefined, network),
     );
     instance.builders.set(
       EContractVersion.V3,
-      new TxBuilderV3(instance.options.blazeInstance),
+      new TxBuilderV3(instance.options.blazeInstance, undefined, network),
     );
     instance.builders.set(
       EContractVersion.NftCheck,
-      new TxBuilderNftCheck(instance.options.blazeInstance),
+      new TxBuilderNftCheck(instance.options.blazeInstance, undefined, network),
     );
     instance.builders.set(
       EContractVersion.Stableswaps,
-      new TxBuilderStableswaps(instance.options.blazeInstance),
+      new TxBuilderStableswaps(
+        instance.options.blazeInstance,
+        undefined,
+        network,
+      ),
     );
 
     return instance;

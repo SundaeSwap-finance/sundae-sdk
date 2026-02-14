@@ -102,15 +102,16 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
   constructor(
     public blaze: Blaze<Provider, Wallet>,
     queryProvider?: QueryProviderSundaeSwap,
+    network?: TSupportedNetworks,
   ) {
     super();
-    const network: TSupportedNetworks = blaze.provider.network
-      ? "mainnet"
-      : "preview";
+    const resolvedNetwork: TSupportedNetworks =
+      network ?? (blaze.provider.network ? "mainnet" : "preview");
 
-    this.network = network;
-    this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
-    this.datumBuilder = new DatumBuilderV3(network);
+    this.network = resolvedNetwork;
+    this.queryProvider =
+      queryProvider ?? new QueryProviderSundaeSwap(resolvedNetwork);
+    this.datumBuilder = new DatumBuilderV3(resolvedNetwork);
   }
 
   /**

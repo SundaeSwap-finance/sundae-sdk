@@ -25,6 +25,7 @@ export type TFindPoolDataArgs =
 const providerBaseUrls: Record<TSupportedNetworks, string> = {
   mainnet: "https://api.sundae.fi/graphql",
   preview: "https://api.preview.sundae.fi/graphql",
+  preprod: "https://api.preprod.sundae.fi/graphql",
 };
 
 interface IPoolDataQueryResult {

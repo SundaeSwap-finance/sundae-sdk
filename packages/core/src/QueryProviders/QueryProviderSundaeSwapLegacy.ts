@@ -7,6 +7,7 @@ import { QueryProvider } from "../Abstracts/QueryProvider.abstract.class.js";
 const providerBaseUrls: Record<TSupportedNetworks, string> = {
   mainnet: "https://api.stats.sundaeswap.finance/graphql",
   preview: "https://api.stats.preview.sundaeswap.finance/graphql",
+  preprod: "https://api.stats.preprod.sundaeswap.finance/graphql",
 };
 
 interface IPoolDataQueryResult {

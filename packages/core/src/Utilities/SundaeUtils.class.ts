@@ -32,6 +32,7 @@ export class SundaeUtils {
     "616461.6c6f76656c616365",
   ];
   static MAINNET_OFFSET = 1591566291;
+  static PREPROD_OFFSET = 1655683200;
   static PREVIEW_OFFSET = 1666656000;
 
   /**
@@ -459,15 +460,23 @@ export class SundaeUtils {
    * @param {TSupportedNetworks} network The network.
    * @returns {number}
    */
+  static getSlotOffset(network: TSupportedNetworks): number {
+    switch (network) {
+      case "mainnet":
+        return SundaeUtils.MAINNET_OFFSET;
+      case "preprod":
+        return SundaeUtils.PREPROD_OFFSET;
+      default:
+        return SundaeUtils.PREVIEW_OFFSET;
+    }
+  }
+
   static unixToSlot(
     unix: number | string,
     network: TSupportedNetworks,
   ): number {
     return Math.floor(
-      Math.trunc(Number(unix)) -
-        (network === "mainnet"
-          ? SundaeUtils.MAINNET_OFFSET
-          : SundaeUtils.PREVIEW_OFFSET),
+      Math.trunc(Number(unix)) - SundaeUtils.getSlotOffset(network),
     );
   }
 
@@ -484,10 +493,7 @@ export class SundaeUtils {
     network: TSupportedNetworks,
   ): number {
     return Math.floor(
-      Math.trunc(Number(unix)) +
-        (network === "mainnet"
-          ? SundaeUtils.MAINNET_OFFSET
-          : SundaeUtils.PREVIEW_OFFSET),
+      Math.trunc(Number(unix)) + SundaeUtils.getSlotOffset(network),
     );
   }
 
