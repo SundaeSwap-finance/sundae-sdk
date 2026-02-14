@@ -16,7 +16,7 @@ A built blaze instance.
 
 #### Defined in
 
-[packages/core/src/@types/index.ts:15](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L15)
+[packages/core/src/@types/index.ts:16](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L16)
 
 ***
 
@@ -28,7 +28,7 @@ An optional custom QueryProvider for general protocol queries.
 
 #### Defined in
 
-[packages/core/src/@types/index.ts:9](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L9)
+[packages/core/src/@types/index.ts:10](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L10)
 
 ***
 
@@ -40,7 +40,7 @@ Whether to allow debugging console logs.
 
 #### Defined in
 
-[packages/core/src/@types/index.ts:11](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L11)
+[packages/core/src/@types/index.ts:12](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L12)
 
 ***
 
@@ -52,4 +52,16 @@ The minimum amount of ADA required for a locking position.
 
 #### Defined in
 
-[packages/core/src/@types/index.ts:13](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L13)
+[packages/core/src/@types/index.ts:14](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L14)
+
+***
+
+### network?
+
+> `optional` **network**: [`TSupportedNetworks`](../type-aliases/TSupportedNetworks.md)
+
+Override network detection (required for preprod, since Blaze can't distinguish it from preview).
+
+#### Defined in
+
+[packages/core/src/@types/index.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/index.ts#L18)
