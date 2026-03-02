@@ -6,7 +6,9 @@ import {
 } from "@blaze-cardano/sdk";
 import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 
-import { Void } from "@blaze-cardano/data";
+import { serialize, Void } from "@blaze-cardano/data";
+import { EmulatorProvider } from "@blaze-cardano/emulator";
+import { V3Types } from "../../DatumBuilders/ContractTypes/index.js";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
@@ -1423,6 +1425,139 @@ describe("TxBuilderBlazeV3", () => {
         expect((e as Error).message).toContain(
           "LP fees must be between 0 and 10000 basis points",
         );
+      }
+    });
+
+    // Note: This test verifies the composed transaction structure without calling build().
+    // Fully building the transaction would require mocking all reference script UTXOs
+    // with valid compiled scripts, which is complex. The validation tests above cover
+    // the input validation, and this test ensures the method executes and returns
+    // the expected IComposedTx structure.
+    it("should return composed transaction with expected structure", async () => {
+      const poolIdent = "00";
+      const poolPolicyId = params.blueprint.validators.find(
+        (v) => v.title === "pool.mint",
+      )!.hash;
+      const poolScriptHash = params.blueprint.validators.find(
+        (v) => v.title === "pool.spend",
+      )!.hash;
+      const poolNftName = DatumBuilderV3.computePoolNftName(poolIdent);
+
+      // Create a script address for the pool (required for spending with a redeemer)
+      const poolScriptAddress = Core.addressFromCredentials(
+        Core.NetworkId.Testnet,
+        Core.Credential.fromCore({
+          hash: Core.Hash28ByteBase16(poolScriptHash),
+          type: Core.CredentialType.ScriptHash,
+        }),
+      );
+
+      // Create a mock pool datum
+      const mockPoolDatum: V3Types.PoolDatum = {
+        identifier: poolIdent,
+        assets: [
+          ["", ""],
+          [
+            "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183",
+            "74494e4459",
+          ],
+        ],
+        circulatingLp: 1000000n,
+        bidFeesPer_10Thousand: 30n,
+        askFeesPer_10Thousand: 30n,
+        feeManager: {
+          Signature: {
+            keyHash:
+              "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+          },
+        },
+        marketOpen: 0n,
+        protocolFees: 0n,
+      };
+
+      const poolDatumCbor = serialize(V3Types.PoolDatum, mockPoolDatum);
+
+      // Create mock pool UTXO at a script address (required for spending with a redeemer)
+      const poolBech32Address = poolScriptAddress.toBech32();
+      const mockPoolUtxo = Core.TransactionUnspentOutput.fromCore([
+        new Core.TransactionInput(
+          Core.TransactionId(
+            "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          ),
+          0n,
+        ).toCore(),
+        Core.TransactionOutput.fromCore({
+          address: Core.PaymentAddress(poolBech32Address),
+          value: makeValue(
+            10_000_000n,
+            [poolPolicyId + poolNftName, 1n],
+            [
+              "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a35153518374494e4459",
+              1000000n,
+            ],
+          ).toCore(),
+          datum: poolDatumCbor.toCore(),
+        }).toCore(),
+      ]);
+
+      // Create mock wallet UTXOs (need multiple for input + collateral)
+      const mockWalletUtxos = [
+        Core.TransactionUnspentOutput.fromCore([
+          new Core.TransactionInput(
+            Core.TransactionId(
+              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ),
+            0n,
+          ).toCore(),
+          Core.TransactionOutput.fromCore({
+            address: Core.PaymentAddress(PREVIEW_DATA.addresses.current),
+            value: makeValue(10_000_000n).toCore(),
+          }).toCore(),
+        ]),
+        Core.TransactionUnspentOutput.fromCore([
+          new Core.TransactionInput(
+            Core.TransactionId(
+              "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ),
+            0n,
+          ).toCore(),
+          Core.TransactionOutput.fromCore({
+            address: Core.PaymentAddress(PREVIEW_DATA.addresses.current),
+            value: makeValue(10_000_000n).toCore(),
+          }).toCore(),
+        ]),
+      ];
+
+      // Mock the provider methods
+      const getUnspentOutputByNFTMock = spyOn(
+        EmulatorProvider.prototype,
+        "getUnspentOutputByNFT",
+      ).mockResolvedValue(mockPoolUtxo);
+
+      const getUnspentOutputsMock = spyOn(
+        EmulatorProvider.prototype,
+        "getUnspentOutputs",
+      ).mockResolvedValue(mockWalletUtxos);
+
+      try {
+        const result = await builder.updatePoolFees({
+          poolIdent,
+          fees: { bid: 50n, ask: 50n },
+          feeManager: PREVIEW_DATA.addresses.current,
+        });
+
+        // Verify the composed transaction structure
+        expect(result).toBeDefined();
+        expect(result.fees).toBeDefined();
+        expect(result.build).toBeDefined();
+        expect(typeof result.build).toBe("function");
+
+        // Verify fee structure
+        expect(result.fees.deposit).toBeDefined();
+        expect(result.fees.scooperFee).toBeDefined();
+      } finally {
+        getUnspentOutputByNFTMock.mockRestore();
+        getUnspentOutputsMock.mockRestore();
       }
     });
   });

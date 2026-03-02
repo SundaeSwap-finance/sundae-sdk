@@ -657,7 +657,7 @@ If the pool UTXO cannot be found or doesn't contain a valid datum.
 
 Updates the protocol fees on a Stableswaps pool. This operation requires spending
 the pool UTXO with a "Manage" redeemer and adding a withdrawal from the pool.manage.else
-validator with an "UpdatePoolFees" redeemer.
+validator with a "WithdrawFees" redeemer (with all withdraw amounts set to 0).
 
 The protocol fees determine the percentage taken by the protocol from swap fees and are
 represented as basis points (1 basis point = 0.01%). The new fees must be within the
