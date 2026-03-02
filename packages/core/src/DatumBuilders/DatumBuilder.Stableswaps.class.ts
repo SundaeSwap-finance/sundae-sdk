@@ -8,6 +8,7 @@ import {
   DatumBuilderV3,
   IDatumBuilderMintPoolArgs,
 } from "./DatumBuilder.V3.class.js";
+import { PlutusData } from "@blaze-cardano/core";
 
 /**
  * Arguments interface for minting a Stableswaps pool, extending the base V3 pool minting arguments
@@ -159,5 +160,29 @@ export class DatumBuilderStableswaps extends DatumBuilderV3 {
       bid: protocolFees.protocol_fee_basis_points[0],
       ask: protocolFees.protocol_fee_basis_points[1],
     };
+  }
+
+  public buildUpdatedFeesDatum(args: {
+    datum: StableswapsTypes.StablePoolDatum;
+    newFees: IFeesConfig;
+    newFeeManager: string;
+  }): PlutusData {
+    const feeManagerScript = this.getMultiSigFromAddress(args.newFeeManager);
+
+    return serialize(StableswapsTypes.StablePoolDatum, {
+      ...args.datum,
+      lpFeeBasisPoints: [args.newFees.bid, args.newFees.ask],
+      feeManager: feeManagerScript,
+    });
+  }
+
+  public encodeDatum(datum: StableswapsTypes.StablePoolDatum): Core.PlutusData {
+    const data = serialize(StableswapsTypes.StablePoolDatum, datum);
+    return data;
+  }
+
+  public decodeDatum(datum: Core.PlutusData): StableswapsTypes.StablePoolDatum {
+    const decoded = parse(StableswapsTypes.StablePoolDatum, datum);
+    return decoded;
   }
 }

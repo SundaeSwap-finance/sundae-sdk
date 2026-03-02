@@ -1,4 +1,4 @@
-import { parse, Void } from "@blaze-cardano/data";
+import { parse, serialize, Void } from "@blaze-cardano/data";
 import {
   Blaze,
   TxBuilder as BlazeTx,
@@ -24,6 +24,7 @@ import type {
   ITxBuilderFees,
   ITxBuilderReferralFee,
   IUpdateArgs,
+  IUpdatePoolFeesConfigArgs,
   IWithdrawConfigArgs,
   IZapConfigArgs,
   TDatumResult,
@@ -43,6 +44,7 @@ import {
   OrderDatum,
   SettingsDatum,
 } from "../DatumBuilders/ContractTypes/Contract.v3.js";
+import { V3Types } from "../DatumBuilders/ContractTypes/index.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
@@ -1540,5 +1542,224 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     };
 
     return thisTx;
+  }
+
+  /**
+   * Updates the LP fees on a V3 pool. This operation requires spending
+   * the pool UTXO with a "Manage" redeemer and adding a withdrawal from the pool.manage.else
+   * validator with an "UpdatePoolFees" redeemer.
+   *
+   * The LP fees determine the percentage taken from swaps and are represented as basis points
+   * (1 basis point = 0.01%). The new fees must be within the legal range of 0-10000 basis points.
+   *
+   * @param {IUpdatePoolFeesConfigArgs} args - The configuration arguments for updating pool fees:
+   *   - poolIdent: The pool identifier to update
+   *   - fees: The new LP fees with bid and ask values
+   *   - feeManager: Optional new fee manager address
+   *   - signers: Optional array of signer key hashes to attach to the transaction
+   *   - referralFee: Optional referral fee for the transaction
+   * @returns {Promise<IComposedTx<BlazeTx, Core.Transaction>>} A promise that resolves to the composed transaction
+   *          ready for signing and submission.
+   * @throws {Error} If the LP fees are outside the valid range (0-10000 basis points).
+   * @throws {Error} If the pool UTXO cannot be found or doesn't contain a valid datum.
+   */
+  async updatePoolFees(
+    args: IUpdatePoolFeesConfigArgs,
+  ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
+    const { poolIdent, fees, feeManager, signers, referralFee } = args;
+
+    // Validate LP fees are in legal range (0-10000 basis points)
+    const MAX_BASIS_POINTS = 10000n;
+    if (
+      fees.bid < 0n ||
+      fees.bid > MAX_BASIS_POINTS ||
+      fees.ask < 0n ||
+      fees.ask > MAX_BASIS_POINTS
+    ) {
+      throw new Error(
+        `LP fees must be between 0 and ${MAX_BASIS_POINTS} basis points. Received: bid=${fees.bid}, ask=${fees.ask}`,
+      );
+    }
+
+    // Get the pool UTXO by looking up the pool NFT
+    const { hash: poolPolicyId } = await this.getValidatorScript("pool.mint");
+    const poolNft = DatumBuilderV3.computePoolNftName(poolIdent);
+    const poolUtxo = await this.blaze.provider.getUnspentOutputByNFT(
+      Core.AssetId.fromParts(
+        Core.PolicyId(poolPolicyId),
+        Core.AssetName(poolNft),
+      ),
+    );
+
+    if (!poolUtxo) {
+      throw new Error(`Could not find pool UTXO for pool ident: ${poolIdent}`);
+    }
+
+    // Get the pool datum
+    const poolDatum =
+      poolUtxo.output().datum()?.asInlineData() ||
+      (poolUtxo.output().datum()?.asDataHash() &&
+        (await this.blaze.provider.resolveDatum(
+          Core.DatumHash(poolUtxo.output().datum()?.asDataHash() as string),
+        )));
+
+    if (!poolDatum) {
+      throw new Error(
+        "Pool UTXO does not contain a valid datum. Cannot update pool fees.",
+      );
+    }
+
+    // Decode the current pool datum
+    const currentPoolDatum = this.datumBuilder.decodeDatum(poolDatum);
+
+    const updatedDatumData = this.datumBuilder.buildUpdatedFeesDatum({
+      datum: currentPoolDatum,
+      newFees: fees,
+      newFeeManager: feeManager
+        ? feeManager
+        : this.datumBuilder.getAddressFromMultiSig(currentPoolDatum.feeManager),
+    });
+
+    // Get reference scripts and the pool.manage.else validator
+    const references = await this.getAllReferenceUtxos();
+    const poolManageElseValidator =
+      await this.getValidatorScript("pool.manage.else");
+    const { hash: poolManageElseHash, compiledCode: poolManageElseScript } =
+      poolManageElseValidator;
+
+    // Find a wallet UTXO with at least 2 ADA to cover fees and create change
+    const walletUtxos = await this.blaze.provider.getUnspentOutputs(
+      await this.blaze.wallet.getChangeAddress(),
+    );
+
+    const MIN_ADA_FOR_FEES = 2_000_000n; // 2 ADA
+    const walletUtxo = walletUtxos.find((utxo) => {
+      const lovelaceAmount = utxo.output().amount().coin();
+      return lovelaceAmount >= MIN_ADA_FOR_FEES;
+    });
+
+    if (!walletUtxo) {
+      throw new Error(
+        `No wallet UTXO found with at least ${MIN_ADA_FOR_FEES / 1_000_000n} ADA to cover transaction fees`,
+      );
+    }
+
+    // Sort inputs manually using Cardano's standard sorting (by txHash then by index)
+    const allInputs = [poolUtxo, walletUtxo].sort((a, b) => {
+      // Sort by txHash first
+      if (a.input().transactionId() < b.input().transactionId()) return -1;
+      if (a.input().transactionId() > b.input().transactionId()) return 1;
+      // If same txHash, sort by index
+      if (a.input().index() < b.input().index()) return -1;
+      if (a.input().index() > b.input().index()) return 1;
+      return 0;
+    });
+
+    // Find the pool input index in the sorted inputs
+    let poolInputIndex = -1;
+    for (let i = 0; i < allInputs.length; i++) {
+      if (
+        allInputs[i].input().transactionId() ===
+          poolUtxo.input().transactionId() &&
+        allInputs[i].input().index() === poolUtxo.input().index()
+      ) {
+        poolInputIndex = i;
+        break;
+      }
+    }
+
+    if (poolInputIndex === -1) {
+      throw new Error(
+        "Pool input not found in sorted inputs. This should not happen.",
+      );
+    }
+
+    // Build the Manage redeemer for the pool spend
+    const poolManageRedeemer: V3Types.PoolRedeemer = "Manage";
+    const poolRedeemerData = serialize(
+      V3Types.PoolRedeemer,
+      poolManageRedeemer,
+    );
+
+    // Build the UpdatePoolFees redeemer with the correct pool input index
+    const manageRedeemer: V3Types.ManageRedeemer = {
+      UpdatePoolFees: {
+        poolInput: BigInt(poolInputIndex),
+      },
+    };
+    const manageRedeemerData = serialize(
+      V3Types.ManageRedeemer,
+      manageRedeemer,
+    );
+
+    // Create the withdrawal address for pool.manage.else
+    const poolManageElseAddress = Core.RewardAccount.fromCredential(
+      {
+        hash: Core.Hash28ByteBase16(poolManageElseHash),
+        type: Core.CredentialType.ScriptHash,
+      },
+      this.network === "mainnet"
+        ? Core.NetworkId.Mainnet
+        : Core.NetworkId.Testnet,
+    );
+
+    // Build the transaction with all components in the correct order
+    const tx = this.newTxInstance(referralFee);
+
+    // Add inputs in sorted order
+    allInputs.forEach((utxo) => {
+      // Use the pool redeemer for pool input, undefined for wallet input
+      const isPoolInput =
+        utxo.input().transactionId() === poolUtxo.input().transactionId() &&
+        utxo.input().index() === poolUtxo.input().index();
+      tx.addInput(utxo, isPoolInput ? poolRedeemerData : undefined);
+    });
+
+    // Add reference inputs
+    references.forEach((utxo) => {
+      const cbor = utxo.toCbor();
+      const newInstance = Core.TransactionUnspentOutput.fromCbor(cbor);
+      tx.addReferenceInput(newInstance);
+    });
+
+    const instance = await this.getSettingsUtxo();
+    tx.addReferenceInput(instance);
+
+    // Attach the pool.manage.else validator script to the transaction
+    const poolManageElseScriptCbor = Core.Script.newPlutusV3Script(
+      new Core.PlutusV3Script(Core.HexBlob(poolManageElseScript)),
+    );
+    tx.provideScript(poolManageElseScriptCbor);
+
+    // Add withdrawal from pool.manage.else validator
+    tx.addWithdrawal(poolManageElseAddress, 0n, manageRedeemerData);
+
+    // Pay the pool UTXO back to the pool address with updated datum
+    const poolAddress = poolUtxo.output().address();
+    const poolValue = poolUtxo.output().amount();
+    tx.lockAssets(poolAddress, poolValue, updatedDatumData);
+
+    // Attach any provided signers
+    if (signers && signers.length > 0) {
+      signers.forEach((signer) => {
+        tx.addRequiredSigner(Core.Ed25519KeyHashHex(signer));
+      });
+    }
+
+    // Add collateral since coin selection is disabled.
+    const { selectedInputs } = CoinSelector.hvfSelector(
+      walletUtxos,
+      Core.Value.fromCore({ coins: 5_000_000n }),
+    );
+    tx.provideCollateral(selectedInputs.slice(0, 3));
+
+    return this.completeTx({
+      tx,
+      datum: updatedDatumData.toCbor(),
+      referralFee: referralFee?.payment,
+      deposit: 0n,
+      scooperFee: 0n,
+      coinSelection: false,
+    });
   }
 }

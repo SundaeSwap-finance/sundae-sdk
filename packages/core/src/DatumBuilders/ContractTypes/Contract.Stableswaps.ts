@@ -515,6 +515,26 @@ const Contracts = Type.Module({
     Type.Literal("SettingsAdminUpdate", { ctor: 0n }),
     Type.Literal("TreasuryAdminUpdate", { ctor: 1n }),
   ]),
+  ManageRedeemer: Type.Union([
+    Type.Object({
+      WithdrawFees: Type.Object(
+        {
+          amount: Type.Tuple([Type.BigInt(), Type.BigInt(), Type.BigInt()]),
+          treasuryOutput: Type.BigInt(),
+          poolInput: Type.BigInt(),
+        },
+        { ctor: 0n },
+      ),
+    }),
+    Type.Object({
+      UpdatePoolFees: Type.Object(
+        {
+          poolInput: Type.BigInt(),
+        },
+        { ctor: 1n },
+      ),
+    }),
+  ]),
 });
 
 export const Bool = Contracts.Import("Bool");
@@ -586,6 +606,8 @@ export type ProtocolFeeBasisPointsExtension = Exact<
 >;
 export const SettingsRedeemer = Contracts.Import("SettingsRedeemer");
 export type SettingsRedeemer = Exact<typeof SettingsRedeemer>;
+export const ManageRedeemer = Contracts.Import("ManageRedeemer");
+export type ManageRedeemer = Exact<typeof ManageRedeemer>;
 
 export class DocumentationDocumentationSpend {
   public Script: Script;
