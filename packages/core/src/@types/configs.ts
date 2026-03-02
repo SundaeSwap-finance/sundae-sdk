@@ -247,9 +247,6 @@ export interface IUpdateProtocolFeesConfigArgs extends IBaseConfig {
    * Optional signers to attach to the transaction (e.g., fee manager keys).
    */
   signers?: string[];
-
-  poolManageElse: string;
-  poolManageElseHash: string;
 }
 
 /**

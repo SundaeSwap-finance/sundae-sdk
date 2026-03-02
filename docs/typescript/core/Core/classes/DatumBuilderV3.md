@@ -213,6 +213,34 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 ***
 
+### buildUpdatedFeesDatum()
+
+> **buildUpdatedFeesDatum**(`args`): `PlutusData`
+
+Builds an updated pool datum with new fee settings.
+Note: This base implementation handles V3 pool datums only.
+DatumBuilderStableswaps overrides this method to handle Stableswaps datums.
+
+#### Parameters
+
+• **args**
+
+• **args.datum**: `object` \| `object`
+
+• **args.newFeeManager**: `undefined` \| `string`
+
+• **args.newFees**: [`IFeesConfig`](../interfaces/IFeesConfig.md)
+
+#### Returns
+
+`PlutusData`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:886](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L886)
+
+***
+
 ### buildWithdrawDatum()
 
 > **buildWithdrawDatum**(`args`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
@@ -265,6 +293,50 @@ An object containing the hash of the inline datum, the inline datum itself,
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:230](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L230)
+
+***
+
+### decodeDatum()
+
+> **decodeDatum**(`datum`): `object` \| `object`
+
+Decodes PlutusData to a pool datum.
+Note: This base implementation returns V3 pool datums only.
+DatumBuilderStableswaps overrides this method to return Stableswaps datums.
+
+#### Parameters
+
+• **datum**: `PlutusData`
+
+#### Returns
+
+`object` \| `object`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:924](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L924)
+
+***
+
+### encodeDatum()
+
+> **encodeDatum**(`datum`): `PlutusData`
+
+Encodes a pool datum to PlutusData.
+Note: This base implementation handles V3 pool datums only.
+DatumBuilderStableswaps overrides this method to handle Stableswaps datums.
+
+#### Parameters
+
+• **datum**: `object` \| `object`
+
+#### Returns
+
+`PlutusData`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:912](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L912)
 
 ***
 

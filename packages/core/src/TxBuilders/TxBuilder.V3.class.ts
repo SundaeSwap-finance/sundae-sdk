@@ -1612,12 +1612,24 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     // Decode the current pool datum
     const currentPoolDatum = this.datumBuilder.decodeDatum(poolDatum);
 
+    // Resolve the fee manager: use provided value, or fall back to existing
+    const resolvedFeeManager =
+      feeManager ??
+      (currentPoolDatum.feeManager
+        ? this.datumBuilder.getAddressFromMultiSig(currentPoolDatum.feeManager)
+        : undefined);
+
+    if (!resolvedFeeManager) {
+      throw new Error(
+        "Pool has no existing fee manager and none was provided. " +
+          "Please provide a feeManager address in the configuration.",
+      );
+    }
+
     const updatedDatumData = this.datumBuilder.buildUpdatedFeesDatum({
       datum: currentPoolDatum,
       newFees: fees,
-      newFeeManager: feeManager
-        ? feeManager
-        : this.datumBuilder.getAddressFromMultiSig(currentPoolDatum.feeManager),
+      newFeeManager: resolvedFeeManager,
     });
 
     // Get reference scripts and the pool.manage.else validator
@@ -1747,8 +1759,14 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     }
 
     // Add collateral since coin selection is disabled.
+    // Exclude the wallet UTXO used as input from collateral selection.
+    const collateralCandidates = walletUtxos.filter(
+      (utxo) =>
+        utxo.input().transactionId() !== walletUtxo.input().transactionId() ||
+        utxo.input().index() !== walletUtxo.input().index(),
+    );
     const { selectedInputs } = CoinSelector.hvfSelector(
-      walletUtxos,
+      collateralCandidates,
       Core.Value.fromCore({ coins: 5_000_000n }),
     );
     tx.provideCollateral(selectedInputs.slice(0, 3));

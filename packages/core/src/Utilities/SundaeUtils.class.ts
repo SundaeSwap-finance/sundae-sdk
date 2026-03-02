@@ -504,46 +504,6 @@ export class SundaeUtils {
   }
 
   /**
-   * Derives a {@link TSupportedNetworks} value from a Blaze provider's
-   * `networkName` property, falling back to the numeric `network` ID.
-   *
-   * @param provider The Blaze provider (or any object with network/networkName).
-   * @returns {TSupportedNetworks}
-   */
-  static networkFromBlaze(provider: {
-    networkName?: string;
-    network: number;
-  }): TSupportedNetworks {
-    switch (provider.networkName) {
-      case "cardano-mainnet":
-        return "mainnet";
-      case "cardano-preprod":
-        return "preprod";
-      case "cardano-preview":
-        return "preview";
-      default:
-        return provider.network ? "mainnet" : "preview";
-    }
-  }
-
-  /**
-   * Returns the slot offset for the given network.
-   *
-   * @param {TSupportedNetworks} network The network.
-   * @returns {number}
-   */
-  static getNetworkOffset(network: TSupportedNetworks): number {
-    switch (network) {
-      case "mainnet":
-        return SundaeUtils.MAINNET_OFFSET;
-      case "preprod":
-        return SundaeUtils.PREPROD_OFFSET;
-      case "preview":
-        return SundaeUtils.PREVIEW_OFFSET;
-    }
-  }
-
-  /**
    * Helper function to convert unix timestamp to slot
    * by subtracting the network's slot offset.
    *

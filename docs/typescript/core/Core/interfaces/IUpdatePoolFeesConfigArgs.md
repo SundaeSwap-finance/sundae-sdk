@@ -20,7 +20,7 @@ Optional new fee manager address.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:272](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L272)
+[packages/core/src/@types/configs.ts:269](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L269)
 
 ***
 
@@ -32,7 +32,7 @@ The new LP fees to set on the pool.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:267](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L267)
+[packages/core/src/@types/configs.ts:264](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L264)
 
 ***
 
@@ -44,7 +44,7 @@ The pool identifier to update.
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:262](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L262)
+[packages/core/src/@types/configs.ts:259](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L259)
 
 ***
 
@@ -56,4 +56,4 @@ Optional signers to attach to the transaction (e.g., fee manager keys).
 
 #### Defined in
 
-[packages/core/src/@types/configs.ts:277](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L277)
+[packages/core/src/@types/configs.ts:274](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/configs.ts#L274)

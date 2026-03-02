@@ -18,7 +18,7 @@ import { Transaction } from "@blaze-cardano/core";
 import { Core } from "@blaze-cardano/sdk";
 import { serialize, Void } from "@blaze-cardano/data";
 import { StableswapsTypes } from "../DatumBuilders/ContractTypes/index.js";
-import { DatumBuilderV3 } from "src/DatumBuilders/DatumBuilder.V3.class.js";
+import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 
 /**
  * `TxBuilderStableswaps` is a specialized transaction builder class for constructing transactions
@@ -244,7 +244,9 @@ export class TxBuilderStableswaps extends TxBuilderV3 {
       poolManageRedeemer,
     );
 
-    // Build the UpdatePoolFees redeemer with the correct pool input index
+    // Build the WithdrawFees redeemer with amounts set to 0. The WithdrawFees
+    // execution path in the pool validator is what allows updating protocol fees,
+    // even when no fees are actually withdrawn.
     const manageRedeemer: StableswapsTypes.ManageRedeemer = {
       WithdrawFees: {
         amount: [0n, 0n, 0n],
@@ -257,10 +259,14 @@ export class TxBuilderStableswaps extends TxBuilderV3 {
       manageRedeemer,
     );
 
+    // Get the pool.manage.else validator script
+    const poolManageElseScript =
+      await this.getValidatorScript("pool.manage.else");
+
     // Create the withdrawal address for pool.manage.else
     const poolManageElseAddress = Core.RewardAccount.fromCredential(
       {
-        hash: Core.Hash28ByteBase16(args.poolManageElseHash),
+        hash: Core.Hash28ByteBase16(poolManageElseScript.hash),
         type: Core.CredentialType.ScriptHash,
       },
       this.network === "mainnet"
@@ -292,7 +298,7 @@ export class TxBuilderStableswaps extends TxBuilderV3 {
 
     // Attach the pool.manage.else validator script to the transaction
     const poolManageElseScriptCbor = Core.Script.newPlutusV3Script(
-      new Core.PlutusV3Script(Core.HexBlob(args.poolManageElse)),
+      new Core.PlutusV3Script(Core.HexBlob(poolManageElseScript.compiledCode)),
     );
     tx.provideScript(poolManageElseScriptCbor);
 
@@ -321,8 +327,14 @@ export class TxBuilderStableswaps extends TxBuilderV3 {
     }
 
     // Add collateral since coin selection is disabled.
+    // Exclude the wallet UTXO used as input from collateral selection.
+    const collateralCandidates = walletUtxos.filter(
+      (utxo) =>
+        utxo.input().transactionId() !== walletUtxo.input().transactionId() ||
+        utxo.input().index() !== walletUtxo.input().index(),
+    );
     const { selectedInputs } = CoinSelector.hvfSelector(
-      walletUtxos,
+      collateralCandidates,
       Core.Value.fromCore({ coins: 5_000_000n }),
     );
     tx.provideCollateral(selectedInputs.slice(0, 3));

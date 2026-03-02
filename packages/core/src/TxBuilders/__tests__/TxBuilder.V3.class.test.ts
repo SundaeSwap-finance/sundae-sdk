@@ -1368,4 +1368,62 @@ describe("TxBuilderBlazeV3", () => {
       );
     }
   });
+
+  describe("updatePoolFees", () => {
+    it("should throw error when bid fee exceeds max basis points", async () => {
+      try {
+        await builder.updatePoolFees({
+          poolIdent: "test-pool-ident",
+          fees: { bid: 10001n, ask: 100n },
+        });
+        expect(true).toBe(false); // Should not reach here
+      } catch (e) {
+        expect((e as Error).message).toContain(
+          "LP fees must be between 0 and 10000 basis points",
+        );
+      }
+    });
+
+    it("should throw error when ask fee exceeds max basis points", async () => {
+      try {
+        await builder.updatePoolFees({
+          poolIdent: "test-pool-ident",
+          fees: { bid: 100n, ask: 10001n },
+        });
+        expect(true).toBe(false); // Should not reach here
+      } catch (e) {
+        expect((e as Error).message).toContain(
+          "LP fees must be between 0 and 10000 basis points",
+        );
+      }
+    });
+
+    it("should throw error when bid fee is negative", async () => {
+      try {
+        await builder.updatePoolFees({
+          poolIdent: "test-pool-ident",
+          fees: { bid: -1n, ask: 100n },
+        });
+        expect(true).toBe(false); // Should not reach here
+      } catch (e) {
+        expect((e as Error).message).toContain(
+          "LP fees must be between 0 and 10000 basis points",
+        );
+      }
+    });
+
+    it("should throw error when ask fee is negative", async () => {
+      try {
+        await builder.updatePoolFees({
+          poolIdent: "test-pool-ident",
+          fees: { bid: 100n, ask: -1n },
+        });
+        expect(true).toBe(false); // Should not reach here
+      } catch (e) {
+        expect((e as Error).message).toContain(
+          "LP fees must be between 0 and 10000 basis points",
+        );
+      }
+    });
+  });
 });

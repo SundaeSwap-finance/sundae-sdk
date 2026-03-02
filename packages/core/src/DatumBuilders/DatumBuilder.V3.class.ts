@@ -878,6 +878,11 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     ).toBech32();
   }
 
+  /**
+   * Builds an updated pool datum with new fee settings.
+   * Note: This base implementation handles V3 pool datums only.
+   * DatumBuilderStableswaps overrides this method to handle Stableswaps datums.
+   */
   public buildUpdatedFeesDatum(args: {
     datum: V3Types.PoolDatum | StableswapsTypes.StablePoolDatum;
     newFees: IFeesConfig;
@@ -888,14 +893,22 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     }
     const feeManagerScript = this.getMultiSigFromAddress(args.newFeeManager);
 
+    // This implementation handles V3 datums. Stableswaps datums are handled
+    // by the overridden method in DatumBuilderStableswaps.
+    const v3Datum = args.datum as V3Types.PoolDatum;
     return serialize(V3Types.PoolDatum, {
-      ...(args.datum as V3Types.PoolDatum),
+      ...v3Datum,
       bidFeesPer_10Thousand: args.newFees.bid,
       askFeesPer_10Thousand: args.newFees.ask,
       feeManager: feeManagerScript,
     });
   }
 
+  /**
+   * Encodes a pool datum to PlutusData.
+   * Note: This base implementation handles V3 pool datums only.
+   * DatumBuilderStableswaps overrides this method to handle Stableswaps datums.
+   */
   public encodeDatum(
     datum: V3Types.PoolDatum | StableswapsTypes.StablePoolDatum,
   ): Core.PlutusData {
@@ -903,6 +916,11 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     return data;
   }
 
+  /**
+   * Decodes PlutusData to a pool datum.
+   * Note: This base implementation returns V3 pool datums only.
+   * DatumBuilderStableswaps overrides this method to return Stableswaps datums.
+   */
   public decodeDatum(
     datum: Core.PlutusData,
   ): V3Types.PoolDatum | StableswapsTypes.StablePoolDatum {

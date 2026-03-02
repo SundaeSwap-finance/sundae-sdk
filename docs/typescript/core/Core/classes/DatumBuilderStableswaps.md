@@ -293,6 +293,60 @@ An object containing the hash of the inline datum, the inline datum itself,
 
 ***
 
+### buildUpdatedFeesDatum()
+
+> **buildUpdatedFeesDatum**(`args`): `PlutusData`
+
+Builds an updated pool datum with new fee settings.
+Note: This base implementation handles V3 pool datums only.
+DatumBuilderStableswaps overrides this method to handle Stableswaps datums.
+
+#### Parameters
+
+• **args**
+
+• **args.datum**
+
+• **args.datum.assets**: [[`string`, `string`], [`string`, `string`]] = `...`
+
+• **args.datum.circulatingLp**: `bigint` = `...`
+
+• **args.datum.feeManager?**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object` = `...`
+
+• **args.datum.identifier**: `string` = `...`
+
+• **args.datum.linearAmplification**: `bigint` = `...`
+
+• **args.datum.linearAmplificationManager?**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object` = `...`
+
+• **args.datum.lpFeeBasisPoints**: [`bigint`, `bigint`] = `...`
+
+• **args.datum.marketOpen**: `bigint` = `...`
+
+• **args.datum.protocolFeeBasisPoints**: [`bigint`, `bigint`] = `...`
+
+• **args.datum.protocolFees**: [`bigint`, `bigint`, `bigint`] = `...`
+
+• **args.datum.sumInvariant**: `bigint` = `...`
+
+• **args.newFeeManager**: `string`
+
+• **args.newFees**: [`IFeesConfig`](../interfaces/IFeesConfig.md)
+
+#### Returns
+
+`PlutusData`
+
+#### Overrides
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`buildUpdatedFeesDatum`](DatumBuilderV3.md#buildupdatedfeesdatum)
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:165](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L165)
+
+***
+
 ### buildWithdrawDatum()
 
 > **buildWithdrawDatum**(`args`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
@@ -349,6 +403,124 @@ An object containing the hash of the inline datum, the inline datum itself,
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts:230](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V3.class.ts#L230)
+
+***
+
+### decodeDatum()
+
+> **decodeDatum**(`datum`): `object`
+
+Decodes PlutusData to a pool datum.
+Note: This base implementation returns V3 pool datums only.
+DatumBuilderStableswaps overrides this method to return Stableswaps datums.
+
+#### Parameters
+
+• **datum**: `PlutusData`
+
+#### Returns
+
+`object`
+
+##### assets
+
+> **assets**: [[`string`, `string`], [`string`, `string`]]
+
+##### circulatingLp
+
+> **circulatingLp**: `bigint`
+
+##### feeManager?
+
+> `optional` **feeManager**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+
+##### identifier
+
+> **identifier**: `string`
+
+##### linearAmplification
+
+> **linearAmplification**: `bigint`
+
+##### linearAmplificationManager?
+
+> `optional` **linearAmplificationManager**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+
+##### lpFeeBasisPoints
+
+> **lpFeeBasisPoints**: [`bigint`, `bigint`]
+
+##### marketOpen
+
+> **marketOpen**: `bigint`
+
+##### protocolFeeBasisPoints
+
+> **protocolFeeBasisPoints**: [`bigint`, `bigint`]
+
+##### protocolFees
+
+> **protocolFees**: [`bigint`, `bigint`, `bigint`]
+
+##### sumInvariant
+
+> **sumInvariant**: `bigint`
+
+#### Overrides
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`decodeDatum`](DatumBuilderV3.md#decodedatum)
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:184](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L184)
+
+***
+
+### encodeDatum()
+
+> **encodeDatum**(`datum`): `PlutusData`
+
+Encodes a pool datum to PlutusData.
+Note: This base implementation handles V3 pool datums only.
+DatumBuilderStableswaps overrides this method to handle Stableswaps datums.
+
+#### Parameters
+
+• **datum**
+
+• **datum.assets**: [[`string`, `string`], [`string`, `string`]] = `...`
+
+• **datum.circulatingLp**: `bigint` = `...`
+
+• **datum.feeManager?**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object` = `...`
+
+• **datum.identifier**: `string` = `...`
+
+• **datum.linearAmplification**: `bigint` = `...`
+
+• **datum.linearAmplificationManager?**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object` = `...`
+
+• **datum.lpFeeBasisPoints**: [`bigint`, `bigint`] = `...`
+
+• **datum.marketOpen**: `bigint` = `...`
+
+• **datum.protocolFeeBasisPoints**: [`bigint`, `bigint`] = `...`
+
+• **datum.protocolFees**: [`bigint`, `bigint`, `bigint`] = `...`
+
+• **datum.sumInvariant**: `bigint` = `...`
+
+#### Returns
+
+`PlutusData`
+
+#### Overrides
+
+[`DatumBuilderV3`](DatumBuilderV3.md).[`encodeDatum`](DatumBuilderV3.md#encodedatum)
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:179](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L179)
 
 ***
 
