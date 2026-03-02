@@ -7,6 +7,7 @@ import {
 } from "./@types/index.js";
 import { QueryProvider } from "./Abstracts/QueryProvider.abstract.class.js";
 import { QueryProviderSundaeSwap } from "./QueryProviders/QueryProviderSundaeSwap.js";
+import { SundaeUtils } from "./Utilities/SundaeUtils.class.js";
 import {
   TxBuilderNftCheck,
   TxBuilderV1,

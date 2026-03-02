@@ -55,6 +55,7 @@ export class SundaeUtils {
   static MAINNET_OFFSET = 1591566291;
   static PREPROD_OFFSET = 1655683200;
   static PREVIEW_OFFSET = 1666656000;
+  static PREPROD_OFFSET = 1655683200;
 
   /**
    * Converts a Blaze provider's networkName to the SDK's TSupportedNetworks type.
@@ -500,6 +501,46 @@ export class SundaeUtils {
       result.push(prefix ? `0x${slicedStr}` : slicedStr);
     }
     return result;
+  }
+
+  /**
+   * Derives a {@link TSupportedNetworks} value from a Blaze provider's
+   * `networkName` property, falling back to the numeric `network` ID.
+   *
+   * @param provider The Blaze provider (or any object with network/networkName).
+   * @returns {TSupportedNetworks}
+   */
+  static networkFromBlaze(provider: {
+    networkName?: string;
+    network: number;
+  }): TSupportedNetworks {
+    switch (provider.networkName) {
+      case "cardano-mainnet":
+        return "mainnet";
+      case "cardano-preprod":
+        return "preprod";
+      case "cardano-preview":
+        return "preview";
+      default:
+        return provider.network ? "mainnet" : "preview";
+    }
+  }
+
+  /**
+   * Returns the slot offset for the given network.
+   *
+   * @param {TSupportedNetworks} network The network.
+   * @returns {number}
+   */
+  static getNetworkOffset(network: TSupportedNetworks): number {
+    switch (network) {
+      case "mainnet":
+        return SundaeUtils.MAINNET_OFFSET;
+      case "preprod":
+        return SundaeUtils.PREPROD_OFFSET;
+      case "preview":
+        return SundaeUtils.PREVIEW_OFFSET;
+    }
   }
 
   /**
