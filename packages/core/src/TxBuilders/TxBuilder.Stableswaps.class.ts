@@ -169,12 +169,6 @@ export class TxBuilderStableswaps extends TxBuilderV3 {
     // Get reference scripts
     const references = await this.getAllReferenceUtxos();
 
-    // // Get the pool.manage.else validator script (not a reference, needs to be attached)
-    // const poolManageElseValidator =
-    //   await this.getValidatorScript("pool.manage.else");
-    // const { hash: poolManageElseHash, compiledCode: poolManageElseScript } =
-    //   poolManageElseValidator;
-
     // Get settings datum to extract treasury address
     const settingsDatum = await this.getSettingsUtxoDatum();
     if (!settingsDatum) {
@@ -310,8 +304,7 @@ export class TxBuilderStableswaps extends TxBuilderV3 {
     const poolValue = poolUtxoToSpend.output().amount();
     tx.lockAssets(poolAddress, poolValue, updatedDatumData);
 
-    // Add treasury output with no datum (output index 1)
-    // The minimum ADA requirement for an output without datum
+    // Add treasury output with inline Void datum (output index 1)
     const MIN_TREASURY_ADA = 1_000_000n; // 1 ADA
     tx.lockLovelace(
       Core.Address.fromBech32(treasuryAddress),
