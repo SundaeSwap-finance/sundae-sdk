@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import { cborToScript, Core } from "@blaze-cardano/sdk";
-import { input, search, select } from "@inquirer/prompts";
+import { Core } from "@blaze-cardano/sdk";
+import { input, select } from "@inquirer/prompts";
 import { AssetAmount, type IAssetAmountMetadata } from "@sundaeswap/asset";
 import {
   ADA_METADATA,
@@ -9,13 +9,13 @@ import {
   type IPoolData,
   type TTxBuilder,
 } from "@sundaeswap/core";
+import { Sprinkle } from "@sundaeswap/sprinkles";
 import path from "path";
 import { fileURLToPath } from "url";
 import packageJson from "../../package.json" assert { type: "json" };
-import type { State } from "../types.js";
+import type { IAppContext } from "../types.js";
 import { getPoolData, prettyAssetId } from "../utils.js";
 import { makeValue } from "@blaze-cardano/sdk";
-import { transactionDialog } from "./transaction.js";
 
 const asciify = (await import("asciify-image")).default;
 
@@ -26,13 +26,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Construct path to logo file in the package
-// When built, this file is in dist/cli/, so we need to go up to package root then into data/
 const logoPath = path.join(__dirname, "..", "..", "data", "sundae.png");
 
 export async function ensureDeployment<g extends TTxBuilder>(
   validator: string,
   txBuilder: g,
-  state: State,
+  ctx: IAppContext,
 ): Promise<g> {
   const protocolParams = await txBuilder.getProtocolParams();
   if (!protocolParams) {
@@ -51,16 +50,69 @@ export async function ensureDeployment<g extends TTxBuilder>(
   if (protocolParams.references.find((ref) => ref.key === validator)) {
     return txBuilder;
   }
-
+  // resolveScriptRef and deployScript both default to burn address
   let refUtxo = await txBuilder.blaze.provider.resolveScriptRef(
     Core.Hash28ByteBase16(validatorScript.hash),
   );
   if (!refUtxo) {
+    // Create script from compiled code based on contract version
+    // The compiledCode can be in two formats:
+    // 1. Raw CBOR byte string: 58/59 + length + data
+    // 2. CIP-0381 array format: 82 + version + script_bytes (used in Aiken blueprints)
+    let compiledCode = validatorScript.compiledCode;
+    if (!compiledCode) {
+      throw new Error(
+        `No compiledCode found for validator "${validator}". ` +
+          `Make sure custom validators are configured with a params file containing compiledCode.`,
+      );
+    }
+
+    // Check if it's in CIP-0381 array format [version, script_bytes]
+    const firstByte = parseInt(compiledCode.substring(0, 2), 16);
+    const majorType = firstByte >> 5;
+    if (majorType === 4) {
+      // It's an array - extract the script bytes (second element)
+      // Format: 82 + version_byte + outer_byte_string(inner_byte_string)
+      // The outer byte string contains the inner CBOR byte string (double-wrapped)
+      const reader = new Core.CborReader(Core.HexBlob(compiledCode));
+      const arrayLen = reader.readStartArray();
+      if (arrayLen !== 2) {
+        throw new Error(
+          `Invalid compiledCode array format for validator "${validator}". ` +
+            `Expected 2 elements, got ${arrayLen}.`,
+        );
+      }
+      reader.readInt(); // Skip version (we determine from contractVersion)
+      // Read the outer byte string to get the inner CBOR byte string
+      const innerCbor = reader.readByteString();
+      compiledCode = Buffer.from(innerCbor).toString("hex");
+    } else if (majorType !== 2) {
+      throw new Error(
+        `Invalid compiledCode format for validator "${validator}". ` +
+          `Expected CBOR byte string (major type 2) or array (major type 4), got major type ${majorType}. ` +
+          `First 40 chars: ${compiledCode.substring(0, 40)}.`,
+      );
+    }
+
+    const script =
+      txBuilder.contractVersion === EContractVersion.V1
+        ? Core.Script.newPlutusV1Script(
+            new Core.PlutusV1Script(Core.HexBlob(compiledCode)),
+          )
+        : txBuilder.contractVersion === EContractVersion.Stableswaps
+          ? Core.Script.newPlutusV3Script(
+              new Core.PlutusV3Script(Core.HexBlob(compiledCode)),
+            )
+          : Core.Script.newPlutusV2Script(
+              new Core.PlutusV2Script(Core.HexBlob(compiledCode)),
+            );
+
     const deployTx = await txBuilder.blaze
       .newTransaction()
-      .deployScript(cborToScript(validatorScript.compiledCode, "PlutusV3"))
+      .deployScript(script)
       .complete();
-    await transactionDialog(deployTx.toCbor(), false, state);
+    console.log(deployTx.toCore().body);
+    await ctx.sprinkle.TxDialog(txBuilder.blaze, deployTx);
     await input({
       message:
         "Press enter to continue after the deployment transaction is confirmed.",
@@ -74,13 +126,20 @@ export async function ensureDeployment<g extends TTxBuilder>(
       );
     }
   }
-  protocolParams.references.push({
-    key: validator,
-    txIn: {
-      hash: refUtxo.input().transactionId().toString(),
-      index: Number(refUtxo.input().index()),
-    },
-  });
+  const refTxIn = {
+    hash: refUtxo.input().transactionId().toString(),
+    index: Number(refUtxo.input().index()),
+  };
+  // Check if this UTxO is already in the references (might be shared by multiple validators)
+  const existingRef = protocolParams.references.find(
+    (ref) => ref.txIn.hash === refTxIn.hash && ref.txIn.index === refTxIn.index,
+  );
+  if (!existingRef) {
+    protocolParams.references.push({
+      key: validator,
+      txIn: refTxIn,
+    });
+  }
   txBuilder.protocolParams = protocolParams;
   return txBuilder;
 }
@@ -94,7 +153,6 @@ export async function setAsciiLogo(size: number): Promise<void> {
     asciiLogo = (asciified as string).split("\n");
   } catch (err) {
     console.error("Could not load logo, using fallback:", err);
-    // Fallback to a simple ASCII logo if the image fails to load
     asciiLogo = [
       "   ____                 _            ",
       "  / ___| _   _ _ __   __| | __ _  ___ ",
@@ -109,7 +167,6 @@ export async function setAsciiLogo(size: number): Promise<void> {
       "          |____/|____/|_|\\_\\         ",
       "                                     ",
     ];
-    // Adjust the fallback logo size to match requested height
     while (asciiLogo.length < size) {
       asciiLogo.push("                                     ");
     }
@@ -119,9 +176,19 @@ export async function setAsciiLogo(size: number): Promise<void> {
   }
 }
 
-export async function printHeader(state: State): Promise<void> {
+export async function printHeader(ctx: IAppContext): Promise<void> {
   console.clear();
   const version = packageJson.devDependencies["@sundaeswap/core"];
+  const settings = ctx.sprinkle.settings;
+  const address =
+    settings.wallet.type === "hot"
+      ? settings.wallet.address
+      : settings.wallet.address;
+  const providerType = settings.provider.type;
+  const providerKey =
+    settings.provider.type === "blockfrost"
+      ? settings.provider.projectId
+      : settings.provider.apiKey;
   const headerText: string[] = [
     "",
     "----------------------",
@@ -131,10 +198,10 @@ export async function printHeader(state: State): Promise<void> {
     "|",
     "|---------------------",
     "|",
-    `| Network:\t${state.settings.network}`,
-    `| Address:\t${state.settings.address}`,
-    `| Provider:\t${state.settings.providerType}`,
-    `| Provider Key:\t${state.settings.providerKey?.substring(0, 5)}*****`,
+    `| Network:\t${settings.network}`,
+    `| Address:\t${address}`,
+    `| Provider:\t${providerType}`,
+    `| Provider Key:\t${providerKey?.substring(0, 5)}*****`,
     "|",
     "----------------------",
     "",
@@ -153,18 +220,23 @@ export async function printHeader(state: State): Promise<void> {
 }
 
 export async function getAssetAmount(
-  state: State,
+  ctx: IAppContext,
   message: string,
   minAmt: bigint,
   filterFn?: (assetId: string, amount: bigint) => boolean,
 ): Promise<AssetAmount<IAssetAmountMetadata> | undefined> {
   let bal: Core.Value;
+  const address =
+    ctx.sprinkle.settings.wallet.type === "hot"
+      ? ctx.sprinkle.settings.wallet.address
+      : ctx.sprinkle.settings.wallet.address;
   try {
-    bal = await state.sdk().blaze().wallet.getBalance();
+    const sdk = await ctx.sdk();
+    bal = await sdk.blaze().wallet.getBalance();
   } catch (err) {
     bal = makeValue(0n);
     console.log(
-      `The wallet's balance could not be retrieved, it is probably empty. Make sure to fund the wallet with address: ${state.settings.address}\nA faucet exists for testnet at https://docs.cardano.org/cardano-testnets/tools/faucet`,
+      `The wallet's balance could not be retrieved, it is probably empty. Make sure to fund the wallet with address: ${address}\nA faucet exists for testnet at https://docs.cardano.org/cardano-testnets/tools/faucet`,
     );
     await input({
       message: "Press enter to continue",
@@ -180,7 +252,7 @@ export async function getAssetAmount(
   if (bal.multiasset()) {
     choices = [
       ...choices,
-      ...[...bal.multiasset()!.entries()] // NOTE: .filter was only added to IterableIterator in ES2025
+      ...[...bal.multiasset()!.entries()]
         .filter(([id, amt]: [Core.AssetId, bigint]) => {
           if (filterFn) {
             return filterFn(id.toString(), amt);
@@ -195,7 +267,7 @@ export async function getAssetAmount(
         }),
     ];
   }
-  const choice = await search({
+  const choice = await Sprinkle.SearchSelect({
     message: message,
     source: (prompt) =>
       prompt
@@ -204,7 +276,6 @@ export async function getAssetAmount(
   });
   const assetId = choice as string;
 
-  ///TODO: fetch decimals
   return choice === "ada.lovelace"
     ? new AssetAmount<IAssetAmountMetadata>(
         Number(await input({ message: "Enter amount" })),
@@ -260,12 +331,13 @@ export async function maybeInput(opts: {
 
 export async function selectPool(
   assetId: string,
-  state: State,
+  ctx: IAppContext,
   typeFilter?: EContractVersion[],
 ): Promise<IPoolData | undefined> {
+  const sdk = await ctx.sdk();
   let choices: { name: string; value: string }[] = [];
   try {
-    const pools = (await state.sdk().queryProvider.findPoolData({
+    const pools = (await sdk.queryProvider.findPoolData({
       assetId,
       minimal: true,
     } as IPoolByAssetQuery)) as IPoolData[];
@@ -274,13 +346,13 @@ export async function selectPool(
     console.warn("Something went wrong when fetching pools: ", err);
   }
   choices.push({ name: "Enter pool ident manually", value: "manual" });
-  let choice = await search({
+  let choice = await Sprinkle.SearchSelect({
     message: "Select pool",
     source: async (term) => {
       if (!term) {
         return choices;
       }
-      const pools = (await state.sdk().queryProvider.findPoolData({
+      const pools = (await sdk.queryProvider.findPoolData({
         search: term,
         minimal: true,
       })) as IPoolData[];
@@ -307,9 +379,9 @@ export async function selectPool(
         { name: "NftCheck", value: EContractVersion.NftCheck },
       ],
     });
-    pool = await getPoolData(state, ident, version);
+    pool = await getPoolData(ctx, ident, version);
   } else {
-    pool = (await state.sdk().queryProvider.findPoolData({
+    pool = (await sdk.queryProvider.findPoolData({
       ident: choice,
     })) as IPoolData;
   }
