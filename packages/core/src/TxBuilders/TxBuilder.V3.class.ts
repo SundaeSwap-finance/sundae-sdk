@@ -1765,6 +1765,14 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
         utxo.input().transactionId() !== walletUtxo.input().transactionId() ||
         utxo.input().index() !== walletUtxo.input().index(),
     );
+
+    if (collateralCandidates.length === 0) {
+      throw new Error(
+        "No eligible wallet UTXOs available for collateral. " +
+          "The wallet needs at least one additional UTXO besides the spending input.",
+      );
+    }
+
     const { selectedInputs } = CoinSelector.hvfSelector(
       collateralCandidates,
       Core.Value.fromCore({ coins: 5_000_000n }),

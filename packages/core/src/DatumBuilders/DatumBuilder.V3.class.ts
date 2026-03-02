@@ -339,10 +339,9 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
           type: Core.CredentialType.ScriptHash,
         });
       } else {
-        // Complex multisig cases (AllOf, AnyOf, AtLeast, Before, After) are not supported
-        throw new Error(
-          "Only simple Signature or Script multisig types are supported",
-        );
+        // Complex multisig cases (AllOf, AnyOf, AtLeast, Before, After) are not supported.
+        // Return undefined so callers can handle this explicitly (e.g., require feeManager arg).
+        return undefined;
       }
 
       // Create address with payment credential only (no staking credential)

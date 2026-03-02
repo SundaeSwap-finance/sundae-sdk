@@ -87,7 +87,7 @@ export class TxBuilderStableswaps extends TxBuilderV3 {
   /**
    * Updates the protocol fees on a Stableswaps pool. This operation requires spending
    * the pool UTXO with a "Manage" redeemer and adding a withdrawal from the pool.manage.else
-   * validator with an "UpdatePoolFees" redeemer.
+   * validator with a "WithdrawFees" redeemer (with all withdraw amounts set to 0).
    *
    * The protocol fees determine the percentage taken by the protocol from swap fees and are
    * represented as basis points (1 basis point = 0.01%). The new fees must be within the
@@ -333,6 +333,14 @@ export class TxBuilderStableswaps extends TxBuilderV3 {
         utxo.input().transactionId() !== walletUtxo.input().transactionId() ||
         utxo.input().index() !== walletUtxo.input().index(),
     );
+
+    if (collateralCandidates.length === 0) {
+      throw new Error(
+        "No eligible wallet UTXOs available for collateral. " +
+          "The wallet needs at least one additional UTXO besides the spending input.",
+      );
+    }
+
     const { selectedInputs } = CoinSelector.hvfSelector(
       collateralCandidates,
       Core.Value.fromCore({ coins: 5_000_000n }),
