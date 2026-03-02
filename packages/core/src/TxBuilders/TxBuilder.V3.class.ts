@@ -104,9 +104,9 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
     queryProvider?: QueryProviderSundaeSwap,
   ) {
     super();
-    const network: TSupportedNetworks = blaze.provider.network
-      ? "mainnet"
-      : "preview";
+    const network: TSupportedNetworks = SundaeUtils.networkFromBlaze(
+      blaze.provider,
+    );
 
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
