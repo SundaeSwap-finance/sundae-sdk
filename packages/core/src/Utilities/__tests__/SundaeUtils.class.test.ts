@@ -526,14 +526,8 @@ describe("SundaeUtils class", () => {
 
   describe("getSwapInput", () => {
     it("should calculate input for V1 constant product pool", () => {
-      const desiredOutput = new AssetAmount(
-        5000000n,
-        PREVIEW_DATA.pools.v1.assetB,
-      );
-      const result = SundaeUtils.getSwapInput(
-        PREVIEW_DATA.pools.v1,
-        desiredOutput,
-      );
+      const output = new AssetAmount(5000000n, PREVIEW_DATA.pools.v1.assetB);
+      const result = SundaeUtils.getSwapInput(PREVIEW_DATA.pools.v1, output);
 
       expect(result.input).toBeGreaterThan(0n);
       expect(result.output).toEqual(5000000n);
@@ -544,14 +538,8 @@ describe("SundaeUtils class", () => {
     });
 
     it("should calculate input for V3 constant product pool", () => {
-      const desiredOutput = new AssetAmount(
-        5000000n,
-        PREVIEW_DATA.pools.v3.assetB,
-      );
-      const result = SundaeUtils.getSwapInput(
-        PREVIEW_DATA.pools.v3,
-        desiredOutput,
-      );
+      const output = new AssetAmount(5000000n, PREVIEW_DATA.pools.v3.assetB);
+      const result = SundaeUtils.getSwapInput(PREVIEW_DATA.pools.v3, output);
 
       expect(result.input).toBeGreaterThan(0n);
       expect(result.output).toEqual(5000000n);
@@ -589,16 +577,13 @@ describe("SundaeUtils class", () => {
         version: EContractVersion.Stableswaps,
       };
 
-      const desiredOutput = new AssetAmount(
-        5000000000n,
-        stableswapPool.assetB,
-      );
-      const result = SundaeUtils.getSwapInput(stableswapPool, desiredOutput);
+      const output = new AssetAmount(5000000000n, stableswapPool.assetB);
+      const result = SundaeUtils.getSwapInput(stableswapPool, output);
 
       expect(result.input).toBeGreaterThan(0n);
       expect(result.output).toEqual(5000000000n);
       // For a balanced stableswap pool with LAF=500, input should be close to output
-      expect(Number(result.input)).toBeCloseTo(Number(desiredOutput.amount), -8);
+      expect(Number(result.input)).toBeCloseTo(Number(output.amount), -8);
       // lpFee should be denominated in output asset for stableswaps
       expect(result.lpFee.metadata.assetId).toEqual(
         stableswapPool.assetB.assetId,
@@ -618,14 +603,11 @@ describe("SundaeUtils class", () => {
       );
 
       // Now get input for that output
-      const desiredOutput = new AssetAmount(
+      const output = new AssetAmount(
         outputResult.output,
         PREVIEW_DATA.pools.v1.assetB,
       );
-      const inputResult = SundaeUtils.getSwapInput(
-        PREVIEW_DATA.pools.v1,
-        desiredOutput,
-      );
+      const inputResult = SundaeUtils.getSwapInput(PREVIEW_DATA.pools.v1, output);
 
       // The calculated input should be close to original (allowing for rounding)
       expect(Number(inputResult.input)).toBeCloseTo(
@@ -640,13 +622,10 @@ describe("SundaeUtils class", () => {
         version: "UnsupportedVersion" as EContractVersion,
       };
 
-      const desiredOutput = new AssetAmount(
-        5000000n,
-        unsupportedPool.assetB,
-      );
+      const output = new AssetAmount(5000000n, unsupportedPool.assetB);
 
       expect(() =>
-        SundaeUtils.getSwapInput(unsupportedPool, desiredOutput),
+        SundaeUtils.getSwapInput(unsupportedPool, output),
       ).toThrowError(/Unsupported pool version/);
     });
   });

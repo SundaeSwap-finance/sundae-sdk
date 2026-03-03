@@ -582,23 +582,23 @@ export class SundaeUtils {
   }
 
   /**
-   * Calculates the input amount required to receive a desired output amount from a swap.
+   * Calculates the input amount required to receive a given output amount from a swap.
    * This is the reverse of getSwapOutput - given how much you want to receive, it determines
    * how much you need to provide. Supports different pool versions including V1, V3, NftCheck,
    * and Stableswaps.
    *
    * @param {IPoolData} poolData - The pool data containing reserves, fees, and version information.
-   * @param {AssetAmount<IAssetAmountMetadata>} desiredOutput - The desired output asset amount.
+   * @param {AssetAmount<IAssetAmountMetadata>} output - The output asset amount.
    * @returns {TGenericSwapOutcome} The swap outcome including the required input amount and other relevant data.
    * @throws {Error} If the pool version is not supported.
    */
   static getSwapInput(
     poolData: IPoolData,
-    desiredOutput: AssetAmount<IAssetAmountMetadata>,
+    output: AssetAmount<IAssetAmountMetadata>,
   ): TGenericSwapOutcome {
     const isOutputAssetA = SundaeUtils.isAssetIdsEqual(
       poolData.assetA.assetId,
-      desiredOutput.metadata.assetId,
+      output.metadata.assetId,
     );
     const outputReserve = isOutputAssetA
       ? poolData.liquidity.aReserve
@@ -613,15 +613,15 @@ export class SundaeUtils {
       case EContractVersion.NftCheck:
         return ConstantProductPool.getSwapInput(
           isOutputAssetA ? poolData.assetB : poolData.assetA,
-          desiredOutput.amount,
+          output.amount,
           inputReserve,
           outputReserve,
           poolData.currentFee,
         );
       case EContractVersion.Stableswaps:
         return StableSwapsPool.getSwapInput(
-          desiredOutput.metadata,
-          desiredOutput.amount,
+          output.metadata,
+          output.amount,
           inputReserve,
           outputReserve,
           poolData.currentFee,
