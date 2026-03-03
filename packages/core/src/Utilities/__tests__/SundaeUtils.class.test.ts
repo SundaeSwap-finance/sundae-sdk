@@ -524,6 +524,121 @@ describe("SundaeUtils class", () => {
     });
   });
 
+  describe("getSwapInput", () => {
+    it("should calculate input for V1 constant product pool", () => {
+      const desiredOutput = new AssetAmount(
+        5000000n,
+        PREVIEW_DATA.pools.v1.assetB,
+      );
+      const result = SundaeUtils.getSwapInput(
+        PREVIEW_DATA.pools.v1,
+        desiredOutput,
+      );
+
+      expect(result.input).toBeGreaterThan(0n);
+      expect(result.output).toEqual(5000000n);
+    });
+
+    it("should calculate input for V3 constant product pool", () => {
+      const desiredOutput = new AssetAmount(
+        5000000n,
+        PREVIEW_DATA.pools.v3.assetB,
+      );
+      const result = SundaeUtils.getSwapInput(
+        PREVIEW_DATA.pools.v3,
+        desiredOutput,
+      );
+
+      expect(result.input).toBeGreaterThan(0n);
+      expect(result.output).toEqual(5000000n);
+    });
+
+    it("should calculate input for stableswaps pool", () => {
+      const stableswapPool: IPoolData = {
+        ident: "stableswap-test",
+        currentFee: 0.0005,
+        protocolFee: 0.0005,
+        assetA: {
+          assetId:
+            "1f3aec8bfe7ea4fe14c5f121e2a92e301afe414147860d557cac7e34.5553444378",
+          decimals: 6,
+        },
+        assetB: {
+          assetId:
+            "c48cbb3d5e57ed56e276bc45f99ab39abe94e6cd7ac39fb402da47ad.0014df105553444d",
+          decimals: 6,
+        },
+        assetLP: {
+          assetId: "test-lp",
+          decimals: 0,
+        },
+        liquidity: {
+          aReserve: 2280124828543n,
+          bReserve: 3097587109955n,
+          lpTotal: 5369080670145n,
+        },
+        linearAmplificationFactor: 500n,
+        version: EContractVersion.Stableswaps,
+      };
+
+      const desiredOutput = new AssetAmount(
+        5000000000n,
+        stableswapPool.assetB,
+      );
+      const result = SundaeUtils.getSwapInput(stableswapPool, desiredOutput);
+
+      expect(result.input).toBeGreaterThan(0n);
+      expect(result.output).toEqual(5000000000n);
+      // For a balanced stableswap pool with LAF=500, input should be close to output
+      expect(Number(result.input)).toBeCloseTo(Number(desiredOutput.amount), -8);
+    });
+
+    it("should be inverse of getSwapOutput for constant product pools", () => {
+      const inputAmount = new AssetAmount(
+        10000000n,
+        PREVIEW_DATA.pools.v1.assetA,
+      );
+
+      // Get output for this input
+      const outputResult = SundaeUtils.getSwapOutput(
+        PREVIEW_DATA.pools.v1,
+        inputAmount,
+      );
+
+      // Now get input for that output
+      const desiredOutput = new AssetAmount(
+        outputResult.output,
+        PREVIEW_DATA.pools.v1.assetB,
+      );
+      const inputResult = SundaeUtils.getSwapInput(
+        PREVIEW_DATA.pools.v1,
+        desiredOutput,
+      );
+
+      // The calculated input should be close to original (allowing for rounding)
+      expect(Number(inputResult.input)).toBeCloseTo(
+        Number(inputAmount.amount),
+        -2,
+      );
+    });
+
+    it("should throw for unsupported pool version", () => {
+      const unsupportedPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: "UnsupportedVersion" as EContractVersion,
+      };
+
+      const desiredOutput = new AssetAmount(
+        5000000n,
+        unsupportedPool.assetB,
+      );
+
+      expect(() =>
+        SundaeUtils.getSwapInput(unsupportedPool, desiredOutput),
+      ).toThrowError(/Unsupported pool version/);
+    });
+  });
+
   describe("getPrice", () => {
     it("should return price with decimal adjustment for ADA pairs (v1 pool)", () => {
       // v1 pool: ADA (6 decimals) / TINDY (0 decimals)

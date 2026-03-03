@@ -582,6 +582,60 @@ export class SundaeUtils {
   }
 
   /**
+   * Calculates the input amount required to receive a desired output amount from a swap.
+   * This is the reverse of getSwapOutput - given how much you want to receive, it determines
+   * how much you need to provide. Supports different pool versions including V1, V3, NftCheck,
+   * and Stableswaps.
+   *
+   * @param {IPoolData} poolData - The pool data containing reserves, fees, and version information.
+   * @param {AssetAmount<IAssetAmountMetadata>} desiredOutput - The desired output asset amount.
+   * @returns {TGenericSwapOutcome} The swap outcome including the required input amount and other relevant data.
+   * @throws {Error} If the pool version is not supported.
+   */
+  static getSwapInput(
+    poolData: IPoolData,
+    desiredOutput: AssetAmount<IAssetAmountMetadata>,
+  ): TGenericSwapOutcome {
+    const isOutputAssetA = SundaeUtils.isAssetIdsEqual(
+      poolData.assetA.assetId,
+      desiredOutput.metadata.assetId,
+    );
+    const outputReserve = isOutputAssetA
+      ? poolData.liquidity.aReserve
+      : poolData.liquidity.bReserve;
+    const inputReserve = isOutputAssetA
+      ? poolData.liquidity.bReserve
+      : poolData.liquidity.aReserve;
+
+    switch (poolData.version) {
+      case EContractVersion.V1:
+      case EContractVersion.V3:
+      case EContractVersion.NftCheck:
+        return ConstantProductPool.getSwapInput(
+          desiredOutput.metadata,
+          desiredOutput.amount,
+          inputReserve,
+          outputReserve,
+          poolData.currentFee,
+        );
+      case EContractVersion.Stableswaps:
+        return StableSwapsPool.getSwapInput(
+          isOutputAssetA ? poolData.assetB : poolData.assetA,
+          desiredOutput.amount,
+          inputReserve,
+          outputReserve,
+          poolData.currentFee,
+          poolData.protocolFee ?? 0,
+          poolData.linearAmplificationFactor ?? 1n,
+        );
+      default:
+        throw new Error(
+          `Unsupported pool version: ${poolData.version}. Cannot get swap input.`,
+        );
+    }
+  }
+
+  /**
    * Calculates the price ratio between assets in a pool.
    * - Accounts for decimal differences between assets
    * - For ADA pairs: returns ADA per token (assetA / assetB since ADA is always assetA)
