@@ -537,6 +537,10 @@ describe("SundaeUtils class", () => {
 
       expect(result.input).toBeGreaterThan(0n);
       expect(result.output).toEqual(5000000n);
+      // lpFee should be denominated in input asset (assetA) for constant product
+      expect(result.lpFee.metadata.assetId).toEqual(
+        PREVIEW_DATA.pools.v1.assetA.assetId,
+      );
     });
 
     it("should calculate input for V3 constant product pool", () => {
@@ -551,6 +555,10 @@ describe("SundaeUtils class", () => {
 
       expect(result.input).toBeGreaterThan(0n);
       expect(result.output).toEqual(5000000n);
+      // lpFee should be denominated in input asset (assetA) for constant product
+      expect(result.lpFee.metadata.assetId).toEqual(
+        PREVIEW_DATA.pools.v3.assetA.assetId,
+      );
     });
 
     it("should calculate input for stableswaps pool", () => {
@@ -591,6 +599,10 @@ describe("SundaeUtils class", () => {
       expect(result.output).toEqual(5000000000n);
       // For a balanced stableswap pool with LAF=500, input should be close to output
       expect(Number(result.input)).toBeCloseTo(Number(desiredOutput.amount), -8);
+      // lpFee should be denominated in output asset for stableswaps
+      expect(result.lpFee.metadata.assetId).toEqual(
+        stableswapPool.assetB.assetId,
+      );
     });
 
     it("should be inverse of getSwapOutput for constant product pools", () => {
