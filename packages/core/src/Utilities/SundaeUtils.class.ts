@@ -661,6 +661,7 @@ export class SundaeUtils {
    * @param {bigint} b - The amount of token B to deposit.
    * @returns {TLiquidityOutcome} The liquidity calculation result including LP tokens and actual deposits.
    * @throws {Error} If the pool version is not supported.
+   * @throws {Error} If Stableswaps pool is missing linearAmplificationFactor.
    * @throws {Error} If deposit amounts are invalid (propagated from underlying math): for constant-product pools when either amount is 0, for Stableswaps when both are 0.
    * @throws {Error} If pool has no liquidity (propagated from underlying math).
    */
@@ -681,13 +682,18 @@ export class SundaeUtils {
           poolData.liquidity.lpTotal,
         );
       case EContractVersion.Stableswaps:
+        if (poolData.linearAmplificationFactor == null) {
+          throw new Error(
+            "Stableswaps pools require 'linearAmplificationFactor' to calculate liquidity.",
+          );
+        }
         return StableSwapsPool.calculateLiquidity(
           a,
           b,
           poolData.liquidity.aReserve,
           poolData.liquidity.bReserve,
           poolData.liquidity.lpTotal,
-          poolData.linearAmplificationFactor ?? 1n,
+          poolData.linearAmplificationFactor,
         );
       default:
         throw new Error(
