@@ -23,6 +23,16 @@ export type TGenericSwapOutcome =
   | ConstantProductPool.TSwapOutcome
   | StableSwapsPool.TSwapOutcome;
 
+export type TLiquidityOutcome = {
+  nextTotalLp: bigint;
+  generatedLp: bigint;
+  shareAfterDeposit: Fraction;
+  aChange: bigint;
+  bChange: bigint;
+  actualDepositedA: bigint;
+  actualDepositedB: bigint;
+};
+
 export class SundaeUtils {
   static ADA_ASSET_IDS = [
     "",
@@ -631,6 +641,63 @@ export class SundaeUtils {
       default:
         throw new Error(
           `Unsupported pool version: ${poolData.version}. Cannot get swap input.`,
+        );
+    }
+  }
+
+  /**
+   * Calculates liquidity provision parameters for a pool deposit.
+   * Given amounts of both assets, returns the LP tokens generated, pool share,
+   * actual deposited amounts, and any refunded amounts.
+   *
+   * For constant product pools (V1, V3, NftCheck), deposits must be balanced to match
+   * the current pool ratio. Any excess of one asset is refunded via aChange/bChange.
+   *
+   * For Stableswaps pools, mixed deposits are accepted with no refunds (aChange and
+   * bChange are always 0n).
+   *
+   * @param {IPoolData} poolData - The pool data containing reserves, fees, and version information.
+   * @param {bigint} a - The amount of token A to deposit.
+   * @param {bigint} b - The amount of token B to deposit.
+   * @returns {TLiquidityOutcome} The liquidity calculation result including LP tokens and actual deposits.
+   * @throws {Error} If the pool version is not supported.
+   * @throws {Error} If Stableswaps pool is missing linearAmplificationFactor.
+   * @throws {Error} If deposit amounts are invalid (propagated from underlying math): for constant-product pools when either amount is 0, for Stableswaps when both are 0.
+   * @throws {Error} If pool has no liquidity (propagated from underlying math).
+   */
+  static calculateLiquidity(
+    poolData: IPoolData,
+    a: bigint,
+    b: bigint,
+  ): TLiquidityOutcome {
+    switch (poolData.version) {
+      case EContractVersion.V1:
+      case EContractVersion.V3:
+      case EContractVersion.NftCheck:
+        return ConstantProductPool.calculateLiquidity(
+          a,
+          b,
+          poolData.liquidity.aReserve,
+          poolData.liquidity.bReserve,
+          poolData.liquidity.lpTotal,
+        );
+      case EContractVersion.Stableswaps:
+        if (poolData.linearAmplificationFactor == null) {
+          throw new Error(
+            "Stableswaps pools require 'linearAmplificationFactor' to calculate liquidity.",
+          );
+        }
+        return StableSwapsPool.calculateLiquidity(
+          a,
+          b,
+          poolData.liquidity.aReserve,
+          poolData.liquidity.bReserve,
+          poolData.liquidity.lpTotal,
+          poolData.linearAmplificationFactor,
+        );
+      default:
+        throw new Error(
+          `Unsupported pool version: ${poolData.version}. Cannot calculate liquidity.`,
         );
     }
   }
