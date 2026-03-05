@@ -762,11 +762,13 @@ describe("SundaeUtils class", () => {
   });
 
   describe("calculateLiquidity", () => {
-    it("should calculate liquidity for V1 constant product pool", () => {
+    it("should calculate liquidity for V1 constant product pool with unbalanced deposit", () => {
+      // Pool ratio is 500 ADA : 250M TINDY (2:1), so 10 ADA needs 5M TINDY for balance
+      // Using 10M TINDY creates an unbalanced deposit with excess TINDY
       const result = SundaeUtils.calculateLiquidity(
         PREVIEW_DATA.pools.v1,
         10000000n, // 10 ADA
-        5000000n, // 5M TINDY
+        10000000n, // 10M TINDY (excess)
       );
 
       expect(result.generatedLp).toBeGreaterThan(0n);
@@ -775,8 +777,8 @@ describe("SundaeUtils class", () => {
       );
       expect(result.actualDepositedA).toBeGreaterThan(0n);
       expect(result.actualDepositedB).toBeGreaterThan(0n);
-      // For unbalanced deposits, one of the change values should be > 0
-      expect(result.aChange + result.bChange).toBeGreaterThanOrEqual(0n);
+      // For unbalanced deposits, excess asset is refunded
+      expect(result.bChange).toBeGreaterThan(0n);
     });
 
     it("should calculate liquidity for V3 constant product pool", () => {

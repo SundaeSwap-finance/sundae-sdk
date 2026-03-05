@@ -661,7 +661,7 @@ export class SundaeUtils {
    * @param {bigint} b - The amount of token B to deposit.
    * @returns {TLiquidityOutcome} The liquidity calculation result including LP tokens and actual deposits.
    * @throws {Error} If the pool version is not supported.
-   * @throws {Error} If deposit amounts are zero (propagated from underlying math).
+   * @throws {Error} If deposit amounts are invalid (propagated from underlying math): for constant-product pools when either amount is 0, for Stableswaps when both are 0.
    * @throws {Error} If pool has no liquidity (propagated from underlying math).
    */
   static calculateLiquidity(
