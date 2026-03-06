@@ -80,6 +80,11 @@ export class YieldFarmingBuilder implements YieldFarmingAbstract {
         "aaaf193b8418253f4169ab869b77dedd4ee3df4f2837c226cee3c2f7fa955189#0",
       minLockAda: 5_000_000n,
     },
+    preprod: new Proxy({} as IYieldFarmingParams, {
+      get() {
+        throw new Error("Yield Farming V2 is not available on preprod.");
+      },
+    }),
   };
 
   constructor(public blaze: Blaze<Provider, Wallet>) {

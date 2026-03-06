@@ -96,6 +96,11 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
+    preprod: new Proxy({} as ITxBuilderV1BlazeParams, {
+      get() {
+        throw new Error("TxBuilder.V1 is not available on preprod.");
+      },
+    }),
   };
 
   /**
@@ -1079,6 +1084,18 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         referenceInput:
           "aaaf193b8418253f4169ab869b77dedd4ee3df4f2837c226cee3c2f7fa955189#0",
       },
+      preprod: new Proxy(
+        {} as {
+          stakeKeyHash: string;
+          scriptHash: string;
+          referenceInput: string;
+        },
+        {
+          get() {
+            throw new Error("Yield Farming V2 is not available on preprod.");
+          },
+        },
+      ),
     };
 
     const yfRefUtxo =

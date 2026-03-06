@@ -5,7 +5,7 @@ import { TFee } from "./queryprovider.js";
  *
  * @group Utility Types
  */
-export type TSupportedNetworks = "mainnet" | "preview";
+export type TSupportedNetworks = "mainnet" | "preview" | "preprod";
 
 /**
  * An interface to describe a utility function's arguments in SundaeUtils.
