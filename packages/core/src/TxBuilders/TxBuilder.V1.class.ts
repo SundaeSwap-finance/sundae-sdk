@@ -41,7 +41,6 @@ import { V1Types } from "../DatumBuilders/ContractTypes/index.js";
 import { DatumBuilderV1 } from "../DatumBuilders/DatumBuilder.V1.class.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
-import { SundaeSDK } from "../SundaeSDK.class.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
@@ -296,6 +295,8 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     });
 
     if (swapArgs.orderAddresses.PoolDestinationVersion) {
+      // Dynamic import to avoid circular dependency
+      const { SundaeSDK } = await import("../SundaeSDK.class.js");
       const destinationBuilder = SundaeSDK.new({
         blazeInstance: this.blaze,
         customQueryProvider: this.queryProvider,
@@ -343,6 +344,8 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   async orderRouteSwap(
     args: IOrderRouteSwapArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
+    // Dynamic import to avoid circular dependency
+    const { SundaeSDK } = await import("../SundaeSDK.class.js");
     const secondBuilder = SundaeSDK.new({
       blazeInstance: this.blaze,
       customQueryProvider: this.queryProvider,
