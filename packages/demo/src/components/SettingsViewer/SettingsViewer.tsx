@@ -11,7 +11,7 @@ const SettingsViewer: FC = () => {
   }
 
   const options = {
-    network: SDK.options.blazeInstance.provider.network ? "mainnet" : "preview",
+    network: SDK.network,
   };
 
   return (

@@ -89,9 +89,9 @@ export class YieldFarmingBuilder implements YieldFarmingAbstract {
   };
 
   constructor(public blaze: Blaze<Provider, Wallet>) {
-    const network: TSupportedNetworks = blaze.provider.network
-      ? "mainnet"
-      : "preview";
+    const network = SundaeUtils.getNetworkFromProvider(
+      blaze.provider.networkName,
+    );
     this.network = network;
     this.datumBuilder = new YieldFarmingDatumBuilder(network);
   }

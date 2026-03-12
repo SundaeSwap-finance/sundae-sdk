@@ -36,7 +36,6 @@ export class State {
       const blazeInstance = await getBlazeInstance(this);
       this.sdkInstance = SundaeSDK.new({
         blazeInstance,
-        network: this.settings.network as TSupportedNetworks,
       });
     } else {
       this.sdk().options.blazeInstance = await getBlazeInstance(this);

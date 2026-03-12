@@ -2,6 +2,7 @@ import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 import {
   EContractVersion,
   ISundaeSDKOptions,
+  TSupportedNetworks,
   TTxBuilder,
 } from "./@types/index.js";
 import { QueryProvider } from "./Abstracts/QueryProvider.abstract.class.js";
@@ -12,6 +13,7 @@ import {
   TxBuilderV3,
   TxBuilderStableswaps,
 } from "./TxBuilders/index.js";
+import { SundaeUtils } from "./Utilities/SundaeUtils.class.js";
 
 export const SDK_OPTIONS_DEFAULTS: Pick<
   ISundaeSDKOptions,
@@ -56,15 +58,14 @@ export class SundaeSDK {
    * @param {ISundaeSDKOptions} args - The primary arguments object for the SDK.
    * @returns {SundaeSDK}
    */
-  private constructor(args: ISundaeSDKOptions) {
-    const network =
-      args.network ??
-      (args.blazeInstance.provider.network ? "mainnet" : "preview");
+  private constructor(
+    args: ISundaeSDKOptions,
+    public readonly network: TSupportedNetworks,
+  ) {
     this.queryProvider =
       args.customQueryProvider || new QueryProviderSundaeSwap(network);
     this.options = {
       ...args,
-      network,
       ...SDK_OPTIONS_DEFAULTS,
     };
   }
@@ -76,27 +77,25 @@ export class SundaeSDK {
    * @returns {SundaeSDK}
    */
   static new(args: ISundaeSDKOptions): SundaeSDK {
-    const instance = new this(args);
-    const network = instance.options.network;
+    const network = SundaeUtils.getNetworkFromProvider(
+      args.blazeInstance.provider.networkName,
+    );
+    const instance = new this(args, network);
     instance.builders.set(
       EContractVersion.V1,
-      new TxBuilderV1(instance.options.blazeInstance, undefined, network),
+      new TxBuilderV1(instance.options.blazeInstance),
     );
     instance.builders.set(
       EContractVersion.V3,
-      new TxBuilderV3(instance.options.blazeInstance, undefined, network),
+      new TxBuilderV3(instance.options.blazeInstance),
     );
     instance.builders.set(
       EContractVersion.NftCheck,
-      new TxBuilderNftCheck(instance.options.blazeInstance, undefined, network),
+      new TxBuilderNftCheck(instance.options.blazeInstance),
     );
     instance.builders.set(
       EContractVersion.Stableswaps,
-      new TxBuilderStableswaps(
-        instance.options.blazeInstance,
-        undefined,
-        network,
-      ),
+      new TxBuilderStableswaps(instance.options.blazeInstance),
     );
 
     return instance;

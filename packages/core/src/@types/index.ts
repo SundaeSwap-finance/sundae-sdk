@@ -1,6 +1,5 @@
 import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 import type { QueryProvider } from "../Abstracts/QueryProvider.abstract.class.js";
-import type { TSupportedNetworks } from "./utilities.js";
 
 /**
  * The SundaeSDK options argument when creating a new instance.
@@ -14,8 +13,6 @@ export interface ISundaeSDKOptions {
   minLockAda?: bigint;
   /** A built blaze instance. */
   blazeInstance: Blaze<Provider, Wallet>;
-  /** Override network detection (required for preprod, since Blaze can't distinguish it from preview). */
-  network?: TSupportedNetworks;
 }
 
 export * from "./configs.js";

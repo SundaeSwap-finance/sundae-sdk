@@ -3,7 +3,6 @@ import {
   EContractVersion,
   IComposedTx,
   IMintPoolConfigArgs,
-  TSupportedNetworks,
 } from "../@types/index.js";
 import { DatumBuilderStableswaps } from "../DatumBuilders/DatumBuilder.Stableswaps.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
@@ -43,9 +42,8 @@ export class TxBuilderStableswaps extends TxBuilderV3 {
   constructor(
     public blaze: Blaze<Provider, Wallet>,
     queryProvider?: QueryProviderSundaeSwap,
-    network?: TSupportedNetworks,
   ) {
-    super(blaze, queryProvider, network);
+    super(blaze, queryProvider);
     this.datumBuilder = new DatumBuilderStableswaps(this.network);
   }
 

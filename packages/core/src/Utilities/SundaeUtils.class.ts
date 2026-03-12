@@ -1,3 +1,4 @@
+import type { NetworkName } from "@blaze-cardano/query";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { Fraction } from "@sundaeswap/fraction";
 
@@ -34,6 +35,28 @@ export class SundaeUtils {
   static MAINNET_OFFSET = 1591566291;
   static PREPROD_OFFSET = 1655683200;
   static PREVIEW_OFFSET = 1666656000;
+
+  /**
+   * Converts a Blaze provider's networkName to the SDK's TSupportedNetworks type.
+   *
+   * @param {NetworkName} networkName - The network name from the Blaze provider.
+   * @returns {TSupportedNetworks} The corresponding SDK network identifier.
+   * @throws {Error} If the network is not supported (e.g., sanchonet or unknown).
+   */
+  static getNetworkFromProvider(networkName: NetworkName): TSupportedNetworks {
+    switch (networkName) {
+      case "cardano-mainnet":
+        return "mainnet";
+      case "cardano-preprod":
+        return "preprod";
+      case "cardano-preview":
+        return "preview";
+      default:
+        throw new Error(
+          `Unsupported network: ${networkName}. Supported: mainnet, preview, preprod.`,
+        );
+    }
+  }
 
   /**
    * Helper function to check if an asset is ADA.

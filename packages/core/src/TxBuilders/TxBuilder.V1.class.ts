@@ -109,11 +109,11 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   constructor(
     public blaze: Blaze<Provider, Wallet>,
     queryProvider?: QueryProviderSundaeSwap,
-    network?: TSupportedNetworks,
   ) {
     super();
-    const resolvedNetwork: TSupportedNetworks =
-      network ?? (blaze.provider.network ? "mainnet" : "preview");
+    const resolvedNetwork = SundaeUtils.getNetworkFromProvider(
+      blaze.provider.networkName,
+    );
 
     this.network = resolvedNetwork;
     this.queryProvider =
