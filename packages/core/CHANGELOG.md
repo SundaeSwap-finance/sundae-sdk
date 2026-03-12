@@ -1,5 +1,23 @@
 # Change Log
 
+## 2.10.0
+
+### Minor Changes
+
+- 4cd67ec: Add SundaeUtils.calculateLiquidity with version branching for stableswaps
+
+  This method calculates liquidity provision parameters (LP tokens generated, pool share, actual deposits) by branching to the appropriate pool math based on contract version. Supports constant product pools (V1, V3, NftCheck) and stableswaps pools.
+
+## 2.9.0
+
+### Minor Changes
+
+- 2b8c9bf: Add SundaeUtils.getSwapInput with version branching for stableswaps
+
+  This method calculates the required input amount for a desired output, similar to getSwapOutput but in reverse. It correctly handles both constant product pools (V1, V3, NftCheck) and stableswaps pools by using the appropriate math for each pool type.
+
+  For stableswaps, it uses linearAmplificationFactor and protocolFee parameters instead of defaulting to constant product math.
+
 ## 2.8.7
 
 ### Patch Changes

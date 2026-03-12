@@ -524,6 +524,112 @@ describe("SundaeUtils class", () => {
     });
   });
 
+  describe("getSwapInput", () => {
+    it("should calculate input for V1 constant product pool", () => {
+      const output = new AssetAmount(5000000n, PREVIEW_DATA.pools.v1.assetB);
+      const result = SundaeUtils.getSwapInput(PREVIEW_DATA.pools.v1, output);
+
+      expect(result.input).toBeGreaterThan(0n);
+      expect(result.output).toEqual(5000000n);
+      // lpFee should be denominated in input asset (assetA) for constant product
+      expect(result.lpFee.metadata.assetId).toEqual(
+        PREVIEW_DATA.pools.v1.assetA.assetId,
+      );
+    });
+
+    it("should calculate input for V3 constant product pool", () => {
+      const output = new AssetAmount(5000000n, PREVIEW_DATA.pools.v3.assetB);
+      const result = SundaeUtils.getSwapInput(PREVIEW_DATA.pools.v3, output);
+
+      expect(result.input).toBeGreaterThan(0n);
+      expect(result.output).toEqual(5000000n);
+      // lpFee should be denominated in input asset (assetA) for constant product
+      expect(result.lpFee.metadata.assetId).toEqual(
+        PREVIEW_DATA.pools.v3.assetA.assetId,
+      );
+    });
+
+    it("should calculate input for stableswaps pool", () => {
+      const stableswapPool: IPoolData = {
+        ident: "stableswap-test",
+        currentFee: 0.0005,
+        protocolFee: 0.0005,
+        assetA: {
+          assetId:
+            "1f3aec8bfe7ea4fe14c5f121e2a92e301afe414147860d557cac7e34.5553444378",
+          decimals: 6,
+        },
+        assetB: {
+          assetId:
+            "c48cbb3d5e57ed56e276bc45f99ab39abe94e6cd7ac39fb402da47ad.0014df105553444d",
+          decimals: 6,
+        },
+        assetLP: {
+          assetId: "test-lp",
+          decimals: 0,
+        },
+        liquidity: {
+          aReserve: 2280124828543n,
+          bReserve: 3097587109955n,
+          lpTotal: 5369080670145n,
+        },
+        linearAmplificationFactor: 500n,
+        version: EContractVersion.Stableswaps,
+      };
+
+      const output = new AssetAmount(5000000000n, stableswapPool.assetB);
+      const result = SundaeUtils.getSwapInput(stableswapPool, output);
+
+      expect(result.input).toBeGreaterThan(0n);
+      expect(result.output).toEqual(5000000000n);
+      // For a balanced stableswap pool with LAF=500, input should be close to output
+      expect(Number(result.input)).toBeCloseTo(Number(output.amount), -8);
+      // lpFee should be denominated in output asset for stableswaps
+      expect(result.lpFee.metadata.assetId).toEqual(
+        stableswapPool.assetB.assetId,
+      );
+    });
+
+    it("should be inverse of getSwapOutput for constant product pools", () => {
+      const inputAmount = new AssetAmount(
+        10000000n,
+        PREVIEW_DATA.pools.v1.assetA,
+      );
+
+      // Get output for this input
+      const outputResult = SundaeUtils.getSwapOutput(
+        PREVIEW_DATA.pools.v1,
+        inputAmount,
+      );
+
+      // Now get input for that output
+      const output = new AssetAmount(
+        outputResult.output,
+        PREVIEW_DATA.pools.v1.assetB,
+      );
+      const inputResult = SundaeUtils.getSwapInput(PREVIEW_DATA.pools.v1, output);
+
+      // The calculated input should be close to original (allowing for rounding)
+      expect(Number(inputResult.input)).toBeCloseTo(
+        Number(inputAmount.amount),
+        -2,
+      );
+    });
+
+    it("should throw for unsupported pool version", () => {
+      const unsupportedPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: "UnsupportedVersion" as EContractVersion,
+      };
+
+      const output = new AssetAmount(5000000n, unsupportedPool.assetB);
+
+      expect(() =>
+        SundaeUtils.getSwapInput(unsupportedPool, output),
+      ).toThrowError(/Unsupported pool version/);
+    });
+  });
+
   describe("getPrice", () => {
     it("should return price with decimal adjustment for ADA pairs (v1 pool)", () => {
       // v1 pool: ADA (6 decimals) / TINDY (0 decimals)
@@ -652,6 +758,117 @@ describe("SundaeUtils class", () => {
       // Raw price is slightly > 1.0, so inverted is slightly < 1.0
       expect(price).toBeGreaterThan(0.98);
       expect(price).toBeLessThan(1.0);
+    });
+  });
+
+  describe("calculateLiquidity", () => {
+    it("should calculate liquidity for V1 constant product pool with unbalanced deposit", () => {
+      // Pool ratio is 500 ADA : 250M TINDY (2:1), so 10 ADA needs 5M TINDY for balance
+      // Using 10M TINDY creates an unbalanced deposit with excess TINDY
+      const result = SundaeUtils.calculateLiquidity(
+        PREVIEW_DATA.pools.v1,
+        10000000n, // 10 ADA
+        10000000n, // 10M TINDY (excess)
+      );
+
+      expect(result.generatedLp).toBeGreaterThan(0n);
+      expect(result.nextTotalLp).toBeGreaterThan(
+        PREVIEW_DATA.pools.v1.liquidity.lpTotal,
+      );
+      expect(result.actualDepositedA).toBeGreaterThan(0n);
+      expect(result.actualDepositedB).toBeGreaterThan(0n);
+      // For unbalanced deposits, excess asset is refunded
+      expect(result.bChange).toBeGreaterThan(0n);
+    });
+
+    it("should calculate liquidity for V3 constant product pool", () => {
+      const result = SundaeUtils.calculateLiquidity(
+        PREVIEW_DATA.pools.v3,
+        10000000n,
+        10000000n,
+      );
+
+      expect(result.generatedLp).toBeGreaterThan(0n);
+      expect(result.nextTotalLp).toBeGreaterThan(
+        PREVIEW_DATA.pools.v3.liquidity.lpTotal,
+      );
+      expect(result.actualDepositedA).toBeGreaterThan(0n);
+      expect(result.actualDepositedB).toBeGreaterThan(0n);
+    });
+
+    it("should calculate liquidity for stableswaps pool", () => {
+      const stableswapPool: IPoolData = {
+        ident: "stableswap-test",
+        currentFee: 0.0005,
+        protocolFee: 0.0005,
+        assetA: {
+          assetId:
+            "1f3aec8bfe7ea4fe14c5f121e2a92e301afe414147860d557cac7e34.5553444378",
+          decimals: 6,
+        },
+        assetB: {
+          assetId:
+            "c48cbb3d5e57ed56e276bc45f99ab39abe94e6cd7ac39fb402da47ad.0014df105553444d",
+          decimals: 6,
+        },
+        assetLP: {
+          assetId: "test-lp",
+          decimals: 0,
+        },
+        liquidity: {
+          aReserve: 2280124828543n,
+          bReserve: 3097587109955n,
+          lpTotal: 5369080670145n,
+        },
+        linearAmplificationFactor: 500n,
+        version: EContractVersion.Stableswaps,
+      };
+
+      const result = SundaeUtils.calculateLiquidity(
+        stableswapPool,
+        1000000000n,
+        1000000000n,
+      );
+
+      expect(result.generatedLp).toBeGreaterThan(0n);
+      expect(result.nextTotalLp).toBeGreaterThan(stableswapPool.liquidity.lpTotal);
+      // Stableswaps accepts mixed deposits with no refunds
+      expect(result.aChange).toEqual(0n);
+      expect(result.bChange).toEqual(0n);
+      expect(result.actualDepositedA).toEqual(1000000000n);
+      expect(result.actualDepositedB).toEqual(1000000000n);
+    });
+
+    it("should throw for unsupported pool version", () => {
+      const unsupportedPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: "UnsupportedVersion" as EContractVersion,
+      };
+
+      expect(() =>
+        SundaeUtils.calculateLiquidity(unsupportedPool, 1000000n, 1000000n),
+      ).toThrowError(/Unsupported pool version/);
+    });
+
+    it("should throw for zero deposit amount", () => {
+      expect(() =>
+        SundaeUtils.calculateLiquidity(PREVIEW_DATA.pools.v1, 0n, 1000000n),
+      ).toThrowError(/Cannot use a deposit asset amount of 0/);
+    });
+
+    it("should throw for empty pool", () => {
+      const emptyPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        liquidity: {
+          aReserve: 0n,
+          bReserve: 0n,
+          lpTotal: 0n,
+        },
+      };
+
+      expect(() =>
+        SundaeUtils.calculateLiquidity(emptyPool, 1000000n, 1000000n),
+      ).toThrowError(/Not enough pool liquidity/);
     });
   });
 });
