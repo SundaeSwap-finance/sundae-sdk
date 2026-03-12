@@ -1,4 +1,3 @@
-import type { NetworkName } from "@blaze-cardano/query";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { Fraction } from "@sundaeswap/fraction";
 
@@ -11,6 +10,17 @@ import {
   TFee,
   TSupportedNetworks,
 } from "../@types/index.js";
+
+/**
+ * Network name type matching Blaze provider's networkName property.
+ * Defined locally to avoid requiring @blaze-cardano/query as a direct dependency.
+ */
+type TBlazeNetworkName =
+  | "cardano-mainnet"
+  | "cardano-preprod"
+  | "cardano-preview"
+  | "cardano-sanchonet"
+  | "unknown";
 import {
   ADA_ASSET_DECIMAL,
   CONTRACT_V1_PREFIX,
@@ -49,11 +59,13 @@ export class SundaeUtils {
   /**
    * Converts a Blaze provider's networkName to the SDK's TSupportedNetworks type.
    *
-   * @param {NetworkName} networkName - The network name from the Blaze provider.
+   * @param {TBlazeNetworkName} networkName - The network name from the Blaze provider.
    * @returns {TSupportedNetworks} The corresponding SDK network identifier.
    * @throws {Error} If the network is not supported (e.g., sanchonet or unknown).
    */
-  static getNetworkFromProvider(networkName: NetworkName): TSupportedNetworks {
+  static getNetworkFromProvider(
+    networkName: TBlazeNetworkName,
+  ): TSupportedNetworks {
     switch (networkName) {
       case "cardano-mainnet":
         return "mainnet";
@@ -61,6 +73,11 @@ export class SundaeUtils {
         return "preprod";
       case "cardano-preview":
         return "preview";
+      case "unknown":
+        throw new Error(
+          "Unsupported network: unknown. If using Blaze's EmulatorProvider, " +
+            "set provider.networkName to 'cardano-mainnet', 'cardano-preprod', or 'cardano-preview'.",
+        );
       default:
         throw new Error(
           `Unsupported network: ${networkName}. Supported: mainnet, preview, preprod.`,
