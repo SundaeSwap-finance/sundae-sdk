@@ -111,3 +111,4 @@ _site
 vendor
 
 settings.json*
+.claude/linear-state.json

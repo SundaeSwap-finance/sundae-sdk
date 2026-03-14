@@ -96,6 +96,10 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
+    preprod: {
+      cancelRedeemer: CANCEL_REDEEMER,
+      maxScooperFee: 2_500_000n,
+    },
   };
 
   /**
@@ -107,9 +111,9 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     queryProvider?: QueryProviderSundaeSwap,
   ) {
     super();
-    const network: TSupportedNetworks = blaze.provider.network
-      ? "mainnet"
-      : "preview";
+    const network: TSupportedNetworks = SundaeUtils.networkFromBlaze(
+      blaze.provider,
+    );
 
     this.network = network;
     this.queryProvider = queryProvider ?? new QueryProviderSundaeSwap(network);
@@ -1073,6 +1077,13 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
           "5af2bc2b1c983f65122d8737755d1de6e88c4d24797fdfac2c01e5156c15256f#0",
       },
       preview: {
+        stakeKeyHash:
+          "045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa8",
+        scriptHash: "73275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c",
+        referenceInput:
+          "aaaf193b8418253f4169ab869b77dedd4ee3df4f2837c226cee3c2f7fa955189#0",
+      },
+      preprod: {
         stakeKeyHash:
           "045d47cac5067ce697478c11051deb935a152e0773a5d7430a11baa8",
         scriptHash: "73275b9e267fd927bfc14cf653d904d1538ad8869260ab638bf73f5c",

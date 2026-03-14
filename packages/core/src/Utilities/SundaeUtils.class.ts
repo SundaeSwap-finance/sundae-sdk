@@ -43,6 +43,7 @@ export class SundaeUtils {
   ];
   static MAINNET_OFFSET = 1591566291;
   static PREVIEW_OFFSET = 1666656000;
+  static PREPROD_OFFSET = 1655683200;
 
   /**
    * Helper function to check if an asset is ADA.
@@ -462,6 +463,46 @@ export class SundaeUtils {
   }
 
   /**
+   * Derives a {@link TSupportedNetworks} value from a Blaze provider's
+   * `networkName` property, falling back to the numeric `network` ID.
+   *
+   * @param provider The Blaze provider (or any object with network/networkName).
+   * @returns {TSupportedNetworks}
+   */
+  static networkFromBlaze(provider: {
+    networkName?: string;
+    network: number;
+  }): TSupportedNetworks {
+    switch (provider.networkName) {
+      case "cardano-mainnet":
+        return "mainnet";
+      case "cardano-preprod":
+        return "preprod";
+      case "cardano-preview":
+        return "preview";
+      default:
+        return provider.network ? "mainnet" : "preview";
+    }
+  }
+
+  /**
+   * Returns the slot offset for the given network.
+   *
+   * @param {TSupportedNetworks} network The network.
+   * @returns {number}
+   */
+  static getNetworkOffset(network: TSupportedNetworks): number {
+    switch (network) {
+      case "mainnet":
+        return SundaeUtils.MAINNET_OFFSET;
+      case "preprod":
+        return SundaeUtils.PREPROD_OFFSET;
+      case "preview":
+        return SundaeUtils.PREVIEW_OFFSET;
+    }
+  }
+
+  /**
    * Helper function to convert unix timestamp to slot
    * by subtracting the network's slot offset.
    *
@@ -474,10 +515,7 @@ export class SundaeUtils {
     network: TSupportedNetworks,
   ): number {
     return Math.floor(
-      Math.trunc(Number(unix)) -
-        (network === "mainnet"
-          ? SundaeUtils.MAINNET_OFFSET
-          : SundaeUtils.PREVIEW_OFFSET),
+      Math.trunc(Number(unix)) - SundaeUtils.getNetworkOffset(network),
     );
   }
 
@@ -494,10 +532,7 @@ export class SundaeUtils {
     network: TSupportedNetworks,
   ): number {
     return Math.floor(
-      Math.trunc(Number(unix)) +
-        (network === "mainnet"
-          ? SundaeUtils.MAINNET_OFFSET
-          : SundaeUtils.PREVIEW_OFFSET),
+      Math.trunc(Number(unix)) + SundaeUtils.getNetworkOffset(network),
     );
   }
 

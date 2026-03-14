@@ -6,6 +6,7 @@ import {
 } from "./@types/index.js";
 import { QueryProvider } from "./Abstracts/QueryProvider.abstract.class.js";
 import { QueryProviderSundaeSwap } from "./QueryProviders/QueryProviderSundaeSwap.js";
+import { SundaeUtils } from "./Utilities/SundaeUtils.class.js";
 import {
   TxBuilderNftCheck,
   TxBuilderV1,
@@ -60,7 +61,7 @@ export class SundaeSDK {
     this.queryProvider =
       args.customQueryProvider ||
       new QueryProviderSundaeSwap(
-        args.blazeInstance.provider.network ? "mainnet" : "preview",
+        SundaeUtils.networkFromBlaze(args.blazeInstance.provider),
       );
     this.options = {
       ...args,

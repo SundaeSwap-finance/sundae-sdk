@@ -11,3 +11,5 @@ The base config that all configs extend.
 - [`IOrderConfigArgs`](IOrderConfigArgs.md)
 - [`ICancelConfigArgs`](ICancelConfigArgs.md)
 - [`IMintPoolConfigArgs`](IMintPoolConfigArgs.md)
+- [`IUpdateProtocolFeesConfigArgs`](IUpdateProtocolFeesConfigArgs.md)
+- [`IUpdatePoolFeesConfigArgs`](IUpdatePoolFeesConfigArgs.md)

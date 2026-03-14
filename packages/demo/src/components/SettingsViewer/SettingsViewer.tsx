@@ -1,5 +1,6 @@
 import { FC } from "react";
 import ReactJson from "react-json-view";
+import { SundaeUtils } from "@sundaeswap/core/utilities";
 
 import { useAppState } from "../../state/context";
 
@@ -11,7 +12,7 @@ const SettingsViewer: FC = () => {
   }
 
   const options = {
-    network: SDK.options.blazeInstance.provider.network ? "mainnet" : "preview",
+    network: SundaeUtils.networkFromBlaze(SDK.options.blazeInstance.provider),
   };
 
   return (

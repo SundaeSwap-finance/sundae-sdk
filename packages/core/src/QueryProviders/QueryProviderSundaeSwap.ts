@@ -25,6 +25,7 @@ export type TFindPoolDataArgs =
 const providerBaseUrls: Record<TSupportedNetworks, string> = {
   mainnet: "https://api.sundae.fi/graphql",
   preview: "https://api.preview.sundae.fi/graphql",
+  preprod: "https://api.preprod.sundae.fi/graphql",
 };
 
 interface IPoolDataQueryResult {
@@ -716,6 +717,58 @@ export class QueryProviderSundaeSwap implements QueryProvider {
   async getProtocolParamsWithScripts(
     version?: EContractVersion,
   ): Promise<ISundaeProtocolParamsFull[] | ISundaeProtocolParamsFull> {
+    // If requesting a specific version, check custom params first
+    if (version) {
+      const customParams = this.protocolParamsFull.find(
+        ({ version: v }) => v === version,
+      );
+      if (customParams) {
+        return customParams;
+      }
+    }
+
+    // If we only have custom params and no API access needed, return them
+    if (!version && this.protocolParamsFull.length > 0) {
+      // Still try to fetch from API, but don't fail if it's unavailable
+      try {
+        const res: { data?: { protocols: ISundaeProtocolParamsFull[] } } =
+          await fetch(this.baseUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              query: `
+          query ProtocolValidators {
+            protocols {
+              blueprint {
+                validators {
+                  hash
+                  title
+                  compiledCode
+                }
+              }
+              references {
+                key
+                txIn {
+                  hash
+                  index
+                }
+              }
+              version
+            }
+          }
+          `,
+            }),
+          }).then((res) => res.json());
+
+        if (res?.data) {
+          return this.protocolParamsFull.concat(res.data.protocols);
+        }
+      } catch {
+        // API unavailable, return custom params only
+      }
+      return this.protocolParamsFull;
+    }
+
     const res: { data?: { protocols: ISundaeProtocolParamsFull[] } } =
       await fetch(this.baseUrl, {
         method: "POST",

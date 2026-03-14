@@ -4,7 +4,7 @@
 
 # Type Alias: TSupportedNetworks
 
-> **TSupportedNetworks**: `"mainnet"` \| `"preview"`
+> **TSupportedNetworks**: `"mainnet"` \| `"preview"` \| `"preprod"`
 
 A type constant used for determining valid Cardano Network values.
 
