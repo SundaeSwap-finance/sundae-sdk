@@ -1640,9 +1640,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       poolManageElseValidator;
 
     // Find a wallet UTXO with at least 2 ADA to cover fees and create change
-    const walletUtxos = await this.blaze.provider.getUnspentOutputs(
-      await this.blaze.wallet.getChangeAddress(),
-    );
+    const walletUtxos = await this.blaze.wallet.getUnspentOutputs();
 
     const MIN_ADA_FOR_FEES = 2_000_000n; // 2 ADA
     const walletUtxo = walletUtxos.find((utxo) => {

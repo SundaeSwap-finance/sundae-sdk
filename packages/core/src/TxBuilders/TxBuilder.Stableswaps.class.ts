@@ -185,9 +185,7 @@ export class TxBuilderStableswaps extends TxBuilderV3 {
     );
 
     // Find a wallet UTXO with at least 5 ADA to cover fees and create change
-    const walletUtxos = await this.blaze.provider.getUnspentOutputs(
-      await this.blaze.wallet.getChangeAddress(),
-    );
+    const walletUtxos = await this.blaze.wallet.getUnspentOutputs();
 
     const MIN_ADA_FOR_FEES = 5_000_000n; // 5 ADA
     const walletUtxo = walletUtxos.find((utxo) => {
