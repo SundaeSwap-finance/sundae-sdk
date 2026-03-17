@@ -17,6 +17,7 @@ import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { StableswapsTypes, V3Types } from "./ContractTypes/index.js";
 import { IDatumBuilderNftCheckArgs } from "./DatumBuilder.NftCheck.class.js";
+import { PlutusData } from "@blaze-cardano/core";
 
 /**
  * The base arguments for the V3 DatumBuilder.
@@ -310,6 +311,49 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     } catch (error) {
       throw new Error(
         `Failed to extract payment hash from address: ${address}. Error: ${(error as Error).message}`,
+      );
+    }
+  }
+
+  getAddressFromMultiSig(
+    multisig:
+      | V3Types.MultisigScript
+      | StableswapsTypes.MultisigScript
+      | undefined,
+  ): string | undefined {
+    if (!multisig) return undefined;
+
+    try {
+      let credential: Core.Credential;
+
+      if ("Signature" in multisig) {
+        // Simple signature case - key hash
+        credential = Core.Credential.fromCore({
+          hash: Core.Hash28ByteBase16(multisig.Signature.keyHash),
+          type: Core.CredentialType.KeyHash,
+        });
+      } else if ("Script" in multisig) {
+        // Simple script case - script hash
+        credential = Core.Credential.fromCore({
+          hash: Core.Hash28ByteBase16(multisig.Script.scriptHash),
+          type: Core.CredentialType.ScriptHash,
+        });
+      } else {
+        // Complex multisig cases (AllOf, AnyOf, AtLeast, Before, After) are not supported.
+        // Return undefined so callers can handle this explicitly (e.g., require feeManager arg).
+        return undefined;
+      }
+
+      // Create address with payment credential only (no staking credential)
+      return Core.addressFromCredentials(
+        this.network === "mainnet"
+          ? Core.NetworkId.Mainnet
+          : Core.NetworkId.Testnet,
+        credential,
+      ).toBech32();
+    } catch (error) {
+      throw new Error(
+        `Failed to extract address from multisig: ${JSON.stringify(multisig)}. Error: ${(error as Error).message}`,
       );
     }
   }
@@ -833,7 +877,52 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
     ).toBech32();
   }
 
-  public decodeDatum(datum: Core.PlutusData): V3Types.PoolDatum {
+  /**
+   * Builds an updated pool datum with new fee settings.
+   * Note: This base implementation handles V3 pool datums only.
+   * DatumBuilderStableswaps overrides this method to handle Stableswaps datums.
+   */
+  public buildUpdatedFeesDatum(args: {
+    datum: V3Types.PoolDatum | StableswapsTypes.StablePoolDatum;
+    newFees: IFeesConfig;
+    newFeeManager: string | undefined;
+  }): PlutusData {
+    if (!args.newFeeManager) {
+      throw new Error("New fee manager address is required.");
+    }
+    const feeManagerScript = this.getMultiSigFromAddress(args.newFeeManager);
+
+    // This implementation handles V3 datums. Stableswaps datums are handled
+    // by the overridden method in DatumBuilderStableswaps.
+    const v3Datum = args.datum as V3Types.PoolDatum;
+    return serialize(V3Types.PoolDatum, {
+      ...v3Datum,
+      bidFeesPer_10Thousand: args.newFees.bid,
+      askFeesPer_10Thousand: args.newFees.ask,
+      feeManager: feeManagerScript,
+    });
+  }
+
+  /**
+   * Encodes a pool datum to PlutusData.
+   * Note: This base implementation handles V3 pool datums only.
+   * DatumBuilderStableswaps overrides this method to handle Stableswaps datums.
+   */
+  public encodeDatum(
+    datum: V3Types.PoolDatum | StableswapsTypes.StablePoolDatum,
+  ): Core.PlutusData {
+    const data = serialize(V3Types.PoolDatum, datum as V3Types.PoolDatum);
+    return data;
+  }
+
+  /**
+   * Decodes PlutusData to a pool datum.
+   * Note: This base implementation returns V3 pool datums only.
+   * DatumBuilderStableswaps overrides this method to return Stableswaps datums.
+   */
+  public decodeDatum(
+    datum: Core.PlutusData,
+  ): V3Types.PoolDatum | StableswapsTypes.StablePoolDatum {
     const decoded = parse(V3Types.PoolDatum, datum);
     return decoded;
   }

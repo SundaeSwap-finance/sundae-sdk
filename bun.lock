@@ -4405,7 +4405,7 @@
 
     "del/rimraf": ["rimraf@2.7.1", "", { "dependencies": { "glob": "^7.1.3" }, "bin": { "rimraf": "./bin.js" } }, "sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w=="],
 
-    "demo/@sundaeswap/core": ["@sundaeswap/core@2.10.0", "", { "dependencies": { "@blaze-cardano/data": "^0.6.1", "@blaze-cardano/sdk": "^0.2.31", "@sundaeswap/asset": "^1.0.11", "@sundaeswap/bigint-math": "^0.6.3", "@sundaeswap/fraction": "^1.0.5", "@sundaeswap/math": "0.2.2" } }, "sha512-nxJGP100I1+9r+QIedTdjn5GCriyOFd05UDQtVd8us3mKqOpLCFZO9oJYs2lEEjUh5sC4sUpXD09lYRT0xvWTQ=="],
+    "demo/@sundaeswap/core": ["@sundaeswap/core@2.11.0", "", { "dependencies": { "@blaze-cardano/data": "^0.6.1", "@blaze-cardano/sdk": "^0.2.31", "@sundaeswap/asset": "^1.0.11", "@sundaeswap/bigint-math": "^0.6.3", "@sundaeswap/fraction": "^1.0.5", "@sundaeswap/math": "0.2.2" } }, "sha512-2Le9vnfWQilU7pe7N8uE6S+eiHj8gyFc0RmbmuoCZbpcyPU5812U/CoDZDFWLH5OPdf5pCkHegw0crplTa6AzA=="],
 
     "demo/lerna": ["lerna@5.6.2", "", { "dependencies": { "@lerna/add": "5.6.2", "@lerna/bootstrap": "5.6.2", "@lerna/changed": "5.6.2", "@lerna/clean": "5.6.2", "@lerna/cli": "5.6.2", "@lerna/command": "5.6.2", "@lerna/create": "5.6.2", "@lerna/diff": "5.6.2", "@lerna/exec": "5.6.2", "@lerna/import": "5.6.2", "@lerna/info": "5.6.2", "@lerna/init": "5.6.2", "@lerna/link": "5.6.2", "@lerna/list": "5.6.2", "@lerna/publish": "5.6.2", "@lerna/run": "5.6.2", "@lerna/version": "5.6.2", "@nrwl/devkit": ">=14.8.1 < 16", "import-local": "^3.0.2", "inquirer": "^8.2.4", "npmlog": "^6.0.2", "nx": ">=14.8.1 < 16", "typescript": "^3 || ^4" }, "bin": { "lerna": "cli.js" } }, "sha512-Y0yMPslvnBnTZi7Nrs/gDyYZYauNf61xWNCehISHIORxZmmpoluNkcWTfcyb47is5uJQCv5QJX5xKKubbs+a6w=="],
 

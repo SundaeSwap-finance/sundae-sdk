@@ -228,3 +228,48 @@ export interface IUpdateArgs {
   cancelConfig: ICancelConfigArgs;
   updateConfig: TUpdateConfig;
 }
+
+/**
+ * The arguments configuration for updating protocol fees on a Stableswaps pool.
+ */
+export interface IUpdateProtocolFeesConfigArgs extends IBaseConfig {
+  /**
+   * The pool UTXO containing the current pool state.
+   */
+  poolUtxo: TUTXO;
+
+  /**
+   * The new protocol fees to set on the pool.
+   */
+  protocolFees: IFeesConfig;
+
+  /**
+   * Optional signers to attach to the transaction (e.g., fee manager keys).
+   */
+  signers?: string[];
+}
+
+/**
+ * The arguments configuration for updating pool LP fees on a V3 pool.
+ */
+export interface IUpdatePoolFeesConfigArgs extends IBaseConfig {
+  /**
+   * The pool identifier to update.
+   */
+  poolIdent: string;
+
+  /**
+   * The new LP fees to set on the pool.
+   */
+  fees: IFeesConfig;
+
+  /**
+   * Optional new fee manager address.
+   */
+  feeManager?: string;
+
+  /**
+   * Optional signers to attach to the transaction (e.g., fee manager keys).
+   */
+  signers?: string[];
+}

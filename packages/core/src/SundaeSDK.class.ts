@@ -7,13 +7,13 @@ import {
 } from "./@types/index.js";
 import { QueryProvider } from "./Abstracts/QueryProvider.abstract.class.js";
 import { QueryProviderSundaeSwap } from "./QueryProviders/QueryProviderSundaeSwap.js";
+import { SundaeUtils } from "./Utilities/SundaeUtils.class.js";
 import {
   TxBuilderNftCheck,
   TxBuilderV1,
   TxBuilderV3,
   TxBuilderStableswaps,
 } from "./TxBuilders/index.js";
-import { SundaeUtils } from "./Utilities/SundaeUtils.class.js";
 
 export const SDK_OPTIONS_DEFAULTS: Pick<
   ISundaeSDKOptions,

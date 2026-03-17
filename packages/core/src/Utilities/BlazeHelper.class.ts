@@ -208,7 +208,7 @@ export class BlazeHelper {
       );
     }
 
-    if (addressNetwork !== 0 && network === "preview") {
+    if (addressNetwork !== 0 && network !== "mainnet") {
       BlazeHelper.throwInvalidOrderAddressesError(
         address,
         `The given address is not a (Preview/Testnet/PreProd) Network address: ${address}.`,

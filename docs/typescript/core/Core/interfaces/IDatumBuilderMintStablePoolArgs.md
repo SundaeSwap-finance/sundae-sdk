@@ -27,7 +27,7 @@ while lower values make it behave more like a constant product pool.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L30)
+[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L31)
 
 ***
 
@@ -43,4 +43,4 @@ Protocol fee configuration for the Stableswaps pool, including bid and ask fees.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:23](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L23)
+[packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts:24](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.Stableswaps.class.ts#L24)

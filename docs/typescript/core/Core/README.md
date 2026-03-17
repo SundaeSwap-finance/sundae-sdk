@@ -87,6 +87,8 @@ SundaeSwap protocol.
 - [ITxBuilderReferralFee](interfaces/ITxBuilderReferralFee.md)
 - [ITxBuilderV1BlazeParams](interfaces/ITxBuilderV1BlazeParams.md)
 - [IUpdateArgs](interfaces/IUpdateArgs.md)
+- [IUpdatePoolFeesConfigArgs](interfaces/IUpdatePoolFeesConfigArgs.md)
+- [IUpdateProtocolFeesConfigArgs](interfaces/IUpdateProtocolFeesConfigArgs.md)
 - [IWithdrawArguments](interfaces/IWithdrawArguments.md)
 - [IWithdrawConfigArgs](interfaces/IWithdrawConfigArgs.md)
 - [IZapArguments](interfaces/IZapArguments.md)
