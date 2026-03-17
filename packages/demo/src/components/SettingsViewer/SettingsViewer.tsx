@@ -1,6 +1,5 @@
 import { FC } from "react";
 import ReactJson from "react-json-view";
-import { SundaeUtils } from "@sundaeswap/core/utilities";
 
 import { useAppState } from "../../state/context";
 
