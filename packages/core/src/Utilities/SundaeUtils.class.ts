@@ -10,6 +10,17 @@ import {
   TFee,
   TSupportedNetworks,
 } from "../@types/index.js";
+
+/**
+ * Network name type matching Blaze provider's networkName property.
+ * Defined locally to avoid requiring @blaze-cardano/query as a direct dependency.
+ */
+type TBlazeNetworkName =
+  | "cardano-mainnet"
+  | "cardano-preprod"
+  | "cardano-preview"
+  | "cardano-sanchonet"
+  | "unknown";
 import {
   ADA_ASSET_DECIMAL,
   CONTRACT_V1_PREFIX,
@@ -42,7 +53,37 @@ export class SundaeUtils {
     "616461.6c6f76656c616365",
   ];
   static MAINNET_OFFSET = 1591566291;
+  static PREPROD_OFFSET = 1655683200;
   static PREVIEW_OFFSET = 1666656000;
+
+  /**
+   * Converts a Blaze provider's networkName to the SDK's TSupportedNetworks type.
+   *
+   * @param {TBlazeNetworkName} networkName - The network name from the Blaze provider.
+   * @returns {TSupportedNetworks} The corresponding SDK network identifier.
+   * @throws {Error} If the network is not supported (e.g., sanchonet or unknown).
+   */
+  static getNetworkFromProvider(
+    networkName: TBlazeNetworkName,
+  ): TSupportedNetworks {
+    switch (networkName) {
+      case "cardano-mainnet":
+        return "mainnet";
+      case "cardano-preprod":
+        return "preprod";
+      case "cardano-preview":
+        return "preview";
+      case "unknown":
+        throw new Error(
+          "Unsupported network: unknown. If using Blaze's EmulatorProvider, " +
+            "set provider.networkName to 'cardano-mainnet', 'cardano-preprod', or 'cardano-preview'.",
+        );
+      default:
+        throw new Error(
+          `Unsupported network: ${networkName}. Supported: mainnet, preview, preprod.`,
+        );
+    }
+  }
 
   /**
    * Helper function to check if an asset is ADA.
@@ -469,15 +510,23 @@ export class SundaeUtils {
    * @param {TSupportedNetworks} network The network.
    * @returns {number}
    */
+  static getSlotOffset(network: TSupportedNetworks): number {
+    switch (network) {
+      case "mainnet":
+        return SundaeUtils.MAINNET_OFFSET;
+      case "preprod":
+        return SundaeUtils.PREPROD_OFFSET;
+      default:
+        return SundaeUtils.PREVIEW_OFFSET;
+    }
+  }
+
   static unixToSlot(
     unix: number | string,
     network: TSupportedNetworks,
   ): number {
     return Math.floor(
-      Math.trunc(Number(unix)) -
-        (network === "mainnet"
-          ? SundaeUtils.MAINNET_OFFSET
-          : SundaeUtils.PREVIEW_OFFSET),
+      Math.trunc(Number(unix)) - SundaeUtils.getSlotOffset(network),
     );
   }
 
@@ -494,10 +543,7 @@ export class SundaeUtils {
     network: TSupportedNetworks,
   ): number {
     return Math.floor(
-      Math.trunc(Number(unix)) +
-        (network === "mainnet"
-          ? SundaeUtils.MAINNET_OFFSET
-          : SundaeUtils.PREVIEW_OFFSET),
+      Math.trunc(Number(unix)) + SundaeUtils.getSlotOffset(network),
     );
   }
 

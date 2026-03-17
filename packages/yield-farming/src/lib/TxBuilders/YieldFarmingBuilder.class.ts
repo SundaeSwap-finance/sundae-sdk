@@ -80,12 +80,18 @@ export class YieldFarmingBuilder implements YieldFarmingAbstract {
         "aaaf193b8418253f4169ab869b77dedd4ee3df4f2837c226cee3c2f7fa955189#0",
       minLockAda: 5_000_000n,
     },
+    preprod: {
+      stakeKeyHash: "",
+      scriptHash: "",
+      referenceInput: "",
+      minLockAda: 5_000_000n,
+    },
   };
 
   constructor(public blaze: Blaze<Provider, Wallet>) {
-    const network: TSupportedNetworks = blaze.provider.network
-      ? "mainnet"
-      : "preview";
+    const network = SundaeUtils.getNetworkFromProvider(
+      blaze.provider.networkName,
+    );
     this.network = network;
     this.datumBuilder = new YieldFarmingDatumBuilder(network);
   }

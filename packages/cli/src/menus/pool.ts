@@ -207,7 +207,8 @@ export async function addLiquidityMenu(state: State): Promise<State> {
 
 export async function getSlippage(): Promise<number> {
   const slippage = await input({
-    message: "Enter slippage:",
+    message: "Enter slippage % (e.g. 3 for 3%):",
+    default: "3",
     validate: (input) => {
       const num = Number(input);
       if (isNaN(num)) {

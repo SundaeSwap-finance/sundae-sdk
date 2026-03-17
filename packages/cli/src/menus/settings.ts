@@ -38,6 +38,7 @@ export async function fillRemainingSettings(state: State): Promise<State> {
       choices: [
         { name: "mainnet", value: "mainnet" },
         { name: "preview", value: "preview" },
+        { name: "preprod", value: "preprod" },
       ],
     });
   }
@@ -171,6 +172,7 @@ export async function setNetwork(state: State): Promise<State> {
     choices: [
       { name: "mainnet", value: "mainnet" },
       { name: "preview", value: "preview" },
+      { name: "preprod", value: "preprod" },
     ],
   });
   return state;

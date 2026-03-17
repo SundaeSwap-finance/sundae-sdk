@@ -70,6 +70,13 @@ export const setupBlaze = (
       ),
     );
 
+    // Set networkName for testing - EmulatorProvider defaults to "unknown"
+    const networkId = options?.network || Core.NetworkId.Testnet;
+    blaze.provider.networkName =
+      networkId === Core.NetworkId.Mainnet
+        ? "cardano-mainnet"
+        : "cardano-preview";
+
     await useBlaze?.(blaze);
   });
 
