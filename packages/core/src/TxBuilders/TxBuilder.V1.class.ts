@@ -99,10 +99,6 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       cancelRedeemer: CANCEL_REDEEMER,
       maxScooperFee: 2_500_000n,
     },
-    preprod: {
-      cancelRedeemer: CANCEL_REDEEMER,
-      maxScooperFee: 2_500_000n,
-    },
   };
 
   /**

@@ -55,7 +55,6 @@ export class SundaeUtils {
   static MAINNET_OFFSET = 1591566291;
   static PREPROD_OFFSET = 1655683200;
   static PREVIEW_OFFSET = 1666656000;
-  static PREPROD_OFFSET = 1655683200;
 
   /**
    * Converts a Blaze provider's networkName to the SDK's TSupportedNetworks type.

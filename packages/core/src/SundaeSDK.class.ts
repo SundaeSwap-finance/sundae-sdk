@@ -14,7 +14,6 @@ import {
   TxBuilderV3,
   TxBuilderStableswaps,
 } from "./TxBuilders/index.js";
-import { SundaeUtils } from "./Utilities/SundaeUtils.class.js";
 
 export const SDK_OPTIONS_DEFAULTS: Pick<
   ISundaeSDKOptions,
