@@ -763,11 +763,8 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         if (res?.data) {
           return this.protocolParamsFull.concat(res.data.protocols);
         }
-      } catch (e) {
-        console.warn(
-          "Failed to fetch protocol params from API, using custom params only:",
-          e,
-        );
+      } catch {
+        // API unavailable, return custom params only
       }
       return this.protocolParamsFull;
     }
