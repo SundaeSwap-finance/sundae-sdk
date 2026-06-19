@@ -28,6 +28,7 @@ SundaeSwap protocol.
 - [DatumBuilderStableswaps](classes/DatumBuilderStableswaps.md)
 - [DatumBuilderV1](classes/DatumBuilderV1.md)
 - [DatumBuilderV3](classes/DatumBuilderV3.md)
+- [DatumBuilderV4](classes/DatumBuilderV4.md)
 - [DepositConfig](classes/DepositConfig.md)
 - [OrderConfig](classes/OrderConfig.md)
 - [SundaeSDK](classes/SundaeSDK.md)
@@ -35,6 +36,7 @@ SundaeSwap protocol.
 - [TxBuilderStableswaps](classes/TxBuilderStableswaps.md)
 - [TxBuilderV1](classes/TxBuilderV1.md)
 - [TxBuilderV3](classes/TxBuilderV3.md)
+- [TxBuilderV4](classes/TxBuilderV4.md)
 - [WithdrawConfig](classes/WithdrawConfig.md)
 - [ZapConfig](classes/ZapConfig.md)
 
@@ -130,6 +132,7 @@ SundaeSwap protocol.
 
 - [TxBuilderAbstractV1](classes/TxBuilderAbstractV1.md)
 - [TxBuilderAbstractV3](classes/TxBuilderAbstractV3.md)
+- [TxBuilderAbstractV4](classes/TxBuilderAbstractV4.md)
 
 ### Extension Builders
 

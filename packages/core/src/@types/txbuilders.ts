@@ -68,6 +68,7 @@ export enum EContractVersion {
   NftCheck = "NftCheck",
   Condition = "Condition",
   Stableswaps = "Stableswaps",
+  V4 = "V4",
 }
 
 /**

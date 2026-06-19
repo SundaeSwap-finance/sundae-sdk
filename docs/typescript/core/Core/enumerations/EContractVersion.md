@@ -56,3 +56,13 @@ of any time that interact with SundaeSwap contracts.
 #### Defined in
 
 [packages/core/src/@types/txbuilders.ts:67](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L67)
+
+***
+
+### V4
+
+> **V4**: `"V4"`
+
+#### Defined in
+
+[packages/core/src/@types/txbuilders.ts:71](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L71)
