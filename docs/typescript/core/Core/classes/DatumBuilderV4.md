@@ -6,14 +6,17 @@
 
 Datum + redeemer builder for sundae-v4 transactions.
 
-Unlike v1/v3 — where one Order datum shape served the whole protocol —
-v4 splits intent into a list of (`module_hash`, `data`) constraints
-attached to a generic `OrderDatum`. The basic / swap / strategy
-methods on this class each construct one of those constraint entries
-and assemble the surrounding OrderDatum.
+Unlike v1/v3 — where one Order datum shape served the whole protocol — v4
+splits intent into a list of `(module_hash, data)` constraints attached to a
+generic `OrderDatum`. This class encodes the authoritative, blueprint-backed
+pieces of that datum: the `owner` multisig, the `destination`, asset classes,
+and the surrounding `OrderDatum` shell.
 
-Phase 1 ships the class skeleton only; the concrete encoders land in
-Phase 2 (ported from sundae-v4's CLI helpers).
+The per-constraint `data` payloads (e.g. the swap constraint's fields) are
+intentionally NOT encoded here yet: on-chain they are opaque `Data` decoded
+by each withdraw module, so they are not described by the blueprint and are
+built by the module-specific encoders that land alongside the tx-builder
+actions.
 
 ## Implements
 
@@ -29,4 +32,394 @@ The current network id.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:18](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L18)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L72)
+
+## Methods
+
+### buildAssetClassDatum()
+
+> **buildAssetClassDatum**(`asset`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+Builds a v4 `AssetClass` (`{ policy, name }`) from an SDK asset. ADA is
+canonicalised to the empty policy / empty name.
+
+#### Parameters
+
+• **asset**: `AssetAmount`\<`IAssetAmountMetadata`\>
+
+#### Returns
+
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+##### name
+
+> **name**: `string`
+
+##### policy
+
+> **policy**: `string`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:225](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L225)
+
+***
+
+### buildBasicConstraintData()
+
+> **buildBasicConstraintData**(`__namedParameters`): `PlutusData`
+
+Builds the constraint `data` for a **basic** order — `Deposit`, `Withdraw`,
+or `Claim`. All three share the same field shape and are distinguished by
+their constructor index (verified against the CLI's `plutusBasicConstraints`):
+```
+Deposit  = Constr 0 [offered: List<(AssetClass, Int)>, min_received: List<(AssetClass, Int)>]
+Withdraw = Constr 1 [ …same… ]
+Claim    = Constr 3 [ …same… ]
+```
+
+#### Parameters
+
+• **\_\_namedParameters**
+
+• **\_\_namedParameters.minReceived**: `AssetAmount`\<`IAssetAmountMetadata`\>[]
+
+• **\_\_namedParameters.offered**: `AssetAmount`\<`IAssetAmountMetadata`\>[]
+
+• **\_\_namedParameters.type**: [`EV4BasicConstraint`](../enumerations/EV4BasicConstraint.md)
+
+#### Returns
+
+`PlutusData`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:292](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L292)
+
+***
+
+### buildConstantSumConfigDatum()
+
+> **buildConstantSumConfigDatum**(`__namedParameters`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+Builds a `ConstantSumConfig` — the config for a constant-sum pool module.
+`prices` are the per-asset weights; `fee`/`bountyK` are `Rational`
+fractions; `waiveFeeOnClaim` toggles the tag-claim bounty fee waiver.
+
+#### Parameters
+
+• **\_\_namedParameters**
+
+• **\_\_namedParameters.bountyK?** = `...`
+
+• **\_\_namedParameters.bountyK.den**: `bigint`
+
+• **\_\_namedParameters.bountyK.num**: `bigint`
+
+• **\_\_namedParameters.fee**
+
+• **\_\_namedParameters.fee.den**: `bigint`
+
+• **\_\_namedParameters.fee.num**: `bigint`
+
+• **\_\_namedParameters.prices**: `bigint`[]
+
+• **\_\_namedParameters.waiveFeeOnClaim?**: `boolean` = `false`
+
+#### Returns
+
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+##### bounty\_k
+
+> **bounty\_k**: `object`
+
+##### bounty\_k.den
+
+> **den**: `bigint`
+
+##### bounty\_k.num
+
+> **num**: `bigint`
+
+##### fee
+
+> **fee**: `object`
+
+##### fee.den
+
+> **den**: `bigint`
+
+##### fee.num
+
+> **num**: `bigint`
+
+##### prices
+
+> **prices**: `bigint`[]
+
+##### waive\_fee\_on\_claim
+
+> **waive\_fee\_on\_claim**: `boolean`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:315](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L315)
+
+***
+
+### buildDestinationAddresses()
+
+> **buildDestinationAddresses**(`__namedParameters`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`"Self"` \| `object`\>
+
+Builds a `Fixed` destination — a concrete address plus an optional inline
+datum to attach to the payout. v4 destinations carry an `Option<Data>`
+datum (no datum-hash variant), so a `HASH` datum type is rejected.
+
+#### Parameters
+
+• **\_\_namedParameters**: [`TDestinationAddress`](../type-aliases/TDestinationAddress.md)
+
+#### Returns
+
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`"Self"` \| `object`\>
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:151](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L151)
+
+***
+
+### buildOrderDatum()
+
+> **buildOrderDatum**(`__namedParameters`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+Assembles the v4 `OrderDatum` shell from its parts. Every non-strategy
+order placement ultimately produces one of these.
+
+#### Parameters
+
+• **\_\_namedParameters**: [`IDatumBuilderV4OrderArgs`](../interfaces/IDatumBuilderV4OrderArgs.md)
+
+#### Returns
+
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+##### budget
+
+> **budget**: `bigint`
+
+##### config\_token
+
+> **config\_token**: `string`
+
+##### constraints
+
+> **constraints**: [`string`, `PlutusData`][]
+
+##### destination
+
+> **destination**: `"Self"` \| `object`
+
+##### extension
+
+> **extension**: `PlutusData`
+
+##### owner
+
+> **owner**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+
+##### share\_batcher
+
+> **share\_batcher**: `bigint`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L82)
+
+***
+
+### buildOwnerDatum()
+
+> **buildOwnerDatum**(`main`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`\>
+
+Builds the `owner` multisig for an order from a bech32 address. A script
+address becomes a `Script` owner; otherwise a single `Signature` owner
+keyed on the staking hash if present, else the payment hash (mirroring the
+v3 convention). Richer multisig shapes (`AtLeast`, `AllOf`, …) can be
+supplied directly to [buildOrderDatum](DatumBuilderV4.md#buildorderdatum) as a `MultisigScript`.
+
+#### Parameters
+
+• **main**: `string`
+
+#### Returns
+
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`\>
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:128](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L128)
+
+***
+
+### buildPoolDatum()
+
+> **buildPoolDatum**(`__namedParameters`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+Builds a `PoolDatum` for a v4 pool. The `moduleState` entries pair a module
+hash with its config-commitment: use [DatumBuilderV4.hashModuleConfig](DatumBuilderV4.md#hashmoduleconfig)
+on the module's serialized config (e.g. the CS config), or the sentinel
+`"80"` (CBOR empty) for config-less modules like fairness.
+
+#### Parameters
+
+• **\_\_namedParameters**
+
+• **\_\_namedParameters.actions**: `object`[]
+
+• **\_\_namedParameters.assets**: `AssetAmount`\<`IAssetAmountMetadata`\>[]
+
+• **\_\_namedParameters.circulatingLp**: `bigint`
+
+• **\_\_namedParameters.identifier**: `string`
+
+• **\_\_namedParameters.moduleState**: [`string`, `string`][]
+
+• **\_\_namedParameters.premintedLp**: `bigint`
+
+• **\_\_namedParameters.totalLp**: `bigint`
+
+#### Returns
+
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+##### actions
+
+> **actions**: `object`[]
+
+##### assets
+
+> **assets**: [`object`, `bigint`][]
+
+##### circulating\_lp
+
+> **circulating\_lp**: `bigint`
+
+##### identifier
+
+> **identifier**: `string`
+
+##### module\_state
+
+> **module\_state**: [`string`, `string`][]
+
+##### preminted\_lp
+
+> **preminted\_lp**: `bigint`
+
+##### total\_lp
+
+> **total\_lp**: `bigint`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:347](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L347)
+
+***
+
+### buildSelfDestination()
+
+> **buildSelfDestination**(): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`"Self"` \| `object`\>
+
+Builds the `Self` destination, which re-locks the order's payout at the
+order address itself (used by multi-step / routed intents).
+
+#### Returns
+
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`"Self"` \| `object`\>
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:210](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L210)
+
+***
+
+### buildSwapConstraintData()
+
+> **buildSwapConstraintData**(`__namedParameters`): `PlutusData`
+
+Builds the constraint `data` for a **swap** order — the payload keyed under
+the swap-order constraint module hash in [IDatumBuilderV4OrderArgs](../interfaces/IDatumBuilderV4OrderArgs.md)'s
+`constraints`. This is a partial-fill-capable order: `originalOffered` is
+the immutable quote reference and `remainingOffered` shrinks as fills land.
+
+Encoding (constructor index **2**, verified against the sundae-v4 CLI's
+`plutusSwapConstraints`):
+```
+Swap = Constr 2 [
+  offered: AssetClass,                 // Constr 0 [policy, name]
+  original_offered: Int,
+  remaining_offered: Int,
+  min_received: List<(AssetClass, Int)> // each pair is a 2-elem list
+]
+```
+
+#### Parameters
+
+• **\_\_namedParameters**
+
+• **\_\_namedParameters.minReceived**: `AssetAmount`\<`IAssetAmountMetadata`\>[]
+
+• **\_\_namedParameters.offered**: `AssetAmount`\<`IAssetAmountMetadata`\>
+
+• **\_\_namedParameters.originalOffered**: `bigint`
+
+• **\_\_namedParameters.remainingOffered**: `bigint`
+
+#### Returns
+
+`PlutusData`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:260](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L260)
+
+***
+
+### buildVoidData()
+
+> `static` **buildVoidData**(): `PlutusData`
+
+The canonical `Void` datum (`d87980`) — a constructor-0 value with no
+fields, used as the default order `extension`.
+
+#### Returns
+
+`PlutusData`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:448](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L448)
+
+***
+
+### hashModuleConfig()
+
+> `static` **hashModuleConfig**(`configInline`): `string`
+
+Commits a module's config into the `module_state`: `blake2b_256` of the
+config's serialized CBOR. Pair the result with the module hash in
+[buildPoolDatum](DatumBuilderV4.md#buildpooldatum)'s `moduleState`. (Config-less modules use `"80"`.)
+
+#### Parameters
+
+• **configInline**: `string`
+
+#### Returns
+
+`string`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:397](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L397)

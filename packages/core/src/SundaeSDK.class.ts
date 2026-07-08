@@ -11,6 +11,7 @@ import {
   TxBuilderNftCheck,
   TxBuilderV1,
   TxBuilderV3,
+  TxBuilderV4,
   TxBuilderStableswaps,
 } from "./TxBuilders/index.js";
 import { SundaeUtils } from "./Utilities/SundaeUtils.class.js";
@@ -48,7 +49,10 @@ export const SDK_OPTIONS_DEFAULTS: Pick<
  * ```
  */
 export class SundaeSDK {
-  public builders: Map<EContractVersion, TTxBuilder> = new Map();
+  // TxBuilderV4 has a distinct interface from the legacy builders (TTxBuilder),
+  // so it's admitted to the map/facade separately rather than widening the
+  // shared TTxBuilder union that the v1/v3 order-route code relies on.
+  public builders: Map<EContractVersion, TTxBuilder | TxBuilderV4> = new Map();
   public queryProvider: QueryProvider;
   public options: ISundaeSDKOptions;
 
@@ -90,6 +94,10 @@ export class SundaeSDK {
       new TxBuilderV3(instance.options.blazeInstance),
     );
     instance.builders.set(
+      EContractVersion.V4,
+      new TxBuilderV4(instance.options.blazeInstance),
+    );
+    instance.builders.set(
       EContractVersion.NftCheck,
       new TxBuilderNftCheck(instance.options.blazeInstance),
     );
@@ -108,10 +116,13 @@ export class SundaeSDK {
    */
   builder(contractVersion: EContractVersion.V1): TxBuilderV1;
   builder(contractVersion: EContractVersion.V3): TxBuilderV3;
+  builder(contractVersion: EContractVersion.V4): TxBuilderV4;
   builder(contractVersion: EContractVersion.NftCheck): TxBuilderNftCheck;
   builder(contractVersion: EContractVersion.Stableswaps): TxBuilderStableswaps;
   builder(contractVersion?: EContractVersion): TTxBuilder;
-  builder(contractVersion: EContractVersion = EContractVersion.V3): TTxBuilder {
+  builder(
+    contractVersion: EContractVersion = EContractVersion.V3,
+  ): TTxBuilder | TxBuilderV4 {
     const builder = this.builders.get(contractVersion);
     if (!builder) {
       throw new Error(
@@ -124,6 +135,8 @@ export class SundaeSDK {
         return builder as TxBuilderV1;
       case EContractVersion.V3:
         return builder as TxBuilderV3;
+      case EContractVersion.V4:
+        return builder as TxBuilderV4;
       case EContractVersion.NftCheck:
         return builder as TxBuilderNftCheck;
       case EContractVersion.Stableswaps:

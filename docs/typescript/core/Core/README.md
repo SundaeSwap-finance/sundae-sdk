@@ -17,6 +17,7 @@ SundaeSwap protocol.
 - [EPoolCoin](enumerations/EPoolCoin.md)
 - [EPoolSearchType](enumerations/EPoolSearchType.md)
 - [ESwapType](enumerations/ESwapType.md)
+- [EV4BasicConstraint](enumerations/EV4BasicConstraint.md)
 
 ### Classes
 
@@ -44,6 +45,7 @@ SundaeSwap protocol.
 
 - [IArguments](interfaces/IArguments.md)
 - [IBaseConfig](interfaces/IBaseConfig.md)
+- [IBasicV4Args](interfaces/IBasicV4Args.md)
 - [ICancelConfigArgs](interfaces/ICancelConfigArgs.md)
 - [IComposedTx](interfaces/IComposedTx.md)
 - [ICurrentFeeFromDecayingFeeArgs](interfaces/ICurrentFeeFromDecayingFeeArgs.md)
@@ -55,6 +57,7 @@ SundaeSwap protocol.
 - [IDatumBuilderPoolMintRedeemerV3Args](interfaces/IDatumBuilderPoolMintRedeemerV3Args.md)
 - [IDatumBuilderStrategyV3Args](interfaces/IDatumBuilderStrategyV3Args.md)
 - [IDatumBuilderSwapV3Args](interfaces/IDatumBuilderSwapV3Args.md)
+- [IDatumBuilderV4OrderArgs](interfaces/IDatumBuilderV4OrderArgs.md)
 - [IDatumBuilderWithdrawV3Args](interfaces/IDatumBuilderWithdrawV3Args.md)
 - [IDepositArguments](interfaces/IDepositArguments.md)
 - [IDepositConfigArgs](interfaces/IDepositConfigArgs.md)
@@ -67,6 +70,7 @@ SundaeSwap protocol.
 - [IMintPoolConfigArgs](interfaces/IMintPoolConfigArgs.md)
 - [IOrderConfigArgs](interfaces/IOrderConfigArgs.md)
 - [IOrderRouteSwapArgs](interfaces/IOrderRouteSwapArgs.md)
+- [IOrderV4Base](interfaces/IOrderV4Base.md)
 - [IPoolByAssetQuery](interfaces/IPoolByAssetQuery.md)
 - [IPoolByIdentQuery](interfaces/IPoolByIdentQuery.md)
 - [IPoolByPairQuery](interfaces/IPoolByPairQuery.md)
@@ -84,6 +88,7 @@ SundaeSwap protocol.
 - [ISundaeSDKOptions](interfaces/ISundaeSDKOptions.md)
 - [ISwapArguments](interfaces/ISwapArguments.md)
 - [ISwapConfigArgs](interfaces/ISwapConfigArgs.md)
+- [ISwapV4Args](interfaces/ISwapV4Args.md)
 - [ITxBuilderCompleteTxArgs](interfaces/ITxBuilderCompleteTxArgs.md)
 - [ITxBuilderFees](interfaces/ITxBuilderFees.md)
 - [ITxBuilderReferralFee](interfaces/ITxBuilderReferralFee.md)
@@ -127,6 +132,7 @@ SundaeSwap protocol.
 - [MIN\_ASSET\_LENGTH](variables/MIN_ASSET_LENGTH.md)
 - [V1\_MAX\_POOL\_IDENT\_LENGTH](variables/V1_MAX_POOL_IDENT_LENGTH.md)
 - [V3\_POOL\_IDENT\_LENGTH](variables/V3_POOL_IDENT_LENGTH.md)
+- [V4\_VALIDATORS](variables/V4_VALIDATORS.md)
 
 ### Exported TxBuilders
 
