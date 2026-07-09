@@ -41,7 +41,7 @@ Helper method to easily get the SDK's Blaze instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:163](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L163)
+[packages/core/src/SundaeSDK.class.ts:169](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L169)
 
 ***
 
@@ -79,7 +79,7 @@ Utility method to retrieve the provider instance.
 
 #### Defined in
 
-[packages/core/src/SundaeSDK.class.ts:154](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L154)
+[packages/core/src/SundaeSDK.class.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/SundaeSDK.class.ts#L160)
 
 ***
 
