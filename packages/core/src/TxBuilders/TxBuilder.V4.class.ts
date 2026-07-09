@@ -521,6 +521,12 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * order UTxO is spent through the order validator's `Cancel` path (redeemer
    * `Constr 0 []`), which only requires the datum `owner` multisig to be
    * satisfied — so the owner's key hash is added as a required signer.
+   *
+   * Note: order owners are keyed on the address's **stake** credential (see
+   * {@link DatumBuilderV4.buildOwnerDatum}), so the resulting transaction must
+   * carry a witness from the stake key. CIP-30 browser wallets provide this
+   * automatically; a headless signer must opt in — e.g. blaze's
+   * `HotWallet.signTransaction(tx, partialSign, signWithStakeKey=true)`.
    */
   public async cancel(
     args: ICancelConfigArgs,
