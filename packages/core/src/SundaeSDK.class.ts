@@ -119,6 +119,12 @@ export class SundaeSDK {
   builder(contractVersion: EContractVersion.V4): TxBuilderV4;
   builder(contractVersion: EContractVersion.NftCheck): TxBuilderNftCheck;
   builder(contractVersion: EContractVersion.Stableswaps): TxBuilderStableswaps;
+  // Catch-all returns `TTxBuilder` (V1/V3/NftCheck/Stableswaps — the shared
+  // interface). V4 has a DISTINCT interface (no getMaxScooperFeeAmount /
+  // getDatumType), so it is reached via the explicit `builder(V4)` overload
+  // above. Widening this catch-all to include TxBuilderV4 breaks the internal
+  // cross-version routing in V1/V3 `orderRouteSwap`, which dispatches on a
+  // non-literal version and needs the shared interface.
   builder(contractVersion?: EContractVersion): TTxBuilder;
   builder(
     contractVersion: EContractVersion = EContractVersion.V3,

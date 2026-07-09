@@ -619,7 +619,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     constraints: Array<[string, Core.PlutusData]>,
   ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
     const tx = this.newTxInstance();
-    const { inline, deposit } = await this.lockOrderIntoTx(
+    const { inline, deposit, budget } = await this.lockOrderIntoTx(
       tx,
       args,
       offered,
@@ -631,33 +631,55 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       datum: inline,
       referralFee: args.referralFee?.payment,
       deposit,
+      scooperFee: budget,
     });
   }
 
   /**
+   * The default batcher share for an order — the protocol's `minShareBatcher`
+   * from the settings, falling back to {@link DEFAULT_SHARE_BATCHER} when the
+   * API isn't serving settings. Callers can override per order via `shareBatcher`.
+   */
+  private async getDefaultShareBatcher(): Promise<bigint> {
+    const settings = await this.getSettings();
+    const min = settings.find((s) => s.label === "settings")?.values
+      ?.minShareBatcher;
+    try {
+      return min !== undefined && min !== null
+        ? BigInt(min as string | number)
+        : DEFAULT_SHARE_BATCHER;
+    } catch {
+      return DEFAULT_SHARE_BATCHER;
+    }
+  }
+
+  /**
    * Assembles the `OrderDatum` and locks the offered assets + fee budget at the
-   * order script address on the given transaction, returning the inline datum
-   * and the ADA deposit. Shared by {@link placeOrder} and {@link update} (which
-   * locks the replacement order onto the same tx that cancels the old one).
+   * order script address on the given transaction, returning the inline datum,
+   * the ADA deposit, and the reserved `budget`. Shared by {@link placeOrder} and
+   * {@link update} (which locks the replacement order onto the same tx that
+   * cancels the old one).
    */
   private async lockOrderIntoTx(
     tx: TBlazeTx,
     args: IOrderV4Base & { configToken: string },
     offered: AssetAmount<IAssetAmountMetadata>[],
     constraints: Array<[string, Core.PlutusData]>,
-  ): Promise<{ inline: string; deposit: bigint }> {
+  ): Promise<{ inline: string; deposit: bigint; budget: bigint }> {
     const destination: TDestinationAddress | "Self" = args.destination ?? {
       address: args.ownerAddress,
       datum: { type: EDatumType.NONE },
     };
 
     const budget = args.budget ?? DEFAULT_BUDGET;
+    const shareBatcher =
+      args.shareBatcher ?? (await this.getDefaultShareBatcher());
 
     const { inline } = this.datumBuilder.buildOrderDatum({
       owner: args.ownerAddress,
       destination,
       budget,
-      shareBatcher: args.shareBatcher ?? DEFAULT_SHARE_BATCHER,
+      shareBatcher,
       configToken: args.configToken,
       constraints,
     });
@@ -689,7 +711,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       Core.PlutusData.fromCbor(Core.HexBlob(inline)),
     );
 
-    return { inline, deposit: orderDeposit };
+    return { inline, deposit: orderDeposit, budget };
   }
 
   // -- Cancel / Update ------------------------------------------------
@@ -806,7 +828,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         ? await this.buildSwapPlacement(order)
         : await this.buildBasicPlacement(order);
 
-    const { inline, deposit } = await this.lockOrderIntoTx(
+    const { inline, deposit, budget } = await this.lockOrderIntoTx(
       tx,
       { ...order, configToken },
       offered,
@@ -818,6 +840,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       datum: inline,
       referralFee: order.referralFee?.payment,
       deposit,
+      scooperFee: budget,
     });
   }
 
@@ -1234,18 +1257,25 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     datum,
     referralFee,
     deposit,
+    scooperFee,
   }: {
     tx: TBlazeTx;
     datum: string;
     referralFee?: Core.Value;
     deposit?: bigint;
+    /**
+     * The max batcher fee (`budget`) the order reserves in its output — surfaced
+     * so callers see the ADA actually locked. `0n`/omitted for transactions that
+     * reserve no order budget (cancel, mintPool).
+     */
+    scooperFee?: bigint;
   }): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
     let finishedTx: Core.Transaction | undefined;
     const that = this;
 
     const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
       deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
-      scooperFee: new AssetAmount(0n, ADA_METADATA),
+      scooperFee: new AssetAmount(scooperFee ?? 0n, ADA_METADATA),
       referral: referralFee
         ? new AssetAmount(referralFee.coin() ?? 0n, ADA_METADATA)
         : undefined,

@@ -152,11 +152,20 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
     address,
     datum,
   }: TDestinationAddress): TDatumResult<V4Types.Destination> {
-    BlazeHelper.validateAddressAndDatumAreValid({
-      address,
-      datum,
-      network: this.network,
-    });
+    BlazeHelper.validateAddressNetwork(address, this.network);
+    // v4-specific validation (not the shared V1/V3 validator, whose message
+    // refers to "datum hashes" — which v4 rejects). A script destination
+    // without an inline datum would lock the payout, so require one.
+    if (
+      BlazeHelper.isScriptAddress(address) &&
+      datum.type !== EDatumType.INLINE
+    ) {
+      throw new Error(
+        `The destination ${address} is a script address, so it requires an ` +
+          "inline datum — v4 destinations do not support datum hashes. Supply " +
+          "an INLINE datum to avoid locking the payout.",
+      );
+    }
 
     let attachedDatum: Core.PlutusData | undefined;
     switch (datum.type) {
@@ -596,13 +605,14 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
   }
 
   /**
-   * Extracts the owner's required-signer key hash from a v4 order datum's
-   * `owner` multisig, for building a Cancel/Update transaction. Handles the
-   * common single-owner shapes: a `Signature` owner yields its key hash, a
-   * `Script` owner yields its script hash. Richer multisig shapes (`AllOf`,
-   * `AnyOf`, `AtLeast`, …) can't be reduced to a single required signer here —
-   * they return `undefined`, and the caller is responsible for attaching the
-   * appropriate signers itself.
+   * Extracts the owner's **required-signer key hash** from a v4 order datum's
+   * `owner` multisig, for building a Cancel/Update transaction. Only a single
+   * `Signature` owner reduces to one required signer — it yields its key hash.
+   * Every other shape (`Script`, `AllOf`, `AnyOf`, `AtLeast`, `Before`,
+   * `After`) returns `undefined`: a script hash is **not** an Ed25519 key hash
+   * (adding it as a required signer would make an unsignable tx), and richer
+   * multisigs can't be reduced to one signer. The caller must attach the
+   * appropriate witness (native/plutus script, or the needed key set) itself.
    *
    * @param datum The order's inline datum, as CBOR hex.
    */
@@ -614,10 +624,6 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
 
     if ("Signature" in owner) {
       return owner.Signature.key_hash;
-    }
-
-    if ("Script" in owner) {
-      return owner.Script.script_hash;
     }
 
     return undefined;

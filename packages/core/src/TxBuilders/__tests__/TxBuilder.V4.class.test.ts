@@ -220,7 +220,7 @@ describe("TxBuilderV4", () => {
       expect(datum.constraints[2][1].toCbor()).toEqual(Core.HexBlob("d87980")); // fairness = Void
     });
 
-    it("defaults the destination to the owner address, and budget/shareBatcher to protocol defaults", async () => {
+    it("defaults the destination to the owner, budget to 3 ADA, and shareBatcher to settings.minShareBatcher", async () => {
       const composed = await builder.swap({
         ownerAddress: OWNER,
         offered: TOKEN,
@@ -230,7 +230,10 @@ describe("TxBuilderV4", () => {
       const datum = await datumOf(composed);
       expect(datum.destination).toHaveProperty("Fixed");
       expect(datum.budget).toEqual(3_000_000n);
-      expect(datum.share_batcher).toEqual(10_000n);
+      // shareBatcher is the protocol's minShareBatcher from settings (mock = 100).
+      expect(datum.share_batcher).toEqual(100n);
+      // and the reserved budget is surfaced as the composed scooperFee.
+      expect(composed.fees.scooperFee.amount).toEqual(3_000_000n);
     });
 
     it("resolves config_token from the indexed settings when omitted (swap-order)", async () => {
