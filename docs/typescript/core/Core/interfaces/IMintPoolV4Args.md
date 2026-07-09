@@ -44,18 +44,6 @@ The pool creator (bech32) — funds the seed UTxO and receives the circulating L
 
 ***
 
-### protocolShare?
-
-> `optional` **protocolShare**: [`IFractionV4`](IFractionV4.md)
-
-The protocol's `Rational` fee cut (fee-split module). Defaults to 5/1000.
-
-#### Defined in
-
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:179](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L179)
-
-***
-
 ### totalLp?
 
 > `optional` **totalLp**: `bigint`
@@ -65,4 +53,4 @@ omitted it is computed per curve — for constant-sum, `Σ price_i·reserve_i`.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:184](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L184)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:182](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L182)
