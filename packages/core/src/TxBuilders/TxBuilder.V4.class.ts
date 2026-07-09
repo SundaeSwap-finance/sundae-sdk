@@ -2,6 +2,7 @@ import { Blaze, Core, makeValue, Provider, Wallet } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import type {
+  ICancelConfigArgs,
   IComposedTx,
   ISundaeProtocolParamsFull,
   ISundaeProtocolReference,
@@ -10,8 +11,10 @@ import type {
   ITxBuilderFees,
   ITxBuilderReferralFee,
   TSupportedNetworks,
+  TUTXO,
 } from "../@types/index.js";
 import { EContractVersion } from "../@types/index.js";
+import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { EDatumType, TDestinationAddress } from "../@types/datumbuilder.js";
 import { TxBuilderAbstractV4 } from "../Abstracts/TxBuilderAbstract.V4.class.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../constants.js";
@@ -107,6 +110,23 @@ export interface IBasicV4Args extends IOrderV4Base {
   offered: AssetAmount<IAssetAmountMetadata>[];
   /** The minimum received, per asset. */
   minReceived: AssetAmount<IAssetAmountMetadata>[];
+}
+
+/**
+ * The replacement order for an {@link TxBuilderV4.update} — a fresh swap or
+ * basic order placed in the same transaction that cancels the old one. The
+ * `kind` discriminator selects which constraint set the new order carries.
+ */
+export type TUpdateV4Order =
+  | ({ kind: "swap" } & ISwapV4Args)
+  | ({ kind: "basic" } & IBasicV4Args);
+
+/** Arguments for updating a v4 order via {@link TxBuilderV4.update}. */
+export interface IUpdateV4Args {
+  /** The order UTxO being replaced — spent via the order validator's Cancel path. */
+  cancelUtxo: TUTXO;
+  /** The replacement order (swap or basic) locked in the same transaction. */
+  order: TUpdateV4Order;
 }
 
 /**
@@ -289,6 +309,21 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   public async swap(
     args: ISwapV4Args,
   ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    const { offered, constraints, configToken } =
+      await this.buildSwapPlacement(args);
+    return this.placeOrder({ ...args, configToken }, offered, constraints);
+  }
+
+  /**
+   * Resolves a swap order's offered assets, full constraint set, and
+   * `config_token` — shared by {@link swap} and {@link update}. A swap must
+   * carry `[swap-order, route-order, fairness-order]` in that exact order.
+   */
+  private async buildSwapPlacement(args: ISwapV4Args): Promise<{
+    offered: AssetAmount<IAssetAmountMetadata>[];
+    constraints: Array<[string, Core.PlutusData]>;
+    configToken: string;
+  }> {
     const minReceived = Array.isArray(args.minReceived)
       ? args.minReceived
       : [args.minReceived];
@@ -310,15 +345,15 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       args.configToken ??
       (await this.getOrderConfigToken(V4_ORDER_CONFIG_LABEL.swap));
 
-    return this.placeOrder(
-      { ...args, configToken },
-      [args.offered],
-      [
+    return {
+      offered: [args.offered],
+      constraints: [
         [swapHash, swapData],
         [routeHash, emptyListData()],
         [fairnessHash, DatumBuilderV4.buildVoidData()],
       ],
-    );
+      configToken,
+    };
   }
 
   /**
@@ -333,6 +368,21 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   public async basic(
     args: IBasicV4Args,
   ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    const { offered, constraints, configToken } =
+      await this.buildBasicPlacement(args);
+    return this.placeOrder({ ...args, configToken }, offered, constraints);
+  }
+
+  /**
+   * Resolves a basic order's offered assets, constraint set, and `config_token`
+   * — shared by {@link basic} and {@link update}. A basic order carries
+   * `[basic-order, fairness-order]` (no route constraint).
+   */
+  private async buildBasicPlacement(args: IBasicV4Args): Promise<{
+    offered: AssetAmount<IAssetAmountMetadata>[];
+    constraints: Array<[string, Core.PlutusData]>;
+    configToken: string;
+  }> {
     const basicData = this.datumBuilder.buildBasicConstraintData({
       type: args.type,
       offered: args.offered,
@@ -348,10 +398,14 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       args.configToken ??
       (await this.getOrderConfigToken(V4_ORDER_CONFIG_LABEL.basic));
 
-    return this.placeOrder({ ...args, configToken }, args.offered, [
-      [basicHash, basicData],
-      [fairnessHash, DatumBuilderV4.buildVoidData()],
-    ]);
+    return {
+      offered: args.offered,
+      constraints: [
+        [basicHash, basicData],
+        [fairnessHash, DatumBuilderV4.buildVoidData()],
+      ],
+      configToken,
+    };
   }
 
   /** Resolves several validator hashes from the protocol params in one pass. */
@@ -386,6 +440,34 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     offered: AssetAmount<IAssetAmountMetadata>[],
     constraints: Array<[string, Core.PlutusData]>,
   ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    const tx = this.newTxInstance();
+    const { inline, deposit } = await this.lockOrderIntoTx(
+      tx,
+      args,
+      offered,
+      constraints,
+    );
+
+    return this.completeTx({
+      tx,
+      datum: inline,
+      referralFee: args.referralFee?.payment,
+      deposit,
+    });
+  }
+
+  /**
+   * Assembles the `OrderDatum` and locks the offered assets + fee budget at the
+   * order script address on the given transaction, returning the inline datum
+   * and the ADA deposit. Shared by {@link placeOrder} and {@link update} (which
+   * locks the replacement order onto the same tx that cancels the old one).
+   */
+  private async lockOrderIntoTx(
+    tx: TBlazeTx,
+    args: IOrderV4Base & { configToken: string },
+    offered: AssetAmount<IAssetAmountMetadata>[],
+    constraints: Array<[string, Core.PlutusData]>,
+  ): Promise<{ inline: string; deposit: bigint }> {
     const destination: TDestinationAddress | "Self" = args.destination ?? {
       address: args.ownerAddress,
       datum: { type: EDatumType.NONE },
@@ -413,7 +495,6 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       args.ownerAddress,
     );
 
-    const tx = this.newTxInstance();
     if (args.referralFee) {
       tx.payAssets(
         Core.addressFromBech32(args.referralFee.destination),
@@ -430,23 +511,130 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       Core.PlutusData.fromCbor(Core.HexBlob(inline)),
     );
 
+    return { inline, deposit: orderDeposit };
+  }
+
+  // -- Cancel / Update ------------------------------------------------
+
+  /**
+   * Cancels an existing v4 order, returning its locked assets to the owner. The
+   * order UTxO is spent through the order validator's `Cancel` path (redeemer
+   * `Constr 0 []`), which only requires the datum `owner` multisig to be
+   * satisfied — so the owner's key hash is added as a required signer.
+   */
+  public async cancel(
+    args: ICancelConfigArgs,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    const { utxo, referralFee } = new CancelConfig(args).buildArgs();
+
+    const tx = this.newTxInstance();
+    const spendingDatum = await this.addOrderCancellation(tx, utxo);
+
+    if (referralFee) {
+      tx.payAssets(
+        Core.addressFromBech32(referralFee.destination),
+        referralFee.payment,
+      );
+    }
+
     return this.completeTx({
       tx,
-      datum: inline,
-      referralFee: args.referralFee?.payment,
-      deposit: orderDeposit,
+      datum: spendingDatum,
+      deposit: 0n,
+      referralFee: referralFee?.payment,
     });
   }
 
-  // -- Not yet implemented -------------------------------------------
+  /**
+   * Spends a v4 order UTxO via the order validator's `Cancel` path, adding the
+   * order reference script and the owner's required signer to `tx`. Returns the
+   * spent order's inline datum (CBOR). Shared by {@link cancel} and
+   * {@link update}.
+   */
+  private async addOrderCancellation(
+    tx: TBlazeTx,
+    utxo: TUTXO,
+  ): Promise<string> {
+    const [utxoToSpend] = await this.blaze.provider.resolveUnspentOutputs([
+      new Core.TransactionInput(
+        Core.TransactionId(utxo.hash),
+        BigInt(utxo.index),
+      ),
+    ]);
+    if (!utxoToSpend) {
+      throw new Error(
+        `Could not resolve the order UTxO to cancel: ${utxo.hash}#${utxo.index}.`,
+      );
+    }
+
+    const inlineDatum = utxoToSpend.output().datum()?.asInlineData();
+    if (!inlineDatum) {
+      throw new Error(
+        "Cannot cancel a v4 order whose UTxO carries no inline datum.",
+      );
+    }
+    const spendingDatum = inlineDatum.toCbor();
+
+    const orderRef = await this.getReferenceScript(V4_VALIDATORS.order);
+    const [refUtxo] = await this.blaze.provider.resolveUnspentOutputs([
+      new Core.TransactionInput(
+        Core.TransactionId(orderRef.txIn.hash),
+        BigInt(orderRef.txIn.index),
+      ),
+    ]);
+    if (!refUtxo) {
+      throw new Error(
+        `Could not resolve the v4 order reference script UTxO: ` +
+          `${orderRef.txIn.hash}#${orderRef.txIn.index}.`,
+      );
+    }
+
+    // The order validator's `Cancel` redeemer is constructor 0 with no fields,
+    // identical in shape to the canonical Void datum.
+    tx.addInput(utxoToSpend, DatumBuilderV4.buildVoidData());
+    tx.addReferenceInput(
+      Core.TransactionUnspentOutput.fromCbor(refUtxo.toCbor()),
+    );
+
+    const signerKey = DatumBuilderV4.getSignerKeyFromDatum(spendingDatum);
+    if (signerKey) {
+      tx.addRequiredSigner(Core.Ed25519KeyHashHex(signerKey));
+    }
+
+    return spendingDatum;
+  }
 
   /**
-   * Cancels an existing v4 order. Pending: spend the order UTxO via the order
-   * validator's Cancel path (needs the order reference script + owner-signer
-   * resolution from the multisig).
+   * Updates an order in place: cancels the existing order UTxO and locks a
+   * fresh swap/basic order in the same transaction. The replacement carries its
+   * own constraint set and `config_token`; the returned assets from the cancel
+   * fund the new order's deposit/budget/offer (Blaze balances the difference).
    */
-  public async cancel(_args: unknown): Promise<IComposedTx> {
-    throw notImplemented("cancel");
+  public async update(
+    args: IUpdateV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    const tx = this.newTxInstance();
+    await this.addOrderCancellation(tx, args.cancelUtxo);
+
+    const { order } = args;
+    const { offered, constraints, configToken } =
+      order.kind === "swap"
+        ? await this.buildSwapPlacement(order)
+        : await this.buildBasicPlacement(order);
+
+    const { inline, deposit } = await this.lockOrderIntoTx(
+      tx,
+      { ...order, configToken },
+      offered,
+      constraints,
+    );
+
+    return this.completeTx({
+      tx,
+      datum: inline,
+      referralFee: order.referralFee?.payment,
+      deposit,
+    });
   }
 
   /**

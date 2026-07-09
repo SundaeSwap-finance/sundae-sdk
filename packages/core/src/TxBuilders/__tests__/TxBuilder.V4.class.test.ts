@@ -1,5 +1,5 @@
 import { parse } from "@blaze-cardano/data";
-import { Core } from "@blaze-cardano/sdk";
+import { Core, makeValue } from "@blaze-cardano/sdk";
 import { AssetAmount } from "@sundaeswap/asset";
 import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 
@@ -8,7 +8,10 @@ import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 import { EContractVersion } from "../../@types/index.js";
 import { ADA_METADATA } from "../../constants.js";
 import { V4Types } from "../../DatumBuilders/ContractTypes/index.js";
-import { EV4BasicConstraint } from "../../DatumBuilders/DatumBuilder.V4.class.js";
+import {
+  DatumBuilderV4,
+  EV4BasicConstraint,
+} from "../../DatumBuilders/DatumBuilder.V4.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeSDK } from "../../SundaeSDK.class.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
@@ -21,6 +24,11 @@ const SWAP_HASH = "22".repeat(28);
 const BASIC_HASH = "33".repeat(28);
 const ROUTE_HASH = "44".repeat(28);
 const FAIRNESS_HASH = "55".repeat(28);
+
+// A 32-byte tx id for the order UTxO being cancelled, and one for the order
+// reference-script UTxO cancel/update read from.
+const ORDER_UTXO_HASH = "ab".repeat(32);
+const ORDER_REF_HASH = "cd".repeat(32);
 
 const TOKEN = new AssetAmount(1_000_000n, {
   assetId:
@@ -47,6 +55,12 @@ spyOn(TxBuilderV4.prototype, "getValidatorScript").mockImplementation(
   }) as any,
 );
 
+// Resolve the order reference script without a live protocol query.
+spyOn(TxBuilderV4.prototype, "getReferenceScript").mockResolvedValue({
+  key: V4_VALIDATORS.order,
+  txIn: { hash: ORDER_REF_HASH, index: 0 },
+});
+
 const SWAP_CONFIG_TOKEN = "000d039b";
 const BASIC_CONFIG_TOKEN = "00073714";
 
@@ -61,7 +75,7 @@ spyOn(
   { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: "d8", values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
 ] as any);
 
-setupBlaze(
+const { getUtxosByOutRefMock } = setupBlaze(
   async (blaze) => {
     blazeInstance = blaze;
     builder = new TxBuilderV4(blaze);
@@ -201,6 +215,153 @@ describe("TxBuilderV4", () => {
       });
       const datum = await datumOf(composed);
       expect(datum.constraints[0][1].toCbor().startsWith("d87c")).toBe(true);
+    });
+  });
+
+  /**
+   * Builds an order UTxO carrying `orderDatumCbor` at the order script address,
+   * and wires `resolveUnspentOutputs` to return it for the order input and a
+   * bare reference UTxO for the order reference-script input.
+   */
+  const mockOrderAndRefUtxos = async (orderDatumCbor: string) => {
+    const orderScriptAddr = await builder.getOrderScriptAddress();
+    const orderUtxo = Core.TransactionUnspentOutput.fromCore([
+      new Core.TransactionInput(
+        Core.TransactionId(ORDER_UTXO_HASH),
+        0n,
+      ).toCore(),
+      Core.TransactionOutput.fromCore({
+        address: Core.PaymentAddress(orderScriptAddr),
+        value: makeValue(5_000_000n, [
+          TOKEN.metadata.assetId,
+          TOKEN.amount,
+        ]).toCore(),
+        datum: Core.PlutusData.fromCbor(Core.HexBlob(orderDatumCbor)).toCore(),
+      }).toCore(),
+    ]);
+    const refUtxo = Core.TransactionUnspentOutput.fromCore([
+      new Core.TransactionInput(Core.TransactionId(ORDER_REF_HASH), 0n).toCore(),
+      Core.TransactionOutput.fromCore({
+        address: Core.getPaymentAddress(Core.addressFromBech32(OWNER)),
+        value: makeValue(5_000_000n).toCore(),
+      }).toCore(),
+    ]);
+
+    getUtxosByOutRefMock.mockImplementation(async (inputs) => {
+      const id = String(inputs[0].transactionId());
+      if (id === ORDER_UTXO_HASH) return [orderUtxo];
+      if (id === ORDER_REF_HASH) return [refUtxo];
+      return [];
+    });
+
+    return orderScriptAddr;
+  };
+
+  describe("getSignerKeyFromDatum()", () => {
+    it("extracts the owner's key hash from a v4 order datum", async () => {
+      const composed = await builder.swap({
+        ownerAddress: OWNER,
+        offered: TOKEN,
+        minReceived: ADA,
+        configToken: "aabb",
+      });
+      const expected = String(
+        Core.addressFromBech32(OWNER).asBase()!.getStakeCredential().hash,
+      );
+      expect(
+        DatumBuilderV4.getSignerKeyFromDatum(composed.datum as string),
+      ).toEqual(expected);
+    });
+  });
+
+  describe("cancel()", () => {
+    it("spends the order UTxO with the Cancel redeemer and adds the owner signer", async () => {
+      const order = await builder.swap({
+        ownerAddress: OWNER,
+        offered: TOKEN,
+        minReceived: ADA,
+        configToken: "aabb",
+      });
+      const orderDatumCbor = order.datum as string;
+      await mockOrderAndRefUtxos(orderDatumCbor);
+
+      const signerSpy = spyOn(DatumBuilderV4, "getSignerKeyFromDatum");
+
+      const composed = await builder.cancel({
+        utxo: { hash: ORDER_UTXO_HASH, index: 0 },
+      });
+
+      // The returned datum is the spent order's datum, and no deposit is taken.
+      expect(composed.datum).toEqual(orderDatumCbor);
+      expect(composed.fees.deposit.amount).toEqual(0n);
+      expect(composed.fees.scooperFee.amount).toEqual(0n);
+      expect(signerSpy).toHaveReturnedTimes(1);
+      expect(signerSpy.mock.results[0]?.value).toEqual(
+        String(Core.addressFromBech32(OWNER).asBase()!.getStakeCredential().hash),
+      );
+
+      signerSpy.mockRestore();
+    });
+  });
+
+  describe("update()", () => {
+    it("cancels the old order and locks a fresh swap order in one tx", async () => {
+      const old = await builder.swap({
+        ownerAddress: OWNER,
+        offered: TOKEN,
+        minReceived: ADA,
+        configToken: "aabb",
+      });
+      await mockOrderAndRefUtxos(old.datum as string);
+
+      const composed = await builder.update({
+        cancelUtxo: { hash: ORDER_UTXO_HASH, index: 0 },
+        order: {
+          kind: "swap",
+          ownerAddress: OWNER,
+          offered: TOKEN,
+          minReceived: ADA,
+          configToken: "ccdd",
+        },
+      });
+
+      // The composed datum is the NEW order, carrying the full swap set.
+      const datum = await datumOf(composed);
+      expect(datum.config_token).toEqual("ccdd");
+      expect(datum.constraints.map((c) => c[0])).toEqual([
+        SWAP_HASH,
+        ROUTE_HASH,
+        FAIRNESS_HASH,
+      ]);
+      expect(composed.fees.deposit.amount).toBeGreaterThan(0n);
+    });
+
+    it("supports replacing with a basic order", async () => {
+      const old = await builder.swap({
+        ownerAddress: OWNER,
+        offered: TOKEN,
+        minReceived: ADA,
+        configToken: "aabb",
+      });
+      await mockOrderAndRefUtxos(old.datum as string);
+
+      const composed = await builder.update({
+        cancelUtxo: { hash: ORDER_UTXO_HASH, index: 0 },
+        order: {
+          kind: "basic",
+          type: EV4BasicConstraint.Deposit,
+          ownerAddress: OWNER,
+          offered: [TOKEN],
+          minReceived: [ADA],
+          configToken: "ccdd",
+        },
+      });
+
+      const datum = await datumOf(composed);
+      expect(datum.constraints.map((c) => c[0])).toEqual([
+        BASIC_HASH,
+        FAIRNESS_HASH,
+      ]);
     });
   });
 });

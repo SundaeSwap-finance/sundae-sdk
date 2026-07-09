@@ -1,4 +1,4 @@
-import { serialize } from "@blaze-cardano/data";
+import { parse, serialize } from "@blaze-cardano/data";
 import { Core } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
@@ -449,5 +449,33 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
     return Core.PlutusData.newConstrPlutusData(
       new Core.ConstrPlutusData(0n, new Core.PlutusList()),
     );
+  }
+
+  /**
+   * Extracts the owner's required-signer key hash from a v4 order datum's
+   * `owner` multisig, for building a Cancel/Update transaction. Handles the
+   * common single-owner shapes: a `Signature` owner yields its key hash, a
+   * `Script` owner yields its script hash. Richer multisig shapes (`AllOf`,
+   * `AnyOf`, `AtLeast`, …) can't be reduced to a single required signer here —
+   * they return `undefined`, and the caller is responsible for attaching the
+   * appropriate signers itself.
+   *
+   * @param datum The order's inline datum, as CBOR hex.
+   */
+  static getSignerKeyFromDatum(datum: string): string | undefined {
+    const { owner } = parse(
+      V4Types.OrderDatum,
+      Core.PlutusData.fromCbor(Core.HexBlob(datum)),
+    );
+
+    if ("Signature" in owner) {
+      return owner.Signature.key_hash;
+    }
+
+    if ("Script" in owner) {
+      return owner.Script.script_hash;
+    }
+
+    return undefined;
   }
 }

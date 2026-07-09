@@ -35,5 +35,6 @@ export abstract class TxBuilderAbstractV4 {
   abstract deposit(args: unknown): Promise<IComposedTx>;
   abstract withdraw(args: unknown): Promise<IComposedTx>;
   abstract cancel(args: unknown): Promise<IComposedTx>;
+  abstract update(args: unknown): Promise<IComposedTx>;
   abstract mintPool(args: unknown): Promise<IComposedTx>;
 }
