@@ -25,7 +25,7 @@ Max batcher fee, in lovelace. Defaults to `DEFAULT_BUDGET` (3 ADA).
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L82)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:97](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L97)
 
 ***
 
@@ -40,7 +40,7 @@ Pass it explicitly to override, or if the API isn't serving settings yet.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:91](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L91)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:106](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L106)
 
 ***
 
@@ -52,7 +52,7 @@ Where fills pay out. Defaults to a `Fixed` destination at `ownerAddress`.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:80](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L80)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:95](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L95)
 
 ***
 
@@ -64,7 +64,7 @@ The order owner (bech32). Also the default payout destination.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:78](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L78)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:93](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L93)
 
 ***
 
@@ -76,4 +76,4 @@ The batcher's share of the fee. Defaults to `DEFAULT_SHARE_BATCHER`.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L84)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:99](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L99)

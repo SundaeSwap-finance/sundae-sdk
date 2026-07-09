@@ -34,6 +34,18 @@ The current network id.
 
 [packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L72)
 
+***
+
+### CIP68\_100
+
+> `readonly` `static` **CIP68\_100**: `"000643b0"` = `"000643b0"`
+
+CIP-68 asset-name prefixes used by the v4 pool-mint policy.
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:400](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L400)
+
 ## Methods
 
 ### buildAssetClassDatum()
@@ -190,6 +202,72 @@ datum (no datum-hash variant), so a `HASH` datum type is rejected.
 
 ***
 
+### buildFeeSplitConfigDatum()
+
+> **buildFeeSplitConfigDatum**(`__namedParameters`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+Builds a `FeeSplitConfig` — the config for the fee-split module carried by
+every v4 pool. `protocolShare` is the protocol's `Rational` cut of fees.
+
+#### Parameters
+
+• **\_\_namedParameters**
+
+• **\_\_namedParameters.protocolShare**
+
+• **\_\_namedParameters.protocolShare.den**: `bigint`
+
+• **\_\_namedParameters.protocolShare.num**: `bigint`
+
+#### Returns
+
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+##### protocol\_share
+
+> **protocol\_share**: `object`
+
+##### protocol\_share.den
+
+> **den**: `bigint`
+
+##### protocol\_share.num
+
+> **num**: `bigint`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:345](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L345)
+
+***
+
+### buildGovernanceConfigDatum()
+
+> **buildGovernanceConfigDatum**(`__namedParameters`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`PlutusData`\>
+
+Builds a `GovernanceConfig` (`Constr 0 [admin, delay, None]`) for the
+governance module, when a pool's settings authorise an upgrade action.
+`admin` is a bech32 address (resolved to a `Signature`/`Script` multisig);
+`delayMs` is the upgrade timelock. `pending` is always `None` at creation.
+
+#### Parameters
+
+• **\_\_namedParameters**
+
+• **\_\_namedParameters.admin**: `string`
+
+• **\_\_namedParameters.delayMs**: `bigint`
+
+#### Returns
+
+[`TDatumResult`](../type-aliases/TDatumResult.md)\<`PlutusData`\>
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:361](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L361)
+
+***
+
 ### buildOrderDatum()
 
 > **buildOrderDatum**(`__namedParameters`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
@@ -324,7 +402,7 @@ on the module's serialized config (e.g. the CS config), or the sentinel
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:347](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L347)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:464](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L464)
 
 ***
 
@@ -387,6 +465,56 @@ Swap = Constr 2 [
 
 ***
 
+### buildCreatePoolMintRedeemer()
+
+> `static` **buildCreatePoolMintRedeemer**(`__namedParameters`): `PlutusData`
+
+The pool-mint `CreatePool` redeemer:
+`Constr 0 [OutputReference(Constr 0 [txId, index]), settings_ref_index]`.
+
+#### Parameters
+
+• **\_\_namedParameters**
+
+• **\_\_namedParameters.seedIndex**: `number`
+
+• **\_\_namedParameters.seedTxHash**: `string`
+
+• **\_\_namedParameters.settingsRefIndex**: `number`
+
+#### Returns
+
+`PlutusData`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:421](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L421)
+
+***
+
+### buildModuleCreateRedeemer()
+
+> `static` **buildModuleCreateRedeemer**(`config`?): `PlutusData`
+
+A module's `Create` redeemer: `Constr 0 [config]` — used at pool creation
+to validate each module's initial `module_state` commitment. Pass the
+module's config `PlutusData`, or omit it for a config-less module (e.g.
+fairness, whose `Create` is the nullary `Constr 0 []`).
+
+#### Parameters
+
+• **config?**: `PlutusData`
+
+#### Returns
+
+`PlutusData`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:450](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L450)
+
+***
+
 ### buildVoidData()
 
 > `static` **buildVoidData**(): `PlutusData`
@@ -400,7 +528,63 @@ fields, used as the default order `extension`.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:448](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L448)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:565](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L565)
+
+***
+
+### cip68Names()
+
+> `static` **cip68Names**(`ident`): `object`
+
+The `100`/`222`/`333` CIP-68 asset names for a pool identifier.
+
+#### Parameters
+
+• **ident**: `string`
+
+#### Returns
+
+`object`
+
+##### lp
+
+> **lp**: `string`
+
+##### nft
+
+> **nft**: `string`
+
+##### ref
+
+> **ref**: `string`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:405](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L405)
+
+***
+
+### computePoolIdent()
+
+> `static` **computePoolIdent**(`seedTxHash`, `seedIndex`): `string`
+
+Computes a pool's `identifier`: `blake2b_256` of the CBOR of the seed
+UTxO's `OutputReference` (`Constr 0 [txId, index]`), truncated to 28 bytes.
+Must byte-match the pool-mint validator's `cbor.serialise(seed_utxo)`.
+
+#### Parameters
+
+• **seedTxHash**: `string`
+
+• **seedIndex**: `number`
+
+#### Returns
+
+`string`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:389](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L389)
 
 ***
 
@@ -428,7 +612,7 @@ The order's inline datum, as CBOR hex.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:465](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L465)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:582](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L582)
 
 ***
 
@@ -450,4 +634,4 @@ config's serialized CBOR. Pair the result with the module hash in
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:397](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L397)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:514](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L514)
