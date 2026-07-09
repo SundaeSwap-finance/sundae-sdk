@@ -78,6 +78,39 @@ const CS_POOL_CONFIG_DATUM = serialize(V4Types.PoolConfig, {
   ],
 }).toCbor();
 
+// Published Create configs for the non-curve modules (curve config comes from
+// the caller). Fairness is config-less (null).
+const POOL_MODULE_CONFIGS = {
+  [FEESPLIT_HASH]: { configCbor: "d87980" },
+  [FAIRNESS_MOD_HASH]: { configCbor: null },
+};
+
+// Protocol validators + references, keyed so mintPool can resolve modules by
+// hash → title → reference.
+const MODULE_HASHES: Record<string, string> = {
+  pool: POOL_HASH,
+  "pool-mint": POOL_MINT_HASH,
+  "constant-sum": CS_HASH,
+  "fee-split": FEESPLIT_HASH,
+  fairness: FAIRNESS_MOD_HASH,
+};
+const refHashFor = (key: string) =>
+  Buffer.from(`ref-${key}`.padEnd(32, "_")).toString("hex").slice(0, 64);
+spyOn(TxBuilderV4.prototype, "getProtocolParams").mockResolvedValue({
+  blueprint: {
+    validators: Object.entries(MODULE_HASHES).map(([title, hash]) => ({
+      title,
+      hash,
+      compiledCode: "",
+    })),
+  },
+  references: Object.keys(MODULE_HASHES).map((key) => ({
+    key,
+    txIn: { hash: refHashFor(key), index: 0 },
+  })),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any);
+
 // Resolve reference scripts without a live protocol query — a distinct ref
 // UTxO per module key (matching how each module deploys its own reference).
 spyOn(TxBuilderV4.prototype, "getReferenceScript").mockImplementation(
@@ -103,7 +136,7 @@ spyOn(
   { label: "settings", txIn: { hash: "aa", index: 0 }, datum: "d8", values: { minShareBatcher: "100" } },
   { label: "swap-order", txIn: { hash: "bb", index: 0 }, datum: "d8", values: { token: SWAP_CONFIG_TOKEN, requiredConstraints: [] } },
   { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: "d8", values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
-  { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: CS_POOL_CONFIG_DATUM, values: {} },
+  { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: CS_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
 ] as any);
 
 const { getUtxosByOutRefMock, getUtxosMock } = setupBlaze(
@@ -487,7 +520,7 @@ describe("TxBuilderV4", () => {
         "getProtocolSettings",
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ).mockResolvedValueOnce([
-        { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: configWithGov, values: {} },
+        { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: configWithGov, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
       ] as any);
       wireMints();
 

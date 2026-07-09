@@ -175,8 +175,6 @@ export interface IMintPoolV4Args {
   curve: TPoolCurveV4;
   /** The pool creator (bech32) — funds the seed UTxO and receives the circulating LP. */
   ownerAddress: string;
-  /** The protocol's `Rational` fee cut (fee-split module). Defaults to 5/1000. */
-  protocolShare?: IFractionV4;
   /**
    * Override the initial circulating LP supply (also the preminted buffer). When
    * omitted it is computed per curve — for constant-sum, `Σ price_i·reserve_i`.
@@ -703,13 +701,15 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * Creates (mints) a new v4 pool. Consumes a seed UTxO from the creator to
    * derive the pool `identifier`, mints the CIP-68 `100`/`222`/`333` tokens, and
    * writes the pool UTxO (reserves + NFT + the preminted LP buffer) with a
-   * `PoolDatum` whose `actions` mirror the on-chain settings `PoolConfig`. Each
-   * module the config references gets a `Create` withdraw-redeemer.
+   * `PoolDatum` whose `actions` mirror the on-chain settings `PoolConfig`.
    *
-   * Today only the `constantSum` curve is wired, and the SDK can only build a
-   * `Create` witness for the constant-sum, fee-split, and fairness modules — a
-   * settings `PoolConfig` that references any other module (e.g. governance) is
-   * rejected. The circulating LP (issued to the creator via change) defaults to
+   * Module handling is generic: it follows whatever the on-chain `PoolConfig`
+   * references. The caller supplies only the curve config (fees/prices); every
+   * other module's `Create` config is published in the settings
+   * (`values.moduleConfigs`) and applied verbatim, and each module's reference
+   * script is resolved by `hash → protocol-entry title → reference` — so a
+   * different governance (or any) module hash on another network just works.
+   * The circulating LP (issued to the creator via change) defaults to
    * `Σ price_i·reserve_i`; an equal amount is preminted into the pool.
    */
   public async mintPool(
@@ -726,24 +726,18 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     const networkId = this.network === "mainnet" ? 1 : 0;
 
-    // Deployed hashes for the modules the SDK can encode.
-    const [
-      poolMintScript,
-      curveScript,
-      feeSplitScript,
-      fairnessScript,
-      poolScript,
-    ] = await Promise.all([
+    // The curve module (user-chosen) is resolved by title; the pool + pool-mint
+    // scripts by title too. The auxiliary modules are resolved generically from
+    // whatever hashes the on-chain PoolConfig references.
+    const [poolMintScript, curveScript, poolScript] = await Promise.all([
       this.getValidatorScript(V4_VALIDATORS.poolMint),
       this.getValidatorScript(V4_VALIDATORS.constantSum),
-      this.getValidatorScript(V4_VALIDATORS.feeSplit),
-      this.getValidatorScript(V4_VALIDATORS.fairnessModule),
       this.getValidatorScript(V4_VALIDATORS.pool),
     ]);
 
     // The on-chain PoolConfig (for this curve) dictates the pool datum's
-    // actions exactly.
-    const { poolValidator, actions, settingsTxIn } =
+    // actions exactly, and publishes each module's Create config.
+    const { poolValidator, actions, settingsTxIn, moduleConfigs } =
       await this.resolvePoolConfig(curveScript.hash);
     if (poolValidator !== poolScript.hash) {
       throw new Error(
@@ -751,40 +745,12 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
           `the deployed pool hash (${poolScript.hash}).`,
       );
     }
-
-    // A constant-sum pool's trade action is {tag 3, [cs, fee-split, fairness]}.
-    const tradeAction = actions[0];
-    if (
-      !tradeAction ||
-      BigInt(tradeAction.tag) !== 3n ||
-      tradeAction.modules.length !== 3 ||
-      tradeAction.modules[0] !== curveScript.hash ||
-      tradeAction.modules[1] !== feeSplitScript.hash ||
-      tradeAction.modules[2] !== fairnessScript.hash
-    ) {
+    // The trade action (action[0]) must lead with the requested curve module.
+    if (actions[0]?.modules[0] !== curveScript.hash) {
       throw new Error(
-        "mintPool: the settings PoolConfig's first action must be " +
-          "{tag: 3, modules: [constant-sum, fee-split, fairness]} for a " +
-          "constant-sum pool.",
+        "mintPool: the settings PoolConfig's first action must lead with the " +
+          `constant-sum module (${curveScript.hash}).`,
       );
-    }
-    // Reject configs referencing modules the SDK can't Create (e.g. governance).
-    const knownModules = new Set([
-      curveScript.hash,
-      feeSplitScript.hash,
-      fairnessScript.hash,
-    ]);
-    for (const action of actions) {
-      for (const m of action.modules) {
-        if (!knownModules.has(m)) {
-          throw new Error(
-            `mintPool: the settings PoolConfig references module ${m}, which ` +
-              `the SDK cannot build a Create witness for (supported: ` +
-              `constant-sum, fee-split, fairness). Use a PoolConfig limited to ` +
-              `those modules, or extend the SDK.`,
-          );
-        }
-      }
     }
 
     // Seed UTxO → pool identifier + CIP-68 asset names.
@@ -820,24 +786,95 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     const premintedLp = circulatingLp;
     const lpMinted = circulatingLp + premintedLp;
 
-    // Module configs + their module_state commitments.
+    // The curve module's config comes from the caller; every other module's
+    // config is published verbatim in the settings (values.moduleConfigs).
     const fee = args.curve.fee;
     const bountyK = args.curve.bountyK ?? { num: fee.num, den: fee.den * 2n };
-    const csConfig = this.datumBuilder.buildConstantSumConfigDatum({
-      prices,
-      fee,
-      bountyK,
-      waiveFeeOnClaim: args.curve.waiveFeeOnClaim ?? false,
-    });
-    const protocolShare = args.protocolShare ?? { num: 5n, den: 1000n };
-    const fsConfig = this.datumBuilder.buildFeeSplitConfigDatum({
-      protocolShare,
-    });
-    const moduleState: Array<[string, string]> = [
-      [curveScript.hash, DatumBuilderV4.hashModuleConfig(csConfig.inline)],
-      [feeSplitScript.hash, DatumBuilderV4.hashModuleConfig(fsConfig.inline)],
-      [fairnessScript.hash, "80"],
-    ];
+    const curveConfig = Core.PlutusData.fromCbor(
+      Core.HexBlob(
+        this.datumBuilder.buildConstantSumConfigDatum({
+          prices,
+          fee,
+          bountyK,
+          waiveFeeOnClaim: args.curve.waiveFeeOnClaim ?? false,
+        }).inline,
+      ),
+    );
+
+    // Every distinct module across all actions, in first-appearance order —
+    // this is also the `module_state` order.
+    const orderedModules: string[] = [];
+    const seenModules = new Set<string>();
+    for (const a of actions) {
+      for (const m of a.modules) {
+        if (!seenModules.has(m)) {
+          seenModules.add(m);
+          orderedModules.push(m);
+        }
+      }
+    }
+
+    // For each module: its Create config (curve from args, others from the
+    // published moduleConfigs) and its reference script (resolved by
+    // hash → protocol-entry title → reference, so any deployed module works).
+    const params = await this.getProtocolParams();
+    const validatorByHash = new Map(
+      params.blueprint.validators.map((v) => [v.hash, v]),
+    );
+    const referenceByKey = new Map(params.references.map((r) => [r.key, r]));
+    const moduleInfo = await Promise.all(
+      orderedModules.map(async (hash) => {
+        let config: Core.PlutusData | null;
+        if (hash === curveScript.hash) {
+          config = curveConfig;
+        } else {
+          const published = moduleConfigs?.[hash];
+          if (published === undefined) {
+            throw new Error(
+              `mintPool: the settings PoolConfig references module ${hash}, but ` +
+                "the protocol settings publish no Create config for it " +
+                "(values.moduleConfigs). Publish its config, or extend the SDK.",
+            );
+          }
+          config = published
+            ? Core.PlutusData.fromCbor(Core.HexBlob(published))
+            : null;
+        }
+        const validator = validatorByHash.get(hash);
+        if (!validator) {
+          throw new Error(
+            `mintPool: module ${hash} is not in the protocol deployment ` +
+              "(no validator entry) — cannot resolve its reference script.",
+          );
+        }
+        const ref = referenceByKey.get(validator.title);
+        if (!ref) {
+          throw new Error(
+            `mintPool: no reference UTxO for module ${validator.title} (${hash}).`,
+          );
+        }
+        const [refUtxo] = await this.blaze.provider.resolveUnspentOutputs([
+          new Core.TransactionInput(
+            Core.TransactionId(ref.txIn.hash),
+            BigInt(ref.txIn.index),
+          ),
+        ]);
+        if (!refUtxo) {
+          throw new Error(
+            `mintPool: could not resolve the reference UTxO for ` +
+              `${validator.title} (${ref.txIn.hash}#${ref.txIn.index}).`,
+          );
+        }
+        return { hash, config, refUtxo };
+      }),
+    );
+
+    const moduleState: Array<[string, string]> = moduleInfo.map(
+      ({ hash, config }) => [
+        hash,
+        config ? DatumBuilderV4.hashModuleConfig(config.toCbor()) : "80",
+      ],
+    );
 
     const { inline: poolDatumInline } = this.datumBuilder.buildPoolDatum({
       assets: args.assets,
@@ -853,18 +890,20 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       moduleState,
     });
 
-    // Resolve reference-script UTxOs (module scripts) + the settings UTxO.
-    const [settingsRefUtxo, ...moduleRefs] = await this.resolveRefUtxos([
+    // Reference inputs: the settings pool config, the pool-mint policy, and each
+    // module's reference script.
+    const [settingsRefUtxo, poolMintRefUtxo] = await this.resolveRefUtxos([
       { key: "settings pool config", txIn: settingsTxIn },
       { key: V4_VALIDATORS.poolMint },
-      { key: V4_VALIDATORS.constantSum },
-      { key: V4_VALIDATORS.feeSplit },
-      { key: V4_VALIDATORS.fairnessModule },
     ]);
+    const allRefs = [
+      settingsRefUtxo,
+      poolMintRefUtxo,
+      ...moduleInfo.map((m) => m.refUtxo),
+    ];
 
     // settings_ref_index = the settings UTxO's slot in the canonical
     // (txId, index)-sorted list of all reference inputs.
-    const allRefs = [settingsRefUtxo, ...moduleRefs];
     const refSortKey = (u: Core.TransactionUnspentOutput) =>
       `${u.input().transactionId()}#${String(u.input().index()).padStart(20, "0")}`;
     const settingsRefIndex = [...allRefs]
@@ -928,34 +967,21 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     // The circulating LP (333) lands in the creator's change automatically.
 
-    // Module Create withdrawals (validate initial module_state commitments).
-    const rewardAccount = (hash: string) =>
-      Core.RewardAccount.fromCredential(
-        {
-          type: Core.CredentialType.ScriptHash,
-          hash: Core.Hash28ByteBase16(hash),
-        },
-        networkId,
+    // Module Create withdrawals (validate initial module_state commitments) —
+    // one per module, with its Create config (or nullary for config-less ones).
+    for (const { hash, config } of moduleInfo) {
+      tx.addWithdrawal(
+        Core.RewardAccount.fromCredential(
+          {
+            type: Core.CredentialType.ScriptHash,
+            hash: Core.Hash28ByteBase16(hash),
+          },
+          networkId,
+        ),
+        0n,
+        DatumBuilderV4.buildModuleCreateRedeemer(config ?? undefined),
       );
-    tx.addWithdrawal(
-      rewardAccount(curveScript.hash),
-      0n,
-      DatumBuilderV4.buildModuleCreateRedeemer(
-        Core.PlutusData.fromCbor(Core.HexBlob(csConfig.inline)),
-      ),
-    );
-    tx.addWithdrawal(
-      rewardAccount(feeSplitScript.hash),
-      0n,
-      DatumBuilderV4.buildModuleCreateRedeemer(
-        Core.PlutusData.fromCbor(Core.HexBlob(fsConfig.inline)),
-      ),
-    );
-    tx.addWithdrawal(
-      rewardAccount(fairnessScript.hash),
-      0n,
-      DatumBuilderV4.buildModuleCreateRedeemer(),
-    );
+    }
 
     return this.completeTx({
       tx,
@@ -975,6 +1001,8 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     poolValidator: string;
     actions: V4Types.ActionEntry[];
     settingsTxIn: { hash: string; index: number };
+    /** Per-module Create config (CBOR, or `null` for config-less modules), keyed by module hash. */
+    moduleConfigs: Record<string, string | null> | undefined;
   }> {
     const settings = await this.getSettings();
     const poolEntries = settings.filter((s) => s.label === "pool" && s.datum);
@@ -991,10 +1019,20 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       );
       // The trade action is action[0]; its first module is the curve module.
       if (config.actions[0]?.modules[0] === curveHash) {
+        // values.moduleConfigs: { [moduleHash]: { configCbor: string | null } }.
+        const raw = (entry.values?.moduleConfigs ?? undefined) as
+          | Record<string, { configCbor: string | null }>
+          | undefined;
+        const moduleConfigs = raw
+          ? Object.fromEntries(
+              Object.entries(raw).map(([h, v]) => [h, v?.configCbor ?? null]),
+            )
+          : undefined;
         return {
           poolValidator: config.pool_validator,
           actions: config.actions,
           settingsTxIn: entry.txIn,
+          moduleConfigs,
         };
       }
     }
