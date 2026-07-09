@@ -52,4 +52,4 @@ The swap-order constraint module — keyed in a Swap order's constraints.
 
 ## Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:34](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L34)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:37](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L37)

@@ -95,6 +95,7 @@ SundaeSwap protocol.
 - [ITxBuilderReferralFee](interfaces/ITxBuilderReferralFee.md)
 - [ITxBuilderV1BlazeParams](interfaces/ITxBuilderV1BlazeParams.md)
 - [IUpdateArgs](interfaces/IUpdateArgs.md)
+- [IUpdateV4Args](interfaces/IUpdateV4Args.md)
 - [IWithdrawArguments](interfaces/IWithdrawArguments.md)
 - [IWithdrawConfigArgs](interfaces/IWithdrawConfigArgs.md)
 - [IZapArguments](interfaces/IZapArguments.md)
@@ -124,6 +125,7 @@ SundaeSwap protocol.
 - [TUpdateConfig](type-aliases/TUpdateConfig.md)
 - [TUpdateStrategy](type-aliases/TUpdateStrategy.md)
 - [TUpdateSwap](type-aliases/TUpdateSwap.md)
+- [TUpdateV4Order](type-aliases/TUpdateV4Order.md)
 - [TUTXO](type-aliases/TUTXO.md)
 - [TWithdraw](type-aliases/TWithdraw.md)
 

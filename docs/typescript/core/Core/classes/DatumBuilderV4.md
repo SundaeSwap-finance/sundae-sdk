@@ -404,6 +404,34 @@ fields, used as the default order `extension`.
 
 ***
 
+### getSignerKeyFromDatum()
+
+> `static` **getSignerKeyFromDatum**(`datum`): `undefined` \| `string`
+
+Extracts the owner's required-signer key hash from a v4 order datum's
+`owner` multisig, for building a Cancel/Update transaction. Handles the
+common single-owner shapes: a `Signature` owner yields its key hash, a
+`Script` owner yields its script hash. Richer multisig shapes (`AllOf`,
+`AnyOf`, `AtLeast`, …) can't be reduced to a single required signer here —
+they return `undefined`, and the caller is responsible for attaching the
+appropriate signers itself.
+
+#### Parameters
+
+• **datum**: `string`
+
+The order's inline datum, as CBOR hex.
+
+#### Returns
+
+`undefined` \| `string`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:465](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L465)
+
+***
+
 ### hashModuleConfig()
 
 > `static` **hashModuleConfig**(`configInline`): `string`
