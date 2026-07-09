@@ -6,6 +6,7 @@ import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from "bun:tes
 import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 
 import { EContractVersion } from "../../@types/index.js";
+import { EDatumType } from "../../@types/datumbuilder.js";
 import { ADA_METADATA } from "../../constants.js";
 import { V4Types } from "../../DatumBuilders/ContractTypes/index.js";
 import {
@@ -24,6 +25,7 @@ const SWAP_HASH = "22".repeat(28);
 const BASIC_HASH = "33".repeat(28);
 const ROUTE_HASH = "44".repeat(28);
 const FAIRNESS_HASH = "55".repeat(28);
+const STRATEGY_HASH = "56".repeat(28);
 // Pool-creation module hashes.
 const POOL_HASH = "66".repeat(28);
 const POOL_MINT_HASH = "77".repeat(28);
@@ -56,6 +58,7 @@ spyOn(TxBuilderV4.prototype, "getValidatorScript").mockImplementation(
       [V4_VALIDATORS.basicConstraint]: BASIC_HASH,
       [V4_VALIDATORS.routeConstraint]: ROUTE_HASH,
       [V4_VALIDATORS.fairnessConstraint]: FAIRNESS_HASH,
+      [V4_VALIDATORS.strategyConstraint]: STRATEGY_HASH,
       [V4_VALIDATORS.pool]: POOL_HASH,
       [V4_VALIDATORS.poolMint]: POOL_MINT_HASH,
       [V4_VALIDATORS.constantSum]: CS_HASH,
@@ -136,6 +139,7 @@ spyOn(
   { label: "settings", txIn: { hash: "aa", index: 0 }, datum: "d8", values: { minShareBatcher: "100" } },
   { label: "swap-order", txIn: { hash: "bb", index: 0 }, datum: "d8", values: { token: SWAP_CONFIG_TOKEN, requiredConstraints: [] } },
   { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: "d8", values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
+  { label: "strategy-order", txIn: { hash: "ce", index: 0 }, datum: "d8", values: { token: "00d5ea9b", requiredConstraints: [] } },
   { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: CS_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
 ] as any);
 
@@ -279,6 +283,89 @@ describe("TxBuilderV4", () => {
       });
       const datum = await datumOf(composed);
       expect(datum.constraints[0][1].toCbor().startsWith("d87c")).toBe(true);
+    });
+  });
+
+  describe("strategy()", () => {
+    it("emits [strategy, route([]), fairness(Void)] and resolves the strategy config_token", async () => {
+      const composed = await builder.strategy({
+        ownerAddress: OWNER,
+        offered: [TOKEN],
+        authSigner: OWNER,
+      });
+      const datum = await datumOf(composed);
+      expect(datum.constraints.map((c) => c[0])).toEqual([
+        STRATEGY_HASH,
+        ROUTE_HASH,
+        FAIRNESS_HASH,
+      ]);
+      // strategy constraint = Constr 0 [auth, final_destinations].
+      expect(datum.constraints[0][1].toCbor().startsWith("d8799f")).toBe(true);
+      expect(datum.constraints[1][1].toCbor()).toEqual(Core.HexBlob("80"));
+      expect(datum.constraints[2][1].toCbor()).toEqual(Core.HexBlob("d87980"));
+      // config_token resolved from the "strategy-order" settings entry.
+      expect(datum.config_token).toEqual("00d5ea9b");
+    });
+
+    it("carries the strategist auth + final destinations in the constraint", async () => {
+      const composed = await builder.strategy({
+        ownerAddress: OWNER,
+        offered: [TOKEN],
+        authSigner: OWNER,
+        finalDestinations: [
+          { address: OWNER, datum: { type: EDatumType.NONE } },
+        ],
+        configToken: "aabb",
+      });
+      const datum = await datumOf(composed);
+      const strat = parse(
+        V4Types.StrategyConstraints,
+        datum.constraints[0][1],
+      );
+      expect(strat.auth).toHaveProperty("Signature");
+      expect(strat.final_destinations.length).toEqual(1);
+    });
+  });
+
+  describe("getPoolByIdent()", () => {
+    it("decodes a pool UTxO into reserves + LP/NFT asset ids", async () => {
+      const ident = "ab".repeat(14); // 28-byte ident
+      const { nft, lp } = DatumBuilderV4.cip68Names(ident);
+      const poolDatum = builder.datumBuilder.buildPoolDatum({
+        assets: [TOKEN, TOKEN],
+        totalLp: 2_000_000n,
+        circulatingLp: 2_000_000n,
+        premintedLp: 2_000_000n,
+        identifier: ident,
+        actions: [{ tag: 3n, enabled: true, modules: [CS_HASH] }],
+        moduleState: [[CS_HASH, "80"]],
+      });
+      const poolUtxo = Core.TransactionUnspentOutput.fromCore([
+        new Core.TransactionInput(
+          Core.TransactionId("fa".repeat(32)),
+          0n,
+        ).toCore(),
+        Core.TransactionOutput.fromCore({
+          address: Core.getPaymentAddress(Core.addressFromBech32(OWNER)),
+          value: makeValue(3_000_000n, [POOL_MINT_HASH + nft, 1n]).toCore(),
+          datum: Core.PlutusData.fromCbor(
+            Core.HexBlob(poolDatum.inline),
+          ).toCore(),
+        }).toCore(),
+      ]);
+      const nftSpy = spyOn(
+        blazeInstance.provider,
+        "getUnspentOutputByNFT",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ).mockResolvedValue(poolUtxo as any);
+
+      const pool = await builder.getPoolByIdent(ident);
+      expect(pool.ident).toEqual(ident);
+      expect(pool.assets.length).toEqual(2);
+      expect(pool.totalLp).toEqual(2_000_000n);
+      expect(pool.lpAssetId).toEqual(`${POOL_MINT_HASH}.${lp}`);
+      expect(pool.nftAssetId).toEqual(`${POOL_MINT_HASH}.${nft}`);
+      nftSpy.mockRestore();
     });
   });
 

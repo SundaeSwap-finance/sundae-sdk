@@ -45,6 +45,8 @@ export const V4_VALIDATORS = {
   basicConstraint: "basic-order",
   /** The route-order constraint module — required by swap (and strategy) orders. */
   routeConstraint: "route-order",
+  /** The strategy-order constraint module — keyed in a strategy order's constraints. */
+  strategyConstraint: "strategy-order",
   /** The fairness-order constraint module — required by every order type. */
   fairnessConstraint: "fairness-order",
   /** The pool NFT minting policy. */
@@ -79,6 +81,7 @@ const POOL_REF_MIN_ADA = 2_000_000n;
 export const V4_ORDER_CONFIG_LABEL = {
   swap: "swap-order",
   basic: "basic-order",
+  strategy: "strategy-order",
 } as const;
 
 /**
@@ -125,6 +128,28 @@ export interface IBasicV4Args extends IOrderV4Base {
   offered: AssetAmount<IAssetAmountMetadata>[];
   /** The minimum received, per asset. */
   minReceived: AssetAmount<IAssetAmountMetadata>[];
+}
+
+/**
+ * Arguments for placing a v4 strategy order via `TxBuilderV4.strategy`. The
+ * order locks the offered assets; a designated strategist later signs a
+ * `StrategyExecution` (off-chain) that the scooper fills. The order carries the
+ * full `[strategy-order, route-order, fairness-order]` constraint set.
+ */
+export interface IStrategyV4Args extends IOrderV4Base {
+  /** The assets (and amounts) locked for the strategy to execute against. */
+  offered: AssetAmount<IAssetAmountMetadata>[];
+  /**
+   * The party authorized to sign executions — a bech32 address (single-`Signature`
+   * auth) or an explicit `MultisigScript` for richer authorization.
+   */
+  authSigner: string | V4Types.MultisigScript;
+  /**
+   * Allowed final payout destinations an execution may route to (an execution
+   * picks one by index, or falls back to the order's own destination).
+   * Defaults to `[]`.
+   */
+  finalDestinations?: TDestinationAddress[];
 }
 
 /**
@@ -181,6 +206,29 @@ export interface IMintPoolV4Args {
    */
   totalLp?: bigint;
   referralFee?: ITxBuilderReferralFee;
+}
+
+/**
+ * A decoded v4 pool — the shape returned by {@link TxBuilderV4.getPoolByIdent}.
+ * Unlike the 2-asset `IPoolData`, this represents the full v4 `PoolDatum`
+ * (2–16 assets for constant-sum) and the CIP-68 LP/NFT asset ids, so callers
+ * can build deposit/withdraw orders against it.
+ */
+export interface IPoolV4 {
+  /** The pool identifier (28-byte hex). */
+  ident: string;
+  /** Reserves, in pool-datum order. `assetId` is `policy.name` (`ada.lovelace` for ADA). */
+  assets: Array<{ assetId: string; quantity: bigint }>;
+  /** LP accounting from the pool datum. */
+  totalLp: bigint;
+  circulatingLp: bigint;
+  premintedLp: bigint;
+  /** The pool's LP token (`policy.name`), i.e. the `333` asset. */
+  lpAssetId: string;
+  /** The pool's NFT (`policy.name`), i.e. the `222` asset. */
+  nftAssetId: string;
+  /** The live pool UTxO. */
+  utxo: Core.TransactionUnspentOutput;
 }
 
 /**
@@ -308,6 +356,43 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       );
     }
     return token;
+  }
+
+  /**
+   * Fetches a v4 pool by its `ident`: resolves the live pool UTxO by its `222`
+   * NFT and decodes the `PoolDatum`. Returns the reserves (2–16 assets), LP
+   * accounting, and the CIP-68 LP/NFT asset ids — everything a caller needs to
+   * build a deposit/withdraw order against the pool. See {@link IPoolV4}.
+   */
+  public async getPoolByIdent(ident: string): Promise<IPoolV4> {
+    const poolMint = await this.getValidatorScript(V4_VALIDATORS.poolMint);
+    const { nft, lp } = DatumBuilderV4.cip68Names(ident);
+    const nftUnit = poolMint.hash + nft;
+    const utxo = await this.blaze.provider.getUnspentOutputByNFT(
+      Core.AssetId(nftUnit),
+    );
+    const inline = utxo.output().datum()?.asInlineData();
+    if (!inline) {
+      throw new Error(
+        `getPoolByIdent: pool UTxO for ${ident} has no inline datum.`,
+      );
+    }
+    const datum = parse(V4Types.PoolDatum, inline);
+    const toAssetId = (ac: { policy: string; name: string }) =>
+      ac.policy === "" ? "ada.lovelace" : `${ac.policy}.${ac.name}`;
+    return {
+      ident,
+      assets: datum.assets.map(([ac, qty]) => ({
+        assetId: toAssetId(ac),
+        quantity: qty,
+      })),
+      totalLp: datum.total_lp,
+      circulatingLp: datum.circulating_lp,
+      premintedLp: datum.preminted_lp,
+      lpAssetId: `${poolMint.hash}.${lp}`,
+      nftAssetId: `${poolMint.hash}.${nft}`,
+      utxo,
+    };
   }
 
   /**
@@ -460,6 +545,45 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       ],
       configToken,
     };
+  }
+
+  /**
+   * Places a v4 strategy order. The order locks the offered assets and names a
+   * strategist (`authSigner`) authorized to sign the `StrategyExecution` the
+   * scooper later fills. It carries the full `[strategy-order, route-order,
+   * fairness-order]` constraint set, matching the strategy `OrderConfig`.
+   */
+  public async strategy(
+    args: IStrategyV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    const auth =
+      typeof args.authSigner === "string"
+        ? this.datumBuilder.buildOwnerDatum(args.authSigner).schema
+        : args.authSigner;
+    const finalDestinations = (args.finalDestinations ?? []).map(
+      (d) => this.datumBuilder.buildDestinationAddresses(d).schema,
+    );
+    const strategyData = this.datumBuilder.buildStrategyConstraintData({
+      auth,
+      finalDestinations,
+    });
+
+    const [strategyHash, routeHash, fairnessHash] =
+      await this.getValidatorHashes([
+        V4_VALIDATORS.strategyConstraint,
+        V4_VALIDATORS.routeConstraint,
+        V4_VALIDATORS.fairnessConstraint,
+      ]);
+
+    const configToken =
+      args.configToken ??
+      (await this.getOrderConfigToken(V4_ORDER_CONFIG_LABEL.strategy));
+
+    return this.placeOrder({ ...args, configToken }, args.offered, [
+      [strategyHash, strategyData],
+      [routeHash, emptyListData()],
+      [fairnessHash, DatumBuilderV4.buildVoidData()],
+    ]);
   }
 
   /** Resolves several validator hashes from the protocol params in one pass. */

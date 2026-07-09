@@ -339,6 +339,33 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
   }
 
   /**
+   * Builds the constraint `data` for a **strategy** order — the payload keyed
+   * under the strategy-order constraint module hash. It names the party
+   * authorized to sign executions (`auth`) and the allowed final payout
+   * destinations an execution may route to.
+   *
+   * ```
+   * StrategyConstraints = Constr 0 [
+   *   auth: MultisigScript,
+   *   final_destinations: List<Destination>,
+   * ]
+   * ```
+   */
+  public buildStrategyConstraintData({
+    auth,
+    finalDestinations,
+  }: {
+    auth: V4Types.MultisigScript;
+    finalDestinations: V4Types.Destination[];
+  }): Core.PlutusData {
+    const data = serialize(V4Types.StrategyConstraints, {
+      auth,
+      final_destinations: finalDestinations,
+    });
+    return Core.PlutusData.fromCbor(data.toCbor());
+  }
+
+  /**
    * Builds a `FeeSplitConfig` — the config for the fee-split module carried by
    * every v4 pool. `protocolShare` is the protocol's `Rational` cut of fees.
    */

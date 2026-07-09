@@ -167,6 +167,12 @@ const Contracts = Type.Module({
       Type.Ref("ActionEntry")
     ),
   }, { ctor: 0n }),
+  StrategyConstraints: Type.Object({
+    auth: Type.Ref("MultisigScript"),
+    final_destinations: Type.Array(
+      Type.Ref("Destination")
+    ),
+  }, { ctor: 0n }),
   PoolState: Type.Object({
     assets: Type.Array(
       Type.Ref("Tuple_AssetClass_Int")
@@ -229,6 +235,8 @@ export const ActionEntry = Contracts.Import("ActionEntry");
 export type ActionEntry = Exact<typeof ActionEntry>;
 export const PoolConfig = Contracts.Import("PoolConfig");
 export type PoolConfig = Exact<typeof PoolConfig>;
+export const StrategyConstraints = Contracts.Import("StrategyConstraints");
+export type StrategyConstraints = Exact<typeof StrategyConstraints>;
 export const PoolState = Contracts.Import("PoolState");
 export type PoolState = Exact<typeof PoolState>;
 export const PoolDatum = Contracts.Import("PoolDatum");

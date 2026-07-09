@@ -32,6 +32,7 @@ export abstract class TxBuilderAbstractV4 {
 
   abstract swap(args: unknown): Promise<IComposedTx>;
   abstract basic(args: unknown): Promise<IComposedTx>;
+  abstract strategy(args: unknown): Promise<IComposedTx>;
   abstract deposit(args: unknown): Promise<IComposedTx>;
   abstract withdraw(args: unknown): Promise<IComposedTx>;
   abstract cancel(args: unknown): Promise<IComposedTx>;
