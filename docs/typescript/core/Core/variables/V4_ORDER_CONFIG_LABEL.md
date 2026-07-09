@@ -16,10 +16,14 @@ settings when the caller doesn't pass one explicitly.
 
 > `readonly` **basic**: `"basic-order"` = `"basic-order"`
 
+### strategy
+
+> `readonly` **strategy**: `"strategy-order"` = `"strategy-order"`
+
 ### swap
 
 > `readonly` **swap**: `"swap-order"` = `"swap-order"`
 
 ## Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L79)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:81](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L81)

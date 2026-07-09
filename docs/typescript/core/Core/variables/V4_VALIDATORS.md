@@ -68,6 +68,12 @@ The pool NFT minting policy.
 
 The route-order constraint module — required by swap (and strategy) orders.
 
+### strategyConstraint
+
+> `readonly` **strategyConstraint**: `"strategy-order"` = `"strategy-order"`
+
+The strategy-order constraint module — keyed in a strategy order's constraints.
+
 ### swapConstraint
 
 > `readonly` **swapConstraint**: `"swap-order"` = `"swap-order"`

@@ -49,7 +49,7 @@ A basic order's required constraint set (per the basic `OrderConfig`) is
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:422](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L422)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:507](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L507)
 
 ***
 
@@ -82,7 +82,7 @@ automatically; a headless signer must opt in — e.g. blaze's
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:585](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L585)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:709](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L709)
 
 ***
 
@@ -106,7 +106,7 @@ Deposit is a basic order whose min-received names the pool's LP asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:473](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L473)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:597](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L597)
 
 ***
 
@@ -127,7 +127,7 @@ Resolves an order type's `config_token` (the value an order sets as its
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:299](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L299)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:347](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L347)
 
 ***
 
@@ -149,7 +149,30 @@ placed orders stay delegated to the owner's pool.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:318](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L318)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:403](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L403)
+
+***
+
+### getPoolByIdent()
+
+> **getPoolByIdent**(`ident`): `Promise`\<[`IPoolV4`](../interfaces/IPoolV4.md)\>
+
+Fetches a v4 pool by its `ident`: resolves the live pool UTxO by its `222`
+NFT and decodes the `PoolDatum`. Returns the reserves (2–16 assets), LP
+accounting, and the CIP-68 LP/NFT asset ids — everything a caller needs to
+build a deposit/withdraw order against the pool. See [IPoolV4](../interfaces/IPoolV4.md).
+
+#### Parameters
+
+• **ident**: `string`
+
+#### Returns
+
+`Promise`\<[`IPoolV4`](../interfaces/IPoolV4.md)\>
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:367](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L367)
 
 ***
 
@@ -167,7 +190,7 @@ Returns `[]` if the API isn't serving settings yet — callers must then pass
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:286](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L286)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:334](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L334)
 
 ***
 
@@ -203,7 +226,7 @@ The circulating LP (issued to the creator via change) defaults to
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:715](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L715)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:839](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L839)
 
 ***
 
@@ -223,7 +246,7 @@ Should create a new transaction instance from the supplied transaction library.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:230](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L230)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:278](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L278)
 
 ***
 
@@ -250,7 +273,34 @@ tx completion.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:492](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L492)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:616](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L616)
+
+***
+
+### strategy()
+
+> **strategy**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+
+Places a v4 strategy order. The order locks the offered assets and names a
+strategist (`authSigner`) authorized to sign the `StrategyExecution` the
+scooper later fills. It carries the full `[strategy-order, route-order,
+fairness-order]` constraint set, matching the strategy `OrderConfig`.
+
+#### Parameters
+
+• **args**: [`IStrategyV4Args`](../interfaces/IStrategyV4Args.md)
+
+#### Returns
+
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+
+#### Overrides
+
+`TxBuilderAbstractV4.strategy`
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:556](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L556)
 
 ***
 
@@ -284,7 +334,7 @@ The order-validator checks this list matches the OrderConfig's
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:363](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L363)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:448](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L448)
 
 ***
 
@@ -311,7 +361,7 @@ fund the new order's deposit/budget/offer (Blaze balances the difference).
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:673](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L673)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:797](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L797)
 
 ***
 
@@ -335,4 +385,4 @@ Withdraw is a basic order whose offered asset is the pool's LP asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:480](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L480)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:604](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L604)

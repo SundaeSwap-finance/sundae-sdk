@@ -2,15 +2,31 @@
 
 ***
 
-# Interface: ISwapV4Args
+# Interface: IStrategyV4Args
 
-Arguments for placing a v4 swap order via `TxBuilderV4.swap`.
+Arguments for placing a v4 strategy order via `TxBuilderV4.strategy`. The
+order locks the offered assets; a designated strategist later signs a
+`StrategyExecution` (off-chain) that the scooper fills. The order carries the
+full `[strategy-order, route-order, fairness-order]` constraint set.
 
 ## Extends
 
 - [`IOrderV4Base`](IOrderV4Base.md)
 
 ## Properties
+
+### authSigner
+
+> **authSigner**: `string` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
+
+The party authorized to sign executions — a bech32 address (single-`Signature`
+auth) or an explicit `MultisigScript` for richer authorization.
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L146)
+
+***
 
 ### budget?
 
@@ -63,27 +79,29 @@ Where fills pay out. Defaults to a `Fixed` destination at `ownerAddress`.
 
 ***
 
-### minReceived
+### finalDestinations?
 
-> **minReceived**: `AssetAmount`\<`IAssetAmountMetadata`\> \| `AssetAmount`\<`IAssetAmountMetadata`\>[]
+> `optional` **finalDestinations**: [`TDestinationAddress`](../type-aliases/TDestinationAddress.md)[]
 
-The minimum the owner will accept, per asset.
+Allowed final payout destinations an execution may route to (an execution
+picks one by index, or falls back to the order's own destination).
+Defaults to `[]`.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:118](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L118)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:152](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L152)
 
 ***
 
 ### offered
 
-> **offered**: `AssetAmount`\<`IAssetAmountMetadata`\>
+> **offered**: `AssetAmount`\<`IAssetAmountMetadata`\>[]
 
-The asset (and amount) being offered into the swap.
+The assets (and amounts) locked for the strategy to execute against.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:116](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L116)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:141](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L141)
 
 ***
 
