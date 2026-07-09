@@ -9,6 +9,7 @@ import { EContractVersion } from "../../@types/index.js";
 import { ADA_METADATA } from "../../constants.js";
 import { V4Types } from "../../DatumBuilders/ContractTypes/index.js";
 import { EV4BasicConstraint } from "../../DatumBuilders/DatumBuilder.V4.class.js";
+import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeSDK } from "../../SundaeSDK.class.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import { TxBuilderV4, V4_VALIDATORS } from "../TxBuilder.V4.class.js";
@@ -46,6 +47,20 @@ spyOn(TxBuilderV4.prototype, "getValidatorScript").mockImplementation(
   }) as any,
 );
 
+const SWAP_CONFIG_TOKEN = "000d039b";
+const BASIC_CONFIG_TOKEN = "00073714";
+
+// Resolve indexed settings without a live protocol query.
+spyOn(
+  QueryProviderSundaeSwap.prototype,
+  "getProtocolSettings",
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+).mockResolvedValue([
+  { label: "settings", txIn: { hash: "aa", index: 0 }, datum: "d8", values: { minShareBatcher: "100" } },
+  { label: "swap-order", txIn: { hash: "bb", index: 0 }, datum: "d8", values: { token: SWAP_CONFIG_TOKEN, requiredConstraints: [] } },
+  { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: "d8", values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
+] as any);
+
 setupBlaze(
   async (blaze) => {
     blazeInstance = blaze;
@@ -69,6 +84,7 @@ const datumOf = async (
 describe("TxBuilderV4", () => {
   beforeEach(() => {
     builder.protocolParams = undefined;
+    builder.settings = undefined;
   });
 
   describe("SundaeSDK facade", () => {
@@ -134,15 +150,24 @@ describe("TxBuilderV4", () => {
       expect(datum.budget).toEqual(3_000_000n);
       expect(datum.share_batcher).toEqual(10_000n);
     });
+
+    it("resolves config_token from the indexed settings when omitted (swap-order)", async () => {
+      const composed = await builder.swap({
+        ownerAddress: OWNER,
+        offered: TOKEN,
+        minReceived: ADA,
+      });
+      const datum = await datumOf(composed);
+      expect(datum.config_token).toEqual(SWAP_CONFIG_TOKEN);
+    });
   });
 
   describe("basic() / deposit() / withdraw()", () => {
-    it("deposit emits [basic(Constr0), fairness(Void)] — no route constraint", async () => {
+    it("deposit emits [basic(Constr0), fairness(Void)] — no route constraint — and resolves the basic config_token", async () => {
       const composed = await builder.deposit({
         ownerAddress: OWNER,
         offered: [TOKEN],
         minReceived: [ADA],
-        configToken: "aabb",
       });
       const datum = await datumOf(composed);
       expect(datum.constraints.map((c) => c[0])).toEqual([
@@ -151,6 +176,8 @@ describe("TxBuilderV4", () => {
       ]);
       expect(datum.constraints[0][1].toCbor().startsWith("d879")).toBe(true);
       expect(datum.constraints[1][1].toCbor()).toEqual(Core.HexBlob("d87980"));
+      // config_token resolved from the "basic-order" settings entry
+      expect(datum.config_token).toEqual(BASIC_CONFIG_TOKEN);
     });
 
     it("withdraw uses a Constr-1 basic constraint", async () => {

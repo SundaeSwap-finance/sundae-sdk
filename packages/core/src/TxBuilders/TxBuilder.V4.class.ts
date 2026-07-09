@@ -5,6 +5,7 @@ import type {
   IComposedTx,
   ISundaeProtocolParamsFull,
   ISundaeProtocolReference,
+  ISundaeProtocolSetting,
   ISundaeProtocolValidatorFull,
   ITxBuilderFees,
   ITxBuilderReferralFee,
@@ -47,11 +48,20 @@ export const V4_VALIDATORS = {
 
 /**
  * Default order economics, mirroring the values live preview orders currently
- * use. Callers can override per order; a later pass can resolve these from the
- * settings UTxO (`min_share_batcher`) and protocol fee config.
+ * use. Callers can override per order.
  */
 const DEFAULT_BUDGET = 3_000_000n;
 const DEFAULT_SHARE_BATCHER = 10_000n;
+
+/**
+ * The settings `label` of the OrderConfig entry each order type fulfills. Used
+ * to resolve an order's `config_token` from the protocol query's indexed
+ * settings when the caller doesn't pass one explicitly.
+ */
+export const V4_ORDER_CONFIG_LABEL = {
+  swap: "swap-order",
+  basic: "basic-order",
+} as const;
 
 /**
  * Shared shape for placing a v4 order. `budget` is the max batcher fee the
@@ -71,11 +81,11 @@ export interface IOrderV4Base {
   shareBatcher?: bigint;
   /**
    * The OrderConfig settings-entry asset name whose `required_constraints` this
-   * order fulfills. Deployment-specific (a minted registry token, per order
-   * type); resolve it from the OrderConfig settings entries. See the note on
-   * config-token resolution in the class docs.
+   * order fulfills. Optional — when omitted it is resolved from the protocol
+   * query's indexed settings (the entry labeled `swap-order` / `basic-order`).
+   * Pass it explicitly to override, or if the API isn't serving settings yet.
    */
-  configToken: string;
+  configToken?: string;
   referralFee?: ITxBuilderReferralFee;
 }
 
@@ -121,6 +131,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   queryProvider: QueryProviderSundaeSwap;
   network: TSupportedNetworks;
   protocolParams: ISundaeProtocolParamsFull | undefined;
+  settings: ISundaeProtocolSetting[] | undefined;
   tracing: boolean = false;
 
   constructor(
@@ -194,6 +205,38 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
+   * The protocol's indexed settings (root settings + v4 OrderConfig registry).
+   * Returns `[]` if the API isn't serving settings yet — callers must then pass
+   * `configToken` explicitly.
+   */
+  public async getSettings(): Promise<ISundaeProtocolSetting[]> {
+    if (!this.settings) {
+      this.settings =
+        (await this.queryProvider.getProtocolSettings(this.contractVersion)) ??
+        [];
+    }
+    return this.settings;
+  }
+
+  /**
+   * Resolves an order type's `config_token` (the value an order sets as its
+   * `config_token`) from the indexed settings, by the OrderConfig entry's label.
+   */
+  public async getOrderConfigToken(label: string): Promise<string> {
+    const settings = await this.getSettings();
+    const entry = settings.find((s) => s.label === label);
+    const token = entry?.values?.token;
+    if (typeof token !== "string") {
+      throw new Error(
+        `Could not resolve the "${label}" OrderConfig token from the protocol ` +
+          `settings. Either the API isn't serving v4 settings yet, or the entry ` +
+          `is missing — pass \`configToken\` explicitly to the order.`,
+      );
+    }
+    return token;
+  }
+
+  /**
    * The order script address: the order validator's hash as the payment
    * credential, with the owner's stake credential attached (when present) so
    * placed orders stay delegated to the owner's pool.
@@ -263,8 +306,12 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       V4_VALIDATORS.fairnessConstraint,
     ]);
 
+    const configToken =
+      args.configToken ??
+      (await this.getOrderConfigToken(V4_ORDER_CONFIG_LABEL.swap));
+
     return this.placeOrder(
-      args,
+      { ...args, configToken },
       [args.offered],
       [
         [swapHash, swapData],
@@ -297,7 +344,11 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       V4_VALIDATORS.fairnessConstraint,
     ]);
 
-    return this.placeOrder(args, args.offered, [
+    const configToken =
+      args.configToken ??
+      (await this.getOrderConfigToken(V4_ORDER_CONFIG_LABEL.basic));
+
+    return this.placeOrder({ ...args, configToken }, args.offered, [
       [basicHash, basicData],
       [fairnessHash, DatumBuilderV4.buildVoidData()],
     ]);
@@ -331,7 +382,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * tx completion.
    */
   protected async placeOrder(
-    args: IOrderV4Base,
+    args: IOrderV4Base & { configToken: string },
     offered: AssetAmount<IAssetAmountMetadata>[],
     constraints: Array<[string, Core.PlutusData]>,
   ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {

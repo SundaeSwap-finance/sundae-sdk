@@ -24,18 +24,18 @@ Max batcher fee, in lovelace. Defaults to `DEFAULT_BUDGET` (3 ADA).
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:69](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L69)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L79)
 
 ***
 
-### configToken
+### configToken?
 
-> **configToken**: `string`
+> `optional` **configToken**: `string`
 
 The OrderConfig settings-entry asset name whose `required_constraints` this
-order fulfills. Deployment-specific (a minted registry token, per order
-type); resolve it from the OrderConfig settings entries. See the note on
-config-token resolution in the class docs.
+order fulfills. Optional — when omitted it is resolved from the protocol
+query's indexed settings (the entry labeled `swap-order` / `basic-order`).
+Pass it explicitly to override, or if the API isn't serving settings yet.
 
 #### Inherited from
 
@@ -43,7 +43,7 @@ config-token resolution in the class docs.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:78](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L78)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:88](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L88)
 
 ***
 
@@ -59,7 +59,7 @@ Where fills pay out. Defaults to a `Fixed` destination at `ownerAddress`.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:67](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L67)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:77](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L77)
 
 ***
 
@@ -71,7 +71,7 @@ The minimum the owner will accept, per asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:87](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L87)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:97](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L97)
 
 ***
 
@@ -83,7 +83,7 @@ The asset (and amount) being offered into the swap.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:85](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L85)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:95](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L95)
 
 ***
 
@@ -99,7 +99,7 @@ The order owner (bech32). Also the default payout destination.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:65](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L65)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L75)
 
 ***
 
@@ -115,4 +115,4 @@ The batcher's share of the fee. Defaults to `DEFAULT_SHARE_BATCHER`.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:71](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L71)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:81](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L81)

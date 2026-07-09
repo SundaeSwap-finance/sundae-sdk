@@ -83,6 +83,7 @@ SundaeSwap protocol.
 - [ISundaeProtocolParams](interfaces/ISundaeProtocolParams.md)
 - [ISundaeProtocolParamsFull](interfaces/ISundaeProtocolParamsFull.md)
 - [ISundaeProtocolReference](interfaces/ISundaeProtocolReference.md)
+- [ISundaeProtocolSetting](interfaces/ISundaeProtocolSetting.md)
 - [ISundaeProtocolValidator](interfaces/ISundaeProtocolValidator.md)
 - [ISundaeProtocolValidatorFull](interfaces/ISundaeProtocolValidatorFull.md)
 - [ISundaeSDKOptions](interfaces/ISundaeSDKOptions.md)
@@ -132,6 +133,7 @@ SundaeSwap protocol.
 - [MIN\_ASSET\_LENGTH](variables/MIN_ASSET_LENGTH.md)
 - [V1\_MAX\_POOL\_IDENT\_LENGTH](variables/V1_MAX_POOL_IDENT_LENGTH.md)
 - [V3\_POOL\_IDENT\_LENGTH](variables/V3_POOL_IDENT_LENGTH.md)
+- [V4\_ORDER\_CONFIG\_LABEL](variables/V4_ORDER_CONFIG_LABEL.md)
 - [V4\_VALIDATORS](variables/V4_VALIDATORS.md)
 
 ### Exported TxBuilders

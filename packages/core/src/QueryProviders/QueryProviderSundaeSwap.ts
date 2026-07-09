@@ -9,6 +9,7 @@ import {
   IPoolDataAsset,
   ISundaeProtocolParams,
   ISundaeProtocolParamsFull,
+  ISundaeProtocolSetting,
   TFee,
   TSupportedNetworks,
   TUTXO,
@@ -763,5 +764,59 @@ export class QueryProviderSundaeSwap implements QueryProvider {
     }
 
     return res.data.protocols;
+  }
+
+  /**
+   * Fetches the indexed settings for a protocol version. Kept separate from
+   * {@link getProtocolParamsWithScripts} because the `settings` field is newer
+   * than some deployed API environments — a version whose API doesn't serve it
+   * yet returns `undefined` rather than failing the whole protocol fetch.
+   *
+   * @param {EContractVersion} version The protocol version to fetch settings for.
+   * @returns {Promise<ISundaeProtocolSetting[] | undefined>}
+   */
+  async getProtocolSettings(
+    version: EContractVersion,
+  ): Promise<ISundaeProtocolSetting[] | undefined> {
+    try {
+      const res: {
+        data?: {
+          protocols: {
+            version: EContractVersion;
+            settings?: ISundaeProtocolSetting[];
+          }[];
+        };
+        errors?: unknown;
+      } = await fetch(this.baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `
+        query ProtocolSettings {
+          protocols {
+            version
+            settings {
+              label
+              datum
+              values
+              txIn {
+                hash
+                index
+              }
+            }
+          }
+        }
+        `,
+        }),
+      }).then((r) => r.json());
+
+      if (res.errors || !res?.data) {
+        return undefined;
+      }
+
+      return res.data.protocols.find((p) => p.version === version)?.settings;
+    } catch {
+      return undefined;
+    }
   }
 }
