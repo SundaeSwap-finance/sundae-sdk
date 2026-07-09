@@ -741,9 +741,10 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       this.getValidatorScript(V4_VALIDATORS.pool),
     ]);
 
-    // The on-chain PoolConfig dictates the pool datum's actions exactly.
+    // The on-chain PoolConfig (for this curve) dictates the pool datum's
+    // actions exactly.
     const { poolValidator, actions, settingsTxIn } =
-      await this.resolvePoolConfig();
+      await this.resolvePoolConfig(curveScript.hash);
     if (poolValidator !== poolScript.hash) {
       throw new Error(
         `mintPool: settings pool_validator (${poolValidator}) does not match ` +
@@ -965,32 +966,42 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
-   * Resolves the on-chain pool `PoolConfig` from the indexed settings: the entry
-   * labeled `pool`, whose datum decodes to `{pool_validator, actions}`. Its
-   * `txIn` is the settings reference input for the create tx.
+   * Resolves the on-chain `PoolConfig` for a given curve from the indexed
+   * settings. There may be several `pool` entries (one per curve, e.g. constant
+   * sum vs constant product); this picks the one whose trade action's curve
+   * module matches `curveHash`. Its `txIn` is the create tx's settings ref.
    */
-  private async resolvePoolConfig(): Promise<{
+  private async resolvePoolConfig(curveHash: string): Promise<{
     poolValidator: string;
     actions: V4Types.ActionEntry[];
     settingsTxIn: { hash: string; index: number };
   }> {
     const settings = await this.getSettings();
-    const entry = settings.find((s) => s.label === "pool");
-    if (!entry?.datum) {
+    const poolEntries = settings.filter((s) => s.label === "pool" && s.datum);
+    if (poolEntries.length === 0) {
       throw new Error(
         "mintPool: could not find a `pool` PoolConfig entry in the protocol " +
           "settings (needed to build a pool matching the on-chain config).",
       );
     }
-    const config = parse(
-      V4Types.PoolConfig,
-      Core.PlutusData.fromCbor(Core.HexBlob(entry.datum)),
+    for (const entry of poolEntries) {
+      const config = parse(
+        V4Types.PoolConfig,
+        Core.PlutusData.fromCbor(Core.HexBlob(entry.datum as string)),
+      );
+      // The trade action is action[0]; its first module is the curve module.
+      if (config.actions[0]?.modules[0] === curveHash) {
+        return {
+          poolValidator: config.pool_validator,
+          actions: config.actions,
+          settingsTxIn: entry.txIn,
+        };
+      }
+    }
+    throw new Error(
+      `mintPool: no settings PoolConfig has a curve module matching ${curveHash}. ` +
+        "The protocol may not offer this pool kind yet.",
     );
-    return {
-      poolValidator: config.pool_validator,
-      actions: config.actions,
-      settingsTxIn: entry.txIn,
-    };
   }
 
   /**
