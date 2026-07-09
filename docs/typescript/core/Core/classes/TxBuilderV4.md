@@ -62,6 +62,12 @@ order UTxO is spent through the order validator's `Cancel` path (redeemer
 `Constr 0 []`), which only requires the datum `owner` multisig to be
 satisfied — so the owner's key hash is added as a required signer.
 
+Note: order owners are keyed on the address's **stake** credential (see
+[DatumBuilderV4.buildOwnerDatum](DatumBuilderV4.md#buildownerdatum)), so the resulting transaction must
+carry a witness from the stake key. CIP-30 browser wallets provide this
+automatically; a headless signer must opt in — e.g. blaze's
+`HotWallet.signTransaction(tx, partialSign, signWithStakeKey=true)`.
+
 #### Parameters
 
 • **args**: [`ICancelConfigArgs`](../interfaces/ICancelConfigArgs.md)
@@ -76,7 +82,7 @@ satisfied — so the owner's key hash is added as a required signer.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:525](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L525)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:531](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L531)
 
 ***
 
@@ -189,7 +195,7 @@ v4 pool-mint policy + settings.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:647](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L647)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:653](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L653)
 
 ***
 
@@ -297,7 +303,7 @@ fund the new order's deposit/budget/offer (Blaze balances the difference).
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:613](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L613)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:619](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L619)
 
 ***
 
