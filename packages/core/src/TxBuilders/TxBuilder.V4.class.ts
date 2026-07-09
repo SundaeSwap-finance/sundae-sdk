@@ -1,3 +1,4 @@
+import { parse } from "@blaze-cardano/data";
 import { Blaze, Core, makeValue, Provider, Wallet } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
@@ -18,6 +19,7 @@ import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { EDatumType, TDestinationAddress } from "../@types/datumbuilder.js";
 import { TxBuilderAbstractV4 } from "../Abstracts/TxBuilderAbstract.V4.class.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../constants.js";
+import { V4Types } from "../DatumBuilders/ContractTypes/index.js";
 import {
   DatumBuilderV4,
   EV4BasicConstraint,
@@ -47,6 +49,14 @@ export const V4_VALIDATORS = {
   fairnessConstraint: "fairness-order",
   /** The pool NFT minting policy. */
   poolMint: "pool-mint",
+  /** The pool spend validator — its hash is the pool script address. */
+  pool: "pool",
+  /** The constant-sum curve module. */
+  constantSum: "constant-sum",
+  /** The fee-split module carried by every pool. */
+  feeSplit: "fee-split",
+  /** The fairness pool module (distinct from the `fairness-order` constraint). */
+  fairnessModule: "fairness",
 } as const;
 
 /**
@@ -55,6 +65,11 @@ export const V4_VALIDATORS = {
  */
 const DEFAULT_BUDGET = 3_000_000n;
 const DEFAULT_SHARE_BATCHER = 10_000n;
+
+/** Min-ADA overhead for a token-only pool UTxO (no ADA reserve). */
+const POOL_MIN_ADA = 3_000_000n;
+/** Min-ADA for the CIP-68 reference-token output parked at the pool address. */
+const POOL_REF_MIN_ADA = 2_000_000n;
 
 /**
  * The settings `label` of the OrderConfig entry each order type fulfills. Used
@@ -127,6 +142,47 @@ export interface IUpdateV4Args {
   cancelUtxo: TUTXO;
   /** The replacement order (swap or basic) locked in the same transaction. */
   order: TUpdateV4Order;
+}
+
+/** A `Rational` fraction (`num/den`) as used by v4 module configs. */
+export interface IFractionV4 {
+  num: bigint;
+  den: bigint;
+}
+
+/**
+ * The curve (pool kind) for {@link TxBuilderV4.mintPool}. A discriminated union
+ * so new curves slot in without changing the call shape. Only `constantSum` is
+ * wired today; `constantProduct`/`concentratedLiquidity` are reserved.
+ */
+export type TPoolCurveV4 = {
+  kind: "constantSum";
+  /** Per-asset price weights (defaults to all `1n`, i.e. equal-valued assets). */
+  prices?: bigint[];
+  /** The pool's swap fee. */
+  fee: IFractionV4;
+  /** Rebalance-bounty rate; defaults to `fee / 2`. Pass `{num:0n,den:1n}` to disable. */
+  bountyK?: IFractionV4;
+  /** Whether tag-5 claim steps waive the LP fee on the embedded swap. */
+  waiveFeeOnClaim?: boolean;
+};
+
+/** Arguments for creating a v4 pool via {@link TxBuilderV4.mintPool}. */
+export interface IMintPoolV4Args {
+  /** The initial reserves — at least two distinct assets. */
+  assets: AssetAmount<IAssetAmountMetadata>[];
+  /** The curve (pool kind) and its config. */
+  curve: TPoolCurveV4;
+  /** The pool creator (bech32) — funds the seed UTxO and receives the circulating LP. */
+  ownerAddress: string;
+  /** The protocol's `Rational` fee cut (fee-split module). Defaults to 5/1000. */
+  protocolShare?: IFractionV4;
+  /**
+   * Override the initial circulating LP supply (also the preminted buffer). When
+   * omitted it is computed per curve — for constant-sum, `Σ price_i·reserve_i`.
+   */
+  totalLp?: bigint;
+  referralFee?: ITxBuilderReferralFee;
 }
 
 /**
@@ -644,14 +700,355 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
-   * Mints a new v4 pool. The pool DATUM is ready ({@link DatumBuilderV4.buildPoolDatum}
-   * + {@link DatumBuilderV4.hashModuleConfig}); the remaining tx work (seed-utxo
-   * consumption, CIP-68 222/100/333 NFT mint via the pool policy, module withdraw
-   * registrations, settings reference) lands once the protocol query exposes the
-   * v4 pool-mint policy + settings.
+   * Creates (mints) a new v4 pool. Consumes a seed UTxO from the creator to
+   * derive the pool `identifier`, mints the CIP-68 `100`/`222`/`333` tokens, and
+   * writes the pool UTxO (reserves + NFT + the preminted LP buffer) with a
+   * `PoolDatum` whose `actions` mirror the on-chain settings `PoolConfig`. Each
+   * module the config references gets a `Create` withdraw-redeemer.
+   *
+   * Today only the `constantSum` curve is wired, and the SDK can only build a
+   * `Create` witness for the constant-sum, fee-split, and fairness modules — a
+   * settings `PoolConfig` that references any other module (e.g. governance) is
+   * rejected. The circulating LP (issued to the creator via change) defaults to
+   * `Σ price_i·reserve_i`; an equal amount is preminted into the pool.
    */
-  public async mintPool(_args: unknown): Promise<IComposedTx> {
-    throw notImplemented("mintPool");
+  public async mintPool(
+    args: IMintPoolV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    if (args.curve.kind !== "constantSum") {
+      throw new Error(
+        `mintPool: only the "constantSum" curve is supported today (got "${args.curve.kind}").`,
+      );
+    }
+    if (args.assets.length < 2) {
+      throw new Error("mintPool: a pool needs at least two distinct assets.");
+    }
+
+    const networkId = this.network === "mainnet" ? 1 : 0;
+
+    // Deployed hashes for the modules the SDK can encode.
+    const [
+      poolMintScript,
+      curveScript,
+      feeSplitScript,
+      fairnessScript,
+      poolScript,
+    ] = await Promise.all([
+      this.getValidatorScript(V4_VALIDATORS.poolMint),
+      this.getValidatorScript(V4_VALIDATORS.constantSum),
+      this.getValidatorScript(V4_VALIDATORS.feeSplit),
+      this.getValidatorScript(V4_VALIDATORS.fairnessModule),
+      this.getValidatorScript(V4_VALIDATORS.pool),
+    ]);
+
+    // The on-chain PoolConfig dictates the pool datum's actions exactly.
+    const { poolValidator, actions, settingsTxIn } =
+      await this.resolvePoolConfig();
+    if (poolValidator !== poolScript.hash) {
+      throw new Error(
+        `mintPool: settings pool_validator (${poolValidator}) does not match ` +
+          `the deployed pool hash (${poolScript.hash}).`,
+      );
+    }
+
+    // A constant-sum pool's trade action is {tag 3, [cs, fee-split, fairness]}.
+    const tradeAction = actions[0];
+    if (
+      !tradeAction ||
+      BigInt(tradeAction.tag) !== 3n ||
+      tradeAction.modules.length !== 3 ||
+      tradeAction.modules[0] !== curveScript.hash ||
+      tradeAction.modules[1] !== feeSplitScript.hash ||
+      tradeAction.modules[2] !== fairnessScript.hash
+    ) {
+      throw new Error(
+        "mintPool: the settings PoolConfig's first action must be " +
+          "{tag: 3, modules: [constant-sum, fee-split, fairness]} for a " +
+          "constant-sum pool.",
+      );
+    }
+    // Reject configs referencing modules the SDK can't Create (e.g. governance).
+    const knownModules = new Set([
+      curveScript.hash,
+      feeSplitScript.hash,
+      fairnessScript.hash,
+    ]);
+    for (const action of actions) {
+      for (const m of action.modules) {
+        if (!knownModules.has(m)) {
+          throw new Error(
+            `mintPool: the settings PoolConfig references module ${m}, which ` +
+              `the SDK cannot build a Create witness for (supported: ` +
+              `constant-sum, fee-split, fairness). Use a PoolConfig limited to ` +
+              `those modules, or extend the SDK.`,
+          );
+        }
+      }
+    }
+
+    // Seed UTxO → pool identifier + CIP-68 asset names.
+    const ownerUtxos = await this.blaze.provider.getUnspentOutputs(
+      Core.addressFromBech32(args.ownerAddress),
+    );
+    const seed = ownerUtxos[0];
+    if (!seed) {
+      throw new Error(
+        `mintPool: no UTxOs at ${args.ownerAddress} to seed the pool.`,
+      );
+    }
+    const seedTxHash = seed.input().transactionId().toString();
+    const seedIndex = Number(seed.input().index());
+    const ident = DatumBuilderV4.computePoolIdent(seedTxHash, seedIndex);
+    const {
+      ref: refName,
+      nft: nftName,
+      lp: lpName,
+    } = DatumBuilderV4.cip68Names(ident);
+
+    // LP economics: circulating = Σ price·reserve (or override); premint equal.
+    const prices = args.curve.prices ?? args.assets.map(() => 1n);
+    if (prices.length !== args.assets.length) {
+      throw new Error("mintPool: prices length must match assets length.");
+    }
+    const circulatingLp =
+      args.totalLp ??
+      args.assets.reduce((sum, a, i) => sum + a.amount * prices[i], 0n);
+    if (circulatingLp <= 0n) {
+      throw new Error("mintPool: computed LP supply must be positive.");
+    }
+    const premintedLp = circulatingLp;
+    const lpMinted = circulatingLp + premintedLp;
+
+    // Module configs + their module_state commitments.
+    const fee = args.curve.fee;
+    const bountyK = args.curve.bountyK ?? { num: fee.num, den: fee.den * 2n };
+    const csConfig = this.datumBuilder.buildConstantSumConfigDatum({
+      prices,
+      fee,
+      bountyK,
+      waiveFeeOnClaim: args.curve.waiveFeeOnClaim ?? false,
+    });
+    const protocolShare = args.protocolShare ?? { num: 5n, den: 1000n };
+    const fsConfig = this.datumBuilder.buildFeeSplitConfigDatum({
+      protocolShare,
+    });
+    const moduleState: Array<[string, string]> = [
+      [curveScript.hash, DatumBuilderV4.hashModuleConfig(csConfig.inline)],
+      [feeSplitScript.hash, DatumBuilderV4.hashModuleConfig(fsConfig.inline)],
+      [fairnessScript.hash, "80"],
+    ];
+
+    const { inline: poolDatumInline } = this.datumBuilder.buildPoolDatum({
+      assets: args.assets,
+      totalLp: circulatingLp,
+      circulatingLp,
+      premintedLp,
+      identifier: ident,
+      actions: actions.map((a) => ({
+        tag: BigInt(a.tag),
+        enabled: a.enabled,
+        modules: a.modules,
+      })),
+      moduleState,
+    });
+
+    // Resolve reference-script UTxOs (module scripts) + the settings UTxO.
+    const [settingsRefUtxo, ...moduleRefs] = await this.resolveRefUtxos([
+      { key: "settings pool config", txIn: settingsTxIn },
+      { key: V4_VALIDATORS.poolMint },
+      { key: V4_VALIDATORS.constantSum },
+      { key: V4_VALIDATORS.feeSplit },
+      { key: V4_VALIDATORS.fairnessModule },
+    ]);
+
+    // settings_ref_index = the settings UTxO's slot in the canonical
+    // (txId, index)-sorted list of all reference inputs.
+    const allRefs = [settingsRefUtxo, ...moduleRefs];
+    const refSortKey = (u: Core.TransactionUnspentOutput) =>
+      `${u.input().transactionId()}#${String(u.input().index()).padStart(20, "0")}`;
+    const settingsRefIndex = [...allRefs]
+      .sort((a, b) => refSortKey(a).localeCompare(refSortKey(b)))
+      .findIndex((u) => refSortKey(u) === refSortKey(settingsRefUtxo));
+
+    // ── Assemble the transaction ──────────────────────────────────────
+    const tx = this.newTxInstance();
+    if (args.referralFee) {
+      tx.payAssets(
+        Core.addressFromBech32(args.referralFee.destination),
+        args.referralFee.payment,
+      );
+    }
+    tx.addInput(seed);
+
+    // Mint the CIP-68 100/222/333 tokens.
+    const mintMap = new Map<Core.AssetName, bigint>();
+    mintMap.set(Core.AssetName(nftName), 1n);
+    mintMap.set(Core.AssetName(refName), 1n);
+    mintMap.set(Core.AssetName(lpName), lpMinted);
+    tx.addMint(
+      Core.PolicyId(poolMintScript.hash),
+      mintMap,
+      DatumBuilderV4.buildCreatePoolMintRedeemer({
+        seedTxHash,
+        seedIndex,
+        settingsRefIndex,
+      }),
+    );
+
+    for (const r of allRefs) tx.addReferenceInput(r);
+
+    // Pool output: reserves + NFT + preminted LP, at the pool script address.
+    const poolAddr = Core.addressFromCredential(
+      networkId,
+      Core.Credential.fromCore({
+        hash: Core.Hash28ByteBase16(poolScript.hash),
+        type: Core.CredentialType.ScriptHash,
+      }),
+    );
+    tx.lockAssets(
+      poolAddr,
+      this.buildPoolValue(
+        args.assets,
+        poolMintScript.hash,
+        nftName,
+        lpName,
+        premintedLp,
+      ),
+      Core.PlutusData.fromCbor(Core.HexBlob(poolDatumInline)),
+    );
+
+    // CIP-68 reference output: the 100 token parked at the pool address.
+    tx.addOutput(
+      new Core.TransactionOutput(
+        poolAddr,
+        makeValue(POOL_REF_MIN_ADA, [poolMintScript.hash + refName, 1n]),
+      ),
+    );
+
+    // The circulating LP (333) lands in the creator's change automatically.
+
+    // Module Create withdrawals (validate initial module_state commitments).
+    const rewardAccount = (hash: string) =>
+      Core.RewardAccount.fromCredential(
+        {
+          type: Core.CredentialType.ScriptHash,
+          hash: Core.Hash28ByteBase16(hash),
+        },
+        networkId,
+      );
+    tx.addWithdrawal(
+      rewardAccount(curveScript.hash),
+      0n,
+      DatumBuilderV4.buildModuleCreateRedeemer(
+        Core.PlutusData.fromCbor(Core.HexBlob(csConfig.inline)),
+      ),
+    );
+    tx.addWithdrawal(
+      rewardAccount(feeSplitScript.hash),
+      0n,
+      DatumBuilderV4.buildModuleCreateRedeemer(
+        Core.PlutusData.fromCbor(Core.HexBlob(fsConfig.inline)),
+      ),
+    );
+    tx.addWithdrawal(
+      rewardAccount(fairnessScript.hash),
+      0n,
+      DatumBuilderV4.buildModuleCreateRedeemer(),
+    );
+
+    return this.completeTx({
+      tx,
+      datum: poolDatumInline,
+      referralFee: args.referralFee?.payment,
+      deposit: 0n,
+    });
+  }
+
+  /**
+   * Resolves the on-chain pool `PoolConfig` from the indexed settings: the entry
+   * labeled `pool`, whose datum decodes to `{pool_validator, actions}`. Its
+   * `txIn` is the settings reference input for the create tx.
+   */
+  private async resolvePoolConfig(): Promise<{
+    poolValidator: string;
+    actions: V4Types.ActionEntry[];
+    settingsTxIn: { hash: string; index: number };
+  }> {
+    const settings = await this.getSettings();
+    const entry = settings.find((s) => s.label === "pool");
+    if (!entry?.datum) {
+      throw new Error(
+        "mintPool: could not find a `pool` PoolConfig entry in the protocol " +
+          "settings (needed to build a pool matching the on-chain config).",
+      );
+    }
+    const config = parse(
+      V4Types.PoolConfig,
+      Core.PlutusData.fromCbor(Core.HexBlob(entry.datum)),
+    );
+    return {
+      poolValidator: config.pool_validator,
+      actions: config.actions,
+      settingsTxIn: entry.txIn,
+    };
+  }
+
+  /**
+   * Resolves reference-script (or settings) UTxOs. An entry with a `txIn` is
+   * resolved directly; an entry with only a `key` is resolved via the protocol
+   * query's reference list.
+   */
+  private async resolveRefUtxos(
+    entries: Array<{ key: string; txIn?: { hash: string; index: number } }>,
+  ): Promise<Core.TransactionUnspentOutput[]> {
+    return Promise.all(
+      entries.map(async ({ key, txIn }) => {
+        const ref = txIn ?? (await this.getReferenceScript(key)).txIn;
+        const [utxo] = await this.blaze.provider.resolveUnspentOutputs([
+          new Core.TransactionInput(
+            Core.TransactionId(ref.hash),
+            BigInt(ref.index),
+          ),
+        ]);
+        if (!utxo) {
+          throw new Error(
+            `mintPool: could not resolve reference UTxO for ${key} ` +
+              `(${ref.hash}#${ref.index}).`,
+          );
+        }
+        return utxo;
+      }),
+    );
+  }
+
+  /**
+   * The pool output's value: the reserve assets (ADA folded into lovelace), the
+   * pool NFT, and the preminted LP buffer. Token-only pools get a fixed min-ADA
+   * overhead; a pool holding ADA uses the ADA reserve as its lovelace.
+   */
+  private buildPoolValue(
+    assets: AssetAmount<IAssetAmountMetadata>[],
+    poolMintHash: string,
+    nftName: string,
+    lpName: string,
+    premintedLp: bigint,
+  ): Core.Value {
+    let lovelace = 0n;
+    const multiasset: Array<[string, bigint]> = [];
+    for (const a of assets) {
+      if (SundaeUtils.isAdaAsset(a.metadata)) {
+        lovelace += a.amount;
+      } else {
+        multiasset.push([a.metadata.assetId.replace(".", ""), a.amount]);
+      }
+    }
+    if (lovelace === 0n) lovelace = POOL_MIN_ADA;
+    return makeValue(
+      lovelace,
+      [poolMintHash + nftName, 1n],
+      [poolMintHash + lpName, premintedLp],
+      ...multiasset,
+    );
   }
 
   // -- Completion -----------------------------------------------------
@@ -710,11 +1107,6 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     return thisTx;
   }
 }
-
-const notImplemented = (method: string) =>
-  new Error(
-    `TxBuilderV4.${method}() is not yet implemented — see the SDK V4 phased rollout.`,
-  );
 
 /** The empty-list constraint payload (`[]`, CBOR `80`) — the route constraint. */
 const emptyListData = (): Core.PlutusData =>

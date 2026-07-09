@@ -151,11 +151,20 @@ const Contracts = Type.Module({
     bounty_k: Type.Ref("Rational"),
     waive_fee_on_claim: Type.Ref("Bool"),
   }, { ctor: 0n }),
+  FeeSplitConfig: Type.Object({
+    protocol_share: Type.Ref("Rational"),
+  }, { ctor: 0n }),
   ActionEntry: Type.Object({
     tag: Type.BigInt(),
     enabled: Type.Ref("Bool"),
     modules: Type.Array(
       Type.Ref("ModuleHash")
+    ),
+  }, { ctor: 0n }),
+  PoolConfig: Type.Object({
+    pool_validator: Type.Ref("ModuleHash"),
+    actions: Type.Array(
+      Type.Ref("ActionEntry")
     ),
   }, { ctor: 0n }),
   PoolState: Type.Object({
@@ -214,8 +223,12 @@ export const Rational = Contracts.Import("Rational");
 export type Rational = Exact<typeof Rational>;
 export const ConstantSumConfig = Contracts.Import("ConstantSumConfig");
 export type ConstantSumConfig = Exact<typeof ConstantSumConfig>;
+export const FeeSplitConfig = Contracts.Import("FeeSplitConfig");
+export type FeeSplitConfig = Exact<typeof FeeSplitConfig>;
 export const ActionEntry = Contracts.Import("ActionEntry");
 export type ActionEntry = Exact<typeof ActionEntry>;
+export const PoolConfig = Contracts.Import("PoolConfig");
+export type PoolConfig = Exact<typeof PoolConfig>;
 export const PoolState = Contracts.Import("PoolState");
 export type PoolState = Exact<typeof PoolState>;
 export const PoolDatum = Contracts.Import("PoolDatum");

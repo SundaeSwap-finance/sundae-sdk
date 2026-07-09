@@ -1,4 +1,4 @@
-import { parse } from "@blaze-cardano/data";
+import { parse, serialize } from "@blaze-cardano/data";
 import { Core, makeValue } from "@blaze-cardano/sdk";
 import { AssetAmount } from "@sundaeswap/asset";
 import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
@@ -24,6 +24,12 @@ const SWAP_HASH = "22".repeat(28);
 const BASIC_HASH = "33".repeat(28);
 const ROUTE_HASH = "44".repeat(28);
 const FAIRNESS_HASH = "55".repeat(28);
+// Pool-creation module hashes.
+const POOL_HASH = "66".repeat(28);
+const POOL_MINT_HASH = "77".repeat(28);
+const CS_HASH = "88".repeat(28);
+const FEESPLIT_HASH = "99".repeat(28);
+const FAIRNESS_MOD_HASH = "aa".repeat(28);
 
 // A 32-byte tx id for the order UTxO being cancelled, and one for the order
 // reference-script UTxO cancel/update read from.
@@ -50,16 +56,40 @@ spyOn(TxBuilderV4.prototype, "getValidatorScript").mockImplementation(
       [V4_VALIDATORS.basicConstraint]: BASIC_HASH,
       [V4_VALIDATORS.routeConstraint]: ROUTE_HASH,
       [V4_VALIDATORS.fairnessConstraint]: FAIRNESS_HASH,
+      [V4_VALIDATORS.pool]: POOL_HASH,
+      [V4_VALIDATORS.poolMint]: POOL_MINT_HASH,
+      [V4_VALIDATORS.constantSum]: CS_HASH,
+      [V4_VALIDATORS.feeSplit]: FEESPLIT_HASH,
+      [V4_VALIDATORS.fairnessModule]: FAIRNESS_MOD_HASH,
     }[name];
     return { hash, title: name, compiledCode: "" };
   }) as any,
 );
 
-// Resolve the order reference script without a live protocol query.
-spyOn(TxBuilderV4.prototype, "getReferenceScript").mockResolvedValue({
-  key: V4_VALIDATORS.order,
-  txIn: { hash: ORDER_REF_HASH, index: 0 },
-});
+// A PoolConfig datum for a constant-sum pool: {tag 3, [cs, fee-split, fairness]}.
+const CS_POOL_CONFIG_DATUM = serialize(V4Types.PoolConfig, {
+  pool_validator: POOL_HASH,
+  actions: [
+    {
+      tag: 3n,
+      enabled: true,
+      modules: [CS_HASH, FEESPLIT_HASH, FAIRNESS_MOD_HASH],
+    },
+  ],
+}).toCbor();
+
+// Resolve reference scripts without a live protocol query — a distinct ref
+// UTxO per module key (matching how each module deploys its own reference).
+spyOn(TxBuilderV4.prototype, "getReferenceScript").mockImplementation(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (async (key: string) => {
+    const hash =
+      key === V4_VALIDATORS.order
+        ? ORDER_REF_HASH
+        : Buffer.from(key.padEnd(32, "_")).toString("hex").slice(0, 64);
+    return { key, txIn: { hash, index: 0 } };
+  }) as any,
+);
 
 const SWAP_CONFIG_TOKEN = "000d039b";
 const BASIC_CONFIG_TOKEN = "00073714";
@@ -73,9 +103,10 @@ spyOn(
   { label: "settings", txIn: { hash: "aa", index: 0 }, datum: "d8", values: { minShareBatcher: "100" } },
   { label: "swap-order", txIn: { hash: "bb", index: 0 }, datum: "d8", values: { token: SWAP_CONFIG_TOKEN, requiredConstraints: [] } },
   { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: "d8", values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
+  { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: CS_POOL_CONFIG_DATUM, values: {} },
 ] as any);
 
-const { getUtxosByOutRefMock } = setupBlaze(
+const { getUtxosByOutRefMock, getUtxosMock } = setupBlaze(
   async (blaze) => {
     blazeInstance = blaze;
     builder = new TxBuilderV4(blaze);
@@ -362,6 +393,111 @@ describe("TxBuilderV4", () => {
         BASIC_HASH,
         FAIRNESS_HASH,
       ]);
+    });
+  });
+
+  describe("mintPool()", () => {
+    const SEED_TX = "ef".repeat(32);
+    const TOKEN_B = new AssetAmount(1_000_000n, {
+      assetId: `${"cc".repeat(28)}.744f4b454e42`,
+      decimals: 0,
+    });
+
+    const dummyUtxo = (txHash: string, index: number) =>
+      Core.TransactionUnspentOutput.fromCore([
+        new Core.TransactionInput(
+          Core.TransactionId(txHash),
+          BigInt(index),
+        ).toCore(),
+        Core.TransactionOutput.fromCore({
+          address: Core.getPaymentAddress(Core.addressFromBech32(OWNER)),
+          value: makeValue(5_000_000n).toCore(),
+        }).toCore(),
+      ]);
+
+    const wireMints = () => {
+      // Seed UTxO for the pool ident.
+      getUtxosMock.mockResolvedValue([dummyUtxo(SEED_TX, 0)]);
+      // Every reference-input lookup resolves to a bare UTxO echoing its txid.
+      getUtxosByOutRefMock.mockImplementation(async (inputs) => [
+        dummyUtxo(String(inputs[0].transactionId()), Number(inputs[0].index())),
+      ]);
+    };
+
+    it("builds a constant-sum PoolDatum mirroring the settings config", async () => {
+      wireMints();
+      const composed = await builder.mintPool({
+        assets: [TOKEN, TOKEN_B],
+        curve: { kind: "constantSum", fee: { num: 1n, den: 1000n } },
+        ownerAddress: OWNER,
+      });
+
+      const datum = parse(
+        V4Types.PoolDatum,
+        Core.PlutusData.fromCbor(Core.HexBlob(composed.datum as string)),
+      );
+
+      // LP: Σ price·reserve = 1e6 + 1e6 (prices default 1); premint equal.
+      expect(datum.total_lp).toEqual(2_000_000n);
+      expect(datum.circulating_lp).toEqual(2_000_000n);
+      expect(datum.preminted_lp).toEqual(2_000_000n);
+      // identifier is 28 bytes (56 hex).
+      expect(datum.identifier.length).toEqual(56);
+      // actions mirror the settings PoolConfig exactly.
+      expect(datum.actions.length).toEqual(1);
+      expect(datum.actions[0].tag).toEqual(3n);
+      expect(datum.actions[0].modules).toEqual([
+        CS_HASH,
+        FEESPLIT_HASH,
+        FAIRNESS_MOD_HASH,
+      ]);
+      // module_state: cs + fee-split committed, fairness = "80".
+      expect(datum.module_state.map((m) => m[0])).toEqual([
+        CS_HASH,
+        FEESPLIT_HASH,
+        FAIRNESS_MOD_HASH,
+      ]);
+      expect(datum.module_state[2][1]).toEqual("80");
+      expect(datum.module_state[0][1].length).toEqual(64); // blake2b-256 hex
+    });
+
+    it("rejects a non-constant-sum curve", async () => {
+      await expect(
+        builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          // @ts-expect-error — only constantSum is wired today
+          curve: { kind: "constantProduct", fee: { num: 1n, den: 1000n } },
+          ownerAddress: OWNER,
+        }),
+      ).rejects.toThrow(/only the "constantSum" curve/);
+    });
+
+    it("errors when the settings PoolConfig references an unknown module", async () => {
+      const GOV_HASH = "bb".repeat(28);
+      const configWithGov = serialize(V4Types.PoolConfig, {
+        pool_validator: POOL_HASH,
+        actions: [
+          { tag: 3n, enabled: true, modules: [CS_HASH, FEESPLIT_HASH, FAIRNESS_MOD_HASH] },
+          { tag: 1n, enabled: true, modules: [GOV_HASH] },
+        ],
+      }).toCbor();
+
+      spyOn(
+        QueryProviderSundaeSwap.prototype,
+        "getProtocolSettings",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ).mockResolvedValueOnce([
+        { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: configWithGov, values: {} },
+      ] as any);
+      wireMints();
+
+      await expect(
+        builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve: { kind: "constantSum", fee: { num: 1n, den: 1000n } },
+          ownerAddress: OWNER,
+        }),
+      ).rejects.toThrow(new RegExp(GOV_HASH));
     });
   });
 });

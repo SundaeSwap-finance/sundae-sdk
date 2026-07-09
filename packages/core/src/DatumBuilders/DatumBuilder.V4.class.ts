@@ -339,6 +339,123 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
   }
 
   /**
+   * Builds a `FeeSplitConfig` — the config for the fee-split module carried by
+   * every v4 pool. `protocolShare` is the protocol's `Rational` cut of fees.
+   */
+  public buildFeeSplitConfigDatum({
+    protocolShare,
+  }: {
+    protocolShare: { num: bigint; den: bigint };
+  }): TDatumResult<V4Types.FeeSplitConfig> {
+    const config: V4Types.FeeSplitConfig = { protocol_share: protocolShare };
+    const data = serialize(V4Types.FeeSplitConfig, config);
+    return { hash: data.hash(), inline: data.toCbor(), schema: config };
+  }
+
+  /**
+   * Builds a `GovernanceConfig` (`Constr 0 [admin, delay, None]`) for the
+   * governance module, when a pool's settings authorise an upgrade action.
+   * `admin` is a bech32 address (resolved to a `Signature`/`Script` multisig);
+   * `delayMs` is the upgrade timelock. `pending` is always `None` at creation.
+   */
+  public buildGovernanceConfigDatum({
+    admin,
+    delayMs,
+  }: {
+    admin: string;
+    delayMs: bigint;
+  }): TDatumResult<Core.PlutusData> {
+    const adminData = Core.PlutusData.fromCbor(
+      Core.HexBlob(this.buildOwnerDatum(admin).inline),
+    );
+    const none = Core.PlutusData.newConstrPlutusData(
+      new Core.ConstrPlutusData(1n, new Core.PlutusList()),
+    );
+    const fields = new Core.PlutusList();
+    fields.add(adminData);
+    fields.add(Core.PlutusData.newInteger(delayMs));
+    fields.add(none);
+    const data = Core.PlutusData.newConstrPlutusData(
+      new Core.ConstrPlutusData(0n, fields),
+    );
+    return { hash: data.hash(), inline: data.toCbor(), schema: data };
+  }
+
+  /**
+   * Computes a pool's `identifier`: `blake2b_256` of the CBOR of the seed
+   * UTxO's `OutputReference` (`Constr 0 [txId, index]`), truncated to 28 bytes.
+   * Must byte-match the pool-mint validator's `cbor.serialise(seed_utxo)`.
+   */
+  static computePoolIdent(seedTxHash: string, seedIndex: number): string {
+    const fields = new Core.PlutusList();
+    fields.add(Core.PlutusData.newBytes(Buffer.from(seedTxHash, "hex")));
+    fields.add(Core.PlutusData.newInteger(BigInt(seedIndex)));
+    const oref = Core.PlutusData.newConstrPlutusData(
+      new Core.ConstrPlutusData(0n, fields),
+    );
+    return Core.blake2b_256(oref.toCbor()).toString().slice(0, 56);
+  }
+
+  /** CIP-68 asset-name prefixes used by the v4 pool-mint policy. */
+  static readonly CIP68_100 = "000643b0"; // reference (datum) token
+  static readonly CIP68_222 = "000de140"; // pool NFT
+  static readonly CIP68_333 = "0014df10"; // LP token
+
+  /** The `100`/`222`/`333` CIP-68 asset names for a pool identifier. */
+  static cip68Names(ident: string): {
+    ref: string;
+    nft: string;
+    lp: string;
+  } {
+    return {
+      ref: DatumBuilderV4.CIP68_100 + ident,
+      nft: DatumBuilderV4.CIP68_222 + ident,
+      lp: DatumBuilderV4.CIP68_333 + ident,
+    };
+  }
+
+  /**
+   * The pool-mint `CreatePool` redeemer:
+   * `Constr 0 [OutputReference(Constr 0 [txId, index]), settings_ref_index]`.
+   */
+  static buildCreatePoolMintRedeemer({
+    seedTxHash,
+    seedIndex,
+    settingsRefIndex,
+  }: {
+    seedTxHash: string;
+    seedIndex: number;
+    settingsRefIndex: number;
+  }): Core.PlutusData {
+    const orefFields = new Core.PlutusList();
+    orefFields.add(Core.PlutusData.newBytes(Buffer.from(seedTxHash, "hex")));
+    orefFields.add(Core.PlutusData.newInteger(BigInt(seedIndex)));
+    const oref = Core.PlutusData.newConstrPlutusData(
+      new Core.ConstrPlutusData(0n, orefFields),
+    );
+    const fields = new Core.PlutusList();
+    fields.add(oref);
+    fields.add(Core.PlutusData.newInteger(BigInt(settingsRefIndex)));
+    return Core.PlutusData.newConstrPlutusData(
+      new Core.ConstrPlutusData(0n, fields),
+    );
+  }
+
+  /**
+   * A module's `Create` redeemer: `Constr 0 [config]` — used at pool creation
+   * to validate each module's initial `module_state` commitment. Pass the
+   * module's config `PlutusData`, or omit it for a config-less module (e.g.
+   * fairness, whose `Create` is the nullary `Constr 0 []`).
+   */
+  static buildModuleCreateRedeemer(config?: Core.PlutusData): Core.PlutusData {
+    const fields = new Core.PlutusList();
+    if (config) fields.add(config);
+    return Core.PlutusData.newConstrPlutusData(
+      new Core.ConstrPlutusData(0n, fields),
+    );
+  }
+
+  /**
    * Builds a `PoolDatum` for a v4 pool. The `moduleState` entries pair a module
    * hash with its config-commitment: use {@link DatumBuilderV4.hashModuleConfig}
    * on the module's serialized config (e.g. the CS config), or the sentinel
