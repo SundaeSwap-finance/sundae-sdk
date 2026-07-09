@@ -457,6 +457,26 @@ describe("TxBuilderV4", () => {
       ]);
     };
 
+    it("supports a multi-asset (3-asset) constant-sum pool", async () => {
+      wireMints();
+      const TOKEN_C = new AssetAmount(1_000_000n, {
+        assetId: `${"ee".repeat(28)}.744f4b454e43`,
+        decimals: 0,
+      });
+      const composed = await builder.mintPool({
+        assets: [TOKEN, TOKEN_B, TOKEN_C],
+        curve: { kind: "constantSum", fee: { num: 1n, den: 1000n } },
+        ownerAddress: OWNER,
+      });
+      const datum = parse(
+        V4Types.PoolDatum,
+        Core.PlutusData.fromCbor(Core.HexBlob(composed.datum as string)),
+      );
+      expect(datum.assets.length).toEqual(3);
+      // Σ price·reserve with default prices [1,1,1] = 3 * 1e6.
+      expect(datum.total_lp).toEqual(3_000_000n);
+    });
+
     it("builds a constant-sum PoolDatum mirroring the settings config", async () => {
       wireMints();
       const composed = await builder.mintPool({

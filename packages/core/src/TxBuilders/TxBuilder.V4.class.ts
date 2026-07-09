@@ -720,8 +720,11 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         `mintPool: only the "constantSum" curve is supported today (got "${args.curve.kind}").`,
       );
     }
-    if (args.assets.length < 2) {
-      throw new Error("mintPool: a pool needs at least two distinct assets.");
+    if (args.assets.length < 2 || args.assets.length > 16) {
+      throw new Error(
+        "mintPool: a constant-sum pool supports 2 to 16 assets (got " +
+          `${args.assets.length}).`,
+      );
     }
 
     const networkId = this.network === "mainnet" ? 1 : 0;
