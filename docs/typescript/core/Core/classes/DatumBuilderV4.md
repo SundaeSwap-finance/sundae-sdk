@@ -12,11 +12,11 @@ generic `OrderDatum`. This class encodes the authoritative, blueprint-backed
 pieces of that datum: the `owner` multisig, the `destination`, asset classes,
 and the surrounding `OrderDatum` shell.
 
-The per-constraint `data` payloads (e.g. the swap constraint's fields) are
-intentionally NOT encoded here yet: on-chain they are opaque `Data` decoded
-by each withdraw module, so they are not described by the blueprint and are
-built by the module-specific encoders that land alongside the tx-builder
-actions.
+The per-constraint `data` payloads are opaque `Data` on-chain (decoded by
+each withdraw module, not described by the blueprint). This class encodes the
+ones the SDK builds — `buildSwapConstraintData`, `buildBasicConstraintData`,
+`buildStrategyConstraintData` — plus the module Create configs for pool
+creation. Payloads for modules the SDK doesn't model remain caller-supplied.
 
 ## Implements
 
