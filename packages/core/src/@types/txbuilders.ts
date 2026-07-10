@@ -72,6 +72,18 @@ export enum EContractVersion {
 }
 
 /**
+ * The invariant ("curve") module bound to a v4 pool, which determines its swap
+ * math. v4 is module-composable, so unlike pre-v4 versions the swap behavior
+ * isn't implied by the contract version alone. The identifier values match the
+ * on-chain module identifiers surfaced by the GraphQL `Pool.modules` field.
+ */
+export enum EPoolCurve {
+  ConstantProduct = "constant_product",
+  ConstantSum = "constant_sum",
+  ConcentratedLiquidity = "concentrated_liquidity",
+}
+
+/**
  * Special arguments for an Order-Route Swap. A combination of
  * two swap arguments, but simplified for ease-of-use.
  */

@@ -1,3 +1,4 @@
 export * as ConstantProductPool from "./ConstantProductPool.js";
+export * as ConstantSumPool from "./ConstantSumPool.js";
 export * as StableSwapsPool from "./StableSwapsPool.js";
 export * as SharedPoolMath from "./SharedPoolMath.js";

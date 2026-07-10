@@ -4,6 +4,7 @@ import { Fraction } from "@sundaeswap/fraction";
 import {
   EContractVersion,
   EPoolCoin,
+  EPoolCurve,
   ICurrentFeeFromDecayingFeeArgs,
   IPoolData,
   ISundaeProtocolParams,
@@ -28,10 +29,15 @@ import {
   ORDER_DEPOSIT_DEFAULT,
   V3_POOL_IDENT_LENGTH,
 } from "../constants.js";
-import { ConstantProductPool, StableSwapsPool } from "@sundaeswap/math";
+import {
+  ConstantProductPool,
+  ConstantSumPool,
+  StableSwapsPool,
+} from "@sundaeswap/math";
 
 export type TGenericSwapOutcome =
   | ConstantProductPool.TSwapOutcome
+  | ConstantSumPool.TSwapOutcome
   | StableSwapsPool.TSwapOutcome;
 
 export type TLiquidityOutcome = {
@@ -629,6 +635,50 @@ export class SundaeUtils {
           poolData.protocolFee ?? 0,
           poolData.linearAmplificationFactor ?? 1n,
         );
+      case EContractVersion.V4:
+        // v4 is module-composable: the swap math depends on the pool's
+        // invariant curve, not the contract version. `currentFee` is the full
+        // curve fee (the fee-split module apportions protocol vs LP afterward,
+        // so it isn't added on top).
+        switch (poolData.curve) {
+          case EPoolCurve.ConstantProduct:
+            return ConstantProductPool.getSwapOutput(
+              suppliedAsset.metadata,
+              suppliedAsset.amount,
+              inputReserve,
+              outputReserve,
+              poolData.currentFee,
+              false,
+            );
+          case EPoolCurve.ConstantSum: {
+            if (!poolData.prices) {
+              throw new Error(
+                "Constant-sum pool is missing `prices`; cannot get swap output.",
+              );
+            }
+            const suppliedIsA =
+              poolData.assetA.assetId === suppliedAsset.metadata.assetId;
+            const [priceIn, priceOut] = suppliedIsA
+              ? [poolData.prices[0], poolData.prices[1]]
+              : [poolData.prices[1], poolData.prices[0]];
+            return ConstantSumPool.getSwapOutput(
+              suppliedAsset.metadata,
+              suppliedAsset.amount,
+              inputReserve,
+              outputReserve,
+              priceIn,
+              priceOut,
+              poolData.currentFee,
+              false,
+            );
+          }
+          default:
+            // Concentrated liquidity (and any future curve) has no client-side
+            // estimator yet — callers should fall back to a server quote.
+            throw new Error(
+              `Unsupported v4 pool curve: ${poolData.curve}. Cannot get swap output.`,
+            );
+        }
       default:
         // If the pool version is not supported, throw an error.
         throw new Error(

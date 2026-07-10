@@ -4,6 +4,7 @@ import { describe, expect, it, spyOn } from "bun:test";
 import {
   EContractVersion,
   EPoolCoin,
+  EPoolCurve,
   IPoolData,
   ISundaeProtocolParams,
 } from "../../@types/index.js";
@@ -627,6 +628,67 @@ describe("SundaeUtils class", () => {
       expect(() =>
         SundaeUtils.getSwapInput(unsupportedPool, output),
       ).toThrowError(/Unsupported pool version/);
+    });
+  });
+
+  describe("getSwapOutput v4", () => {
+    const base: IPoolData = {
+      ...PREVIEW_DATA.pools.v1,
+      currentFee: 0.003,
+      liquidity: {
+        ...PREVIEW_DATA.pools.v1.liquidity,
+        aReserve: 1_000_000_000n,
+        bReserve: 1_000_000_000n,
+      },
+    };
+    const suppliedA = new AssetAmount(10_000n, base.assetA);
+
+    it("dispatches the constant-product curve to constant-product math", () => {
+      const v4 = SundaeUtils.getSwapOutput(
+        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        suppliedA,
+      ).output;
+      const v3 = SundaeUtils.getSwapOutput(
+        { ...base, version: EContractVersion.V3 },
+        suppliedA,
+      ).output;
+      expect(v4).toEqual(v3);
+    });
+
+    it("dispatches the constant-sum curve using the pool prices", () => {
+      // par prices, 0.3% fee, 10000 in -> 9970 out (scooper cs_swap_result).
+      const { output } = SundaeUtils.getSwapOutput(
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConstantSum,
+          prices: [1_000_000n, 1_000_000n],
+        },
+        suppliedA,
+      );
+      expect(output).toEqual(9970n);
+    });
+
+    it("throws for a constant-sum pool missing prices", () => {
+      expect(() =>
+        SundaeUtils.getSwapOutput(
+          { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantSum },
+          suppliedA,
+        ),
+      ).toThrowError(/prices/);
+    });
+
+    it("throws for a v4 curve with no client estimator (concentrated liquidity)", () => {
+      expect(() =>
+        SundaeUtils.getSwapOutput(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.ConcentratedLiquidity,
+          },
+          suppliedA,
+        ),
+      ).toThrowError(/curve/);
     });
   });
 
