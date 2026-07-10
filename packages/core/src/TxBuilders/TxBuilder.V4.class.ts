@@ -828,6 +828,11 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * fresh swap/basic order in the same transaction. The replacement carries its
    * own constraint set and `config_token`; the returned assets from the cancel
    * fund the new order's deposit/budget/offer (Blaze balances the difference).
+   *
+   * Like {@link cancel}, this spends a stake-keyed order, so the transaction
+   * needs the owner's stake-key witness. CIP-30 browser wallets supply it via
+   * the composed `sign()`; a headless signer (e.g. blaze `HotWallet`) must sign
+   * with the stake key explicitly.
    */
   public async update(
     args: IUpdateV4Args,
@@ -946,6 +951,21 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     const prices = args.curve.prices ?? args.assets.map(() => 1n);
     if (prices.length !== args.assets.length) {
       throw new Error("mintPool: prices length must match assets length.");
+    }
+    if (prices.some((p) => p <= 0n)) {
+      throw new Error("mintPool: every constant-sum price must be positive.");
+    }
+    // Fail fast on malformed rationals (the CS module requires den > 0, num >= 0).
+    const isValidFraction = (f: IFractionV4) => f.den > 0n && f.num >= 0n;
+    if (!isValidFraction(args.curve.fee)) {
+      throw new Error(
+        "mintPool: fee must be a non-negative fraction with a positive denominator.",
+      );
+    }
+    if (args.curve.bountyK && !isValidFraction(args.curve.bountyK)) {
+      throw new Error(
+        "mintPool: bountyK must be a non-negative fraction with a positive denominator.",
+      );
     }
     const circulatingLp =
       args.totalLp ??

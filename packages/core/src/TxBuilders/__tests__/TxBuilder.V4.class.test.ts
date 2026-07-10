@@ -643,6 +643,16 @@ describe("TxBuilderV4", () => {
       ).rejects.toThrow(/must be distinct/);
     });
 
+    it("rejects a malformed fee (zero denominator)", async () => {
+      await expect(
+        builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve: { kind: "constantSum", fee: { num: 1n, den: 0n } },
+          ownerAddress: OWNER,
+        }),
+      ).rejects.toThrow(/fee must be a non-negative fraction/);
+    });
+
     it("errors when the settings PoolConfig references an unknown module", async () => {
       const GOV_HASH = "bb".repeat(28);
       const configWithGov = serialize(V4Types.PoolConfig, {
