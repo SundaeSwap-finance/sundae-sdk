@@ -226,7 +226,7 @@ The circulating LP (issued to the creator via change) defaults to
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:875](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L875)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:880](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L880)
 
 ***
 
@@ -347,6 +347,11 @@ fresh swap/basic order in the same transaction. The replacement carries its
 own constraint set and `config_token`; the returned assets from the cancel
 fund the new order's deposit/budget/offer (Blaze balances the difference).
 
+Like [cancel](TxBuilderV4.md#cancel), this spends a stake-keyed order, so the transaction
+needs the owner's stake-key witness. CIP-30 browser wallets supply it via
+the composed `sign()`; a headless signer (e.g. blaze `HotWallet`) must sign
+with the stake key explicitly.
+
 #### Parameters
 
 • **args**: [`IUpdateV4Args`](../interfaces/IUpdateV4Args.md)
@@ -361,7 +366,7 @@ fund the new order's deposit/budget/offer (Blaze balances the difference).
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:832](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L832)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:837](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L837)
 
 ***
 
