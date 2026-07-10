@@ -333,9 +333,16 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    */
   public async getSettings(): Promise<ISundaeProtocolSetting[]> {
     if (!this.settings) {
-      this.settings =
-        (await this.queryProvider.getProtocolSettings(this.contractVersion)) ??
-        [];
+      const fetched = await this.queryProvider.getProtocolSettings(
+        this.contractVersion,
+      );
+      // Only cache a real result. `undefined` means the API didn't serve
+      // settings (transient error or not-yet-migrated env) — return `[]` without
+      // caching so a later call in the same instance can retry.
+      if (fetched === undefined) {
+        return [];
+      }
+      this.settings = fetched;
     }
     return this.settings;
   }

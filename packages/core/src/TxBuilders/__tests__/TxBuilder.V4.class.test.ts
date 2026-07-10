@@ -176,6 +176,24 @@ describe("TxBuilderV4", () => {
     });
   });
 
+  describe("getSettings()", () => {
+    it("does not cache an undefined (transient) result — retries on the next call", async () => {
+      // Queue one transient miss; subsequent calls fall back to the module-level
+      // mock (the real settings). Don't restore — that would drop the shared mock.
+      spyOn(
+        QueryProviderSundaeSwap.prototype,
+        "getProtocolSettings",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ).mockResolvedValueOnce(undefined as any);
+
+      const first = await builder.getSettings();
+      expect(first).toEqual([]); // transient miss returns [] …
+      expect(builder.settings).toBeUndefined(); // … but is not cached
+      const second = await builder.getSettings();
+      expect(second.length).toBeGreaterThan(0); // next call retries and succeeds
+    });
+  });
+
   describe("getOrderScriptAddress()", () => {
     it("derives a script address carrying the owner's stake credential", async () => {
       const addr = await builder.getOrderScriptAddress(OWNER);
