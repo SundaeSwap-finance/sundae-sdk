@@ -1,5 +1,12 @@
 # Change Log
 
+## 3.0.16
+
+### Patch Changes
+
+- Updated dependencies [1a7263c]
+  - @sundaeswap/core@2.12.0
+
 ## 3.0.15
 
 ### Patch Changes
