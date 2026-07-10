@@ -426,8 +426,14 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       return enterprise;
     }
 
+    // The address type must match the owner's stake-credential type — a script
+    // stake credential needs `BasePaymentScriptStakeScript`, not `...StakeKey`.
+    const stakeIsScript =
+      ownerStakeCred.type === Core.CredentialType.ScriptHash;
     return new Core.Address({
-      type: Core.AddressType.BasePaymentScriptStakeKey,
+      type: stakeIsScript
+        ? Core.AddressType.BasePaymentScriptStakeScript
+        : Core.AddressType.BasePaymentScriptStakeKey,
       paymentPart: {
         hash: Core.Hash28ByteBase16(hash),
         type: Core.CredentialType.ScriptHash,
@@ -878,6 +884,13 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       throw new Error(
         "mintPool: a constant-sum pool supports 2 to 16 assets (got " +
           `${args.assets.length}).`,
+      );
+    }
+    const assetIds = args.assets.map((a) => a.metadata.assetId);
+    if (new Set(assetIds).size !== assetIds.length) {
+      throw new Error(
+        "mintPool: pool assets must be distinct — a duplicate asset id was " +
+          "supplied (the contract rejects duplicate pool assets).",
       );
     }
 

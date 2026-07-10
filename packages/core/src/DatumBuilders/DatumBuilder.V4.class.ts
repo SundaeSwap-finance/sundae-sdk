@@ -188,6 +188,11 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
 
     const paymentPart = BlazeHelper.getPaymentHashFromBech32(address);
     const stakingPart = BlazeHelper.getStakingHashFromBech32(address);
+    // The stake credential can itself be a script (e.g. a script-delegated
+    // wallet); encode the matching variant so the datum round-trips.
+    const stakeIsScript =
+      Core.addressFromBech32(address).asBase()?.getStakeCredential()?.type ===
+      Core.CredentialType.ScriptHash;
 
     const destinationDatum: V4Types.Destination = {
       Fixed: {
@@ -196,7 +201,13 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
             ? { Script: [paymentPart] }
             : { VerificationKey: [paymentPart] },
           stake_credential: stakingPart
-            ? { Inline: [{ VerificationKey: [stakingPart] }] }
+            ? {
+                Inline: [
+                  stakeIsScript
+                    ? { Script: [stakingPart] }
+                    : { VerificationKey: [stakingPart] },
+                ],
+              }
             : undefined,
         },
         datum: attachedDatum,
