@@ -20,6 +20,9 @@ import { SwapBA } from "./modules/SwapBA";
 import { Unlock } from "./modules/UnlockAssets";
 import { UnlockV1 } from "./modules/UnlockAssetsV1";
 import { UpdateSwap } from "./modules/UpdateSwap";
+import { V4Deposit } from "./modules/V4Deposit";
+import { V4Swap } from "./modules/V4Swap";
+import { V4Withdraw } from "./modules/V4Withdraw";
 import { Withdraw } from "./modules/Withdraw";
 import { Zap } from "./modules/Zap";
 
@@ -58,6 +61,7 @@ export const Actions: FC = () => {
   });
   const [fees, setFees] = useState<ITxBuilderFees | TTasteTestFees>();
   const [submit, setSubmit] = useState(false);
+  const [v4PoolIdent, setV4PoolIdent] = useState("");
 
   if (!SDK) {
     return null;
@@ -111,6 +115,40 @@ export const Actions: FC = () => {
         <CancelSwap setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <Migrate setFees={setFees} setCBOR={setCBOR} submit={submit} />
         <CreatePool setFees={setFees} setCBOR={setCBOR} submit={submit} />
+
+        <div className="col-span-2 flex items-center justify-between gap-2">
+          <h4 className="w-12">V4</h4>
+          <hr className="my-10 w-full" />
+        </div>
+        <div className="col-span-2 flex items-center justify-start gap-2">
+          <label htmlFor="v4PoolIdent">Pool Ident</label>
+          <input
+            id="v4PoolIdent"
+            type="text"
+            className="w-full rounded bg-gray-800 px-2 py-1 text-white"
+            placeholder="28-byte hex v4 pool identifier"
+            value={v4PoolIdent}
+            onChange={(e) => setV4PoolIdent(e.target.value.trim())}
+          />
+        </div>
+        <V4Swap
+          setFees={setFees}
+          setCBOR={setCBOR}
+          submit={submit}
+          poolIdent={v4PoolIdent}
+        />
+        <V4Deposit
+          setFees={setFees}
+          setCBOR={setCBOR}
+          submit={submit}
+          poolIdent={v4PoolIdent}
+        />
+        <V4Withdraw
+          setFees={setFees}
+          setCBOR={setCBOR}
+          submit={submit}
+          poolIdent={v4PoolIdent}
+        />
 
         <div className="col-span-2 flex items-center justify-between gap-2">
           <h4 className="w-32">Yield Farming</h4>
