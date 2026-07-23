@@ -15,6 +15,7 @@ SundaeSwap protocol.
 - [EDatumType](enumerations/EDatumType.md)
 - [EDestinationType](enumerations/EDestinationType.md)
 - [EPoolCoin](enumerations/EPoolCoin.md)
+- [EPoolCurve](enumerations/EPoolCurve.md)
 - [EPoolSearchType](enumerations/EPoolSearchType.md)
 - [ESwapType](enumerations/ESwapType.md)
 - [EV4BasicConstraint](enumerations/EV4BasicConstraint.md)

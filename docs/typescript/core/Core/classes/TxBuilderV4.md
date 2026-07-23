@@ -82,7 +82,28 @@ automatically; a headless signer must opt in — e.g. blaze's
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:744](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L744)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:754](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L754)
+
+***
+
+### claim()
+
+> **claim**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+
+Claim is a basic order that collects a pool's accrued claimables (e.g. a
+constant-sum pool's bounty) rather than trading against its reserves.
+
+#### Parameters
+
+• **args**: `Omit`\<[`IBasicV4Args`](../interfaces/IBasicV4Args.md), `"type"`\>
+
+#### Returns
+
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:627](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L627)
 
 ***
 
@@ -226,7 +247,7 @@ The circulating LP (issued to the creator via change) defaults to
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:880](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L880)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:890](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L890)
 
 ***
 
@@ -273,7 +294,7 @@ tx completion.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:629](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L629)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:639](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L639)
 
 ***
 
@@ -366,7 +387,7 @@ with the stake key explicitly.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:837](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L837)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:847](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L847)
 
 ***
 
