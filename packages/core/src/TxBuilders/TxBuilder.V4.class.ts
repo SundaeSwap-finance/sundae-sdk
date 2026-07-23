@@ -33,31 +33,32 @@ type TBlazeTx = ReturnType<Blaze<Provider, Wallet>["newTransaction"]>;
  * The validator titles the v4 builder resolves out of the protocol params
  * (via the Sundae API `protocols` query — the same source V3 uses). These are
  * the deployment's canonical module keys, matching the `V4` entry in the
- * `*-sundae-protocol--protocol` table (which is populated from the scooper's
- * deployment config, e.g. scooper-v2 `config/<network>-v4.json` module-scripts).
+ * `*-sundae-protocol--protocol` table, which is populated from the sundae-v4
+ * deployment blueprint (`<network>-blueprint.json`) — camelCase titles like
+ * `routeOrder`, not the kebab-case names the scooper's own config uses.
  */
 export const V4_VALIDATORS = {
   /** The order spend validator — its hash forms the order script address. */
   order: "order",
   /** The swap-order constraint module — keyed in a Swap order's constraints. */
-  swapConstraint: "swap-order",
+  swapConstraint: "swapOrder",
   /** The basic-order constraint module — keyed in Deposit/Withdraw/Claim orders. */
-  basicConstraint: "basic-order",
+  basicConstraint: "basicOrder",
   /** The route-order constraint module — required by swap (and strategy) orders. */
-  routeConstraint: "route-order",
+  routeConstraint: "routeOrder",
   /** The strategy-order constraint module — keyed in a strategy order's constraints. */
-  strategyConstraint: "strategy-order",
+  strategyConstraint: "strategyOrder",
   /** The fairness-order constraint module — required by every order type. */
-  fairnessConstraint: "fairness-order",
+  fairnessConstraint: "fairnessOrder",
   /** The pool NFT minting policy. */
-  poolMint: "pool-mint",
+  poolMint: "poolMint",
   /** The pool spend validator — its hash is the pool script address. */
   pool: "pool",
   /** The constant-sum curve module. */
-  constantSum: "constant-sum",
+  constantSum: "constantSum",
   /** The fee-split module carried by every pool. */
-  feeSplit: "fee-split",
-  /** The fairness pool module (distinct from the `fairness-order` constraint). */
+  feeSplit: "feeSplit",
+  /** The fairness pool module (distinct from the `fairnessOrder` constraint). */
   fairnessModule: "fairness",
 } as const;
 

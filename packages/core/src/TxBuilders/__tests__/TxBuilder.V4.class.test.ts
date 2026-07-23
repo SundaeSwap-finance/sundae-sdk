@@ -92,9 +92,9 @@ const POOL_MODULE_CONFIGS = {
 // hash → title → reference.
 const MODULE_HASHES: Record<string, string> = {
   pool: POOL_HASH,
-  "pool-mint": POOL_MINT_HASH,
-  "constant-sum": CS_HASH,
-  "fee-split": FEESPLIT_HASH,
+  poolMint: POOL_MINT_HASH,
+  constantSum: CS_HASH,
+  feeSplit: FEESPLIT_HASH,
   fairness: FAIRNESS_MOD_HASH,
 };
 const refHashFor = (key: string) =>
