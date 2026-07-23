@@ -40,10 +40,17 @@ export interface IDatumBuilderV4OrderArgs {
   owner: string | V4Types.MultisigScript;
   /** Where the order pays out, or `Self` to re-lock at the order address. */
   destination: TDestinationAddress | "Self";
-  /** The maximum protocol/batcher fee (lovelace) the order will pay. */
+  /**
+   * The order's lifetime service-fee allocation (lovelace), decremented by
+   * each execution's fee (see sundae-v4 docs/fee-system.md).
+   */
   budget: bigint;
-  /** The batcher's share of the fee. */
-  shareBatcher: bigint;
+  /**
+   * The flat cap on lovelace deducted in a single scoop — also the terminal-
+   * settlement amount, and what buys the scooper's routing fan-out
+   * (`maxPerExecution / costPerPool` pools).
+   */
+  maxPerExecution: bigint;
   /** The asset name of the config token identifying the protocol config. */
   configToken: string;
   /** The `(module_hash, data)` constraint entries. */
@@ -83,7 +90,7 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
     owner,
     destination,
     budget,
-    shareBatcher,
+    maxPerExecution,
     configToken,
     constraints,
     extension,
@@ -99,8 +106,8 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
     const datum: V4Types.OrderDatum = {
       owner: ownerSchema,
       destination: destinationSchema,
-      budget,
-      share_batcher: shareBatcher,
+      service_budget: budget,
+      max_per_execution: maxPerExecution,
       config_token: configToken,
       constraints: constraints.map(
         ([moduleHash, data]) =>

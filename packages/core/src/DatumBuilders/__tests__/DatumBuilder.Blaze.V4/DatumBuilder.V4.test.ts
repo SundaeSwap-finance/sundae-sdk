@@ -88,8 +88,8 @@ describe("DatumBuilderV4", () => {
             datum: undefined,
           },
         },
-        budget: 1_500_000n,
-        share_batcher: 500n,
+        service_budget: 1_500_000n,
+        max_per_execution: 500n,
         config_token: "aabb",
         constraints: [[module_hash_cs, constraintData]],
         extension: DatumBuilderV4.buildVoidData(),
@@ -325,13 +325,13 @@ describe("DatumBuilderV4", () => {
           datum: { type: EDatumType.NONE },
         },
         budget: 1_500_000n,
-        shareBatcher: 500n,
+        maxPerExecution: 500n,
         configToken: "aabb",
         constraints: [["11".repeat(28), DatumBuilderV4.buildVoidData()]],
       });
 
       expect(schema.owner).toHaveProperty("Signature");
-      expect(schema.budget).toEqual(1_500_000n);
+      expect(schema.service_budget).toEqual(1_500_000n);
       expect(schema.constraints.length).toEqual(1);
 
       const reparsed = parse(
@@ -340,7 +340,7 @@ describe("DatumBuilderV4", () => {
       );
       expect(serialize(V4Types.OrderDatum, reparsed).toCbor()).toEqual(Core.HexBlob(inline));
       expect(reparsed.config_token).toEqual("aabb");
-      expect(reparsed.share_batcher).toEqual(500n);
+      expect(reparsed.max_per_execution).toEqual(500n);
     });
 
     it("supports a Self destination and an explicit multisig owner", () => {
@@ -358,7 +358,7 @@ describe("DatumBuilderV4", () => {
         owner,
         destination: "Self",
         budget: 1_000_000n,
-        shareBatcher: 500n,
+        maxPerExecution: 500n,
         configToken: "aabb",
         constraints: [],
       });

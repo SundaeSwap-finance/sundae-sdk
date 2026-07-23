@@ -199,8 +199,8 @@ const Contracts = Type.Module({
   OrderDatum: Type.Object({
     owner: Type.Ref("MultisigScript"),
     destination: Type.Ref("Destination"),
-    budget: Type.BigInt(),
-    share_batcher: Type.BigInt(),
+    service_budget: Type.BigInt(),
+    max_per_execution: Type.BigInt(),
     config_token: Type.String(),
     constraints: Type.Array(
       Type.Ref("Tuple_ByteArray_Data")

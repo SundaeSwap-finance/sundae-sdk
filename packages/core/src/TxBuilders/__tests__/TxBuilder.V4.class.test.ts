@@ -136,7 +136,8 @@ spyOn(
   "getProtocolSettings",
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ).mockResolvedValue([
-  { label: "settings", txIn: { hash: "aa", index: 0 }, datum: "d8", values: { minShareBatcher: "100" } },
+  { label: "settings", txIn: { hash: "aa", index: 0 }, datum: "d8", values: null },
+  { label: "fee-settings", txIn: { hash: "af", index: 0 }, datum: "d8", values: { baseFee: "1000000", feePerStep: "500000" } },
   { label: "swap-order", txIn: { hash: "bb", index: 0 }, datum: "d8", values: { token: SWAP_CONFIG_TOKEN, requiredConstraints: [] } },
   { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: "d8", values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
   { label: "strategy-order", txIn: { hash: "ce", index: 0 }, datum: "d8", values: { token: "00d5ea9b", requiredConstraints: [] } },
@@ -216,15 +217,15 @@ describe("TxBuilderV4", () => {
         offered: TOKEN,
         minReceived: ADA,
         budget: 3_000_000n,
-        shareBatcher: 500n,
+        maxPerExecution: 1_500_000n,
         configToken: "aabb",
       });
 
       const datum = await datumOf(composed);
 
       expect(datum.owner).toHaveProperty("Signature");
-      expect(datum.budget).toEqual(3_000_000n);
-      expect(datum.share_batcher).toEqual(500n);
+      expect(datum.service_budget).toEqual(3_000_000n);
+      expect(datum.max_per_execution).toEqual(1_500_000n);
       expect(datum.config_token).toEqual("aabb");
 
       // three constraints in the OrderConfig-required order
@@ -238,7 +239,7 @@ describe("TxBuilderV4", () => {
       expect(datum.constraints[2][1].toCbor()).toEqual(Core.HexBlob("d87980")); // fairness = Void
     });
 
-    it("defaults the destination to the owner, budget to 3 ADA, and shareBatcher to settings.minShareBatcher", async () => {
+    it("defaults the destination to the owner, budget to 3 ADA, and maxPerExecution to the fee settings", async () => {
       const composed = await builder.swap({
         ownerAddress: OWNER,
         offered: TOKEN,
@@ -247,9 +248,10 @@ describe("TxBuilderV4", () => {
       });
       const datum = await datumOf(composed);
       expect(datum.destination).toHaveProperty("Fixed");
-      expect(datum.budget).toEqual(3_000_000n);
-      // shareBatcher is the protocol's minShareBatcher from settings (mock = 100).
-      expect(datum.share_batcher).toEqual(100n);
+      expect(datum.service_budget).toEqual(3_000_000n);
+      // maxPerExecution defaults to baseFee + 2·feePerStep from fee-settings
+      // (mock: 1 ADA + 2·0.5 ADA).
+      expect(datum.max_per_execution).toEqual(2_000_000n);
       // and the reserved budget is surfaced as the composed scooperFee.
       expect(composed.fees.scooperFee.amount).toEqual(3_000_000n);
     });

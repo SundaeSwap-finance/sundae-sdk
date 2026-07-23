@@ -63,11 +63,18 @@ export const V4_VALIDATORS = {
 } as const;
 
 /**
- * Default order economics, mirroring the values live preview orders currently
- * use. Callers can override per order.
+ * Default order economics (see sundae-v4 docs/fee-system.md). Callers can
+ * override per order.
+ *
+ * `DEFAULT_BUDGET` is the lifetime `service_budget`; at 3 ADA it funds one
+ * partial fill plus a terminal settlement at the default cap.
+ * `DEFAULT_MAX_PER_EXECUTION` is the per-scoop cap — the flat fee a terminal
+ * fill settles at, and what buys the scooper's routing fan-out (2 ADA covers
+ * `baseFee + 2·feePerStep` at the current fee settings, i.e. up to a 2-pool
+ * route). Used only when the fee-settings node can't be resolved.
  */
 const DEFAULT_BUDGET = 3_000_000n;
-const DEFAULT_SHARE_BATCHER = 10_000n;
+const DEFAULT_MAX_PER_EXECUTION = 2_000_000n;
 
 /** Min-ADA overhead for a token-only pool UTxO (no ADA reserve). */
 const POOL_MIN_ADA = 3_000_000n;
@@ -97,10 +104,20 @@ export interface IOrderV4Base {
   ownerAddress: string;
   /** Where fills pay out. Defaults to a `Fixed` destination at `ownerAddress`. */
   destination?: TDestinationAddress | "Self";
-  /** Max batcher fee, in lovelace. Defaults to `DEFAULT_BUDGET` (3 ADA). */
+  /**
+   * Lifetime service-fee allocation (`service_budget`), in lovelace. Defaults
+   * to `DEFAULT_BUDGET` (3 ADA).
+   */
   budget?: bigint;
-  /** The batcher's share of the fee. Defaults to `DEFAULT_SHARE_BATCHER`. */
-  shareBatcher?: bigint;
+  /**
+   * Flat per-scoop fee cap (`max_per_execution`), in lovelace — also the
+   * terminal-settlement amount, and the scooper's routing-fan-out budget
+   * (`maxPerExecution / costPerPool` pools). Defaults to
+   * `baseFee + 2·feePerStep` from the protocol's fee settings, falling back to
+   * `DEFAULT_MAX_PER_EXECUTION` (2 ADA). Too small a value makes the order
+   * unroutable: below `baseFee` the scooper can't afford a single pool.
+   */
+  maxPerExecution?: bigint;
   /**
    * The OrderConfig settings-entry asset name whose `required_constraints` this
    * order fulfills. Optional — when omitted it is resolved from the protocol
@@ -660,20 +677,26 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
-   * The default batcher share for an order — the protocol's `minShareBatcher`
-   * from the settings, falling back to {@link DEFAULT_SHARE_BATCHER} when the
-   * API isn't serving settings. Callers can override per order via `shareBatcher`.
+   * The default per-scoop fee cap for an order — `baseFee + 2·feePerStep` from
+   * the protocol's indexed `fee-settings` node (enough for a 2-pool route),
+   * falling back to {@link DEFAULT_MAX_PER_EXECUTION} when the API isn't
+   * serving settings. Callers can override per order via `maxPerExecution`.
    */
-  private async getDefaultShareBatcher(): Promise<bigint> {
+  private async getDefaultMaxPerExecution(): Promise<bigint> {
     const settings = await this.getSettings();
-    const min = settings.find((s) => s.label === "settings")?.values
-      ?.minShareBatcher;
+    const fees = settings.find((s) => s.label === "fee-settings")?.values;
     try {
-      return min !== undefined && min !== null
-        ? BigInt(min as string | number)
-        : DEFAULT_SHARE_BATCHER;
+      const baseFee = fees?.baseFee;
+      const feePerStep = fees?.feePerStep;
+      if (baseFee != null && feePerStep != null) {
+        return (
+          BigInt(baseFee as string | number) +
+          2n * BigInt(feePerStep as string | number)
+        );
+      }
+      return DEFAULT_MAX_PER_EXECUTION;
     } catch {
-      return DEFAULT_SHARE_BATCHER;
+      return DEFAULT_MAX_PER_EXECUTION;
     }
   }
 
@@ -696,14 +719,14 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     };
 
     const budget = args.budget ?? DEFAULT_BUDGET;
-    const shareBatcher =
-      args.shareBatcher ?? (await this.getDefaultShareBatcher());
+    const maxPerExecution =
+      args.maxPerExecution ?? (await this.getDefaultMaxPerExecution());
 
     const { inline } = this.datumBuilder.buildOrderDatum({
       owner: args.ownerAddress,
       destination,
       budget,
-      shareBatcher,
+      maxPerExecution,
       configToken: args.configToken,
       constraints,
     });
