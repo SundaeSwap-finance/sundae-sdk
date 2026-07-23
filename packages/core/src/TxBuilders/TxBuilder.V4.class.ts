@@ -621,6 +621,16 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
+   * Claim is a basic order that collects a pool's accrued claimables (e.g. a
+   * constant-sum pool's bounty) rather than trading against its reserves.
+   */
+  public async claim(
+    args: Omit<IBasicV4Args, "type">,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    return this.basic({ ...args, type: EV4BasicConstraint.Claim });
+  }
+
+  /**
    * Shared placement primitive: assemble the `OrderDatum`, lock the offered
    * assets + the fee budget at the order script address, and complete. Exposed
    * (protected) so the datum/output assembly is unit-testable without a live

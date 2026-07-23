@@ -734,6 +734,41 @@ export class SundaeUtils {
           poolData.protocolFee ?? 0,
           poolData.linearAmplificationFactor ?? 1n,
         );
+      case EContractVersion.V4:
+        // See getSwapOutput: v4 swap math follows the pool's invariant curve.
+        switch (poolData.curve) {
+          case EPoolCurve.ConstantProduct:
+            return ConstantProductPool.getSwapInput(
+              isOutputAssetA ? poolData.assetB : poolData.assetA,
+              output.amount,
+              inputReserve,
+              outputReserve,
+              poolData.currentFee,
+            );
+          case EPoolCurve.ConstantSum: {
+            if (!poolData.prices) {
+              throw new Error(
+                "Constant-sum pool is missing `prices`; cannot get swap input.",
+              );
+            }
+            const [priceIn, priceOut] = isOutputAssetA
+              ? [poolData.prices[1], poolData.prices[0]]
+              : [poolData.prices[0], poolData.prices[1]];
+            return ConstantSumPool.getSwapInput(
+              isOutputAssetA ? poolData.assetB : poolData.assetA,
+              output.amount,
+              inputReserve,
+              outputReserve,
+              priceIn,
+              priceOut,
+              poolData.currentFee,
+            );
+          }
+          default:
+            throw new Error(
+              `Unsupported v4 pool curve: ${poolData.curve}. Cannot get swap input.`,
+            );
+        }
       default:
         throw new Error(
           `Unsupported pool version: ${poolData.version}. Cannot get swap input.`,
@@ -791,6 +826,39 @@ export class SundaeUtils {
           poolData.liquidity.lpTotal,
           poolData.linearAmplificationFactor,
         );
+      case EContractVersion.V4:
+        // v4 deposits follow the pool's invariant curve: constant product
+        // enforces proportionality on-chain (excess refunded, like v1/v3);
+        // constant sum values any mix at the pool prices with no refunds.
+        switch (poolData.curve) {
+          case EPoolCurve.ConstantProduct:
+            return ConstantProductPool.calculateLiquidity(
+              a,
+              b,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
+            );
+          case EPoolCurve.ConstantSum:
+            if (!poolData.prices) {
+              throw new Error(
+                "Constant-sum pool is missing `prices`; cannot calculate liquidity.",
+              );
+            }
+            return ConstantSumPool.calculateLiquidity(
+              a,
+              b,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
+              poolData.prices[0],
+              poolData.prices[1],
+            );
+          default:
+            throw new Error(
+              `Unsupported v4 pool curve: ${poolData.curve}. Cannot calculate liquidity.`,
+            );
+        }
       default:
         throw new Error(
           `Unsupported pool version: ${poolData.version}. Cannot calculate liquidity.`,
@@ -833,7 +901,23 @@ export class SundaeUtils {
       return isAdaPair ? price : 1 / price;
     }
 
-    // For constant product pools, use the decimal-aware AssetAmount values
+    // A v4 constant-sum pool trades at its fixed per-asset prices, so the
+    // reserve ratio says nothing about price — 1 raw unit of B is worth
+    // priceB/priceA raw units of A, decimal-adjusted for display.
+    if (
+      pool.version === EContractVersion.V4 &&
+      pool.curve === EPoolCurve.ConstantSum &&
+      pool.prices
+    ) {
+      const [priceA, priceB] = pool.prices;
+      const aPerB =
+        (Number(priceB) / Number(priceA)) *
+        10 ** ((pool.assetB.decimals ?? 0) - (pool.assetA.decimals ?? 0));
+      return isAdaPair ? aPerB : 1 / aPerB;
+    }
+
+    // For constant product pools (and v4 constant-product curves), use the
+    // decimal-aware AssetAmount values
     // ADA pairs: assetA (ADA) / assetB
     // Exotic pairs: assetB / assetA (inverted)
     return isAdaPair

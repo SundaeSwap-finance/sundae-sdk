@@ -305,6 +305,21 @@ describe("TxBuilderV4", () => {
       const datum = await datumOf(composed);
       expect(datum.constraints[0][1].toCbor().startsWith("d87c")).toBe(true);
     });
+
+    it("claim() is basic(Claim) and resolves the basic config_token", async () => {
+      const composed = await builder.claim({
+        ownerAddress: OWNER,
+        offered: [TOKEN],
+        minReceived: [ADA],
+      });
+      const datum = await datumOf(composed);
+      expect(datum.constraints.map((c) => c[0])).toEqual([
+        BASIC_HASH,
+        FAIRNESS_HASH,
+      ]);
+      expect(datum.constraints[0][1].toCbor().startsWith("d87c")).toBe(true);
+      expect(datum.config_token).toEqual(BASIC_CONFIG_TOKEN);
+    });
   });
 
   describe("strategy()", () => {

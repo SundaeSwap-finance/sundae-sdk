@@ -692,6 +692,163 @@ describe("SundaeUtils class", () => {
     });
   });
 
+  describe("getSwapInput v4", () => {
+    const base: IPoolData = {
+      ...PREVIEW_DATA.pools.v1,
+      currentFee: 0.003,
+      liquidity: {
+        ...PREVIEW_DATA.pools.v1.liquidity,
+        aReserve: 1_000_000_000n,
+        bReserve: 1_000_000_000n,
+      },
+    };
+
+    it("dispatches the constant-product curve to constant-product math", () => {
+      const output = new AssetAmount(10_000n, base.assetB);
+      const v4 = SundaeUtils.getSwapInput(
+        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        output,
+      ).input;
+      const v3 = SundaeUtils.getSwapInput(
+        { ...base, version: EContractVersion.V3 },
+        output,
+      ).input;
+      expect(v4).toEqual(v3);
+    });
+
+    it("dispatches the constant-sum curve and inverts getSwapOutput", () => {
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.ConstantSum,
+        prices: [1_000_000n, 1_000_000n],
+      };
+      // Forward at par: 10000 A in -> 9970 B out. Inverse must round-trip.
+      const { input } = SundaeUtils.getSwapInput(
+        pool,
+        new AssetAmount(9_970n, base.assetB),
+      );
+      const forward = SundaeUtils.getSwapOutput(
+        pool,
+        new AssetAmount(input, base.assetA),
+      );
+      expect(forward.output).toBeGreaterThanOrEqual(9_970n);
+      expect(input).toBeLessThanOrEqual(10_000n);
+    });
+
+    it("orients the constant-sum prices to the output asset", () => {
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.ConstantSum,
+        prices: [7n, 3n],
+      };
+      // Asking for assetB means supplying assetA: priceIn=7, priceOut=3.
+      // Forward vector: 1000 A in -> 2326 B out (0.3% fee).
+      const { input } = SundaeUtils.getSwapInput(
+        pool,
+        new AssetAmount(2_326n, base.assetB),
+      );
+      expect(input).toBeLessThanOrEqual(1_000n);
+      expect(
+        SundaeUtils.getSwapOutput(pool, new AssetAmount(input, base.assetA))
+          .output,
+      ).toBeGreaterThanOrEqual(2_326n);
+    });
+
+    it("throws for a constant-sum pool missing prices", () => {
+      expect(() =>
+        SundaeUtils.getSwapInput(
+          { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantSum },
+          new AssetAmount(10_000n, base.assetB),
+        ),
+      ).toThrowError(/prices/);
+    });
+
+    it("throws for a v4 curve with no client estimator (concentrated liquidity)", () => {
+      expect(() =>
+        SundaeUtils.getSwapInput(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.ConcentratedLiquidity,
+          },
+          new AssetAmount(10_000n, base.assetB),
+        ),
+      ).toThrowError(/curve/);
+    });
+  });
+
+  describe("calculateLiquidity v4", () => {
+    const base: IPoolData = {
+      ...PREVIEW_DATA.pools.v1,
+      liquidity: {
+        ...PREVIEW_DATA.pools.v1.liquidity,
+        aReserve: 1_000_000n,
+        bReserve: 2_000_000n,
+        lpTotal: 5_000_000n,
+      },
+    };
+
+    it("dispatches the constant-product curve to constant-product math", () => {
+      const v4 = SundaeUtils.calculateLiquidity(
+        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        100_000n,
+        200_000n,
+      );
+      const v3 = SundaeUtils.calculateLiquidity(
+        { ...base, version: EContractVersion.V3 },
+        100_000n,
+        200_000n,
+      );
+      expect(v4).toEqual(v3);
+    });
+
+    it("values constant-sum deposits at the pool prices with no refunds", () => {
+      const result = SundaeUtils.calculateLiquidity(
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConstantSum,
+          prices: [3n, 5n],
+        },
+        100_000n,
+        0n,
+      );
+      // depositValue = 100000·3; totalValue = 1000000·3 + 2000000·5 = 13e6.
+      // lp = 300000·5000000/13000000 = 115384 (floored).
+      expect(result.generatedLp).toEqual(115_384n);
+      expect(result.aChange).toEqual(0n);
+      expect(result.bChange).toEqual(0n);
+      expect(result.actualDepositedA).toEqual(100_000n);
+      expect(result.actualDepositedB).toEqual(0n);
+    });
+
+    it("throws for a constant-sum pool missing prices", () => {
+      expect(() =>
+        SundaeUtils.calculateLiquidity(
+          { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantSum },
+          100_000n,
+          0n,
+        ),
+      ).toThrowError(/prices/);
+    });
+
+    it("throws for a v4 curve with no client estimator (concentrated liquidity)", () => {
+      expect(() =>
+        SundaeUtils.calculateLiquidity(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.ConcentratedLiquidity,
+          },
+          100_000n,
+          200_000n,
+        ),
+      ).toThrowError(/curve/);
+    });
+  });
+
   describe("getPrice", () => {
     it("should return price with decimal adjustment for ADA pairs (v1 pool)", () => {
       // v1 pool: ADA (6 decimals) / TINDY (0 decimals)
@@ -820,6 +977,37 @@ describe("SundaeUtils class", () => {
       // Raw price is slightly > 1.0, so inverted is slightly < 1.0
       expect(price).toBeGreaterThan(0.98);
       expect(price).toBeLessThan(1.0);
+    });
+
+    it("prices a v4 constant-sum pool from its fixed prices, not its reserves", () => {
+      const constantSumPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.ConstantSum,
+        prices: [5n, 3n],
+        // Deliberately skewed reserves: they must not affect the price.
+        liquidity: {
+          aReserve: 900_000_000n,
+          bReserve: 10_000n,
+          lpTotal: 2_000_000_000n,
+        },
+      };
+
+      // ADA pair (v1 fixture assetA is ADA, 6 decimals; assetB 0 decimals):
+      // 1 raw B = 3/5 raw A, decimal-adjusted ×10^(0−6).
+      const price = SundaeUtils.getPrice(constantSumPool);
+      expect(price).toBeCloseTo((3 / 5) * 10 ** -6, 9);
+    });
+
+    it("prices a v4 constant-product pool from its reserves as usual", () => {
+      const constantProductPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.ConstantProduct,
+      };
+      expect(SundaeUtils.getPrice(constantProductPool)).toEqual(
+        SundaeUtils.getPrice(PREVIEW_DATA.pools.v1),
+      );
     });
   });
 
