@@ -25,7 +25,7 @@ to `DEFAULT_BUDGET` (3 ADA).
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:111](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L111)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:112](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L112)
 
 ***
 
@@ -44,7 +44,7 @@ Pass it explicitly to override, or if the API isn't serving settings yet.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:127](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L127)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:128](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L128)
 
 ***
 
@@ -60,7 +60,7 @@ Where fills pay out. Defaults to a `Fixed` destination at `ownerAddress`.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:106](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L106)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:107](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L107)
 
 ***
 
@@ -81,7 +81,7 @@ unroutable: below `baseFee` the scooper can't afford a single pool.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:120](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L120)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:121](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L121)
 
 ***
 
@@ -93,7 +93,7 @@ The minimum received, per asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L148)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:149](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L149)
 
 ***
 
@@ -105,7 +105,7 @@ The assets (and amounts) offered.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L146)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:147](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L147)
 
 ***
 
@@ -121,7 +121,7 @@ The order owner (bech32). Also the default payout destination.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:104](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L104)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:105](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L105)
 
 ***
 
@@ -133,4 +133,4 @@ Deposit / Withdraw / Claim.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:144](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L144)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:145](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L145)

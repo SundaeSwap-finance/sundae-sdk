@@ -12,4 +12,4 @@ basic order placed in the same transaction that cancels the old one. The
 
 ## Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:178](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L178)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:179](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L179)
