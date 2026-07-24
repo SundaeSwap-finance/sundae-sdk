@@ -20,11 +20,12 @@ payload construction.
 
 > **budget**: `bigint`
 
-The maximum protocol/batcher fee (lovelace) the order will pay.
+The order's lifetime service-fee allocation (lovelace), decremented by
+each execution's fee (see sundae-v4 docs/fee-system.md).
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:44](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L44)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L47)
 
 ***
 
@@ -36,7 +37,7 @@ The asset name of the config token identifying the protocol config.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:48](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L48)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:55](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L55)
 
 ***
 
@@ -48,7 +49,7 @@ The `(module_hash, data)` constraint entries.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:50](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L50)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L57)
 
 ***
 
@@ -72,7 +73,21 @@ Arbitrary extension data. Defaults to `Void`.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:52](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L52)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L59)
+
+***
+
+### maxPerExecution
+
+> **maxPerExecution**: `bigint`
+
+The flat cap on lovelace deducted in a single scoop — also the terminal-
+settlement amount, and what buys the scooper's routing fan-out
+(`maxPerExecution / costPerPool` pools).
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:53](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L53)
 
 ***
 
@@ -85,15 +100,3 @@ The address (or explicit multisig) that owns / can cancel the order.
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L40)
-
-***
-
-### shareBatcher
-
-> **shareBatcher**: `bigint`
-
-The batcher's share of the fee.
-
-#### Defined in
-
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L46)

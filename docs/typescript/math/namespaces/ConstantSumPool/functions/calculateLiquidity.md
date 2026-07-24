@@ -65,11 +65,11 @@ The pool's price for token B.
 
 ### generatedLp
 
-> **generatedLp**: `bigint` = `newLpTokens`
+> **generatedLp**: `bigint`
 
 ### nextTotalLp
 
-> **nextTotalLp**: `bigint` = `newTotalLpTokens`
+> **nextTotalLp**: `bigint`
 
 ### shareAfterDeposit
 

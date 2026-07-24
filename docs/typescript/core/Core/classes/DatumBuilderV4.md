@@ -32,7 +32,7 @@ The current network id.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L72)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:79](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L79)
 
 ***
 
@@ -44,7 +44,7 @@ CIP-68 asset-name prefixes used by the v4 pool-mint policy.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:447](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L447)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:454](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L454)
 
 ## Methods
 
@@ -73,7 +73,7 @@ canonicalised to the empty policy / empty name.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:245](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L245)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:252](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L252)
 
 ***
 
@@ -106,7 +106,7 @@ Claim    = Constr 3 [ …same… ]
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:312](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L312)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:319](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L319)
 
 ***
 
@@ -176,7 +176,7 @@ fractions; `waiveFeeOnClaim` toggles the tag-claim bounty fee waiver.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:335](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L335)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:342](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L342)
 
 ***
 
@@ -198,7 +198,7 @@ datum (no datum-hash variant), so a `HASH` datum type is rejected.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:151](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L151)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:158](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L158)
 
 ***
 
@@ -237,7 +237,7 @@ every v4 pool. `protocolShare` is the protocol's `Rational` cut of fees.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:392](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L392)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:399](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L399)
 
 ***
 
@@ -264,7 +264,7 @@ governance module, when a pool's settings authorise an upgrade action.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:408](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L408)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:415](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L415)
 
 ***
 
@@ -283,10 +283,6 @@ order placement ultimately produces one of these.
 
 [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
-##### budget
-
-> **budget**: `bigint`
-
 ##### config\_token
 
 > **config\_token**: `string`
@@ -303,17 +299,21 @@ order placement ultimately produces one of these.
 
 > **extension**: `PlutusData`
 
+##### max\_per\_execution
+
+> **max\_per\_execution**: `bigint`
+
 ##### owner
 
 > **owner**: `object` \| `object` \| `object` \| `object` \| `object` \| `object` \| `object`
 
-##### share\_batcher
+##### service\_budget
 
-> **share\_batcher**: `bigint`
+> **service\_budget**: `bigint`
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L82)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L89)
 
 ***
 
@@ -337,7 +337,7 @@ supplied directly to [buildOrderDatum](DatumBuilderV4.md#buildorderdatum) as a `
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:128](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L128)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:135](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L135)
 
 ***
 
@@ -402,7 +402,7 @@ on the module's serialized config (e.g. the CS config), or the sentinel
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:511](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L511)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:518](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L518)
 
 ***
 
@@ -419,7 +419,7 @@ order address itself (used by multi-step / routed intents).
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:230](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L230)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:237](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L237)
 
 ***
 
@@ -453,7 +453,7 @@ StrategyConstraints = Constr 0 [
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:374](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L374)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:381](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L381)
 
 ***
 
@@ -495,7 +495,7 @@ Swap = Constr 2 [
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:280](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L280)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:287](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L287)
 
 ***
 
@@ -522,7 +522,7 @@ The pool-mint `CreatePool` redeemer:
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:468](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L468)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:475](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L475)
 
 ***
 
@@ -545,7 +545,7 @@ fairness, whose `Create` is the nullary `Constr 0 []`).
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:497](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L497)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:504](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L504)
 
 ***
 
@@ -562,7 +562,7 @@ fields, used as the default order `extension`.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:612](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L612)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:619](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L619)
 
 ***
 
@@ -594,7 +594,7 @@ The `100`/`222`/`333` CIP-68 asset names for a pool identifier.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:452](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L452)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:459](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L459)
 
 ***
 
@@ -618,7 +618,7 @@ Must byte-match the pool-mint validator's `cbor.serialise(seed_utxo)`.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:436](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L436)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:443](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L443)
 
 ***
 
@@ -647,7 +647,7 @@ The order's inline datum, as CBOR hex.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:630](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L630)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:637](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L637)
 
 ***
 
@@ -669,4 +669,4 @@ config's serialized CBOR. Pair the result with the module hash in
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:561](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L561)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:568](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L568)

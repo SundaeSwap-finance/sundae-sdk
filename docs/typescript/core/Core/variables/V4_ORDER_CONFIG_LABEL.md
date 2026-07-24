@@ -26,4 +26,4 @@ settings when the caller doesn't pass one explicitly.
 
 ## Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:81](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L81)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L89)

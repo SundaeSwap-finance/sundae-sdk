@@ -12,6 +12,7 @@
 
 ### Functions
 
+- [calculateDepositN](functions/calculateDepositN.md)
 - [calculateLiquidity](functions/calculateLiquidity.md)
 - [getSwapInput](functions/getSwapInput.md)
 - [getSwapOutput](functions/getSwapOutput.md)
