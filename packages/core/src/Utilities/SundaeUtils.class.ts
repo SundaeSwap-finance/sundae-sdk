@@ -140,12 +140,20 @@ export class SundaeUtils {
         return false;
       }
       if (version === EContractVersion.V3) {
+        // V3, Stableswaps, and V4 LP tokens all share the 0014df10 asset-name
+        // label, so the version derived from the asset id alone is ambiguous —
+        // check all three (the mint policy hash disambiguates).
         return (
           SundaeUtils.isLPAsset({ assetId, protocols, version }) ||
           SundaeUtils.isLPAsset({
             assetId,
             protocols,
             version: EContractVersion.Stableswaps,
+          }) ||
+          SundaeUtils.isLPAsset({
+            assetId,
+            protocols,
+            version: EContractVersion.V4,
           })
         );
       }
@@ -175,8 +183,12 @@ export class SundaeUtils {
     version: EContractVersion;
   }) {
     const protocol = protocols.find((p) => p.version === version);
+    // V4 deployment blueprints use camelCase validator titles (poolMint);
+    // earlier versions use dotted Aiken titles (pool.mint).
+    const mintValidatorTitle =
+      version === EContractVersion.V4 ? "poolMint" : "pool.mint";
     const validator = protocol?.blueprint.validators.find(
-      (v) => v.title === "pool.mint",
+      (v) => v.title === mintValidatorTitle,
     );
 
     if (!validator) {

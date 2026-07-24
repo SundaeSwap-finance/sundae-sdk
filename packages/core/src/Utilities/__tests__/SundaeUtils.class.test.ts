@@ -37,6 +37,19 @@ const mockedProtocols: ISundaeProtocolParams[] = [
     references: [],
     version: EContractVersion.V3,
   },
+  {
+    blueprint: {
+      validators: [
+        {
+          // V4 deployment blueprints use camelCase titles.
+          hash: "20d919fa44c2f96e319857b14f8e6945d83ed5df054b1b7f94b35b45",
+          title: "poolMint",
+        },
+      ],
+    },
+    references: [],
+    version: EContractVersion.V4,
+  },
 ];
 
 describe("SundaeUtils class", () => {
@@ -416,6 +429,36 @@ describe("SundaeUtils class", () => {
         version: EContractVersion.V3,
       });
       expect(result).toBe(false);
+    });
+
+    it("should match V4 LP assets against the camelCase poolMint validator", () => {
+      const v4LpAssetId =
+        "20d919fa44c2f96e319857b14f8e6945d83ed5df054b1b7f94b35b45.0014df10c618676e6e120cbf6742727ce06352f6e018ffcdad33a0931ef4716b";
+      expect(
+        SundaeUtils.isLPAsset({
+          assetId: v4LpAssetId,
+          protocols: mockedProtocols,
+          version: EContractVersion.V4,
+        }),
+      ).toBe(true);
+
+      // The 0014df10 label alone must not classify — the policy must match.
+      expect(
+        SundaeUtils.isLPAsset({
+          assetId:
+            "e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b.0014df100101",
+          protocols: mockedProtocols,
+          version: EContractVersion.V4,
+        }),
+      ).toBe(false);
+
+      // isAnyLPAsset resolves the shared 0014df10 label across V3/Stable/V4.
+      expect(
+        SundaeUtils.isAnyLPAsset({
+          assetId: v4LpAssetId,
+          protocols: mockedProtocols,
+        }),
+      ).toBe(true);
     });
   });
 
