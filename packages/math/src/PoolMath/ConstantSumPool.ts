@@ -203,25 +203,64 @@ export const calculateLiquidity = (
   priceA: bigint,
   priceB: bigint,
 ) => {
-  if (priceA <= 0n || priceB <= 0n) throw new Error("Prices must be positive");
-  if (a < 0n || b < 0n || (a === 0n && b === 0n))
-    throw new Error("Cannot use a deposit asset amount of 0");
-
-  const totalValue = aReserve * priceA + bReserve * priceB;
-  if (totalValue <= 0n || totalLp <= 0n)
-    throw new Error("Not enough pool liquidity");
-
-  const depositValue = a * priceA + b * priceB;
-  const newLpTokens = (depositValue * totalLp) / totalValue;
-  const newTotalLpTokens = totalLp + newLpTokens;
+  const { generatedLp, nextTotalLp, shareAfterDeposit } = calculateDepositN(
+    [a, b],
+    [aReserve, bReserve],
+    [priceA, priceB],
+    totalLp,
+  );
 
   return {
-    nextTotalLp: newTotalLpTokens,
-    generatedLp: newLpTokens,
-    shareAfterDeposit: SharedPoolMath.getShare(newLpTokens, newTotalLpTokens),
+    nextTotalLp,
+    generatedLp,
+    shareAfterDeposit,
     aChange: 0n,
     bChange: 0n,
     actualDepositedA: a,
     actualDepositedB: b,
+  };
+};
+
+/**
+ * The N-asset form of {@link calculateLiquidity}, mirroring the v4 contract's
+ * `compute_deposit_n` exactly: a deposit of any mix of the pool's assets is
+ * valued at the fixed prices against the value of ALL reserves —
+ *
+ *   generatedLp = Σ(amount_i·price_i) · totalLp / Σ(reserve_i·price_i)
+ *
+ * The three arrays must be aligned to the pool's canonical asset order (the
+ * API's `assets`/`quantities`/`prices`). Estimating an N-asset pool's deposit
+ * from just two of its reserves overstates the minted LP — the denominator is
+ * the whole pool's value — which is exactly the mistake this exists to
+ * prevent.
+ */
+export const calculateDepositN = (
+  amounts: bigint[],
+  reserves: bigint[],
+  prices: bigint[],
+  totalLp: bigint,
+) => {
+  if (amounts.length !== reserves.length || reserves.length !== prices.length)
+    throw new Error("amounts, reserves and prices must be aligned");
+  if (prices.some((p) => p <= 0n)) throw new Error("Prices must be positive");
+  if (amounts.some((a) => a < 0n) || amounts.every((a) => a === 0n))
+    throw new Error("Cannot use a deposit asset amount of 0");
+
+  let totalValue = 0n;
+  let depositValue = 0n;
+  for (let i = 0; i < amounts.length; i++) {
+    totalValue += reserves[i] * prices[i];
+    depositValue += amounts[i] * prices[i];
+  }
+  if (totalValue <= 0n || totalLp <= 0n)
+    throw new Error("Not enough pool liquidity");
+
+  const generatedLp = (depositValue * totalLp) / totalValue;
+  const nextTotalLp = totalLp + generatedLp;
+
+  return {
+    nextTotalLp,
+    generatedLp,
+    shareAfterDeposit: SharedPoolMath.getShare(generatedLp, nextTotalLp),
   };
 };

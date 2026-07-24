@@ -3,6 +3,7 @@ import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { Fraction } from "@sundaeswap/fraction";
 
 import {
+  calculateDepositN,
   calculateLiquidity,
   getSwapInput,
   getSwapOutput,
@@ -211,6 +212,46 @@ describe("ConstantSumPool.calculateLiquidity", () => {
     // depositValue = 100; totalValue = 2000; lp = 100·2000/2000 = 100.
     expect(result.generatedLp).toEqual(100n);
     expect(result.shareAfterDeposit.toNumber()).toBeCloseTo(100 / 2100);
+  });
+
+  it("N-asset: values the deposit against ALL reserves, not just the touched pair", () => {
+    // 3-asset pool, unit prices: totalValue = 1000 + 2000 + 7000 = 10000.
+    // Depositing 100 of asset0 only: lp = 100·5000/10000 = 50 — NOT the
+    // 100·5000/3000 = 166 a pair-only totalValue would claim.
+    const result = calculateDepositN(
+      [100n, 0n, 0n],
+      [1_000n, 2_000n, 7_000n],
+      [1n, 1n, 1n],
+      5_000n,
+    );
+    expect(result.generatedLp).toEqual(50n);
+    expect(result.nextTotalLp).toEqual(5_050n);
+  });
+
+  it("N-asset: matches the 2-asset wrapper for two assets", () => {
+    const viaWrapper = calculateLiquidity(
+      100n,
+      50n,
+      1_000n,
+      2_000n,
+      5_000n,
+      3n,
+      5n,
+    );
+    const viaN = calculateDepositN(
+      [100n, 50n],
+      [1_000n, 2_000n],
+      [3n, 5n],
+      5_000n,
+    );
+    expect(viaN.generatedLp).toEqual(viaWrapper.generatedLp);
+    expect(viaN.nextTotalLp).toEqual(viaWrapper.nextTotalLp);
+  });
+
+  it("N-asset: rejects misaligned arrays", () => {
+    expect(() =>
+      calculateDepositN([1n, 2n], [10n, 20n, 30n], [1n, 1n, 1n], 100n),
+    ).toThrow();
   });
 
   it("throws on empty deposits, empty pools, or bad prices", () => {
