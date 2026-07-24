@@ -12,7 +12,8 @@
 
 ### Functions
 
-- [calculateDepositN](functions/calculateDepositN.md)
 - [calculateLiquidity](functions/calculateLiquidity.md)
+- [calculatePinnedDeposit](functions/calculatePinnedDeposit.md)
 - [getSwapInput](functions/getSwapInput.md)
 - [getSwapOutput](functions/getSwapOutput.md)
+- [pinnedDepositFromAnchor](functions/pinnedDepositFromAnchor.md)

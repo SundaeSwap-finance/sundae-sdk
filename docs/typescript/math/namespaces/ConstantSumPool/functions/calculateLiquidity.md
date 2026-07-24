@@ -6,12 +6,11 @@
 
 > **calculateLiquidity**(`a`, `b`, `aReserve`, `bReserve`, `totalLp`, `priceA`, `priceB`): `object`
 
-Calculate the Add (Mixed-Deposit) Liquidity parameters for a constant-sum
-pool. Deposits are valued at the pool's fixed per-asset prices, so any mix
-of the two assets is accepted with no refunds — matching the v4 contract's
-`compute_deposit_n`:
-
-  generatedLp = (a·priceA + b·priceB) · totalLp / (aReserve·priceA + bReserve·priceB)
+Calculate the deposit parameters for a 2-asset constant-sum pool via the
+TARGET-PINNED rule the deployed validator enforces (see
+[calculatePinnedDeposit](calculatePinnedDeposit.md)): the mint is capped by the scarcest offered
+asset, both assets must be offered, and anything above the pinned deltas is
+refunded via aChange/bChange.
 
 ## Parameters
 
@@ -53,11 +52,11 @@ The pool's price for token B.
 
 ### actualDepositedA
 
-> **actualDepositedA**: `bigint` = `a`
+> **actualDepositedA**: `bigint`
 
 ### actualDepositedB
 
-> **actualDepositedB**: `bigint` = `b`
+> **actualDepositedB**: `bigint`
 
 ### bChange
 
@@ -89,4 +88,4 @@ If either price is non-positive.
 
 ## Defined in
 
-[ConstantSumPool.ts:197](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantSumPool.ts#L197)
+[ConstantSumPool.ts:196](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConstantSumPool.ts#L196)
