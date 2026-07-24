@@ -183,12 +183,8 @@ export class SundaeUtils {
     version: EContractVersion;
   }) {
     const protocol = protocols.find((p) => p.version === version);
-    // V4 deployment blueprints use camelCase validator titles (poolMint);
-    // earlier versions use dotted Aiken titles (pool.mint).
-    const mintValidatorTitle =
-      version === EContractVersion.V4 ? "poolMint" : "pool.mint";
     const validator = protocol?.blueprint.validators.find(
-      (v) => v.title === mintValidatorTitle,
+      (v) => v.title === "pool.mint",
     );
 
     if (!validator) {

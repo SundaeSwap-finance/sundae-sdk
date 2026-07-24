@@ -41,9 +41,8 @@ const mockedProtocols: ISundaeProtocolParams[] = [
     blueprint: {
       validators: [
         {
-          // V4 deployment blueprints use camelCase titles.
           hash: "20d919fa44c2f96e319857b14f8e6945d83ed5df054b1b7f94b35b45",
-          title: "poolMint",
+          title: "pool.mint",
         },
       ],
     },
@@ -431,7 +430,7 @@ describe("SundaeUtils class", () => {
       expect(result).toBe(false);
     });
 
-    it("should match V4 LP assets against the camelCase poolMint validator", () => {
+    it("should match V4 LP assets against the pool.mint validator", () => {
       const v4LpAssetId =
         "20d919fa44c2f96e319857b14f8e6945d83ed5df054b1b7f94b35b45.0014df10c618676e6e120cbf6742727ce06352f6e018ffcdad33a0931ef4716b";
       expect(

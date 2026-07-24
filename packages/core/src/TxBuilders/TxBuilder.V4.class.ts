@@ -34,32 +34,33 @@ type TBlazeTx = ReturnType<Blaze<Provider, Wallet>["newTransaction"]>;
  * (via the Sundae API `protocols` query — the same source V3 uses). These are
  * the deployment's canonical module keys, matching the `V4` entry in the
  * `*-sundae-protocol--protocol` table, which is populated from the sundae-v4
- * deployment blueprint (`<network>-blueprint.json`) — camelCase titles like
- * `routeOrder`, not the kebab-case names the scooper's own config uses.
+ * deployment blueprint (`<network>-blueprint.json`) — dotted `module.purpose`
+ * titles matching the V1/V3/Stableswaps convention (`pool.mint`,
+ * `order.spend`, …), not the kebab-case names the scooper's own config uses.
  */
 export const V4_VALIDATORS = {
   /** The order spend validator — its hash forms the order script address. */
-  order: "order",
+  order: "order.spend",
   /** The swap-order constraint module — keyed in a Swap order's constraints. */
-  swapConstraint: "swapOrder",
+  swapConstraint: "swap_order.withdraw",
   /** The basic-order constraint module — keyed in Deposit/Withdraw/Claim orders. */
-  basicConstraint: "basicOrder",
+  basicConstraint: "basic_order.withdraw",
   /** The route-order constraint module — required by swap (and strategy) orders. */
-  routeConstraint: "routeOrder",
+  routeConstraint: "route_order.withdraw",
   /** The strategy-order constraint module — keyed in a strategy order's constraints. */
-  strategyConstraint: "strategyOrder",
+  strategyConstraint: "strategy_order.withdraw",
   /** The fairness-order constraint module — required by every order type. */
-  fairnessConstraint: "fairnessOrder",
+  fairnessConstraint: "fairness_order.withdraw",
   /** The pool NFT minting policy. */
-  poolMint: "poolMint",
+  poolMint: "pool.mint",
   /** The pool spend validator — its hash is the pool script address. */
-  pool: "pool",
+  pool: "pool.spend",
   /** The constant-sum curve module. */
-  constantSum: "constantSum",
+  constantSum: "constant_sum.withdraw",
   /** The fee-split module carried by every pool. */
-  feeSplit: "feeSplit",
-  /** The fairness pool module (distinct from the `fairnessOrder` constraint). */
-  fairnessModule: "fairness",
+  feeSplit: "fee_split.withdraw",
+  /** The fairness pool module (distinct from the `fairness_order` constraint). */
+  fairnessModule: "fairness.withdraw",
 } as const;
 
 /**
