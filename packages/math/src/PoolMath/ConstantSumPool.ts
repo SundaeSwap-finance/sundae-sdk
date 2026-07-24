@@ -176,12 +176,11 @@ export const getSwapInput = (
 };
 
 /**
- * Calculate the Add (Mixed-Deposit) Liquidity parameters for a constant-sum
- * pool. Deposits are valued at the pool's fixed per-asset prices, so any mix
- * of the two assets is accepted with no refunds — matching the v4 contract's
- * `compute_deposit_n`:
- *
- *   generatedLp = (a·priceA + b·priceB) · totalLp / (aReserve·priceA + bReserve·priceB)
+ * Calculate the deposit parameters for a 2-asset constant-sum pool via the
+ * TARGET-PINNED rule the deployed validator enforces (see
+ * {@link calculatePinnedDeposit}): the mint is capped by the scarcest offered
+ * asset, both assets must be offered, and anything above the pinned deltas is
+ * refunded via aChange/bChange.
  *
  * @param {bigint} a - The amount of token A to deposit.
  * @param {bigint} b - The amount of token B to deposit.
@@ -203,21 +202,25 @@ export const calculateLiquidity = (
   priceA: bigint,
   priceB: bigint,
 ) => {
-  const { generatedLp, nextTotalLp, shareAfterDeposit } = calculateDepositN(
-    [a, b],
-    [aReserve, bReserve],
-    [priceA, priceB],
-    totalLp,
-  );
+  // Target-pinned (what the deployed validator accepts): mint by the
+  // scarcest offered asset; anything above the pinned deltas is refunded
+  // (aChange/bChange).
+  const { deltas, generatedLp, nextTotalLp, shareAfterDeposit } =
+    calculatePinnedDeposit(
+      [a, b],
+      [aReserve, bReserve],
+      [priceA, priceB],
+      totalLp,
+    );
 
   return {
     nextTotalLp,
     generatedLp,
     shareAfterDeposit,
-    aChange: 0n,
-    bChange: 0n,
-    actualDepositedA: a,
-    actualDepositedB: b,
+    aChange: a - deltas[0],
+    bChange: b - deltas[1],
+    actualDepositedA: deltas[0],
+    actualDepositedB: deltas[1],
   };
 };
 
@@ -234,6 +237,104 @@ export const calculateLiquidity = (
  * the whole pool's value — which is exactly the mistake this exists to
  * prevent.
  */
+/**
+ * The target-pinned deposit — what the deployed CS validator (cs_check tag 6)
+ * actually accepts, and what the scooper builds. Asymmetric deposits are
+ * disallowed on-chain: the fill declares a value delta `t` and every asset's
+ * contribution is ceil-pinned to `ceil(r_i·t/V_b)`, with total LP
+ * floor-pinned to `floor(lp_b·(V_b+t)/V_b)`. Given what the user offers, the
+ * largest fillable t is capped by the SCARCEST asset —
+ * `t = min_i floor(offered_i·V_b/r_i)` — and anything above the pinned
+ * deltas is returned as surplus. Every pool asset must be offered (> 0) or
+ * t is zero and the deposit can never fill.
+ *
+ * Contrast with `calculateDepositN`, which is the plain value formula:
+ * it matches the pin only for exactly proportional offers and OVERSTATES the
+ * mint otherwise — using it for `minReceived` makes non-proportional orders
+ * unfillable.
+ */
+export const calculatePinnedDeposit = (
+  offered: bigint[],
+  reserves: bigint[],
+  prices: bigint[],
+  totalLp: bigint,
+): {
+  targetDeltaV: bigint;
+  deltas: bigint[];
+  generatedLp: bigint;
+  nextTotalLp: bigint;
+  shareAfterDeposit: Fraction;
+} => {
+  if (offered.length !== reserves.length || reserves.length !== prices.length)
+    throw new Error("offered, reserves and prices must be aligned");
+  if (prices.some((p) => p <= 0n)) throw new Error("Prices must be positive");
+  if (totalLp <= 0n) throw new Error("Not enough pool liquidity");
+
+  let vB = 0n;
+  for (let i = 0; i < reserves.length; i++) {
+    vB += reserves[i] * prices[i];
+  }
+  if (vB <= 0n) throw new Error("Pool value is zero");
+
+  let t: bigint | undefined;
+  for (let i = 0; i < offered.length; i++) {
+    if (reserves[i] === 0n) continue;
+    const cap = (offered[i] * vB) / reserves[i];
+    t = t === undefined || cap < t ? cap : t;
+  }
+  if (t === undefined || t <= 0n) {
+    throw new Error(
+      "A constant-sum deposit must offer every pool asset in proportion (asymmetric deposits are disallowed on-chain)",
+    );
+  }
+
+  const deltas = reserves.map((r) => (r * t! + vB - 1n) / vB); // ceil
+  const nextTotalLp = (totalLp * (vB + t)) / vB; // floor
+  const generatedLp = nextTotalLp - totalLp;
+  if (generatedLp <= 0n) throw new Error("Deposit mints zero LP");
+
+  return {
+    targetDeltaV: t,
+    deltas,
+    generatedLp,
+    nextTotalLp,
+    shareAfterDeposit: SharedPoolMath.getShare(generatedLp, nextTotalLp),
+  };
+};
+
+/**
+ * The per-asset amounts a pinned deposit needs when the user anchors on one
+ * asset's amount: t from the anchor (`floor(anchor·V_b/r_anchor)`), every
+ * delta ceil-pinned to it. Drives proportional auto-fill in deposit forms.
+ */
+export const pinnedDepositFromAnchor = (
+  anchorIndex: number,
+  anchorAmount: bigint,
+  reserves: bigint[],
+  prices: bigint[],
+): bigint[] => {
+  if (reserves.length !== prices.length)
+    throw new Error("reserves and prices must be aligned");
+  if (
+    anchorIndex < 0 ||
+    anchorIndex >= reserves.length ||
+    reserves[anchorIndex] <= 0n
+  )
+    throw new Error("anchor asset has no reserve");
+  if (anchorAmount <= 0n) return reserves.map(() => 0n);
+
+  let vB = 0n;
+  for (let i = 0; i < reserves.length; i++) {
+    vB += reserves[i] * prices[i];
+  }
+  if (vB <= 0n) throw new Error("Pool value is zero");
+
+  const t = (anchorAmount * vB) / reserves[anchorIndex];
+  return reserves.map((r, i) =>
+    i === anchorIndex ? anchorAmount : (r * t + vB - 1n) / vB,
+  );
+};
+
 export const calculateDepositN = (
   amounts: bigint[],
   reserves: bigint[],

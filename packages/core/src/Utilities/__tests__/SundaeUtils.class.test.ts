@@ -804,7 +804,22 @@ describe("SundaeUtils class", () => {
       expect(v4).toEqual(v3);
     });
 
-    it("values constant-sum deposits at the pool prices with no refunds", () => {
+    it("pins constant-sum deposits to the scarcest asset (single-sided rejects)", () => {
+      // Asymmetric deposits are disallowed by the deployed CS validator.
+      expect(() =>
+        SundaeUtils.calculateLiquidity(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.ConstantSum,
+            prices: [3n, 5n],
+          },
+          100_000n,
+          0n,
+        ),
+      ).toThrowError(/every pool asset/);
+
+      // Proportional-ish offers mint by the scarcest asset; excess refunds.
       const result = SundaeUtils.calculateLiquidity(
         {
           ...base,
@@ -813,15 +828,16 @@ describe("SundaeUtils class", () => {
           prices: [3n, 5n],
         },
         100_000n,
-        0n,
+        200_000n,
       );
-      // depositValue = 100000·3; totalValue = 1000000·3 + 2000000·5 = 13e6.
-      // lp = 300000·5000000/13000000 = 115384 (floored).
-      expect(result.generatedLp).toEqual(115_384n);
+      // V_b = 1e6·3 + 2e6·5 = 13e6; t = min(1e5·13e6/1e6, 2e5·13e6/2e6)
+      //     = min(1_300_000, 1_300_000) = 1_300_000.
+      // after_lp = floor(5e6·14_300_000/13e6) = 5_500_000 -> minted 500_000.
+      expect(result.generatedLp).toEqual(500_000n);
+      expect(result.actualDepositedA).toEqual(100_000n);
+      expect(result.actualDepositedB).toEqual(200_000n);
       expect(result.aChange).toEqual(0n);
       expect(result.bChange).toEqual(0n);
-      expect(result.actualDepositedA).toEqual(100_000n);
-      expect(result.actualDepositedB).toEqual(0n);
     });
 
     it("throws for a constant-sum pool missing prices", () => {
