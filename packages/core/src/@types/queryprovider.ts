@@ -113,6 +113,13 @@ export interface IPoolData {
    * output; ignored by other curves.
    */
   prices?: [bigint, bigint];
+  /**
+   * For v4 concentrated-liquidity pools, the immutable sqrt-price range bounds
+   * from the pool's CL config as exact rationals `[[aNum, aDen], [bNum, bDen]]`
+   * (lower bound `a` < upper bound `b`). Required to compute CL swap output;
+   * ignored by other curves.
+   */
+  sqrtPrices?: [[bigint, bigint], [bigint, bigint]];
 }
 
 /**

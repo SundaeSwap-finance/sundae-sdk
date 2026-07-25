@@ -30,6 +30,7 @@ import {
   V3_POOL_IDENT_LENGTH,
 } from "../constants.js";
 import {
+  ConcentratedLiquidityPool,
   ConstantProductPool,
   ConstantSumPool,
   StableSwapsPool,
@@ -38,6 +39,7 @@ import {
 export type TGenericSwapOutcome =
   | ConstantProductPool.TSwapOutcome
   | ConstantSumPool.TSwapOutcome
+  | ConcentratedLiquidityPool.TSwapOutcome
   | StableSwapsPool.TSwapOutcome;
 
 export type TLiquidityOutcome = {
@@ -680,9 +682,31 @@ export class SundaeUtils {
               false,
             );
           }
+          case EPoolCurve.ConcentratedLiquidity: {
+            if (!poolData.sqrtPrices) {
+              throw new Error(
+                "Concentrated-liquidity pool is missing `sqrtPrices`; cannot get swap output.",
+              );
+            }
+            // CL swaps run on raw assetA/assetB reserves (not input/output
+            // oriented); direction is selected by isAInput.
+            const isAInput =
+              poolData.assetA.assetId === suppliedAsset.metadata.assetId;
+            return ConcentratedLiquidityPool.getSwapOutput(
+              suppliedAsset.metadata,
+              suppliedAsset.amount,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
+              poolData.sqrtPrices[0],
+              poolData.sqrtPrices[1],
+              poolData.currentFee,
+              isAInput,
+            );
+          }
           default:
-            // Concentrated liquidity (and any future curve) has no client-side
-            // estimator yet — callers should fall back to a server quote.
+            // Any future curve has no client-side estimator yet — callers
+            // should fall back to a server quote.
             throw new Error(
               `Unsupported v4 pool curve: ${poolData.curve}. Cannot get swap output.`,
             );
@@ -770,6 +794,26 @@ export class SundaeUtils {
               priceIn,
               priceOut,
               poolData.currentFee,
+            );
+          }
+          case EPoolCurve.ConcentratedLiquidity: {
+            if (!poolData.sqrtPrices) {
+              throw new Error(
+                "Concentrated-liquidity pool is missing `sqrtPrices`; cannot get swap input.",
+              );
+            }
+            // Input asset is the non-output side; A→B swap iff output is B.
+            const isAInput = !isOutputAssetA;
+            return ConcentratedLiquidityPool.getSwapInput(
+              isOutputAssetA ? poolData.assetB : poolData.assetA,
+              output.amount,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
+              poolData.sqrtPrices[0],
+              poolData.sqrtPrices[1],
+              poolData.currentFee,
+              isAInput,
             );
           }
           default:
@@ -861,6 +905,17 @@ export class SundaeUtils {
               poolData.liquidity.lpTotal,
               poolData.prices[0],
               poolData.prices[1],
+            );
+          case EPoolCurve.ConcentratedLiquidity:
+            // CL deposits reuse the constant-product proportional pinning: the
+            // per-asset bounds it produces (a1·L0≥a0·L1, b1·L0≥b0·L1) multiply
+            // to the on-chain CL non-swap invariant va1·vb1·L0²≥va0·vb0·L1².
+            return ConcentratedLiquidityPool.calculateLiquidity(
+              a,
+              b,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
             );
           default:
             throw new Error(

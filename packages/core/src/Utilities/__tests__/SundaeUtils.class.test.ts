@@ -720,7 +720,24 @@ describe("SundaeUtils class", () => {
       ).toThrowError(/prices/);
     });
 
-    it("throws for a v4 curve with no client estimator (concentrated liquidity)", () => {
+    it("dispatches the concentrated-liquidity curve using the sqrt-price bounds", () => {
+      const { output } = SundaeUtils.getSwapOutput(
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConcentratedLiquidity,
+          sqrtPrices: [
+            [1n, 2n],
+            [2n, 1n],
+          ],
+        },
+        suppliedA,
+      );
+      // Non-degenerate quote (exact math is covered in the math package).
+      expect(output).toBeGreaterThan(0n);
+    });
+
+    it("throws for a concentrated-liquidity pool missing sqrtPrices", () => {
       expect(() =>
         SundaeUtils.getSwapOutput(
           {
@@ -730,7 +747,7 @@ describe("SundaeUtils class", () => {
           },
           suppliedA,
         ),
-      ).toThrowError(/curve/);
+      ).toThrowError(/sqrtPrices/);
     });
   });
 
@@ -807,7 +824,28 @@ describe("SundaeUtils class", () => {
       ).toThrowError(/prices/);
     });
 
-    it("throws for a v4 curve with no client estimator (concentrated liquidity)", () => {
+    it("dispatches the concentrated-liquidity curve and inverts getSwapOutput", () => {
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.ConcentratedLiquidity,
+        sqrtPrices: [
+          [1n, 2n],
+          [2n, 1n],
+        ],
+      };
+      const { input } = SundaeUtils.getSwapInput(
+        pool,
+        new AssetAmount(9_970n, base.assetB),
+      );
+      const forward = SundaeUtils.getSwapOutput(
+        pool,
+        new AssetAmount(input, base.assetA),
+      );
+      expect(forward.output).toBeGreaterThanOrEqual(9_970n);
+    });
+
+    it("throws for a concentrated-liquidity pool missing sqrtPrices", () => {
       expect(() =>
         SundaeUtils.getSwapInput(
           {
@@ -817,7 +855,7 @@ describe("SundaeUtils class", () => {
           },
           new AssetAmount(10_000n, base.assetB),
         ),
-      ).toThrowError(/curve/);
+      ).toThrowError(/sqrtPrices/);
     });
   });
 
@@ -892,18 +930,25 @@ describe("SundaeUtils class", () => {
       ).toThrowError(/prices/);
     });
 
-    it("throws for a v4 curve with no client estimator (concentrated liquidity)", () => {
-      expect(() =>
-        SundaeUtils.calculateLiquidity(
-          {
-            ...base,
-            version: EContractVersion.V4,
-            curve: EPoolCurve.ConcentratedLiquidity,
-          },
-          100_000n,
-          200_000n,
-        ),
-      ).toThrowError(/curve/);
+    it("dispatches the concentrated-liquidity curve to proportional (CP) pinning", () => {
+      // CL deposits reuse constant-product proportional pinning, so the result
+      // matches the constant-product dispatch for the same reserves/offer.
+      const cl = SundaeUtils.calculateLiquidity(
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConcentratedLiquidity,
+        },
+        100_000n,
+        200_000n,
+      );
+      const cp = SundaeUtils.calculateLiquidity(
+        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        100_000n,
+        200_000n,
+      );
+      expect(cl).toEqual(cp);
+      expect(cl.generatedLp).toBeGreaterThan(0n);
     });
   });
 
