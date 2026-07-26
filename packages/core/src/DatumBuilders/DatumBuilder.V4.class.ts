@@ -14,13 +14,22 @@ import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { V4Types } from "./ContractTypes/index.js";
 
 /**
- * The three basic-order constraint classes, identified on-chain by the
- * constructor index of the constraint `data`. (Swap orders use a separate,
- * partial-fill-capable encoding — see {@link DatumBuilderV4.buildSwapConstraintData}.)
+ * The basic-order constraint classes, identified on-chain by the constructor
+ * index of the constraint `data`. On-chain, `extract_basic_fields` ignores the
+ * tag entirely (it enforces only aggregate consumption + the min-received
+ * floor); the tag is dispatch metadata for the scooper.
+ *
+ * `Swap` (tag 2) is a routing-free swap: a single offered asset → min-received,
+ * carried by a basic order (`[basic-order, fairness-order]`, NO route
+ * constraint) so the scooper can fill it across parallel same-pair pools — the
+ * route constraint would force serial routing and forbid the split. The
+ * partial-fill-capable swap-order encoding is separate — see
+ * {@link DatumBuilderV4.buildSwapConstraintData}.
  */
 export enum EV4BasicConstraint {
   Deposit = 0,
   Withdraw = 1,
+  Swap = 2,
   Claim = 3,
 }
 
@@ -308,11 +317,12 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
 
   /**
    * Builds the constraint `data` for a **basic** order — `Deposit`, `Withdraw`,
-   * or `Claim`. All three share the same field shape and are distinguished by
+   * `Swap`, or `Claim`. All share the same field shape and are distinguished by
    * their constructor index (verified against the CLI's `plutusBasicConstraints`):
    * ```
    * Deposit  = Constr 0 [offered: List<(AssetClass, Int)>, min_received: List<(AssetClass, Int)>]
    * Withdraw = Constr 1 [ …same… ]
+   * Swap     = Constr 2 [ …same… ]   // single offered asset; routing-free swap
    * Claim    = Constr 3 [ …same… ]
    * ```
    */

@@ -486,6 +486,39 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
+   * Places a v4 swap as a **basic** order (constraint tag `Swap` = 2) rather
+   * than a route-bound swap order. Use this for a *complex* fill — one the
+   * scooper must split across multiple pools of the same pair (a blend).
+   *
+   * The route constraint that {@link swap} carries enforces strictly serial
+   * routing on-chain (each hop's output is consumed by the next), so it cannot
+   * represent a parallel same-pair split. A basic order carries only
+   * `[basic-order, fairness-order]` (no route), leaving the aggregate
+   * consumption bound + the `minReceived` floor as the sole on-chain checks — so
+   * the scooper is free to fan the fill out across pools. Because `minReceived`
+   * is set from the *blended* quote (tighter than any single pool can deliver),
+   * the floor itself bounds how far a fill can deviate from the intended split.
+   *
+   * A basic order settles single-shot to a `Fixed` destination (no partial
+   * fills) — a market swap, not a resting/limit order. Route a serial fill
+   * (single pool, or a genuine multi-hop chain across different pairs) through
+   * {@link swap} instead, to keep its on-chain anti-skim guarantee.
+   */
+  public async blendedSwap(
+    args: ISwapV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    const minReceived = Array.isArray(args.minReceived)
+      ? args.minReceived
+      : [args.minReceived];
+    return this.basic({
+      ...args,
+      type: EV4BasicConstraint.Swap,
+      offered: [args.offered],
+      minReceived,
+    });
+  }
+
+  /**
    * Resolves a swap order's offered assets, full constraint set, and
    * `config_token` — shared by {@link swap} and {@link update}. A swap must
    * carry `[swap-order, route-order, fairness-order]` in that exact order.

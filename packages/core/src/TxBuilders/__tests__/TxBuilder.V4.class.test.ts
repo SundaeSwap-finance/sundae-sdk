@@ -267,6 +267,51 @@ describe("TxBuilderV4", () => {
     });
   });
 
+  describe("blendedSwap()", () => {
+    it("places the swap as a basic order [basic(Constr2), fairness(Void)] — NO route constraint — so the scooper can split it across pools", async () => {
+      const composed = await builder.blendedSwap({
+        ownerAddress: OWNER,
+        offered: TOKEN,
+        minReceived: ADA,
+        configToken: "aabb",
+      });
+      const datum = await datumOf(composed);
+
+      // Only [basic, fairness] — the absent route constraint is the whole point:
+      // it would force serial routing and forbid a parallel same-pair split.
+      expect(datum.constraints.map((c) => c[0])).toEqual([
+        BASIC_HASH,
+        FAIRNESS_HASH,
+      ]);
+      // basic-order payload uses constructor index 2 (Swap).
+      expect(datum.constraints[0][1].toCbor().startsWith("d87b")).toBe(true);
+      expect(datum.constraints[1][1].toCbor()).toEqual(Core.HexBlob("d87980"));
+    });
+
+    it("resolves the basic config_token (not the swap one) and settles to a Fixed destination", async () => {
+      const composed = await builder.blendedSwap({
+        ownerAddress: OWNER,
+        offered: TOKEN,
+        minReceived: ADA,
+      });
+      const datum = await datumOf(composed);
+      expect(datum.config_token).toEqual(BASIC_CONFIG_TOKEN);
+      // Basic orders settle single-shot to a Fixed destination (no partial fill).
+      expect(datum.destination).toHaveProperty("Fixed");
+    });
+
+    it("accepts a single minReceived (non-array) like swap()", async () => {
+      const composed = await builder.blendedSwap({
+        ownerAddress: OWNER,
+        offered: TOKEN,
+        minReceived: ADA,
+        configToken: "aabb",
+      });
+      const datum = await datumOf(composed);
+      expect(datum.constraints[0][1].toCbor().startsWith("d87b")).toBe(true);
+    });
+  });
+
   describe("basic() / deposit() / withdraw()", () => {
     it("deposit emits [basic(Constr0), fairness(Void)] — no route constraint — and resolves the basic config_token", async () => {
       const composed = await builder.deposit({
