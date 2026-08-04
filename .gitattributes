@@ -1,1 +1,4 @@
-*.json  linguist-language=JSON-with-Comments
+# Machine-generated files. `linguist-generated` collapses them in GitHub diffs
+# by default — they are typedoc output, regenerated with `bun docs`, so reading
+# them line by line reviews the generator rather than anyone's decision.
+docs/typescript/** linguist-generated=true
