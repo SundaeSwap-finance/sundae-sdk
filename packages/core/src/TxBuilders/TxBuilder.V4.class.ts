@@ -176,9 +176,13 @@ export interface IStrategyV4Args extends IOrderV4Base {
  * basic order placed in the same transaction that cancels the old one. The
  * `kind` discriminator selects which constraint set the new order carries.
  */
-export type TUpdateV4Order =
-  | ({ kind: "swap" } & ISwapV4Args)
-  | ({ kind: "basic" } & IBasicV4Args);
+/**
+ * The order shapes an update may produce. No `swap` member: an update cancels
+ * and re-places, so replacing a route order is placing one, and that is outside
+ * the audited surface (see {@link TxBuilderV4.swap}). An existing route order
+ * can still be cancelled.
+ */
+export type TUpdateV4Order = { kind: "basic" } & IBasicV4Args;
 
 /**
  * Arguments for placing several basic orders in one transaction via
@@ -479,30 +483,36 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   // -- Order placement ------------------------------------------------
 
   /**
-   * Places a v4 swap order — a single-asset offer that fills against whichever
-   * pool the scooper routes it through, subject to the `minReceived` targets.
+   * NOT IMPLEMENTED — use {@link swapIntent}.
    *
-   * A swap order must carry the full constraint set the swap `OrderConfig`
-   * requires — verified against live preview orders as
-   * `[swap-order, route-order, fairness-order]`, in that order:
-   *   - swap-order: the `SwapFields` payload (Constr 2)
-   *   - route-order: an empty list `[]` (scooper fills in routing at scoop time)
-   *   - fairness-order: `Void`
-   * The order-validator checks this list matches the OrderConfig's
-   * `required_constraints` exactly, so a partial set is rejected on-chain.
+   * A swap order carries the route constraint, which validates a strictly
+   * serial chain on-chain. That module is outside the launch's audited surface,
+   * so this builder will not construct one: an unaudited validator that nothing
+   * can reach is a validator nobody has to trust.
+   *
+   * The name is kept, and throws, on purpose. It is the method an integrator
+   * reaches for first, and failing loudly with a pointer is better than either
+   * a missing method (which reads as "v4 cannot swap") or a silent build
+   * against a validator we are not standing behind.
+   *
+   * Returns when the route module is audited and route orders are supported.
    */
-  public async swap(
-    args: ISwapV4Args,
-  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
-    const { offered, constraints, configToken } =
-      await this.buildSwapPlacement(args);
-    return this.placeOrder({ ...args, configToken }, offered, constraints);
+  public async swap(_args: ISwapV4Args): Promise<never> {
+    throw new Error(
+      "TxBuilderV4.swap is not implemented: swap orders carry the route " +
+        "constraint, which is not part of the audited launch surface. Use " +
+        "swapIntent(), which places the same trade as a basic order.",
+    );
   }
 
   /**
-   * Places a v4 swap as a **basic** order (constraint tag `Swap` = 2) rather
-   * than a route-bound swap order. Use this for a *complex* fill — one the
-   * scooper must split across multiple pools of the same pair (a blend).
+   * Places a v4 swap.
+   *
+   * An INTENT, which is what a v4 order is: an offer and a floor, naming no
+   * pool. The scooper decides how to fill it — one pool, a split across a
+   * pair's pools, or a multi-hop chain — and `minReceived` is what bounds the
+   * result. Nothing here mentions routes, reserves or curves, because the order
+   * does not.
    *
    * The route constraint that {@link swap} carries enforces strictly serial
    * routing on-chain (each hop's output is consumed by the next), so it cannot
@@ -518,7 +528,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * (single pool, or a genuine multi-hop chain across different pairs) through
    * {@link swap} instead, to keep its on-chain anti-skim guarantee.
    */
-  public async blendedSwap(
+  public async swapIntent(
     args: ISwapV4Args,
   ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
     const minReceived = Array.isArray(args.minReceived)
@@ -530,48 +540,6 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       offered: [args.offered],
       minReceived,
     });
-  }
-
-  /**
-   * Resolves a swap order's offered assets, full constraint set, and
-   * `config_token` — shared by {@link swap} and {@link update}. A swap must
-   * carry `[swap-order, route-order, fairness-order]` in that exact order.
-   */
-  private async buildSwapPlacement(args: ISwapV4Args): Promise<{
-    offered: AssetAmount<IAssetAmountMetadata>[];
-    constraints: Array<[string, Core.PlutusData]>;
-    configToken: string;
-  }> {
-    const minReceived = Array.isArray(args.minReceived)
-      ? args.minReceived
-      : [args.minReceived];
-
-    const swapData = this.datumBuilder.buildSwapConstraintData({
-      offered: args.offered,
-      originalOffered: args.offered.amount,
-      remainingOffered: args.offered.amount,
-      minReceived,
-    });
-
-    const [swapHash, routeHash, fairnessHash] = await this.getValidatorHashes([
-      V4_VALIDATORS.swapConstraint,
-      V4_VALIDATORS.routeConstraint,
-      V4_VALIDATORS.fairnessConstraint,
-    ]);
-
-    const configToken =
-      args.configToken ??
-      (await this.getOrderConfigToken(V4_ORDER_CONFIG_LABEL.swap));
-
-    return {
-      offered: [args.offered],
-      constraints: [
-        [swapHash, swapData],
-        [routeHash, emptyListData()],
-        [fairnessHash, DatumBuilderV4.buildVoidData()],
-      ],
-      configToken,
-    };
   }
 
   /**
@@ -986,9 +954,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     const { order } = args;
     const { offered, constraints, configToken } =
-      order.kind === "swap"
-        ? await this.buildSwapPlacement(order)
-        : await this.buildBasicPlacement(order);
+      await this.buildBasicPlacement(order);
 
     const { inline, deposit, budget } = await this.lockOrderIntoTx(
       tx,

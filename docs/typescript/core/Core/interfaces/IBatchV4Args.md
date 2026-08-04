@@ -18,7 +18,7 @@ minimums; their `referralFee` fields are ignored in favour of the batch's.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:192](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L192)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:196](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L196)
 
 ***
 
@@ -30,4 +30,4 @@ Taken once for the whole batch, not per order.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:194](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L194)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:198](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L198)

@@ -157,7 +157,7 @@ afterAll(() => {
 });
 
 const datumOf = async (
-  composed: Awaited<ReturnType<TxBuilderV4["swap"]>>,
+  composed: Awaited<ReturnType<TxBuilderV4["swapIntent"]>>,
 ): Promise<V4Types.OrderDatum> =>
   parse(
     V4Types.OrderDatum,
@@ -211,65 +211,24 @@ describe("TxBuilderV4", () => {
   });
 
   describe("swap()", () => {
-    it("emits the full swap constraint set [swap(Constr2), route([]), fairness(Void)] in order", async () => {
-      const composed = await builder.swap({
-        ownerAddress: OWNER,
-        offered: TOKEN,
-        minReceived: ADA,
-        budget: 3_000_000n,
-        maxPerExecution: 1_500_000n,
-        configToken: "aabb",
-      });
-
-      const datum = await datumOf(composed);
-
-      expect(datum.owner).toHaveProperty("Signature");
-      expect(datum.service_budget).toEqual(3_000_000n);
-      expect(datum.max_per_execution).toEqual(1_500_000n);
-      expect(datum.config_token).toEqual("aabb");
-
-      // three constraints in the OrderConfig-required order
-      expect(datum.constraints.map((c) => c[0])).toEqual([
-        SWAP_HASH,
-        ROUTE_HASH,
-        FAIRNESS_HASH,
-      ]);
-      expect(datum.constraints[0][1].toCbor().startsWith("d87b")).toBe(true); // Swap = Constr 2
-      expect(datum.constraints[1][1].toCbor()).toEqual(Core.HexBlob("80")); // route = empty list
-      expect(datum.constraints[2][1].toCbor()).toEqual(Core.HexBlob("d87980")); // fairness = Void
-    });
-
-    it("defaults the destination to the owner, budget to 3 ADA, and maxPerExecution to the fee settings", async () => {
-      const composed = await builder.swap({
-        ownerAddress: OWNER,
-        offered: TOKEN,
-        minReceived: ADA,
-        configToken: "aabb",
-      });
-      const datum = await datumOf(composed);
-      expect(datum.destination).toHaveProperty("Fixed");
-      expect(datum.service_budget).toEqual(3_000_000n);
-      // maxPerExecution defaults to baseFee + 2·feePerStep from fee-settings
-      // (mock: 1 ADA + 2·0.5 ADA).
-      expect(datum.max_per_execution).toEqual(2_000_000n);
-      // and the reserved budget is surfaced as the composed scooperFee.
-      expect(composed.fees.scooperFee.amount).toEqual(3_000_000n);
-    });
-
-    it("resolves config_token from the indexed settings when omitted (swap-order)", async () => {
-      const composed = await builder.swap({
+    it("refuses to build a route order, and says what to use instead", async () => {
+      // The route constraint is outside the audited launch surface, so the
+      // builder will not construct one. The method survives because it is what
+      // an integrator reaches for first — failing loudly with a pointer beats a
+      // missing method, which reads as "v4 cannot swap".
+      const attempt = builder.swap({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,
       });
-      const datum = await datumOf(composed);
-      expect(datum.config_token).toEqual(SWAP_CONFIG_TOKEN);
+
+      await expect(attempt).rejects.toThrow(/swapIntent/);
     });
   });
 
-  describe("blendedSwap()", () => {
+  describe("swapIntent()", () => {
     it("places the swap as a basic order [basic(Constr2), fairness(Void)] — NO route constraint — so the scooper can split it across pools", async () => {
-      const composed = await builder.blendedSwap({
+      const composed = await builder.swapIntent({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,
@@ -289,7 +248,7 @@ describe("TxBuilderV4", () => {
     });
 
     it("resolves the basic config_token (not the swap one) and settles to a Fixed destination", async () => {
-      const composed = await builder.blendedSwap({
+      const composed = await builder.swapIntent({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,
@@ -301,7 +260,7 @@ describe("TxBuilderV4", () => {
     });
 
     it("accepts a single minReceived (non-array) like swap()", async () => {
-      const composed = await builder.blendedSwap({
+      const composed = await builder.swapIntent({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,
@@ -493,7 +452,7 @@ describe("TxBuilderV4", () => {
 
   describe("getSignerKeyFromDatum()", () => {
     it("extracts the owner's key hash from a v4 order datum", async () => {
-      const composed = await builder.swap({
+      const composed = await builder.swapIntent({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,
@@ -510,7 +469,7 @@ describe("TxBuilderV4", () => {
 
   describe("cancel()", () => {
     it("spends the order UTxO with the Cancel redeemer and adds the owner signer", async () => {
-      const order = await builder.swap({
+      const order = await builder.swapIntent({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,
@@ -539,39 +498,10 @@ describe("TxBuilderV4", () => {
   });
 
   describe("update()", () => {
-    it("cancels the old order and locks a fresh swap order in one tx", async () => {
-      const old = await builder.swap({
-        ownerAddress: OWNER,
-        offered: TOKEN,
-        minReceived: ADA,
-        configToken: "aabb",
-      });
-      await mockOrderAndRefUtxos(old.datum as string);
-
-      const composed = await builder.update({
-        cancelUtxo: { hash: ORDER_UTXO_HASH, index: 0 },
-        order: {
-          kind: "swap",
-          ownerAddress: OWNER,
-          offered: TOKEN,
-          minReceived: ADA,
-          configToken: "ccdd",
-        },
-      });
-
-      // The composed datum is the NEW order, carrying the full swap set.
-      const datum = await datumOf(composed);
-      expect(datum.config_token).toEqual("ccdd");
-      expect(datum.constraints.map((c) => c[0])).toEqual([
-        SWAP_HASH,
-        ROUTE_HASH,
-        FAIRNESS_HASH,
-      ]);
-      expect(composed.fees.deposit.amount).toBeGreaterThan(0n);
-    });
-
     it("supports replacing with a basic order", async () => {
-      const old = await builder.swap({
+      // Any existing order works as the thing being replaced; what is under
+      // test is the cancel-and-re-place, not what was there before.
+      const old = await builder.swapIntent({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,

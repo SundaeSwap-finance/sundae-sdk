@@ -12,8 +12,12 @@ way the chain resolves them — capped by the scarcest offered asset rather than
 by the plain value sum, which matches only exactly proportional offers and
 otherwise mints less than it predicts.
 
-`TxBuilderV4.blendedSwap` places a complex swap as a basic order, so a trade
-that spans several of a pair's pools stays one pool-agnostic intent.
+`TxBuilderV4.swapIntent` places a v4 swap: an offer and a floor, naming no
+pool, which the scooper fills across one pool, several, or a chain.
+`TxBuilderV4.swap` now throws — swap orders carry the route constraint, which
+is outside the audited launch surface, and the name is kept so an integrator
+reaching for it is told what to use instead. Updating an order to a route order
+is gone from the type for the same reason.
 `TxBuilderV4.batch` places several basic orders in one transaction, for intents
 that are irreducibly plural — depositing across every concentrated-liquidity
 pool a price range touches is several orders because it is several pools, and

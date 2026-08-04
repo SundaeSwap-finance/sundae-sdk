@@ -41,7 +41,7 @@ export const V4Swap: FC<IV4ActionArgs> = ({
       }
 
       await builder
-        .swap({
+        .swapIntent({
           ownerAddress: activeWalletAddr,
           offered: new AssetAmount(5_000_000n, {
             assetId: ADA_ASSET_ID,

@@ -16,6 +16,7 @@ import { Blaze, Blockfrost, Core, HotWallet } from "@blaze-cardano/sdk";
 import { ADA_METADATA } from "../../core/src/constants.js";
 import { SundaeSDK } from "../../core/src/SundaeSDK.class.js";
 import { EContractVersion } from "../../core/src/@types/index.js";
+import { EV4BasicConstraint } from "../../core/src/DatumBuilders/DatumBuilder.V4.class.js";
 import type { TxBuilderV4 } from "../../core/src/TxBuilders/TxBuilder.V4.class.js";
 
 const SEED = process.env.SEED_PHRASE;
@@ -73,7 +74,7 @@ async function waitForOutput(
 async function submit(
   blaze: Blaze<Blockfrost, HotWallet>,
   wallet: HotWallet,
-  composed: Awaited<ReturnType<TxBuilderV4["swap"]>>,
+  composed: Awaited<ReturnType<TxBuilderV4["swapIntent"]>>,
   label: string,
 ): Promise<string> {
   const { builtTx } = await composed.build();
@@ -141,7 +142,7 @@ async function main() {
     console.log(`\n[1] resuming from existing order A ${txA}#0`);
   } else {
     console.log("\n[1] placing swap order A (unfillable)…");
-    const placeA = await builder.swap({
+    const placeA = await builder.swapIntent({
       ownerAddress: owner,
       offered: offered(),
       minReceived: ask(),
@@ -155,10 +156,11 @@ async function main() {
   const updateTx = await builder.update({
     cancelUtxo: { hash: txA, index: 0 },
     order: {
-      kind: "swap",
+      kind: "basic",
+      type: EV4BasicConstraint.Swap,
       ownerAddress: owner,
-      offered: offered(),
-      minReceived: ask(),
+      offered: [offered()],
+      minReceived: [ask()],
     },
   });
   const txB = await submit(blaze, wallet, updateTx, "update");

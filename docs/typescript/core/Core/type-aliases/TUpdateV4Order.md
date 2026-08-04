@@ -4,12 +4,19 @@
 
 # Type Alias: TUpdateV4Order
 
-> **TUpdateV4Order**: `object` & [`ISwapV4Args`](../interfaces/ISwapV4Args.md) \| `object` & [`IBasicV4Args`](../interfaces/IBasicV4Args.md)
+> **TUpdateV4Order**: `object` & [`IBasicV4Args`](../interfaces/IBasicV4Args.md)
 
-The replacement order for an [TxBuilderV4.update](../classes/TxBuilderV4.md#update) — a fresh swap or
-basic order placed in the same transaction that cancels the old one. The
-`kind` discriminator selects which constraint set the new order carries.
+The order shapes an update may produce. No `swap` member: an update cancels
+and re-places, so replacing a route order is placing one, and that is outside
+the audited surface (see [TxBuilderV4.swap](../classes/TxBuilderV4.md#swap)). An existing route order
+can still be cancelled.
+
+## Type declaration
+
+### kind
+
+> **kind**: `"basic"`
 
 ## Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:179](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L179)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:185](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L185)
