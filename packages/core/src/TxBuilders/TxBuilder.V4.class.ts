@@ -180,6 +180,20 @@ export type TUpdateV4Order =
   | ({ kind: "swap" } & ISwapV4Args)
   | ({ kind: "basic" } & IBasicV4Args);
 
+/**
+ * Arguments for placing several basic orders in one transaction via
+ * {@link TxBuilderV4.batch}.
+ */
+export interface IBatchV4Args {
+  /**
+   * The orders to place. Each carries its own type, offered assets and
+   * minimums; their `referralFee` fields are ignored in favour of the batch's.
+   */
+  orders: IBasicV4Args[];
+  /** Taken once for the whole batch, not per order. */
+  referralFee?: ITxBuilderReferralFee;
+}
+
 /** Arguments for updating a v4 order via {@link TxBuilderV4.update}. */
 export interface IUpdateV4Args {
   /** The order UTxO being replaced — spent via the order validator's Cancel path. */
@@ -680,6 +694,68 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     args: Omit<IBasicV4Args, "type">,
   ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
     return this.basic({ ...args, type: EV4BasicConstraint.Claim });
+  }
+
+  /**
+   * Places SEVERAL basic orders in one transaction.
+   *
+   * Some intents are irreducibly plural: covering a stretch of the price line
+   * with concentrated liquidity means depositing into every pool whose range it
+   * touches, and those are separate orders because they are separate pools. One
+   * order per transaction would mean one wallet signature per pool, and a
+   * partially-signed set leaves the position half-built.
+   *
+   * Every order is locked onto the same transaction, and the reported deposit
+   * and scooper fee are the SUMS across them — each order reserves its own
+   * budget, so a batch of five costs five budgets, not one.
+   *
+   * `datum` on the result is the first order's, since the shape carries a single
+   * datum; the orders' own datums are each locked into their outputs. Referral
+   * is taken once for the batch rather than per order — the per-order field is
+   * ignored here, so a caller can't accidentally pay it N times.
+   */
+  public async batch(
+    args: IBatchV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    if (!args.orders.length) {
+      throw new Error("A batch needs at least one order.");
+    }
+
+    const tx = this.newTxInstance();
+    let totalDeposit = 0n;
+    let totalBudget = 0n;
+    let firstDatum: string | undefined;
+
+    // Sequential rather than concurrent: each call mutates the shared tx, and
+    // the settings lookups behind them are cached after the first.
+    for (const order of args.orders) {
+      const { offered, constraints, configToken } =
+        await this.buildBasicPlacement(order);
+      const { inline, deposit, budget } = await this.lockOrderIntoTx(
+        tx,
+        { ...order, configToken, referralFee: undefined },
+        offered,
+        constraints,
+      );
+      firstDatum ??= inline;
+      totalDeposit += deposit;
+      totalBudget += budget;
+    }
+
+    if (args.referralFee) {
+      tx.payAssets(
+        Core.addressFromBech32(args.referralFee.destination),
+        args.referralFee.payment,
+      );
+    }
+
+    return this.completeTx({
+      tx,
+      datum: firstDatum as string,
+      referralFee: args.referralFee?.payment,
+      deposit: totalDeposit,
+      scooperFee: totalBudget,
+    });
   }
 
   /**
