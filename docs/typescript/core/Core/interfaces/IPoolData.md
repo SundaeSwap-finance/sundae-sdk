@@ -57,3 +57,18 @@ output; ignored by other curves.
 #### Defined in
 
 [packages/core/src/@types/queryprovider.ts:115](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L115)
+
+***
+
+### sqrtPrices?
+
+> `optional` **sqrtPrices**: [[`bigint`, `bigint`], [`bigint`, `bigint`]]
+
+For v4 concentrated-liquidity pools, the immutable sqrt-price range bounds
+from the pool's CL config as exact rationals `[[aNum, aDen], [bNum, bDen]]`
+(lower bound `a` < upper bound `b`). Required to compute CL swap output;
+ignored by other curves.
+
+#### Defined in
+
+[packages/core/src/@types/queryprovider.ts:122](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L122)

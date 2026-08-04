@@ -25,7 +25,7 @@ each execution's fee (see sundae-v4 docs/fee-system.md).
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L47)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:56](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L56)
 
 ***
 
@@ -37,7 +37,7 @@ The asset name of the config token identifying the protocol config.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:55](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L55)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L64)
 
 ***
 
@@ -49,7 +49,7 @@ The `(module_hash, data)` constraint entries.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L57)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:66](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L66)
 
 ***
 
@@ -61,7 +61,7 @@ Where the order pays out, or `Self` to re-lock at the order address.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L42)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:51](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L51)
 
 ***
 
@@ -73,7 +73,7 @@ Arbitrary extension data. Defaults to `Void`.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L59)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:68](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L68)
 
 ***
 
@@ -87,7 +87,7 @@ settlement amount, and what buys the scooper's routing fan-out
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:53](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L53)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:62](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L62)
 
 ***
 
@@ -99,4 +99,4 @@ The address (or explicit multisig) that owns / can cancel the order.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L40)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:49](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L49)

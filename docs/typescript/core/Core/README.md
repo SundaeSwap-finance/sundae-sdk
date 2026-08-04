@@ -47,6 +47,7 @@ SundaeSwap protocol.
 - [IArguments](interfaces/IArguments.md)
 - [IBaseConfig](interfaces/IBaseConfig.md)
 - [IBasicV4Args](interfaces/IBasicV4Args.md)
+- [IBatchV4Args](interfaces/IBatchV4Args.md)
 - [ICancelConfigArgs](interfaces/ICancelConfigArgs.md)
 - [IComposedTx](interfaces/IComposedTx.md)
 - [ICurrentFeeFromDecayingFeeArgs](interfaces/ICurrentFeeFromDecayingFeeArgs.md)
