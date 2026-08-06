@@ -137,29 +137,26 @@ export class SundaeUtils {
     protocols: ISundaeProtocolParams[];
   }): boolean {
     try {
-      const version = SundaeUtils.getPoolVersionFromAssetId(assetId);
-      if (!version) {
+      // getPoolVersionFromAssetId reads the asset-NAME LABEL, which can only
+      // split V1 (6c7020) from the 0014df10 family — V3, Stableswaps and V4 LP
+      // tokens all share that label. So a returned "V3" means "bears the
+      // 0014df10 label", NOT "is a V3 asset"; the mint policy hash is what
+      // disambiguates, via isLPAsset per candidate version.
+      const labelledVersion = SundaeUtils.getPoolVersionFromAssetId(assetId);
+      if (!labelledVersion) {
         return false;
       }
-      if (version === EContractVersion.V3) {
-        // V3, Stableswaps, and V4 LP tokens all share the 0014df10 asset-name
-        // label, so the version derived from the asset id alone is ambiguous —
-        // check all three (the mint policy hash disambiguates).
-        return (
-          SundaeUtils.isLPAsset({ assetId, protocols, version }) ||
-          SundaeUtils.isLPAsset({
-            assetId,
-            protocols,
-            version: EContractVersion.Stableswaps,
-          }) ||
-          SundaeUtils.isLPAsset({
-            assetId,
-            protocols,
-            version: EContractVersion.V4,
-          })
-        );
-      }
-      return SundaeUtils.isLPAsset({ assetId, protocols, version });
+      const candidateVersions =
+        labelledVersion === EContractVersion.V3
+          ? [
+              EContractVersion.V3,
+              EContractVersion.Stableswaps,
+              EContractVersion.V4,
+            ]
+          : [labelledVersion];
+      return candidateVersions.some((version) =>
+        SundaeUtils.isLPAsset({ assetId, protocols, version }),
+      );
     } catch {
       return false;
     }
