@@ -344,8 +344,12 @@ export const calculateDepositN = (
   if (amounts.length !== reserves.length || reserves.length !== prices.length)
     throw new Error("amounts, reserves and prices must be aligned");
   if (prices.some((p) => p <= 0n)) throw new Error("Prices must be positive");
+  // Zeros in a MIX are fine — offering a subset is the point of the N-asset
+  // form. What's rejected is a negative amount, or offering nothing at all.
   if (amounts.some((a) => a < 0n) || amounts.every((a) => a === 0n))
-    throw new Error("Cannot use a deposit asset amount of 0");
+    throw new Error(
+      "Deposit amounts must be non-negative, with at least one positive",
+    );
 
   let totalValue = 0n;
   let depositValue = 0n;

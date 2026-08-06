@@ -646,6 +646,19 @@ export class SundaeUtils {
           poolData.linearAmplificationFactor ?? 1n,
         );
       case EContractVersion.V4:
+        // The orientation above reads "not assetA" as assetB, so an asset this
+        // pool data doesn't contain would silently price against the wrong
+        // side and return a plausible-looking nonsense quote. That exact
+        // failure shipped repeatedly in the UI as the display-pair trap —
+        // refuse it here instead of propagating it.
+        if (
+          suppliedAsset.metadata.assetId !== poolData.assetA.assetId &&
+          suppliedAsset.metadata.assetId !== poolData.assetB.assetId
+        ) {
+          throw new Error(
+            `Cannot compute a swap output: supplied asset ${suppliedAsset.metadata.assetId} is not one of the pool's assets.`,
+          );
+        }
         // v4 is module-composable: the swap math depends on the pool's
         // invariant curve, not the contract version. `currentFee` is the full
         // curve fee (the fee-split module apportions protocol vs LP afterward,
@@ -767,6 +780,16 @@ export class SundaeUtils {
           poolData.linearAmplificationFactor ?? 1n,
         );
       case EContractVersion.V4:
+        // See getSwapOutput — same guard, same reason: "not assetA" reads as
+        // assetB, so an unrelated asset silently inverts the orientation.
+        if (
+          output.metadata.assetId !== poolData.assetA.assetId &&
+          output.metadata.assetId !== poolData.assetB.assetId
+        ) {
+          throw new Error(
+            `Cannot compute a swap input: output asset ${output.metadata.assetId} is not one of the pool's assets.`,
+          );
+        }
         // See getSwapOutput: v4 swap math follows the pool's invariant curve.
         switch (poolData.curve) {
           case EPoolCurve.ConstantProduct:
@@ -881,7 +904,10 @@ export class SundaeUtils {
       case EContractVersion.V4:
         // v4 deposits follow the pool's invariant curve: constant product
         // enforces proportionality on-chain (excess refunded, like v1/v3);
-        // constant sum values any mix at the pool prices with no refunds.
+        // constant sum is TARGET-PINNED — the fill is capped by the scarcest
+        // offered leg at the pool's fixed prices, and surplus above the pinned
+        // deltas comes back via aChange/bChange, exactly like the scoop refunds
+        // it on-chain.
         switch (poolData.curve) {
           case EPoolCurve.ConstantProduct:
             return ConstantProductPool.calculateLiquidity(
