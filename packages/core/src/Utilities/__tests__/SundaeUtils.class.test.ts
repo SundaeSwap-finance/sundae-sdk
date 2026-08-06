@@ -540,6 +540,31 @@ describe("SundaeUtils class", () => {
     });
   });
 
+  describe("resolveLPVersion", () => {
+    // The asset's policy id IS the hash of the pool.mint validator that minted
+    // it, so the version question is answered by comparing it against each
+    // known version's hash. The NAME never enters into it.
+    const v4LpAssetId =
+      "20d919fa44c2f96e319857b14f8e6945d83ed5df054b1b7f94b35b45.0014df10c618676e6e120cbf6742727ce06352f6e018ffcdad33a0931ef4716b";
+
+    it("resolves a V4 LP to V4 by mint policy — not to 'V3', which its label suggests", () => {
+      expect(
+        SundaeUtils.resolveLPVersion(v4LpAssetId, mockedProtocols),
+      ).toEqual(EContractVersion.V4);
+    });
+
+    it("resolves undefined for a CIP-68 token no Sundae version minted", () => {
+      // Wearing the shared 0014df10 label is not evidence — this is exactly
+      // the case a name-derived "version" got wrong by construction.
+      expect(
+        SundaeUtils.resolveLPVersion(
+          `${"ab".repeat(28)}.0014df100101`,
+          mockedProtocols,
+        ),
+      ).toBeUndefined();
+    });
+  });
+
   describe("getPoolVersionFromAssetId", () => {
     it("should return the right contract version", () => {
       expect(

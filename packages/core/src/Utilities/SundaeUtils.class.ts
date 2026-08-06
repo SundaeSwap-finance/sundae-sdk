@@ -136,30 +136,7 @@ export class SundaeUtils {
     assetId: string;
     protocols: ISundaeProtocolParams[];
   }): boolean {
-    try {
-      // getPoolVersionFromAssetId reads the asset-NAME LABEL, which can only
-      // split V1 (6c7020) from the 0014df10 family — V3, Stableswaps and V4 LP
-      // tokens all share that label. So a returned "V3" means "bears the
-      // 0014df10 label", NOT "is a V3 asset"; the mint policy hash is what
-      // disambiguates, via isLPAsset per candidate version.
-      const labelledVersion = SundaeUtils.getPoolVersionFromAssetId(assetId);
-      if (!labelledVersion) {
-        return false;
-      }
-      const candidateVersions =
-        labelledVersion === EContractVersion.V3
-          ? [
-              EContractVersion.V3,
-              EContractVersion.Stableswaps,
-              EContractVersion.V4,
-            ]
-          : [labelledVersion];
-      return candidateVersions.some((version) =>
-        SundaeUtils.isLPAsset({ assetId, protocols, version }),
-      );
-    } catch {
-      return false;
-    }
+    return SundaeUtils.resolveLPVersion(assetId, protocols) !== undefined;
   }
 
   /**
@@ -567,31 +544,55 @@ export class SundaeUtils {
    * @returns {string}
    */
   static getIdentFromAssetId(id: string): string {
-    // Remove the prefix from the asset name to get the ident.
-    const version = SundaeUtils.getPoolVersionFromAssetId(id);
-    const prefix =
-      version === EContractVersion.V1 ? CONTRACT_V1_PREFIX : CONTRACT_V3_PREFIX;
-
+    // Purely a NAMING question — which convention's prefix to strip — so the
+    // version never enters into it. Anchored to the start: `replace` would take
+    // the first occurrence anywhere in the name.
     const assetName = id.includes(".") ? id.split(".")[1] : id.slice(56);
-    return assetName.replace(prefix, "");
+    for (const prefix of [CONTRACT_V1_PREFIX, CONTRACT_V3_PREFIX]) {
+      if (assetName.startsWith(prefix)) {
+        return assetName.slice(prefix.length);
+      }
+    }
+    throw new Error(
+      "Could not find a contract version prefix in the asset name!",
+    );
   }
 
   /**
-   * Helper method to determine a contract version based on the prefix in the asset name.
-   * @param {string} id The asset ID.
-   * @returns {EContractVersion}
+   * The version that minted this LP token, or undefined.
+   *
+   * Answered the only way it can be: the asset's policy id IS the hash of the
+   * `pool.mint` validator that minted it, so compare it against each known
+   * version's hash. The asset NAME never enters into it — a name is a naming
+   * convention (V1's `6c7020`, the CIP-67 fungible label `0014df10` for
+   * everything since), shared across versions and standard across the whole
+   * ecosystem, so it can neither identify a version nor safely rule one out.
+   */
+  static resolveLPVersion(
+    assetId: string,
+    protocols: ISundaeProtocolParams[],
+  ): EContractVersion | undefined {
+    return protocols
+      .map((protocol) => protocol.version)
+      .find((version) =>
+        SundaeUtils.isLPAsset({ assetId, protocols, version }),
+      );
+  }
+
+  /**
+   * @deprecated This promises a version from an asset NAME, which cannot carry
+   * one: V3, Stableswaps, V4 — and every future version — share the CIP-68
+   * naming convention, which this reports as `V3`. Use
+   * {@link resolveLPVersion}, which answers by mint policy hash.
    */
   static getPoolVersionFromAssetId(id: string): EContractVersion {
     const assetName = id.includes(".") ? id.split(".")[1] : id.slice(56);
-
-    if (assetName.indexOf(CONTRACT_V1_PREFIX) === 0) {
+    if (assetName.startsWith(CONTRACT_V1_PREFIX)) {
       return EContractVersion.V1;
     }
-
-    if (assetName.indexOf(CONTRACT_V3_PREFIX) === 0) {
+    if (assetName.startsWith(CONTRACT_V3_PREFIX)) {
       return EContractVersion.V3;
     }
-
     throw new Error(
       "Could not find a contract version prefix in the asset name!",
     );

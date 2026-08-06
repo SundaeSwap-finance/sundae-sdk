@@ -24,4 +24,9 @@ pool a price range touches is several orders because it is several pools, and
 one signature per pool leaves a half-built position.
 
 Also: `SundaeUtils.isLPAsset` recognizes v4 LP assets, and v4 validator titles
-follow the dotted convention used by V1/V3.
+follow the dotted convention used by V1/V3. New `SundaeUtils.resolveLPVersion`
+answers "which version minted this LP?" the only way it can be answered — by
+comparing the asset's policy id against each version's `pool.mint` hash —
+and `getPoolVersionFromAssetId` is deprecated: an asset name is a naming
+convention shared by V3, Stableswaps, V4 and every future version, so it
+cannot carry a version.
