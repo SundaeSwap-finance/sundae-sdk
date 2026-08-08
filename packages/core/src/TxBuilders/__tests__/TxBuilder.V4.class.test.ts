@@ -16,7 +16,11 @@ import {
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { SundaeSDK } from "../../SundaeSDK.class.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
-import { TxBuilderV4, V4_VALIDATORS } from "../TxBuilder.V4.class.js";
+import {
+  IBasicV4Args,
+  TxBuilderV4,
+  V4_VALIDATORS,
+} from "../TxBuilder.V4.class.js";
 
 const OWNER =
   "addr1qxt2wmg0z7djtl6aypp4auynxcd8he3u55ztr930su3awsv9fw8fnewskjvp0hg0yk89g5gq4c57nlz3tktjxy3avezqejdfyn";
@@ -92,9 +96,9 @@ const POOL_MODULE_CONFIGS = {
 // hash → title → reference.
 const MODULE_HASHES: Record<string, string> = {
   pool: POOL_HASH,
-  "pool-mint": POOL_MINT_HASH,
-  "constant-sum": CS_HASH,
-  "fee-split": FEESPLIT_HASH,
+  poolMint: POOL_MINT_HASH,
+  constantSum: CS_HASH,
+  feeSplit: FEESPLIT_HASH,
   fairness: FAIRNESS_MOD_HASH,
 };
 const refHashFor = (key: string) =>
@@ -136,7 +140,8 @@ spyOn(
   "getProtocolSettings",
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ).mockResolvedValue([
-  { label: "settings", txIn: { hash: "aa", index: 0 }, datum: "d8", values: { minShareBatcher: "100" } },
+  { label: "settings", txIn: { hash: "aa", index: 0 }, datum: "d8", values: null },
+  { label: "fee-settings", txIn: { hash: "af", index: 0 }, datum: "d8", values: { baseFee: "1000000", feePerStep: "500000" } },
   { label: "swap-order", txIn: { hash: "bb", index: 0 }, datum: "d8", values: { token: SWAP_CONFIG_TOKEN, requiredConstraints: [] } },
   { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: "d8", values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
   { label: "strategy-order", txIn: { hash: "ce", index: 0 }, datum: "d8", values: { token: "00d5ea9b", requiredConstraints: [] } },
@@ -156,7 +161,7 @@ afterAll(() => {
 });
 
 const datumOf = async (
-  composed: Awaited<ReturnType<TxBuilderV4["swap"]>>,
+  composed: Awaited<ReturnType<TxBuilderV4["swapIntent"]>>,
 ): Promise<V4Types.OrderDatum> =>
   parse(
     V4Types.OrderDatum,
@@ -210,58 +215,63 @@ describe("TxBuilderV4", () => {
   });
 
   describe("swap()", () => {
-    it("emits the full swap constraint set [swap(Constr2), route([]), fairness(Void)] in order", async () => {
-      const composed = await builder.swap({
+    it("refuses to build a route order, and says what to use instead", async () => {
+      // The route constraint is outside the audited launch surface, so the
+      // builder will not construct one. The method survives because it is what
+      // an integrator reaches for first — failing loudly with a pointer beats a
+      // missing method, which reads as "v4 cannot swap".
+      const attempt = builder.swap({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,
-        budget: 3_000_000n,
-        shareBatcher: 500n,
-        configToken: "aabb",
       });
 
+      await expect(attempt).rejects.toThrow(/swapIntent/);
+    });
+  });
+
+  describe("swapIntent()", () => {
+    it("places the swap as a basic order [basic(Constr2), fairness(Void)] — NO route constraint — so the scooper can split it across pools", async () => {
+      const composed = await builder.swapIntent({
+        ownerAddress: OWNER,
+        offered: TOKEN,
+        minReceived: ADA,
+        configToken: "aabb",
+      });
       const datum = await datumOf(composed);
 
-      expect(datum.owner).toHaveProperty("Signature");
-      expect(datum.budget).toEqual(3_000_000n);
-      expect(datum.share_batcher).toEqual(500n);
-      expect(datum.config_token).toEqual("aabb");
-
-      // three constraints in the OrderConfig-required order
+      // Only [basic, fairness] — the absent route constraint is the whole point:
+      // it would force serial routing and forbid a parallel same-pair split.
       expect(datum.constraints.map((c) => c[0])).toEqual([
-        SWAP_HASH,
-        ROUTE_HASH,
+        BASIC_HASH,
         FAIRNESS_HASH,
       ]);
-      expect(datum.constraints[0][1].toCbor().startsWith("d87b")).toBe(true); // Swap = Constr 2
-      expect(datum.constraints[1][1].toCbor()).toEqual(Core.HexBlob("80")); // route = empty list
-      expect(datum.constraints[2][1].toCbor()).toEqual(Core.HexBlob("d87980")); // fairness = Void
+      // basic-order payload uses constructor index 2 (Swap).
+      expect(datum.constraints[0][1].toCbor().startsWith("d87b")).toBe(true);
+      expect(datum.constraints[1][1].toCbor()).toEqual(Core.HexBlob("d87980"));
     });
 
-    it("defaults the destination to the owner, budget to 3 ADA, and shareBatcher to settings.minShareBatcher", async () => {
-      const composed = await builder.swap({
+    it("resolves the basic config_token (not the swap one) and settles to a Fixed destination", async () => {
+      const composed = await builder.swapIntent({
+        ownerAddress: OWNER,
+        offered: TOKEN,
+        minReceived: ADA,
+      });
+      const datum = await datumOf(composed);
+      expect(datum.config_token).toEqual(BASIC_CONFIG_TOKEN);
+      // Basic orders settle single-shot to a Fixed destination (no partial fill).
+      expect(datum.destination).toHaveProperty("Fixed");
+    });
+
+    it("accepts a single minReceived (non-array) like swap()", async () => {
+      const composed = await builder.swapIntent({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,
         configToken: "aabb",
       });
       const datum = await datumOf(composed);
-      expect(datum.destination).toHaveProperty("Fixed");
-      expect(datum.budget).toEqual(3_000_000n);
-      // shareBatcher is the protocol's minShareBatcher from settings (mock = 100).
-      expect(datum.share_batcher).toEqual(100n);
-      // and the reserved budget is surfaced as the composed scooperFee.
-      expect(composed.fees.scooperFee.amount).toEqual(3_000_000n);
-    });
-
-    it("resolves config_token from the indexed settings when omitted (swap-order)", async () => {
-      const composed = await builder.swap({
-        ownerAddress: OWNER,
-        offered: TOKEN,
-        minReceived: ADA,
-      });
-      const datum = await datumOf(composed);
-      expect(datum.config_token).toEqual(SWAP_CONFIG_TOKEN);
+      expect(datum.constraints[0][1].toCbor().startsWith("d87b")).toBe(true);
     });
   });
 
@@ -304,6 +314,21 @@ describe("TxBuilderV4", () => {
       });
       const datum = await datumOf(composed);
       expect(datum.constraints[0][1].toCbor().startsWith("d87c")).toBe(true);
+    });
+
+    it("claim() is basic(Claim) and resolves the basic config_token", async () => {
+      const composed = await builder.claim({
+        ownerAddress: OWNER,
+        offered: [TOKEN],
+        minReceived: [ADA],
+      });
+      const datum = await datumOf(composed);
+      expect(datum.constraints.map((c) => c[0])).toEqual([
+        BASIC_HASH,
+        FAIRNESS_HASH,
+      ]);
+      expect(datum.constraints[0][1].toCbor().startsWith("d87c")).toBe(true);
+      expect(datum.config_token).toEqual(BASIC_CONFIG_TOKEN);
     });
   });
 
@@ -431,7 +456,7 @@ describe("TxBuilderV4", () => {
 
   describe("getSignerKeyFromDatum()", () => {
     it("extracts the owner's key hash from a v4 order datum", async () => {
-      const composed = await builder.swap({
+      const composed = await builder.swapIntent({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,
@@ -448,7 +473,7 @@ describe("TxBuilderV4", () => {
 
   describe("cancel()", () => {
     it("spends the order UTxO with the Cancel redeemer and adds the owner signer", async () => {
-      const order = await builder.swap({
+      const order = await builder.swapIntent({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,
@@ -476,40 +501,124 @@ describe("TxBuilderV4", () => {
     });
   });
 
-  describe("update()", () => {
-    it("cancels the old order and locks a fresh swap order in one tx", async () => {
-      const old = await builder.swap({
+  describe("batch()", () => {
+    // A distinct destination for the referral, so counting outputs to it can't
+    // be confused with change flowing back to the owner.
+    const REFERRAL_DEST =
+      "addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk";
+
+    // These are the only v4 tests that BUILD the tx — everything else stops at
+    // the datum — so the wallet must actually be able to fund them: seed
+    // generous ADA-only UTxOs at the owner (the emulator's stock fixtures live
+    // at a different address), and offer ADA rather than TOKEN, which the
+    // fixture wallet does not hold.
+    beforeEach(() => {
+      getUtxosMock.mockResolvedValue(
+        [0, 1].map((i) =>
+          Core.TransactionUnspentOutput.fromCore([
+            new Core.TransactionInput(
+              Core.TransactionId("ab".repeat(32)),
+              BigInt(i),
+            ).toCore(),
+            Core.TransactionOutput.fromCore({
+              address: Core.getPaymentAddress(Core.addressFromBech32(OWNER)),
+              value: makeValue(100_000_000n).toCore(),
+            }).toCore(),
+          ]),
+        ),
+      );
+    });
+
+    const depositOrder = (configToken?: string): IBasicV4Args => ({
+      type: EV4BasicConstraint.Deposit,
+      ownerAddress: OWNER,
+      offered: [ADA],
+      minReceived: [ADA],
+      ...(configToken ? { configToken } : {}),
+    });
+
+    it("refuses an empty batch", async () => {
+      await expect(builder.batch({ orders: [] })).rejects.toThrow(
+        /at least one order/,
+      );
+    });
+
+    it("locks one order output per order, and the composed datum is the FIRST order's", async () => {
+      const composed = await builder.batch({
+        orders: [depositOrder("aabb"), depositOrder("ccdd")],
+      });
+
+      // The composed shape carries a single datum; it must be order #0's, and
+      // each order's own datum still travels inline on its output.
+      const datum = await datumOf(
+        composed as Awaited<ReturnType<TxBuilderV4["swapIntent"]>>,
+      );
+      expect(datum.config_token).toEqual("aabb");
+
+      const { builtTx } = await composed.build();
+      const orderAddress = await builder.getOrderScriptAddress(OWNER);
+      const outputs = [...Array(builtTx.body().outputs().length).keys()].map(
+        (i) => builtTx.body().outputs()[i],
+      );
+      const orderOutputs = outputs.filter(
+        (o) => o.address().toBech32() === orderAddress,
+      );
+      expect(orderOutputs.length).toEqual(2);
+      // Both order outputs carry an inline datum — neither order lost its own.
+      expect(orderOutputs.every((o) => o.datum() !== undefined)).toBe(true);
+    });
+
+    it("reports the SUMS of deposit and scooper fee — a batch of two costs two budgets", async () => {
+      const single = await builder.swapIntent({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,
-        configToken: "aabb",
       });
-      await mockOrderAndRefUtxos(old.datum as string);
-
-      const composed = await builder.update({
-        cancelUtxo: { hash: ORDER_UTXO_HASH, index: 0 },
-        order: {
-          kind: "swap",
-          ownerAddress: OWNER,
-          offered: TOKEN,
-          minReceived: ADA,
-          configToken: "ccdd",
-        },
+      const pair = await builder.batch({
+        orders: [depositOrder(), depositOrder()],
       });
 
-      // The composed datum is the NEW order, carrying the full swap set.
-      const datum = await datumOf(composed);
-      expect(datum.config_token).toEqual("ccdd");
-      expect(datum.constraints.map((c) => c[0])).toEqual([
-        SWAP_HASH,
-        ROUTE_HASH,
-        FAIRNESS_HASH,
-      ]);
-      expect(composed.fees.deposit.amount).toBeGreaterThan(0n);
+      expect(pair.fees.scooperFee.amount).toEqual(
+        single.fees.scooperFee.amount * 2n,
+      );
+      expect(pair.fees.deposit.amount).toEqual(single.fees.deposit.amount * 2n);
     });
 
+    it("pays the referral ONCE for the batch, ignoring per-order referral fees", async () => {
+      const payment = new Core.Value(2_000_000n);
+      const composed = await builder.batch({
+        orders: [
+          // Per-order referral fields must be ignored — honouring them would
+          // pay the referral N times for one signature.
+          {
+            ...depositOrder(),
+            referralFee: { destination: REFERRAL_DEST, payment },
+          },
+          {
+            ...depositOrder(),
+            referralFee: { destination: REFERRAL_DEST, payment },
+          },
+        ],
+        referralFee: { destination: REFERRAL_DEST, payment },
+      });
+
+      const { builtTx } = await composed.build();
+      const outputs = [...Array(builtTx.body().outputs().length).keys()].map(
+        (i) => builtTx.body().outputs()[i],
+      );
+      const referralOutputs = outputs.filter(
+        (o) => o.address().toBech32() === REFERRAL_DEST,
+      );
+      expect(referralOutputs.length).toEqual(1);
+      expect(referralOutputs[0].amount().coin()).toEqual(2_000_000n);
+    });
+  });
+
+  describe("update()", () => {
     it("supports replacing with a basic order", async () => {
-      const old = await builder.swap({
+      // Any existing order works as the thing being replaced; what is under
+      // test is the cancel-and-re-place, not what was there before.
+      const old = await builder.swapIntent({
         ownerAddress: OWNER,
         offered: TOKEN,
         minReceived: ADA,

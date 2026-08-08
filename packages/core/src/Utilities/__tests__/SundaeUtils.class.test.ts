@@ -4,6 +4,7 @@ import { describe, expect, it, spyOn } from "bun:test";
 import {
   EContractVersion,
   EPoolCoin,
+  EPoolCurve,
   IPoolData,
   ISundaeProtocolParams,
 } from "../../@types/index.js";
@@ -35,6 +36,18 @@ const mockedProtocols: ISundaeProtocolParams[] = [
     },
     references: [],
     version: EContractVersion.V3,
+  },
+  {
+    blueprint: {
+      validators: [
+        {
+          hash: "20d919fa44c2f96e319857b14f8e6945d83ed5df054b1b7f94b35b45",
+          title: "pool.mint",
+        },
+      ],
+    },
+    references: [],
+    version: EContractVersion.V4,
   },
 ];
 
@@ -416,6 +429,36 @@ describe("SundaeUtils class", () => {
       });
       expect(result).toBe(false);
     });
+
+    it("should match V4 LP assets against the pool.mint validator", () => {
+      const v4LpAssetId =
+        "20d919fa44c2f96e319857b14f8e6945d83ed5df054b1b7f94b35b45.0014df10c618676e6e120cbf6742727ce06352f6e018ffcdad33a0931ef4716b";
+      expect(
+        SundaeUtils.isLPAsset({
+          assetId: v4LpAssetId,
+          protocols: mockedProtocols,
+          version: EContractVersion.V4,
+        }),
+      ).toBe(true);
+
+      // The 0014df10 label alone must not classify — the policy must match.
+      expect(
+        SundaeUtils.isLPAsset({
+          assetId:
+            "e0302560ced2fdcbfcb2602697df970cd0d6a38f94b32703f51c312b.0014df100101",
+          protocols: mockedProtocols,
+          version: EContractVersion.V4,
+        }),
+      ).toBe(false);
+
+      // isAnyLPAsset resolves the shared 0014df10 label across V3/Stable/V4.
+      expect(
+        SundaeUtils.isAnyLPAsset({
+          assetId: v4LpAssetId,
+          protocols: mockedProtocols,
+        }),
+      ).toBe(true);
+    });
   });
 
   describe("isAssetIdsEqual", () => {
@@ -494,6 +537,31 @@ describe("SundaeUtils class", () => {
           "Could not find a contract version prefix in the asset name!",
         ),
       );
+    });
+  });
+
+  describe("resolveLPVersion", () => {
+    // The asset's policy id IS the hash of the pool.mint validator that minted
+    // it, so the version question is answered by comparing it against each
+    // known version's hash. The NAME never enters into it.
+    const v4LpAssetId =
+      "20d919fa44c2f96e319857b14f8e6945d83ed5df054b1b7f94b35b45.0014df10c618676e6e120cbf6742727ce06352f6e018ffcdad33a0931ef4716b";
+
+    it("resolves a V4 LP to V4 by mint policy — not to 'V3', which its label suggests", () => {
+      expect(
+        SundaeUtils.resolveLPVersion(v4LpAssetId, mockedProtocols),
+      ).toEqual(EContractVersion.V4);
+    });
+
+    it("resolves undefined for a CIP-68 token no Sundae version minted", () => {
+      // Wearing the shared 0014df10 label is not evidence — this is exactly
+      // the case a name-derived "version" got wrong by construction.
+      expect(
+        SundaeUtils.resolveLPVersion(
+          `${"ab".repeat(28)}.0014df100101`,
+          mockedProtocols,
+        ),
+      ).toBeUndefined();
     });
   });
 
@@ -630,6 +698,285 @@ describe("SundaeUtils class", () => {
     });
   });
 
+  describe("getSwapOutput v4", () => {
+    const base: IPoolData = {
+      ...PREVIEW_DATA.pools.v1,
+      currentFee: 0.003,
+      liquidity: {
+        ...PREVIEW_DATA.pools.v1.liquidity,
+        aReserve: 1_000_000_000n,
+        bReserve: 1_000_000_000n,
+      },
+    };
+    const suppliedA = new AssetAmount(10_000n, base.assetA);
+
+    it("dispatches the constant-product curve to constant-product math", () => {
+      const v4 = SundaeUtils.getSwapOutput(
+        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        suppliedA,
+      ).output;
+      const v3 = SundaeUtils.getSwapOutput(
+        { ...base, version: EContractVersion.V3 },
+        suppliedA,
+      ).output;
+      expect(v4).toEqual(v3);
+    });
+
+    it("dispatches the constant-sum curve using the pool prices", () => {
+      // par prices, 0.3% fee, 10000 in -> 9970 out (scooper cs_swap_result).
+      const { output } = SundaeUtils.getSwapOutput(
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConstantSum,
+          prices: [1_000_000n, 1_000_000n],
+        },
+        suppliedA,
+      );
+      expect(output).toEqual(9970n);
+    });
+
+    it("throws for a constant-sum pool missing prices", () => {
+      expect(() =>
+        SundaeUtils.getSwapOutput(
+          { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantSum },
+          suppliedA,
+        ),
+      ).toThrowError(/prices/);
+    });
+
+    it("dispatches the concentrated-liquidity curve using the sqrt-price bounds", () => {
+      const { output } = SundaeUtils.getSwapOutput(
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConcentratedLiquidity,
+          sqrtPrices: [
+            [1n, 2n],
+            [2n, 1n],
+          ],
+        },
+        suppliedA,
+      );
+      // Non-degenerate quote (exact math is covered in the math package).
+      expect(output).toBeGreaterThan(0n);
+    });
+
+    it("throws for a concentrated-liquidity pool missing sqrtPrices", () => {
+      expect(() =>
+        SundaeUtils.getSwapOutput(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.ConcentratedLiquidity,
+          },
+          suppliedA,
+        ),
+      ).toThrowError(/sqrtPrices/);
+    });
+  });
+
+  describe("getSwapInput v4", () => {
+    const base: IPoolData = {
+      ...PREVIEW_DATA.pools.v1,
+      currentFee: 0.003,
+      liquidity: {
+        ...PREVIEW_DATA.pools.v1.liquidity,
+        aReserve: 1_000_000_000n,
+        bReserve: 1_000_000_000n,
+      },
+    };
+
+    it("dispatches the constant-product curve to constant-product math", () => {
+      const output = new AssetAmount(10_000n, base.assetB);
+      const v4 = SundaeUtils.getSwapInput(
+        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        output,
+      ).input;
+      const v3 = SundaeUtils.getSwapInput(
+        { ...base, version: EContractVersion.V3 },
+        output,
+      ).input;
+      expect(v4).toEqual(v3);
+    });
+
+    it("dispatches the constant-sum curve and inverts getSwapOutput", () => {
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.ConstantSum,
+        prices: [1_000_000n, 1_000_000n],
+      };
+      // Forward at par: 10000 A in -> 9970 B out. Inverse must round-trip.
+      const { input } = SundaeUtils.getSwapInput(
+        pool,
+        new AssetAmount(9_970n, base.assetB),
+      );
+      const forward = SundaeUtils.getSwapOutput(
+        pool,
+        new AssetAmount(input, base.assetA),
+      );
+      expect(forward.output).toBeGreaterThanOrEqual(9_970n);
+      expect(input).toBeLessThanOrEqual(10_000n);
+    });
+
+    it("orients the constant-sum prices to the output asset", () => {
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.ConstantSum,
+        prices: [7n, 3n],
+      };
+      // Asking for assetB means supplying assetA: priceIn=7, priceOut=3.
+      // Forward vector: 1000 A in -> 2326 B out (0.3% fee).
+      const { input } = SundaeUtils.getSwapInput(
+        pool,
+        new AssetAmount(2_326n, base.assetB),
+      );
+      expect(input).toBeLessThanOrEqual(1_000n);
+      expect(
+        SundaeUtils.getSwapOutput(pool, new AssetAmount(input, base.assetA))
+          .output,
+      ).toBeGreaterThanOrEqual(2_326n);
+    });
+
+    it("throws for a constant-sum pool missing prices", () => {
+      expect(() =>
+        SundaeUtils.getSwapInput(
+          { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantSum },
+          new AssetAmount(10_000n, base.assetB),
+        ),
+      ).toThrowError(/prices/);
+    });
+
+    it("dispatches the concentrated-liquidity curve and inverts getSwapOutput", () => {
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.ConcentratedLiquidity,
+        sqrtPrices: [
+          [1n, 2n],
+          [2n, 1n],
+        ],
+      };
+      const { input } = SundaeUtils.getSwapInput(
+        pool,
+        new AssetAmount(9_970n, base.assetB),
+      );
+      const forward = SundaeUtils.getSwapOutput(
+        pool,
+        new AssetAmount(input, base.assetA),
+      );
+      expect(forward.output).toBeGreaterThanOrEqual(9_970n);
+    });
+
+    it("throws for a concentrated-liquidity pool missing sqrtPrices", () => {
+      expect(() =>
+        SundaeUtils.getSwapInput(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.ConcentratedLiquidity,
+          },
+          new AssetAmount(10_000n, base.assetB),
+        ),
+      ).toThrowError(/sqrtPrices/);
+    });
+  });
+
+  describe("calculateLiquidity v4", () => {
+    const base: IPoolData = {
+      ...PREVIEW_DATA.pools.v1,
+      liquidity: {
+        ...PREVIEW_DATA.pools.v1.liquidity,
+        aReserve: 1_000_000n,
+        bReserve: 2_000_000n,
+        lpTotal: 5_000_000n,
+      },
+    };
+
+    it("dispatches the constant-product curve to constant-product math", () => {
+      const v4 = SundaeUtils.calculateLiquidity(
+        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        100_000n,
+        200_000n,
+      );
+      const v3 = SundaeUtils.calculateLiquidity(
+        { ...base, version: EContractVersion.V3 },
+        100_000n,
+        200_000n,
+      );
+      expect(v4).toEqual(v3);
+    });
+
+    it("pins constant-sum deposits to the scarcest asset (single-sided rejects)", () => {
+      // Asymmetric deposits are disallowed by the deployed CS validator.
+      expect(() =>
+        SundaeUtils.calculateLiquidity(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.ConstantSum,
+            prices: [3n, 5n],
+          },
+          100_000n,
+          0n,
+        ),
+      ).toThrowError(/every pool asset/);
+
+      // Proportional-ish offers mint by the scarcest asset; excess refunds.
+      const result = SundaeUtils.calculateLiquidity(
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConstantSum,
+          prices: [3n, 5n],
+        },
+        100_000n,
+        200_000n,
+      );
+      // V_b = 1e6·3 + 2e6·5 = 13e6; t = min(1e5·13e6/1e6, 2e5·13e6/2e6)
+      //     = min(1_300_000, 1_300_000) = 1_300_000.
+      // after_lp = floor(5e6·14_300_000/13e6) = 5_500_000 -> minted 500_000.
+      expect(result.generatedLp).toEqual(500_000n);
+      expect(result.actualDepositedA).toEqual(100_000n);
+      expect(result.actualDepositedB).toEqual(200_000n);
+      expect(result.aChange).toEqual(0n);
+      expect(result.bChange).toEqual(0n);
+    });
+
+    it("throws for a constant-sum pool missing prices", () => {
+      expect(() =>
+        SundaeUtils.calculateLiquidity(
+          { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantSum },
+          100_000n,
+          0n,
+        ),
+      ).toThrowError(/prices/);
+    });
+
+    it("dispatches the concentrated-liquidity curve to proportional (CP) pinning", () => {
+      // CL deposits reuse constant-product proportional pinning, so the result
+      // matches the constant-product dispatch for the same reserves/offer.
+      const cl = SundaeUtils.calculateLiquidity(
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConcentratedLiquidity,
+        },
+        100_000n,
+        200_000n,
+      );
+      const cp = SundaeUtils.calculateLiquidity(
+        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        100_000n,
+        200_000n,
+      );
+      expect(cl).toEqual(cp);
+      expect(cl.generatedLp).toBeGreaterThan(0n);
+    });
+  });
+
   describe("getPrice", () => {
     it("should return price with decimal adjustment for ADA pairs (v1 pool)", () => {
       // v1 pool: ADA (6 decimals) / TINDY (0 decimals)
@@ -758,6 +1105,37 @@ describe("SundaeUtils class", () => {
       // Raw price is slightly > 1.0, so inverted is slightly < 1.0
       expect(price).toBeGreaterThan(0.98);
       expect(price).toBeLessThan(1.0);
+    });
+
+    it("prices a v4 constant-sum pool from its fixed prices, not its reserves", () => {
+      const constantSumPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.ConstantSum,
+        prices: [5n, 3n],
+        // Deliberately skewed reserves: they must not affect the price.
+        liquidity: {
+          aReserve: 900_000_000n,
+          bReserve: 10_000n,
+          lpTotal: 2_000_000_000n,
+        },
+      };
+
+      // ADA pair (v1 fixture assetA is ADA, 6 decimals; assetB 0 decimals):
+      // 1 raw B = 3/5 raw A, decimal-adjusted ×10^(0−6).
+      const price = SundaeUtils.getPrice(constantSumPool);
+      expect(price).toBeCloseTo((3 / 5) * 10 ** -6, 9);
+    });
+
+    it("prices a v4 constant-product pool from its reserves as usual", () => {
+      const constantProductPool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.ConstantProduct,
+      };
+      expect(SundaeUtils.getPrice(constantProductPool)).toEqual(
+        SundaeUtils.getPrice(PREVIEW_DATA.pools.v1),
+      );
     });
   });
 

@@ -3,7 +3,7 @@
  * @module ProviderTypes
  */
 
-import type { EContractVersion } from "./txbuilders";
+import type { EContractVersion, EPoolCurve } from "./txbuilders";
 
 /**
  * Defines the type of pool list to retrieve.
@@ -101,6 +101,25 @@ export interface IPoolData {
   conditionDatum?: string;
   protocolFee?: number;
   linearAmplificationFactor?: bigint;
+  /**
+   * For v4 pools, the invariant curve module — determines which swap math
+   * applies (constant product / sum / concentrated liquidity). Absent for
+   * pre-v4 pools, whose math is fixed by the contract version.
+   */
+  curve?: EPoolCurve;
+  /**
+   * For v4 constant-sum pools, the per-asset prices from the pool's constant-sum
+   * config, aligned to `[assetA, assetB]`. Required to compute constant-sum swap
+   * output; ignored by other curves.
+   */
+  prices?: [bigint, bigint];
+  /**
+   * For v4 concentrated-liquidity pools, the immutable sqrt-price range bounds
+   * from the pool's CL config as exact rationals `[[aNum, aDen], [bNum, bDen]]`
+   * (lower bound `a` < upper bound `b`). Required to compute CL swap output;
+   * ignored by other curves.
+   */
+  sqrtPrices?: [[bigint, bigint], [bigint, bigint]];
 }
 
 /**

@@ -4,6 +4,7 @@ import { Fraction } from "@sundaeswap/fraction";
 import {
   EContractVersion,
   EPoolCoin,
+  EPoolCurve,
   ICurrentFeeFromDecayingFeeArgs,
   IPoolData,
   ISundaeProtocolParams,
@@ -28,10 +29,17 @@ import {
   ORDER_DEPOSIT_DEFAULT,
   V3_POOL_IDENT_LENGTH,
 } from "../constants.js";
-import { ConstantProductPool, StableSwapsPool } from "@sundaeswap/math";
+import {
+  ConcentratedLiquidityPool,
+  ConstantProductPool,
+  ConstantSumPool,
+  StableSwapsPool,
+} from "@sundaeswap/math";
 
 export type TGenericSwapOutcome =
   | ConstantProductPool.TSwapOutcome
+  | ConstantSumPool.TSwapOutcome
+  | ConcentratedLiquidityPool.TSwapOutcome
   | StableSwapsPool.TSwapOutcome;
 
 export type TLiquidityOutcome = {
@@ -128,25 +136,7 @@ export class SundaeUtils {
     assetId: string;
     protocols: ISundaeProtocolParams[];
   }): boolean {
-    try {
-      const version = SundaeUtils.getPoolVersionFromAssetId(assetId);
-      if (!version) {
-        return false;
-      }
-      if (version === EContractVersion.V3) {
-        return (
-          SundaeUtils.isLPAsset({ assetId, protocols, version }) ||
-          SundaeUtils.isLPAsset({
-            assetId,
-            protocols,
-            version: EContractVersion.Stableswaps,
-          })
-        );
-      }
-      return SundaeUtils.isLPAsset({ assetId, protocols, version });
-    } catch {
-      return false;
-    }
+    return SundaeUtils.resolveLPVersion(assetId, protocols) !== undefined;
   }
 
   /**
@@ -554,31 +544,55 @@ export class SundaeUtils {
    * @returns {string}
    */
   static getIdentFromAssetId(id: string): string {
-    // Remove the prefix from the asset name to get the ident.
-    const version = SundaeUtils.getPoolVersionFromAssetId(id);
-    const prefix =
-      version === EContractVersion.V1 ? CONTRACT_V1_PREFIX : CONTRACT_V3_PREFIX;
-
+    // Purely a NAMING question — which convention's prefix to strip — so the
+    // version never enters into it. Anchored to the start: `replace` would take
+    // the first occurrence anywhere in the name.
     const assetName = id.includes(".") ? id.split(".")[1] : id.slice(56);
-    return assetName.replace(prefix, "");
+    for (const prefix of [CONTRACT_V1_PREFIX, CONTRACT_V3_PREFIX]) {
+      if (assetName.startsWith(prefix)) {
+        return assetName.slice(prefix.length);
+      }
+    }
+    throw new Error(
+      "Could not find a contract version prefix in the asset name!",
+    );
   }
 
   /**
-   * Helper method to determine a contract version based on the prefix in the asset name.
-   * @param {string} id The asset ID.
-   * @returns {EContractVersion}
+   * The version that minted this LP token, or undefined.
+   *
+   * Answered the only way it can be: the asset's policy id IS the hash of the
+   * `pool.mint` validator that minted it, so compare it against each known
+   * version's hash. The asset NAME never enters into it — a name is a naming
+   * convention (V1's `6c7020`, the CIP-67 fungible label `0014df10` for
+   * everything since), shared across versions and standard across the whole
+   * ecosystem, so it can neither identify a version nor safely rule one out.
+   */
+  static resolveLPVersion(
+    assetId: string,
+    protocols: ISundaeProtocolParams[],
+  ): EContractVersion | undefined {
+    return protocols
+      .map((protocol) => protocol.version)
+      .find((version) =>
+        SundaeUtils.isLPAsset({ assetId, protocols, version }),
+      );
+  }
+
+  /**
+   * @deprecated This promises a version from an asset NAME, which cannot carry
+   * one: V3, Stableswaps, V4 — and every future version — share the CIP-68
+   * naming convention, which this reports as `V3`. Use
+   * {@link resolveLPVersion}, which answers by mint policy hash.
    */
   static getPoolVersionFromAssetId(id: string): EContractVersion {
     const assetName = id.includes(".") ? id.split(".")[1] : id.slice(56);
-
-    if (assetName.indexOf(CONTRACT_V1_PREFIX) === 0) {
+    if (assetName.startsWith(CONTRACT_V1_PREFIX)) {
       return EContractVersion.V1;
     }
-
-    if (assetName.indexOf(CONTRACT_V3_PREFIX) === 0) {
+    if (assetName.startsWith(CONTRACT_V3_PREFIX)) {
       return EContractVersion.V3;
     }
-
     throw new Error(
       "Could not find a contract version prefix in the asset name!",
     );
@@ -629,6 +643,85 @@ export class SundaeUtils {
           poolData.protocolFee ?? 0,
           poolData.linearAmplificationFactor ?? 1n,
         );
+      case EContractVersion.V4:
+        // The orientation above reads "not assetA" as assetB, so an asset this
+        // pool data doesn't contain would silently price against the wrong
+        // side and return a plausible-looking nonsense quote. That exact
+        // failure shipped repeatedly in the UI as the display-pair trap —
+        // refuse it here instead of propagating it.
+        if (
+          suppliedAsset.metadata.assetId !== poolData.assetA.assetId &&
+          suppliedAsset.metadata.assetId !== poolData.assetB.assetId
+        ) {
+          throw new Error(
+            `Cannot compute a swap output: supplied asset ${suppliedAsset.metadata.assetId} is not one of the pool's assets.`,
+          );
+        }
+        // v4 is module-composable: the swap math depends on the pool's
+        // invariant curve, not the contract version. `currentFee` is the full
+        // curve fee (the fee-split module apportions protocol vs LP afterward,
+        // so it isn't added on top).
+        switch (poolData.curve) {
+          case EPoolCurve.ConstantProduct:
+            return ConstantProductPool.getSwapOutput(
+              suppliedAsset.metadata,
+              suppliedAsset.amount,
+              inputReserve,
+              outputReserve,
+              poolData.currentFee,
+              false,
+            );
+          case EPoolCurve.ConstantSum: {
+            if (!poolData.prices) {
+              throw new Error(
+                "Constant-sum pool is missing `prices`; cannot get swap output.",
+              );
+            }
+            const suppliedIsA =
+              poolData.assetA.assetId === suppliedAsset.metadata.assetId;
+            const [priceIn, priceOut] = suppliedIsA
+              ? [poolData.prices[0], poolData.prices[1]]
+              : [poolData.prices[1], poolData.prices[0]];
+            return ConstantSumPool.getSwapOutput(
+              suppliedAsset.metadata,
+              suppliedAsset.amount,
+              inputReserve,
+              outputReserve,
+              priceIn,
+              priceOut,
+              poolData.currentFee,
+              false,
+            );
+          }
+          case EPoolCurve.ConcentratedLiquidity: {
+            if (!poolData.sqrtPrices) {
+              throw new Error(
+                "Concentrated-liquidity pool is missing `sqrtPrices`; cannot get swap output.",
+              );
+            }
+            // CL swaps run on raw assetA/assetB reserves (not input/output
+            // oriented); direction is selected by isAInput.
+            const isAInput =
+              poolData.assetA.assetId === suppliedAsset.metadata.assetId;
+            return ConcentratedLiquidityPool.getSwapOutput(
+              suppliedAsset.metadata,
+              suppliedAsset.amount,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
+              poolData.sqrtPrices[0],
+              poolData.sqrtPrices[1],
+              poolData.currentFee,
+              isAInput,
+            );
+          }
+          default:
+            // Any future curve has no client-side estimator yet — callers
+            // should fall back to a server quote.
+            throw new Error(
+              `Unsupported v4 pool curve: ${poolData.curve}. Cannot get swap output.`,
+            );
+        }
       default:
         // If the pool version is not supported, throw an error.
         throw new Error(
@@ -684,6 +777,71 @@ export class SundaeUtils {
           poolData.protocolFee ?? 0,
           poolData.linearAmplificationFactor ?? 1n,
         );
+      case EContractVersion.V4:
+        // See getSwapOutput — same guard, same reason: "not assetA" reads as
+        // assetB, so an unrelated asset silently inverts the orientation.
+        if (
+          output.metadata.assetId !== poolData.assetA.assetId &&
+          output.metadata.assetId !== poolData.assetB.assetId
+        ) {
+          throw new Error(
+            `Cannot compute a swap input: output asset ${output.metadata.assetId} is not one of the pool's assets.`,
+          );
+        }
+        // See getSwapOutput: v4 swap math follows the pool's invariant curve.
+        switch (poolData.curve) {
+          case EPoolCurve.ConstantProduct:
+            return ConstantProductPool.getSwapInput(
+              isOutputAssetA ? poolData.assetB : poolData.assetA,
+              output.amount,
+              inputReserve,
+              outputReserve,
+              poolData.currentFee,
+            );
+          case EPoolCurve.ConstantSum: {
+            if (!poolData.prices) {
+              throw new Error(
+                "Constant-sum pool is missing `prices`; cannot get swap input.",
+              );
+            }
+            const [priceIn, priceOut] = isOutputAssetA
+              ? [poolData.prices[1], poolData.prices[0]]
+              : [poolData.prices[0], poolData.prices[1]];
+            return ConstantSumPool.getSwapInput(
+              isOutputAssetA ? poolData.assetB : poolData.assetA,
+              output.amount,
+              inputReserve,
+              outputReserve,
+              priceIn,
+              priceOut,
+              poolData.currentFee,
+            );
+          }
+          case EPoolCurve.ConcentratedLiquidity: {
+            if (!poolData.sqrtPrices) {
+              throw new Error(
+                "Concentrated-liquidity pool is missing `sqrtPrices`; cannot get swap input.",
+              );
+            }
+            // Input asset is the non-output side; A→B swap iff output is B.
+            const isAInput = !isOutputAssetA;
+            return ConcentratedLiquidityPool.getSwapInput(
+              isOutputAssetA ? poolData.assetB : poolData.assetA,
+              output.amount,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
+              poolData.sqrtPrices[0],
+              poolData.sqrtPrices[1],
+              poolData.currentFee,
+              isAInput,
+            );
+          }
+          default:
+            throw new Error(
+              `Unsupported v4 pool curve: ${poolData.curve}. Cannot get swap input.`,
+            );
+        }
       default:
         throw new Error(
           `Unsupported pool version: ${poolData.version}. Cannot get swap input.`,
@@ -741,6 +899,53 @@ export class SundaeUtils {
           poolData.liquidity.lpTotal,
           poolData.linearAmplificationFactor,
         );
+      case EContractVersion.V4:
+        // v4 deposits follow the pool's invariant curve: constant product
+        // enforces proportionality on-chain (excess refunded, like v1/v3);
+        // constant sum is TARGET-PINNED — the fill is capped by the scarcest
+        // offered leg at the pool's fixed prices, and surplus above the pinned
+        // deltas comes back via aChange/bChange, exactly like the scoop refunds
+        // it on-chain.
+        switch (poolData.curve) {
+          case EPoolCurve.ConstantProduct:
+            return ConstantProductPool.calculateLiquidity(
+              a,
+              b,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
+            );
+          case EPoolCurve.ConstantSum:
+            if (!poolData.prices) {
+              throw new Error(
+                "Constant-sum pool is missing `prices`; cannot calculate liquidity.",
+              );
+            }
+            return ConstantSumPool.calculateLiquidity(
+              a,
+              b,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
+              poolData.prices[0],
+              poolData.prices[1],
+            );
+          case EPoolCurve.ConcentratedLiquidity:
+            // CL deposits reuse the constant-product proportional pinning: the
+            // per-asset bounds it produces (a1·L0≥a0·L1, b1·L0≥b0·L1) multiply
+            // to the on-chain CL non-swap invariant va1·vb1·L0²≥va0·vb0·L1².
+            return ConcentratedLiquidityPool.calculateLiquidity(
+              a,
+              b,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
+            );
+          default:
+            throw new Error(
+              `Unsupported v4 pool curve: ${poolData.curve}. Cannot calculate liquidity.`,
+            );
+        }
       default:
         throw new Error(
           `Unsupported pool version: ${poolData.version}. Cannot calculate liquidity.`,
@@ -783,7 +988,23 @@ export class SundaeUtils {
       return isAdaPair ? price : 1 / price;
     }
 
-    // For constant product pools, use the decimal-aware AssetAmount values
+    // A v4 constant-sum pool trades at its fixed per-asset prices, so the
+    // reserve ratio says nothing about price — 1 raw unit of B is worth
+    // priceB/priceA raw units of A, decimal-adjusted for display.
+    if (
+      pool.version === EContractVersion.V4 &&
+      pool.curve === EPoolCurve.ConstantSum &&
+      pool.prices
+    ) {
+      const [priceA, priceB] = pool.prices;
+      const aPerB =
+        (Number(priceB) / Number(priceA)) *
+        10 ** ((pool.assetB.decimals ?? 0) - (pool.assetA.decimals ?? 0));
+      return isAdaPair ? aPerB : 1 / aPerB;
+    }
+
+    // For constant product pools (and v4 constant-product curves), use the
+    // decimal-aware AssetAmount values
     // ADA pairs: assetA (ADA) / assetB
     // Exotic pairs: assetB / assetA (inverted)
     return isAdaPair

@@ -33,40 +33,49 @@ type TBlazeTx = ReturnType<Blaze<Provider, Wallet>["newTransaction"]>;
  * The validator titles the v4 builder resolves out of the protocol params
  * (via the Sundae API `protocols` query — the same source V3 uses). These are
  * the deployment's canonical module keys, matching the `V4` entry in the
- * `*-sundae-protocol--protocol` table (which is populated from the scooper's
- * deployment config, e.g. scooper-v2 `config/<network>-v4.json` module-scripts).
+ * `*-sundae-protocol--protocol` table, which is populated from the sundae-v4
+ * deployment blueprint (`<network>-blueprint.json`) — dotted `module.purpose`
+ * titles matching the V1/V3/Stableswaps convention (`pool.mint`,
+ * `order.spend`, …), not the kebab-case names the scooper's own config uses.
  */
 export const V4_VALIDATORS = {
   /** The order spend validator — its hash forms the order script address. */
-  order: "order",
+  order: "order.spend",
   /** The swap-order constraint module — keyed in a Swap order's constraints. */
-  swapConstraint: "swap-order",
+  swapConstraint: "swap_order.withdraw",
   /** The basic-order constraint module — keyed in Deposit/Withdraw/Claim orders. */
-  basicConstraint: "basic-order",
+  basicConstraint: "basic_order.withdraw",
   /** The route-order constraint module — required by swap (and strategy) orders. */
-  routeConstraint: "route-order",
+  routeConstraint: "route_order.withdraw",
   /** The strategy-order constraint module — keyed in a strategy order's constraints. */
-  strategyConstraint: "strategy-order",
+  strategyConstraint: "strategy_order.withdraw",
   /** The fairness-order constraint module — required by every order type. */
-  fairnessConstraint: "fairness-order",
+  fairnessConstraint: "fairness_order.withdraw",
   /** The pool NFT minting policy. */
-  poolMint: "pool-mint",
+  poolMint: "pool.mint",
   /** The pool spend validator — its hash is the pool script address. */
-  pool: "pool",
+  pool: "pool.spend",
   /** The constant-sum curve module. */
-  constantSum: "constant-sum",
+  constantSum: "constant_sum.withdraw",
   /** The fee-split module carried by every pool. */
-  feeSplit: "fee-split",
-  /** The fairness pool module (distinct from the `fairness-order` constraint). */
-  fairnessModule: "fairness",
+  feeSplit: "fee_split.withdraw",
+  /** The fairness pool module (distinct from the `fairness_order` constraint). */
+  fairnessModule: "fairness.withdraw",
 } as const;
 
 /**
- * Default order economics, mirroring the values live preview orders currently
- * use. Callers can override per order.
+ * Default order economics (see sundae-v4 docs/fee-system.md). Callers can
+ * override per order.
+ *
+ * `DEFAULT_BUDGET` is the lifetime `service_budget`; at 3 ADA it funds one
+ * partial fill plus a terminal settlement at the default cap.
+ * `DEFAULT_MAX_PER_EXECUTION` is the per-scoop cap — the flat fee a terminal
+ * fill settles at, and what buys the scooper's routing fan-out (2 ADA covers
+ * `baseFee + 2·feePerStep` at the current fee settings, i.e. up to a 2-pool
+ * route). Used only when the fee-settings node can't be resolved.
  */
 const DEFAULT_BUDGET = 3_000_000n;
-const DEFAULT_SHARE_BATCHER = 10_000n;
+const DEFAULT_MAX_PER_EXECUTION = 2_000_000n;
 
 /** Min-ADA overhead for a token-only pool UTxO (no ADA reserve). */
 const POOL_MIN_ADA = 3_000_000n;
@@ -96,10 +105,20 @@ export interface IOrderV4Base {
   ownerAddress: string;
   /** Where fills pay out. Defaults to a `Fixed` destination at `ownerAddress`. */
   destination?: TDestinationAddress | "Self";
-  /** Max batcher fee, in lovelace. Defaults to `DEFAULT_BUDGET` (3 ADA). */
+  /**
+   * Lifetime service-fee allocation (`service_budget`), in lovelace. Defaults
+   * to `DEFAULT_BUDGET` (3 ADA).
+   */
   budget?: bigint;
-  /** The batcher's share of the fee. Defaults to `DEFAULT_SHARE_BATCHER`. */
-  shareBatcher?: bigint;
+  /**
+   * Flat per-scoop fee cap (`max_per_execution`), in lovelace — also the
+   * terminal-settlement amount, and the scooper's routing-fan-out budget
+   * (`maxPerExecution / costPerPool` pools). Defaults to
+   * `baseFee + 2·feePerStep` from the protocol's fee settings, falling back to
+   * `DEFAULT_MAX_PER_EXECUTION` (2 ADA). Too small a value makes the order
+   * unroutable: below `baseFee` the scooper can't afford a single pool.
+   */
+  maxPerExecution?: bigint;
   /**
    * The OrderConfig settings-entry asset name whose `required_constraints` this
    * order fulfills. Optional — when omitted it is resolved from the protocol
@@ -157,9 +176,27 @@ export interface IStrategyV4Args extends IOrderV4Base {
  * basic order placed in the same transaction that cancels the old one. The
  * `kind` discriminator selects which constraint set the new order carries.
  */
-export type TUpdateV4Order =
-  | ({ kind: "swap" } & ISwapV4Args)
-  | ({ kind: "basic" } & IBasicV4Args);
+/**
+ * The order shapes an update may produce. No `swap` member: an update cancels
+ * and re-places, so replacing a route order is placing one, and that is outside
+ * the audited surface (see {@link TxBuilderV4.swap}). An existing route order
+ * can still be cancelled.
+ */
+export type TUpdateV4Order = { kind: "basic" } & IBasicV4Args;
+
+/**
+ * Arguments for placing several basic orders in one transaction via
+ * {@link TxBuilderV4.batch}.
+ */
+export interface IBatchV4Args {
+  /**
+   * The orders to place. Each carries its own type, offered assets and
+   * minimums; their `referralFee` fields are ignored in favour of the batch's.
+   */
+  orders: IBasicV4Args[];
+  /** Taken once for the whole batch, not per order. */
+  referralFee?: ITxBuilderReferralFee;
+}
 
 /** Arguments for updating a v4 order via {@link TxBuilderV4.update}. */
 export interface IUpdateV4Args {
@@ -446,66 +483,63 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   // -- Order placement ------------------------------------------------
 
   /**
-   * Places a v4 swap order — a single-asset offer that fills against whichever
-   * pool the scooper routes it through, subject to the `minReceived` targets.
+   * NOT IMPLEMENTED — use {@link swapIntent}.
    *
-   * A swap order must carry the full constraint set the swap `OrderConfig`
-   * requires — verified against live preview orders as
-   * `[swap-order, route-order, fairness-order]`, in that order:
-   *   - swap-order: the `SwapFields` payload (Constr 2)
-   *   - route-order: an empty list `[]` (scooper fills in routing at scoop time)
-   *   - fairness-order: `Void`
-   * The order-validator checks this list matches the OrderConfig's
-   * `required_constraints` exactly, so a partial set is rejected on-chain.
+   * A swap order carries the route constraint, which validates a strictly
+   * serial chain on-chain. That module is outside the launch's audited surface,
+   * so this builder will not construct one: an unaudited validator that nothing
+   * can reach is a validator nobody has to trust.
+   *
+   * The name is kept, and throws, on purpose. It is the method an integrator
+   * reaches for first, and failing loudly with a pointer is better than either
+   * a missing method (which reads as "v4 cannot swap") or a silent build
+   * against a validator we are not standing behind.
+   *
+   * Returns when the route module is audited and route orders are supported.
    */
-  public async swap(
-    args: ISwapV4Args,
-  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
-    const { offered, constraints, configToken } =
-      await this.buildSwapPlacement(args);
-    return this.placeOrder({ ...args, configToken }, offered, constraints);
+  public async swap(_args: ISwapV4Args): Promise<never> {
+    throw new Error(
+      "TxBuilderV4.swap is not implemented: swap orders carry the route " +
+        "constraint, which is not part of the audited launch surface. Use " +
+        "swapIntent(), which places the same trade as a basic order.",
+    );
   }
 
   /**
-   * Resolves a swap order's offered assets, full constraint set, and
-   * `config_token` — shared by {@link swap} and {@link update}. A swap must
-   * carry `[swap-order, route-order, fairness-order]` in that exact order.
+   * Places a v4 swap.
+   *
+   * An INTENT, which is what a v4 order is: an offer and a floor, naming no
+   * pool. The scooper decides how to fill it — one pool, a split across a
+   * pair's pools, or a multi-hop chain — and `minReceived` is what bounds the
+   * result. Nothing here mentions routes, reserves or curves, because the order
+   * does not.
+   *
+   * The route constraint that {@link swap} carries enforces strictly serial
+   * routing on-chain (each hop's output is consumed by the next), so it cannot
+   * represent a parallel same-pair split. A basic order carries only
+   * `[basic-order, fairness-order]` (no route), leaving the aggregate
+   * consumption bound + the `minReceived` floor as the sole on-chain checks — so
+   * the scooper is free to fan the fill out across pools. Because `minReceived`
+   * is set from the *blended* quote (tighter than any single pool can deliver),
+   * the floor itself bounds how far a fill can deviate from the intended split.
+   *
+   * A basic order settles single-shot to a `Fixed` destination (no partial
+   * fills) — a market swap, not a resting/limit order. Route a serial fill
+   * (single pool, or a genuine multi-hop chain across different pairs) through
+   * {@link swap} instead, to keep its on-chain anti-skim guarantee.
    */
-  private async buildSwapPlacement(args: ISwapV4Args): Promise<{
-    offered: AssetAmount<IAssetAmountMetadata>[];
-    constraints: Array<[string, Core.PlutusData]>;
-    configToken: string;
-  }> {
+  public async swapIntent(
+    args: ISwapV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
     const minReceived = Array.isArray(args.minReceived)
       ? args.minReceived
       : [args.minReceived];
-
-    const swapData = this.datumBuilder.buildSwapConstraintData({
-      offered: args.offered,
-      originalOffered: args.offered.amount,
-      remainingOffered: args.offered.amount,
+    return this.basic({
+      ...args,
+      type: EV4BasicConstraint.Swap,
+      offered: [args.offered],
       minReceived,
     });
-
-    const [swapHash, routeHash, fairnessHash] = await this.getValidatorHashes([
-      V4_VALIDATORS.swapConstraint,
-      V4_VALIDATORS.routeConstraint,
-      V4_VALIDATORS.fairnessConstraint,
-    ]);
-
-    const configToken =
-      args.configToken ??
-      (await this.getOrderConfigToken(V4_ORDER_CONFIG_LABEL.swap));
-
-    return {
-      offered: [args.offered],
-      constraints: [
-        [swapHash, swapData],
-        [routeHash, emptyListData()],
-        [fairnessHash, DatumBuilderV4.buildVoidData()],
-      ],
-      configToken,
-    };
   }
 
   /**
@@ -621,6 +655,78 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
+   * Claim is a basic order that collects a pool's accrued claimables (e.g. a
+   * constant-sum pool's bounty) rather than trading against its reserves.
+   */
+  public async claim(
+    args: Omit<IBasicV4Args, "type">,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    return this.basic({ ...args, type: EV4BasicConstraint.Claim });
+  }
+
+  /**
+   * Places SEVERAL basic orders in one transaction.
+   *
+   * Some intents are irreducibly plural: covering a stretch of the price line
+   * with concentrated liquidity means depositing into every pool whose range it
+   * touches, and those are separate orders because they are separate pools. One
+   * order per transaction would mean one wallet signature per pool, and a
+   * partially-signed set leaves the position half-built.
+   *
+   * Every order is locked onto the same transaction, and the reported deposit
+   * and scooper fee are the SUMS across them — each order reserves its own
+   * budget, so a batch of five costs five budgets, not one.
+   *
+   * `datum` on the result is the first order's, since the shape carries a single
+   * datum; the orders' own datums are each locked into their outputs. Referral
+   * is taken once for the batch rather than per order — the per-order field is
+   * ignored here, so a caller can't accidentally pay it N times.
+   */
+  public async batch(
+    args: IBatchV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    if (!args.orders.length) {
+      throw new Error("A batch needs at least one order.");
+    }
+
+    const tx = this.newTxInstance();
+    let totalDeposit = 0n;
+    let totalBudget = 0n;
+    let firstDatum: string | undefined;
+
+    // Sequential rather than concurrent: each call mutates the shared tx, and
+    // the settings lookups behind them are cached after the first.
+    for (const order of args.orders) {
+      const { offered, constraints, configToken } =
+        await this.buildBasicPlacement(order);
+      const { inline, deposit, budget } = await this.lockOrderIntoTx(
+        tx,
+        { ...order, configToken, referralFee: undefined },
+        offered,
+        constraints,
+      );
+      firstDatum ??= inline;
+      totalDeposit += deposit;
+      totalBudget += budget;
+    }
+
+    if (args.referralFee) {
+      tx.payAssets(
+        Core.addressFromBech32(args.referralFee.destination),
+        args.referralFee.payment,
+      );
+    }
+
+    return this.completeTx({
+      tx,
+      datum: firstDatum as string,
+      referralFee: args.referralFee?.payment,
+      deposit: totalDeposit,
+      scooperFee: totalBudget,
+    });
+  }
+
+  /**
    * Shared placement primitive: assemble the `OrderDatum`, lock the offered
    * assets + the fee budget at the order script address, and complete. Exposed
    * (protected) so the datum/output assembly is unit-testable without a live
@@ -649,20 +755,26 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
-   * The default batcher share for an order — the protocol's `minShareBatcher`
-   * from the settings, falling back to {@link DEFAULT_SHARE_BATCHER} when the
-   * API isn't serving settings. Callers can override per order via `shareBatcher`.
+   * The default per-scoop fee cap for an order — `baseFee + 2·feePerStep` from
+   * the protocol's indexed `fee-settings` node (enough for a 2-pool route),
+   * falling back to {@link DEFAULT_MAX_PER_EXECUTION} when the API isn't
+   * serving settings. Callers can override per order via `maxPerExecution`.
    */
-  private async getDefaultShareBatcher(): Promise<bigint> {
+  private async getDefaultMaxPerExecution(): Promise<bigint> {
     const settings = await this.getSettings();
-    const min = settings.find((s) => s.label === "settings")?.values
-      ?.minShareBatcher;
+    const fees = settings.find((s) => s.label === "fee-settings")?.values;
     try {
-      return min !== undefined && min !== null
-        ? BigInt(min as string | number)
-        : DEFAULT_SHARE_BATCHER;
+      const baseFee = fees?.baseFee;
+      const feePerStep = fees?.feePerStep;
+      if (baseFee != null && feePerStep != null) {
+        return (
+          BigInt(baseFee as string | number) +
+          2n * BigInt(feePerStep as string | number)
+        );
+      }
+      return DEFAULT_MAX_PER_EXECUTION;
     } catch {
-      return DEFAULT_SHARE_BATCHER;
+      return DEFAULT_MAX_PER_EXECUTION;
     }
   }
 
@@ -685,14 +797,14 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     };
 
     const budget = args.budget ?? DEFAULT_BUDGET;
-    const shareBatcher =
-      args.shareBatcher ?? (await this.getDefaultShareBatcher());
+    const maxPerExecution =
+      args.maxPerExecution ?? (await this.getDefaultMaxPerExecution());
 
     const { inline } = this.datumBuilder.buildOrderDatum({
       owner: args.ownerAddress,
       destination,
       budget,
-      shareBatcher,
+      maxPerExecution,
       configToken: args.configToken,
       constraints,
     });
@@ -842,9 +954,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     const { order } = args;
     const { offered, constraints, configToken } =
-      order.kind === "swap"
-        ? await this.buildSwapPlacement(order)
-        : await this.buildBasicPlacement(order);
+      await this.buildBasicPlacement(order);
 
     const { inline, deposit, budget } = await this.lockOrderIntoTx(
       tx,
