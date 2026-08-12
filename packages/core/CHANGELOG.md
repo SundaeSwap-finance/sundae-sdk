@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.13.1
+
+### Patch Changes
+
+- 1a449fa: Fix the published `@sundaeswap/math` dependency so Core includes the pool math
+  exports it imports.
+
 ## 2.13.0
 
 ### Minor Changes
