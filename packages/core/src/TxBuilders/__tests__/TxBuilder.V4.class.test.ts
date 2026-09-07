@@ -83,6 +83,15 @@ const CS_POOL_CONFIG_DATUM = serialize(V4Types.PoolConfig, {
       modules: [CS_HASH, FEESPLIT_HASH, FAIRNESS_MOD_HASH],
     },
   ],
+  module_params: [],
+  // None — permissionless CreatePool.
+  mint_permission: Core.PlutusData.newConstrPlutusData(
+    new Core.ConstrPlutusData(1n, new Core.PlutusList()),
+  ),
+  min_surplus: 5_000_000n,
+  extension: Core.PlutusData.newConstrPlutusData(
+    new Core.ConstrPlutusData(0n, new Core.PlutusList()),
+  ),
 }).toCbor();
 
 // Published Create configs for the non-curve modules (curve config comes from
@@ -385,6 +394,7 @@ describe("TxBuilderV4", () => {
         identifier: ident,
         actions: [{ tag: 3n, enabled: true, modules: [CS_HASH] }],
         moduleState: [[CS_HASH, "80"]],
+        minSurplus: 5_000_000n,
       });
       const poolUtxo = Core.TransactionUnspentOutput.fromCore([
         new Core.TransactionInput(
@@ -770,6 +780,14 @@ describe("TxBuilderV4", () => {
           { tag: 3n, enabled: true, modules: [CS_HASH, FEESPLIT_HASH, FAIRNESS_MOD_HASH] },
           { tag: 1n, enabled: true, modules: [GOV_HASH] },
         ],
+        module_params: [],
+        mint_permission: Core.PlutusData.newConstrPlutusData(
+          new Core.ConstrPlutusData(1n, new Core.PlutusList()),
+        ),
+        min_surplus: 5_000_000n,
+        extension: Core.PlutusData.newConstrPlutusData(
+          new Core.ConstrPlutusData(0n, new Core.PlutusList()),
+        ),
       }).toCbor();
 
       spyOn(

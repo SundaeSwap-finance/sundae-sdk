@@ -1022,7 +1022,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     // The on-chain PoolConfig (for this curve) dictates the pool datum's
     // actions exactly, and publishes each module's Create config.
-    const { poolValidator, actions, settingsTxIn, moduleConfigs } =
+    const { poolValidator, actions, settingsTxIn, minSurplus, moduleConfigs } =
       await this.resolvePoolConfig(curveScript.hash);
     if (poolValidator !== poolScript.hash) {
       throw new Error(
@@ -1188,6 +1188,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         modules: a.modules,
       })),
       moduleState,
+      minSurplus,
     });
 
     // Reference inputs: the settings pool config, the pool-mint policy, and each
@@ -1301,11 +1302,17 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     poolValidator: string;
     actions: V4Types.ActionEntry[];
     settingsTxIn: { hash: string; index: number };
+    /** Lovelace surplus floor the pool datum must pin (ADR-0012). */
+    minSurplus: bigint;
     /** Per-module Create config (CBOR, or `null` for config-less modules), keyed by module hash. */
     moduleConfigs: Record<string, string | null> | undefined;
   }> {
     const settings = await this.getSettings();
-    const poolEntries = settings.filter((s) => s.label === "pool" && s.datum);
+    // PoolConfig entries are labeled per curve ("cs-pool", "cp-pool",
+    // "cl-pool"); the bare "pool" label is accepted for older rows.
+    const poolEntries = settings.filter(
+      (s) => (s.label === "pool" || s.label?.endsWith("-pool")) && s.datum,
+    );
     if (poolEntries.length === 0) {
       throw new Error(
         "mintPool: could not find a `pool` PoolConfig entry in the protocol " +
@@ -1332,6 +1339,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
           poolValidator: config.pool_validator,
           actions: config.actions,
           settingsTxIn: entry.txIn,
+          minSurplus: config.min_surplus,
           moduleConfigs,
         };
       }
