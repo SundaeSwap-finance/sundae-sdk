@@ -51,6 +51,9 @@ export const V4_VALIDATORS = {
   strategyConstraint: "strategy_order.withdraw",
   /** The fairness-order constraint module — required by every order type. */
   fairnessConstraint: "fairness_order.withdraw",
+  /** The fee constraint — the once-per-scoop service-fee aggregator required
+   *  by the audited `trade + fee` order packages (docs/fee-system.md). */
+  feeConstraint: "fee_constraint.withdraw",
   /** The pool NFT minting policy. */
   poolMint: "pool.mint",
   /** The pool spend validator — its hash is the pool script address. */
@@ -385,6 +388,74 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
+   * Builds an order's `(hash, data)` constraint list from its OrderConfig
+   * entry's on-chain `required_constraints` — the order validator requires an
+   * exact match, and which constraints a package carries is deployment-defined
+   * (the audited launch packages are `trade + fee`; earlier deployments used
+   * `trade + fairness`). The primary (trade) constraint's data is supplied by
+   * the caller; every other known constraint takes its canonical filler:
+   * fairness/fee → Void, route → an empty (any-pool) whitelist.
+   */
+  private async resolveOrderConstraints(
+    configToken: string,
+    primary: [hash: string, data: Core.PlutusData],
+    fallback: Array<[keyof typeof V4_VALIDATORS, () => Core.PlutusData]>,
+  ): Promise<Array<[string, Core.PlutusData]>> {
+    const settings = await this.getSettings();
+    const entry = settings.find(
+      (st) =>
+        (st.values?.token as string | undefined) === configToken && st.datum,
+    );
+    if (!entry) {
+      // A caller-supplied token the API doesn't index (e.g. a custom config
+      // on a dev deployment): keep the legacy package for the order type.
+      const rest = await Promise.all(
+        fallback.map(
+          async ([name, make]): Promise<[string, Core.PlutusData]> => {
+            const { hash } = await this.getValidatorScript(V4_VALIDATORS[name]);
+            return [hash, make()];
+          },
+        ),
+      );
+      return [primary, ...rest];
+    }
+    const config = parse(
+      V4Types.OrderConfig,
+      Core.PlutusData.fromCbor(Core.HexBlob(entry.datum as string)),
+    );
+    const [primaryHash, primaryData] = primary;
+    const fillers: Array<[keyof typeof V4_VALIDATORS, () => Core.PlutusData]> =
+      [
+        ["fairnessConstraint", () => DatumBuilderV4.buildVoidData()],
+        ["feeConstraint", () => DatumBuilderV4.buildVoidData()],
+        ["routeConstraint", () => emptyListData()],
+      ];
+    const fillerHashes = new Map<string, () => Core.PlutusData>();
+    for (const [name, make] of fillers) {
+      try {
+        const { hash } = await this.getValidatorScript(V4_VALIDATORS[name]);
+        fillerHashes.set(hash, make);
+      } catch {
+        // Not part of this deployment — it can't appear in
+        // required_constraints either.
+      }
+    }
+    return config.required_constraints.map(
+      (hash: string): [string, Core.PlutusData] => {
+        if (hash === primaryHash) return [hash, primaryData];
+        const make = fillerHashes.get(hash);
+        if (!make) {
+          throw new Error(
+            `OrderConfig ${configToken} requires constraint ${hash}, which is ` +
+              "not a module this SDK knows how to satisfy.",
+          );
+        }
+        return [hash, make()];
+      },
+    );
+  }
+
+  /**
    * Resolves an order type's `config_token` (the value an order sets as its
    * `config_token`) from the indexed settings, by the OrderConfig entry's label.
    */
@@ -575,9 +646,8 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       minReceived: args.minReceived,
     });
 
-    const [basicHash, fairnessHash] = await this.getValidatorHashes([
+    const [basicHash] = await this.getValidatorHashes([
       V4_VALIDATORS.basicConstraint,
-      V4_VALIDATORS.fairnessConstraint,
     ]);
 
     const configToken =
@@ -586,10 +656,11 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     return {
       offered: args.offered,
-      constraints: [
+      constraints: await this.resolveOrderConstraints(
+        configToken,
         [basicHash, basicData],
-        [fairnessHash, DatumBuilderV4.buildVoidData()],
-      ],
+        [["fairnessConstraint", () => DatumBuilderV4.buildVoidData()]],
+      ),
       configToken,
     };
   }
@@ -615,22 +686,26 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       finalDestinations,
     });
 
-    const [strategyHash, routeHash, fairnessHash] =
-      await this.getValidatorHashes([
-        V4_VALIDATORS.strategyConstraint,
-        V4_VALIDATORS.routeConstraint,
-        V4_VALIDATORS.fairnessConstraint,
-      ]);
+    const [strategyHash] = await this.getValidatorHashes([
+      V4_VALIDATORS.strategyConstraint,
+    ]);
 
     const configToken =
       args.configToken ??
       (await this.getOrderConfigToken(V4_ORDER_CONFIG_LABEL.strategy));
 
-    return this.placeOrder({ ...args, configToken }, args.offered, [
-      [strategyHash, strategyData],
-      [routeHash, emptyListData()],
-      [fairnessHash, DatumBuilderV4.buildVoidData()],
-    ]);
+    return this.placeOrder(
+      { ...args, configToken },
+      args.offered,
+      await this.resolveOrderConstraints(
+        configToken,
+        [strategyHash, strategyData],
+        [
+          ["routeConstraint", () => emptyListData()],
+          ["fairnessConstraint", () => DatumBuilderV4.buildVoidData()],
+        ],
+      ),
+    );
   }
 
   /** Resolves several validator hashes from the protocol params in one pass. */

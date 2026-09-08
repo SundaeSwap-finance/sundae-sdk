@@ -161,6 +161,13 @@ const Contracts = Type.Module({
       Type.Ref("ModuleHash")
     ),
   }, { ctor: 0n }),
+  /** Settings-entry datum for an OrderConfig (PR #11): one per (role,
+   *  constraint set) pair; orders bind it via `config_token` and must carry
+   *  exactly its `required_constraints`. */
+  OrderConfig: Type.Object({
+    label: Type.String(),
+    required_constraints: Type.Array(Type.Ref("ModuleHash")),
+  }, { ctor: 0n }),
   PoolConfig: Type.Object({
     pool_validator: Type.Ref("ModuleHash"),
     actions: Type.Array(
@@ -250,6 +257,8 @@ export const ActionEntry = Contracts.Import("ActionEntry");
 export type ActionEntry = Exact<typeof ActionEntry>;
 export const PoolConfig = Contracts.Import("PoolConfig");
 export type PoolConfig = Exact<typeof PoolConfig>;
+export const OrderConfig = Contracts.Import("OrderConfig");
+export type OrderConfig = Exact<typeof OrderConfig>;
 export const StrategyConstraints = Contracts.Import("StrategyConstraints");
 export type StrategyConstraints = Exact<typeof StrategyConstraints>;
 export const PoolState = Contracts.Import("PoolState");
