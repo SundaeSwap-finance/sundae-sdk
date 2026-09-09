@@ -24,7 +24,7 @@ jobs:
       - uses: oven-sh/setup-bun@v1
       - uses: actions/setup-node@v3
         with:
-          node-version: 22
+          node-version: 24
 
       # Install dependencies
       - name: Install
@@ -39,9 +39,14 @@ jobs:
         run: bun test
 
       # npm >= 11.5.1 performs the OIDC token exchange for trusted
-      # publishing; node 22's bundled npm 10 does not.
+      # publishing; node 24 bundles a new-enough npm, and the explicit
+      # upgrade guards against a stale bundle. The version print is the
+      # evidence for which npm the publish child actually resolves.
       - name: Upgrade npm for trusted publishing
-        run: npm install -g npm@^11.5.1
+        run: |
+          npm install -g npm@^11.5.1
+          echo "npm: $(which npm) $(npm --version)"
+          echo "node: $(which node) $(node --version)"
 
       # Publishes via npm trusted publishing (OIDC): the job's
       # `id-token: write` permission lets npm mint a workload credential
@@ -57,6 +62,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Diagnostic while trusted publishing beds in: verbose npm logs
+          # show the OIDC exchange (or its absence/rejection). Remove once
+          # a release has published cleanly.
+          NPM_CONFIG_LOGLEVEL: verbose
 
   # Deploy Documentation
   docs:
