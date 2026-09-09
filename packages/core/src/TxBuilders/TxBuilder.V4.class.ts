@@ -401,7 +401,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   private async resolveOrderConstraints(
     configToken: string,
     primary: [hash: string, data: Core.PlutusData],
-    fallback: Array<[keyof typeof V4_VALIDATORS, () => Core.PlutusData]>,
+    fallback: Array<[keyof typeof V4_VALIDATORS, Core.PlutusData]>,
   ): Promise<Array<[string, Core.PlutusData]>> {
     const settings = await this.getSettings();
     const entry = settings.find(
@@ -413,9 +413,9 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       // on a dev deployment): keep the legacy package for the order type.
       const rest = await Promise.all(
         fallback.map(
-          async ([name, make]): Promise<[string, Core.PlutusData]> => {
+          async ([name, data]): Promise<[string, Core.PlutusData]> => {
             const { hash } = await this.getValidatorScript(V4_VALIDATORS[name]);
-            return [hash, make()];
+            return [hash, data];
           },
         ),
       );
@@ -426,17 +426,16 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       Core.PlutusData.fromCbor(Core.HexBlob(entry.datum as string)),
     );
     const [primaryHash, primaryData] = primary;
-    const fillers: Array<[keyof typeof V4_VALIDATORS, () => Core.PlutusData]> =
-      [
-        ["fairnessConstraint", () => DatumBuilderV4.buildVoidData()],
-        ["feeConstraint", () => DatumBuilderV4.buildVoidData()],
-        ["routeConstraint", () => emptyListData()],
-      ];
-    const fillerHashes = new Map<string, () => Core.PlutusData>();
-    for (const [name, make] of fillers) {
+    const fillers: Array<[keyof typeof V4_VALIDATORS, Core.PlutusData]> = [
+      ["fairnessConstraint", DatumBuilderV4.buildVoidData()],
+      ["feeConstraint", DatumBuilderV4.buildVoidData()],
+      ["routeConstraint", emptyListData()],
+    ];
+    const fillerHashes = new Map<string, Core.PlutusData>();
+    for (const [name, data] of fillers) {
       try {
         const { hash } = await this.getValidatorScript(V4_VALIDATORS[name]);
-        fillerHashes.set(hash, make);
+        fillerHashes.set(hash, data);
       } catch {
         // Not part of this deployment — it can't appear in
         // required_constraints either.
@@ -445,14 +444,14 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     return config.required_constraints.map(
       (hash: string): [string, Core.PlutusData] => {
         if (hash === primaryHash) return [hash, primaryData];
-        const make = fillerHashes.get(hash);
-        if (!make) {
+        const data = fillerHashes.get(hash);
+        if (!data) {
           throw new Error(
             `OrderConfig ${configToken} requires constraint ${hash}, which is ` +
               "not a module this SDK knows how to satisfy.",
           );
         }
-        return [hash, make()];
+        return [hash, data];
       },
     );
   }
@@ -662,7 +661,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       constraints: await this.resolveOrderConstraints(
         configToken,
         [basicHash, basicData],
-        [["fairnessConstraint", () => DatumBuilderV4.buildVoidData()]],
+        [["fairnessConstraint", DatumBuilderV4.buildVoidData()]],
       ),
       configToken,
     };
@@ -705,8 +704,8 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         configToken,
         [strategyHash, strategyData],
         [
-          ["routeConstraint", () => emptyListData()],
-          ["fairnessConstraint", () => DatumBuilderV4.buildVoidData()],
+          ["routeConstraint", emptyListData()],
+          ["fairnessConstraint", DatumBuilderV4.buildVoidData()],
         ],
       ),
     );
