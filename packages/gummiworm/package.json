@@ -46,12 +46,12 @@
     "publish:canary": "bun publish --tag dev"
   },
   "devDependencies": {
-    "@sundaeswap/core": "workspace:*"
+    "@sundaeswap/core": "^2.14.0"
   },
   "dependencies": {
     "@blaze-cardano/sdk": "^0.2.34",
     "@sundaeswap/asset": "^1.0.11",
-    "@sundaeswap/core": "workspace:*",
+    "@sundaeswap/core": "^2.14.0",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0"
   }

@@ -38,6 +38,16 @@ jobs:
       - name: Run Tests
         run: bun test
 
+      # npm publish ships manifests VERBATIM: it does not rewrite the
+      # workspace: protocol the way bun publish did. A workspace: range in a
+      # publishable manifest becomes an uninstallable release (it happened:
+      # core 2.14.0), so fail before publishing instead.
+      - name: Forbid workspace ranges in publishable manifests
+        run: |
+          if grep -l '"workspace:' packages/{core,math,cli,taste-test,yield-farming}/package.json; then
+            echo 'workspace: range found in a publishable package.json'; exit 1
+          fi
+
       # npm >= 11.5.1 performs the OIDC token exchange for trusted
       # publishing; node 24 bundles a new-enough npm, and the explicit
       # upgrade guards against a stale bundle. The version print is the
