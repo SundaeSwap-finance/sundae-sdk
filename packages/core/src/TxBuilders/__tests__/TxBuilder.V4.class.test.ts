@@ -528,6 +528,52 @@ describe("TxBuilderV4", () => {
       expect(datum.constraints[1][1].toCbor()).toEqual(Core.HexBlob("d87980"));
       builder.settings = undefined;
     });
+
+    it("unindexed token, launch-shaped deployment: fallback substitutes fee for the absent fairness", async () => {
+      // Audit-final deployments do not ship fairness_order/route_order — the
+      // fee constraint replaced fairness. The global mock resolves every
+      // validator, so shadow it with a launch-shaped OWN property (a bun
+      // instance spy's mockRestore would clobber the prototype mock).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (builder as any).getValidatorScript = async (name: string) => {
+        const hash = {
+          [V4_VALIDATORS.order]: ORDER_HASH,
+          [V4_VALIDATORS.basicConstraint]: BASIC_HASH,
+          [V4_VALIDATORS.strategyConstraint]: STRATEGY_HASH,
+          [V4_VALIDATORS.feeConstraint]: FEE_HASH,
+        }[name];
+        if (!hash) {
+          throw new Error(`Could not find a validator that matched the key: ${name}`);
+        }
+        return { hash, title: name, compiledCode: "" };
+      };
+      spyOn(
+        QueryProviderSundaeSwap.prototype,
+        "getProtocolSettings",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ).mockResolvedValueOnce([] as any);
+      builder.settings = undefined;
+      try {
+        const composed = await builder.deposit({
+          ownerAddress: OWNER,
+          offered: [TOKEN],
+          minReceived: [ADA],
+          configToken: "00c0ffee",
+        });
+        const datum = await datumOf(composed);
+        expect(datum.constraints.map((c) => c[0])).toEqual([
+          BASIC_HASH,
+          FEE_HASH,
+        ]);
+        expect(datum.constraints[1][1].toCbor()).toEqual(
+          Core.HexBlob("d87980"),
+        );
+      } finally {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        delete (builder as any).getValidatorScript;
+        builder.settings = undefined;
+      }
+    });
   });
 
   describe("cancel()", () => {

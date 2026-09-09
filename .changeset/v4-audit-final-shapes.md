@@ -26,8 +26,10 @@ deployment-defined: the audited launch packages are `trade + fee`, where
 earlier deployments used `trade + fairness`. `buildBasicPlacement` and
 `strategy` parse the entry and fill each required constraint, so an order built
 against the launch deployment is accepted rather than rejected for carrying the
-wrong set. A caller-supplied `configToken` that is not indexed falls back to the
-legacy package.
+wrong set. A caller-supplied `configToken` that is not indexed falls back to
+the package the deployed modules imply: fairness where the deployment ships
+it, the fee constraint where it replaced fairness, and a slot with neither is
+dropped.
 
 Without this, orders built by a published SDK carry `[basic, fairness]` and no
 fill is valid against the launch scripts.

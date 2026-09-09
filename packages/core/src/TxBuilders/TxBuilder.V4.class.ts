@@ -410,15 +410,23 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     );
     if (!entry) {
       // A caller-supplied token the API doesn't index (e.g. a custom config
-      // on a dev deployment): keep the legacy package for the order type.
-      const rest = await Promise.all(
-        fallback.map(
-          async ([name, data]): Promise<[string, Core.PlutusData]> => {
-            const { hash } = await this.getValidatorScript(V4_VALIDATORS[name]);
-            return [hash, data];
-          },
-        ),
-      );
+      // on a dev deployment): build the package from the modules this
+      // deployment actually ships. A missing fairness module substitutes the
+      // fee constraint (both carry Void); any other missing module is
+      // dropped. This one rule reproduces both known eras: legacy
+      // deployments ship fairness/route and get the legacy package;
+      // audit-final deployments ship the fee constraint instead and get
+      // `[primary, fee]` — where the old code threw on the missing module.
+      const rest: Array<[string, Core.PlutusData]> = [];
+      for (const [name, data] of fallback) {
+        let resolved = await this.tryValidatorHash(V4_VALIDATORS[name]);
+        if (resolved === undefined && name === "fairnessConstraint") {
+          resolved = await this.tryValidatorHash(V4_VALIDATORS.feeConstraint);
+        }
+        if (resolved !== undefined && !rest.some(([h]) => h === resolved)) {
+          rest.push([resolved, data]);
+        }
+      }
       return [primary, ...rest];
     }
     const config = parse(
@@ -433,12 +441,11 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     ];
     const fillerHashes = new Map<string, Core.PlutusData>();
     for (const [name, data] of fillers) {
-      try {
-        const { hash } = await this.getValidatorScript(V4_VALIDATORS[name]);
+      // A module absent from this deployment can't appear in
+      // required_constraints either.
+      const hash = await this.tryValidatorHash(V4_VALIDATORS[name]);
+      if (hash !== undefined) {
         fillerHashes.set(hash, data);
-      } catch {
-        // Not part of this deployment — it can't appear in
-        // required_constraints either.
       }
     }
     return config.required_constraints.map(
@@ -454,6 +461,19 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         return [hash, data];
       },
     );
+  }
+
+  /**
+   * The hash of a deployed validator, or `undefined` when this deployment
+   * does not ship it.
+   */
+  private async tryValidatorHash(name: string): Promise<string | undefined> {
+    try {
+      const { hash } = await this.getValidatorScript(name);
+      return hash;
+    } catch {
+      return undefined;
+    }
   }
 
   /**
@@ -634,8 +654,9 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   /**
    * Resolves a basic order's offered assets, constraint set, and `config_token`
    * — shared by {@link basic} and {@link update}. The set comes from the
-   * deployment's basic `OrderConfig`; `[basic-order, fairness-order]` is the
-   * legacy fallback when the config token isn't indexed.
+   * deployment's basic `OrderConfig`; an unindexed config token falls back to
+   * the package the deployed modules imply (fairness where it ships, the fee
+   * constraint where it replaced fairness).
    */
   private async buildBasicPlacement(args: IBasicV4Args): Promise<{
     offered: AssetAmount<IAssetAmountMetadata>[];
@@ -671,8 +692,8 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * Places a v4 strategy order. The order locks the offered assets and names a
    * strategist (`authSigner`) authorized to sign the `StrategyExecution` the
    * scooper later fills. It carries exactly the constraint set the
-   * deployment's strategy `OrderConfig` requires (`[strategy-order,
-   * route-order, fairness-order]` is the legacy fallback).
+   * deployment's strategy `OrderConfig` requires; an unindexed config token
+   * falls back to the package the deployed modules imply.
    */
   public async strategy(
     args: IStrategyV4Args,
