@@ -10,8 +10,14 @@ takes the surplus floor and pins a Void extension. `PoolConfig` is fully ported
 (`module_params`, `mint_permission`, `min_surplus`, `extension`) and `mintPool`
 pins the config's `min_surplus` into the datum it writes. `resolvePoolConfig`
 accepts the per-curve entry labels the deployment publishes — `cs-pool`,
-`cp-pool`, `cl-pool` — alongside the bare `pool` label of earlier eras. Reads
-stay lenient, so datums from an older deployment still decode.
+`cp-pool`, `cl-pool` — alongside the bare `pool` label of earlier eras.
+
+The new shapes are REQUIRED on reads: a pre-audit 7-field `PoolDatum` (or the
+short `PoolConfig`) no longer decodes. That is deliberate — no live deployment
+carries the old shapes (the 2026-09-07 redeploy replaced preview and preprod
+wholesale; mainnet never had v4), and parsing them with invented defaults
+would feed fabricated `min_surplus` values into real transactions. Historical
+old-era decoding is the indexers' job, not the SDK's.
 
 Order constraints are now derived from the settings entry's `OrderConfig`
 rather than hardcoded. The order validator requires the datum's constraint list

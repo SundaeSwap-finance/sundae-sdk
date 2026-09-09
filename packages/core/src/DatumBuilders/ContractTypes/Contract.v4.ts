@@ -161,9 +161,9 @@ const Contracts = Type.Module({
       Type.Ref("ModuleHash")
     ),
   }, { ctor: 0n }),
-  /** Settings-entry datum for an OrderConfig (PR #11): one per (role,
-   *  constraint set) pair; orders bind it via `config_token` and must carry
-   *  exactly its `required_constraints`. */
+  /** Settings-entry datum for an OrderConfig (sundae-v4#11, "Modular order
+   *  constraints"): one per (role, constraint set) pair; orders bind it via
+   *  `config_token` and must carry exactly its `required_constraints`. */
   OrderConfig: Type.Object({
     label: Type.String(),
     required_constraints: Type.Array(Type.Ref("ModuleHash")),

@@ -45,11 +45,13 @@ export const V4_VALIDATORS = {
   swapConstraint: "swap_order.withdraw",
   /** The basic-order constraint module — keyed in Deposit/Withdraw/Claim orders. */
   basicConstraint: "basic_order.withdraw",
-  /** The route-order constraint module — required by swap (and strategy) orders. */
+  /** The route-order constraint module — keyed in route-carrying packages. */
   routeConstraint: "route_order.withdraw",
   /** The strategy-order constraint module — keyed in a strategy order's constraints. */
   strategyConstraint: "strategy_order.withdraw",
-  /** The fairness-order constraint module — required by every order type. */
+  /** The fairness-order constraint module — keyed in pre-audit packages; the
+   *  audited launch packages carry the fee constraint instead. Which
+   *  constraints a package requires is deployment-defined (its OrderConfig). */
   fairnessConstraint: "fairness_order.withdraw",
   /** The fee constraint — the once-per-scoop service-fee aggregator required
    *  by the audited `trade + fee` order packages (docs/fee-system.md). */
@@ -617,10 +619,10 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * Places a v4 basic order — `Deposit`, `Withdraw`, or `Claim` (per
    * `args.type`).
    *
-   * A basic order's required constraint set (per the basic `OrderConfig`) is
-   * `[basic-order, fairness-order]` — note there is no route constraint:
-   *   - basic-order: the `BasicFields` payload (Constr 0/1/3)
-   *   - fairness-order: `Void`
+   * A basic order carries exactly the constraint set its deployment's basic
+   * `OrderConfig` requires — the basic-order payload plus deployment-defined
+   * fillers (launch: the fee constraint; pre-audit: fairness). There is no
+   * route constraint in either era.
    */
   public async basic(
     args: IBasicV4Args,
@@ -632,8 +634,9 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
   /**
    * Resolves a basic order's offered assets, constraint set, and `config_token`
-   * — shared by {@link basic} and {@link update}. A basic order carries
-   * `[basic-order, fairness-order]` (no route constraint).
+   * — shared by {@link basic} and {@link update}. The set comes from the
+   * deployment's basic `OrderConfig`; `[basic-order, fairness-order]` is the
+   * legacy fallback when the config token isn't indexed.
    */
   private async buildBasicPlacement(args: IBasicV4Args): Promise<{
     offered: AssetAmount<IAssetAmountMetadata>[];
@@ -668,8 +671,9 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   /**
    * Places a v4 strategy order. The order locks the offered assets and names a
    * strategist (`authSigner`) authorized to sign the `StrategyExecution` the
-   * scooper later fills. It carries the full `[strategy-order, route-order,
-   * fairness-order]` constraint set, matching the strategy `OrderConfig`.
+   * scooper later fills. It carries exactly the constraint set the
+   * deployment's strategy `OrderConfig` requires (`[strategy-order,
+   * route-order, fairness-order]` is the legacy fallback).
    */
   public async strategy(
     args: IStrategyV4Args,
