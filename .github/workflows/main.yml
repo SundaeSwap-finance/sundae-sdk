@@ -38,7 +38,18 @@ jobs:
       - name: Run Tests
         run: bun test
 
-      # Bump Versions (reinstate after release)
+      # npm >= 11.5.1 performs the OIDC token exchange for trusted
+      # publishing; node 22's bundled npm 10 does not.
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@^11.5.1
+
+      # Publishes via npm trusted publishing (OIDC): the job's
+      # `id-token: write` permission lets npm mint a workload credential
+      # scoped to this repo + workflow file — no long-lived registry token.
+      # Each published package names this workflow as its Trusted Publisher
+      # on npmjs.com; a package without that configuration fails to publish.
+      # `changeset publish` skips versions the registry already has, so
+      # re-running after a partial failure is safe.
       - name: Release
         uses: changesets/action@v1
         with:
@@ -46,7 +57,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_TOKEN: ${{ secrets.PUBLISH_NPM_TOKEN }}
 
   # Deploy Documentation
   docs:
