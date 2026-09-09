@@ -533,6 +533,7 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
     identifier,
     actions,
     moduleState,
+    minSurplus,
   }: {
     assets: AssetAmount<IAssetAmountMetadata>[];
     totalLp: bigint;
@@ -541,6 +542,8 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
     identifier: string;
     actions: Array<{ tag: bigint; enabled: boolean; modules: string[] }>;
     moduleState: Array<[moduleHash: string, stateHash: string]>;
+    /** Lovelace surplus floor, pinned from the PoolConfig (ADR-0012). */
+    minSurplus: bigint;
   }): TDatumResult<V4Types.PoolDatum> {
     const datum: V4Types.PoolDatum = {
       assets: assets.map((asset) => {
@@ -559,6 +562,11 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
       module_state: moduleState.map(
         ([moduleHash, stateHash]) =>
           [moduleHash, stateHash] as V4Types.Tuple_ModuleHash_ByteArray,
+      ),
+      min_surplus: minSurplus,
+      // Void — every pool the SDK creates starts with an empty extension.
+      extension: Core.PlutusData.newConstrPlutusData(
+        new Core.ConstrPlutusData(0n, new Core.PlutusList()),
       ),
     };
     const data = serialize(V4Types.PoolDatum, datum);

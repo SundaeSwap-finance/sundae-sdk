@@ -30,6 +30,7 @@ const BASIC_HASH = "33".repeat(28);
 const ROUTE_HASH = "44".repeat(28);
 const FAIRNESS_HASH = "55".repeat(28);
 const STRATEGY_HASH = "56".repeat(28);
+const FEE_HASH = "57".repeat(28);
 // Pool-creation module hashes.
 const POOL_HASH = "66".repeat(28);
 const POOL_MINT_HASH = "77".repeat(28);
@@ -62,6 +63,7 @@ spyOn(TxBuilderV4.prototype, "getValidatorScript").mockImplementation(
       [V4_VALIDATORS.basicConstraint]: BASIC_HASH,
       [V4_VALIDATORS.routeConstraint]: ROUTE_HASH,
       [V4_VALIDATORS.fairnessConstraint]: FAIRNESS_HASH,
+      [V4_VALIDATORS.feeConstraint]: FEE_HASH,
       [V4_VALIDATORS.strategyConstraint]: STRATEGY_HASH,
       [V4_VALIDATORS.pool]: POOL_HASH,
       [V4_VALIDATORS.poolMint]: POOL_MINT_HASH,
@@ -83,6 +85,15 @@ const CS_POOL_CONFIG_DATUM = serialize(V4Types.PoolConfig, {
       modules: [CS_HASH, FEESPLIT_HASH, FAIRNESS_MOD_HASH],
     },
   ],
+  module_params: [],
+  // None — permissionless CreatePool.
+  mint_permission: Core.PlutusData.newConstrPlutusData(
+    new Core.ConstrPlutusData(1n, new Core.PlutusList()),
+  ),
+  min_surplus: 5_000_000n,
+  extension: Core.PlutusData.newConstrPlutusData(
+    new Core.ConstrPlutusData(0n, new Core.PlutusList()),
+  ),
 }).toCbor();
 
 // Published Create configs for the non-curve modules (curve config comes from
@@ -134,6 +145,21 @@ spyOn(TxBuilderV4.prototype, "getReferenceScript").mockImplementation(
 const SWAP_CONFIG_TOKEN = "000d039b";
 const BASIC_CONFIG_TOKEN = "00073714";
 
+// On-chain OrderConfig datums for the constraint-resolution path: the entries
+// carry the era's packages (basic+fairness, strategy+route+fairness).
+const BASIC_ORDER_CONFIG_DATUM = serialize(V4Types.OrderConfig, {
+  label: "6261736963",
+  required_constraints: [BASIC_HASH, FAIRNESS_HASH],
+}).toCbor();
+const STRATEGY_ORDER_CONFIG_DATUM = serialize(V4Types.OrderConfig, {
+  label: "7374726174",
+  required_constraints: [STRATEGY_HASH, ROUTE_HASH, FAIRNESS_HASH],
+}).toCbor();
+const SWAP_ORDER_CONFIG_DATUM = serialize(V4Types.OrderConfig, {
+  label: "73776170",
+  required_constraints: [SWAP_HASH, ROUTE_HASH, FAIRNESS_HASH],
+}).toCbor();
+
 // Resolve indexed settings without a live protocol query.
 spyOn(
   QueryProviderSundaeSwap.prototype,
@@ -142,9 +168,9 @@ spyOn(
 ).mockResolvedValue([
   { label: "settings", txIn: { hash: "aa", index: 0 }, datum: "d8", values: null },
   { label: "fee-settings", txIn: { hash: "af", index: 0 }, datum: "d8", values: { baseFee: "1000000", feePerStep: "500000" } },
-  { label: "swap-order", txIn: { hash: "bb", index: 0 }, datum: "d8", values: { token: SWAP_CONFIG_TOKEN, requiredConstraints: [] } },
-  { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: "d8", values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
-  { label: "strategy-order", txIn: { hash: "ce", index: 0 }, datum: "d8", values: { token: "00d5ea9b", requiredConstraints: [] } },
+  { label: "swap-order", txIn: { hash: "bb", index: 0 }, datum: SWAP_ORDER_CONFIG_DATUM, values: { token: SWAP_CONFIG_TOKEN, requiredConstraints: [] } },
+  { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: BASIC_ORDER_CONFIG_DATUM, values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
+  { label: "strategy-order", txIn: { hash: "ce", index: 0 }, datum: STRATEGY_ORDER_CONFIG_DATUM, values: { token: "00d5ea9b", requiredConstraints: [] } },
   { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: CS_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
 ] as any);
 
@@ -385,6 +411,7 @@ describe("TxBuilderV4", () => {
         identifier: ident,
         actions: [{ tag: 3n, enabled: true, modules: [CS_HASH] }],
         moduleState: [[CS_HASH, "80"]],
+        minSurplus: 5_000_000n,
       });
       const poolUtxo = Core.TransactionUnspentOutput.fromCore([
         new Core.TransactionInput(
@@ -468,6 +495,84 @@ describe("TxBuilderV4", () => {
       expect(
         DatumBuilderV4.getSignerKeyFromDatum(composed.datum as string),
       ).toEqual(expected);
+    });
+  });
+
+  describe("resolveOrderConstraints() — launch packages", () => {
+    it("builds [basic, fee(Void)] when the OrderConfig requires the fee constraint", async () => {
+      const FEE_CONFIG_TOKEN = "00feefee";
+      const feeConfigDatum = serialize(V4Types.OrderConfig, {
+        label: "6261736963",
+        required_constraints: [BASIC_HASH, FEE_HASH],
+      }).toCbor();
+      spyOn(
+        QueryProviderSundaeSwap.prototype,
+        "getProtocolSettings",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ).mockResolvedValueOnce([
+        { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: feeConfigDatum, values: { token: FEE_CONFIG_TOKEN } },
+      ] as any);
+      builder.settings = undefined;
+      const composed = await builder.deposit({
+        ownerAddress: OWNER,
+        offered: [TOKEN],
+        minReceived: [ADA],
+        configToken: FEE_CONFIG_TOKEN,
+      });
+      const datum = await datumOf(composed);
+      expect(datum.constraints.map((c) => c[0])).toEqual([
+        BASIC_HASH,
+        FEE_HASH,
+      ]);
+      // the fee constraint's payload is Void
+      expect(datum.constraints[1][1].toCbor()).toEqual(Core.HexBlob("d87980"));
+      builder.settings = undefined;
+    });
+
+    it("unindexed token, launch-shaped deployment: fallback substitutes fee for the absent fairness", async () => {
+      // Audit-final deployments do not ship fairness_order/route_order — the
+      // fee constraint replaced fairness. The global mock resolves every
+      // validator, so shadow it with a launch-shaped OWN property (a bun
+      // instance spy's mockRestore would clobber the prototype mock).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (builder as any).getValidatorScript = async (name: string) => {
+        const hash = {
+          [V4_VALIDATORS.order]: ORDER_HASH,
+          [V4_VALIDATORS.basicConstraint]: BASIC_HASH,
+          [V4_VALIDATORS.strategyConstraint]: STRATEGY_HASH,
+          [V4_VALIDATORS.feeConstraint]: FEE_HASH,
+        }[name];
+        if (!hash) {
+          throw new Error(`Could not find a validator that matched the key: ${name}`);
+        }
+        return { hash, title: name, compiledCode: "" };
+      };
+      spyOn(
+        QueryProviderSundaeSwap.prototype,
+        "getProtocolSettings",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ).mockResolvedValueOnce([] as any);
+      builder.settings = undefined;
+      try {
+        const composed = await builder.deposit({
+          ownerAddress: OWNER,
+          offered: [TOKEN],
+          minReceived: [ADA],
+          configToken: "00c0ffee",
+        });
+        const datum = await datumOf(composed);
+        expect(datum.constraints.map((c) => c[0])).toEqual([
+          BASIC_HASH,
+          FEE_HASH,
+        ]);
+        expect(datum.constraints[1][1].toCbor()).toEqual(
+          Core.HexBlob("d87980"),
+        );
+      } finally {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        delete (builder as any).getValidatorScript;
+        builder.settings = undefined;
+      }
     });
   });
 
@@ -770,6 +875,14 @@ describe("TxBuilderV4", () => {
           { tag: 3n, enabled: true, modules: [CS_HASH, FEESPLIT_HASH, FAIRNESS_MOD_HASH] },
           { tag: 1n, enabled: true, modules: [GOV_HASH] },
         ],
+        module_params: [],
+        mint_permission: Core.PlutusData.newConstrPlutusData(
+          new Core.ConstrPlutusData(1n, new Core.PlutusList()),
+        ),
+        min_surplus: 5_000_000n,
+        extension: Core.PlutusData.newConstrPlutusData(
+          new Core.ConstrPlutusData(0n, new Core.PlutusList()),
+        ),
       }).toCbor();
 
       spyOn(

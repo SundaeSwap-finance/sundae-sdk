@@ -45,12 +45,17 @@ export const V4_VALIDATORS = {
   swapConstraint: "swap_order.withdraw",
   /** The basic-order constraint module — keyed in Deposit/Withdraw/Claim orders. */
   basicConstraint: "basic_order.withdraw",
-  /** The route-order constraint module — required by swap (and strategy) orders. */
+  /** The route-order constraint module — keyed in route-carrying packages. */
   routeConstraint: "route_order.withdraw",
   /** The strategy-order constraint module — keyed in a strategy order's constraints. */
   strategyConstraint: "strategy_order.withdraw",
-  /** The fairness-order constraint module — required by every order type. */
+  /** The fairness-order constraint module — keyed in pre-audit packages; the
+   *  audited launch packages carry the fee constraint instead. Which
+   *  constraints a package requires is deployment-defined (its OrderConfig). */
   fairnessConstraint: "fairness_order.withdraw",
+  /** The fee constraint — the once-per-scoop service-fee aggregator required
+   *  by the audited `trade + fee` order packages (docs/fee-system.md). */
+  feeConstraint: "fee_constraint.withdraw",
   /** The pool NFT minting policy. */
   poolMint: "pool.mint",
   /** The pool spend validator — its hash is the pool script address. */
@@ -385,6 +390,93 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
+   * Builds an order's `(hash, data)` constraint list from its OrderConfig
+   * entry's on-chain `required_constraints` — the order validator requires an
+   * exact match, and which constraints a package carries is deployment-defined
+   * (the audited launch packages are `trade + fee`; earlier deployments used
+   * `trade + fairness`). The primary (trade) constraint's data is supplied by
+   * the caller; every other known constraint takes its canonical filler:
+   * fairness/fee → Void, route → an empty (any-pool) whitelist.
+   */
+  private async resolveOrderConstraints(
+    configToken: string,
+    primary: [hash: string, data: Core.PlutusData],
+    fallback: Array<[keyof typeof V4_VALIDATORS, Core.PlutusData]>,
+  ): Promise<Array<[string, Core.PlutusData]>> {
+    const settings = await this.getSettings();
+    const entry = settings.find(
+      (st) =>
+        (st.values?.token as string | undefined) === configToken && st.datum,
+    );
+    if (!entry) {
+      // A caller-supplied token the API doesn't index (e.g. a custom config
+      // on a dev deployment): build the package from the modules this
+      // deployment actually ships. A missing fairness module substitutes the
+      // fee constraint (both carry Void); any other missing module is
+      // dropped. This one rule reproduces both known eras: legacy
+      // deployments ship fairness/route and get the legacy package;
+      // audit-final deployments ship the fee constraint instead and get
+      // `[primary, fee]` — where the old code threw on the missing module.
+      const rest: Array<[string, Core.PlutusData]> = [];
+      for (const [name, data] of fallback) {
+        let resolved = await this.tryValidatorHash(V4_VALIDATORS[name]);
+        if (resolved === undefined && name === "fairnessConstraint") {
+          resolved = await this.tryValidatorHash(V4_VALIDATORS.feeConstraint);
+        }
+        if (resolved !== undefined && !rest.some(([h]) => h === resolved)) {
+          rest.push([resolved, data]);
+        }
+      }
+      return [primary, ...rest];
+    }
+    const config = parse(
+      V4Types.OrderConfig,
+      Core.PlutusData.fromCbor(Core.HexBlob(entry.datum as string)),
+    );
+    const [primaryHash, primaryData] = primary;
+    const fillers: Array<[keyof typeof V4_VALIDATORS, Core.PlutusData]> = [
+      ["fairnessConstraint", DatumBuilderV4.buildVoidData()],
+      ["feeConstraint", DatumBuilderV4.buildVoidData()],
+      ["routeConstraint", emptyListData()],
+    ];
+    const fillerHashes = new Map<string, Core.PlutusData>();
+    for (const [name, data] of fillers) {
+      // A module absent from this deployment can't appear in
+      // required_constraints either.
+      const hash = await this.tryValidatorHash(V4_VALIDATORS[name]);
+      if (hash !== undefined) {
+        fillerHashes.set(hash, data);
+      }
+    }
+    return config.required_constraints.map(
+      (hash: string): [string, Core.PlutusData] => {
+        if (hash === primaryHash) return [hash, primaryData];
+        const data = fillerHashes.get(hash);
+        if (!data) {
+          throw new Error(
+            `OrderConfig ${configToken} requires constraint ${hash}, which is ` +
+              "not a module this SDK knows how to satisfy.",
+          );
+        }
+        return [hash, data];
+      },
+    );
+  }
+
+  /**
+   * The hash of a deployed validator, or `undefined` when this deployment
+   * does not ship it.
+   */
+  private async tryValidatorHash(name: string): Promise<string | undefined> {
+    try {
+      const { hash } = await this.getValidatorScript(name);
+      return hash;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
    * Resolves an order type's `config_token` (the value an order sets as its
    * `config_token`) from the indexed settings, by the OrderConfig entry's label.
    */
@@ -546,10 +638,10 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * Places a v4 basic order — `Deposit`, `Withdraw`, or `Claim` (per
    * `args.type`).
    *
-   * A basic order's required constraint set (per the basic `OrderConfig`) is
-   * `[basic-order, fairness-order]` — note there is no route constraint:
-   *   - basic-order: the `BasicFields` payload (Constr 0/1/3)
-   *   - fairness-order: `Void`
+   * A basic order carries exactly the constraint set its deployment's basic
+   * `OrderConfig` requires — the basic-order payload plus deployment-defined
+   * fillers (launch: the fee constraint; pre-audit: fairness). There is no
+   * route constraint in either era.
    */
   public async basic(
     args: IBasicV4Args,
@@ -561,8 +653,10 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
   /**
    * Resolves a basic order's offered assets, constraint set, and `config_token`
-   * — shared by {@link basic} and {@link update}. A basic order carries
-   * `[basic-order, fairness-order]` (no route constraint).
+   * — shared by {@link basic} and {@link update}. The set comes from the
+   * deployment's basic `OrderConfig`; an unindexed config token falls back to
+   * the package the deployed modules imply (fairness where it ships, the fee
+   * constraint where it replaced fairness).
    */
   private async buildBasicPlacement(args: IBasicV4Args): Promise<{
     offered: AssetAmount<IAssetAmountMetadata>[];
@@ -575,9 +669,8 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       minReceived: args.minReceived,
     });
 
-    const [basicHash, fairnessHash] = await this.getValidatorHashes([
+    const [basicHash] = await this.getValidatorHashes([
       V4_VALIDATORS.basicConstraint,
-      V4_VALIDATORS.fairnessConstraint,
     ]);
 
     const configToken =
@@ -586,10 +679,11 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     return {
       offered: args.offered,
-      constraints: [
+      constraints: await this.resolveOrderConstraints(
+        configToken,
         [basicHash, basicData],
-        [fairnessHash, DatumBuilderV4.buildVoidData()],
-      ],
+        [["fairnessConstraint", DatumBuilderV4.buildVoidData()]],
+      ),
       configToken,
     };
   }
@@ -597,8 +691,9 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   /**
    * Places a v4 strategy order. The order locks the offered assets and names a
    * strategist (`authSigner`) authorized to sign the `StrategyExecution` the
-   * scooper later fills. It carries the full `[strategy-order, route-order,
-   * fairness-order]` constraint set, matching the strategy `OrderConfig`.
+   * scooper later fills. It carries exactly the constraint set the
+   * deployment's strategy `OrderConfig` requires; an unindexed config token
+   * falls back to the package the deployed modules imply.
    */
   public async strategy(
     args: IStrategyV4Args,
@@ -615,22 +710,26 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       finalDestinations,
     });
 
-    const [strategyHash, routeHash, fairnessHash] =
-      await this.getValidatorHashes([
-        V4_VALIDATORS.strategyConstraint,
-        V4_VALIDATORS.routeConstraint,
-        V4_VALIDATORS.fairnessConstraint,
-      ]);
+    const [strategyHash] = await this.getValidatorHashes([
+      V4_VALIDATORS.strategyConstraint,
+    ]);
 
     const configToken =
       args.configToken ??
       (await this.getOrderConfigToken(V4_ORDER_CONFIG_LABEL.strategy));
 
-    return this.placeOrder({ ...args, configToken }, args.offered, [
-      [strategyHash, strategyData],
-      [routeHash, emptyListData()],
-      [fairnessHash, DatumBuilderV4.buildVoidData()],
-    ]);
+    return this.placeOrder(
+      { ...args, configToken },
+      args.offered,
+      await this.resolveOrderConstraints(
+        configToken,
+        [strategyHash, strategyData],
+        [
+          ["routeConstraint", emptyListData()],
+          ["fairnessConstraint", DatumBuilderV4.buildVoidData()],
+        ],
+      ),
+    );
   }
 
   /** Resolves several validator hashes from the protocol params in one pass. */
@@ -1022,7 +1121,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     // The on-chain PoolConfig (for this curve) dictates the pool datum's
     // actions exactly, and publishes each module's Create config.
-    const { poolValidator, actions, settingsTxIn, moduleConfigs } =
+    const { poolValidator, actions, settingsTxIn, minSurplus, moduleConfigs } =
       await this.resolvePoolConfig(curveScript.hash);
     if (poolValidator !== poolScript.hash) {
       throw new Error(
@@ -1188,6 +1287,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         modules: a.modules,
       })),
       moduleState,
+      minSurplus,
     });
 
     // Reference inputs: the settings pool config, the pool-mint policy, and each
@@ -1301,11 +1401,17 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     poolValidator: string;
     actions: V4Types.ActionEntry[];
     settingsTxIn: { hash: string; index: number };
+    /** Lovelace surplus floor the pool datum must pin (ADR-0012). */
+    minSurplus: bigint;
     /** Per-module Create config (CBOR, or `null` for config-less modules), keyed by module hash. */
     moduleConfigs: Record<string, string | null> | undefined;
   }> {
     const settings = await this.getSettings();
-    const poolEntries = settings.filter((s) => s.label === "pool" && s.datum);
+    // PoolConfig entries are labeled per curve ("cs-pool", "cp-pool",
+    // "cl-pool"); the bare "pool" label is accepted for older rows.
+    const poolEntries = settings.filter(
+      (s) => (s.label === "pool" || s.label?.endsWith("-pool")) && s.datum,
+    );
     if (poolEntries.length === 0) {
       throw new Error(
         "mintPool: could not find a `pool` PoolConfig entry in the protocol " +
@@ -1332,6 +1438,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
           poolValidator: config.pool_validator,
           actions: config.actions,
           settingsTxIn: entry.txIn,
+          minSurplus: config.min_surplus,
           moduleConfigs,
         };
       }

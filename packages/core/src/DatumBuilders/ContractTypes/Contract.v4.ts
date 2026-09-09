@@ -161,11 +161,28 @@ const Contracts = Type.Module({
       Type.Ref("ModuleHash")
     ),
   }, { ctor: 0n }),
+  /** Settings-entry datum for an OrderConfig (sundae-v4#11, "Modular order
+   *  constraints"): one per (role, constraint set) pair; orders bind it via
+   *  `config_token` and must carry exactly its `required_constraints`. */
+  OrderConfig: Type.Object({
+    label: Type.String(),
+    required_constraints: Type.Array(Type.Ref("ModuleHash")),
+  }, { ctor: 0n }),
   PoolConfig: Type.Object({
     pool_validator: Type.Ref("ModuleHash"),
     actions: Type.Array(
       Type.Ref("ActionEntry")
     ),
+    /** Per-module Create-time params, keyed by module hash (SUN-005/ADR-0003). */
+    module_params: Type.Array(Type.Tuple([
+      Type.Ref("ModuleHash"),
+      Type.Unsafe<PlutusData>(Type.Any()),
+    ])),
+    /** `Option<MultisigScript>` gating CreatePool — kept opaque here. */
+    mint_permission: Type.Unsafe<PlutusData>(Type.Any()),
+    /** Lovelace surplus floor pinned into PoolDatum at Create (ADR-0012). */
+    min_surplus: Type.BigInt(),
+    extension: Type.Unsafe<PlutusData>(Type.Any()),
   }, { ctor: 0n }),
   StrategyConstraints: Type.Object({
     auth: Type.Ref("MultisigScript"),
@@ -195,6 +212,11 @@ const Contracts = Type.Module({
     module_state: Type.Array(
       Type.Ref("Tuple_ModuleHash_ByteArray")
     ),
+    /** Lovelace surplus floor pinned from PoolConfig.min_surplus at Create
+     *  (ADR-0012; audit-final addition). */
+    min_surplus: Type.BigInt(),
+    /** Reserved scooper-writable scratch (audit-final addition). */
+    extension: Type.Unsafe<PlutusData>(Type.Any()),
   }, { ctor: 0n }),
   OrderDatum: Type.Object({
     owner: Type.Ref("MultisigScript"),
@@ -235,6 +257,8 @@ export const ActionEntry = Contracts.Import("ActionEntry");
 export type ActionEntry = Exact<typeof ActionEntry>;
 export const PoolConfig = Contracts.Import("PoolConfig");
 export type PoolConfig = Exact<typeof PoolConfig>;
+export const OrderConfig = Contracts.Import("OrderConfig");
+export type OrderConfig = Exact<typeof OrderConfig>;
 export const StrategyConstraints = Contracts.Import("StrategyConstraints");
 export type StrategyConstraints = Exact<typeof StrategyConstraints>;
 export const PoolState = Contracts.Import("PoolState");
