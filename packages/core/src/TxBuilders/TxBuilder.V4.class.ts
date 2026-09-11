@@ -11,11 +11,14 @@ import type {
   ISundaeProtocolValidatorFull,
   ITxBuilderFees,
   ITxBuilderReferralFee,
+  ISwapConfigArgs,
+  IOrderRouteSwapArgs,
   TSupportedNetworks,
   TUTXO,
 } from "../@types/index.js";
-import { EContractVersion } from "../@types/index.js";
+import { EContractVersion, ESwapType } from "../@types/index.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
+import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { EDatumType, TDestinationAddress } from "../@types/datumbuilder.js";
 import { TxBuilderAbstractV4 } from "../Abstracts/TxBuilderAbstract.V4.class.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../constants.js";
@@ -130,6 +133,13 @@ export interface IOrderV4Base {
    */
   configToken?: string;
   referralFee?: ITxBuilderReferralFee;
+  /**
+   * Extra lovelace locked into the order beyond its own deposit, so the order's
+   * output can seed a subsequent order (a route hop's downstream deposit + fee).
+   * The basic-order consumption check lets this surplus pass through to the
+   * destination. Mirrors the legacy `ISwapConfigArgs.feePadding`.
+   */
+  feePadding?: bigint;
 }
 
 /** Arguments for placing a v4 swap order via `TxBuilderV4.swap`. */
@@ -614,6 +624,120 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
+   * POC (a suggestion, not launch surface): places a v4 basic order shaped like
+   * a legacy `.swap`, so `TxBuilderV3.orderRouteSwap` can chain a v4 pool as a
+   * route hop. This is NOT the reserved route-constraint {@link swap} — it is an
+   * ordinary basic order (intent) paid to the hop's fixed destination. Its skim
+   * bound comes from the basic-order constraint's own `check_basic_consumption`
+   * (consumed ≤ offered per asset), so no unaudited route module is involved;
+   * what it forgoes versus a real route order is on-chain atomic sequencing.
+   */
+  public async swapHop(
+    args: ISwapConfigArgs,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    if (args.swapType.type !== ESwapType.LIMIT) {
+      throw new Error(
+        "TxBuilderV4.swapHop needs a LIMIT swapType: a basic order requires a min-received floor.",
+      );
+    }
+    if (!args.ownerAddress) {
+      throw new Error(
+        "TxBuilderV4.swapHop needs ownerAddress: the basic order's owner and canceller.",
+      );
+    }
+    return this.swapIntent({
+      ownerAddress: args.ownerAddress,
+      offered: args.suppliedAsset,
+      minReceived: args.swapType.minReceivable,
+      destination: args.orderAddresses.DestinationAddress,
+      ...(args.feePadding ? { feePadding: args.feePadding } : {}),
+      ...(args.referralFee ? { referralFee: args.referralFee } : {}),
+    });
+  }
+
+  /** Inline, matching the legacy builders — the order-route helper reads this to embed the next hop's datum. */
+  getDatumType(): EDatumType {
+    return EDatumType.INLINE;
+  }
+
+  /**
+   * The ADA an upstream route hop must pre-fund for a v4 order placed as the
+   * next hop: the lifetime `service_budget` the basic order locks (the v4
+   * analogue of the legacy scooper fee `orderRouteSwap` reads off the
+   * destination builder).
+   */
+  public async getMaxScooperFeeAmount(): Promise<bigint> {
+    return DEFAULT_BUDGET;
+  }
+
+  /**
+   * POC (suggestion, not launch surface): the mirror of
+   * `TxBuilderV3.orderRouteSwap` for a v4 FIRST hop. Hop A is a v4 basic order
+   * (intent) floored at the intermediate; that floor funds hop B, whose order
+   * (any `.swap()` builder — v1/v3/stableswap) is embedded as hop A's fixed
+   * destination. Hop A locks hop B's deposit + fee as `feePadding` so they pass
+   * through when hop A is scooped. Skim stays bounded by each order's own
+   * consumption check; the route constraint (atomic sequencing) is not used.
+   */
+  public async orderRouteSwap(
+    args: IOrderRouteSwapArgs,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    if (args.swapA.swapType.type !== ESwapType.LIMIT) {
+      throw new Error(
+        "TxBuilderV4.orderRouteSwap needs a LIMIT swapA: its floor is the intermediate that funds hop B.",
+      );
+    }
+    // Dynamic import to avoid a circular dependency, as the v3 builder does.
+    const { SundaeSDK } = await import("../SundaeSDK.class.js");
+    const secondBuilder = SundaeSDK.new({
+      blazeInstance: this.blaze,
+      customQueryProvider: this.queryProvider,
+    }).builder(args.swapB.pool.version);
+
+    const secondSwapAddress = await secondBuilder.getOrderScriptAddress(
+      args.ownerAddress,
+    );
+
+    const swapB = new SwapConfig({
+      ...args.swapB,
+      suppliedAsset: args.swapA.swapType.minReceivable,
+      ownerAddress: args.ownerAddress,
+      orderAddresses: {
+        DestinationAddress: {
+          address: args.ownerAddress,
+          datum: { type: EDatumType.NONE },
+        },
+      },
+    }).buildArgs();
+
+    const secondSwapData = await secondBuilder.swap({
+      ...swapB,
+      swapType: args.swapB.swapType,
+    });
+
+    const feePadding =
+      secondSwapData.fees.deposit.amount +
+      secondSwapData.fees.scooperFee.amount;
+
+    return this.swapHop({
+      pool: args.swapA.pool,
+      suppliedAsset: args.swapA.suppliedAsset,
+      ownerAddress: args.ownerAddress,
+      swapType: args.swapA.swapType,
+      feePadding,
+      orderAddresses: {
+        DestinationAddress: {
+          address: secondSwapAddress,
+          datum: {
+            type: secondBuilder.getDatumType(),
+            value: secondSwapData.datum as string,
+          },
+        },
+      },
+    });
+  }
+
+  /**
    * Places a v4 basic order — `Deposit`, `Withdraw`, or `Claim` (per
    * `args.type`).
    *
@@ -884,7 +1008,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       constraints,
     });
 
-    const orderDeposit = ORDER_DEPOSIT_DEFAULT;
+    const orderDeposit = ORDER_DEPOSIT_DEFAULT + (args.feePadding ?? 0n);
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: offered,
       scooperFee: budget,

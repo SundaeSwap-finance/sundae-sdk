@@ -31,6 +31,8 @@ import type {
   TSupportedNetworks,
 } from "../@types/index.js";
 import { EContractVersion, EDatumType, ESwapType } from "../@types/index.js";
+// Type-only (erased at runtime, so no circular import) for the v4 route-hop cast.
+import type { TxBuilderV4 } from "./TxBuilder.V4.class.js";
 import { TxBuilderAbstractV3 } from "../Abstracts/TxBuilderAbstract.V3.class.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { DepositConfig } from "../Configs/DepositConfig.class.js";
@@ -727,10 +729,19 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       },
     }).buildArgs();
 
-    const secondSwapData = await secondBuilder.swap({
-      ...swapB,
-      swapType: args.swapB.swapType,
-    });
+    // POC: a v4 second hop places a basic-order intent (swapHop) instead of the
+    // legacy pinned swap. The basic order's own consumption check bounds skim,
+    // so the chain stays on audited surface; v4's `swap()` (route constraint) is
+    // deliberately not used. v4 as the FIRST hop is out of scope here, since
+    // orderRouteSwap itself lives on the v1/v3 builder.
+    const hopArgs = { ...swapB, swapType: args.swapB.swapType };
+    const secondSwapData =
+      args.swapB.pool.version === EContractVersion.V4
+        ? await (secondBuilder as unknown as TxBuilderV4).swapHop({
+            ...hopArgs,
+            ownerAddress: args.ownerAddress,
+          })
+        : await secondBuilder.swap(hopArgs);
 
     const referralFeeAmount = BlazeHelper.mergeValues(
       swapA.referralFee?.payment,
