@@ -58,6 +58,24 @@ export type TLiquidityOutcome = {
   actualDepositedB: bigint;
 };
 
+/** A zap quote: the rebalancing swap the scooper performs, then the LP the pinned deposit mints. */
+export type TZapQuote = {
+  /** Absent when the offered basket already matches the reserves. */
+  swap?: {
+    input: AssetAmount<IAssetAmountMetadata>;
+    output: AssetAmount<IAssetAmountMetadata>;
+  };
+  /** LP minted at the current reserves. */
+  expectedLp: AssetAmount<IAssetAmountMetadata>;
+  /** `expectedLp` less the slippage allowance — the order's `minReceived`. */
+  minLp: AssetAmount<IAssetAmountMetadata>;
+  /** Surplus the pin returns, aligned to `[assetA, assetB]`. */
+  change: [
+    AssetAmount<IAssetAmountMetadata>,
+    AssetAmount<IAssetAmountMetadata>,
+  ];
+};
+
 export class SundaeUtils {
   static ADA_ASSET_IDS = [
     "",
@@ -901,6 +919,102 @@ export class SundaeUtils {
           `Unsupported pool version: ${poolData.version}. Cannot get swap input.`,
         );
     }
+  }
+
+  /**
+   * Quote a zap — a non-proportional deposit — into a v4 constant-sum pool.
+   * The order itself is a plain {@link TxBuilderV4.deposit} of `offered`; the
+   * scooper swaps part of the over-weighted asset and deposits the rest.
+   *
+   * The scooper only has to clear `minReceived`, and the deposit's LP depends
+   * on the reserve ratio at scoop time, so `minLp` is the load-bearing number:
+   * slack above the true fill is skimmable, and too tight is unfillable
+   * (sundae-v4 ADR-0009). Realistic drift is well under 1% on a deep pool.
+   *
+   * `pool.currentFee` is applied to the swap leg; v4's bid/ask fees are
+   * assumed symmetric.
+   *
+   * @param pool A v4 constant-sum pool with `prices`.
+   * @param offered One or both pool assets, in any order.
+   * @param slippage Fraction of `expectedLp` to concede, in [0, 1).
+   */
+  static getZapQuote(
+    pool: IPoolData,
+    offered: AssetAmount<IAssetAmountMetadata>[],
+    slippage: number,
+  ): TZapQuote {
+    if (pool.version !== EContractVersion.V4) {
+      throw new Error("Zap quotes are only available for v4 pools.");
+    }
+    if (pool.curve !== EPoolCurve.ConstantSum) {
+      throw new Error(
+        `Zap quotes require a constant-sum pool; got curve ${pool.curve}.`,
+      );
+    }
+    if (!pool.prices) {
+      throw new Error(
+        "Constant-sum pool is missing `prices`; cannot quote a zap.",
+      );
+    }
+    if (slippage < 0 || slippage >= 1) {
+      throw new Error("slippage must be in [0, 1).");
+    }
+
+    const basket: [bigint, bigint] = [0n, 0n];
+    for (const asset of offered) {
+      const index = SundaeUtils.isAssetIdsEqual(
+        asset.metadata.assetId,
+        pool.assetA.assetId,
+      )
+        ? 0
+        : SundaeUtils.isAssetIdsEqual(
+              asset.metadata.assetId,
+              pool.assetB.assetId,
+            )
+          ? 1
+          : undefined;
+      if (index === undefined) {
+        throw new Error(
+          `Offered asset ${asset.metadata.assetId} is not in pool ${pool.ident}.`,
+        );
+      }
+      basket[index] += asset.amount;
+    }
+
+    const zap = ConstantSumPool.calculateZap(
+      basket,
+      [pool.liquidity.aReserve, pool.liquidity.bReserve],
+      [pool.prices[0], pool.prices[1]],
+      pool.liquidity.lpTotal,
+      pool.currentFee,
+    );
+
+    const lpMetadata: IAssetAmountMetadata = {
+      assetId: pool.assetLP.assetId,
+      decimals: pool.assetLP.decimals ?? 0,
+    };
+    const poolAssets = [pool.assetA, pool.assetB];
+
+    return {
+      ...(zap.swapIndex !== undefined && {
+        swap: {
+          input: new AssetAmount(zap.swapInput, poolAssets[zap.swapIndex]),
+          output: new AssetAmount(
+            zap.swapOutput,
+            poolAssets[1 - zap.swapIndex],
+          ),
+        },
+      }),
+      expectedLp: new AssetAmount(zap.generatedLp, lpMetadata),
+      minLp: new AssetAmount(
+        BigInt(Math.ceil(Number(zap.generatedLp) * (1 - slippage))),
+        lpMetadata,
+      ),
+      change: [
+        new AssetAmount(zap.change[0], pool.assetA),
+        new AssetAmount(zap.change[1], pool.assetB),
+      ],
+    };
   }
 
   /**
