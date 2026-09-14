@@ -6,13 +6,15 @@ import {
   calculateDepositN,
   calculateLiquidity,
   calculatePinnedDeposit,
+  calculateZap,
   getSwapInput,
   getSwapOutput,
   pinnedDepositFromAnchor,
 } from "../ConstantSumPool.js";
 
 const tokenA: IAssetAmountMetadata = {
-  assetId: "09169bb6f5ff5b246d65d65935b2222cc53b5e677d7ed22771878972.744f4b454e41",
+  assetId:
+    "09169bb6f5ff5b246d65d65935b2222cc53b5e677d7ed22771878972.744f4b454e41",
   decimals: 0,
 };
 
@@ -103,9 +105,13 @@ describe("ConstantSumPool.getSwapOutput", () => {
 
 describe("ConstantSumPool.getSwapInput", () => {
   it("throws on non-positive output, reserves, or prices", () => {
-    expect(() => getSwapInput(tokenA, 0n, 10n, 10n, 1n, 1n, threePct)).toThrow();
+    expect(() =>
+      getSwapInput(tokenA, 0n, 10n, 10n, 1n, 1n, threePct),
+    ).toThrow();
     expect(() => getSwapInput(tokenA, 1n, 0n, 10n, 1n, 1n, threePct)).toThrow();
-    expect(() => getSwapInput(tokenA, 1n, 10n, 10n, 1n, 0n, threePct)).toThrow();
+    expect(() =>
+      getSwapInput(tokenA, 1n, 10n, 10n, 1n, 0n, threePct),
+    ).toThrow();
   });
 
   it("throws when the output exceeds the output reserve, but allows draining it", () => {
@@ -272,9 +278,7 @@ describe("ConstantSumPool.calculateLiquidity", () => {
     // Deltas never exceed the offers, and match the validator's ceil pin.
     result.deltas.forEach((delta, i) => {
       expect(delta).toBeLessThanOrEqual(offered[i]);
-      expect(delta).toEqual(
-        (reserves[i] * result.targetDeltaV + vB - 1n) / vB,
-      );
+      expect(delta).toEqual((reserves[i] * result.targetDeltaV + vB - 1n) / vB);
     });
     expect(result.generatedLp).toEqual(
       (totalLp * (vB + result.targetDeltaV)) / vB - totalLp,
@@ -318,5 +322,162 @@ describe("ConstantSumPool.calculateLiquidity", () => {
     expect(() =>
       calculateLiquidity(1n, 1n, 1_000n, 1_000n, 2_000n, 0n, 1n),
     ).toThrow();
+  });
+});
+
+describe("ConstantSumPool.calculateZap", () => {
+  // ADA/MINT-shaped pool at prices [2, 5]: 1M A + 400k B = 4M value, balanced.
+  const prices = [2n, 5n];
+  const reserves = [1_000_000n, 400_000n];
+  const totalLp = 4_000_000n;
+  const fee = new Fraction(30n, 10_000n);
+
+  /** The scooper's fill for an arbitrary dx — reference for the optimality scan. */
+  const fillAt = (
+    dx: bigint,
+    offered: bigint[],
+    res: bigint[],
+    px: bigint[],
+    lp: bigint,
+    f: Fraction,
+  ): bigint => {
+    const [x, y] = [0, 1];
+    const inputValue = dx * px[x];
+    const feeValue = (inputValue * f.numerator) / f.denominator;
+    const dy = (inputValue - feeValue) / px[y];
+    const basket = [offered[x] - dx, offered[y] + dy];
+    const next = [res[x] + dx, res[y] - dy];
+    if (basket.some((a) => a <= 0n) || next.some((r) => r <= 0n)) return 0n;
+    try {
+      return calculatePinnedDeposit(basket, next, px, lp).generatedLp;
+    } catch {
+      return 0n;
+    }
+  };
+
+  it("rejects anything but two assets, bad prices or reserves, and empty or negative offers", () => {
+    expect(() =>
+      calculateZap([1n, 1n, 1n], [1n, 1n, 1n], [1n, 1n, 1n], 1n, fee),
+    ).toThrow("exactly two assets");
+    expect(() =>
+      calculateZap([1n, 0n], reserves, [0n, 5n], totalLp, fee),
+    ).toThrow("Prices");
+    expect(() =>
+      calculateZap([1n, 0n], [0n, 1n], prices, totalLp, fee),
+    ).toThrow("Reserves");
+    expect(() =>
+      calculateZap([0n, 0n], reserves, prices, totalLp, fee),
+    ).toThrow("at least one positive");
+    expect(() =>
+      calculateZap([-1n, 1n], reserves, prices, totalLp, fee),
+    ).toThrow();
+    expect(() => calculateZap([1n, 1n], reserves, prices, 0n, fee)).toThrow(
+      "liquidity",
+    );
+    expect(() =>
+      calculateZap([1n, 1n], reserves, prices, totalLp, Fraction.ONE),
+    ).toThrow("fee");
+  });
+
+  it("is a plain pinned deposit when the basket already matches the reserves", () => {
+    const offered = [100_000n, 40_000n];
+    const zap = calculateZap(offered, reserves, prices, totalLp, fee);
+    const pinned = calculatePinnedDeposit(offered, reserves, prices, totalLp);
+
+    expect(zap.swapIndex).toBeUndefined();
+    expect(zap.swapInput).toBe(0n);
+    expect(zap.swapOutput).toBe(0n);
+    expect(zap.nextReserves).toEqual(reserves);
+    expect(zap.depositBasket).toEqual(offered);
+    expect(zap.generatedLp).toBe(pinned.generatedLp);
+    expect(zap.change).toEqual([0n, 0n]);
+  });
+
+  it("single-sided A: swaps the closed-form dx, deposits the rest, leaves dust change", () => {
+    const zap = calculateZap([100_000n, 0n], reserves, prices, totalLp, fee);
+
+    // dx = (a_X·r_Y)·feeDen·p_Y / ((feeDen−feeNum)·p_X·(r_X+a_X) + feeDen·p_Y·r_Y)
+    //    = 2e15 / 41_934_000_000 = 47_693
+    expect(zap.swapIndex).toBe(0);
+    expect(zap.swapInput).toBe(47_693n);
+    // getSwapOutput semantics: floor((95_386 − floor(95_386·0.003)) / 5)
+    expect(zap.swapOutput).toBe(19_020n);
+    expect(zap.nextReserves).toEqual([1_047_693n, 380_980n]);
+    expect(zap.depositBasket).toEqual([52_307n, 19_020n]);
+
+    // The pin is the already-tested function applied to that basket.
+    const pinned = calculatePinnedDeposit(
+      zap.depositBasket,
+      zap.nextReserves,
+      prices,
+      totalLp,
+    );
+    expect(zap.deltas).toEqual(pinned.deltas);
+    expect(zap.generatedLp).toBe(pinned.generatedLp);
+    expect(zap.change).toEqual([
+      zap.depositBasket[0] - pinned.deltas[0],
+      zap.depositBasket[1] - pinned.deltas[1],
+    ]);
+    // Rounding leaves at most a unit or two behind.
+    expect(zap.change[0] + zap.change[1]).toBeLessThanOrEqual(2n);
+
+    // A 200k-value basket into a 4M pool with 4M LP is 200k LP before fees;
+    // half of it swaps at 0.3%, so the loss is ~0.15%.
+    expect(zap.generatedLp).toBeLessThan(200_000n);
+    expect(zap.generatedLp).toBeGreaterThan(199_400n);
+  });
+
+  it("swap leg agrees with getSwapOutput for the same dx", () => {
+    const zap = calculateZap([100_000n, 0n], reserves, prices, totalLp, fee);
+    const swap = getSwapOutput(
+      tokenA,
+      zap.swapInput,
+      reserves[0],
+      reserves[1],
+      prices[0],
+      prices[1],
+      fee,
+    );
+    expect(zap.swapOutput).toBe(swap.output);
+    expect(zap.nextReserves).toEqual([
+      swap.nextInputReserve,
+      swap.nextOutputReserve,
+    ]);
+  });
+
+  it("single-sided B swaps in the other direction", () => {
+    const zap = calculateZap([0n, 40_000n], reserves, prices, totalLp, fee);
+    expect(zap.swapIndex).toBe(1);
+    expect(zap.swapInput).toBeGreaterThan(0n);
+    expect(zap.depositBasket[0]).toBeGreaterThan(0n);
+    expect(zap.depositBasket[1]).toBeLessThan(40_000n);
+    expect(zap.nextReserves[0]).toBeLessThan(reserves[0]);
+    expect(zap.nextReserves[1]).toBeGreaterThan(reserves[1]);
+  });
+
+  it("closed-form dx maximizes minted LP over every integer dx", () => {
+    // Small enough to scan exhaustively; skewed prices and reserves so the
+    // ratio work is non-trivial.
+    const px = [3n, 7n];
+    const res = [5_000n, 2_000n];
+    const lp = 29_000n;
+    const f = new Fraction(25n, 10_000n);
+    const offered = [1_200n, 50n];
+
+    const zap = calculateZap(offered, res, px, lp, f);
+    expect(zap.swapIndex).toBe(0);
+
+    let best = 0n;
+    for (let dx = 0n; dx <= offered[0]; dx++) {
+      const got = fillAt(dx, offered, res, px, lp, f);
+      if (got > best) best = got;
+    }
+    expect(zap.generatedLp).toBe(best);
+  });
+
+  it("throws when the offer is too small to survive the swap", () => {
+    expect(() =>
+      calculateZap([1n, 0n], reserves, prices, totalLp, fee),
+    ).toThrow("too small");
   });
 });
