@@ -54,7 +54,7 @@ The transaction hash and index of the open order in the escrow contract.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:613](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L613)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:704](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L704)
 
 ***
 
@@ -84,7 +84,7 @@ Returns the queried pool's data.
 
 ##### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:505](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L505)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:551](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L551)
 
 #### findPoolData(assetArgs)
 
@@ -108,7 +108,7 @@ Returns the queried pool's data.
 
 ##### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:506](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L506)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:552](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L552)
 
 #### findPoolData(assetPairArgs)
 
@@ -132,7 +132,7 @@ Returns the queried pool's data.
 
 ##### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:507](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L507)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:553](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L553)
 
 #### findPoolData(searchArgs)
 
@@ -156,7 +156,7 @@ Returns the queried pool's data.
 
 ##### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:508](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L508)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:554](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L554)
 
 ***
 
@@ -178,7 +178,7 @@ The protocol script hashes.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:649](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L649)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:740](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L740)
 
 ***
 
@@ -200,7 +200,7 @@ The protocol script hashes.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:712](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L712)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:803](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L803)
 
 ***
 
@@ -225,4 +225,4 @@ The protocol version to fetch settings for.
 
 #### Defined in
 
-[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:778](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L778)
+[packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts:869](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/QueryProviders/QueryProviderSundaeSwap.ts#L869)

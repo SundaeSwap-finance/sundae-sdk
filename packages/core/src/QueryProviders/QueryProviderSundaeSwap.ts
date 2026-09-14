@@ -1,6 +1,7 @@
 import { Fraction } from "@sundaeswap/fraction";
 import {
   EContractVersion,
+  EPoolCurve,
   IPoolByAssetQuery,
   IPoolByIdentQuery,
   IPoolByPairQuery,
@@ -64,6 +65,12 @@ interface IPoolDataQueryResult {
   version: EContractVersion;
   protocolAskFee: TFee;
   linearAmplificationFactor: string;
+  /** v4 only: total LP per the pool datum (`current.quantityLP` is circulating). */
+  totalLp?: string;
+  /** v4 only: constant-sum per-asset prices, aligned to `assetA`/`assetB`. */
+  prices?: string[];
+  /** v4 only: the pool's module set; the `invariant` entry names the curve. */
+  modules?: { kind: string; identifier: string }[];
 }
 
 /**
@@ -143,6 +150,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                   quantity
                 }
               }
+              totalLp
+              prices
+              modules {
+                kind
+                identifier
+              }
               linearAmplificationFactor
               protocolAskFee
               version
@@ -185,6 +198,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 quantityLP {
                   quantity
                 }
+              }
+              totalLp
+              prices
+              modules {
+                kind
+                identifier
               }
               linearAmplificationFactor
               protocolAskFee
@@ -233,11 +252,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         liquidity: {
           aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
           bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
-          lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+          lpTotal: this.lpTotal(pool),
         },
         linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
         protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
         version: pool.version,
+        ...this.v4PoolFields(pool),
       };
     });
   }
@@ -272,6 +292,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 quantityLP {
                   quantity
                 }
+              }
+              totalLp
+              prices
+              modules {
+                kind
+                identifier
               }
               linearAmplificationFactor
               protocolAskFee
@@ -315,6 +341,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 quantityLP {
                   quantity
                 }
+              }
+              totalLp
+              prices
+              modules {
+                kind
+                identifier
               }
               linearAmplificationFactor
               protocolAskFee
@@ -363,11 +395,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         liquidity: {
           aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
           bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
-          lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+          lpTotal: this.lpTotal(pool),
         },
         linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
         protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
         version: pool.version,
+        ...this.v4PoolFields(pool),
       };
     });
   }
@@ -402,6 +435,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 quantityLP {
                   quantity
                 }
+              }
+              totalLp
+              prices
+              modules {
+                kind
+                identifier
               }
               linearAmplificationFactor
               protocolAskFee
@@ -445,6 +484,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 quantityLP {
                   quantity
                 }
+              }
+              totalLp
+              prices
+              modules {
+                kind
+                identifier
               }
               linearAmplificationFactor
               protocolAskFee
@@ -493,11 +538,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         liquidity: {
           aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
           bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
-          lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+          lpTotal: this.lpTotal(pool),
         },
         linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
         protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
         version: pool.version,
+        ...this.v4PoolFields(pool),
       };
     });
   }
@@ -566,6 +612,12 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                     quantity
                   }
                 }
+                totalLp
+                prices
+                modules {
+                  kind
+                  identifier
+                }
                 linearAmplificationFactor
                 protocolAskFee
                 version
@@ -602,11 +654,50 @@ export class QueryProviderSundaeSwap implements QueryProvider {
       liquidity: {
         aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
         bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
-        lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+        lpTotal: this.lpTotal(pool),
       },
       linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
       protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
       version: pool.version,
+      ...this.v4PoolFields(pool),
+    };
+  }
+
+  /** The LP supply the contract's deposit math pins against: the datum total for v4, circulating LP otherwise. */
+  private lpTotal(pool: IPoolDataQueryResult): bigint {
+    if (pool.version === EContractVersion.V4 && pool.totalLp) {
+      return BigInt(pool.totalLp);
+    }
+    return BigInt(pool.current.quantityLP.quantity ?? 0);
+  }
+
+  /**
+   * v4 pools carry their invariant curve and, for constant sum, fixed prices.
+   * The API aligns `prices` to `assets`, and `assetA`/`assetB` are
+   * `assets[0]`/`assets[1]`, so the pair maps across without reordering.
+   */
+  private v4PoolFields(
+    pool: IPoolDataQueryResult,
+  ): Pick<IPoolData, "curve" | "prices"> {
+    if (pool.version !== EContractVersion.V4) {
+      return {};
+    }
+    const identifier = pool.modules?.find(
+      (m) => m.kind === "invariant",
+    )?.identifier;
+    const curve = (Object.values(EPoolCurve) as string[]).includes(
+      identifier ?? "",
+    )
+      ? (identifier as EPoolCurve)
+      : undefined;
+    const [priceA, priceB] = pool.prices ?? [];
+    const prices: [bigint, bigint] | undefined =
+      pool.prices?.length === 2 && priceA !== undefined && priceB !== undefined
+        ? [BigInt(priceA), BigInt(priceB)]
+        : undefined;
+    return {
+      ...(curve !== undefined && { curve }),
+      ...(prices !== undefined && { prices }),
     };
   }
 
