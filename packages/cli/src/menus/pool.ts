@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { Core } from "@blaze-cardano/sdk";
-import { input, select } from "@inquirer/prompts";
+import { confirm, input, select } from "@inquirer/prompts";
 import {
   EContractVersion,
   EDatumType,
@@ -21,7 +21,12 @@ import {
 } from "@sundaeswap/core";
 import type { State } from "../types";
 import { getPoolData, prettyAssetId } from "../utils.js";
-import { ensureDeployment, getAssetAmount, printHeader } from "./shared.js";
+import {
+  ensureDeployment,
+  getAssetAmount,
+  printHeader,
+  selectPool,
+} from "./shared.js";
 import { transactionDialog } from "./transaction.js";
 
 export async function swapMenu(state: State): Promise<State> {
@@ -205,10 +210,56 @@ export async function addLiquidityMenu(state: State): Promise<State> {
   return state;
 }
 
-export async function getSlippage(): Promise<number> {
+export async function zapMenu(state: State): Promise<State> {
+  await printHeader(state);
+  console.log("\t==== Zap (v4 constant-sum) ====\n");
+  const offered = await getAssetAmount(state, "Select the asset to zap in", 0n);
+  if (!offered) {
+    console.log("No asset selected, returning to main menu.");
+    return state;
+  }
+  const pool = await selectPool(offered.id, state, [EContractVersion.V4]);
+  if (!pool) {
+    console.log("Pool not found");
+    return state;
+  }
+  // The deposit leg's LP tracks the reserve ratio at scoop time; sub-1% drift
+  // is realistic on a deep pool, and the swap leg needs none.
+  const slippage = await getSlippage("0.5");
+  const quote = SundaeUtils.getZapQuote(pool, [offered], slippage);
+
+  if (quote.swap) {
+    console.log(
+      `Swap leg:     ${quote.swap.input.amount} ${prettyAssetId(quote.swap.input.metadata.assetId)} -> ${quote.swap.output.amount} ${prettyAssetId(quote.swap.output.metadata.assetId)}`,
+    );
+  } else {
+    console.log("Swap leg:     none (basket already proportional)");
+  }
+  console.log(`Expected LP:  ${quote.expectedLp.amount}`);
+  console.log(
+    `Min LP:       ${quote.minLp.amount}  (${slippage * 100}% slippage)`,
+  );
+  console.log(
+    `Change:       ${quote.change[0].amount} ${prettyAssetId(pool.assetA.assetId)}, ${quote.change[1].amount} ${prettyAssetId(pool.assetB.assetId)}`,
+  );
+
+  if (!(await confirm({ message: "Place the zap order?" }))) {
+    return state;
+  }
+  const builder = state.sdk().builder(EContractVersion.V4);
+  const tx = await builder.deposit({
+    ownerAddress: state.settings.address!,
+    offered: [offered],
+    minReceived: [quote.minLp],
+  });
+  await transactionDialog((await tx.build()).cbor, false, state);
+  return state;
+}
+
+export async function getSlippage(defaultPercent = "3"): Promise<number> {
   const slippage = await input({
     message: "Enter slippage % (e.g. 3 for 3%):",
-    default: "3",
+    default: defaultPercent,
     validate: (input) => {
       const num = Number(input);
       if (isNaN(num)) {
