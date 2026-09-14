@@ -40,6 +40,13 @@ The fairness-order constraint module — required by every order type.
 
 The fairness pool module (distinct from the `fairness_order` constraint).
 
+### feeConstraint
+
+> `readonly` **feeConstraint**: `"fee_constraint.withdraw"` = `"fee_constraint.withdraw"`
+
+The fee constraint — the once-per-scoop service-fee aggregator required
+ by the audited `trade + fee` order packages (docs/fee-system.md).
+
 ### feeSplit
 
 > `readonly` **feeSplit**: `"fee_split.withdraw"` = `"fee_split.withdraw"`
