@@ -774,6 +774,94 @@ describe("SundaeUtils class", () => {
         ),
       ).toThrowError(/sqrtPrices/);
     });
+
+    // The v4 stableswap CURVE. Unrelated to EContractVersion.Stableswaps,
+    // which is the v3 stableswap CONTRACT.
+    it("dispatches the stableswap curve using the pool rates and amplification", () => {
+      const { output, lpFee } = SundaeUtils.getSwapOutput(
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.V4Stableswap,
+          rates: [1n, 1n],
+          amplification: 200n,
+        },
+        new AssetAmount(10_000_000n, base.assetA),
+      );
+      // Design-doc worked example: gross 9 999 750, fee 30 000, payout
+      // 9 969 750 on a balanced 1e9 pool at A = 200 and a 0.3% fee.
+      expect(output).toEqual(9_969_750n);
+      expect(lpFee.amount).toEqual(30_000n);
+    });
+
+    it("denominates the stableswap fee in the output asset", () => {
+      const { lpFee } = SundaeUtils.getSwapOutput(
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.V4Stableswap,
+          rates: [1n, 1n],
+          amplification: 200n,
+        },
+        new AssetAmount(10_000_000n, base.assetA),
+      );
+      expect(lpFee.metadata.assetId).toEqual(base.assetB.assetId);
+    });
+
+    it("orients the stableswap rates to the supplied asset", () => {
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.V4Stableswap,
+        // Rated balance sits where aReserve·100 == bReserve·1.
+        rates: [100n, 1n],
+        amplification: 200n,
+        liquidity: {
+          ...base.liquidity,
+          aReserve: 1_000_000n,
+          bReserve: 100_000_000n,
+        },
+      };
+      // Supplying A buys about 100x as much B (par, less rounding and fee).
+      const aIn = SundaeUtils.getSwapOutput(
+        pool,
+        new AssetAmount(1_000n, pool.assetA),
+      ).output;
+      expect(aIn).toBeGreaterThan(99_000n);
+      expect(aIn).toBeLessThanOrEqual(100_000n);
+      // Supplying B buys about a hundredth as much A.
+      const bIn = SundaeUtils.getSwapOutput(
+        pool,
+        new AssetAmount(100_000n, pool.assetB),
+      ).output;
+      expect(bIn).toBeGreaterThan(900n);
+      expect(bIn).toBeLessThanOrEqual(1_000n);
+    });
+
+    it("throws for a stableswap pool missing rates or amplification", () => {
+      expect(() =>
+        SundaeUtils.getSwapOutput(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.V4Stableswap,
+            amplification: 200n,
+          },
+          suppliedA,
+        ),
+      ).toThrowError(/rates/);
+      expect(() =>
+        SundaeUtils.getSwapOutput(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.V4Stableswap,
+            rates: [1n, 1n],
+          },
+          suppliedA,
+        ),
+      ).toThrowError(/amplification/);
+    });
   });
 
   describe("getSwapInput v4", () => {
@@ -882,6 +970,77 @@ describe("SundaeUtils class", () => {
         ),
       ).toThrowError(/sqrtPrices/);
     });
+
+    it("dispatches the stableswap curve and inverts getSwapOutput", () => {
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.V4Stableswap,
+        rates: [1n, 1n],
+        amplification: 200n,
+      };
+      const { input } = SundaeUtils.getSwapInput(
+        pool,
+        new AssetAmount(9_969_750n, base.assetB),
+      );
+      const forward = SundaeUtils.getSwapOutput(
+        pool,
+        new AssetAmount(input, base.assetA),
+      );
+      expect(forward.output).toBeGreaterThanOrEqual(9_969_750n);
+      expect(input).toBeLessThanOrEqual(10_000_000n);
+    });
+
+    it("orients the stableswap rates to the output asset", () => {
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.V4Stableswap,
+        rates: [100n, 1n],
+        amplification: 200n,
+        liquidity: {
+          ...base.liquidity,
+          aReserve: 1_000_000n,
+          bReserve: 100_000_000n,
+        },
+      };
+      // Asking for assetB means supplying assetA, so about 1/100th as much
+      // input as output. A flipped orientation would ask for ~100x.
+      const { input } = SundaeUtils.getSwapInput(
+        pool,
+        new AssetAmount(99_000n, pool.assetB),
+      );
+      expect(input).toBeLessThan(1_100n);
+      expect(
+        SundaeUtils.getSwapOutput(pool, new AssetAmount(input, pool.assetA))
+          .output,
+      ).toBeGreaterThanOrEqual(99_000n);
+    });
+
+    it("throws for a stableswap pool missing rates or amplification", () => {
+      expect(() =>
+        SundaeUtils.getSwapInput(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.V4Stableswap,
+            amplification: 200n,
+          },
+          new AssetAmount(10_000n, base.assetB),
+        ),
+      ).toThrowError(/rates/);
+      expect(() =>
+        SundaeUtils.getSwapInput(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.V4Stableswap,
+            rates: [1n, 1n],
+          },
+          new AssetAmount(10_000n, base.assetB),
+        ),
+      ).toThrowError(/amplification/);
+    });
   });
 
   describe("calculateLiquidity v4", () => {
@@ -974,6 +1133,71 @@ describe("SundaeUtils class", () => {
       );
       expect(cl).toEqual(cp);
       expect(cl.generatedLp).toBeGreaterThan(0n);
+    });
+
+    it("pins stableswap deposits to the scarcest asset (single-sided rejects)", () => {
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.V4Stableswap,
+        rates: [2n, 1n],
+        amplification: 200n,
+      };
+      expect(() =>
+        SundaeUtils.calculateLiquidity(pool, 100_000n, 0n),
+      ).toThrowError(/every pool asset/);
+
+      // Reserves 1e6 / 2e6 with rates [2, 1] are rated-balanced, so a 1:2
+      // offer is exactly proportional and nothing refunds.
+      const result = SundaeUtils.calculateLiquidity(pool, 100_000n, 200_000n);
+      expect(result.actualDepositedA).toEqual(100_000n);
+      expect(result.actualDepositedB).toEqual(200_000n);
+      expect(result.aChange).toEqual(0n);
+      expect(result.bChange).toEqual(0n);
+      expect(result.generatedLp).toEqual(500_000n);
+    });
+
+    it("refunds the stableswap surplus above the pinned deltas", () => {
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.V4Stableswap,
+        rates: [2n, 1n],
+        amplification: 200n,
+      };
+      // Asset B is the scarce leg here, so it caps the fill.
+      const result = SundaeUtils.calculateLiquidity(pool, 900_000n, 200_000n);
+      expect(result.actualDepositedB).toEqual(200_000n);
+      expect(result.actualDepositedA).toEqual(100_000n);
+      expect(result.aChange).toEqual(800_000n);
+      expect(result.bChange).toEqual(0n);
+    });
+
+    it("throws for a stableswap pool missing rates or amplification", () => {
+      expect(() =>
+        SundaeUtils.calculateLiquidity(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.V4Stableswap,
+            amplification: 200n,
+          },
+          100_000n,
+          200_000n,
+        ),
+      ).toThrowError(/rates/);
+      expect(() =>
+        SundaeUtils.calculateLiquidity(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.V4Stableswap,
+            rates: [1n, 1n],
+          },
+          100_000n,
+          200_000n,
+        ),
+      ).toThrowError(/amplification/);
     });
   });
 
@@ -1125,6 +1349,60 @@ describe("SundaeUtils class", () => {
       // 1 raw B = 3/5 raw A, decimal-adjusted ×10^(0−6).
       const price = SundaeUtils.getPrice(constantSumPool);
       expect(price).toBeCloseTo((3 / 5) * 10 ** -6, 9);
+    });
+
+    it("prices a v4 stableswap pool from the curve, not the reserve ratio", () => {
+      const stableswapCurvePool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.V4Stableswap,
+        rates: [1n, 1n],
+        amplification: 200n,
+        // Skewed 9:1. A constant-product pool would price B at 9 A; the
+        // stableswap curve at A = 200 holds it near par.
+        liquidity: {
+          aReserve: 900_000_000n,
+          bReserve: 100_000_000n,
+          lpTotal: 1_000_000_000n,
+        },
+      };
+      // ADA pair (v1 fixture assetA is ADA, 6 decimals; assetB 0 decimals).
+      const price = SundaeUtils.getPrice(stableswapCurvePool);
+      const rawAPerB = price / 10 ** -6;
+      expect(rawAPerB).toBeGreaterThan(1);
+      expect(rawAPerB).toBeLessThan(1.3);
+    });
+
+    it("prices a balanced v4 stableswap pool at the rate ratio", () => {
+      const stableswapCurvePool: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.V4Stableswap,
+        rates: [1_000_000n, 1_001_000n],
+        amplification: 200n,
+        // Rated-balanced: 1 001 000 000 · 1e6 == 1 000 000 000 · 1 001 000.
+        liquidity: {
+          aReserve: 1_001_000_000n,
+          bReserve: 1_000_000_000n,
+          lpTotal: 2_000_000_000n,
+        },
+      };
+      const rawAPerB = SundaeUtils.getPrice(stableswapCurvePool) / 10 ** -6;
+      expect(rawAPerB).toBeCloseTo(1.001, 6);
+    });
+
+    it("falls back to the reserve ratio when a stableswap pool is missing its curve fields", () => {
+      const incomplete: IPoolData = {
+        ...PREVIEW_DATA.pools.v1,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.V4Stableswap,
+      };
+      // getPrice degrades gracefully rather than throwing: the caller gets the
+      // constant-product reading, which is wrong for a skewed stableswap pool
+      // but is what every other curve without config falls back to.
+      expect(SundaeUtils.getPrice(incomplete)).toEqual(
+        SundaeUtils.getPrice(PREVIEW_DATA.pools.v1),
+      );
     });
 
     it("prices a v4 constant-product pool from its reserves as usual", () => {

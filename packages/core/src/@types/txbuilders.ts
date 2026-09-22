@@ -81,6 +81,21 @@ export enum EPoolCurve {
   ConstantProduct = "constant_product",
   ConstantSum = "constant_sum",
   ConcentratedLiquidity = "concentrated_liquidity",
+  /**
+   * The v4 stableswap invariant module: a Curve-style two-asset curve for
+   * pegged pairs, priced on rated reserves with a `linear_amplification`.
+   *
+   * NOT `EContractVersion.Stableswaps`. That is the **v3 stableswap contract**
+   * — a whole contract version with its own datum and transaction builders
+   * (`DatumBuilder.Stableswaps`, `TxBuilder.Stableswaps`). This is one curve a
+   * **v4** pool can bind, next to the three above. The two share a curve shape
+   * and nothing else: v3 stores `D` in the pool datum, has no per-asset rates,
+   * and scales its amplification by `A_PRECISION`; v4 stores no `D`, carries
+   * `rates`, and takes the raw integer amplification. The estimator for this
+   * curve is `V4StableswapPool` in `@sundaeswap/math`; the v3 one is
+   * `StableSwapsPool`.
+   */
+  V4Stableswap = "stableswap",
 }
 
 /**

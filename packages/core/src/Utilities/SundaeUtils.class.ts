@@ -34,13 +34,19 @@ import {
   ConstantProductPool,
   ConstantSumPool,
   StableSwapsPool,
+  V4StableswapPool,
 } from "@sundaeswap/math";
 
+// `StableSwapsPool` is the v3 stableswap CONTRACT; `V4StableswapPool` is the v4
+// stableswap CURVE module. They are different pools with different math. The
+// switches below dispatch on `version` for the first and on `curve` for the
+// second.
 export type TGenericSwapOutcome =
   | ConstantProductPool.TSwapOutcome
   | ConstantSumPool.TSwapOutcome
   | ConcentratedLiquidityPool.TSwapOutcome
-  | StableSwapsPool.TSwapOutcome;
+  | StableSwapsPool.TSwapOutcome
+  | V4StableswapPool.TSwapOutcome;
 
 export type TLiquidityOutcome = {
   nextTotalLp: bigint;
@@ -715,6 +721,32 @@ export class SundaeUtils {
               isAInput,
             );
           }
+          case EPoolCurve.V4Stableswap: {
+            // The v4 stableswap CURVE module, not the v3 Stableswaps CONTRACT
+            // handled above — different math, different pool data fields.
+            if (!poolData.rates || poolData.amplification == null) {
+              throw new Error(
+                "Stableswap pool is missing `rates` or `amplification`; cannot get swap output.",
+              );
+            }
+            const suppliedIsA =
+              poolData.assetA.assetId === suppliedAsset.metadata.assetId;
+            const [rateIn, rateOut] = suppliedIsA
+              ? [poolData.rates[0], poolData.rates[1]]
+              : [poolData.rates[1], poolData.rates[0]];
+            // The stableswap fee comes off the OUTPUT, so the fee AssetAmount
+            // is denominated in the taken asset — unlike the curves above.
+            return V4StableswapPool.getSwapOutput(
+              suppliedIsA ? poolData.assetB : poolData.assetA,
+              suppliedAsset.amount,
+              inputReserve,
+              outputReserve,
+              rateIn,
+              rateOut,
+              poolData.amplification,
+              poolData.currentFee,
+            );
+          }
           default:
             // Any future curve has no client-side estimator yet — callers
             // should fall back to a server quote.
@@ -837,6 +869,28 @@ export class SundaeUtils {
               isAInput,
             );
           }
+          case EPoolCurve.V4Stableswap: {
+            // See getSwapOutput: the v4 stableswap curve, not the v3 contract.
+            if (!poolData.rates || poolData.amplification == null) {
+              throw new Error(
+                "Stableswap pool is missing `rates` or `amplification`; cannot get swap input.",
+              );
+            }
+            // The supplied asset is the non-output side.
+            const [rateIn, rateOut] = isOutputAssetA
+              ? [poolData.rates[1], poolData.rates[0]]
+              : [poolData.rates[0], poolData.rates[1]];
+            return V4StableswapPool.getSwapInput(
+              isOutputAssetA ? poolData.assetA : poolData.assetB,
+              output.amount,
+              inputReserve,
+              outputReserve,
+              rateIn,
+              rateOut,
+              poolData.amplification,
+              poolData.currentFee,
+            );
+          }
           default:
             throw new Error(
               `Unsupported v4 pool curve: ${poolData.curve}. Cannot get swap input.`,
@@ -941,6 +995,27 @@ export class SundaeUtils {
               poolData.liquidity.bReserve,
               poolData.liquidity.lpTotal,
             );
+          case EPoolCurve.V4Stableswap:
+            // Target-pinned like constant sum, but stated on the sum invariant
+            // `D` instead of the value sum `V`: the fill is capped by the
+            // scarcest offered leg and the surplus is refunded. The rates enter
+            // only through `D`; the reserve deltas themselves are proportional
+            // in any units.
+            if (!poolData.rates || poolData.amplification == null) {
+              throw new Error(
+                "Stableswap pool is missing `rates` or `amplification`; cannot calculate liquidity.",
+              );
+            }
+            return V4StableswapPool.calculateLiquidity(
+              a,
+              b,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
+              poolData.rates[0],
+              poolData.rates[1],
+              poolData.amplification,
+            );
           default:
             throw new Error(
               `Unsupported v4 pool curve: ${poolData.curve}. Cannot calculate liquidity.`,
@@ -958,7 +1033,9 @@ export class SundaeUtils {
    * - Accounts for decimal differences between assets
    * - For ADA pairs: returns ADA per token (assetA / assetB since ADA is always assetA)
    * - For exotic pairs: returns inverted ratio (assetB / assetA)
-   * - For Stableswaps pools, uses the amplification factor for accurate pricing
+   * - For v3 Stableswaps pools, uses the amplification factor for accurate pricing
+   * - For v4 constant-sum pools, uses the pool's fixed prices
+   * - For v4 stableswap pools, uses the curve's marginal price at the current reserves
    *
    * @param {IPoolData} pool - The pool data containing reserves, decimals, and version information.
    * @returns {number} The price ratio adjusted for decimals.
@@ -977,6 +1054,8 @@ export class SundaeUtils {
     const isAdaPair = SundaeUtils.isAdaAsset(pool.assetA);
 
     if (pool.version === EContractVersion.Stableswaps) {
+      // The v3 Stableswaps CONTRACT. The v4 stableswap CURVE is handled below,
+      // and reaches here only through `curve`, never through `version`.
       // For stableswaps, both assets always have the same decimals
       const price = StableSwapsPool.getPrice(
         pool.liquidity.aReserve,
@@ -999,6 +1078,31 @@ export class SundaeUtils {
       const [priceA, priceB] = pool.prices;
       const aPerB =
         (Number(priceB) / Number(priceA)) *
+        10 ** ((pool.assetB.decimals ?? 0) - (pool.assetA.decimals ?? 0));
+      return isAdaPair ? aPerB : 1 / aPerB;
+    }
+
+    // A v4 stableswap pool holds the price near par across a wide band of
+    // reserve ratios, so the reserve ratio is not the price either. Unlike
+    // constant sum the price is not fixed: it moves with the reserves, so take
+    // the curve's marginal price at the current reserves rather than the rate
+    // ratio alone. At a balanced pool the two agree.
+    if (
+      pool.version === EContractVersion.V4 &&
+      pool.curve === EPoolCurve.V4Stableswap &&
+      pool.rates &&
+      pool.amplification != null &&
+      pool.liquidity.aReserve > 0n &&
+      pool.liquidity.bReserve > 0n
+    ) {
+      const aPerB =
+        V4StableswapPool.getPrice(
+          pool.amplification,
+          pool.liquidity.aReserve,
+          pool.liquidity.bReserve,
+          pool.rates[0],
+          pool.rates[1],
+        ).toNumber() *
         10 ** ((pool.assetB.decimals ?? 0) - (pool.assetA.decimals ?? 0));
       return isAdaPair ? aPerB : 1 / aPerB;
     }
