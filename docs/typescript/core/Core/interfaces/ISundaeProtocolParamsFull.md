@@ -17,4 +17,4 @@ Indexed settings (present once the API serves it; may be undefined).
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:216](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L216)
+[packages/core/src/@types/queryprovider.ts:230](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L230)

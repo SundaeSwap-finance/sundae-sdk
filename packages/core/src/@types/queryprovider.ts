@@ -95,6 +95,20 @@ export interface IPoolData {
   liquidity: {
     aReserve: bigint;
     bReserve: bigint;
+    /**
+     * The LP supply the pool's own invariant is denominated in — the
+     * denominator for any deposit, withdrawal or liquidity-depth calculation.
+     *
+     * For a v4 pool this is the pool datum's `total_lp`: circulating LP plus
+     * the protocol's earned-but-unharvested fees. It is NOT the circulating
+     * supply alone. Every v4 curve module reads `total_lp`, and concentrated
+     * liquidity uses it as its liquidity term `L`, so a client that substitutes
+     * the circulating figure computes against a different pool than the chain
+     * will validate.
+     *
+     * For pre-v4 pools there is no separate fee accounting and the two figures
+     * are equal, so the meaning is uniform across versions.
+     */
     lpTotal: bigint;
   };
   version: EContractVersion;

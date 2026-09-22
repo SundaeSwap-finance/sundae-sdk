@@ -30,7 +30,7 @@ Absent for pre-v4 pools, whose math is fixed by the contract version.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:121](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L121)
+[packages/core/src/@types/queryprovider.ts:135](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L135)
 
 ***
 
@@ -63,7 +63,7 @@ preview pool `ac8d4b1b…` (A = 200).
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:115](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L115)
+[packages/core/src/@types/queryprovider.ts:129](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L129)
 
 ***
 
@@ -77,7 +77,7 @@ output; ignored by other curves.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:127](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L127)
+[packages/core/src/@types/queryprovider.ts:141](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L141)
 
 ***
 
@@ -97,7 +97,7 @@ above, which serves v3 and v4 alike. `rates` is the v4-only half.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L146)
+[packages/core/src/@types/queryprovider.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L160)
 
 ***
 
@@ -112,4 +112,4 @@ ignored by other curves.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:134](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L134)
+[packages/core/src/@types/queryprovider.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L148)
