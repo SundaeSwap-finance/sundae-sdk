@@ -86,6 +86,25 @@ describe("V4StableswapPool.getD", () => {
 
   it("returns zero for an empty pool", () => {
     expect(getD(AMP, 0n, 0n)).toBe(0n);
+    // Rates do not rescue it and do not break it: zero times anything is zero.
+    expect(getD(AMP, 0n, 0n, 1_000_000n, 1_001_000n)).toBe(0n);
+  });
+
+  it("rejects exactly one empty reserve instead of dividing by zero", () => {
+    // The Newton step divides by 4*xs*ys, which is zero when one side is
+    // empty. Without the guard this faults natively rather than reporting the
+    // bad input. The chain cannot reach the state; a caller can.
+    expect(() => getD(AMP, 0n, 1n)).toThrow("exactly one empty reserve");
+    expect(() => getD(AMP, 1n, 0n)).toThrow("exactly one empty reserve");
+    expect(() => getD(AMP, 0n, 1_000_000_000n, 1_000_000n, 1_001_000n)).toThrow(
+      "exactly one empty reserve",
+    );
+  });
+
+  it("rejects a negative reserve before anything else", () => {
+    expect(() =>
+      getD(AMP, -1n, 1_000n),
+    ).toThrow("reserves must be non-negative");
   });
 
   it("rejects a non-positive amplification", () => {

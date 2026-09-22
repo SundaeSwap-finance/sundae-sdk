@@ -153,7 +153,19 @@ export const getD = (
   const xs = aReserve * rateA * CALC_PRECISION;
   const ys = bReserve * rateB * CALC_PRECISION;
   const sum = xs + ys;
+  // An empty pool has no invariant to solve; `D` is zero by definition.
   if (sum === 0n) return 0n;
+  // Exactly one empty reserve is a different case, and it has no answer: the
+  // Newton step divides by `4·xs·ys`, which is zero here. The chain never
+  // reaches this state — Create requires both reserves positive, and the
+  // exchange invariant leaves at least one unit on the output side — but this
+  // is a client library, so it reports the bad input instead of faulting on a
+  // native division by zero.
+  if (xs === 0n || ys === 0n) {
+    throw new Error(
+      "getD: a stableswap pool cannot hold exactly one empty reserve; D is undefined there",
+    );
+  }
 
   const ann = 4n * amp;
   let d = sum;
