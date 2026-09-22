@@ -100,11 +100,23 @@ export interface IPoolData {
   version: EContractVersion;
   conditionDatum?: string;
   protocolFee?: number;
+  /**
+   * The stableswap amplification factor `A`, for BOTH the v3 Stableswaps
+   * contract and the v4 stableswap curve. One parameter, one field, both
+   * versions.
+   *
+   * It is the raw integer the pool stores, with no precision scale applied.
+   * Each implementation applies its own scaling internally: v3's
+   * `StableSwapsPool` multiplies by its `A_PRECISION`, and the v4 curve uses
+   * the integer as it stands. Verified against live data — `V4StableswapPool.getD`
+   * at this value reproduces the API's own `sumInvariant` exactly for the
+   * preview pool `ac8d4b1b…` (A = 200).
+   */
   linearAmplificationFactor?: bigint;
   /**
    * For v4 pools, the invariant curve module — determines which swap math
-   * applies (constant product / sum / concentrated liquidity). Absent for
-   * pre-v4 pools, whose math is fixed by the contract version.
+   * applies (constant product / sum / concentrated liquidity / stableswap).
+   * Absent for pre-v4 pools, whose math is fixed by the contract version.
    */
   curve?: EPoolCurve;
   /**
@@ -120,6 +132,18 @@ export interface IPoolData {
    * ignored by other curves.
    */
   sqrtPrices?: [[bigint, bigint], [bigint, bigint]];
+  /**
+   * For v4 stableswap pools (`EPoolCurve.V4Stableswap`), the per-asset integer
+   * rates from the pool's stableswap config, aligned to `[assetA, assetB]`. The
+   * curve balances where `aReserve·rates[0] == bReserve·rates[1]`, so a
+   * 6-decimal against 8-decimal pair is `[100, 1]` and a yield-bearing asset
+   * that has accrued 2% against its base is `[1000000, 1020000]`. Required to
+   * compute stableswap swap output; empty for every other curve.
+   *
+   * The amplification the curve also needs is `linearAmplificationFactor`
+   * above, which serves v3 and v4 alike. `rates` is the v4-only half.
+   */
+  rates?: [bigint, bigint];
 }
 
 /**

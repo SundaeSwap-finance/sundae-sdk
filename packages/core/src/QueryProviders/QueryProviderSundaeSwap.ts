@@ -1,6 +1,7 @@
 import { Fraction } from "@sundaeswap/fraction";
 import {
   EContractVersion,
+  EPoolCurve,
   IPoolByAssetQuery,
   IPoolByIdentQuery,
   IPoolByPairQuery,
@@ -63,8 +64,64 @@ interface IPoolDataQueryResult {
   };
   version: EContractVersion;
   protocolAskFee: TFee;
+  /**
+   * The amplification factor `A`, for both the v3 Stableswaps contract and the
+   * v4 stableswap curve. One parameter, one field, one scale.
+   */
   linearAmplificationFactor: string;
+  /**
+   * The pool's composable behaviour modules. The one with kind `invariant`
+   * names the curve, and its identifier is an {@link EPoolCurve} value. Empty
+   * for pre-v4 pools, whose math is fixed by the contract version.
+   */
+  modules?: { kind: string; identifier: string }[] | null;
+  /** v4 constant-sum per-asset prices. Empty for every other curve. */
+  prices?: string[] | null;
+  /** v4 concentrated-liquidity sqrt bounds, flattened. Empty for every other curve. */
+  sqrtPrices?: string[] | null;
+  /** v4 stableswap per-asset rates. Empty for every other curve. */
+  rates?: string[] | null;
 }
+
+/**
+ * The curve half of a v4 pool's data, mapped out of the API's shape.
+ *
+ * Every one of these fields is REQUIRED to quote the curve it belongs to —
+ * without them `SundaeUtils.getSwapOutput` refuses a v4 pool rather than
+ * guessing. Selecting them is therefore not optional in any query path that
+ * returns a pool a caller might price, which is all of them: a pool that
+ * cannot be priced is not a cheaper pool, it is a broken one.
+ *
+ * Returns an empty object for a pre-v4 pool, which has no curve and needs
+ * none.
+ */
+const mapV4CurveFields = (pool: IPoolDataQueryResult): Partial<IPoolData> => {
+  const invariant = pool.modules?.find((module) => module.kind === "invariant");
+  const curve = (invariant?.identifier as EPoolCurve) || undefined;
+  if (!curve) return {};
+
+  const pair = (raw?: string[] | null): [bigint, bigint] | undefined =>
+    raw && raw.length >= 2 ? [BigInt(raw[0]), BigInt(raw[1])] : undefined;
+
+  const prices = pair(pool.prices);
+  const rates = pair(pool.rates);
+  // Flattened by the API as [lowerNum, lowerDen, upperNum, upperDen].
+  const sp = pool.sqrtPrices;
+  const sqrtPrices =
+    sp && sp.length >= 4
+      ? ([
+          [BigInt(sp[0]), BigInt(sp[1])],
+          [BigInt(sp[2]), BigInt(sp[3])],
+        ] as [[bigint, bigint], [bigint, bigint]])
+      : undefined;
+
+  return {
+    curve,
+    ...(prices ? { prices } : {}),
+    ...(sqrtPrices ? { sqrtPrices } : {}),
+    ...(rates ? { rates } : {}),
+  };
+};
 
 /**
  * This class provides a simple set of useful tooling, but primarily is used to
@@ -144,6 +201,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 }
               }
               linearAmplificationFactor
+              modules {
+                kind
+                identifier
+              }
+              prices
+              sqrtPrices
+              rates
               protocolAskFee
               version
             }
@@ -187,6 +251,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 }
               }
               linearAmplificationFactor
+              modules {
+                kind
+                identifier
+              }
+              prices
+              sqrtPrices
+              rates
               protocolAskFee
               version
             }
@@ -236,6 +307,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
         },
         linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
+        ...mapV4CurveFields(pool),
         protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
         version: pool.version,
       };
@@ -274,6 +346,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 }
               }
               linearAmplificationFactor
+              modules {
+                kind
+                identifier
+              }
+              prices
+              sqrtPrices
+              rates
               protocolAskFee
               version
             }
@@ -317,6 +396,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 }
               }
               linearAmplificationFactor
+              modules {
+                kind
+                identifier
+              }
+              prices
+              sqrtPrices
+              rates
               protocolAskFee
               version
             }
@@ -366,6 +452,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
         },
         linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
+        ...mapV4CurveFields(pool),
         protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
         version: pool.version,
       };
@@ -404,6 +491,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 }
               }
               linearAmplificationFactor
+              modules {
+                kind
+                identifier
+              }
+              prices
+              sqrtPrices
+              rates
               protocolAskFee
               version
             }
@@ -447,6 +541,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 }
               }
               linearAmplificationFactor
+              modules {
+                kind
+                identifier
+              }
+              prices
+              sqrtPrices
+              rates
               protocolAskFee
               version
             }
@@ -496,6 +597,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
           lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
         },
         linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
+        ...mapV4CurveFields(pool),
         protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
         version: pool.version,
       };
@@ -567,6 +669,13 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                   }
                 }
                 linearAmplificationFactor
+                modules {
+                  kind
+                  identifier
+                }
+                prices
+                sqrtPrices
+                rates
                 protocolAskFee
                 version
               }
@@ -605,6 +714,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
       },
       linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
+      ...mapV4CurveFields(pool),
       protocolFee: new Fraction(...pool.protocolAskFee).toNumber(),
       version: pool.version,
     };

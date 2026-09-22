@@ -11,3 +11,4 @@
 - [ConstantSumPool](namespaces/ConstantSumPool/README.md)
 - [SharedPoolMath](namespaces/SharedPoolMath/README.md)
 - [StableSwapsPool](namespaces/StableSwapsPool/README.md)
+- [V4StableswapPool](namespaces/V4StableswapPool/README.md)
