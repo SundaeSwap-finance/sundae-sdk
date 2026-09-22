@@ -182,10 +182,21 @@ export const getD = (
 // ─── The exchange solver ────────────────────────────────────────────────────
 
 /**
- * The smallest scaled `y` with `g(xs, y) ≥ 0` at the pre-swap `d`. Newton on
- * `y`, then a walk to the exact integer. Both swap directions use this: `g` is
- * symmetric, so solving for the counterparty reserve answers "what must the
- * other side hold" whichever side is given.
+ * The smallest scaled `y` with `g(xs, y) ≥ 0` at the pre-swap `d`: the least
+ * the pool may keep of the counterparty asset and still sit on the curve.
+ * Newton on `y`, then a walk to the exact integer — the walk leaves `y` with
+ * `g(y) ≥ 0` and `g(y − 1) < 0`, so it is the boundary and not merely a valid
+ * point.
+ *
+ * Read the direction carefully, because the two framings invert. A caller
+ * turning this into an output computes `raw = Y − y`, so the SMALLEST `y` is
+ * the LARGEST output the invariant admits. It is still not generous: `y` is a
+ * ceiling on the exact real-valued requirement, so `raw` is at or below the
+ * exact output. Most the curve allows, never more than it allows.
+ *
+ * Both swap directions use this: `g` is symmetric, so solving for the
+ * counterparty reserve answers "what must the other side hold" whichever side
+ * is given.
  */
 const solveCounterparty = (amp: bigint, d: bigint, xs: bigint): bigint => {
   if (xs <= 0n)
@@ -216,7 +227,9 @@ const solveCounterparty = (amp: bigint, d: bigint, xs: bigint): bigint => {
 /**
  * The raw swap output: the scaled, pre-fee amount the curve releases when the
  * given reserve becomes `inAfter` and the taken reserve starts at `outBefore`,
- * at the pre-swap `d`.
+ * at the pre-swap `d`. It is the largest such amount the exchange invariant
+ * admits — one unit more leaves the pool below the curve — and it is at or
+ * below the exact real-valued output, so it never over-quotes.
  *
  * The result carries the `rate · CALC_PRECISION` scale. Divide by
  * `rateOut · CALC_PRECISION` to get the gross output in token units.
@@ -305,11 +318,18 @@ export const getPrice = (
  * The sequence the chain enforces (`ss_check.ak`, tag 3):
  *
  * 1. `D` is derived from the pre-swap reserves at the pool's rates.
- * 2. `raw` is the smallest scaled output that solves the exchange invariant at
- *    that `D`, with the input already added to the given reserve.
+ * 2. `raw` is the LARGEST scaled output the exchange invariant admits at that
+ *    `D`, with the input already added to the given reserve. The solver pins
+ *    the pool's remaining taken reserve `y` to the SMALLEST integer that still
+ *    satisfies the invariant, and `raw = outBefore·rateOut·P − y`, so the two
+ *    statements are the same one: least reserve kept, most output released.
  * 3. `gross = floor(raw / (rateOut · CALC_PRECISION))` is the output in token units.
  * 4. `fee = ceil(gross · feeRate)` stays in the pool.
  * 5. The trader receives `gross − fee`.
+ *
+ * Every rounding step favours the pool, never the trader: `y` is a ceiling on
+ * the exact reserve the curve requires, `gross` floors to whole tokens, and the
+ * fee ceilings. A trader is never quoted more than the chain will pay.
  *
  * @param outputMetadata Metadata for the **taken** asset. The fee is denominated in it.
  * @param input The amount of the given asset being swapped.

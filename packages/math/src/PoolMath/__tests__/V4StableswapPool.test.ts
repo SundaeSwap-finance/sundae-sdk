@@ -102,9 +102,7 @@ describe("V4StableswapPool.getD", () => {
   });
 
   it("rejects a negative reserve before anything else", () => {
-    expect(() =>
-      getD(AMP, -1n, 1_000n),
-    ).toThrow("reserves must be non-negative");
+    expect(() => getD(AMP, -1n, 1_000n)).toThrow("reserves must be non-negative");
   });
 
   it("rejects a non-positive amplification", () => {
@@ -123,12 +121,16 @@ describe("V4StableswapPool.getRawSwap", () => {
     );
   });
 
-  it("returns the smallest output that satisfies the exchange invariant", () => {
+  it("returns the largest output the exchange invariant admits", () => {
+    // Stated on the reserve the pool keeps: `y` is the SMALLEST value with
+    // g >= 0, and raw = Y - y, so raw is the LARGEST admissible output. The
+    // second assertion is the one that pins the direction — one unit more
+    // output puts the pool below the curve.
+    const Y = 1_000_000_000n * CALC_PRECISION;
     const raw = getRawSwap(AMP, UNIT_D, 1_010_000_000n, 1_000_000_000n);
     const xs = 1_010_000_000n * CALC_PRECISION;
-    const y = 1_000_000_000n * CALC_PRECISION - raw;
-    expect(invariantG(xs, y, AMP, UNIT_D) >= 0n).toBe(true);
-    expect(invariantG(xs, y - 1n, AMP, UNIT_D) < 0n).toBe(true);
+    expect(invariantG(xs, Y - raw, AMP, UNIT_D) >= 0n).toBe(true);
+    expect(invariantG(xs, Y - (raw + 1n), AMP, UNIT_D) < 0n).toBe(true);
   });
 
   it("rejects a non-positive sum invariant", () => {
@@ -206,9 +208,9 @@ describe("V4StableswapPool.getSwapOutput", () => {
   });
 
   it("prices at par, less one unit of rounding, for a small trade on a balanced pool", () => {
-    // The exchange invariant picks the smallest integer output that keeps the
-    // pool on the curve, so a fee-free trade rounds one unit against the
-    // trader.
+    // `raw` is the most the curve allows, but it carries the 10^12 scale and
+    // `gross` floors it to whole tokens. That floor is what costs the trader a
+    // unit here, on a fee-free trade that would otherwise land on par.
     const { output } = getSwapOutput(
       tokenB,
       1_000n,
