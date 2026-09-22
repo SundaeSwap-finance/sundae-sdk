@@ -81,6 +81,21 @@ interface IPoolDataQueryResult {
   sqrtPrices?: string[] | null;
   /** v4 stableswap per-asset rates. Empty for every other curve. */
   rates?: string[] | null;
+  /**
+   * The LP supply the pool's own invariant is denominated in — the denominator
+   * every deposit, withdrawal and liquidity-depth calculation divides by.
+   *
+   * This is NOT `current.quantityLP`. For a v4 pool the two differ:
+   * `current.quantityLP` is the CIRCULATING supply, the only claim on reserves,
+   * while `totalLp` is circulating plus the protocol's earned-but-unharvested
+   * fees. Every v4 curve module reads `total_lp` from the pool datum, and
+   * concentrated liquidity uses it as its liquidity term `L`.
+   *
+   * For pre-v4 pools there is no separate fee accounting and the two are equal,
+   * which is why reading this field is right for every version rather than only
+   * for v4.
+   */
+  totalLp: string;
 }
 
 /**
@@ -208,6 +223,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              totalLp
               protocolAskFee
               version
             }
@@ -258,6 +274,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              totalLp
               protocolAskFee
               version
             }
@@ -304,7 +321,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         liquidity: {
           aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
           bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
-          lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+          lpTotal: BigInt(pool.totalLp),
         },
         linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
         ...mapV4CurveFields(pool),
@@ -353,6 +370,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              totalLp
               protocolAskFee
               version
             }
@@ -403,6 +421,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              totalLp
               protocolAskFee
               version
             }
@@ -449,7 +468,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         liquidity: {
           aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
           bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
-          lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+          lpTotal: BigInt(pool.totalLp),
         },
         linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
         ...mapV4CurveFields(pool),
@@ -498,6 +517,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              totalLp
               protocolAskFee
               version
             }
@@ -548,6 +568,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              totalLp
               protocolAskFee
               version
             }
@@ -594,7 +615,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
         liquidity: {
           aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
           bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
-          lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+          lpTotal: BigInt(pool.totalLp),
         },
         linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
         ...mapV4CurveFields(pool),
@@ -676,6 +697,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 prices
                 sqrtPrices
                 rates
+                totalLp
                 protocolAskFee
                 version
               }
@@ -711,7 +733,7 @@ export class QueryProviderSundaeSwap implements QueryProvider {
       liquidity: {
         aReserve: BigInt(pool.current.quantityA.quantity ?? 0),
         bReserve: BigInt(pool.current.quantityB.quantity ?? 0),
-        lpTotal: BigInt(pool.current.quantityLP.quantity ?? 0),
+        lpTotal: BigInt(pool.totalLp),
       },
       linearAmplificationFactor: BigInt(pool.linearAmplificationFactor),
       ...mapV4CurveFields(pool),

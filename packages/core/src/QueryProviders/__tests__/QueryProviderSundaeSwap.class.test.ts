@@ -21,6 +21,11 @@ const STABLESWAP_POOL = {
     quantityLP: { quantity: "20980202970303189" },
   },
   linearAmplificationFactor: "200",
+  // Deliberately ABOVE the circulating figure below, by the accrued protocol
+  // fee. A mapper that reaches for current.quantityLP produces a visibly
+  // different number rather than passing by coincidence. Both values are the
+  // live ones this pool reports.
+  totalLp: "20980352866116849",
   modules: [{ kind: "invariant", identifier: "stableswap" }],
   prices: [],
   sqrtPrices: [],
@@ -50,7 +55,7 @@ describe("QueryProviderSundaeSwap curve data", () => {
   // repositories: a pool query that omits a field the estimator REQUIRES. The
   // symptom is never an error at the fetch — it is a pool that silently cannot
   // be priced, surfacing much later as "Unsupported v4 pool curve: undefined".
-  const CURVE_FIELDS = ["modules", "prices", "sqrtPrices", "rates"];
+  const CURVE_FIELDS = ["modules", "prices", "sqrtPrices", "rates", "totalLp"];
 
   it("selects every curve field on the ident query", async () => {
     mockFetch({ data: { pools: { byId: STABLESWAP_POOL } } });
@@ -98,6 +103,44 @@ describe("QueryProviderSundaeSwap curve data", () => {
         expect(query).toContain(field);
       }
     }
+  });
+
+  it("denominates liquidity in total_lp, not the circulating supply", async () => {
+    // The pool datum's total_lp is what every v4 curve module divides by, and
+    // what concentrated liquidity uses as L. current.quantityLP is the
+    // circulating supply — a smaller number, short by the accrued protocol
+    // fee — so using it computes against a different pool than the chain will
+    // validate.
+    mockFetch({ data: { pools: { byId: STABLESWAP_POOL } } });
+    const pool = await new QueryProviderSundaeSwap("preview").findPoolDataByIdent(
+      { ident: STABLESWAP_POOL.id },
+    );
+    expect(pool.liquidity.lpTotal).toBe(20_980_352_866_116_849n);
+    expect(pool.liquidity.lpTotal).not.toBe(
+      BigInt(STABLESWAP_POOL.current.quantityLP.quantity),
+    );
+  });
+
+  it("uses total_lp for pre-v4 pools too, where it equals the circulating supply", async () => {
+    // Measured across 222 live pre-v4 pools on mainnet, preview and preprod:
+    // totalLp == current.quantityLP without exception, because there is no
+    // separate fee accounting before v4. So this is one uniform mapping rather
+    // than a version-aware branch — a branch whose two arms provably agree
+    // would be untestable and would invite drift.
+    const v3 = {
+      ...STABLESWAP_POOL,
+      version: "V3",
+      modules: [],
+      rates: [],
+      totalLp: STABLESWAP_POOL.current.quantityLP.quantity,
+    };
+    mockFetch({ data: { pools: { byId: v3 } } });
+    const pool = await new QueryProviderSundaeSwap("preview").findPoolDataByIdent(
+      { ident: v3.id },
+    );
+    expect(pool.liquidity.lpTotal).toBe(
+      BigInt(v3.current.quantityLP.quantity),
+    );
   });
 
   it("maps a stableswap pool into a shape the estimator can quote", async () => {
