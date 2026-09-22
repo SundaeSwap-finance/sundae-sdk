@@ -26,4 +26,4 @@ lets [getSwapInput](getSwapInput.md) reuse the same solver in the other directio
 
 ## Defined in
 
-[V4StableswapPool.ts:107](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L107)
+[V4StableswapPool.ts:108](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L108)

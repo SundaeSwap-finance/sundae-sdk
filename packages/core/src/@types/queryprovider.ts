@@ -101,10 +101,16 @@ export interface IPoolData {
   conditionDatum?: string;
   protocolFee?: number;
   /**
-   * For **v3 Stableswaps** pools (`EContractVersion.Stableswaps`), the pool
-   * datum's amplification factor, already scaled by the v3 `A_PRECISION`. It is
-   * not the v4 stableswap curve's amplification — that one is `amplification`
-   * below, and the two scales differ. Do not read one for the other.
+   * The stableswap amplification factor `A`, for BOTH the v3 Stableswaps
+   * contract and the v4 stableswap curve. One parameter, one field, both
+   * versions.
+   *
+   * It is the raw integer the pool stores, with no precision scale applied.
+   * Each implementation applies its own scaling internally: v3's
+   * `StableSwapsPool` multiplies by its `A_PRECISION`, and the v4 curve uses
+   * the integer as it stands. Verified against live data — `V4StableswapPool.getD`
+   * at this value reproduces the API's own `sumInvariant` exactly for the
+   * preview pool `ac8d4b1b…` (A = 200).
    */
   linearAmplificationFactor?: bigint;
   /**
@@ -132,20 +138,12 @@ export interface IPoolData {
    * curve balances where `aReserve·rates[0] == bReserve·rates[1]`, so a
    * 6-decimal against 8-decimal pair is `[100, 1]` and a yield-bearing asset
    * that has accrued 2% against its base is `[1000000, 1020000]`. Required to
-   * compute stableswap swap output; ignored by other curves.
+   * compute stableswap swap output; empty for every other curve.
+   *
+   * The amplification the curve also needs is `linearAmplificationFactor`
+   * above, which serves v3 and v4 alike. `rates` is the v4-only half.
    */
   rates?: [bigint, bigint];
-  /**
-   * For v4 stableswap pools (`EPoolCurve.V4Stableswap`), the `linear_amplification`
-   * (`A`) from the pool's stableswap config, as a raw integer with no precision
-   * scale. A larger `A` holds the price near par across a wider band of reserve
-   * ratios. Required to compute stableswap swap output; ignored by other
-   * curves.
-   *
-   * This is NOT `linearAmplificationFactor` above, which belongs to the v3
-   * Stableswaps contract and carries the v3 `A_PRECISION` scale.
-   */
-  amplification?: bigint;
 }
 
 /**

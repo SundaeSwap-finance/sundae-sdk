@@ -17,7 +17,7 @@ The result carries the `rate · CALC_PRECISION` scale. Divide by
 
 • **amp**: `bigint`
 
-The pool's `linear_amplification` (`A`).
+The pool's `linear_amplification` (`A`), the raw stored integer.
 
 • **d**: `bigint`
 
@@ -45,4 +45,4 @@ The pool's rate for the taken asset.
 
 ## Defined in
 
-[V4StableswapPool.ts:218](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L218)
+[V4StableswapPool.ts:219](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L219)

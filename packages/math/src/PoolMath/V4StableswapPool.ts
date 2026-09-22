@@ -11,16 +11,17 @@ import { SharedPoolMath } from "./index.js";
  *
  * - `StableSwapsPool` / `EContractVersion.Stableswaps` is the **v3** stableswap
  *   contract. It is a whole contract version with its own datum builder and
- *   transaction builder. It stores `D` in the pool datum, has no per-asset
- *   rates, and takes an `A_PRECISION`-scaled amplification.
+ *   transaction builder. It stores `D` in the pool datum and has no per-asset
+ *   rates.
  * - `V4StableswapPool` / `EPoolCurve.V4Stableswap` (this file) is a **v4
  *   invariant module**. It is one curve among several a v4 pool can bind, next
- *   to constant product, constant sum and concentrated liquidity. It does not
- *   store `D`, it carries per-asset integer `rates`, and its amplification is
- *   the raw integer `linear_amplification` with no precision scale.
+ *   to constant product, constant sum and concentrated liquidity. It stores no
+ *   `D` and carries per-asset integer `rates`.
  *
- * The two share a curve shape and nothing else. Do not pass one's numbers to
- * the other.
+ * The amplification `A` is the ONE thing they share: the same parameter on the
+ * same scale, carried by the same `linearAmplificationFactor` field, with each
+ * implementation applying its own internal scaling. Everything else is
+ * different — do not pass one's reserves, rates or `D` to the other.
  *
  * The curve, on rated and scaled reserves `x = r_a·rate_a·P` and
  * `y = r_b·rate_b·P` with `P = calc_precision = 10^12` and `A` the linear
@@ -131,7 +132,7 @@ const fixD = (x: bigint, y: bigint, amp: bigint, d0: bigint): bigint => {
  *
  * `D` carries the `rate · CALC_PRECISION` scale — it is not a token amount.
  *
- * @param amp The pool's `linear_amplification` (`A`).
+ * @param amp The pool's `linear_amplification` (`A`), the raw stored integer.
  * @param aReserve The pool's reserve of asset A, in token units.
  * @param bReserve The pool's reserve of asset B, in token units.
  * @param rateA The pool's rate for asset A (from the stableswap config).
@@ -208,7 +209,7 @@ const solveCounterparty = (amp: bigint, d: bigint, xs: bigint): bigint => {
  * The result carries the `rate · CALC_PRECISION` scale. Divide by
  * `rateOut · CALC_PRECISION` to get the gross output in token units.
  *
- * @param amp The pool's `linear_amplification` (`A`).
+ * @param amp The pool's `linear_amplification` (`A`), the raw stored integer.
  * @param d The pre-swap sum invariant, from {@link getD}.
  * @param inAfter The given asset's reserve after the input arrives, in token units.
  * @param outBefore The taken asset's reserve before the swap, in token units.
@@ -304,7 +305,7 @@ export const getPrice = (
  * @param outputReserve The pool's reserve of the taken asset.
  * @param rateIn The pool's rate for the given asset (from the stableswap config).
  * @param rateOut The pool's rate for the taken asset.
- * @param amp The pool's `linear_amplification` (`A`).
+ * @param amp The pool's `linear_amplification` (`A`), the raw stored integer.
  * @param fee The swap fee rate, applied to the gross output.
  * @returns The swap details in the shared {@link TSwapOutcome} shape.
  */
@@ -387,7 +388,7 @@ export const getSwapOutput = (
  * @param outputReserve The pool's reserve of the taken asset.
  * @param rateIn The pool's rate for the given asset (from the stableswap config).
  * @param rateOut The pool's rate for the taken asset.
- * @param amp The pool's `linear_amplification` (`A`).
+ * @param amp The pool's `linear_amplification` (`A`), the raw stored integer.
  * @param fee The swap fee rate, applied to the gross output.
  * @returns The swap details in the shared {@link TSwapOutcome} shape.
  */
@@ -550,7 +551,7 @@ export const calculatePinnedDeposit = (
  * @param totalLp The pool's total LP supply before the deposit.
  * @param rateA The pool's rate for token A (from the stableswap config).
  * @param rateB The pool's rate for token B.
- * @param amp The pool's `linear_amplification` (`A`).
+ * @param amp The pool's `linear_amplification` (`A`), the raw stored integer.
  */
 export const calculateLiquidity = (
   a: bigint,

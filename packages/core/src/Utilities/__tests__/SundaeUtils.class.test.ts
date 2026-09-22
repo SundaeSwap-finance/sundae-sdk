@@ -784,7 +784,7 @@ describe("SundaeUtils class", () => {
           version: EContractVersion.V4,
           curve: EPoolCurve.V4Stableswap,
           rates: [1n, 1n],
-          amplification: 200n,
+          linearAmplificationFactor: 200n,
         },
         new AssetAmount(10_000_000n, base.assetA),
       );
@@ -801,7 +801,7 @@ describe("SundaeUtils class", () => {
           version: EContractVersion.V4,
           curve: EPoolCurve.V4Stableswap,
           rates: [1n, 1n],
-          amplification: 200n,
+          linearAmplificationFactor: 200n,
         },
         new AssetAmount(10_000_000n, base.assetA),
       );
@@ -815,7 +815,7 @@ describe("SundaeUtils class", () => {
         curve: EPoolCurve.V4Stableswap,
         // Rated balance sits where aReserve·100 == bReserve·1.
         rates: [100n, 1n],
-        amplification: 200n,
+        linearAmplificationFactor: 200n,
         liquidity: {
           ...base.liquidity,
           aReserve: 1_000_000n,
@@ -838,14 +838,35 @@ describe("SundaeUtils class", () => {
       expect(bIn).toBeLessThanOrEqual(1_000n);
     });
 
-    it("throws for a stableswap pool missing rates or amplification", () => {
+    it("takes the amplification from the field v3 and v4 share", () => {
+      // One amplification parameter, one field, both versions. A pool carrying
+      // the v4 stableswap CURVE reads the same `linearAmplificationFactor` a
+      // v3 Stableswaps CONTRACT pool does, at the same scale — so changing it
+      // has to change the quote.
+      const quote = (amp: bigint) =>
+        SundaeUtils.getSwapOutput(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.V4Stableswap,
+            rates: [1n, 1n],
+            linearAmplificationFactor: amp,
+          },
+          new AssetAmount(100_000_000n, base.assetA),
+        ).output;
+      // A larger A holds the price nearer par across a wider band, so the same
+      // trade takes more out of the pool.
+      expect(quote(1000n)).toBeGreaterThan(quote(10n));
+    });
+
+    it("throws for a stableswap pool missing rates or amplification factor", () => {
       expect(() =>
         SundaeUtils.getSwapOutput(
           {
             ...base,
             version: EContractVersion.V4,
             curve: EPoolCurve.V4Stableswap,
-            amplification: 200n,
+            linearAmplificationFactor: 200n,
           },
           suppliedA,
         ),
@@ -860,7 +881,7 @@ describe("SundaeUtils class", () => {
           },
           suppliedA,
         ),
-      ).toThrowError(/amplification/);
+      ).toThrowError(/linearAmplificationFactor/);
     });
   });
 
@@ -977,7 +998,7 @@ describe("SundaeUtils class", () => {
         version: EContractVersion.V4,
         curve: EPoolCurve.V4Stableswap,
         rates: [1n, 1n],
-        amplification: 200n,
+        linearAmplificationFactor: 200n,
       };
       const { input } = SundaeUtils.getSwapInput(
         pool,
@@ -997,7 +1018,7 @@ describe("SundaeUtils class", () => {
         version: EContractVersion.V4,
         curve: EPoolCurve.V4Stableswap,
         rates: [100n, 1n],
-        amplification: 200n,
+        linearAmplificationFactor: 200n,
         liquidity: {
           ...base.liquidity,
           aReserve: 1_000_000n,
@@ -1017,14 +1038,14 @@ describe("SundaeUtils class", () => {
       ).toBeGreaterThanOrEqual(99_000n);
     });
 
-    it("throws for a stableswap pool missing rates or amplification", () => {
+    it("throws for a stableswap pool missing rates or amplification factor", () => {
       expect(() =>
         SundaeUtils.getSwapInput(
           {
             ...base,
             version: EContractVersion.V4,
             curve: EPoolCurve.V4Stableswap,
-            amplification: 200n,
+            linearAmplificationFactor: 200n,
           },
           new AssetAmount(10_000n, base.assetB),
         ),
@@ -1039,7 +1060,7 @@ describe("SundaeUtils class", () => {
           },
           new AssetAmount(10_000n, base.assetB),
         ),
-      ).toThrowError(/amplification/);
+      ).toThrowError(/linearAmplificationFactor/);
     });
   });
 
@@ -1141,7 +1162,7 @@ describe("SundaeUtils class", () => {
         version: EContractVersion.V4,
         curve: EPoolCurve.V4Stableswap,
         rates: [2n, 1n],
-        amplification: 200n,
+        linearAmplificationFactor: 200n,
       };
       expect(() =>
         SundaeUtils.calculateLiquidity(pool, 100_000n, 0n),
@@ -1163,7 +1184,7 @@ describe("SundaeUtils class", () => {
         version: EContractVersion.V4,
         curve: EPoolCurve.V4Stableswap,
         rates: [2n, 1n],
-        amplification: 200n,
+        linearAmplificationFactor: 200n,
       };
       // Asset B is the scarce leg here, so it caps the fill.
       const result = SundaeUtils.calculateLiquidity(pool, 900_000n, 200_000n);
@@ -1173,14 +1194,14 @@ describe("SundaeUtils class", () => {
       expect(result.bChange).toEqual(0n);
     });
 
-    it("throws for a stableswap pool missing rates or amplification", () => {
+    it("throws for a stableswap pool missing rates or amplification factor", () => {
       expect(() =>
         SundaeUtils.calculateLiquidity(
           {
             ...base,
             version: EContractVersion.V4,
             curve: EPoolCurve.V4Stableswap,
-            amplification: 200n,
+            linearAmplificationFactor: 200n,
           },
           100_000n,
           200_000n,
@@ -1197,7 +1218,7 @@ describe("SundaeUtils class", () => {
           100_000n,
           200_000n,
         ),
-      ).toThrowError(/amplification/);
+      ).toThrowError(/linearAmplificationFactor/);
     });
   });
 
@@ -1357,7 +1378,7 @@ describe("SundaeUtils class", () => {
         version: EContractVersion.V4,
         curve: EPoolCurve.V4Stableswap,
         rates: [1n, 1n],
-        amplification: 200n,
+        linearAmplificationFactor: 200n,
         // Skewed 9:1. A constant-product pool would price B at 9 A; the
         // stableswap curve at A = 200 holds it near par.
         liquidity: {
@@ -1379,7 +1400,7 @@ describe("SundaeUtils class", () => {
         version: EContractVersion.V4,
         curve: EPoolCurve.V4Stableswap,
         rates: [1_000_000n, 1_001_000n],
-        amplification: 200n,
+        linearAmplificationFactor: 200n,
         // Rated-balanced: 1 001 000 000 · 1e6 == 1 000 000 000 · 1 001 000.
         liquidity: {
           aReserve: 1_001_000_000n,

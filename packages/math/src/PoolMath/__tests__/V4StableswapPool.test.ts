@@ -42,6 +42,21 @@ describe("V4StableswapPool.getD", () => {
     );
   });
 
+  it("reproduces the sum invariant the API reports for a live preview pool", () => {
+    // Preview pool ac8d4b1b5fcadb3ac0247f7134ca08b061ee41b0c742dd4edf4c6244,
+    // fetched from api.preview.sundae.fi: linearAmplificationFactor 200,
+    // rates [1000000, 1001000], quantities [10794901263, 10186281970], and
+    // sumInvariant 20991348225358657993984399717.
+    //
+    // This vector is what pins the amplification SCALE. The API serves one
+    // amplification field for both the v3 Stableswaps contract and this curve.
+    // If the stored value needed rescaling before it entered the v4 curve, D
+    // would not land on the API's own figure.
+    expect(
+      getD(200n, 10_794_901_263n, 10_186_281_970n, 1_000_000n, 1_001_000n),
+    ).toBe(20_991_348_225_358_657_993_984_399_717n);
+  });
+
   it("returns the largest integer that satisfies the liquidity invariant", () => {
     const d = getD(AMP, 1_234_567n, 7_654_321n);
     const x = 1_234_567n * CALC_PRECISION;

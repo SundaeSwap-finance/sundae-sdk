@@ -43,7 +43,7 @@ The pool's rate for token B.
 
 • **amp**: `bigint`
 
-The pool's `linear_amplification` (`A`).
+The pool's `linear_amplification` (`A`), the raw stored integer.
 
 ## Returns
 
@@ -79,4 +79,4 @@ The pool's `linear_amplification` (`A`).
 
 ## Defined in
 
-[V4StableswapPool.ts:555](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L555)
+[V4StableswapPool.ts:556](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L556)

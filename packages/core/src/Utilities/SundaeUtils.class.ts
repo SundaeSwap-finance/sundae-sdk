@@ -724,9 +724,9 @@ export class SundaeUtils {
           case EPoolCurve.V4Stableswap: {
             // The v4 stableswap CURVE module, not the v3 Stableswaps CONTRACT
             // handled above — different math, different pool data fields.
-            if (!poolData.rates || poolData.amplification == null) {
+            if (!poolData.rates || !poolData.linearAmplificationFactor) {
               throw new Error(
-                "Stableswap pool is missing `rates` or `amplification`; cannot get swap output.",
+                "Stableswap pool is missing `rates` or `linearAmplificationFactor`; cannot get swap output.",
               );
             }
             const suppliedIsA =
@@ -743,7 +743,7 @@ export class SundaeUtils {
               outputReserve,
               rateIn,
               rateOut,
-              poolData.amplification,
+              poolData.linearAmplificationFactor,
               poolData.currentFee,
             );
           }
@@ -871,9 +871,9 @@ export class SundaeUtils {
           }
           case EPoolCurve.V4Stableswap: {
             // See getSwapOutput: the v4 stableswap curve, not the v3 contract.
-            if (!poolData.rates || poolData.amplification == null) {
+            if (!poolData.rates || !poolData.linearAmplificationFactor) {
               throw new Error(
-                "Stableswap pool is missing `rates` or `amplification`; cannot get swap input.",
+                "Stableswap pool is missing `rates` or `linearAmplificationFactor`; cannot get swap input.",
               );
             }
             // The supplied asset is the non-output side.
@@ -887,7 +887,7 @@ export class SundaeUtils {
               outputReserve,
               rateIn,
               rateOut,
-              poolData.amplification,
+              poolData.linearAmplificationFactor,
               poolData.currentFee,
             );
           }
@@ -1001,9 +1001,9 @@ export class SundaeUtils {
             // scarcest offered leg and the surplus is refunded. The rates enter
             // only through `D`; the reserve deltas themselves are proportional
             // in any units.
-            if (!poolData.rates || poolData.amplification == null) {
+            if (!poolData.rates || !poolData.linearAmplificationFactor) {
               throw new Error(
-                "Stableswap pool is missing `rates` or `amplification`; cannot calculate liquidity.",
+                "Stableswap pool is missing `rates` or `linearAmplificationFactor`; cannot calculate liquidity.",
               );
             }
             return V4StableswapPool.calculateLiquidity(
@@ -1014,7 +1014,7 @@ export class SundaeUtils {
               poolData.liquidity.lpTotal,
               poolData.rates[0],
               poolData.rates[1],
-              poolData.amplification,
+              poolData.linearAmplificationFactor,
             );
           default:
             throw new Error(
@@ -1055,7 +1055,9 @@ export class SundaeUtils {
 
     if (pool.version === EContractVersion.Stableswaps) {
       // The v3 Stableswaps CONTRACT. The v4 stableswap CURVE is handled below,
-      // and reaches here only through `curve`, never through `version`.
+      // and reaches here only through `curve`, never through `version`. Both
+      // read `linearAmplificationFactor` — it is the same parameter at the same
+      // scale — but the curves around it differ, so the two branches stay apart.
       // For stableswaps, both assets always have the same decimals
       const price = StableSwapsPool.getPrice(
         pool.liquidity.aReserve,
@@ -1091,13 +1093,13 @@ export class SundaeUtils {
       pool.version === EContractVersion.V4 &&
       pool.curve === EPoolCurve.V4Stableswap &&
       pool.rates &&
-      pool.amplification != null &&
+      pool.linearAmplificationFactor &&
       pool.liquidity.aReserve > 0n &&
       pool.liquidity.bReserve > 0n
     ) {
       const aPerB =
         V4StableswapPool.getPrice(
-          pool.amplification,
+          pool.linearAmplificationFactor,
           pool.liquidity.aReserve,
           pool.liquidity.bReserve,
           pool.rates[0],

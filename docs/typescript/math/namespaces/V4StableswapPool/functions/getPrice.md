@@ -32,4 +32,4 @@ decimals before display.
 
 ## Defined in
 
-[V4StableswapPool.ts:271](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L271)
+[V4StableswapPool.ts:272](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L272)

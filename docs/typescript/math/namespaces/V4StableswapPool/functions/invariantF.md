@@ -25,4 +25,4 @@ below the curve. All arguments are rated and scaled.
 
 ## Defined in
 
-[V4StableswapPool.ts:92](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L92)
+[V4StableswapPool.ts:93](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L93)

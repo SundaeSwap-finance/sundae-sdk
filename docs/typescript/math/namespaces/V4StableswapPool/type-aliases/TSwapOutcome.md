@@ -43,4 +43,4 @@ The v3 `StableSwapsPool` does the same.
 
 ## Defined in
 
-[V4StableswapPool.ts:58](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L58)
+[V4StableswapPool.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L59)

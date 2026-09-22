@@ -48,7 +48,7 @@ The pool's rate for the taken asset.
 
 • **amp**: `bigint`
 
-The pool's `linear_amplification` (`A`).
+The pool's `linear_amplification` (`A`), the raw stored integer.
 
 • **fee**: `TFractionLike`
 
@@ -62,4 +62,4 @@ The swap details in the shared [TSwapOutcome](../type-aliases/TSwapOutcome.md) s
 
 ## Defined in
 
-[V4StableswapPool.ts:394](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L394)
+[V4StableswapPool.ts:395](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L395)

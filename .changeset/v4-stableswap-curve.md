@@ -18,10 +18,10 @@ reproduces the scooper's solvers and their integer rounding rather than
 approximating them. The fee comes off the gross output, not the input, so
 `lpFee` is denominated in the output asset.
 
-`IPoolData` gains `rates` (the per-asset integer rates, aligned to
-`[assetA, assetB]`) and `amplification` (the raw integer `linear_amplification`).
-Both are required to quote a stableswap pool. `linearAmplificationFactor` stays
-what it was: the v3 Stableswaps field, on a different scale.
+`IPoolData` gains `rates`, the per-asset integer rates aligned to
+`[assetA, assetB]`. The amplification the curve also needs is the existing
+`linearAmplificationFactor`: one parameter, one field, both versions, on one
+scale. Each implementation applies its own internal scaling.
 
 `SundaeUtils.getSwapOutput`, `getSwapInput`, `calculateLiquidity` and `getPrice`
 all dispatch the new curve. `getPrice` takes the curve's marginal price at the

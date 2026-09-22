@@ -16,7 +16,7 @@ that satisfies the curve on the rated, scaled reserves. Newton from
 
 • **amp**: `bigint`
 
-The pool's `linear_amplification` (`A`).
+The pool's `linear_amplification` (`A`), the raw stored integer.
 
 • **aReserve**: `bigint`
 
@@ -40,4 +40,4 @@ The pool's rate for asset B.
 
 ## Defined in
 
-[V4StableswapPool.ts:140](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L140)
+[V4StableswapPool.ts:141](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L141)

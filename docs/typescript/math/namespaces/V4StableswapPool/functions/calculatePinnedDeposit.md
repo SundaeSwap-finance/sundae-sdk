@@ -59,4 +59,4 @@ any units. They enter only through `D`.
 
 ## Defined in
 
-[V4StableswapPool.ts:496](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L496)
+[V4StableswapPool.ts:497](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L497)

@@ -10,4 +10,4 @@
 
 ## Defined in
 
-[V4StableswapPool.ts:40](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L40)
+[V4StableswapPool.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L41)
