@@ -23,6 +23,13 @@ approximating them. The fee comes off the gross output, not the input, so
 `linearAmplificationFactor`: one parameter, one field, both versions, on one
 scale. Each implementation applies its own internal scaling.
 
+`QueryProviderSundaeSwap` now selects and maps the v4 curve config — `modules`
+(which names the curve), `prices`, `sqrtPrices` and `rates` — on every pool
+query, minimal ones included. It selected none of them before, so a v4 pool
+fetched through the standard provider arrived with no curve and could not be
+quoted at all. That applied to constant sum and concentrated liquidity as much
+as to stableswap.
+
 `SundaeUtils.getSwapOutput`, `getSwapInput`, `calculateLiquidity` and `getPrice`
 all dispatch the new curve. `getPrice` takes the curve's marginal price at the
 current reserves, because a stableswap pool's price moves with its reserves —

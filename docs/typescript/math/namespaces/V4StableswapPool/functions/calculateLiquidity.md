@@ -79,4 +79,4 @@ The pool's `linear_amplification` (`A`), the raw stored integer.
 
 ## Defined in
 
-[V4StableswapPool.ts:556](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L556)
+[V4StableswapPool.ts:588](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L588)

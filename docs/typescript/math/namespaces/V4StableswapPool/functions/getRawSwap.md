@@ -8,7 +8,9 @@
 
 The raw swap output: the scaled, pre-fee amount the curve releases when the
 given reserve becomes `inAfter` and the taken reserve starts at `outBefore`,
-at the pre-swap `d`.
+at the pre-swap `d`. It is the largest such amount the exchange invariant
+admits — one unit more leaves the pool below the curve — and it is at or
+below the exact real-valued output, so it never over-quotes.
 
 The result carries the `rate · CALC_PRECISION` scale. Divide by
 `rateOut · CALC_PRECISION` to get the gross output in token units.
@@ -45,4 +47,4 @@ The pool's rate for the taken asset.
 
 ## Defined in
 
-[V4StableswapPool.ts:219](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L219)
+[V4StableswapPool.ts:244](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L244)

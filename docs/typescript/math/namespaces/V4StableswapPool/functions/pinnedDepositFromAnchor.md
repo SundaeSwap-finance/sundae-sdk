@@ -27,4 +27,4 @@ forms.
 
 ## Defined in
 
-[V4StableswapPool.ts:589](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L589)
+[V4StableswapPool.ts:621](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L621)

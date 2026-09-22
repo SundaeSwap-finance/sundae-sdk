@@ -62,4 +62,4 @@ The swap details in the shared [TSwapOutcome](../type-aliases/TSwapOutcome.md) s
 
 ## Defined in
 
-[V4StableswapPool.ts:395](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L395)
+[V4StableswapPool.ts:427](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/V4StableswapPool.ts#L427)
