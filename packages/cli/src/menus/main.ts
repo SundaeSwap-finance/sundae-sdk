@@ -8,6 +8,7 @@ import {
   mintPoolMenu,
   removeLiquidityMenu,
   swapMenu,
+  zapMenu,
 } from "./pool.js";
 import { settingsMenu } from "./settings.js";
 import { getAssetAmount, printHeader } from "./shared.js";
@@ -26,6 +27,7 @@ export async function mainMenu(state: State): Promise<State> {
         { name: "Swap", value: "swap" },
         { name: "Strategy", value: "strategy" },
         { name: "Add Liquidity", value: "addLiquidity" },
+        { name: "Zap (v4)", value: "zap" },
         { name: "Remove Liquidity", value: "removeLiquidity" },
         { name: "Cancel Swap", value: "cancelSwap" },
         { name: "Settings", value: "settings" },
@@ -44,6 +46,9 @@ export async function mainMenu(state: State): Promise<State> {
         break;
       case "swap":
         await swapMenu(state);
+        break;
+      case "zap":
+        await zapMenu(state);
         break;
       case "strategy":
         await strategyMenu(state);

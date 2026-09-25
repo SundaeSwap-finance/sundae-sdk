@@ -363,6 +363,10 @@ on the module's serialized config (e.g. the CS config), or the sentinel
 
 • **\_\_namedParameters.identifier**: `string`
 
+• **\_\_namedParameters.minSurplus**: `bigint`
+
+Lovelace surplus floor, pinned from the PoolConfig (ADR-0012).
+
 • **\_\_namedParameters.moduleState**: [`string`, `string`][]
 
 • **\_\_namedParameters.premintedLp**: `bigint`
@@ -385,9 +389,22 @@ on the module's serialized config (e.g. the CS config), or the sentinel
 
 > **circulating\_lp**: `bigint`
 
+##### extension
+
+> **extension**: `PlutusData`
+
+Reserved scooper-writable scratch (audit-final addition).
+
 ##### identifier
 
 > **identifier**: `string`
+
+##### min\_surplus
+
+> **min\_surplus**: `bigint`
+
+Lovelace surplus floor pinned from PoolConfig.min_surplus at Create
+ (ADR-0012; audit-final addition).
 
 ##### module\_state
 
@@ -563,7 +580,7 @@ fields, used as the default order `extension`.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:629](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L629)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:637](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L637)
 
 ***
 
@@ -648,7 +665,7 @@ The order's inline datum, as CBOR hex.
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:647](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L647)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:655](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L655)
 
 ***
 
@@ -670,4 +687,4 @@ config's serialized CBOR. Pair the result with the module hash in
 
 #### Defined in
 
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:578](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L578)
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:586](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L586)

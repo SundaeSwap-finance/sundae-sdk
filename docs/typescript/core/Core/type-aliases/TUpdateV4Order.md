@@ -19,4 +19,4 @@ can still be cancelled.
 
 ## Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:185](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L185)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:188](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L188)

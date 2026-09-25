@@ -369,3 +369,134 @@ export const calculateDepositN = (
     shareAfterDeposit: SharedPoolMath.getShare(generatedLp, nextTotalLp),
   };
 };
+
+/**
+ * Outcome of {@link calculateZap}. Every array is aligned to `offered`.
+ */
+export type TZapOutcome = {
+  /** Index of the offered asset swapped away; `undefined` when the basket already matches the reserves. */
+  swapIndex: number | undefined;
+  /** Amount of `offered[swapIndex]` swapped away. */
+  swapInput: bigint;
+  /** Amount of the other asset the swap yields. */
+  swapOutput: bigint;
+  /** Reserves after the swap — what the deposit pins against. */
+  nextReserves: bigint[];
+  /** `offered` after the swap: what is actually deposited. */
+  depositBasket: bigint[];
+  /** Per-asset ceil-pinned deposit. */
+  deltas: bigint[];
+  /** `depositBasket − deltas`: surplus returned to the user. */
+  change: bigint[];
+  targetDeltaV: bigint;
+  generatedLp: bigint;
+  nextTotalLp: bigint;
+  shareAfterDeposit: Fraction;
+};
+
+/**
+ * A zap on a 2-asset constant-sum pool: a non-proportional `offered` basket
+ * is rebalanced by swapping part of the over-weighted asset, then deposited
+ * under the target-pinned rule ({@link calculatePinnedDeposit}). The swap
+ * amount `dx` is the one that leaves the post-swap basket proportional to
+ * the post-swap reserves, so the pin consumes the whole basket up to
+ * rounding. With `k = (1−fee)·p_X/p_Y`,
+ *
+ *   (a_X − dx)/(r_X + dx) = (a_Y + k·dx)/(r_Y − k·dx)
+ *   ⇒ dx = (a_X·r_Y − a_Y·r_X) / (k·(r_X + a_X) + (r_Y + a_Y))
+ *
+ * (the dx² terms cancel). `dx` is floored and the swap leg follows
+ * {@link getSwapOutput}; whatever imbalance rounding leaves comes back as
+ * `change`.
+ *
+ * `fee` is the pool's fee for the swap direction — v4 splits bid and ask, so
+ * the caller picks. Two assets only: with more, which assets to swap is an
+ * allocation problem this formula does not address.
+ */
+export const calculateZap = (
+  offered: bigint[],
+  reserves: bigint[],
+  prices: bigint[],
+  totalLp: bigint,
+  fee: TFractionLike,
+): TZapOutcome => {
+  if (offered.length !== 2 || reserves.length !== 2 || prices.length !== 2)
+    throw new Error("calculateZap supports exactly two assets");
+  if (prices.some((p) => p <= 0n)) throw new Error("Prices must be positive");
+  if (reserves.some((r) => r <= 0n))
+    throw new Error("Reserves must be positive");
+  if (offered.some((a) => a < 0n) || offered.every((a) => a === 0n))
+    throw new Error(
+      "Offered amounts must be non-negative, with at least one positive",
+    );
+  if (totalLp <= 0n) throw new Error("Not enough pool liquidity");
+
+  const feeFraction = Fraction.asFraction(fee);
+  if (feeFraction.lt(Fraction.ZERO) || feeFraction.gte(Fraction.ONE))
+    throw new Error("fee must be [0,1)");
+  const feeNum = BigInt(feeFraction.numerator);
+  const feeDen = BigInt(feeFraction.denominator);
+
+  // Over-weighted side: compare a_0/r_0 against a_1/r_1 without division.
+  const lhs = offered[0] * reserves[1];
+  const rhs = offered[1] * reserves[0];
+  const swapIndex = lhs > rhs ? 0 : lhs < rhs ? 1 : undefined;
+
+  let swapInput = 0n;
+  let swapOutput = 0n;
+  const nextReserves = [...reserves];
+  const depositBasket = [...offered];
+
+  if (swapIndex !== undefined) {
+    const x = swapIndex;
+    const y = 1 - swapIndex;
+    const [aX, aY] = [offered[x], offered[y]];
+    const [rX, rY] = [reserves[x], reserves[y]];
+    const [pX, pY] = [prices[x], prices[y]];
+
+    // dx with k = (feeDen−feeNum)·pX / (feeDen·pY), cleared of denominators.
+    const numerator = (aX * rY - aY * rX) * feeDen * pY;
+    const denominator =
+      (feeDen - feeNum) * pX * (rX + aX) + feeDen * pY * (rY + aY);
+    swapInput = numerator / denominator;
+
+    if (swapInput > 0n) {
+      const inputValue = swapInput * pX;
+      const feeValue = (inputValue * feeNum) / feeDen;
+      swapOutput = (inputValue - feeValue) / pY;
+      if (swapOutput >= rY)
+        throw new Error(
+          "Pool too shallow: the rebalancing swap would drain it",
+        );
+
+      nextReserves[x] = rX + swapInput;
+      nextReserves[y] = rY - swapOutput;
+      depositBasket[x] = aX - swapInput;
+      depositBasket[y] = aY + swapOutput;
+    }
+  }
+
+  if (depositBasket.some((a) => a <= 0n))
+    throw new Error("Offered amount too small to zap into this pool");
+
+  const pinned = calculatePinnedDeposit(
+    depositBasket,
+    nextReserves,
+    prices,
+    totalLp,
+  );
+
+  return {
+    swapIndex,
+    swapInput,
+    swapOutput,
+    nextReserves,
+    depositBasket,
+    deltas: pinned.deltas,
+    change: depositBasket.map((a, i) => a - pinned.deltas[i]),
+    targetDeltaV: pinned.targetDeltaV,
+    generatedLp: pinned.generatedLp,
+    nextTotalLp: pinned.nextTotalLp,
+    shareAfterDeposit: pinned.shareAfterDeposit,
+  };
+};

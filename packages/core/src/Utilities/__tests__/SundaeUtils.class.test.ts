@@ -1,4 +1,5 @@
 import { AssetAmount } from "@sundaeswap/asset";
+import { ConstantSumPool } from "@sundaeswap/math";
 import { describe, expect, it, spyOn } from "bun:test";
 
 import {
@@ -675,7 +676,10 @@ describe("SundaeUtils class", () => {
         outputResult.output,
         PREVIEW_DATA.pools.v1.assetB,
       );
-      const inputResult = SundaeUtils.getSwapInput(PREVIEW_DATA.pools.v1, output);
+      const inputResult = SundaeUtils.getSwapInput(
+        PREVIEW_DATA.pools.v1,
+        output,
+      );
 
       // The calculated input should be close to original (allowing for rounding)
       expect(Number(inputResult.input)).toBeCloseTo(
@@ -712,7 +716,11 @@ describe("SundaeUtils class", () => {
 
     it("dispatches the constant-product curve to constant-product math", () => {
       const v4 = SundaeUtils.getSwapOutput(
-        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConstantProduct,
+        },
         suppliedA,
       ).output;
       const v3 = SundaeUtils.getSwapOutput(
@@ -739,7 +747,11 @@ describe("SundaeUtils class", () => {
     it("throws for a constant-sum pool missing prices", () => {
       expect(() =>
         SundaeUtils.getSwapOutput(
-          { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantSum },
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.ConstantSum,
+          },
           suppliedA,
         ),
       ).toThrowError(/prices/);
@@ -899,7 +911,11 @@ describe("SundaeUtils class", () => {
     it("dispatches the constant-product curve to constant-product math", () => {
       const output = new AssetAmount(10_000n, base.assetB);
       const v4 = SundaeUtils.getSwapInput(
-        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConstantProduct,
+        },
         output,
       ).input;
       const v3 = SundaeUtils.getSwapInput(
@@ -952,7 +968,11 @@ describe("SundaeUtils class", () => {
     it("throws for a constant-sum pool missing prices", () => {
       expect(() =>
         SundaeUtils.getSwapInput(
-          { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantSum },
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.ConstantSum,
+          },
           new AssetAmount(10_000n, base.assetB),
         ),
       ).toThrowError(/prices/);
@@ -1077,7 +1097,11 @@ describe("SundaeUtils class", () => {
 
     it("dispatches the constant-product curve to constant-product math", () => {
       const v4 = SundaeUtils.calculateLiquidity(
-        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConstantProduct,
+        },
         100_000n,
         200_000n,
       );
@@ -1128,7 +1152,11 @@ describe("SundaeUtils class", () => {
     it("throws for a constant-sum pool missing prices", () => {
       expect(() =>
         SundaeUtils.calculateLiquidity(
-          { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantSum },
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.ConstantSum,
+          },
           100_000n,
           0n,
         ),
@@ -1148,7 +1176,11 @@ describe("SundaeUtils class", () => {
         200_000n,
       );
       const cp = SundaeUtils.calculateLiquidity(
-        { ...base, version: EContractVersion.V4, curve: EPoolCurve.ConstantProduct },
+        {
+          ...base,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConstantProduct,
+        },
         100_000n,
         200_000n,
       );
@@ -1508,7 +1540,9 @@ describe("SundaeUtils class", () => {
       );
 
       expect(result.generatedLp).toBeGreaterThan(0n);
-      expect(result.nextTotalLp).toBeGreaterThan(stableswapPool.liquidity.lpTotal);
+      expect(result.nextTotalLp).toBeGreaterThan(
+        stableswapPool.liquidity.lpTotal,
+      );
       // Stableswaps accepts mixed deposits with no refunds
       expect(result.aChange).toEqual(0n);
       expect(result.bChange).toEqual(0n);
@@ -1546,6 +1580,119 @@ describe("SundaeUtils class", () => {
       expect(() =>
         SundaeUtils.calculateLiquidity(emptyPool, 1000000n, 1000000n),
       ).toThrowError(/Not enough pool liquidity/);
+    });
+  });
+
+  describe("getZapQuote", () => {
+    // Prices [2, 5]: 1M A + 400k B = 4M value, balanced. Same vectors as the
+    // math package's calculateZap tests.
+    const pool: IPoolData = {
+      ...PREVIEW_DATA.pools.v1,
+      version: EContractVersion.V4,
+      curve: EPoolCurve.ConstantSum,
+      prices: [2n, 5n],
+      currentFee: 0.003,
+      liquidity: {
+        aReserve: 1_000_000n,
+        bReserve: 400_000n,
+        lpTotal: 4_000_000n,
+      },
+    };
+    const offeredA = new AssetAmount(100_000n, pool.assetA);
+
+    it("rejects pools that are not v4 constant-sum with prices", () => {
+      expect(() =>
+        SundaeUtils.getZapQuote(
+          { ...pool, version: EContractVersion.V3 },
+          [offeredA],
+          0.005,
+        ),
+      ).toThrowError(/only available for v4/);
+      expect(() =>
+        SundaeUtils.getZapQuote(
+          { ...pool, curve: EPoolCurve.ConstantProduct },
+          [offeredA],
+          0.005,
+        ),
+      ).toThrowError(/constant-sum/);
+      expect(() =>
+        SundaeUtils.getZapQuote(
+          { ...pool, prices: undefined },
+          [offeredA],
+          0.005,
+        ),
+      ).toThrowError(/prices/);
+    });
+
+    it("rejects out-of-range slippage and assets outside the pool", () => {
+      expect(() => SundaeUtils.getZapQuote(pool, [offeredA], 1)).toThrowError(
+        /slippage/,
+      );
+      expect(() =>
+        SundaeUtils.getZapQuote(pool, [offeredA], -0.1),
+      ).toThrowError(/slippage/);
+      expect(() =>
+        SundaeUtils.getZapQuote(
+          pool,
+          [new AssetAmount(1n, { assetId: "deadbeef.cafe", decimals: 0 })],
+          0.005,
+        ),
+      ).toThrowError(/not in pool/);
+    });
+
+    it("single-sided A: swap leg, LP, and change mirror the math package", () => {
+      const quote = SundaeUtils.getZapQuote(pool, [offeredA], 0.005);
+      const math = ConstantSumPool.calculateZap(
+        [100_000n, 0n],
+        [1_000_000n, 400_000n],
+        [2n, 5n],
+        4_000_000n,
+        0.003,
+      );
+
+      expect(quote.swap).toBeDefined();
+      expect(quote.swap!.input.metadata.assetId).toBe(pool.assetA.assetId);
+      expect(quote.swap!.output.metadata.assetId).toBe(pool.assetB.assetId);
+      expect(quote.swap!.input.amount).toBe(math.swapInput);
+      expect(quote.swap!.output.amount).toBe(math.swapOutput);
+
+      expect(quote.expectedLp.amount).toBe(math.generatedLp);
+      expect(quote.expectedLp.metadata.assetId).toBe(pool.assetLP.assetId);
+      expect(quote.minLp.amount).toBe(
+        BigInt(Math.ceil(Number(math.generatedLp) * 0.995)),
+      );
+      expect(quote.minLp.amount).toBeLessThan(quote.expectedLp.amount);
+
+      expect(quote.change[0].metadata.assetId).toBe(pool.assetA.assetId);
+      expect(quote.change[1].metadata.assetId).toBe(pool.assetB.assetId);
+      expect(quote.change[0].amount).toBe(math.change[0]);
+      expect(quote.change[1].amount).toBe(math.change[1]);
+    });
+
+    it("a proportional basket needs no swap, and zero slippage keeps the floor at expected", () => {
+      const quote = SundaeUtils.getZapQuote(
+        pool,
+        [
+          new AssetAmount(40_000n, pool.assetB),
+          new AssetAmount(100_000n, pool.assetA),
+        ],
+        0,
+      );
+      expect(quote.swap).toBeUndefined();
+      expect(quote.minLp.amount).toBe(quote.expectedLp.amount);
+    });
+
+    it("sums repeated entries for the same asset", () => {
+      const split = SundaeUtils.getZapQuote(
+        pool,
+        [
+          new AssetAmount(60_000n, pool.assetA),
+          new AssetAmount(40_000n, pool.assetA),
+        ],
+        0.005,
+      );
+      const whole = SundaeUtils.getZapQuote(pool, [offeredA], 0.005);
+      expect(split.expectedLp.amount).toBe(whole.expectedLp.amount);
     });
   });
 });
