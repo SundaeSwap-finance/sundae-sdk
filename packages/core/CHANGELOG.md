@@ -1,5 +1,50 @@
 # Change Log
 
+## 2.16.0
+
+### Minor Changes
+
+- 6b42d60: A zap quote for v4 constant-sum pools.
+
+  `ConstantSumPool.calculateZap` finds the swap that leaves a non-proportional
+  two-asset basket proportional to the post-swap reserves — a closed form, since
+  the dx² terms cancel — and runs the target-pinned deposit on what is left.
+  `SundaeUtils.getZapQuote` wraps it for an `IPoolData`: expected LP, a
+  slippage-derived `minLp` for the order's `minReceived`, the swap leg, and
+  the change. The order itself is a plain `TxBuilderV4.deposit`.
+
+  `QueryProviderSundaeSwap` now maps a v4 pool's `curve`, constant-sum
+  `prices` and datum `totalLp` onto `IPoolData`, so the constant-sum
+  branches of `getSwapOutput`, `getSwapInput` and `calculateLiquidity` work
+  on pools fetched from the API instead of throwing on the missing prices.
+
+  The CLI gains a `Zap (v4)` menu.
+
+### Patch Changes
+
+- 4a56528: `QueryProviderSundaeSwap` now denominates `liquidity.lpTotal` in the pool's
+  `total_lp`, not its circulating LP supply.
+
+  Every v4 curve module divides by the pool datum's `total_lp` — circulating LP
+  plus the protocol's earned-but-unharvested fees — and concentrated liquidity
+  uses it as its liquidity term `L`. The provider mapped `current.quantityLP`
+  instead, which is the circulating supply alone, so any v4 deposit, withdrawal
+  or concentrated-liquidity swap quoted from a pool this provider returned was
+  computed against a different pool than the chain validates. Measured on live v4
+  pools, the gap reaches 0.16% of the supply.
+
+  Pre-v4 pools are unaffected in value. There is no separate fee accounting
+  before v4, so `totalLp` and `current.quantityLP` are the same number — verified
+  across 222 live v1, v3 and Stableswaps pools on mainnet, preview and preprod,
+  with no exception. The mapping is therefore uniform rather than version-aware.
+
+  `QueryProviderSundaeSwapLegacy` is deliberately unchanged: it queries the stats
+  API, whose schema has no `totalLp` field and which serves pre-v4 pools only,
+  where the circulating supply is the right denominator.
+
+- Updated dependencies [6b42d60]
+  - @sundaeswap/math@0.5.0
+
 ## 2.15.0
 
 ### Minor Changes
