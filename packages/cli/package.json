@@ -4,7 +4,7 @@
   "type": "module",
   "author": "SundaeSwap Labs Inc.",
   "license": "UNLICENSED",
-  "version": "1.4.7",
+  "version": "1.5.0",
   "description": "CLI for the SundaeSwap protocol SDK.",
   "keywords": [
     "cardano",
@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@sundaeswap/core": "^2.14.0",
+    "@sundaeswap/core": "^2.16.0",
     "@inquirer/prompts": "^7.5.0",
     "@sundaeswap/asset": "^1.0.11",
     "asciify-image": "^0.1.10",
