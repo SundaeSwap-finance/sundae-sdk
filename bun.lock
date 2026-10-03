@@ -31,7 +31,7 @@
     },
     "packages/cli": {
       "name": "@sundaeswap/cli",
-      "version": "1.4.7",
+      "version": "1.5.0",
       "bin": "./dist/cli/index.js",
       "dependencies": {
         "@blaze-cardano/sdk": "^0.3.1",
@@ -50,7 +50,7 @@
     },
     "packages/core": {
       "name": "@sundaeswap/core",
-      "version": "2.15.0",
+      "version": "3.0.0",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.9",
         "@blaze-cardano/sdk": "^0.3.1",
@@ -147,7 +147,7 @@
     },
     "packages/math": {
       "name": "@sundaeswap/math",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "devDependencies": {
         "@types/bun": "latest",
       },
@@ -157,7 +157,7 @@
     },
     "packages/taste-test": {
       "name": "@sundaeswap/taste-test",
-      "version": "3.0.20",
+      "version": "4.0.0",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.9",
         "@blaze-cardano/sdk": "^0.3.1",
@@ -170,7 +170,7 @@
     },
     "packages/yield-farming": {
       "name": "@sundaeswap/yield-farming",
-      "version": "3.1.19",
+      "version": "4.0.0",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.9",
         "@blaze-cardano/sdk": "^0.3.1",
