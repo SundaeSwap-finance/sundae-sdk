@@ -29,15 +29,15 @@ spyOn(
 describe.skip("TxBuilderV3", () => {
   let emulator: Emulator;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     emulator = new Emulator(
       [
         settingsUtxosBlaze[0].output(),
         ...referenceUtxosBlaze.map((utxo) => utxo.output()),
       ],
-      hardCodedProtocolParams,
+      { params: hardCodedProtocolParams },
     );
-    emulator.register("Wallet One", makeValue(10_000_000n));
+    await emulator.register("Wallet One", makeValue(10_000_000n));
   });
 
   it("should pass", () => {

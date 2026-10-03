@@ -32,7 +32,7 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "clean": "rm -rf ./dist",
     "build:esm": "cross-env BABEL_ENV=esmUnbundled babel src --extensions '.ts,.tsx' --out-dir './dist/esm' --source-maps",
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts,.tsx' --out-dir 'dist/cjs' --source-maps",
@@ -49,9 +49,9 @@
     "@sundaeswap/core": "^2.14.1"
   },
   "dependencies": {
-    "@blaze-cardano/sdk": "^0.2.34",
+    "@blaze-cardano/sdk": "^0.3.1",
     "@sundaeswap/asset": "^1.0.11",
     "@sundaeswap/core": "^2.14.1",
-    "@blaze-cardano/data": "^0.6.1"
+    "@blaze-cardano/data": "^0.6.9"
   }
 }
