@@ -31,7 +31,7 @@
     },
     "packages/cli": {
       "name": "@sundaeswap/cli",
-      "version": "1.4.7",
+      "version": "1.5.0",
       "bin": "./dist/cli/index.js",
       "dependencies": {
         "@blaze-cardano/sdk": "^0.3.1",
@@ -39,7 +39,7 @@
       "devDependencies": {
         "@inquirer/prompts": "^7.5.0",
         "@sundaeswap/asset": "^1.0.11",
-        "@sundaeswap/core": "^2.14.0",
+        "@sundaeswap/core": "^3.0.0",
         "@types/bun": "latest",
         "asciify-image": "^0.1.10",
         "clipboardy": "^4.0.0",
@@ -50,21 +50,21 @@
     },
     "packages/core": {
       "name": "@sundaeswap/core",
-      "version": "2.15.0",
+      "version": "3.0.0",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.9",
         "@blaze-cardano/sdk": "^0.3.1",
         "@sundaeswap/asset": "^1.0.11",
         "@sundaeswap/bigint-math": "^0.6.3",
         "@sundaeswap/fraction": "^1.0.5",
-        "@sundaeswap/math": "^0.4.0",
+        "@sundaeswap/math": "^0.5.0",
       },
       "devDependencies": {
         "@blaze-cardano/core": "^0.9.1",
         "@blaze-cardano/emulator": "^0.5.2",
         "@sundaeswap/bigint-math": "^0.6.3",
         "@sundaeswap/fraction": "^1.0.3",
-        "@sundaeswap/math": "^0.4.0",
+        "@sundaeswap/math": "^0.5.0",
         "@types/jest": "^28.1.3",
         "@types/node": "^18.11.18",
         "cbor": "^9.0.0",
@@ -80,7 +80,7 @@
         "@sundaeswap/core": "workspace:*",
         "@sundaeswap/fraction": "^1.0.3",
         "@sundaeswap/math": "workspace:*",
-        "@sundaeswap/taste-test": "^3.0.20",
+        "@sundaeswap/taste-test": "^4.0.0",
         "@tailwindcss/forms": "^0.5.2",
         "autoprefixer": "^9",
         "buffer": "^6.0.3",
@@ -137,17 +137,17 @@
       "dependencies": {
         "@blaze-cardano/sdk": "^0.3.1",
         "@sundaeswap/asset": "^1.0.11",
-        "@sundaeswap/core": "^2.15.0",
+        "@sundaeswap/core": "^3.0.0",
         "graphql": "^16.8.1",
         "graphql-request": "^6.1.0",
       },
       "devDependencies": {
-        "@sundaeswap/core": "^2.15.0",
+        "@sundaeswap/core": "^3.0.0",
       },
     },
     "packages/math": {
       "name": "@sundaeswap/math",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "devDependencies": {
         "@types/bun": "latest",
       },
@@ -157,29 +157,29 @@
     },
     "packages/taste-test": {
       "name": "@sundaeswap/taste-test",
-      "version": "3.0.20",
+      "version": "4.0.0",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.9",
         "@blaze-cardano/sdk": "^0.3.1",
         "@sundaeswap/asset": "^1.0.11",
-        "@sundaeswap/core": "^2.14.1",
+        "@sundaeswap/core": "^3.0.0",
       },
       "devDependencies": {
-        "@sundaeswap/core": "^2.14.1",
+        "@sundaeswap/core": "^3.0.0",
       },
     },
     "packages/yield-farming": {
       "name": "@sundaeswap/yield-farming",
-      "version": "3.1.19",
+      "version": "4.0.0",
       "dependencies": {
         "@blaze-cardano/data": "^0.6.9",
         "@blaze-cardano/sdk": "^0.3.1",
         "@sundaeswap/asset": "^1.0.11",
-        "@sundaeswap/core": "^2.14.1",
+        "@sundaeswap/core": "^3.0.0",
       },
       "devDependencies": {
         "@blaze-cardano/emulator": "^0.5.2",
-        "@sundaeswap/core": "^2.14.1",
+        "@sundaeswap/core": "^3.0.0",
       },
     },
   },
