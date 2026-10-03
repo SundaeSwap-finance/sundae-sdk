@@ -1,8 +1,8 @@
 ---
-"@sundaeswap/core": minor
+"@sundaeswap/core": major
 "@sundaeswap/cli": minor
-"@sundaeswap/taste-test": minor
-"@sundaeswap/yield-farming": minor
+"@sundaeswap/taste-test": major
+"@sundaeswap/yield-farming": major
 ---
 
 Upgrade to the latest `@blaze-cardano` packages: `sdk@^0.3.1`,
