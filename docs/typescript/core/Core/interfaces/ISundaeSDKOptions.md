@@ -10,7 +10,7 @@ The SundaeSDK options argument when creating a new instance.
 
 ### blazeInstance
 
-> **blazeInstance**: `Blaze`\<`Provider`, `Wallet$1`\>
+> **blazeInstance**: `Blaze`\<`Provider`, `Wallet`\>
 
 A built blaze instance.
 

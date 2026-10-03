@@ -55,7 +55,7 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "clean": "rm -rf ./dist",
     "build:esm": "cross-env BABEL_ENV=esmUnbundled babel src --extensions '.ts,.tsx' --out-dir './dist/esm' --source-maps",
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts,.tsx' --out-dir 'dist/cjs' --source-maps",
@@ -69,8 +69,8 @@
     "publish:canary": "bun publish --tag dev"
   },
   "devDependencies": {
-    "@blaze-cardano/core": "^0.7.0",
-    "@blaze-cardano/emulator": "^0.3.34",
+    "@blaze-cardano/core": "^0.9.1",
+    "@blaze-cardano/emulator": "^0.5.2",
     "@sundaeswap/bigint-math": "^0.6.3",
     "@sundaeswap/fraction": "^1.0.3",
     "@sundaeswap/math": "^0.4.0",
@@ -79,8 +79,8 @@
     "cbor": "^9.0.0"
   },
   "dependencies": {
-    "@blaze-cardano/sdk": "^0.2.31",
-    "@blaze-cardano/data": "^0.6.1",
+    "@blaze-cardano/sdk": "^0.3.1",
+    "@blaze-cardano/data": "^0.6.9",
     "@sundaeswap/asset": "^1.0.11",
     "@sundaeswap/bigint-math": "^0.6.3",
     "@sundaeswap/math": "^0.4.0",
