@@ -21,7 +21,7 @@ the V3 contracts (it is recommended to utilize V3 contracts if possible: [Core.T
 
 #### Parameters
 
-• **blaze**: `Blaze`\<`Provider`, `Wallet$1`\>
+• **blaze**: `Blaze`\<`Provider`, `Wallet`\>
 
 A configured Blaze instance to use.
 
@@ -45,7 +45,7 @@ A custom query provider if desired.
 
 ### blaze
 
-> **blaze**: `Blaze`\<`Provider`, `Wallet$1`\>
+> **blaze**: `Blaze`\<`Provider`, `Wallet`\>
 
 A configured Blaze instance to use.
 

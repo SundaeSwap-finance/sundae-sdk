@@ -32,7 +32,9 @@ The constant-sum curve module.
 
 > `readonly` **fairnessConstraint**: `"fairness_order.withdraw"` = `"fairness_order.withdraw"`
 
-The fairness-order constraint module — required by every order type.
+The fairness-order constraint module — keyed in pre-audit packages; the
+ audited launch packages carry the fee constraint instead. Which
+ constraints a package requires is deployment-defined (its OrderConfig).
 
 ### fairnessModule
 
@@ -75,7 +77,7 @@ The pool NFT minting policy.
 
 > `readonly` **routeConstraint**: `"route_order.withdraw"` = `"route_order.withdraw"`
 
-The route-order constraint module — required by swap (and strategy) orders.
+The route-order constraint module — keyed in route-carrying packages.
 
 ### strategyConstraint
 

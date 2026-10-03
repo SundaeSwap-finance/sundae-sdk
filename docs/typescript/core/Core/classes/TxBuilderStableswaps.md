@@ -26,7 +26,7 @@ Constructs a new TxBuilderStableswaps instance.
 
 #### Parameters
 
-• **blaze**: `Blaze`\<`Provider`, `Wallet$1`\>
+• **blaze**: `Blaze`\<`Provider`, `Wallet`\>
 
 A configured Blaze instance for transaction building and signing.
 
@@ -51,7 +51,7 @@ Optional custom query provider for fetching blockchain data.
 
 ### blaze
 
-> **blaze**: `Blaze`\<`Provider`, `Wallet$1`\>
+> **blaze**: `Blaze`\<`Provider`, `Wallet`\>
 
 A configured Blaze instance for transaction building and signing.
 
