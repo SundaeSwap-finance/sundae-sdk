@@ -98,6 +98,15 @@ export enum EPoolCurve {
    * `D` and carries `rates`.
    */
   V4Stableswap = "stableswap",
+  /**
+   * The v4 banded concentrated-liquidity module: a ladder of sqrt-price
+   * bands, each a concentrated-liquidity arc or a constant-sum bin with its
+   * own share of the pool's liquidity and its own fees. LP is one fungible
+   * token for the whole ladder. The estimator is
+   * `BandedConcentratedLiquidityPool` in `@sundaeswap/math`; the single-range
+   * `ConcentratedLiquidity` curve above was removed from the protocol.
+   */
+  BandedConcentratedLiquidity = "banded_concentrated_liquidity",
 }
 
 /**

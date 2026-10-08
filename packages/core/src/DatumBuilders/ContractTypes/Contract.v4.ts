@@ -154,6 +154,27 @@ const Contracts = Type.Module({
   FeeSplitConfig: Type.Object({
     protocol_share: Type.Ref("Rational"),
   }, { ctor: 0n }),
+  BandSpec: Type.Object({
+    start: Type.Ref("Rational"),
+    weight: Type.BigInt(),
+    curve: Type.BigInt(),
+    fee_buy: Type.Ref("Rational"),
+    fee_sell: Type.Ref("Rational"),
+  }, { ctor: 0n }),
+  BandedCLConfig: Type.Object({
+    bands: Type.Array(Type.Ref("BandSpec")),
+    // The ladder index (spec §2.3): one `[ca, cb]` pair per band, each a
+    // Data LIST of two integers. Derived from the bands, never hand-written:
+    // Create rebuilds it and refuses a config whose index does not match.
+    index: Type.Array(Type.Unsafe<PlutusData>(Type.Any())),
+    closing: Type.Ref("Rational"),
+    weight_total: Type.BigInt(),
+  }, { ctor: 0n }),
+  BandedCLCreate: Type.Object({
+    initial_state: Type.Ref("BandedCLConfig"),
+    pool_output_index: Type.BigInt(),
+    initial_band: Type.BigInt(),
+  }, { ctor: 0n }),
   ActionEntry: Type.Object({
     tag: Type.BigInt(),
     enabled: Type.Ref("Bool"),
@@ -253,6 +274,12 @@ export const ConstantSumConfig = Contracts.Import("ConstantSumConfig");
 export type ConstantSumConfig = Exact<typeof ConstantSumConfig>;
 export const FeeSplitConfig = Contracts.Import("FeeSplitConfig");
 export type FeeSplitConfig = Exact<typeof FeeSplitConfig>;
+export const BandSpec = Contracts.Import("BandSpec");
+export type BandSpec = Exact<typeof BandSpec>;
+export const BandedCLConfig = Contracts.Import("BandedCLConfig");
+export type BandedCLConfig = Exact<typeof BandedCLConfig>;
+export const BandedCLCreate = Contracts.Import("BandedCLCreate");
+export type BandedCLCreate = Exact<typeof BandedCLCreate>;
 export const ActionEntry = Contracts.Import("ActionEntry");
 export type ActionEntry = Exact<typeof ActionEntry>;
 export const PoolConfig = Contracts.Import("PoolConfig");
