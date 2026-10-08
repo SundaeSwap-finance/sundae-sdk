@@ -787,6 +787,54 @@ describe("SundaeUtils class", () => {
       ).toThrowError(/sqrtPrices/);
     });
 
+    it("dispatches the banded curve across its ladder, seeded by the indexed witness", () => {
+      // The eight-band ladder of sundae-v4's banded_cl_check tests: 624 B in
+      // pays 616 A at reserves (8,637,368 A, 624,999 B).
+      const fee: [bigint, bigint] = [3n, 1000n];
+      const bands = Array.from({ length: 8 }, (_, i) => ({
+        start: [1_000_000n + 10_000n * BigInt(i), 1_000_000n] as [bigint, bigint],
+        weight: 1n,
+        curve: 0 as const,
+        feeBuy: fee,
+        feeSell: fee,
+      }));
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.BandedConcentratedLiquidity,
+        liquidity: { ...base.liquidity, aReserve: 8_637_368n, bReserve: 624_999n },
+        bands,
+        bandClosing: [1_080_000n, 1_000_000n],
+        bandWeightTotal: 8n,
+        bandCounter: 999_999_813n,
+        activeBand: 0,
+      };
+      const { output } = SundaeUtils.getSwapOutput(
+        pool,
+        new AssetAmount(624n, base.assetB),
+      );
+      expect(output).toEqual(616n);
+      // A stale witness is recovered from.
+      const stale = SundaeUtils.getSwapOutput(
+        { ...pool, bandCounter: 123n, activeBand: 5 },
+        new AssetAmount(624n, base.assetB),
+      );
+      expect(stale.output).toEqual(616n);
+    });
+
+    it("throws for a banded pool missing its ladder", () => {
+      expect(() =>
+        SundaeUtils.getSwapOutput(
+          {
+            ...base,
+            version: EContractVersion.V4,
+            curve: EPoolCurve.BandedConcentratedLiquidity,
+          },
+          suppliedA,
+        ),
+      ).toThrowError(/bands/);
+    });
+
     // The v4 stableswap CURVE. Unrelated to EContractVersion.Stableswaps,
     // which is the v3 stableswap CONTRACT.
     it("dispatches the stableswap curve using the pool rates and amplification", () => {

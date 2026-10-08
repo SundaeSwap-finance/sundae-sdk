@@ -1,3 +1,4 @@
+import { BandedConcentratedLiquidityPool } from "@sundaeswap/math";
 import { parse } from "@blaze-cardano/data";
 import { Blaze, Core, makeValue, Provider, Wallet } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
@@ -66,6 +67,10 @@ export const V4_VALIDATORS = {
   feeSplit: "fee_split.withdraw",
   /** The fairness pool module (distinct from the `fairness_order` constraint). */
   fairnessModule: "fairness.withdraw",
+  /** The banded concentrated-liquidity curve module. */
+  bandedConcentratedLiquidity: "banded_concentrated_liquidity.withdraw",
+  /** The price-and-volume oracle module a pool may carry beside its curve. */
+  oracle: "oracle.withdraw",
 } as const;
 
 /**
@@ -222,17 +227,46 @@ export interface IFractionV4 {
  * so new curves slot in without changing the call shape. Only `constantSum` is
  * wired today; `constantProduct`/`concentratedLiquidity` are reserved.
  */
-export type TPoolCurveV4 = {
-  kind: "constantSum";
-  /** Per-asset price weights (defaults to all `1n`, i.e. equal-valued assets). */
-  prices?: bigint[];
-  /** The pool's swap fee. */
-  fee: IFractionV4;
-  /** Rebalance-bounty rate; defaults to `fee / 2`. Pass `{num:0n,den:1n}` to disable. */
-  bountyK?: IFractionV4;
-  /** Whether tag-5 claim steps waive the LP fee on the embedded swap. */
-  waiveFeeOnClaim?: boolean;
-};
+export type TPoolCurveV4 =
+  | {
+      kind: "constantSum";
+      /** Per-asset price weights (defaults to all `1n`, i.e. equal-valued assets). */
+      prices?: bigint[];
+      /** The pool's swap fee. */
+      fee: IFractionV4;
+      /** Rebalance-bounty rate; defaults to `fee / 2`. Pass `{num:0n,den:1n}` to disable. */
+      bountyK?: IFractionV4;
+      /** Whether tag-5 claim steps waive the LP fee on the embedded swap. */
+      waiveFeeOnClaim?: boolean;
+    }
+  | {
+      kind: "bandedConcentratedLiquidity";
+      /**
+       * The ladder: bands in ascending sqrt-price order, the top edge and
+       * the weight total. Build one with `shapedLadder` / `uniformLadder`
+       * from `@sundaeswap/math`. The index the chain pins is derived here.
+       */
+      ladder: BandedConcentratedLiquidityPool.TLadder;
+      /**
+       * The launch sqrt-price (B per A, under a square root), which must lie
+       * inside the ladder. The pool's reserves are DERIVED from it and the
+       * counter: `args.assets` names the two assets and their order; its
+       * amounts are replaced by what the ladder holds at this price.
+       */
+      launchSqrtPrice: IFractionV4;
+      /**
+       * The ladder counter, the pool's initial `total_lp` and liquidity
+       * scale (default 1,000,000,000). Rounding of the derived reserves can
+       * move the counter the chain accepts by a few; the pool is built on
+       * the one it accepts.
+       */
+      counter?: bigint;
+      /**
+       * Create the pool against the PoolConfig that also runs the oracle
+       * module, so the pool records executed prices and volumes on chain.
+       */
+      oracle?: boolean;
+    };
 
 /** Arguments for creating a v4 pool via {@link TxBuilderV4.mintPool}. */
 export interface IMintPoolV4Args {
@@ -290,6 +324,8 @@ export interface IPoolV4 {
  * @extends {TxBuilderAbstractV4}
  */
 export class TxBuilderV4 extends TxBuilderAbstractV4 {
+  /** The oracle module's hash, resolved once; null when the deployment has none. */
+  private oracleModuleHash: string | null | undefined;
   contractVersion: EContractVersion = EContractVersion.V4;
   datumBuilder: DatumBuilderV4;
   queryProvider: QueryProviderSundaeSwap;
@@ -754,6 +790,37 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
+   * Moves liquidity between pools in ONE order: burn `from` (one or more
+   * pools' LP tokens, CIP-67 label `0014df10` + ident) and receive at least
+   * `minReceived` of the target pools' LP. The scooper withdraws every burn
+   * leg, routes assets the targets lack across pairs, deposits in proportion
+   * and returns the surplus. Size the fee with the API's
+   * `pools.quoteLiquidityOp`, which predicts the same fill. A same-pair
+   * movement is a withdrawal whose payout is deposited into the target; a
+   * cross-pair one adds a swap leg.
+   */
+  public async moveLiquidity(
+    args: Omit<IBasicV4Args, "type" | "offered" | "minReceived"> & {
+      /** The LP to burn, one entry per source pool. */
+      from: AssetAmount<IAssetAmountMetadata>[];
+      /** The least LP to mint, one entry per target pool (amount 1n for no floor). */
+      minReceived: AssetAmount<IAssetAmountMetadata>[];
+    },
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    const { from, ...rest } = args;
+    if (from.length === 0 || args.minReceived.length === 0) {
+      throw new Error(
+        "moveLiquidity: name at least one LP to burn and one to mint.",
+      );
+    }
+    return this.basic({
+      ...rest,
+      offered: from,
+      type: EV4BasicConstraint.Withdraw,
+    });
+  }
+
+  /**
    * Claim is a basic order that collects a pool's accrued claimables (e.g. a
    * constant-sum pool's bounty) rather than trading against its reserves.
    */
@@ -1089,10 +1156,20 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   public async mintPool(
     args: IMintPoolV4Args,
   ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
-    if (args.curve.kind !== "constantSum") {
+    const curveKind = args.curve.kind;
+    if (
+      curveKind !== "constantSum" &&
+      curveKind !== "bandedConcentratedLiquidity"
+    ) {
       throw new Error(
-        `mintPool: only the "constantSum" curve is supported today (got "${args.curve.kind}").`,
+        `mintPool: unsupported curve "${String(curveKind)}" (constantSum and bandedConcentratedLiquidity are wired).`,
       );
+    }
+    if (
+      curveKind === "bandedConcentratedLiquidity" &&
+      args.assets.length !== 2
+    ) {
+      throw new Error("mintPool: a banded pool holds exactly two assets.");
     }
     if (args.assets.length < 2 || args.assets.length > 16) {
       throw new Error(
@@ -1113,16 +1190,25 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     // The curve module (user-chosen) is resolved by title; the pool + pool-mint
     // scripts by title too. The auxiliary modules are resolved generically from
     // whatever hashes the on-chain PoolConfig references.
+    const curveTitle =
+      curveKind === "constantSum"
+        ? V4_VALIDATORS.constantSum
+        : V4_VALIDATORS.bandedConcentratedLiquidity;
     const [poolMintScript, curveScript, poolScript] = await Promise.all([
       this.getValidatorScript(V4_VALIDATORS.poolMint),
-      this.getValidatorScript(V4_VALIDATORS.constantSum),
+      this.getValidatorScript(curveTitle),
       this.getValidatorScript(V4_VALIDATORS.pool),
     ]);
+    const wantOracle =
+      args.curve.kind === "bandedConcentratedLiquidity" && !!args.curve.oracle;
+    const oracleHash = wantOracle
+      ? (await this.getValidatorScript(V4_VALIDATORS.oracle)).hash
+      : undefined;
 
     // The on-chain PoolConfig (for this curve) dictates the pool datum's
     // actions exactly, and publishes each module's Create config.
     const { poolValidator, actions, settingsTxIn, minSurplus, moduleConfigs } =
-      await this.resolvePoolConfig(curveScript.hash);
+      await this.resolvePoolConfig(curveScript.hash, oracleHash);
     if (poolValidator !== poolScript.hash) {
       throw new Error(
         `mintPool: settings pool_validator (${poolValidator}) does not match ` +
@@ -1133,8 +1219,52 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     if (actions[0]?.modules[0] !== curveScript.hash) {
       throw new Error(
         "mintPool: the settings PoolConfig's first action must lead with the " +
-          `constant-sum module (${curveScript.hash}).`,
+          `curve module (${curveScript.hash}).`,
       );
+    }
+    // A banded pool's reserves are what the ladder holds at the launch price;
+    // its counter is the pool's total_lp (spec V12), re-derived from the
+    // floored reserves so it is the one the chain accepts.
+    let assets = args.assets;
+    let bandedCreate:
+      | {
+          ladder: BandedConcentratedLiquidityPool.TLadder;
+          initialBand: bigint;
+          counter: bigint;
+        }
+      | undefined;
+    if (args.curve.kind === "bandedConcentratedLiquidity") {
+      const { ladder, launchSqrtPrice } = args.curve;
+      const asked = args.curve.counter ?? 1_000_000_000n;
+      const launch = { num: launchSqrtPrice.num, den: launchSqrtPrice.den };
+      const first = ladder.bands[0]?.start;
+      if (
+        !first ||
+        launch.num * first.den < first.num * launch.den ||
+        launch.num * ladder.closing.den >= ladder.closing.num * launch.den
+      ) {
+        throw new Error(
+          "mintPool: the launch sqrt-price must lie inside the ladder.",
+        );
+      }
+      const k0 = BandedConcentratedLiquidityPool.bandOf(ladder, launch);
+      const r = BandedConcentratedLiquidityPool.reservesAt(
+        ladder,
+        asked,
+        k0,
+        launch,
+      );
+      const w = BandedConcentratedLiquidityPool.findWitness(ladder, r.A, r.B);
+      if (!w) {
+        throw new Error(
+          "mintPool: no witness for the derived reserves; the counter is too small for this ladder.",
+        );
+      }
+      assets = [
+        new AssetAmount(r.A, args.assets[0]!.metadata),
+        new AssetAmount(r.B, args.assets[1]!.metadata),
+      ];
+      bandedCreate = { ladder, initialBand: BigInt(w.k), counter: w.x };
     }
 
     // Seed UTxO → pool identifier + CIP-68 asset names.
@@ -1156,49 +1286,79 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       lp: lpName,
     } = DatumBuilderV4.cip68Names(ident);
 
-    // LP economics: circulating = Σ price·reserve (or override); premint equal.
-    const prices = args.curve.prices ?? args.assets.map(() => 1n);
-    if (prices.length !== args.assets.length) {
-      throw new Error("mintPool: prices length must match assets length.");
-    }
-    if (prices.some((p) => p <= 0n)) {
-      throw new Error("mintPool: every constant-sum price must be positive.");
-    }
-    // Fail fast on malformed rationals (the CS module requires den > 0, num >= 0).
-    const isValidFraction = (f: IFractionV4) => f.den > 0n && f.num >= 0n;
-    if (!isValidFraction(args.curve.fee)) {
-      throw new Error(
-        "mintPool: fee must be a non-negative fraction with a positive denominator.",
+    // The curve module's config and Create redeemer come from the caller;
+    // every other module's config is published verbatim in the settings
+    // (values.moduleConfigs).
+    let circulatingLp: bigint;
+    let curveConfig: Core.PlutusData;
+    let curveCreateRedeemer: Core.PlutusData;
+    if (args.curve.kind === "constantSum") {
+      // LP economics: circulating = Σ price·reserve (or override); premint equal.
+      const prices = args.curve.prices ?? assets.map(() => 1n);
+      if (prices.length !== assets.length) {
+        throw new Error("mintPool: prices length must match assets length.");
+      }
+      if (prices.some((p) => p <= 0n)) {
+        throw new Error("mintPool: every constant-sum price must be positive.");
+      }
+      // Fail fast on malformed rationals (the CS module requires den > 0, num >= 0).
+      const isValidFraction = (f: IFractionV4) => f.den > 0n && f.num >= 0n;
+      if (!isValidFraction(args.curve.fee)) {
+        throw new Error(
+          "mintPool: fee must be a non-negative fraction with a positive denominator.",
+        );
+      }
+      if (args.curve.bountyK && !isValidFraction(args.curve.bountyK)) {
+        throw new Error(
+          "mintPool: bountyK must be a non-negative fraction with a positive denominator.",
+        );
+      }
+      circulatingLp =
+        args.totalLp ??
+        assets.reduce((sum, a, i) => sum + a.amount * prices[i]!, 0n);
+      const fee = args.curve.fee;
+      const bountyK = args.curve.bountyK ?? { num: fee.num, den: fee.den * 2n };
+      curveConfig = Core.PlutusData.fromCbor(
+        Core.HexBlob(
+          this.datumBuilder.buildConstantSumConfigDatum({
+            prices,
+            fee,
+            bountyK,
+            waiveFeeOnClaim: args.curve.waiveFeeOnClaim ?? false,
+          }).inline,
+        ),
+      );
+      curveCreateRedeemer =
+        DatumBuilderV4.buildModuleCreateRedeemer(curveConfig);
+    } else {
+      // V12: a banded pool's total_lp IS its ladder counter.
+      const banded = bandedCreate!;
+      if (args.totalLp !== undefined && args.totalLp !== banded.counter) {
+        throw new Error(
+          `mintPool: a banded pool's total_lp is its ladder counter ${banded.counter}; drop totalLp.`,
+        );
+      }
+      circulatingLp = banded.counter;
+      curveConfig = Core.PlutusData.fromCbor(
+        Core.HexBlob(
+          this.datumBuilder.buildBandedCLConfigDatum(banded.ladder).inline,
+        ),
+      );
+      curveCreateRedeemer = Core.PlutusData.fromCbor(
+        Core.HexBlob(
+          this.datumBuilder.buildBandedCLCreateRedeemer({
+            ladder: banded.ladder,
+            poolOutputIndex: 0n,
+            initialBand: banded.initialBand,
+          }).inline,
+        ),
       );
     }
-    if (args.curve.bountyK && !isValidFraction(args.curve.bountyK)) {
-      throw new Error(
-        "mintPool: bountyK must be a non-negative fraction with a positive denominator.",
-      );
-    }
-    const circulatingLp =
-      args.totalLp ??
-      args.assets.reduce((sum, a, i) => sum + a.amount * prices[i], 0n);
     if (circulatingLp <= 0n) {
       throw new Error("mintPool: computed LP supply must be positive.");
     }
     const premintedLp = circulatingLp;
     const lpMinted = circulatingLp + premintedLp;
-
-    // The curve module's config comes from the caller; every other module's
-    // config is published verbatim in the settings (values.moduleConfigs).
-    const fee = args.curve.fee;
-    const bountyK = args.curve.bountyK ?? { num: fee.num, den: fee.den * 2n };
-    const curveConfig = Core.PlutusData.fromCbor(
-      Core.HexBlob(
-        this.datumBuilder.buildConstantSumConfigDatum({
-          prices,
-          fee,
-          bountyK,
-          waiveFeeOnClaim: args.curve.waiveFeeOnClaim ?? false,
-        }).inline,
-      ),
-    );
 
     // Every distinct module across all actions, in first-appearance order —
     // this is also the `module_state` order.
@@ -1276,7 +1436,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     );
 
     const { inline: poolDatumInline } = this.datumBuilder.buildPoolDatum({
-      assets: args.assets,
+      assets,
       totalLp: circulatingLp,
       circulatingLp,
       premintedLp,
@@ -1348,7 +1508,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     tx.lockAssets(
       poolAddr,
       this.buildPoolValue(
-        args.assets,
+        assets,
         poolMintScript.hash,
         nftName,
         lpName,
@@ -1379,7 +1539,9 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
           networkId,
         ),
         0n,
-        DatumBuilderV4.buildModuleCreateRedeemer(config ?? undefined),
+        hash === curveScript.hash
+          ? curveCreateRedeemer
+          : DatumBuilderV4.buildModuleCreateRedeemer(config ?? undefined),
       );
     }
 
@@ -1397,7 +1559,10 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * sum vs constant product); this picks the one whose trade action's curve
    * module matches `curveHash`. Its `txIn` is the create tx's settings ref.
    */
-  private async resolvePoolConfig(curveHash: string): Promise<{
+  private async resolvePoolConfig(
+    curveHash: string,
+    oracleHash?: string,
+  ): Promise<{
     poolValidator: string;
     actions: V4Types.ActionEntry[];
     settingsTxIn: { hash: string; index: number };
@@ -1407,8 +1572,17 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     moduleConfigs: Record<string, string | null> | undefined;
   }> {
     const settings = await this.getSettings();
+    if (oracleHash === undefined && this.oracleModuleHash === undefined) {
+      // Know the oracle's hash so a config that runs it is not picked for a
+      // pool that did not ask for it. A deployment without the module is fine.
+      this.oracleModuleHash = await this.getValidatorScript(
+        V4_VALIDATORS.oracle,
+      )
+        .then((v) => v.hash)
+        .catch(() => null);
+    }
     // PoolConfig entries are labeled per curve ("cs-pool", "cp-pool",
-    // "cl-pool"); the bare "pool" label is accepted for older rows.
+    // "cl-pool", "bcl-pool"); the bare "pool" label is accepted for older rows.
     const poolEntries = settings.filter(
       (s) => (s.label === "pool" || s.label?.endsWith("-pool")) && s.datum,
     );
@@ -1424,7 +1598,15 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         Core.PlutusData.fromCbor(Core.HexBlob(entry.datum as string)),
       );
       // The trade action is action[0]; its first module is the curve module.
-      if (config.actions[0]?.modules[0] === curveHash) {
+      // With several configs for one curve (preprod publishes a banded one
+      // with the oracle module and one without), the oracle decides.
+      const runsOracle = (h: string) =>
+        config.actions.some((a) => a.modules.includes(h));
+      const oracleMatches =
+        oracleHash === undefined
+          ? !(this.oracleModuleHash && runsOracle(this.oracleModuleHash))
+          : runsOracle(oracleHash);
+      if (config.actions[0]?.modules[0] === curveHash && oracleMatches) {
         // values.moduleConfigs: { [moduleHash]: { configCbor: string | null } }.
         const raw = (entry.values?.moduleConfigs ?? undefined) as
           | Record<string, { configCbor: string | null }>

@@ -30,6 +30,7 @@ import {
   V3_POOL_IDENT_LENGTH,
 } from "../constants.js";
 import {
+  BandedConcentratedLiquidityPool,
   ConcentratedLiquidityPool,
   ConstantProductPool,
   ConstantSumPool,
@@ -42,6 +43,7 @@ import {
 // switches below dispatch on `version` for the first and on `curve` for the
 // second.
 export type TGenericSwapOutcome =
+  | BandedConcentratedLiquidityPool.TSwapOutcome
   | ConstantProductPool.TSwapOutcome
   | ConstantSumPool.TSwapOutcome
   | ConcentratedLiquidityPool.TSwapOutcome
@@ -623,6 +625,30 @@ export class SundaeUtils {
   }
 
   /**
+   * The ladder of a v4 banded pool as `@sundaeswap/math` wants it, from the
+   * API's pool data. Throws for a pool with no ladder.
+   */
+  static ladderOf(
+    poolData: IPoolData,
+  ): BandedConcentratedLiquidityPool.TLadder {
+    if (!poolData.bands || !poolData.bandClosing || !poolData.bandWeightTotal) {
+      throw new Error("Pool data carries no banded ladder.");
+    }
+    const frac = (p: [bigint, bigint]) => ({ num: p[0], den: p[1] });
+    return {
+      bands: poolData.bands.map((b) => ({
+        start: frac(b.start),
+        weight: b.weight,
+        curve: b.curve,
+        feeBuy: frac(b.feeBuy),
+        feeSell: frac(b.feeSell),
+      })),
+      closing: frac(poolData.bandClosing),
+      weightTotal: poolData.bandWeightTotal,
+    };
+  }
+
+  /**
    * Calculates the output amount for a swap based on the pool data and supplied asset.
    * Supports different pool versions including V1, V3, NftCheck, and Stableswaps.
    *
@@ -737,6 +763,32 @@ export class SundaeUtils {
               poolData.sqrtPrices[1],
               poolData.currentFee,
               isAInput,
+            );
+          }
+          case EPoolCurve.BandedConcentratedLiquidity: {
+            if (
+              !poolData.bands ||
+              !poolData.bandClosing ||
+              !poolData.bandWeightTotal
+            ) {
+              throw new Error(
+                "Banded pool is missing `bands`, `bandClosing` or `bandWeightTotal`; cannot get swap output.",
+              );
+            }
+            const isAInput =
+              poolData.assetA.assetId === suppliedAsset.metadata.assetId;
+            const hint =
+              poolData.bandCounter && poolData.activeBand !== undefined
+                ? { x: poolData.bandCounter, k: poolData.activeBand }
+                : undefined;
+            return BandedConcentratedLiquidityPool.getSwapOutput(
+              suppliedAsset.metadata,
+              suppliedAsset.amount,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              SundaeUtils.ladderOf(poolData),
+              isAInput,
+              hint,
             );
           }
           case EPoolCurve.V4Stableswap: {
@@ -1097,6 +1149,19 @@ export class SundaeUtils {
               poolData.liquidity.lpTotal,
               poolData.prices[0],
               poolData.prices[1],
+            );
+          case EPoolCurve.BandedConcentratedLiquidity:
+            // A banded deposit is proportional (banded_cl_check's non-swap
+            // step is `check_proportional`): every reserve moves at least in
+            // proportion to total_lp, and the counter follows because the
+            // prefix sums and L_i are degree-1 homogeneous in it. Same pin
+            // as constant product, surplus refunded.
+            return ConstantProductPool.calculateLiquidity(
+              a,
+              b,
+              poolData.liquidity.aReserve,
+              poolData.liquidity.bReserve,
+              poolData.liquidity.lpTotal,
             );
           case EPoolCurve.ConcentratedLiquidity:
             // CL deposits reuse the constant-product proportional pinning: the

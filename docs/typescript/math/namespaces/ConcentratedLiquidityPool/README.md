@@ -9,7 +9,6 @@
 ### Type Aliases
 
 - [TSqrtPrice](type-aliases/TSqrtPrice.md)
-- [TSwapOutcome](type-aliases/TSwapOutcome.md)
 
 ### Functions
 

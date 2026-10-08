@@ -16,6 +16,12 @@ titles matching the V1/V3/Stableswaps convention (`pool.mint`,
 
 ## Type declaration
 
+### bandedConcentratedLiquidity
+
+> `readonly` **bandedConcentratedLiquidity**: `"banded_concentrated_liquidity.withdraw"` = `"banded_concentrated_liquidity.withdraw"`
+
+The banded concentrated-liquidity curve module.
+
 ### basicConstraint
 
 > `readonly` **basicConstraint**: `"basic_order.withdraw"` = `"basic_order.withdraw"`
@@ -55,6 +61,12 @@ The fee constraint — the once-per-scoop service-fee aggregator required
 
 The fee-split module carried by every pool.
 
+### oracle
+
+> `readonly` **oracle**: `"oracle.withdraw"` = `"oracle.withdraw"`
+
+The price-and-volume oracle module a pool may carry beside its curve.
+
 ### order
 
 > `readonly` **order**: `"order.spend"` = `"order.spend"`
@@ -93,4 +105,4 @@ The swap-order constraint module — keyed in a Swap order's constraints.
 
 ## Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:41](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L41)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:42](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L42)

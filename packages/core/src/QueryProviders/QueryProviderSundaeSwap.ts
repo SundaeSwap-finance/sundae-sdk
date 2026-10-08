@@ -81,6 +81,27 @@ interface IPoolDataQueryResult {
   sqrtPrices?: string[] | null;
   /** v4 stableswap per-asset rates. Empty for every other curve. */
   rates?: string[] | null;
+  /** v4 banded concentrated-liquidity ladder. Empty for every other curve. */
+  bands?:
+    | {
+        start: string[];
+        weight: string;
+        curve: number;
+        feeBuy: string[];
+        feeSell: string[];
+        quantities?: string[] | null;
+        liquidity?: string | null;
+        active?: boolean | null;
+      }[]
+    | null;
+  /** v4 banded top sqrt-price edge, `[num, den]`. Empty for every other curve. */
+  bandClosing?: string[] | null;
+  /** v4 banded active band index. Null for every other curve. */
+  activeBand?: number | null;
+  /** v4 banded ladder counter. "0" for every other curve. */
+  bandCounter?: string | null;
+  /** v4 banded weight total. "0" for every other curve. */
+  bandWeightTotal?: string | null;
   /**
    * The LP supply the pool's own invariant is denominated in — the denominator
    * every deposit, withdrawal and liquidity-depth calculation divides by.
@@ -130,11 +151,39 @@ const mapV4CurveFields = (pool: IPoolDataQueryResult): Partial<IPoolData> => {
         ] as [[bigint, bigint], [bigint, bigint]])
       : undefined;
 
+  const bands =
+    pool.bands && pool.bands.length > 0
+      ? pool.bands.map((b) => ({
+          start: pair(b.start)!,
+          weight: BigInt(b.weight),
+          curve: (b.curve === 1 ? 1 : 0) as 0 | 1,
+          feeBuy: pair(b.feeBuy)!,
+          feeSell: pair(b.feeSell)!,
+          ...(b.quantities && b.quantities.length >= 2
+            ? { quantities: pair(b.quantities)! }
+            : {}),
+          ...(b.liquidity ? { liquidity: BigInt(b.liquidity) } : {}),
+          ...(b.active !== undefined && b.active !== null
+            ? { active: b.active }
+            : {}),
+        }))
+      : undefined;
+  const bandClosing = pair(pool.bandClosing);
+
   return {
     curve,
     ...(prices ? { prices } : {}),
     ...(sqrtPrices ? { sqrtPrices } : {}),
     ...(rates ? { rates } : {}),
+    ...(bands ? { bands } : {}),
+    ...(bandClosing ? { bandClosing } : {}),
+    ...(pool.activeBand !== undefined && pool.activeBand !== null
+      ? { activeBand: pool.activeBand }
+      : {}),
+    ...(pool.bandCounter ? { bandCounter: BigInt(pool.bandCounter) } : {}),
+    ...(pool.bandWeightTotal
+      ? { bandWeightTotal: BigInt(pool.bandWeightTotal) }
+      : {}),
   };
 };
 
@@ -223,6 +272,20 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -274,6 +337,20 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -370,6 +447,20 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -421,6 +512,20 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -517,6 +622,20 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -568,6 +687,20 @@ export class QueryProviderSundaeSwap implements QueryProvider {
               prices
               sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -697,6 +830,20 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 prices
                 sqrtPrices
                 rates
+                bands {
+                  start
+                  weight
+                  curve
+                  feeBuy
+                  feeSell
+                  quantities
+                  liquidity
+                  active
+                }
+                bandClosing
+                activeBand
+                bandCounter
+                bandWeightTotal
                 totalLp
                 protocolAskFee
                 version

@@ -4,7 +4,7 @@
 
 # Function: getSwapInput()
 
-> **getSwapInput**(`inputMetadata`, `output`, `aReserve`, `bReserve`, `totalLp`, `sqrtPriceA`, `sqrtPriceB`, `fee`, `isAInput`): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
+> **getSwapInput**(`inputMetadata`, `output`, `aReserve`, `bReserve`, `totalLp`, `sqrtPriceA`, `sqrtPriceB`, `fee`, `isAInput`): [`TSwapOutcome`](../../BandedConcentratedLiquidityPool/type-aliases/TSwapOutcome.md)
 
 Calculate the minimal input required to receive a given output — the inverse
 of [getSwapOutput](getSwapOutput.md). The forward swap is linear-fractional in the
@@ -34,7 +34,7 @@ input whose forward swap yields at least `output`.
 
 ## Returns
 
-[`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
+[`TSwapOutcome`](../../BandedConcentratedLiquidityPool/type-aliases/TSwapOutcome.md)
 
 ## Defined in
 
