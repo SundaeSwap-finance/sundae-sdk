@@ -380,6 +380,7 @@ describe("getSwapOutput(usdc,)", () => {
       expect(
         actual.nextOutputReserve + actual.output + actual.protocolFee.amount,
       ).toBe(inReserve[1]);
+      expect(actual.priceImpact.toPrecision(6)).toStrictEqual(impact);
     },
   );
 });
@@ -589,6 +590,7 @@ describe("getSwapInput", () => {
       expect(actual.nextInputReserve).toBe(outcomeForActual.nextInputReserve);
       expect(actual.nextOutputReserve).toBe(outcomeForActual.nextOutputReserve);
       expect(actual.priceImpact).toEqual(outcomeForActual.priceImpact);
+      expect(actual.priceImpact.toPrecision(6)).toStrictEqual(impact);
     },
   );
 });

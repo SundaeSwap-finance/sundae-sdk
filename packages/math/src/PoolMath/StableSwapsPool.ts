@@ -401,7 +401,7 @@ export const getSwapOutput = (
  *
  * The calculation uses the formula:
  * price = (xpA + (dR * aReserve) / bReserve) / (xpA + dR)
- * where xpA = (Ann * aReserve) / 100 with Ann = 4 * laf * A_PRECISION (matching
+ * where xpA = (Ann * aReserve) / A_PRECISION with Ann = 4 * laf * A_PRECISION (matching
  * getSumInvariant) and dR is derived from the sum invariant
  *
  * @param {bigint} aReserve - The current reserve amount of asset A in the pool.
