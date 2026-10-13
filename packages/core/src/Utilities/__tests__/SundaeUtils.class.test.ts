@@ -1378,10 +1378,9 @@ describe("SundaeUtils class", () => {
       };
 
       const price = SundaeUtils.getPrice(stableswapPool);
-      // For exotic pair stableswap, price is inverted (1/rawPrice)
-      // Raw price is slightly > 1.0, so inverted is slightly < 1.0
-      expect(price).toBeGreaterThan(0.98);
-      expect(price).toBeLessThan(1.0);
+      // Exotic pair: the raw A-per-B price is inverted. 1/StableSwapsPool.getPrice
+      // for these reserves; a 2A amplification term would give 0.9999505.
+      expect(price).toBeCloseTo(0.9999752, 6);
     });
 
     it("prices a v4 constant-sum pool from its fixed prices, not its reserves", () => {
