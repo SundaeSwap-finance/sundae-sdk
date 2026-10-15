@@ -532,6 +532,18 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
+   * How a preceding order must attach a v4 order's datum when it pays out to
+   * the v4 order address. v4 locks its orders with an inline datum (see
+   * `basic`), so a chained leg needs no datum-hash metadata entry.
+   *
+   * Present so a v1/v3 `orderRouteSwap` can chain into v4: the first leg reads
+   * this to decide how to carry the next leg's datum.
+   */
+  getDatumType(): EDatumType {
+    return EDatumType.INLINE;
+  }
+
+  /**
    * The order script address: the order validator's hash as the payment
    * credential, with the owner's stake credential attached (when present) so
    * placed orders stay delegated to the owner's pool.

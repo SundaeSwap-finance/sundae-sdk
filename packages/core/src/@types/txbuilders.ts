@@ -101,16 +101,53 @@ export enum EPoolCurve {
 }
 
 /**
+ * A v4 leg of a chained swap. A v4 order is a pool-agnostic intent, so it
+ * carries no pool: the scooper routes and splits it across any number of v4
+ * pools inside ONE scoop. An arbitrarily long v4 tail is therefore a SINGLE
+ * chain leg.
+ */
+export interface IChainLegV4 {
+  /** Discriminator. A v4 leg is an intent, not a swap against one pool. */
+  contractVersion: EContractVersion.V4;
+  /** The minimum the owner will accept, per asset. */
+  minReceived:
+    | AssetAmount<IAssetAmountMetadata>
+    | AssetAmount<IAssetAmountMetadata>[];
+  /**
+   * Lifetime service-fee allocation, in lovelace. This ADA must ARRIVE with
+   * the order, so the preceding leg forwards it.
+   */
+  budget?: bigint;
+  /**
+   * Per-scoop fee cap, and this leg's routing fan-out budget. For a chained
+   * leg this is the v4 tail's SHARE of the caller's total fee budget, not the
+   * whole of it.
+   */
+  maxPerExecution?: bigint;
+  configToken?: string;
+  referralFee?: ITxBuilderReferralFee;
+}
+
+/** A legacy (v1 / v3 / stableswap / nft-check) leg of a chained swap. */
+export type TChainLegLegacy = Omit<
+  ISwapConfigArgs,
+  "suppliedAsset" | "orderAddresses" | "ownerAddress"
+>;
+
+/** One leg of a chained swap, after the first. */
+export type TChainLeg = TChainLegLegacy | IChainLegV4;
+
+/**
  * Special arguments for an Order-Route Swap. A combination of
  * two swap arguments, but simplified for ease-of-use.
+ *
+ * `swapB` may be a legacy swap against one pool, or a v4 intent
+ * ({@link IChainLegV4}) that absorbs the whole v4 tail of a route.
  */
 export interface IOrderRouteSwapArgs {
   ownerAddress: string;
   swapA: Omit<ISwapConfigArgs, "orderAddresses" | "ownerAddress">;
-  swapB: Omit<
-    ISwapConfigArgs,
-    "suppliedAsset" | "orderAddresses" | "ownerAddress"
-  >;
+  swapB: TChainLeg;
 }
 
 export type TTxBuilder =
