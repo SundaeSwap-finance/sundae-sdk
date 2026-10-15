@@ -103,6 +103,59 @@ describe("getPrice()", () => {
       Math.abs(normalCppPrice.toNumber() - 1.0),
     );
   });
+
+  // |dx/dy| of the on-chain invariant 4A(x + y) + D = 4AD + D^3/(4xy), as an
+  // exact rational on the scaled reserves. Independent of getPrice's integer
+  // arithmetic, so it pins both the amplification term and the orientation.
+  const exactSpot = (aReserve: bigint, bReserve: bigint, laf: bigint) => {
+    const d = getSumInvariant(laf, aReserve, bReserve);
+    const x = aReserve * RESERVE_PRECISION;
+    const y = bReserve * RESERVE_PRECISION;
+    const dCubed = d * d * d;
+    return new Fraction(
+      x * (16n * laf * x * y * y + dCubed),
+      y * (16n * laf * x * x * y + dCubed),
+    );
+  };
+  const relativeError = (actual: Fraction, expected: Fraction) =>
+    Math.abs(actual.toNumber() / expected.toNumber() - 1);
+
+  const offParPools: [bigint, bigint, bigint][] = [
+    [250275094796n, 250515678047n, 500n],
+    [1_000_000_000n, 1_100_000_000n, 100n],
+    [2_000_000_000n, 1_000_000_000n, 50n],
+    [5_000_000_000n, 1_000_000_000n, 10n],
+    [1_010_000_000n, 990_000_250n, 200n],
+  ];
+
+  test.each(offParPools)(
+    "matches the derivative of the on-chain invariant (a=%s, b=%s, laf=%s)",
+    (aReserve, bReserve, laf) => {
+      const price = getPrice(aReserve, bReserve, laf);
+      expect(
+        relativeError(price, exactSpot(aReserve, bReserve, laf)),
+      ).toBeLessThan(1e-9);
+    },
+  );
+
+  test.each(offParPools)(
+    "agrees with a central finite difference of getNewY (a=%s, b=%s, laf=%s)",
+    (aReserve, bReserve, laf) => {
+      const dA = 1000n;
+      const d = getSumInvariant(laf, aReserve, bReserve);
+      const lowY = getNewY(aReserve + dA, laf, d);
+      const highY = getNewY(aReserve - dA, laf, d);
+      const slope = new Fraction(dA * 2n * RESERVE_PRECISION, highY - lowY);
+      expect(
+        relativeError(getPrice(aReserve, bReserve, laf), slope),
+      ).toBeLessThan(1e-9);
+    },
+  );
+
+  test("issue #172: preview pool 488fe776 at laf 500", () => {
+    const price = getPrice(250275094796n, 250515678047n, 500n);
+    expect(price.toNumber()).toBeCloseTo(0.999999040146, 11);
+  });
 });
 
 describe("getSwapOutput(usdc,)", () => {
@@ -199,7 +252,7 @@ describe("getSwapOutput(usdc,)", () => {
       out: 0n,
       outReserve: [3n, 2n],
       lpFee: 0n,
-      impact: new Fraction(0n, 0n),
+      impact: new Fraction(0n, 1n),
     },
     {
       id: 2,
@@ -209,7 +262,7 @@ describe("getSwapOutput(usdc,)", () => {
       out: 1n,
       outReserve: [3n, 2n],
       lpFee: 0n,
-      impact: new Fraction(249n, 1000000n),
+      impact: new Fraction(31n, 250000n),
     },
     {
       id: 3,
@@ -219,7 +272,7 @@ describe("getSwapOutput(usdc,)", () => {
       out: 2n,
       outReserve: [102n, 1n],
       lpFee: 0n,
-      impact: new Fraction(245001n, 250000n),
+      impact: new Fraction(490001n, 500000n),
     },
     {
       id: 4,
@@ -229,7 +282,7 @@ describe("getSwapOutput(usdc,)", () => {
       out: 99n,
       outReserve: [102n, 1n],
       lpFee: 0n,
-      impact: new Fraction(244453n, 1000000n),
+      impact: new Fraction(14333n, 100000n),
     },
     {
       id: 5,
@@ -260,7 +313,7 @@ describe("getSwapOutput(usdc,)", () => {
       out: 0n,
       outReserve: [3n, 2n],
       lpFee: 0n,
-      impact: new Fraction(0n, 0n),
+      impact: new Fraction(0n, 1n),
     },
     {
       id: 8,
@@ -270,7 +323,7 @@ describe("getSwapOutput(usdc,)", () => {
       out: 0n,
       outReserve: [3n, 3n],
       lpFee: 1n,
-      impact: new Fraction(249n, 1000000n),
+      impact: new Fraction(31n, 250000n),
     },
     {
       id: 9,
@@ -280,7 +333,7 @@ describe("getSwapOutput(usdc,)", () => {
       out: 0n,
       outReserve: [3n, 6n],
       lpFee: 1n,
-      impact: new Fraction(499n, 1000000n),
+      impact: new Fraction(249n, 1000000n),
     },
     {
       id: 10,
@@ -290,7 +343,7 @@ describe("getSwapOutput(usdc,)", () => {
       out: 1n,
       outReserve: [102n, 2n],
       lpFee: 1n,
-      impact: new Fraction(495001n, 500000n),
+      impact: new Fraction(990001n, 1000000n),
     },
     {
       id: 11,
@@ -300,7 +353,7 @@ describe("getSwapOutput(usdc,)", () => {
       out: 196n,
       outReserve: [202n, 3n],
       lpFee: 1n,
-      impact: new Fraction(559n, 1000n),
+      impact: new Fraction(393153n, 1000000n),
     },
     {
       id: 12,
@@ -332,7 +385,7 @@ describe("getSwapOutput(usdc,)", () => {
       out: 2139306697n,
       outReserve: [7044962984n, 670265463643n],
       lpFee: 21829661n,
-      impact: new Fraction(380983n, 1000000n),
+      impact: new Fraction(101761n, 1000000n),
     },
     {
       id: 15,
@@ -342,7 +395,7 @@ describe("getSwapOutput(usdc,)", () => {
       out: 1024031n,
       outReserve: [3696261028076n, 77871392800159n],
       lpFee: 3091n,
-      impact: new Fraction(34239n, 1000000n),
+      impact: new Fraction(6001n, 1000000n),
     },
   ] as {
     input: bigint;
@@ -466,31 +519,31 @@ describe("getSwapInput", () => {
       input: 1n,
       reserves: [1n, 2n],
       fee: zeroPct,
-      impact: new Fraction(0n, 2000n),
+      impact: new Fraction(0n, 4000n),
     },
     {
       input: 100n,
       reserves: [1n, 2n],
       fee: zeroPct,
-      impact: new Fraction(0n, 2000n),
+      impact: new Fraction(0n, 4000n),
     },
     {
       input: 100n,
       reserves: [1n, 100n],
       fee: zeroPct,
-      impact: new Fraction(245025n, 445500n),
+      impact: new Fraction(245025n, 643500n),
     },
     {
       input: 100n,
       reserves: [100n, 100n],
       fee: zeroPct,
-      impact: new Fraction(400400n, 20020000n),
+      impact: new Fraction(800400n, 40020000n),
     },
     {
       input: 50n,
       reserves: [100n, 100n],
       fee: zeroPct,
-      impact: new Fraction(200200n, 10010000n),
+      impact: new Fraction(400200n, 20010000n),
     },
 
     // Simple boundary cases
@@ -498,25 +551,25 @@ describe("getSwapInput", () => {
       input: 10n,
       reserves: [10n, 30n],
       fee: threePct,
-      impact: new Fraction(20315n, 200450n),
+      impact: new Fraction(40315n, 400450n),
     },
     {
       input: 100n,
       reserves: [1n, 100n],
       fee: threePct,
-      impact: new Fraction(251100n, 445500n),
+      impact: new Fraction(257100n, 643500n),
     },
     {
       input: 100n,
       reserves: [100n, 100n],
       fee: threePct,
-      impact: new Fraction(1001000n, 20020000n),
+      impact: new Fraction(2001000n, 40020000n),
     },
     {
       input: 50n,
       reserves: [100n, 100n],
       fee: threePct,
-      impact: new Fraction(600600n, 10010000n),
+      impact: new Fraction(1200600n, 20010000n),
     },
 
     // // Real world examples
@@ -524,19 +577,19 @@ describe("getSwapInput", () => {
       input: 5n,
       reserves: [84159832107n, 123172010729n],
       fee: fivePct,
-      impact: new Fraction(168806906319235n, 842673001141955n),
+      impact: new Fraction(337126570533235n, 1684271322211955n),
     },
     {
       input: 100n,
       reserves: [84159832107n, 123172010729n],
       fee: fivePct,
-      impact: new Fraction(849140270799500n, 16853460022839100n),
+      impact: new Fraction(1690738591869500n, 33685426444239100n),
     },
     {
       input: 1291591603n,
       reserves: [5753371381n, 672426600000n],
       fee: onePct,
-      impact: new Fraction(15118057654414078594677n, 40350603201831427592080n),
+      impact: new Fraction(5112429850089508046677n, 55212615531111655078080n),
     },
   ] as {
     input: bigint;
