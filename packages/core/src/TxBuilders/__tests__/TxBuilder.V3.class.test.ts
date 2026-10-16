@@ -21,6 +21,9 @@ import {
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { TxBuilderV1 } from "../TxBuilder.V1.class.js";
 import { TxBuilderV3 } from "../TxBuilder.V3.class.js";
+import { TxBuilderV4, V4_VALIDATORS } from "../TxBuilder.V4.class.js";
+import { EContractVersion } from "../../@types/index.js";
+import { AssetAmount } from "@sundaeswap/asset";
 import {
   mockOrderToCancel,
   params,
@@ -68,6 +71,18 @@ const getPaymentAddressFromOutput = (output: Core.TransactionOutput) => {
 const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (blaze) => {
   builder = new TxBuilderV3(blaze);
 });
+
+// A v3 -> v4 chain asks the v4 builder for its order address and datum, which
+// needs the v4 deployment hashes. Resolve them locally, as the v4 suite does.
+const V4_ORDER_HASH = "11".repeat(28);
+spyOn(TxBuilderV4.prototype, "getValidatorScript").mockImplementation(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (async (name: string) => {
+    const hash =
+      name === V4_VALIDATORS.order ? V4_ORDER_HASH : "22".repeat(28);
+    return { hash, blueprint: { validators: [] } };
+  }) as any,
+);
 
 afterAll(() => {
   mock.restore();
@@ -434,6 +449,56 @@ describe("TxBuilderBlazeV3", () => {
     } catch (e) {
       expect((e as Error).message).toEqual(DatumBuilderV3.INVALID_POOL_IDENT);
     }
+  });
+
+  it("orderRouteSwap() - v3 to v4 chains into a v4 intent", async () => {
+    // The v4 tail is ONE pool-agnostic intent, so a route whose tail spans
+    // several v4 pools is still a single chain leg. Leg A is a v3 swap whose
+    // payout destination is the v4 order address, carrying the v4 datum.
+    const { fees } = await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        contractVersion: EContractVersion.V4,
+        minReceived: new AssetAmount(1_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          decimals: 6,
+        }),
+        // Hex asset name, explicit so the test does not depend on the query.
+        budget: 3_000_000n,
+        configToken: "aabb",
+      },
+    });
+
+    // v3's own 1 ADA plus the v4 leg's 3 ADA budget, which leg A forwards so
+    // the v4 order arrives already funded.
+    expect(fees.scooperFee.amount.toString()).toEqual("4000000");
+  });
+
+  it("orderRouteSwap() - v1 refuses to chain into v4", async () => {
+    // A v1 order names its destination datum by hash; a v4 order needs an
+    // inline datum to be spendable. Building it would place a UTxO at the v4
+    // order address that no scooper can spend, so this must throw.
+    const v1 = new TxBuilderV1(builder.blaze);
+    await expect(
+      v1.orderRouteSwap({
+        ownerAddress: PREVIEW_DATA.addresses.current,
+        swapA: {
+          swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+          pool: PREVIEW_DATA.pools.v1,
+          suppliedAsset: PREVIEW_DATA.assets.tindy,
+        },
+        swapB: {
+          contractVersion: EContractVersion.V4,
+          minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+        },
+      }),
+    ).rejects.toThrow(/cannot chain into v4/);
   });
 
   it("orderRouteSwap() - v3 to v3", async () => {

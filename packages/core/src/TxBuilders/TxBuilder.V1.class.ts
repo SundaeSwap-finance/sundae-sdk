@@ -42,6 +42,12 @@ import { DatumBuilderV1 } from "../DatumBuilders/DatumBuilder.V1.class.js";
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
+import {
+  buildChainLeg,
+  chainLegOrderAddress,
+  chainLegVersion,
+  isChainLegV4,
+} from "../Utilities/ChainLeg.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
@@ -344,16 +350,31 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   async orderRouteSwap(
     args: IOrderRouteSwapArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    // Dynamic import to avoid circular dependency
-    const { SundaeSDK } = await import("../SundaeSDK.class.js");
-    const secondBuilder = SundaeSDK.new({
-      blazeInstance: this.blaze,
-      customQueryProvider: this.queryProvider,
-    }).builder(args.swapB.pool.version as EContractVersion);
+    // A v1 order names its destination datum by HASH only (see the
+    // EDatumType.HASH below, which this builder hardcodes). A v4 order must
+    // carry an INLINE datum to be spendable by the v4 order validator, so a
+    // v1 first leg cannot chain into v4: it would place a UTxO at the v4
+    // order address that no scooper can spend. v3 can chain into v4, because
+    // it attaches the next leg's datum in the form that leg asks for.
+    if (isChainLegV4(args.swapB)) {
+      throw new Error(
+        "TxBuilderV1.orderRouteSwap cannot chain into v4: a v1 order names " +
+          "its destination datum by hash, and a v4 order needs an inline " +
+          "datum to be spendable. Route the first leg through v3 instead.",
+      );
+    }
+    const legB = args.swapB;
 
-    const secondSwapAddress = await secondBuilder.getOrderScriptAddress(
-      args.ownerAddress,
-    );
+    const chain = {
+      blazeInstance: this.blaze,
+      queryProvider: this.queryProvider,
+    };
+
+    const secondSwapAddress = await chainLegOrderAddress({
+      ...chain,
+      leg: legB,
+      ownerAddress: args.ownerAddress,
+    });
 
     const swapA = new SwapConfig({
       ...args.swapA,
@@ -365,7 +386,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
             type: EDatumType.NONE,
           },
         },
-        PoolDestinationVersion: args.swapB.pool.version as EContractVersion,
+        PoolDestinationVersion: chainLegVersion(legB),
       },
     }).buildArgs();
 
@@ -385,27 +406,16 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         ? bReserve.withAmount(swapA.minReceivable.amount)
         : aReserve.withAmount(swapA.minReceivable.amount);
 
-    const swapB = new SwapConfig({
-      ...args.swapB,
+    const builtLegB = await buildChainLeg({
+      ...chain,
+      leg: legB,
+      ownerAddress: args.ownerAddress,
       suppliedAsset: aOutputAsset,
-      orderAddresses: {
-        DestinationAddress: {
-          address: args.ownerAddress,
-          datum: {
-            type: EDatumType.NONE,
-          },
-        },
-      },
-    }).buildArgs();
-
-    const secondSwapData = await secondBuilder.swap({
-      ...swapB,
-      swapType: args.swapB.swapType,
     });
 
     const referralFeeAmount = BlazeHelper.mergeValues(
       swapA.referralFee?.payment,
-      swapB.referralFee?.payment,
+      builtLegB.referralFee?.payment,
     );
 
     let mergedReferralFee: ITxBuilderReferralFee | undefined;
@@ -414,15 +424,15 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         ...swapA.referralFee,
         payment: referralFeeAmount,
       };
-    } else if (swapB.referralFee) {
+    } else if (builtLegB.referralFee) {
       mergedReferralFee = {
-        ...swapB.referralFee,
+        ...builtLegB.referralFee,
         payment: referralFeeAmount,
       };
     }
 
     const datumHash = Core.PlutusData.fromCbor(
-      Core.HexBlob(secondSwapData.datum as string),
+      Core.HexBlob(builtLegB.datum),
     ).hash();
 
     const { tx, datum, fees } = await this.swap({
@@ -453,8 +463,8 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         new Map([
           [
             Buffer.from(datumHash, "hex"),
-            SundaeUtils.splitMetadataString(secondSwapData.datum as string).map(
-              (v) => Buffer.from(v, "hex"),
+            SundaeUtils.splitMetadataString(builtLegB.datum).map((v) =>
+              Buffer.from(v, "hex"),
             ),
           ],
         ]),
@@ -468,7 +478,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       datum,
       deposit: ORDER_DEPOSIT_DEFAULT,
       referralFee: mergedReferralFee?.payment,
-      scooperFee: fees.scooperFee.add(secondSwapData.fees.scooperFee).amount,
+      scooperFee: fees.scooperFee.amount + builtLegB.scooperFee,
     });
   }
 
