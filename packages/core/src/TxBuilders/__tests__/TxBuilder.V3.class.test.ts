@@ -480,6 +480,67 @@ describe("TxBuilderBlazeV3", () => {
     expect(fees.scooperFee.amount.toString()).toEqual("4000000");
   });
 
+  it("orderRouteSwap() - a v4 leg may be offered more than the previous leg guarantees", async () => {
+    // A chained leg's datum is fixed before the previous leg fills, so by
+    // default it can only name that leg's MINIMUM. Anything won above it
+    // arrives unclaimed and comes back unconverted. A v4 order's `offered` is
+    // an upper bound (the validator checks `consumed <= offered`), so a caller
+    // may name the expected fill and have all of it converted.
+    const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
+    const expected = new AssetAmount(5_000_000n, {
+      assetId:
+        "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+      decimals: 6,
+    });
+
+    await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        contractVersion: EContractVersion.V4,
+        minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+        offered: expected,
+        budget: 3_000_000n,
+        configToken: "aabb",
+      },
+    });
+
+    expect(intent).toHaveBeenCalled();
+    const [args] = intent.mock.calls[0] as [{ offered: AssetAmount }];
+    expect(args.offered.amount).toBe(expected.amount);
+    intent.mockRestore();
+  });
+
+  it("orderRouteSwap() - a v4 leg defaults to what the previous leg guarantees", async () => {
+    // Without an expectation there is nothing better to name than the
+    // minimum, which is always present and so always fillable.
+    const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
+
+    await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        contractVersion: EContractVersion.V4,
+        minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+        budget: 3_000_000n,
+        configToken: "aabb",
+      },
+    });
+
+    const [args] = intent.mock.calls[0] as [{ offered: AssetAmount }];
+    // swapA's minReceivable, not an arbitrary figure.
+    expect(args.offered.amount).toBeGreaterThan(0n);
+    intent.mockRestore();
+  });
+
   it("orderRouteSwap() - v1 refuses to chain into v4", async () => {
     // A v1 order names its destination datum by hash; a v4 order needs an
     // inline datum to be spendable. Building it would place a UTxO at the v4

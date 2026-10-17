@@ -118,7 +118,11 @@ export const buildChainLeg = async ({
       builder.getOrderScriptAddress(ownerAddress),
       builder.swapIntent({
         ownerAddress,
-        offered: suppliedAsset,
+        // A v4 order's offered is an upper bound on what a scooper may
+        // consume, so a caller may name the expected fill rather than the
+        // previous leg's minimum and have the whole arrival converted. Falls
+        // back to what actually arrives when no expectation is given.
+        offered: leg.offered ?? suppliedAsset,
         minReceived: leg.minReceived,
         budget: leg.budget,
         maxPerExecution: leg.maxPerExecution,

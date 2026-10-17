@@ -109,6 +109,33 @@ export enum EPoolCurve {
 export interface IChainLegV4 {
   /** Discriminator. A v4 leg is an intent, not a swap against one pool. */
   contractVersion: EContractVersion.V4;
+  /**
+   * What this leg may consume, overriding the preceding leg's MINIMUM
+   * receivable.
+   *
+   * A chained leg's datum is fixed when the chain is placed, before the
+   * previous leg has filled, so by default it can only name that leg's
+   * guaranteed minimum. Anything the previous leg wins above it then arrives
+   * in the UTxO unclaimed and is returned unconverted — the owner ends up
+   * holding the intermediate asset, in proportion to their slippage setting.
+   *
+   * A v4 order's `offered` is an UPPER BOUND, not an exact amount: the
+   * validator checks `consumed <= offered` per asset
+   * (`check_basic_consumption`). Naming more than arrives does not make the
+   * order unfillable — the scooper simply consumes what is there. So a chain
+   * into v4 can state the EXPECTED fill and convert all of it.
+   *
+   * Only safe for a leg whose contract bounds consumption this way. v1 and v3
+   * cannot overstate what they offer, which is why this is a per-leg override
+   * rather than the default.
+   *
+   * `minReceived` must then be calibrated against the PESSIMISTIC path — what
+   * the previous leg's minimum converts to — because it is an absolute floor
+   * checked gross, not a proportion of what arrived. Pairing an optimistic
+   * `offered` with an optimistic floor leaves the order unable to fill
+   * whenever the previous leg underfills.
+   */
+  offered?: AssetAmount<IAssetAmountMetadata>;
   /** The minimum the owner will accept, per asset. */
   minReceived:
     | AssetAmount<IAssetAmountMetadata>
