@@ -12,7 +12,7 @@ the structure for depositing, updating, and withdrawing operations.
 
 ### deposit()
 
-> `abstract` **deposit**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+> `abstract` **deposit**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 Initiates a deposit transaction. The specific implementation of this method
 should handle the business logic associated with making a deposit, including
@@ -27,7 +27,7 @@ including the amount, user credentials, and other transaction details.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 - Returns a promise that resolves with an
 IComposedTx instance, representing the constructed transaction for the deposit.
@@ -40,7 +40,7 @@ IComposedTx instance, representing the constructed transaction for the deposit.
 
 ### update()
 
-> `abstract` **update**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+> `abstract` **update**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 Initiates an update transaction. This method is responsible for handling
 the business logic necessary to update an existing record or transaction.
@@ -56,7 +56,7 @@ include credentials for authorization.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 - Returns a promise that resolves with an
 IComposedTx instance, representing the constructed transaction for the update.
@@ -69,7 +69,7 @@ IComposedTx instance, representing the constructed transaction for the update.
 
 ### withdraw()
 
-> `abstract` **withdraw**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+> `abstract` **withdraw**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 Initiates a withdrawal transaction. This method should handle the logic
 associated with withdrawing funds, including validations, constructing the
@@ -84,7 +84,7 @@ including the amount to withdraw, user credentials, and other necessary details.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 - Returns a promise that resolves with an
 IComposedTx instance, representing the constructed transaction for the withdrawal.
