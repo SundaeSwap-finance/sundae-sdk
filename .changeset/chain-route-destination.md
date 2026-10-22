@@ -12,9 +12,11 @@ party that can cancel one. For a v1 last leg that means naming the owner as the
 order's alternate, because a v1 order without one can be cancelled only by its
 destination.
 
-A script destination needs a datum in the form the last leg's contract accepts
-— HASH for v1, INLINE for v4, either for v3 — and is validated when that leg is
-built.
+Script destinations require a datum: v4 requires INLINE, v3 accepts either,
+and v1 pays out with a hash. For v1 destinations that are not known order
+scripts, supplying INLINE hashes the datum and publishes its bytes under
+metadata label 103251; supplying HASH requires the datum to be available
+separately. The destination is validated when the last leg is built.
 
 Also fixes a chained v3 leg taking its owner from its destination:
 `SwapConfig.buildArgs()` drops `ownerAddress`, and a v3 order falls back to its
