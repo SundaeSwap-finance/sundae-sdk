@@ -185,11 +185,14 @@ describe("buildDestinationAddresses()", () => {
       }),
     ).toBech32();
 
-    expect(() => builderInstance.buildOrderAddresses({
+    const result = builderInstance.buildOrderAddresses({
       DestinationAddress: {
         address: orderAddress,
         datum: { type: EDatumType.INLINE, value: VOID_BYTES.toCbor() }
       }
-    })).not.toThrow()
+    })
+
+    // Named by hash: a v1 scoop can't pay out an inline datum.
+    expect(result.schema.destination.datum).toEqual(VOID_BYTES.hash())
   })
 });

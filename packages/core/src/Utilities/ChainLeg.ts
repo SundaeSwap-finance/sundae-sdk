@@ -7,7 +7,7 @@ import type {
   TChainLeg,
 } from "../@types/index.js";
 import { EContractVersion } from "../@types/index.js";
-import { EDatumType } from "../@types/datumbuilder.js";
+import { EDatumType, TDestinationAddress } from "../@types/datumbuilder.js";
 import type { QueryProvider } from "../Abstracts/QueryProvider.abstract.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
 
@@ -46,6 +46,8 @@ export interface IBuiltChainLeg {
   /** ADA this leg's order must carry, so the preceding leg forwards it. */
   scooperFee: bigint;
   referralFee?: ITxBuilderReferralFee;
+  /** Datums this leg names only by hash, for the preceding leg to publish. */
+  supplementalDatums?: string[];
 }
 
 /**
@@ -61,7 +63,10 @@ export const chainLegOrderAddress = async ({
   queryProvider,
   leg,
   ownerAddress,
-}: Omit<IBuildChainLegArgs, "suppliedAsset">): Promise<string> => {
+}: Omit<
+  IBuildChainLegArgs,
+  "suppliedAsset" | "destination"
+>): Promise<string> => {
   // Dynamic import to avoid a circular dependency with the tx builders.
   const { SundaeSDK } = await import("../SundaeSDK.class.js");
   const sdk = SundaeSDK.new({
@@ -79,8 +84,10 @@ export interface IBuildChainLegArgs {
   queryProvider?: QueryProvider;
   /** The leg to build. */
   leg: TChainLeg;
-  /** The owner, and the final payout destination. */
+  /** The owner, and the default payout destination. */
   ownerAddress: string;
+  /** Overrides the payout destination. */
+  destination?: TDestinationAddress;
   /**
    * What this leg receives from its predecessor. This is the predecessor's
    * MINIMUM receivable, not its actual fill: a chain's datum is fixed when the
@@ -103,6 +110,7 @@ export const buildChainLeg = async ({
   queryProvider,
   leg,
   ownerAddress,
+  destination,
   suppliedAsset,
 }: IBuildChainLegArgs): Promise<IBuiltChainLeg> => {
   // Dynamic import to avoid a circular dependency with the tx builders.
@@ -118,6 +126,7 @@ export const buildChainLeg = async ({
       builder.getOrderScriptAddress(ownerAddress),
       builder.swapIntent({
         ownerAddress,
+        destination,
         // A v4 order's offered is an upper bound on what a scooper may
         // consume, so a caller may name the expected fill rather than the
         // previous leg's minimum and have the whole arrival converted. Falls
@@ -147,15 +156,26 @@ export const buildChainLeg = async ({
     ...leg,
     suppliedAsset,
     ownerAddress,
-    orderAddresses: {
-      DestinationAddress: {
-        address: ownerAddress,
-        datum: { type: EDatumType.NONE },
-      },
-    },
+    orderAddresses: destination
+      ? {
+          DestinationAddress: destination,
+          // Keeps the owner as the v1 canceller.
+          AlternateAddress: ownerAddress,
+        }
+      : {
+          DestinationAddress: {
+            address: ownerAddress,
+            datum: { type: EDatumType.NONE },
+          },
+        },
   }).buildArgs();
 
-  const order = await builder.swap({ ...config, swapType: leg.swapType });
+  // `buildArgs` drops the owner; v3 would fall back to the destination.
+  const order = await builder.swap({
+    ...config,
+    ownerAddress,
+    swapType: leg.swapType,
+  });
 
   return {
     orderScriptAddress,
@@ -163,5 +183,11 @@ export const buildChainLeg = async ({
     datum: order.datum as string,
     scooperFee: order.fees.scooperFee.amount,
     referralFee: config.referralFee,
+    // A hash-datum (v1) order names an inline destination datum by hash.
+    supplementalDatums:
+      builder.getDatumType() === EDatumType.HASH &&
+      destination?.datum.type === EDatumType.INLINE
+        ? [destination.datum.value]
+        : undefined,
   };
 };
