@@ -10,7 +10,11 @@ import { parse, Void } from "@blaze-cardano/data";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
-import { V3Types, V4Types } from "../../DatumBuilders/ContractTypes/index.js";
+import {
+  V1Types,
+  V3Types,
+  V4Types,
+} from "../../DatumBuilders/ContractTypes/index.js";
 import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
 import { DatumBuilderV4 } from "../../DatumBuilders/DatumBuilder.V4.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
@@ -826,6 +830,62 @@ describe("TxBuilderBlazeV3", () => {
         "a158208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fb85581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a011b5ec7d8799f1a00833c12ff42ffff",
       ),
     );
+  });
+
+  it("orderRouteSwap() - v3 to v1 names an inline destination datum by hash", async () => {
+    // A v1 scoop can't pay out an inline datum, so leg A publishes it.
+    const unitDatum = "d87980";
+    const unitDatumHash =
+      "923918e403bf43c34b4ef6b48eb2ee04babed17320d8d1b9ff9ad086e86f44ec";
+    const legBSwap = spyOn(TxBuilderV1.prototype, "swap");
+
+    const { build } = await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      destination: {
+        // A script that isn't a SundaeSwap order script.
+        address: Core.addressFromCredential(
+          0,
+          Core.Credential.fromCore({
+            hash: Core.Hash28ByteBase16(
+              "e6c8a314ae942401619460f00c69de3d1b996db588d4042243a4b259",
+            ),
+            type: Core.CredentialType.ScriptHash,
+          }),
+        ).toBech32(),
+        datum: { type: EDatumType.INLINE, value: unitDatum },
+      },
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+        pool: PREVIEW_DATA.pools.v3,
+      },
+      swapB: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: { ...PREVIEW_DATA.pools.v1, ident: "04" },
+      },
+    });
+
+    const { datum: legB } = (await legBSwap.mock.results[0].value) as {
+      datum: string;
+    };
+    legBSwap.mockRestore();
+    const { orderAddresses } = parse(
+      V1Types.SwapOrder,
+      Core.PlutusData.fromCbor(Core.HexBlob(legB)),
+    );
+    expect(orderAddresses.destination.datum).toEqual(unitDatumHash);
+
+    const { builtTx } = await build();
+    const published = builtTx
+      .auxiliaryData()
+      ?.metadata()
+      ?.metadata()
+      ?.get(103251n)
+      ?.toCbor();
+    expect(published).toEqual(
+      BlazeHelper.buildDatumMetadatum([legB, unitDatum]).toCbor(),
+    );
+    expect(published).toContain(`5820${unitDatumHash}8143${unitDatum}`);
   });
 
   it("deposit()", async () => {

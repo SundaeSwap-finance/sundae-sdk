@@ -4,6 +4,7 @@ import {
   Core,
   makeValue,
 } from "@blaze-cardano/sdk";
+import { parse } from "@blaze-cardano/data";
 import { AssetAmount } from "@sundaeswap/asset";
 import { describe, expect, it, spyOn } from "bun:test";
 
@@ -12,6 +13,7 @@ import { EDatumType } from "../../@types/datumbuilder.js";
 import { IPoolData } from "../../@types/queryprovider.js";
 import { EContractVersion, ITxBuilderFees } from "../../@types/txbuilders.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../../constants.js";
+import { V1Types } from "../../DatumBuilders/ContractTypes/index.js";
 import { DatumBuilderV1 } from "../../DatumBuilders/DatumBuilder.V1.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { PREVIEW_DATA } from "../../TestUtilities/mockData.js";
@@ -27,6 +29,20 @@ const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (blaze) => {
 });
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
+
+// A script that isn't a SundaeSwap order script.
+const TEST_SCRIPT_DEST = Core.addressFromCredential(
+  0,
+  Core.Credential.fromCore({
+    hash: Core.Hash28ByteBase16(
+      "e6c8a314ae942401619460f00c69de3d1b996db588d4042243a4b259",
+    ),
+    type: Core.CredentialType.ScriptHash,
+  }),
+).toBech32();
+const UNIT_DATUM = "d87980";
+const UNIT_DATUM_HASH =
+  "923918e403bf43c34b4ef6b48eb2ee04babed17320d8d1b9ff9ad086e86f44ec";
 
 spyOn(
   QueryProviderSundaeSwap.prototype,
@@ -254,6 +270,39 @@ describe("TxBuilderBlazeV1", () => {
         DatumBuilderV1.INVALID_POOL_IDENT,
       );
     }
+  });
+
+  it("swap() - names an inline destination datum by hash and publishes it", async () => {
+    // A v1 scoop can't pay out an inline datum.
+    const { build, datum } = await builder.swap({
+      orderAddresses: {
+        DestinationAddress: {
+          address: TEST_SCRIPT_DEST,
+          datum: { type: EDatumType.INLINE, value: UNIT_DATUM },
+        },
+      },
+      swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+      pool: PREVIEW_DATA.pools.v1,
+      suppliedAsset: PREVIEW_DATA.assets.tada,
+      referralFee: {
+        destination: TEST_REFERRAL_DEST,
+        payment: new Core.Value(1_000_000n),
+        feeLabel: "Test Label",
+      },
+    });
+
+    const { orderAddresses } = parse(
+      V1Types.SwapOrder,
+      Core.PlutusData.fromCbor(Core.HexBlob(datum as string)),
+    );
+    expect(orderAddresses.destination.datum).toEqual(UNIT_DATUM_HASH);
+
+    const { builtTx } = await build();
+    const metadata = builtTx.auxiliaryData()?.metadata()?.metadata();
+    expect(metadata?.get(103251n)?.toCbor()).toEqual(
+      Core.HexBlob(`a15820${UNIT_DATUM_HASH}8143${UNIT_DATUM}`),
+    );
+    expect(metadata?.get(674n)?.asText()).toEqual("Test Label");
   });
 
   it("orderRouteSwap() - v1 to v1", async () => {

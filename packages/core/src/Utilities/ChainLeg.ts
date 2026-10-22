@@ -46,6 +46,8 @@ export interface IBuiltChainLeg {
   /** ADA this leg's order must carry, so the preceding leg forwards it. */
   scooperFee: bigint;
   referralFee?: ITxBuilderReferralFee;
+  /** Datums this leg names only by hash, for the preceding leg to publish. */
+  supplementalDatums?: string[];
 }
 
 /**
@@ -181,5 +183,11 @@ export const buildChainLeg = async ({
     datum: order.datum as string,
     scooperFee: order.fees.scooperFee.amount,
     referralFee: config.referralFee,
+    // A hash-datum (v1) order names an inline destination datum by hash.
+    supplementalDatums:
+      builder.getDatumType() === EDatumType.HASH &&
+      destination?.datum.type === EDatumType.INLINE
+        ? [destination.datum.value]
+        : undefined,
   };
 };

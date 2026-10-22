@@ -28,6 +28,7 @@ import {
   IWithdrawConfigArgs,
   IZapConfigArgs,
   TDepositMixed,
+  TOrderAddressesArgs,
   TSupportedNetworks,
 } from "../@types/index.js";
 import { TxBuilderAbstractV1 } from "../Abstracts/TxBuilderAbstract.V1.class.js";
@@ -253,6 +254,37 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
   }
 
   /**
+   * Publishes datums the tx names only by hash. This replaces the auxiliary
+   * data, so the referral fee label is set again.
+   */
+  private attachDatumMetadata(
+    instance: BlazeTx,
+    datums: string[],
+    fee?: ITxBuilderReferralFee,
+  ) {
+    if (!datums.length) {
+      return;
+    }
+
+    const map = new Map<bigint, Core.Metadatum>();
+    if (fee?.feeLabel) {
+      map.set(674n, Core.Metadatum.newText(`${fee.feeLabel}`));
+    }
+    map.set(103251n, BlazeHelper.buildDatumMetadatum(datums));
+
+    const data = new Core.AuxiliaryData();
+    data.setMetadata(new Core.Metadata(map));
+    instance.setAuxiliaryData(data);
+  }
+
+  /** An inline destination datum, which a v1 order names by hash. */
+  private static inlineDestinationDatums({
+    DestinationAddress: { datum },
+  }: TOrderAddressesArgs): string[] {
+    return datum.type === EDatumType.INLINE ? [datum.value] : [];
+  }
+
+  /**
    * Executes a swap transaction based on the provided swap configuration.
    * It constructs the necessary arguments for the swap, builds the transaction instance,
    * and completes the transaction by paying to the contract and finalizing the transaction details.
@@ -332,6 +364,11 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
     txInstance
       .provideDatum(Core.PlutusData.fromCbor(Core.HexBlob(inline)))
       .lockAssets(script, newPayment, datum);
+    this.attachDatumMetadata(
+      txInstance,
+      TxBuilderV1.inlineDestinationDatums(orderAddresses),
+      referralFee,
+    );
 
     return this.completeTx({
       tx: txInstance,
@@ -456,23 +493,11 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       referralFee: mergedReferralFee,
     });
 
-    const data = new Core.AuxiliaryData();
-    const metadata = new Map<bigint, Core.Metadatum>();
-    metadata.set(
-      103251n,
-      Core.Metadatum.fromCore(
-        new Map([
-          [
-            Buffer.from(datumHash, "hex"),
-            SundaeUtils.splitMetadataString(builtLegB.datum).map((v) =>
-              Buffer.from(v, "hex"),
-            ),
-          ],
-        ]),
-      ),
+    this.attachDatumMetadata(
+      tx,
+      [builtLegB.datum, ...(builtLegB.supplementalDatums ?? [])],
+      mergedReferralFee,
     );
-    data.setMetadata(new Core.Metadata(metadata));
-    tx.setAuxiliaryData(data);
 
     return this.completeTx({
       tx,
@@ -701,6 +726,11 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         ),
         Core.DatumHash(swapDatum.hash),
       );
+    this.attachDatumMetadata(
+      cancelTx,
+      TxBuilderV1.inlineDestinationDatums(orderAddresses),
+      cancelArgs.referralFee,
+    );
 
     /**
      * Accumulate any referral fees.
@@ -774,6 +804,11 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       ),
       Core.DatumHash(depositDatum.hash),
     );
+    this.attachDatumMetadata(
+      tx,
+      TxBuilderV1.inlineDestinationDatums(orderAddresses),
+      referralFee,
+    );
 
     return this.completeTx({
       tx,
@@ -841,6 +876,11 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
         ...Object.entries(payment).filter(([key]) => key !== "lovelace"),
       ),
       Core.DatumHash(withdrawDatum.hash),
+    );
+    this.attachDatumMetadata(
+      tx,
+      TxBuilderV1.inlineDestinationDatums(orderAddresses),
+      referralFee,
     );
 
     return this.completeTx({
@@ -977,23 +1017,11 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       scooperFee: this.__getParam("maxScooperFee"),
     });
 
-    const data = new Core.AuxiliaryData();
-    const metadata = new Map<bigint, Core.Metadatum>();
-    metadata.set(
-      103251n,
-      Core.Metadatum.fromCore(
-        new Map([
-          [
-            Buffer.from(depositHash, "hex"),
-            SundaeUtils.splitMetadataString(depositInline).map((v) =>
-              Buffer.from(v, "hex"),
-            ),
-          ],
-        ]),
-      ),
+    this.attachDatumMetadata(
+      tx,
+      [depositInline, ...TxBuilderV1.inlineDestinationDatums(orderAddresses)],
+      referralFee,
     );
-    data.setMetadata(new Core.Metadata(metadata));
-    tx.setAuxiliaryData(data);
 
     tx.provideDatum(
       Core.PlutusData.fromCbor(Core.HexBlob(swapData.inline)),
