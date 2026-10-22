@@ -363,6 +363,52 @@ describe("TxBuilderBlazeV1", () => {
     );
   });
 
+  it("orderRouteSwap() - v1 to v1 pays out to a custom destination", async () => {
+    // The owner must stay the v1 canceller.
+    const swap = spyOn(TxBuilderV1.prototype, "swap");
+    const destination = PREVIEW_DATA.addresses.alternatives[0];
+
+    await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      destination: { address: destination, datum: { type: EDatumType.NONE } },
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v1,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: {
+          ...PREVIEW_DATA.pools.v1,
+          ident: "04",
+          assetB: {
+            ...PREVIEW_DATA.pools.v1.assetB,
+            assetId:
+              // iBTC
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          },
+          assetLP: {
+            ...PREVIEW_DATA.pools.v1.assetLP,
+            assetId:
+              "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702004",
+          },
+        },
+      },
+    });
+
+    const legB = swap.mock.calls
+      .map(([args]) => args.orderAddresses)
+      .find((o) => o.DestinationAddress.address === destination);
+    expect(legB).toEqual({
+      DestinationAddress: {
+        address: destination,
+        datum: { type: EDatumType.NONE },
+      },
+      AlternateAddress: PREVIEW_DATA.addresses.current,
+    });
+    swap.mockRestore();
+  });
+
   it("orderRouteSwap() - v1 to v3", async () => {
     const { build, datum, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,

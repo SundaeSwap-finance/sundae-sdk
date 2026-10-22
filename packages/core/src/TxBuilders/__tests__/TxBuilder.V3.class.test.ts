@@ -6,13 +6,16 @@ import {
 } from "@blaze-cardano/sdk";
 import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 
-import { Void } from "@blaze-cardano/data";
+import { parse, Void } from "@blaze-cardano/data";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
 import { ITxBuilderFees } from "../../@types/txbuilders.js";
+import { V3Types, V4Types } from "../../DatumBuilders/ContractTypes/index.js";
 import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
+import { DatumBuilderV4 } from "../../DatumBuilders/DatumBuilder.V4.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
+import { BlazeHelper } from "../../Utilities/BlazeHelper.class.js";
 import {
   ADA_METADATA,
   ORDER_DEPOSIT_DEFAULT,
@@ -66,6 +69,19 @@ const getPaymentAddressFromOutput = (output: Core.TransactionOutput) => {
   }
 
   return Core.addressFromCredential(0, Core.Credential.fromCore(credential));
+};
+
+/** Leg A's payout in a chained swap: the next leg's address and inline datum. */
+const getNextLeg = (datum: string) => {
+  const { destination } = parse(
+    V3Types.OrderDatum,
+    Core.PlutusData.fromCbor(Core.HexBlob(datum)),
+  );
+  const next = destination === "Self" ? undefined : destination.Fixed;
+  if (typeof next?.datum !== "object" || !("InlineDatum" in next.datum)) {
+    throw new Error("Expected leg A to carry the next leg's datum inline.");
+  }
+  return { address: next.address, datum: next.datum.InlineDatum[0] };
 };
 
 const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (blaze) => {
@@ -541,6 +557,43 @@ describe("TxBuilderBlazeV3", () => {
     intent.mockRestore();
   });
 
+  it("orderRouteSwap() - v3 to v4 pays out to a custom destination", async () => {
+    const owner = PREVIEW_DATA.addresses.current;
+    const destination = {
+      address: PREVIEW_DATA.addresses.alternatives[0],
+      datum: { type: EDatumType.NONE as const },
+    };
+
+    const { datum } = await builder.orderRouteSwap({
+      ownerAddress: owner,
+      destination,
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        contractVersion: EContractVersion.V4,
+        minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+        budget: 3_000_000n,
+        configToken: "aabb",
+      },
+    });
+
+    // Leg A pays into the v4 order script.
+    const next = getNextLeg(datum as string);
+    expect(next.address.paymentCredential).toEqual({
+      ScriptCredential: [V4_ORDER_HASH],
+    });
+
+    const legB = parse(V4Types.OrderDatum, next.datum);
+    const v4 = new DatumBuilderV4("preview");
+    expect(legB.destination).toEqual(
+      v4.buildDestinationAddresses(destination).schema,
+    );
+    expect(legB.owner).toEqual(v4.buildOwnerDatum(owner).schema);
+  });
+
   it("orderRouteSwap() - v1 refuses to chain into v4", async () => {
     // A v1 order names its destination datum by hash; a v4 order needs an
     // inline datum to be spendable. Building it would place a UTxO at the v4
@@ -639,6 +692,47 @@ describe("TxBuilderBlazeV3", () => {
         "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff",
       ),
     );
+  });
+
+  it("orderRouteSwap() - v3 to v3 pays out to a custom destination", async () => {
+    const destination = PREVIEW_DATA.addresses.alternatives[0];
+    const { datum } = await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      destination: { address: destination, datum: { type: EDatumType.NONE } },
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: {
+          ...PREVIEW_DATA.pools.v3,
+          assetB: {
+            ...PREVIEW_DATA.pools.v3.assetB,
+            assetId:
+              // iBTC
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          },
+          assetLP: {
+            ...PREVIEW_DATA.pools.v3.assetLP,
+            assetId:
+              "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702004",
+          },
+        },
+      },
+    });
+
+    const legB = getNextLeg(datum as string).datum.toCbor();
+
+    expect(DatumBuilderV3.getDestinationAddressesFromDatum(legB)).toEqual({
+      paymentKeyHash: BlazeHelper.getPaymentHashFromBech32(destination),
+      stakingKeyHash: BlazeHelper.getStakingHashFromBech32(destination),
+    });
+    // Leg B keeps the original owner.
+    const owner = DatumBuilderV3.getSignerKeyFromDatum(datum as string);
+    expect(owner).toBeDefined();
+    expect(DatumBuilderV3.getSignerKeyFromDatum(legB)).toEqual(owner as string);
   });
 
   it("orderRouteSwap() - v3 to v1", async () => {

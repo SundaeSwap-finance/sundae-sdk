@@ -410,6 +410,7 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       ...chain,
       leg: legB,
       ownerAddress: args.ownerAddress,
+      destination: args.destination,
       suppliedAsset: aOutputAsset,
     });
 
