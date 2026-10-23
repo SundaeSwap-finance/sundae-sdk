@@ -4,7 +4,7 @@
 
 # Function: getSwapOutput()
 
-> **getSwapOutput**(`inputMetadata`, `input`, `aReserve`, `bReserve`, `totalLp`, `sqrtPriceA`, `sqrtPriceB`, `fee`, `isAInput`): [`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
+> **getSwapOutput**(`inputMetadata`, `input`, `aReserve`, `bReserve`, `totalLp`, `sqrtPriceA`, `sqrtPriceB`, `fee`, `isAInput`): [`TSwapOutcome`](../../BandedConcentratedLiquidityPool/type-aliases/TSwapOutcome.md)
 
 Calculate the swap outcome for a concentrated-liquidity pool.
 
@@ -48,9 +48,9 @@ True when asset A is the supplied asset (A→B swap).
 
 ## Returns
 
-[`TSwapOutcome`](../type-aliases/TSwapOutcome.md)
+[`TSwapOutcome`](../../BandedConcentratedLiquidityPool/type-aliases/TSwapOutcome.md)
 
-The swap details in the shared [TSwapOutcome](../type-aliases/TSwapOutcome.md) shape.
+The swap details in the shared [TSwapOutcome](../../BandedConcentratedLiquidityPool/type-aliases/TSwapOutcome.md) shape.
 
 ## Defined in
 

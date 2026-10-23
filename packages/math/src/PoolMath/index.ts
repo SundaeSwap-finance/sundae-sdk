@@ -1,3 +1,4 @@
+export * as BandedConcentratedLiquidityPool from "./BandedConcentratedLiquidityPool.js";
 export * as ConcentratedLiquidityPool from "./ConcentratedLiquidityPool.js";
 export * as ConstantProductPool from "./ConstantProductPool.js";
 export * as ConstantSumPool from "./ConstantSumPool.js";

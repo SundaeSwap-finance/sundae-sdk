@@ -8,6 +8,71 @@ Pool data that is returned from [Core.QueryProvider.findPoolData](../classes/Que
 
 ## Properties
 
+### activeBand?
+
+> `optional` **activeBand**: `number`
+
+For v4 banded pools, the zero-based band holding the current price.
+
+#### Defined in
+
+[packages/core/src/@types/queryprovider.ts:171](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L171)
+
+***
+
+### bandClosing?
+
+> `optional` **bandClosing**: [`bigint`, `bigint`]
+
+For v4 banded pools, the ladder's top sqrt-price edge as `[num, den]`.
+
+#### Defined in
+
+[packages/core/src/@types/queryprovider.ts:169](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L169)
+
+***
+
+### bandCounter?
+
+> `optional` **bandCounter**: `bigint`
+
+For v4 banded pools, the ladder counter X: band i's liquidity is
+`floor(bands[i].weight · X / bandWeightTotal)`. Seeds the witness search
+when quoting; a stale value is recovered from.
+
+#### Defined in
+
+[packages/core/src/@types/queryprovider.ts:177](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L177)
+
+***
+
+### bands?
+
+> `optional` **bands**: [`IPoolBand`](IPoolBand.md)[]
+
+For v4 banded concentrated-liquidity pools, the ladder in ascending price
+order. Band i spans sqrt-prices `[bands[i].start, bands[i+1].start)`; the
+last band ends at `bandClosing`. Required to compute banded swap output;
+empty for every other curve.
+
+#### Defined in
+
+[packages/core/src/@types/queryprovider.ts:167](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L167)
+
+***
+
+### bandWeightTotal?
+
+> `optional` **bandWeightTotal**: `bigint`
+
+For v4 banded pools, the sum of every band's `weight`.
+
+#### Defined in
+
+[packages/core/src/@types/queryprovider.ts:179](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L179)
+
+***
+
 ### currentFee
 
 > **currentFee**: `number`

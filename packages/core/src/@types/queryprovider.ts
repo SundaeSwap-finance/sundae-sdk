@@ -158,6 +158,49 @@ export interface IPoolData {
    * above, which serves v3 and v4 alike. `rates` is the v4-only half.
    */
   rates?: [bigint, bigint];
+  /**
+   * For v4 banded concentrated-liquidity pools, the ladder in ascending price
+   * order. Band i spans sqrt-prices `[bands[i].start, bands[i+1].start)`; the
+   * last band ends at `bandClosing`. Required to compute banded swap output;
+   * empty for every other curve.
+   */
+  bands?: IPoolBand[];
+  /** For v4 banded pools, the ladder's top sqrt-price edge as `[num, den]`. */
+  bandClosing?: [bigint, bigint];
+  /** For v4 banded pools, the zero-based band holding the current price. */
+  activeBand?: number;
+  /**
+   * For v4 banded pools, the ladder counter X: band i's liquidity is
+   * `floor(bands[i].weight · X / bandWeightTotal)`. Seeds the witness search
+   * when quoting; a stale value is recovered from.
+   */
+  bandCounter?: bigint;
+  /** For v4 banded pools, the sum of every band's `weight`. */
+  bandWeightTotal?: bigint;
+}
+
+/** One band of a v4 banded concentrated-liquidity pool's ladder. */
+export interface IPoolBand {
+  /** The band's lower sqrt-price edge as `[num, den]`. */
+  start: [bigint, bigint];
+  /** The band's share of the ladder's liquidity counter. */
+  weight: bigint;
+  /** 0 = concentrated-liquidity arc, 1 = constant-sum bin. */
+  curve: 0 | 1;
+  /** Fee on swaps that buy the pool's first asset, as `[num, den]`. */
+  feeBuy: [bigint, bigint];
+  /** Fee on swaps that sell the pool's first asset, as `[num, den]`. */
+  feeSell: [bigint, bigint];
+  /**
+   * What the band holds at the pool's current reserves, in `[assetA, assetB]`
+   * order; the bands sum to the pool's reserves. Empty when the API could not
+   * place the reserves on the ladder.
+   */
+  quantities?: [bigint, bigint];
+  /** The band's liquidity, `floor(weight · bandCounter / bandWeightTotal)`. */
+  liquidity?: bigint;
+  /** Whether this is the band the current price sits in. */
+  active?: boolean;
 }
 
 /**

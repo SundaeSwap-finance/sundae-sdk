@@ -11,6 +11,23 @@ on-chain module identifiers surfaced by the GraphQL `Pool.modules` field.
 
 ## Enumeration Members
 
+### BandedConcentratedLiquidity
+
+> **BandedConcentratedLiquidity**: `"banded_concentrated_liquidity"`
+
+The v4 banded concentrated-liquidity module: a ladder of sqrt-price
+bands, each a concentrated-liquidity arc or a constant-sum bin with its
+own share of the pool's liquidity and its own fees. LP is one fungible
+token for the whole ladder. The estimator is
+`BandedConcentratedLiquidityPool` in `@sundaeswap/math`; the single-range
+`ConcentratedLiquidity` curve above was removed from the protocol.
+
+#### Defined in
+
+[packages/core/src/@types/txbuilders.ts:109](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L109)
+
+***
+
 ### ConcentratedLiquidity
 
 > **ConcentratedLiquidity**: `"concentrated_liquidity"`
