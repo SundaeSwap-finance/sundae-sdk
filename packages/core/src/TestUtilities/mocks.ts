@@ -7,7 +7,7 @@
  */
 
 import { beforeEach, mock, type Mock } from "bun:test";
-import * as Core from "../exports/core";
+import * as Core from "../exports/core.js";
 
 export const MockAll = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

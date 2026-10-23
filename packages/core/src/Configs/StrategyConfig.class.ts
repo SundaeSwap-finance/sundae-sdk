@@ -6,7 +6,7 @@ import {
   IStrategyConfigInputArgs,
   TDestination,
   TDestinationFixed,
-} from "../@types";
+} from "../@types/index.js";
 import { Config } from "../Abstracts/Config.abstract.class.js";
 
 export class StrategyConfig extends Config<IStrategyConfigArgs> {
