@@ -35,9 +35,10 @@ export const chainLegVersion = (leg: TChainLeg): EContractVersion =>
   isChainLegV4(leg) ? EContractVersion.V4 : leg.pool.version;
 
 /**
- * What a legacy leg is guaranteed to deliver: its pool's OTHER asset, at the
- * leg's minimum receivable. This is what the next leg can be offered, since a
- * chain's datums are fixed before any leg fills.
+ * The least a v1/v3/stableswap order is guaranteed to deliver: its minimum
+ * receivable, in its pool's other asset. A chain's datums are all fixed
+ * before any order fills, so this is the most the next order can be told it
+ * will be offered.
  */
 export const legacyLegMinOutput = (
   pool: IPoolData,

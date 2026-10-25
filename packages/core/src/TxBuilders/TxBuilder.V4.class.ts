@@ -217,28 +217,28 @@ export interface IBatchV4Args {
 }
 
 /**
- * Arguments for a chained swap that STARTS on v4, via
- * {@link TxBuilderV4.orderRouteSwap}: a v4 intent that pays into a legacy
- * order, optionally followed by one more leg.
+ * Arguments for {@link TxBuilderV4.orderRouteSwap}: a chain of orders that
+ * starts with a v4 order. The v4 order pays into a v3 or stableswap order
+ * (`swapB`), which can pay into one more order (`swapC`).
  */
 export interface IOrderRouteSwapV4Args {
-  /** Owns every leg, and is the only party that can cancel one. */
+  /** Owns every order in the chain, and is the only party that can cancel one. */
   ownerAddress: string;
   /**
-   * The v4 leg. Its single `minReceived` asset is what `swapB` offers, so it
-   * must be one of `swapB`'s pool assets.
+   * The first order, on v4. `minReceived` is a single asset because it is
+   * exactly what `swapB` offers, so it must be one of `swapB`'s pool assets.
    */
   swapA: Omit<ISwapV4Args, "ownerAddress" | "destination" | "minReceived"> & {
     minReceived: AssetAmount<IAssetAmountMetadata>;
   };
-  /** The legacy leg the v4 leg pays into: a v3 or stableswap swap. */
+  /** The second order, which `swapA` pays into: a v3 or stableswap swap. */
   swapB: TChainLegLegacy;
   /**
-   * An optional leg after `swapB`: a v4 intent (a whole v4 tail), or a v3 or
-   * stableswap swap.
+   * An optional third order, which `swapB` pays into: a v4 order (covering
+   * any number of v4 pools), or a v3 or stableswap swap.
    */
   swapC?: TChainLeg;
-  /** Final payout destination. Defaults to `ownerAddress`. */
+  /** Where the last order pays out. Defaults to `ownerAddress`. */
   destination?: TDestinationAddress;
 }
 
@@ -706,32 +706,35 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
-   * Places a chained swap that STARTS on v4: a v4 intent whose payout lands as
-   * a v3 or stableswap order, optionally followed by one more leg (v4, v3 or
-   * stableswap). Each leg fills in its own scoop; the chain is sequential, not
-   * atomic.
+   * Places a chain of orders that starts on v4: a v4 order that pays its
+   * output into a v3 or stableswap order, optionally followed by one more
+   * order (v4, v3 or stableswap). Each order is filled in its own scoop, one
+   * after another; if a later order cannot fill, the earlier ones have still
+   * filled.
    *
-   * The reverse of the legacy builders' `orderRouteSwap`, which chain a legacy
-   * order INTO v4. It uses the same plain intent as {@link swapIntent}, with a
-   * `Fixed` destination at the next order's script address carrying that
-   * order's datum inline. It does not use the route constraint
+   * This is the reverse of the v1/v3 `orderRouteSwap`, which chain an older
+   * order into v4. The v4 order is the same plain order {@link swapIntent}
+   * places, with its payout sent to the next order's script address and that
+   * order's datum attached inline. It does not use the route constraint that
    * {@link swap} refuses to build.
    *
-   * - **Inline datums only.** A v4 order can attach its payout's datum only
-   *   inline. A v1 order is a Plutus V1 script, which cannot read an inline
-   *   datum, so a v1 leg anywhere after the v4 leg would lock funds that
-   *   nothing can ever spend, cancel included. This throws instead.
-   * - **Amounts.** `swapB` offers exactly `swapA.minReceived`, the floor the
-   *   v4 order guarantees. Anything the v4 leg wins above that arrives in the
-   *   legacy order unnamed and is passed on to that order's destination.
-   * - **ADA.** The v4 order carries every later leg's fee (and the larger
-   *   routed deposit when `swapB` forwards into a third leg), on top of its
-   *   own budget and deposit. A v4 fill passes unconsumed ADA through to its
-   *   destination, so this arrives with the legacy order already funded.
-   * - **Referrals.** Every leg's referral fee is paid in one output, so they
-   *   must share a destination; differing destinations throw.
-   * - **Ownership.** `ownerAddress` owns every leg, so a leg that cannot fill
-   *   can always be cancelled by the owner.
+   * - **No v1.** A v4 order can only attach its payout's datum inline, and a
+   *   v1 order is a Plutus V1 script, which cannot read an inline datum. A v1
+   *   order anywhere after the v4 order would lock funds that nothing could
+   *   spend, not even a cancel, so this throws instead.
+   * - **Amounts.** `swapB` offers exactly `swapA.minReceived`, the least the
+   *   v4 order can deliver. If the v4 order delivers more, the extra lands in
+   *   `swapB`'s order unswapped and is passed on to `swapB`'s destination.
+   * - **ADA.** The v4 order locks every later order's fee on top of its own
+   *   budget and deposit, plus the extra deposit `swapB` needs when it pays
+   *   into `swapC`. A v4 fill passes ADA it doesn't spend through to its
+   *   payout, so `swapB`'s order arrives already funded. `fees.scooperFee`
+   *   reports the v4 budget plus that forwarded ADA.
+   * - **Referrals.** Every order's referral fee is paid in one output of this
+   *   transaction, so they must all name the same destination; if they don't,
+   *   this throws.
+   * - **Ownership.** `ownerAddress` owns every order, so the owner can cancel
+   *   any order that cannot fill.
    */
   public async orderRouteSwap(
     args: IOrderRouteSwapV4Args,
@@ -753,12 +756,15 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       queryProvider: this.queryProvider,
     };
 
-    // Assembled back to front: each leg's datum names the order after it.
+    // Built last to first: each order's datum names the order it pays into,
+    // so the next order has to exist before the one before it.
     let legBDestination = args.destination;
-    // ADA the v4 order carries for the legs after it.
+    // ADA the v4 order locks on behalf of the orders after it.
     let forwarded = 0n;
     const referrals = [swapA.referralFee];
     if (swapC) {
+      // swapC is offered the least swapB can deliver: swapB's minimum,
+      // priced on its pool from the least the v4 order can deliver.
       const legB = new SwapConfig({
         ...swapB,
         suppliedAsset: swapA.minReceived,
@@ -785,8 +791,9 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         address: builtC.orderScriptAddress,
         datum: { type: EDatumType.INLINE, value: builtC.datum },
       };
-      // swapB forwards swapC's fee and holds the routed deposit; the v4
-      // order's own deposit covers the rest of that deposit.
+      // swapB pays swapC's fee forward and, because it pays into another
+      // order, needs the larger routed deposit. The v4 order's own deposit
+      // reaches swapB with the fill, so only the difference is added.
       forwarded +=
         builtC.scooperFee + ORDER_ROUTE_DEPOSIT_DEFAULT - ORDER_DEPOSIT_DEFAULT;
       referrals.push(builtC.referralFee);
@@ -802,8 +809,9 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     forwarded += builtB.scooperFee;
     referrals.push(builtB.referralFee);
 
-    // Every leg's referral is paid once, here, under the first leg's label.
-    // One output pays them all, so they must share a destination.
+    // Every order's referral fee is paid once, in this transaction, under the
+    // first fee's label. One output pays them all, so they must share a
+    // destination.
     const paid = referrals.filter(
       (fee): fee is ITxBuilderReferralFee => fee !== undefined,
     );
@@ -1098,8 +1106,9 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * {@link orderRouteSwap} and {@link update} (which locks the replacement
    * order onto the same tx that cancels the old one).
    *
-   * `forwardedLovelace` is extra ADA the order carries through to its
-   * destination unconsumed, funding a chained order there.
+   * `forwardedLovelace` is extra ADA locked in the order that the fill does
+   * not spend: it passes through to the order's payout, where it pays a
+   * chained order's fee (see {@link orderRouteSwap}).
    */
   private async lockOrderIntoTx(
     tx: TBlazeTx,
