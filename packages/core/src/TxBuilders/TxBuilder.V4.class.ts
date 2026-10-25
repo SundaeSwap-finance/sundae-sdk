@@ -362,6 +362,26 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     return instance;
   }
 
+  /**
+   * Pays a referral fee and, when it carries a `feeLabel`, publishes the label
+   * under metadata key 674, as the legacy builders' `newTxInstance(fee)` do.
+   */
+  private payReferral(tx: TBlazeTx, fee?: ITxBuilderReferralFee): void {
+    if (!fee) {
+      return;
+    }
+    tx.payAssets(Core.addressFromBech32(fee.destination), fee.payment);
+    if (fee.feeLabel) {
+      const data = new Core.AuxiliaryData();
+      data.setMetadata(
+        new Core.Metadata(
+          new Map([[674n, Core.Metadatum.newText(fee.feeLabel)]]),
+        ),
+      );
+      tx.setAuxiliaryData(data);
+    }
+  }
+
   // -- Protocol params ------------------------------------------------
 
   public async getProtocolParams(): Promise<ISundaeProtocolParamsFull> {
@@ -1008,12 +1028,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       totalBudget += budget;
     }
 
-    if (args.referralFee) {
-      tx.payAssets(
-        Core.addressFromBech32(args.referralFee.destination),
-        args.referralFee.payment,
-      );
-    }
+    this.payReferral(tx, args.referralFee);
 
     return this.completeTx({
       tx,
@@ -1122,12 +1137,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       args.ownerAddress,
     );
 
-    if (args.referralFee) {
-      tx.payAssets(
-        Core.addressFromBech32(args.referralFee.destination),
-        args.referralFee.payment,
-      );
-    }
+    this.payReferral(tx, args.referralFee);
 
     tx.lockAssets(
       Core.addressFromBech32(orderScriptAddress),
@@ -1163,12 +1173,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     const tx = this.newTxInstance();
     const spendingDatum = await this.addOrderCancellation(tx, utxo);
 
-    if (referralFee) {
-      tx.payAssets(
-        Core.addressFromBech32(referralFee.destination),
-        referralFee.payment,
-      );
-    }
+    this.payReferral(tx, referralFee);
 
     return this.completeTx({
       tx,
@@ -1515,12 +1520,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     // ── Assemble the transaction ──────────────────────────────────────
     const tx = this.newTxInstance();
-    if (args.referralFee) {
-      tx.payAssets(
-        Core.addressFromBech32(args.referralFee.destination),
-        args.referralFee.payment,
-      );
-    }
+    this.payReferral(tx, args.referralFee);
     tx.addInput(seed);
 
     // Mint the CIP-68 100/222/333 tokens.

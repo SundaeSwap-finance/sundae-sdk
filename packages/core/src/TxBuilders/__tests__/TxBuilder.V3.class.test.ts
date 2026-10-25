@@ -786,6 +786,32 @@ describe("TxBuilderBlazeV3", () => {
       expect(paid[0].amount().multiasset()?.get(tindy)).toEqual(12n);
     });
 
+    it("publishes the first leg's referral label under metadata key 674", async () => {
+      const { build } = await new TxBuilderV4(builder.blaze).orderRouteSwap({
+        ownerAddress: owner,
+        swapA: {
+          ...swapA,
+          referralFee: {
+            destination: TEST_REFERRAL_DEST,
+            payment: new Core.Value(1_000_000n),
+            feeLabel: "Leg A Label",
+          },
+        },
+        swapB: {
+          ...swapB,
+          referralFee: {
+            destination: TEST_REFERRAL_DEST,
+            payment: new Core.Value(1_000_000n),
+            feeLabel: "Leg B Label",
+          },
+        },
+      });
+
+      const { builtTx } = await build();
+      const label = builtTx.auxiliaryData()?.metadata()?.metadata()?.get(674n);
+      expect(label?.asText()).toEqual("Leg A Label");
+    });
+
     it("refuses referral fees that name different destinations", async () => {
       await expect(
         new TxBuilderV4(builder.blaze).orderRouteSwap({
