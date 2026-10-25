@@ -763,6 +763,28 @@ describe("TxBuilderBlazeV3", () => {
         }),
       ).rejects.toThrow(/cannot chain into v1/);
     });
+
+    it("sums token referral fees from several legs into one output", async () => {
+      const tindy = Core.AssetId(TINDY.replace(".", ""));
+      const referral = (amount: bigint) => ({
+        destination: TEST_REFERRAL_DEST,
+        payment: new Core.Value(1_000_000n, new Map([[tindy, amount]])),
+      });
+      const { build } = await new TxBuilderV4(builder.blaze).orderRouteSwap({
+        ownerAddress: owner,
+        swapA: { ...swapA, referralFee: referral(5n) },
+        swapB: { ...swapB, referralFee: referral(7n) },
+      });
+
+      const { builtTx } = await build();
+      const paid = builtTx
+        .body()
+        .outputs()
+        .filter((out) => out.address().toBech32() === TEST_REFERRAL_DEST);
+      expect(paid).toHaveLength(1);
+      expect(paid[0].amount().coin()).toEqual(2_000_000n);
+      expect(paid[0].amount().multiasset()?.get(tindy)).toEqual(12n);
+    });
   });
 
   it("orderRouteSwap() - v3 to v3", async () => {

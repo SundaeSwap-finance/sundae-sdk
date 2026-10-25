@@ -240,27 +240,19 @@ export class BlazeHelper {
    * @return {Core.Value}
    */
   static mergeValues(...values: (Core.Value | undefined)[]): Core.Value {
-    const newValue = new Core.Value(0n);
-    values
-      .filter((v) => v !== undefined)
-      .forEach((value) => {
-        newValue.setCoin(newValue.coin() + value.coin());
-
-        const thisMultiAsset = value.multiasset();
-        if (thisMultiAsset) {
-          newValue.setMultiasset(new Map());
-        } else {
-          return;
-        }
-
-        const newMultiAssets = newValue.multiasset() as Core.TokenMap;
-        thisMultiAsset.forEach((amount, assetId) => {
-          const existingAmount = newMultiAssets.get(assetId) || 0n;
-          newValue.multiasset()?.set(assetId, existingAmount + amount);
-        });
+    let coin = 0n;
+    const multiasset: Core.TokenMap = new Map();
+    for (const value of values) {
+      if (!value) {
+        continue;
+      }
+      coin += value.coin();
+      value.multiasset()?.forEach((amount, assetId) => {
+        multiasset.set(assetId, (multiasset.get(assetId) ?? 0n) + amount);
       });
+    }
 
-    return newValue;
+    return new Core.Value(coin, multiasset.size ? multiasset : undefined);
   }
 
   /**
