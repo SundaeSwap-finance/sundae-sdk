@@ -48,7 +48,10 @@ export const legacyLegMinOutput = (
     new AssetAmount(pool.liquidity.aReserve, pool.assetA),
     new AssetAmount(pool.liquidity.bReserve, pool.assetB),
   ]);
-  return suppliedAsset.metadata.assetId === aReserve.metadata.assetId
+  return SundaeUtils.isAssetIdsEqual(
+    suppliedAsset.metadata.assetId,
+    aReserve.metadata.assetId,
+  )
     ? bReserve.withAmount(minReceivable.amount)
     : aReserve.withAmount(minReceivable.amount);
 };

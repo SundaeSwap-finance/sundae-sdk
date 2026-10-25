@@ -807,6 +807,32 @@ describe("TxBuilderBlazeV3", () => {
         }),
       ).rejects.toThrow(/must name the same destination/);
     });
+
+    it("v4 to v3 to v4: an ADA floor under an alias id still sells ADA on the v3 leg", async () => {
+      const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
+      await new TxBuilderV4(builder.blaze).orderRouteSwap({
+        ownerAddress: owner,
+        swapA: {
+          ...swapA,
+          offered: PREVIEW_DATA.assets.tindy,
+          minReceived: new AssetAmount(25_000_000n, {
+            ...ADA_METADATA,
+            assetId: "",
+          }),
+        },
+        swapB,
+        swapC: {
+          contractVersion: EContractVersion.V4,
+          minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+          budget: 3_000_000n,
+          maxPerExecution: 2_000_000n,
+          configToken: "aabb",
+        },
+      });
+      const [legC] = intent.mock.calls[0] as [{ offered: AssetAmount }];
+      intent.mockRestore();
+      expect(legC.offered.metadata.assetId).toEqual(TINDY);
+    });
   });
 
   it("orderRouteSwap() - v3 to v3", async () => {
