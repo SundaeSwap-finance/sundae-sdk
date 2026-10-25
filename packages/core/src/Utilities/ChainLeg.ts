@@ -3,6 +3,7 @@ import type { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 
 import type {
   IChainLegV4,
+  IPoolData,
   ITxBuilderReferralFee,
   TChainLeg,
 } from "../@types/index.js";
@@ -10,6 +11,7 @@ import { EContractVersion } from "../@types/index.js";
 import { EDatumType, TDestinationAddress } from "../@types/datumbuilder.js";
 import type { QueryProvider } from "../Abstracts/QueryProvider.abstract.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
+import { SundaeUtils } from "./SundaeUtils.class.js";
 
 /**
  * A chained swap places ONE order whose payout destination is the NEXT order's
@@ -31,6 +33,25 @@ export const isChainLegV4 = (leg: TChainLeg): leg is IChainLegV4 =>
 /** The contract version a leg's order belongs to. */
 export const chainLegVersion = (leg: TChainLeg): EContractVersion =>
   isChainLegV4(leg) ? EContractVersion.V4 : leg.pool.version;
+
+/**
+ * What a legacy leg is guaranteed to deliver: its pool's OTHER asset, at the
+ * leg's minimum receivable. This is what the next leg can be offered, since a
+ * chain's datums are fixed before any leg fills.
+ */
+export const legacyLegMinOutput = (
+  pool: IPoolData,
+  suppliedAsset: AssetAmount<IAssetAmountMetadata>,
+  minReceivable: AssetAmount<IAssetAmountMetadata>,
+): AssetAmount<IAssetAmountMetadata> => {
+  const [aReserve, bReserve] = SundaeUtils.sortSwapAssetsWithAmounts([
+    new AssetAmount(pool.liquidity.aReserve, pool.assetA),
+    new AssetAmount(pool.liquidity.bReserve, pool.assetB),
+  ]);
+  return suppliedAsset.metadata.assetId === aReserve.metadata.assetId
+    ? bReserve.withAmount(minReceivable.amount)
+    : aReserve.withAmount(minReceivable.amount);
+};
 
 /**
  * A built chain leg, described from the point of view of the leg BEFORE it:

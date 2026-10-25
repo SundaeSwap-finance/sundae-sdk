@@ -48,6 +48,7 @@ import {
   chainLegOrderAddress,
   chainLegVersion,
   isChainLegV4,
+  legacyLegMinOutput,
 } from "../Utilities/ChainLeg.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
@@ -427,21 +428,11 @@ export class TxBuilderV1 extends TxBuilderAbstractV1 {
       },
     }).buildArgs();
 
-    const [aReserve, bReserve] = SundaeUtils.sortSwapAssetsWithAmounts([
-      new AssetAmount(
-        args.swapA.pool.liquidity.aReserve,
-        args.swapA.pool.assetA,
-      ),
-      new AssetAmount(
-        args.swapA.pool.liquidity.bReserve,
-        args.swapA.pool.assetB,
-      ),
-    ]);
-
-    const aOutputAsset =
-      swapA.suppliedAsset.metadata.assetId === aReserve.metadata.assetId
-        ? bReserve.withAmount(swapA.minReceivable.amount)
-        : aReserve.withAmount(swapA.minReceivable.amount);
+    const aOutputAsset = legacyLegMinOutput(
+      args.swapA.pool,
+      swapA.suppliedAsset,
+      swapA.minReceivable,
+    );
 
     const builtLegB = await buildChainLeg({
       ...chain,

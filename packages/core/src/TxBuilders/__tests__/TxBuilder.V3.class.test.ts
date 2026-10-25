@@ -15,6 +15,7 @@ import {
   V3Types,
   V4Types,
 } from "../../DatumBuilders/ContractTypes/index.js";
+import { SwapConfig } from "../../Configs/SwapConfig.class.js";
 import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
 import { DatumBuilderV4 } from "../../DatumBuilders/DatumBuilder.V4.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
@@ -617,6 +618,151 @@ describe("TxBuilderBlazeV3", () => {
         },
       }),
     ).rejects.toThrow(/cannot chain into v4/);
+  });
+
+  describe("TxBuilderV4.orderRouteSwap() - chains that start on v4", () => {
+    const owner = PREVIEW_DATA.addresses.current;
+    const V3_ORDER_HASH =
+      "484969d936f484c45f143d911f81636fe925048e205048ee1fe412aa";
+    const TINDY = PREVIEW_DATA.assets.tindy.metadata.assetId;
+    // A v4 leg buying 20,000,000 tINDY, then the v3 ADA/tINDY pool.
+    const swapA = {
+      offered: new AssetAmount(25_000_000n, ADA_METADATA),
+      minReceived: PREVIEW_DATA.assets.tindy,
+      budget: 3_000_000n,
+      maxPerExecution: 2_000_000n,
+      configToken: "aabb",
+    };
+    const swapB = {
+      swapType: { type: ESwapType.MARKET as const, slippage: 0.03 },
+      pool: PREVIEW_DATA.pools.v3,
+    };
+
+    /** The v4 order's payout: the next order's script hash and datum. */
+    const getV4NextLeg = (datum: string) => {
+      const { destination } = parse(
+        V4Types.OrderDatum,
+        Core.PlutusData.fromCbor(Core.HexBlob(datum)),
+      );
+      if (destination === "Self" || !destination.Fixed.datum) {
+        throw new Error("Expected the v4 order to carry the next leg's datum.");
+      }
+      return {
+        paymentCredential: destination.Fixed.address.payment_credential,
+        datum: destination.Fixed.datum as Core.PlutusData,
+      };
+    };
+
+    /** The v4 order output's lovelace, from the built transaction. */
+    const v4OrderLovelace = async (
+      build: () => Promise<{ builtTx: Core.Transaction }>,
+    ) => {
+      const { builtTx } = await build();
+      const output = builtTx
+        .body()
+        .outputs()
+        .find(
+          (out) =>
+            out.address().asBase()?.getPaymentCredential().hash ===
+            V4_ORDER_HASH,
+        );
+      return output?.amount().coin();
+    };
+
+    it("v4 to v3: the v3 order offers exactly the v4 floor and pays the owner", async () => {
+      const { datum, fees, build } = await new TxBuilderV4(
+        builder.blaze,
+      ).orderRouteSwap({ ownerAddress: owner, swapA, swapB });
+
+      const next = getV4NextLeg(datum as string);
+      expect(next.paymentCredential).toEqual({ Script: [V3_ORDER_HASH] });
+
+      const legB = parse(V3Types.OrderDatum, next.datum);
+      expect(legB.details).toMatchObject({
+        Swap: { offer: [...TINDY.split("."), 20_000_000n] },
+      });
+      expect(
+        DatumBuilderV3.getDestinationAddressesFromDatum(next.datum.toCbor()),
+      ).toEqual({
+        paymentKeyHash: BlazeHelper.getPaymentHashFromBech32(owner),
+        stakingKeyHash: BlazeHelper.getStakingHashFromBech32(owner),
+      });
+
+      // The v4 budget (3) plus the v3 order's fee (1), which the v4 order
+      // carries through so the v3 order arrives funded.
+      expect(fees.scooperFee.amount).toEqual(4_000_000n);
+      // Offered 25 + deposit 2 + budget 3 + forwarded v3 fee 1.
+      expect(await v4OrderLovelace(build)).toEqual(31_000_000n);
+    });
+
+    it("v4 to v3 to v4: the v3 order pays into a v4 intent for its own floor", async () => {
+      const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
+      const { datum, fees, build } = await new TxBuilderV4(
+        builder.blaze,
+      ).orderRouteSwap({
+        ownerAddress: owner,
+        swapA,
+        swapB,
+        swapC: {
+          contractVersion: EContractVersion.V4,
+          minReceived: new AssetAmount(1_000_000n, {
+            assetId:
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+            decimals: 6,
+          }),
+          budget: 3_000_000n,
+          maxPerExecution: 2_000_000n,
+          configToken: "aabb",
+        },
+      });
+
+      // The v3 order pays into the v4 order script, carrying leg C's datum.
+      const legB = getV4NextLeg(datum as string).datum.toCbor();
+      expect(getNextLeg(legB).address.paymentCredential).toEqual({
+        ScriptCredential: [V4_ORDER_HASH],
+      });
+
+      // Leg C is offered what the v3 leg guarantees: its ADA floor.
+      const legBFloor = new SwapConfig({
+        ...swapB,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+        ownerAddress: owner,
+        orderAddresses: {
+          DestinationAddress: {
+            address: owner,
+            datum: { type: EDatumType.NONE },
+          },
+        },
+      }).buildArgs().minReceivable;
+      const [legC] = intent.mock.calls[0] as [{ offered: AssetAmount }];
+      expect(legC.offered.metadata.assetId).toEqual(ADA_METADATA.assetId);
+      expect(legC.offered.amount).toEqual(legBFloor.amount);
+      intent.mockRestore();
+
+      // v4 budget 3 + v3 fee 1 + leg C's budget 3 + the routed deposit's
+      // extra 1 ADA over the v4 order's own deposit.
+      expect(fees.scooperFee.amount).toEqual(8_000_000n);
+      expect(await v4OrderLovelace(build)).toEqual(35_000_000n);
+    });
+
+    it("refuses to chain into v1, which cannot read an inline datum", async () => {
+      const v4 = new TxBuilderV4(builder.blaze);
+      await expect(
+        v4.orderRouteSwap({
+          ownerAddress: owner,
+          swapA,
+          swapB: { ...swapB, pool: PREVIEW_DATA.pools.v1 },
+        }),
+      ).rejects.toThrow(/cannot chain into v1/);
+      await expect(
+        v4.orderRouteSwap({
+          ownerAddress: owner,
+          swapA,
+          swapB,
+          swapC: { ...swapB, pool: PREVIEW_DATA.pools.v1 },
+        }),
+      ).rejects.toThrow(/cannot chain into v1/);
+    });
   });
 
   it("orderRouteSwap() - v3 to v3", async () => {

@@ -11,6 +11,8 @@ import type {
   ISundaeProtocolValidatorFull,
   ITxBuilderFees,
   ITxBuilderReferralFee,
+  TChainLeg,
+  TChainLegLegacy,
   TSupportedNetworks,
   TUTXO,
 } from "../@types/index.js";
@@ -18,13 +20,24 @@ import { EContractVersion } from "../@types/index.js";
 import { CancelConfig } from "../Configs/CancelConfig.class.js";
 import { EDatumType, TDestinationAddress } from "../@types/datumbuilder.js";
 import { TxBuilderAbstractV4 } from "../Abstracts/TxBuilderAbstract.V4.class.js";
-import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../constants.js";
+import {
+  ADA_METADATA,
+  ORDER_DEPOSIT_DEFAULT,
+  ORDER_ROUTE_DEPOSIT_DEFAULT,
+} from "../constants.js";
+import { SwapConfig } from "../Configs/SwapConfig.class.js";
 import { V4Types } from "../DatumBuilders/ContractTypes/index.js";
 import {
   DatumBuilderV4,
   EV4BasicConstraint,
 } from "../DatumBuilders/DatumBuilder.V4.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
+import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
+import {
+  buildChainLeg,
+  isChainLegV4,
+  legacyLegMinOutput,
+} from "../Utilities/ChainLeg.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 
 type TBlazeTx = ReturnType<Blaze<Provider, Wallet>["newTransaction"]>;
@@ -201,6 +214,32 @@ export interface IBatchV4Args {
   orders: IBasicV4Args[];
   /** Taken once for the whole batch, not per order. */
   referralFee?: ITxBuilderReferralFee;
+}
+
+/**
+ * Arguments for a chained swap that STARTS on v4, via
+ * {@link TxBuilderV4.orderRouteSwap}: a v4 intent that pays into a legacy
+ * order, optionally followed by one more leg.
+ */
+export interface IOrderRouteSwapV4Args {
+  /** Owns every leg, and is the only party that can cancel one. */
+  ownerAddress: string;
+  /**
+   * The v4 leg. Its single `minReceived` asset is what `swapB` offers, so it
+   * must be one of `swapB`'s pool assets.
+   */
+  swapA: Omit<ISwapV4Args, "ownerAddress" | "destination" | "minReceived"> & {
+    minReceived: AssetAmount<IAssetAmountMetadata>;
+  };
+  /** The legacy leg the v4 leg pays into: a v3 or stableswap swap. */
+  swapB: TChainLegLegacy;
+  /**
+   * An optional leg after `swapB`: a v4 intent (a whole v4 tail), or a v3 or
+   * stableswap swap.
+   */
+  swapC?: TChainLeg;
+  /** Final payout destination. Defaults to `ownerAddress`. */
+  destination?: TDestinationAddress;
 }
 
 /** Arguments for updating a v4 order via {@link TxBuilderV4.update}. */
@@ -647,6 +686,145 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /**
+   * Places a chained swap that STARTS on v4: a v4 intent whose payout lands as
+   * a v3 or stableswap order, optionally followed by one more leg (v4, v3 or
+   * stableswap). Each leg fills in its own scoop; the chain is sequential, not
+   * atomic.
+   *
+   * The reverse of the legacy builders' `orderRouteSwap`, which chain a legacy
+   * order INTO v4. It uses the same plain intent as {@link swapIntent}, with a
+   * `Fixed` destination at the next order's script address carrying that
+   * order's datum inline. It does not use the route constraint
+   * {@link swap} refuses to build.
+   *
+   * - **Inline datums only.** A v4 order can attach its payout's datum only
+   *   inline. A v1 order is a Plutus V1 script, which cannot read an inline
+   *   datum, so a v1 leg anywhere after the v4 leg would lock funds that
+   *   nothing can ever spend, cancel included. This throws instead.
+   * - **Amounts.** `swapB` offers exactly `swapA.minReceived`, the floor the
+   *   v4 order guarantees. Anything the v4 leg wins above that arrives in the
+   *   legacy order unnamed and is passed on to that order's destination.
+   * - **ADA.** The v4 order carries every later leg's fee (and the larger
+   *   routed deposit when `swapB` forwards into a third leg), on top of its
+   *   own budget and deposit. A v4 fill passes unconsumed ADA through to its
+   *   destination, so this arrives with the legacy order already funded.
+   * - **Ownership.** `ownerAddress` owns every leg, so a leg that cannot fill
+   *   can always be cancelled by the owner.
+   */
+  public async orderRouteSwap(
+    args: IOrderRouteSwapV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    const { ownerAddress, swapA, swapB, swapC } = args;
+    for (const leg of swapC ? [swapB, swapC] : [swapB]) {
+      if (!isChainLegV4(leg) && leg.pool.version === EContractVersion.V1) {
+        throw new Error(
+          "TxBuilderV4.orderRouteSwap cannot chain into v1: a v4 order " +
+            "attaches its payout datum inline, and a v1 order (a Plutus V1 " +
+            "script) cannot read an inline datum, so the funds could never " +
+            "be spent or cancelled. Route through a v3 pool instead.",
+        );
+      }
+    }
+
+    const chain = {
+      blazeInstance: this.blaze,
+      queryProvider: this.queryProvider,
+    };
+
+    // Assembled back to front: each leg's datum names the order after it.
+    let legBDestination = args.destination;
+    // ADA the v4 order carries for the legs after it.
+    let forwarded = 0n;
+    const referrals = [swapA.referralFee];
+    if (swapC) {
+      const legB = new SwapConfig({
+        ...swapB,
+        suppliedAsset: swapA.minReceived,
+        ownerAddress,
+        orderAddresses: {
+          DestinationAddress: {
+            address: ownerAddress,
+            datum: { type: EDatumType.NONE },
+          },
+        },
+      }).buildArgs();
+      const builtC = await buildChainLeg({
+        ...chain,
+        leg: swapC,
+        ownerAddress,
+        destination: args.destination,
+        suppliedAsset: legacyLegMinOutput(
+          swapB.pool,
+          legB.suppliedAsset,
+          legB.minReceivable,
+        ),
+      });
+      legBDestination = {
+        address: builtC.orderScriptAddress,
+        datum: { type: EDatumType.INLINE, value: builtC.datum },
+      };
+      // swapB forwards swapC's fee and holds the routed deposit; the v4
+      // order's own deposit covers the rest of that deposit.
+      forwarded +=
+        builtC.scooperFee + ORDER_ROUTE_DEPOSIT_DEFAULT - ORDER_DEPOSIT_DEFAULT;
+      referrals.push(builtC.referralFee);
+    }
+
+    const builtB = await buildChainLeg({
+      ...chain,
+      leg: swapB,
+      ownerAddress,
+      destination: legBDestination,
+      suppliedAsset: swapA.minReceived,
+    });
+    forwarded += builtB.scooperFee;
+    referrals.push(builtB.referralFee);
+
+    // Every leg's referral is paid once, here, under the first leg's label.
+    const paid = referrals.filter(
+      (fee): fee is ITxBuilderReferralFee => fee !== undefined,
+    );
+    const referralFee = paid[0] && {
+      ...paid[0],
+      payment: BlazeHelper.mergeValues(...paid.map((fee) => fee.payment)),
+    };
+
+    const { offered, constraints, configToken } =
+      await this.buildBasicPlacement({
+        ...swapA,
+        ownerAddress,
+        type: EV4BasicConstraint.Swap,
+        offered: [swapA.offered],
+        minReceived: [swapA.minReceived],
+      });
+    const tx = this.newTxInstance();
+    const { inline, deposit, budget } = await this.lockOrderIntoTx(
+      tx,
+      {
+        ...swapA,
+        ownerAddress,
+        configToken,
+        referralFee,
+        destination: {
+          address: builtB.orderScriptAddress,
+          datum: { type: EDatumType.INLINE, value: builtB.datum },
+        },
+      },
+      offered,
+      constraints,
+      forwarded,
+    );
+
+    return this.completeTx({
+      tx,
+      datum: inline,
+      referralFee: referralFee?.payment,
+      deposit,
+      scooperFee: budget + forwarded,
+    });
+  }
+
+  /**
    * Places a v4 basic order — `Deposit`, `Withdraw`, or `Claim` (per
    * `args.type`).
    *
@@ -892,15 +1070,19 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   /**
    * Assembles the `OrderDatum` and locks the offered assets + fee budget at the
    * order script address on the given transaction, returning the inline datum,
-   * the ADA deposit, and the reserved `budget`. Shared by {@link placeOrder} and
-   * {@link update} (which locks the replacement order onto the same tx that
-   * cancels the old one).
+   * the ADA deposit, and the reserved `budget`. Shared by {@link placeOrder},
+   * {@link orderRouteSwap} and {@link update} (which locks the replacement
+   * order onto the same tx that cancels the old one).
+   *
+   * `forwardedLovelace` is extra ADA the order carries through to its
+   * destination unconsumed, funding a chained order there.
    */
   private async lockOrderIntoTx(
     tx: TBlazeTx,
     args: IOrderV4Base & { configToken: string },
     offered: AssetAmount<IAssetAmountMetadata>[],
     constraints: Array<[string, Core.PlutusData]>,
+    forwardedLovelace = 0n,
   ): Promise<{ inline: string; deposit: bigint; budget: bigint }> {
     const destination: TDestinationAddress | "Self" = args.destination ?? {
       address: args.ownerAddress,
@@ -923,7 +1105,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     const orderDeposit = ORDER_DEPOSIT_DEFAULT;
     const payment = SundaeUtils.accumulateSuppliedAssets({
       suppliedAssets: offered,
-      scooperFee: budget,
+      scooperFee: budget + forwardedLovelace,
       orderDeposit,
     });
 
