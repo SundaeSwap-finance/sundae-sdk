@@ -708,6 +708,8 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    *   routed deposit when `swapB` forwards into a third leg), on top of its
    *   own budget and deposit. A v4 fill passes unconsumed ADA through to its
    *   destination, so this arrives with the legacy order already funded.
+   * - **Referrals.** Every leg's referral fee is paid in one output, so they
+   *   must share a destination; differing destinations throw.
    * - **Ownership.** `ownerAddress` owns every leg, so a leg that cannot fill
    *   can always be cancelled by the owner.
    */
@@ -781,9 +783,16 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     referrals.push(builtB.referralFee);
 
     // Every leg's referral is paid once, here, under the first leg's label.
+    // One output pays them all, so they must share a destination.
     const paid = referrals.filter(
       (fee): fee is ITxBuilderReferralFee => fee !== undefined,
     );
+    if (paid.some((fee) => fee.destination !== paid[0].destination)) {
+      throw new Error(
+        "TxBuilderV4.orderRouteSwap pays every leg's referral fee in one " +
+          "output, so all legs' referral fees must name the same destination.",
+      );
+    }
     const referralFee = paid[0] && {
       ...paid[0],
       payment: BlazeHelper.mergeValues(...paid.map((fee) => fee.payment)),

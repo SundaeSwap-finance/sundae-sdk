@@ -785,6 +785,28 @@ describe("TxBuilderBlazeV3", () => {
       expect(paid[0].amount().coin()).toEqual(2_000_000n);
       expect(paid[0].amount().multiasset()?.get(tindy)).toEqual(12n);
     });
+
+    it("refuses referral fees that name different destinations", async () => {
+      await expect(
+        new TxBuilderV4(builder.blaze).orderRouteSwap({
+          ownerAddress: owner,
+          swapA: {
+            ...swapA,
+            referralFee: {
+              destination: TEST_REFERRAL_DEST,
+              payment: new Core.Value(1_000_000n),
+            },
+          },
+          swapB: {
+            ...swapB,
+            referralFee: {
+              destination: PREVIEW_DATA.addresses.alternatives[1],
+              payment: new Core.Value(1_000_000n),
+            },
+          },
+        }),
+      ).rejects.toThrow(/must name the same destination/);
+    });
   });
 
   it("orderRouteSwap() - v3 to v3", async () => {
