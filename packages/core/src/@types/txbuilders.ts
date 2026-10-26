@@ -19,18 +19,22 @@ export interface ITxBuilderFees {
   scooperFee: AssetAmount<IAssetAmountMetadata>;
 }
 
-export interface ITxBuilderSubmit {
+/**
+ * @template SubmitResult What `submit` resolves to; the hex encoded
+ * transaction hash by default.
+ */
+export interface ITxBuilderSubmit<SubmitResult = string> {
   /** The CBOR encoded hex string of the transaction. Useful if you want to do something with it instead of submitting to the wallet. */
   cbor: string;
-  /** Submits the CBOR encoded transaction to the connected wallet returns a hex encoded transaction hash. */
-  submit: () => Promise<string>;
+  /** Submits the CBOR encoded transaction to the connected wallet. */
+  submit: () => Promise<SubmitResult>;
 }
 
-export interface ITxBuilderSign<BuiltTransaction> {
+export interface ITxBuilderSign<BuiltTransaction, SubmitResult = string> {
   /** The CBOR encoded hex string of the transaction. Useful if you want to do something with it instead of submitting to the wallet. */
   cbor: string;
   /** Requests a signature from the user and rebuilds the transaction with the witness set. */
-  sign: () => Promise<ITxBuilderSubmit>;
+  sign: () => Promise<ITxBuilderSubmit<SubmitResult>>;
   builtTx: BuiltTransaction;
 }
 
@@ -42,11 +46,12 @@ export interface IComposedTx<
   BuiltTransaction = unknown,
   Datum = string | undefined,
   Fees = Record<string, AssetAmount<IAssetAmountMetadata>>,
+  SubmitResult = string,
 > {
   tx: Transaction;
   datum: Datum;
   fees: ITxBuilderFees & Fees;
-  build: () => Promise<ITxBuilderSign<BuiltTransaction>>;
+  build: () => Promise<ITxBuilderSign<BuiltTransaction, SubmitResult>>;
 }
 
 /**
