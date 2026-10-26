@@ -139,6 +139,7 @@ SundaeSwap protocol.
 - [TUpdateSwap](type-aliases/TUpdateSwap.md)
 - [TUpdateV4Order](type-aliases/TUpdateV4Order.md)
 - [TUTXO](type-aliases/TUTXO.md)
+- [TV4ChainFirstLeg](type-aliases/TV4ChainFirstLeg.md)
 - [TWithdraw](type-aliases/TWithdraw.md)
 
 ### Variables
