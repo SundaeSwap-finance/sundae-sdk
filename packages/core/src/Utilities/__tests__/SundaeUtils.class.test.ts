@@ -702,6 +702,41 @@ describe("SundaeUtils class", () => {
     });
   });
 
+  describe("getSwapOutput", () => {
+    it("prices ADA the same whichever alias names it, on either side", () => {
+      // PREVIEW_DATA.pools.v3 is ADA/tINDY with unequal reserves, so pricing
+      // ADA against the tINDY side would give a different output.
+      const pools: IPoolData[] = [
+        PREVIEW_DATA.pools.v3,
+        {
+          ...PREVIEW_DATA.pools.v3,
+          version: EContractVersion.V4,
+          curve: EPoolCurve.ConstantProduct,
+        },
+      ];
+      for (const pool of pools) {
+        const expected = SundaeUtils.getSwapOutput(
+          pool,
+          new AssetAmount(25_000_000n, ADA_METADATA),
+        ).output;
+        for (const assetId of SundaeUtils.ADA_ASSET_IDS) {
+          expect(
+            SundaeUtils.getSwapOutput(
+              pool,
+              new AssetAmount(25_000_000n, { ...ADA_METADATA, assetId }),
+            ).output,
+          ).toEqual(expected);
+          expect(
+            SundaeUtils.getSwapOutput(
+              { ...pool, assetA: { ...pool.assetA, assetId } },
+              new AssetAmount(25_000_000n, ADA_METADATA),
+            ).output,
+          ).toEqual(expected);
+        }
+      }
+    });
+  });
+
   describe("getSwapOutput v4", () => {
     const base: IPoolData = {
       ...PREVIEW_DATA.pools.v1,

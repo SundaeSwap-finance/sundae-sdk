@@ -300,10 +300,10 @@ describe("TxBuilderV4.orderRouteSwap()", () => {
     expect(fees.scooperFee.amount).toEqual(7_000_000n);
   });
 
-  it("an ADA floor under an alias id still sells ADA on the v3 order", async () => {
+  it("an ADA floor under an alias id still sells ADA on the v3 order, at the same price", async () => {
     const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
     try {
-      await new TxBuilderV4(blaze).orderRouteSwap({
+      const { datum } = await new TxBuilderV4(blaze).orderRouteSwap({
         ownerAddress: owner,
         legs: [
           {
@@ -318,8 +318,19 @@ describe("TxBuilderV4.orderRouteSwap()", () => {
           v4Last,
         ],
       });
+      // Priced as if ADA were written "ada.lovelace": the v3 order's minimum,
+      // and so the last order's offer, is the canonical-id floor.
+      const floor = v3Floor(new AssetAmount(25_000_000n, ADA_METADATA));
+      const legB = parse(
+        V3Types.OrderDatum,
+        getV4NextLeg(datum as string).datum,
+      );
+      expect(legB.details).toMatchObject({
+        Swap: { minReceived: [...TINDY.split("."), floor.amount] },
+      });
       const [legC] = intent.mock.calls[0] as [{ offered: AssetAmount }];
       expect(legC.offered.metadata.assetId).toEqual(TINDY);
+      expect(legC.offered.amount).toEqual(floor.amount);
     } finally {
       intent.mockRestore();
     }
