@@ -90,7 +90,7 @@ const chainLegV4Offered = (
   }
 
   if (
-    SundaeUtils.ADA_ASSET_IDS.includes(offered.metadata.assetId) &&
+    SundaeUtils.isAdaAsset(offered.metadata) &&
     offered.amount > suppliedAsset.amount
   ) {
     throw new Error(
