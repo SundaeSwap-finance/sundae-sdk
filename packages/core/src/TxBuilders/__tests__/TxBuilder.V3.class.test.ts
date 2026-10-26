@@ -922,6 +922,48 @@ describe("TxBuilderBlazeV3", () => {
         intent.mockRestore();
       }
     });
+
+    it("v4 to v3: the v3 order pays out to a custom destination", async () => {
+      const destination = PREVIEW_DATA.addresses.alternatives[0];
+      const { datum } = await new TxBuilderV4(builder.blaze).orderRouteSwap({
+        ownerAddress: owner,
+        destination: { address: destination, datum: { type: EDatumType.NONE } },
+        swapA,
+        swapB,
+      });
+
+      const legB = getV4NextLeg(datum as string).datum;
+      expect(
+        DatumBuilderV3.getDestinationAddressesFromDatum(legB.toCbor()),
+      ).toEqual({
+        paymentKeyHash: BlazeHelper.getPaymentHashFromBech32(destination),
+        stakingKeyHash: BlazeHelper.getStakingHashFromBech32(destination),
+      });
+    });
+
+    it("v4 to stableswap: the stableswap order offers exactly the v4 floor", async () => {
+      const { datum, fees } = await new TxBuilderV4(
+        builder.blaze,
+      ).orderRouteSwap({
+        ownerAddress: owner,
+        swapA,
+        swapB: {
+          ...swapB,
+          pool: {
+            ...PREVIEW_DATA.pools.v3,
+            linearAmplificationFactor: 500n,
+            version: EContractVersion.Stableswaps,
+          },
+        },
+      });
+
+      const legB = parse(V3Types.OrderDatum, getV4NextLeg(datum as string).datum);
+      expect(legB.details).toMatchObject({
+        Swap: { offer: [...TINDY.split("."), 20_000_000n] },
+      });
+      // The v4 budget (3) plus the stableswap order's fee (1).
+      expect(fees.scooperFee.amount).toEqual(4_000_000n);
+    });
   });
 
   it("orderRouteSwap() - v3 to v3", async () => {
