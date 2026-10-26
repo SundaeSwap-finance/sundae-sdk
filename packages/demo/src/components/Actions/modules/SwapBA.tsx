@@ -5,16 +5,11 @@ import { FC, useCallback, useState } from "react";
 import { Core } from "@blaze-cardano/sdk";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
+import { IActionArgs, findDemoPool } from "../Actions";
 
 export const SwapBA: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const {
-    SDK,
-    ready,
-    activeWalletAddr,
-    useReferral,
-    useV3Contracts,
-  } = useAppState();
+  const { SDK, ready, activeWalletAddr, useReferral, useV3Contracts } =
+    useAppState();
   const [swapping, setSwapping] = useState(false);
 
   const handleSwap = useCallback(async () => {
@@ -24,9 +19,7 @@ export const SwapBA: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
 
     setSwapping(true);
     try {
-      const pool = await SDK.query().findPoolData(
-        useV3Contracts ? newPoolQuery : poolQuery,
-      );
+      const pool = await findDemoPool(SDK.query(), useV3Contracts);
       await SDK.builder(
         useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
       )

@@ -40,7 +40,7 @@ names only by hash, keyed by hash, so a scooper can supply them.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:270](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L270)
+[packages/core/src/Utilities/BlazeHelper.class.ts:262](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L262)
 
 ***
 

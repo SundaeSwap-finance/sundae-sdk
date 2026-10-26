@@ -360,5 +360,5 @@ export const V3_CONTRACT_POOL_RBERRY: IPoolData = {
     bReserve: 1_000_000_000n,
     lpTotal: 0n,
   },
-  version: "V3",
+  version: EContractVersion.V3,
 };

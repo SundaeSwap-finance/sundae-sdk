@@ -1,13 +1,11 @@
 import { AssetAmount } from "@sundaeswap/asset";
-import { EContractVersion, EDatumType } from "@sundaeswap/core";
+import { EContractVersion, EDatumType, SundaeUtils } from "@sundaeswap/core";
 import { FC, useCallback, useState } from "react";
 
 import { Core } from "@blaze-cardano/sdk";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
-import { ConstantProductPool } from "@sundaeswap/math";
-import { IPoolData } from "@sundaeswap/core";
+import { IActionArgs, findDemoPool } from "../Actions";
 
 export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
   const { SDK, ready, activeWalletAddr, useReferral, useV3Contracts } =
@@ -21,15 +19,11 @@ export const Deposit: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
 
     setDepositing(true);
     try {
-      const pool = (await SDK.query().findPoolData(
-        useV3Contracts ? newPoolQuery : poolQuery,
-      )) as IPoolData;
+      const pool = await findDemoPool(SDK.query(), useV3Contracts);
       const baseAmount = 25000000n;
-      const altPairAmount = ConstantProductPool.getSwapOutput(
-        baseAmount,
-        pool.liquidity.aReserve,
-        pool.liquidity.bReserve,
-        pool.currentFee,
+      const altPairAmount = SundaeUtils.getSwapOutput(
+        pool,
+        new AssetAmount(baseAmount, pool.assetA),
       ).output;
 
       await SDK.builder(

@@ -3,6 +3,7 @@ import type { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 
 import type {
   IChainLegV4,
+  IPoolData,
   ITxBuilderReferralFee,
   TChainLeg,
 } from "../@types/index.js";
@@ -10,6 +11,7 @@ import { EContractVersion } from "../@types/index.js";
 import { EDatumType, TDestinationAddress } from "../@types/datumbuilder.js";
 import type { QueryProvider } from "../Abstracts/QueryProvider.abstract.class.js";
 import { SwapConfig } from "../Configs/SwapConfig.class.js";
+import { SundaeUtils } from "./SundaeUtils.class.js";
 
 /**
  * A chained swap places ONE order whose payout destination is the NEXT order's
@@ -31,6 +33,72 @@ export const isChainLegV4 = (leg: TChainLeg): leg is IChainLegV4 =>
 /** The contract version a leg's order belongs to. */
 export const chainLegVersion = (leg: TChainLeg): EContractVersion =>
   isChainLegV4(leg) ? EContractVersion.V4 : leg.pool.version;
+
+/**
+ * The least a v1/v3/stableswap order is guaranteed to deliver: its minimum
+ * receivable, in its pool's other asset. A chain's datums are all fixed
+ * before any order fills, so this is the most the next order can be told it
+ * will be offered.
+ */
+export const legacyLegMinOutput = (
+  pool: IPoolData,
+  suppliedAsset: AssetAmount<IAssetAmountMetadata>,
+  minReceivable: AssetAmount<IAssetAmountMetadata>,
+): AssetAmount<IAssetAmountMetadata> => {
+  const [aReserve, bReserve] = SundaeUtils.sortSwapAssetsWithAmounts([
+    new AssetAmount(pool.liquidity.aReserve, pool.assetA),
+    new AssetAmount(pool.liquidity.bReserve, pool.assetB),
+  ]);
+  return SundaeUtils.isAssetIdsEqual(
+    suppliedAsset.metadata.assetId,
+    aReserve.metadata.assetId,
+  )
+    ? bReserve.withAmount(minReceivable.amount)
+    : aReserve.withAmount(minReceivable.amount);
+};
+
+/**
+ * What a v4 leg's order offers: the caller's `offered` override, or what the
+ * previous leg guarantees to deliver.
+ *
+ * The override must name the asset that arrives. It may name more of a native
+ * token than is guaranteed, since the scooper consumes at most what the order
+ * holds. ADA is capped at what is guaranteed: the scooper spends the full
+ * offered lovelace, takes any shortfall from the order's deposit and budget,
+ * and cannot fill the order once those run out. ADA won above the guarantee
+ * reaches the destination unconverted.
+ */
+const chainLegV4Offered = (
+  leg: IChainLegV4,
+  suppliedAsset: AssetAmount<IAssetAmountMetadata>,
+): AssetAmount<IAssetAmountMetadata> => {
+  const { offered } = leg;
+  if (!offered) {
+    return suppliedAsset;
+  }
+
+  if (
+    !SundaeUtils.isAssetIdsEqual(
+      offered.metadata.assetId,
+      suppliedAsset.metadata.assetId,
+    )
+  ) {
+    throw new Error(
+      `A chained v4 order's offered asset (${offered.metadata.assetId}) ` +
+        "must be the asset the order before it delivers " +
+        `(${suppliedAsset.metadata.assetId}).`,
+    );
+  }
+
+  if (
+    SundaeUtils.isAdaAsset(offered.metadata) &&
+    offered.amount > suppliedAsset.amount
+  ) {
+    return suppliedAsset;
+  }
+
+  return offered;
+};
 
 /**
  * A built chain leg, described from the point of view of the leg BEFORE it:
@@ -127,11 +195,7 @@ export const buildChainLeg = async ({
       builder.swapIntent({
         ownerAddress,
         destination,
-        // A v4 order's offered is an upper bound on what a scooper may
-        // consume, so a caller may name the expected fill rather than the
-        // previous leg's minimum and have the whole arrival converted. Falls
-        // back to what actually arrives when no expectation is given.
-        offered: leg.offered ?? suppliedAsset,
+        offered: chainLegV4Offered(leg, suppliedAsset),
         minReceived: leg.minReceived,
         budget: leg.budget,
         maxPerExecution: leg.maxPerExecution,

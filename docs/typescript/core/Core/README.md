@@ -75,6 +75,7 @@ SundaeSwap protocol.
 - [IMintPoolV4Args](interfaces/IMintPoolV4Args.md)
 - [IOrderConfigArgs](interfaces/IOrderConfigArgs.md)
 - [IOrderRouteSwapArgs](interfaces/IOrderRouteSwapArgs.md)
+- [IOrderRouteSwapV4Args](interfaces/IOrderRouteSwapV4Args.md)
 - [IOrderV4Base](interfaces/IOrderV4Base.md)
 - [IPoolByAssetQuery](interfaces/IPoolByAssetQuery.md)
 - [IPoolByIdentQuery](interfaces/IPoolByIdentQuery.md)
@@ -138,6 +139,7 @@ SundaeSwap protocol.
 - [TUpdateSwap](type-aliases/TUpdateSwap.md)
 - [TUpdateV4Order](type-aliases/TUpdateV4Order.md)
 - [TUTXO](type-aliases/TUTXO.md)
+- [TV4ChainFirstLeg](type-aliases/TV4ChainFirstLeg.md)
 - [TWithdraw](type-aliases/TWithdraw.md)
 
 ### Variables

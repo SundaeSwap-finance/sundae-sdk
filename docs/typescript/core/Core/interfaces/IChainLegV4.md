@@ -20,7 +20,7 @@ the order, so the preceding leg forwards it.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:153](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L153)
+[packages/core/src/@types/txbuilders.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L160)
 
 ***
 
@@ -46,7 +46,7 @@ whole of it.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:159](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L159)
+[packages/core/src/@types/txbuilders.ts:166](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L166)
 
 ***
 
@@ -58,7 +58,7 @@ The minimum the owner will accept, per asset.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L146)
+[packages/core/src/@types/txbuilders.ts:153](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L153)
 
 ***
 
@@ -77,9 +77,16 @@ holding the intermediate asset, in proportion to their slippage setting.
 
 A v4 order's `offered` is an UPPER BOUND, not an exact amount: the
 validator checks `consumed <= offered` per asset
-(`check_basic_consumption`). Naming more than arrives does not make the
-order unfillable — the scooper simply consumes what is there. So a chain
-into v4 can state the EXPECTED fill and convert all of it.
+(`check_basic_consumption`). For a native token, naming more than arrives
+does not make the order unfillable, because the scooper consumes at most
+what the order holds. So a chain into v4 can state the EXPECTED fill of a
+token and convert all of it.
+
+It must name the asset the previous leg delivers, or this throws. ADA is
+capped at what the previous leg guarantees: the scooper spends the full
+offered lovelace, taking any shortfall from the order's deposit and
+budget, and cannot fill the order once those run out. ADA won above the
+guarantee reaches the destination unconverted.
 
 Only safe for a leg whose contract bounds consumption this way. v1 and v3
 cannot overstate what they offer, which is why this is a per-leg override
@@ -93,4 +100,4 @@ whenever the previous leg underfills.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:144](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L144)
+[packages/core/src/@types/txbuilders.ts:151](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L151)
