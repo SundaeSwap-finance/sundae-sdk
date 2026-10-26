@@ -24,5 +24,7 @@ use the route constraint that `TxBuilderV4.swap` refuses to build.
 - v1 legs are refused: a v1 order cannot read the inline datum a v4 order
   attaches, so its funds could never be spent or cancelled.
 
-`legacyLegMinOutput` (internal) now computes a legacy leg's guaranteed output
-for the v1, v3 and v4 chain builders.
+The v1 and v3 `orderRouteSwap` builders now compare ADA asset ids alias-aware
+(`""`, `"."`, `"ada.lovelace"` are the same asset) when working out which asset
+their first leg delivers. An ADA id written in an alias form previously picked
+the wrong side of the pool, so the second leg was offered the wrong asset.
