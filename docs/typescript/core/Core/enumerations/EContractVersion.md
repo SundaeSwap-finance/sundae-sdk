@@ -15,7 +15,7 @@ of any time that interact with SundaeSwap contracts.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:74](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L74)
+[packages/core/src/@types/txbuilders.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L75)
 
 ***
 
@@ -25,7 +25,7 @@ of any time that interact with SundaeSwap contracts.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L73)
+[packages/core/src/@types/txbuilders.ts:74](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L74)
 
 ***
 
@@ -35,7 +35,7 @@ of any time that interact with SundaeSwap contracts.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:75](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L75)
+[packages/core/src/@types/txbuilders.ts:76](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L76)
 
 ***
 
@@ -45,7 +45,7 @@ of any time that interact with SundaeSwap contracts.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:71](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L71)
+[packages/core/src/@types/txbuilders.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L72)
 
 ***
 
@@ -55,7 +55,7 @@ of any time that interact with SundaeSwap contracts.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:72](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L72)
+[packages/core/src/@types/txbuilders.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L73)
 
 ***
 
@@ -65,4 +65,4 @@ of any time that interact with SundaeSwap contracts.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:76](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L76)
+[packages/core/src/@types/txbuilders.ts:77](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L77)
