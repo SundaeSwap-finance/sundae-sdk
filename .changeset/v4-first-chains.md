@@ -18,6 +18,9 @@ use the route constraint that `TxBuilderV4.swap` refuses to build.
   budget plus that forwarded ADA.
 - `ownerAddress` owns every leg, so the owner can cancel any leg that cannot
   fill.
+- Every leg's referral fee is paid in one output, so they must name the same
+  destination; differing destinations throw. The label published under
+  metadata key 674 is the first leg's that has one, in leg order.
 - v1 legs are refused: a v1 order cannot read the inline datum a v4 order
   attaches, so its funds could never be spent or cancelled.
 

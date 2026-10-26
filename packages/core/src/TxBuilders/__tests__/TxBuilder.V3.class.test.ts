@@ -859,6 +859,69 @@ describe("TxBuilderBlazeV3", () => {
       intent.mockRestore();
       expect(legC.offered.metadata.assetId).toEqual(TINDY);
     });
+
+    it("v4 to v3 to v3: the v3 legs chain, and a later leg's referral label wins when swapA has none", async () => {
+      const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
+      const referral = (feeLabel: string) => ({
+        destination: TEST_REFERRAL_DEST,
+        payment: new Core.Value(1_000_000n),
+        feeLabel,
+      });
+      try {
+        const { datum, fees, build } = await new TxBuilderV4(
+          builder.blaze,
+        ).orderRouteSwap({
+          ownerAddress: owner,
+          swapA,
+          swapB: { ...swapB, referralFee: referral("Leg B Label") },
+          // Sells swapB's ADA back into tINDY on the same v3 pool.
+          swapC: { ...swapB, referralFee: referral("Leg C Label") },
+        });
+
+        // No v4 leg after the v4 order, so no further intent is placed.
+        expect(intent).not.toHaveBeenCalled();
+
+        // swapB pays into a v3 order carrying swapC's datum, and swapC is
+        // offered swapB's ADA floor.
+        const legB = getV4NextLeg(datum as string).datum;
+        const legC = getNextLeg(legB.toCbor());
+        expect(legC.address.paymentCredential).toEqual({
+          ScriptCredential: [V3_ORDER_HASH],
+        });
+        const legBFloor = new SwapConfig({
+          ...swapB,
+          suppliedAsset: PREVIEW_DATA.assets.tindy,
+          ownerAddress: owner,
+          orderAddresses: {
+            DestinationAddress: {
+              address: owner,
+              datum: { type: EDatumType.NONE },
+            },
+          },
+        }).buildArgs().minReceivable;
+        expect(
+          parse(V3Types.OrderDatum, legC.datum as Core.PlutusData).details,
+        ).toMatchObject({ Swap: { offer: ["", "", legBFloor.amount] } });
+
+        // v4 budget 3 + v3 fees 1 + 1 + the routed deposit's extra 1 ADA
+        // over the v4 order's own deposit.
+        expect(fees.scooperFee.amount).toEqual(6_000_000n);
+
+        // Both referrals are paid in one output, under swapB's label.
+        const { builtTx } = await build();
+        const paid = builtTx
+          .body()
+          .outputs()
+          .filter((out) => out.address().toBech32() === TEST_REFERRAL_DEST);
+        expect(paid).toHaveLength(1);
+        expect(paid[0].amount().coin()).toEqual(2_000_000n);
+        expect(
+          builtTx.auxiliaryData()?.metadata()?.metadata()?.get(674n)?.asText(),
+        ).toEqual("Leg B Label");
+      } finally {
+        intent.mockRestore();
+      }
+    });
   });
 
   it("orderRouteSwap() - v3 to v3", async () => {

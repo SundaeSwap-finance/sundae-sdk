@@ -732,7 +732,8 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    *   reports the v4 budget plus that forwarded ADA.
    * - **Referrals.** Every order's referral fee is paid in one output of this
    *   transaction, so they must all name the same destination; if they don't,
-   *   this throws.
+   *   this throws. The label published is the first leg's that has one, in
+   *   leg order `swapA`, `swapB`, `swapC`.
    * - **Ownership.** `ownerAddress` owns every order, so the owner can cancel
    *   any order that cannot fill.
    */
@@ -761,7 +762,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     let legBDestination = args.destination;
     // ADA the v4 order locks on behalf of the orders after it.
     let forwarded = 0n;
-    const referrals = [swapA.referralFee];
+    let referralC: ITxBuilderReferralFee | undefined;
     if (swapC) {
       // swapC is offered the least swapB can deliver: swapB's minimum,
       // priced on its pool from the least the v4 order can deliver.
@@ -796,7 +797,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       // reaches swapB with the fill, so only the difference is added.
       forwarded +=
         builtC.scooperFee + ORDER_ROUTE_DEPOSIT_DEFAULT - ORDER_DEPOSIT_DEFAULT;
-      referrals.push(builtC.referralFee);
+      referralC = builtC.referralFee;
     }
 
     const builtB = await buildChainLeg({
@@ -807,12 +808,11 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       suppliedAsset: swapA.minReceived,
     });
     forwarded += builtB.scooperFee;
-    referrals.push(builtB.referralFee);
 
     // Every order's referral fee is paid once, in this transaction, under the
-    // first fee's label. One output pays them all, so they must share a
+    // first leg's label. One output pays them all, so they must share a
     // destination.
-    const paid = referrals.filter(
+    const paid = [swapA.referralFee, builtB.referralFee, referralC].filter(
       (fee): fee is ITxBuilderReferralFee => fee !== undefined,
     );
     if (paid.some((fee) => fee.destination !== paid[0].destination)) {
