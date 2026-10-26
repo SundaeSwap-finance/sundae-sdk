@@ -58,6 +58,55 @@ export const legacyLegMinOutput = (
 };
 
 /**
+ * What a v4 leg's order offers: the caller's `offered` override, or what the
+ * previous leg guarantees to deliver.
+ *
+ * The override must name the asset that arrives. It may name more of a native
+ * token than is guaranteed, since the scooper consumes at most what the order
+ * holds. It may not name more ADA: the scooper spends the full offered
+ * lovelace, takes any shortfall from the order's deposit and budget, and
+ * cannot fill the order once those run out.
+ */
+const chainLegV4Offered = (
+  leg: IChainLegV4,
+  suppliedAsset: AssetAmount<IAssetAmountMetadata>,
+): AssetAmount<IAssetAmountMetadata> => {
+  const { offered } = leg;
+  if (!offered) {
+    return suppliedAsset;
+  }
+
+  if (
+    !SundaeUtils.isAssetIdsEqual(
+      offered.metadata.assetId,
+      suppliedAsset.metadata.assetId,
+    )
+  ) {
+    throw new Error(
+      `A chained v4 order's offered asset (${offered.metadata.assetId}) ` +
+        "must be the asset the order before it delivers " +
+        `(${suppliedAsset.metadata.assetId}).`,
+    );
+  }
+
+  if (
+    SundaeUtils.ADA_ASSET_IDS.includes(offered.metadata.assetId) &&
+    offered.amount > suppliedAsset.amount
+  ) {
+    throw new Error(
+      `A chained v4 order cannot offer ${offered.amount} lovelace when the ` +
+        `order before it only guarantees ${suppliedAsset.amount}: the ` +
+        "scooper spends the full offered lovelace, taking any shortfall from " +
+        "the order's deposit and budget, and cannot fill the order once those " +
+        "run out. Offer at most the guaranteed amount; ADA won above it " +
+        "reaches the destination unconverted.",
+    );
+  }
+
+  return offered;
+};
+
+/**
  * A built chain leg, described from the point of view of the leg BEFORE it:
  * where to pay out, how to attach the datum, and how much ADA to forward.
  */
@@ -152,11 +201,7 @@ export const buildChainLeg = async ({
       builder.swapIntent({
         ownerAddress,
         destination,
-        // A v4 order's offered is an upper bound on what a scooper may
-        // consume, so a caller may name the expected fill rather than the
-        // previous leg's minimum and have the whole arrival converted. Falls
-        // back to what actually arrives when no expectation is given.
-        offered: leg.offered ?? suppliedAsset,
+        offered: chainLegV4Offered(leg, suppliedAsset),
         minReceived: leg.minReceived,
         budget: leg.budget,
         maxPerExecution: leg.maxPerExecution,

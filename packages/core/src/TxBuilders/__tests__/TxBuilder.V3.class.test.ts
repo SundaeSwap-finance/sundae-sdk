@@ -501,21 +501,19 @@ describe("TxBuilderBlazeV3", () => {
     // A chained leg's datum is fixed before the previous leg fills, so by
     // default it can only name that leg's MINIMUM. Anything won above it
     // arrives unclaimed and comes back unconverted. A v4 order's `offered` is
-    // an upper bound (the validator checks `consumed <= offered`), so a caller
-    // may name the expected fill and have all of it converted.
+    // an upper bound (the validator checks `consumed <= offered`), and the
+    // scooper consumes at most the tokens the order holds, so a caller may
+    // name the expected token fill and have all of it converted.
     const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
-    const expected = new AssetAmount(5_000_000n, {
-      assetId:
-        "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
-      decimals: 6,
-    });
+    // swapA sells 20 ADA for tINDY, guaranteeing well under 25,000,000.
+    const expected = PREVIEW_DATA.assets.tindy.withAmount(25_000_000n);
 
     await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
       swapA: {
         swapType: { type: ESwapType.MARKET, slippage: 0.03 },
         pool: PREVIEW_DATA.pools.v3,
-        suppliedAsset: PREVIEW_DATA.assets.tindy,
+        suppliedAsset: PREVIEW_DATA.assets.tada,
       },
       swapB: {
         contractVersion: EContractVersion.V4,
@@ -530,6 +528,50 @@ describe("TxBuilderBlazeV3", () => {
     const [args] = intent.mock.calls[0] as [{ offered: AssetAmount }];
     expect(args.offered.amount).toBe(expected.amount);
     intent.mockRestore();
+  });
+
+  it("orderRouteSwap() - a v4 leg cannot be offered more ADA than the previous leg guarantees", async () => {
+    // The scooper spends the full offered lovelace, so an ADA offer above
+    // what arrives eats the order's deposit and budget, then stops it filling.
+    await expect(
+      builder.orderRouteSwap({
+        ownerAddress: PREVIEW_DATA.addresses.current,
+        swapA: {
+          swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+          pool: PREVIEW_DATA.pools.v3,
+          // Sells 20,000,000 tINDY, guaranteeing well under 25 ADA.
+          suppliedAsset: PREVIEW_DATA.assets.tindy,
+        },
+        swapB: {
+          contractVersion: EContractVersion.V4,
+          minReceived: PREVIEW_DATA.assets.usdc,
+          offered: new AssetAmount(25_000_000n, ADA_METADATA),
+          budget: 3_000_000n,
+          configToken: "aabb",
+        },
+      }),
+    ).rejects.toThrow(/cannot offer 25000000 lovelace/);
+  });
+
+  it("orderRouteSwap() - a v4 leg's offered must be the asset the previous leg delivers", async () => {
+    await expect(
+      builder.orderRouteSwap({
+        ownerAddress: PREVIEW_DATA.addresses.current,
+        swapA: {
+          swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+          pool: PREVIEW_DATA.pools.v3,
+          // Sells tINDY, so swapA delivers ADA.
+          suppliedAsset: PREVIEW_DATA.assets.tindy,
+        },
+        swapB: {
+          contractVersion: EContractVersion.V4,
+          minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+          offered: PREVIEW_DATA.assets.usdc,
+          budget: 3_000_000n,
+          configToken: "aabb",
+        },
+      }),
+    ).rejects.toThrow(/must be the asset the order before it delivers/);
   });
 
   it("orderRouteSwap() - a v4 leg defaults to what the previous leg guarantees", async () => {

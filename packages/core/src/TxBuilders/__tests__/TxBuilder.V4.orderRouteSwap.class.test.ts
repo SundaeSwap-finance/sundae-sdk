@@ -325,6 +325,36 @@ describe("TxBuilderV4.orderRouteSwap()", () => {
     }
   });
 
+  it("v4 to v3 to v4: the last order may offer up to the ADA the v3 order guarantees, not more", async () => {
+    // The v3 order sells tINDY for ADA, so the last order is offered ADA. The
+    // scooper spends the full offered lovelace, so offering more than the
+    // v3 floor would take the shortfall from the order's deposit and budget.
+    const adaFloor = v3Floor(PREVIEW_DATA.assets.tindy);
+    const v4 = new TxBuilderV4(blaze);
+    const withOffered = (amount: bigint) =>
+      v4.orderRouteSwap({
+        ownerAddress: owner,
+        legs: [
+          v4First,
+          v3Leg,
+          { ...v4Last, offered: adaFloor.withAmount(amount) },
+        ],
+      });
+
+    await expect(withOffered(adaFloor.amount + 1n)).rejects.toThrow(
+      /cannot offer \d+ lovelace when the order before it only guarantees/,
+    );
+
+    const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
+    try {
+      await withOffered(adaFloor.amount);
+      const [legC] = intent.mock.calls[0] as [{ offered: AssetAmount }];
+      expect(legC.offered.amount).toEqual(adaFloor.amount);
+    } finally {
+      intent.mockRestore();
+    }
+  });
+
   it("refuses to chain into v1, which cannot read an inline datum", async () => {
     const v1Leg = { ...v3Leg, pool: PREVIEW_DATA.pools.v1 };
     const v4 = new TxBuilderV4(blaze);
