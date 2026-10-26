@@ -10,4 +10,4 @@ A legacy (v1 / v3 / stableswap / nft-check) leg of a chained swap.
 
 ## Defined in
 
-[packages/core/src/@types/txbuilders.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L160)
+[packages/core/src/@types/txbuilders.ts:165](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L165)

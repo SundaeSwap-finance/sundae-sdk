@@ -101,6 +101,7 @@ SundaeSwap protocol.
 - [ITxBuilderCompleteTxArgs](interfaces/ITxBuilderCompleteTxArgs.md)
 - [ITxBuilderFees](interfaces/ITxBuilderFees.md)
 - [ITxBuilderReferralFee](interfaces/ITxBuilderReferralFee.md)
+- [ITxBuilderSubmit](interfaces/ITxBuilderSubmit.md)
 - [ITxBuilderV1BlazeParams](interfaces/ITxBuilderV1BlazeParams.md)
 - [IUpdateArgs](interfaces/IUpdateArgs.md)
 - [IUpdateV4Args](interfaces/IUpdateV4Args.md)

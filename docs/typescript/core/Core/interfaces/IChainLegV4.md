@@ -20,7 +20,7 @@ the order, so the preceding leg forwards it.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L148)
+[packages/core/src/@types/txbuilders.ts:153](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L153)
 
 ***
 
@@ -32,7 +32,7 @@ Discriminator. A v4 leg is an intent, not a swap against one pool.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:112](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L112)
+[packages/core/src/@types/txbuilders.ts:117](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L117)
 
 ***
 
@@ -46,7 +46,7 @@ whole of it.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:154](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L154)
+[packages/core/src/@types/txbuilders.ts:159](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L159)
 
 ***
 
@@ -58,7 +58,7 @@ The minimum the owner will accept, per asset.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:141](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L141)
+[packages/core/src/@types/txbuilders.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L146)
 
 ***
 
@@ -93,4 +93,4 @@ whenever the previous leg underfills.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:139](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L139)
+[packages/core/src/@types/txbuilders.ts:144](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L144)

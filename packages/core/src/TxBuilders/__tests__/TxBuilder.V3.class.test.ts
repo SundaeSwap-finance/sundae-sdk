@@ -9,7 +9,7 @@ import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 import { parse, Void } from "@blaze-cardano/data";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
-import { ITxBuilderFees } from "../../@types/txbuilders.js";
+import { IComposedTx, ITxBuilderFees } from "../../@types/txbuilders.js";
 import {
   V1Types,
   V3Types,
@@ -99,8 +99,7 @@ const V4_ORDER_HASH = "11".repeat(28);
 spyOn(TxBuilderV4.prototype, "getValidatorScript").mockImplementation(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (async (name: string) => {
-    const hash =
-      name === V4_VALIDATORS.order ? V4_ORDER_HASH : "22".repeat(28);
+    const hash = name === V4_VALIDATORS.order ? V4_ORDER_HASH : "22".repeat(28);
     return { hash, blueprint: { validators: [] } };
   }) as any,
 );
@@ -426,9 +425,7 @@ describe("TxBuilderBlazeV3", () => {
       feePadding: 1_000_000n,
     });
 
-    expect(fees.deposit.amount).toEqual(
-      ORDER_DEPOSIT_DEFAULT + 1_000_000n,
-    );
+    expect(fees.deposit.amount).toEqual(ORDER_DEPOSIT_DEFAULT + 1_000_000n);
     expect(fees.deposit.amount).toEqual(3_000_000n);
 
     const { builtTx } = await build();
@@ -1994,5 +1991,49 @@ describe("TxBuilderBlazeV3", () => {
         "Decaying fees are currently not supported in the scoopers. For now, use the same fee for both start and end values.",
       );
     }
+  });
+});
+
+type SubmitResultOf<Composed> = Composed extends {
+  build: () => Promise<{
+    sign: () => Promise<{ submit: () => Promise<infer Result> }>;
+  }>;
+}
+  ? Result
+  : never;
+
+// True only when A and B are the same type; `typecheck` fails otherwise.
+type IsExactly<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2
+    ? true
+    : false;
+
+describe("submit() result type", () => {
+  it("is the transaction hash for every builder's orders", () => {
+    const v1: IsExactly<
+      SubmitResultOf<Awaited<ReturnType<TxBuilderV1["swap"]>>>,
+      string
+    > = true;
+    const v3: IsExactly<
+      SubmitResultOf<Awaited<ReturnType<TxBuilderV3["swap"]>>>,
+      string
+    > = true;
+    const v4: IsExactly<
+      SubmitResultOf<Awaited<ReturnType<TxBuilderV4["swapIntent"]>>>,
+      string
+    > = true;
+    expect([v1, v3, v4]).toEqual([true, true, true]);
+  });
+
+  it("follows the composed transaction's declared result", () => {
+    type Result = { txHash: string; extra: number };
+
+    const declared: IsExactly<
+      SubmitResultOf<
+        IComposedTx<BlazeTx, Core.Transaction, string, object, Result>
+      >,
+      Result
+    > = true;
+    expect(declared).toBe(true);
   });
 });

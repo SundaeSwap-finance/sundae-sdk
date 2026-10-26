@@ -2,7 +2,7 @@
 
 ***
 
-# Interface: IComposedTx\<Transaction, BuiltTransaction, Datum, Fees\>
+# Interface: IComposedTx\<Transaction, BuiltTransaction, Datum, Fees, SubmitResult\>
 
 The primary top-level API surface for dealing with built TxBuilder transactions.
 
@@ -15,3 +15,5 @@ The primary top-level API surface for dealing with built TxBuilder transactions.
 • **Datum** = `string` \| `undefined`
 
 • **Fees** = `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>
+
+• **SubmitResult** = `string`

@@ -10,4 +10,4 @@ One leg of a chained swap, after the first.
 
 ## Defined in
 
-[packages/core/src/@types/txbuilders.ts:166](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L166)
+[packages/core/src/@types/txbuilders.ts:171](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L171)
