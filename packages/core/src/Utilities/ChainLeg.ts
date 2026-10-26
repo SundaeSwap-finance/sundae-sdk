@@ -63,9 +63,10 @@ export const legacyLegMinOutput = (
  *
  * The override must name the asset that arrives. It may name more of a native
  * token than is guaranteed, since the scooper consumes at most what the order
- * holds. It may not name more ADA: the scooper spends the full offered
- * lovelace, takes any shortfall from the order's deposit and budget, and
- * cannot fill the order once those run out.
+ * holds. ADA is capped at what is guaranteed: the scooper spends the full
+ * offered lovelace, takes any shortfall from the order's deposit and budget,
+ * and cannot fill the order once those run out. ADA won above the guarantee
+ * reaches the destination unconverted.
  */
 const chainLegV4Offered = (
   leg: IChainLegV4,
@@ -93,14 +94,7 @@ const chainLegV4Offered = (
     SundaeUtils.isAdaAsset(offered.metadata) &&
     offered.amount > suppliedAsset.amount
   ) {
-    throw new Error(
-      `A chained v4 order cannot offer ${offered.amount} lovelace when the ` +
-        `order before it only guarantees ${suppliedAsset.amount}: the ` +
-        "scooper spends the full offered lovelace, taking any shortfall from " +
-        "the order's deposit and budget, and cannot fill the order once those " +
-        "run out. Offer at most the guaranteed amount; ADA won above it " +
-        "reaches the destination unconverted.",
-    );
+    return suppliedAsset;
   }
 
   return offered;

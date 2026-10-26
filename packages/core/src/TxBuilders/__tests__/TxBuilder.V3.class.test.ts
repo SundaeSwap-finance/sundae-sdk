@@ -530,10 +530,12 @@ describe("TxBuilderBlazeV3", () => {
     intent.mockRestore();
   });
 
-  it("orderRouteSwap() - a v4 leg cannot be offered more ADA than the previous leg guarantees", async () => {
+  it("orderRouteSwap() - a v4 leg's ADA offer is capped at what the previous leg guarantees", async () => {
     // The scooper spends the full offered lovelace, so an ADA offer above
-    // what arrives eats the order's deposit and budget, then stops it filling.
-    await expect(
+    // what arrives would eat the order's deposit and budget, then stop it
+    // filling.
+    const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
+    const placeWith = (offered?: AssetAmount) =>
       builder.orderRouteSwap({
         ownerAddress: PREVIEW_DATA.addresses.current,
         swapA: {
@@ -545,12 +547,21 @@ describe("TxBuilderBlazeV3", () => {
         swapB: {
           contractVersion: EContractVersion.V4,
           minReceived: PREVIEW_DATA.assets.usdc,
-          offered: new AssetAmount(25_000_000n, ADA_METADATA),
+          offered,
           budget: 3_000_000n,
           configToken: "aabb",
         },
-      }),
-    ).rejects.toThrow(/cannot offer 25000000 lovelace/);
+      });
+
+    await placeWith(new AssetAmount(25_000_000n, ADA_METADATA));
+    await placeWith();
+
+    const [capped, guaranteed] = intent.mock.calls.map(
+      ([args]) => args.offered.amount,
+    );
+    expect(guaranteed).toBeLessThan(25_000_000n);
+    expect(capped).toEqual(guaranteed);
+    intent.mockRestore();
   });
 
   it("orderRouteSwap() - a v4 leg's offered must be the asset the previous leg delivers", async () => {
