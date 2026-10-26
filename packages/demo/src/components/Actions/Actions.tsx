@@ -22,6 +22,7 @@ import { UnlockV1 } from "./modules/UnlockAssetsV1";
 import { UpdateSwap } from "./modules/UpdateSwap";
 import { V4Deposit } from "./modules/V4Deposit";
 import { V4Swap } from "./modules/V4Swap";
+import { V4OrderRouting } from "./modules/V4OrderRouting";
 import { V4Withdraw } from "./modules/V4Withdraw";
 import { Withdraw } from "./modules/Withdraw";
 import { Zap } from "./modules/Zap";
@@ -174,6 +175,7 @@ export const Actions: FC = () => {
           <hr className="my-10 w-full" />
         </div>
         <OrderRouting setFees={setFees} setCBOR={setCBOR} submit={submit} />
+        <V4OrderRouting setFees={setFees} setCBOR={setCBOR} submit={submit} />
       </div>
       {cbor.hash && (
         <>
