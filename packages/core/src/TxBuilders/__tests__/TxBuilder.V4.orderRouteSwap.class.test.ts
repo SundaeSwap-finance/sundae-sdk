@@ -7,6 +7,7 @@ import { ESwapType } from "../../@types/configs.js";
 import { EDatumType } from "../../@types/datumbuilder.js";
 import {
   EContractVersion,
+  IPoolData,
   ISundaeProtocolValidatorFull,
   TChainLeg,
 } from "../../@types/index.js";
@@ -391,6 +392,82 @@ describe("TxBuilderV4.orderRouteSwap()", () => {
         legs: [v4First, v3Leg, v4Last, v3Leg],
       }),
     ).rejects.toThrow(/only places a later v4 order as the last order/);
+  });
+
+  it("refuses nft-check and other non-v3, non-stableswap older-pool orders", async () => {
+    // An nft-check order is only scooped while it holds its condition NFT,
+    // which the chain never forwards.
+    const v4 = new TxBuilderV4(blaze);
+    for (const pool of [
+      PREVIEW_DATA.pools.nftCheck,
+      { ...PREVIEW_DATA.pools.v3, version: EContractVersion.Condition },
+    ]) {
+      await expect(
+        v4.orderRouteSwap({
+          ownerAddress: owner,
+          legs: [v4First, { ...v3Leg, pool }],
+        }),
+      ).rejects.toThrow(/only chains into v3 and stableswap orders/);
+    }
+  });
+
+  it("refuses an older-pool order whose pool does not hold what arrives", async () => {
+    // tINDY/USDC: holds neither ADA nor, for the second case, what arrives.
+    const noAda: IPoolData = {
+      ...PREVIEW_DATA.pools.v3,
+      assetA: PREVIEW_DATA.pools.v3.assetB,
+      assetB: {
+        assetId: PREVIEW_DATA.assets.usdc.metadata.assetId,
+        decimals: 6,
+      },
+    };
+    const v4 = new TxBuilderV4(blaze);
+    // The v4 order delivers ADA, which a tINDY/USDC LIMIT order cannot sell.
+    await expect(
+      v4.orderRouteSwap({
+        ownerAddress: owner,
+        legs: [
+          {
+            ...v4First,
+            minReceived: new AssetAmount(25_000_000n, ADA_METADATA),
+          },
+          {
+            swapType: {
+              type: ESwapType.LIMIT,
+              minReceivable: PREVIEW_DATA.assets.usdc,
+            },
+            pool: noAda,
+          },
+        ],
+      }),
+    ).rejects.toThrow(/order 2 is on pool .* does not hold ada\.lovelace/);
+    // The first v3 order delivers ADA, which the third order's pool lacks.
+    await expect(
+      v4.orderRouteSwap({
+        ownerAddress: owner,
+        legs: [v4First, v3Leg, { ...v3Leg, pool: noAda }],
+      }),
+    ).rejects.toThrow(/order 3 is on pool .* does not hold/);
+  });
+
+  it("refuses more than five orders", async () => {
+    // Each order nests the next one's datum; ten orders nest past the 32
+    // CBOR levels SundaeSwap's Go datum parsers read.
+    const v4 = new TxBuilderV4(blaze);
+    await expect(
+      v4.orderRouteSwap({
+        ownerAddress: owner,
+        legs: [v4First, v3Leg, v3Leg, v3Leg, v3Leg, v3Leg],
+      }),
+    ).rejects.toThrow(/at most 5 orders, not 6/);
+    expect(
+      (
+        await v4.orderRouteSwap({
+          ownerAddress: owner,
+          legs: [v4First, v3Leg, v3Leg, v3Leg, v3Leg],
+        })
+      ).datum,
+    ).toBeDefined();
   });
 
   it("sums token referral fees from every order into one output", async () => {

@@ -13,10 +13,16 @@ The v4 order is a plain intent, like `swapIntent`, with a `Fixed` destination at
 the next order's script address carrying that order's datum inline. It does not
 use the route constraint that `TxBuilderV4.swap` refuses to build.
 
-Three kinds of chain are refused:
+These chains are refused:
 
 - No v1 order after the v4 one: a v1 order cannot read the inline datum a v4
   order attaches, so its funds could never be spent or cancelled.
+- Only v3 and stableswap older-pool orders: an nft-check order is only scooped
+  while it holds its condition NFT, which a chain does not forward.
+- Each older-pool order's pool must hold the asset the order before it
+  delivers.
+- At most five orders: each order nests the next one's datum, and a long
+  enough chain nests deeper than SundaeSwap's datum parsers read.
 - No two v4 orders in a row: one v4 order already routes across any number of
   v4 pools.
 - A later v4 order must be the last one; a v4 order in the middle of a chain is

@@ -93,6 +93,13 @@ export const V4_VALIDATORS = {
  */
 const DEFAULT_BUDGET = 3_000_000n;
 const DEFAULT_MAX_PER_EXECUTION = 2_000_000n;
+/**
+ * The most orders {@link TxBuilderV4.orderRouteSwap} chains. Each order nests
+ * the next one's datum, and SundaeSwap's Go datum parsers stop at 32 levels of
+ * CBOR nesting, which a chain of 10 orders exceeds. Five leaves room for a
+ * custom destination's own datum.
+ */
+const MAX_CHAIN_ORDERS = 5;
 
 /** Min-ADA overhead for a token-only pool UTxO (no ADA reserve). */
 const POOL_MIN_ADA = 3_000_000n;
@@ -716,12 +723,20 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * order's datum attached inline. It does not use the route constraint that
    * {@link swap} refuses to build.
    *
-   * It refuses three kinds of chain:
+   * It refuses these chains:
    *
    * - **No v1.** A v4 order can only attach its payout's datum inline, and a
    *   v1 order is a Plutus V1 script, which cannot read an inline datum. A v1
    *   order anywhere after the v4 order would lock funds that nothing could
    *   spend, not even a cancel, so this throws instead.
+   * - **Only v3 and stableswap older-pool orders.** An nft-check order is
+   *   only scooped while it holds its condition NFT, which a chain does not
+   *   forward, so it would never fill.
+   * - **Each older-pool order's pool must hold what arrives.** Otherwise the
+   *   order could never fill, and it would only be found after the orders
+   *   before it had filled.
+   * - **At most five orders.** Each order nests the next one's datum, and a
+   *   long enough chain nests deeper than SundaeSwap's datum parsers read.
    * - **No two v4 orders in a row.** One v4 order already routes across any
    *   number of v4 pools, so a second one directly after it is never needed.
    * - **A later v4 order must be last.** A v4 order in the middle of a chain
@@ -754,6 +769,15 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       legs: [first, ...rest],
     } = args;
 
+    if (args.legs.length > MAX_CHAIN_ORDERS) {
+      throw new Error(
+        `TxBuilderV4.orderRouteSwap places at most ${MAX_CHAIN_ORDERS} ` +
+          `orders, not ${args.legs.length}: each order nests the next one's ` +
+          "datum, and a longer chain nests deeper than SundaeSwap's datum " +
+          "parsers read.",
+      );
+    }
+
     // What each later order is offered: the least the order before it can
     // deliver, since every datum is fixed before any order fills.
     const offeredTo: AssetAmount<IAssetAmountMetadata>[] = [];
@@ -782,6 +806,29 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
             "attaches its payout datum inline, and a v1 order (a Plutus V1 " +
             "script) cannot read an inline datum, so the funds could never " +
             "be spent or cancelled. Route through a v3 pool instead.",
+        );
+      }
+      if (
+        leg.pool.version !== EContractVersion.V3 &&
+        leg.pool.version !== EContractVersion.Stableswaps
+      ) {
+        throw new Error(
+          "TxBuilderV4.orderRouteSwap only chains into v3 and stableswap " +
+            `orders, not ${leg.pool.version}: an nft-check order is only ` +
+            "scooped while it holds its condition NFT, which a chain does " +
+            "not forward.",
+        );
+      }
+      if (
+        ![leg.pool.assetA, leg.pool.assetB].some(({ assetId }) =>
+          SundaeUtils.isAssetIdsEqual(assetId, arriving.metadata.assetId),
+        )
+      ) {
+        throw new Error(
+          `TxBuilderV4.orderRouteSwap: order ${index + 2} is on pool ` +
+            `${leg.pool.ident}, which does not hold ` +
+            `${arriving.metadata.assetId}, the asset the order before it ` +
+            "delivers.",
         );
       }
       if (!isLast) {
