@@ -12,7 +12,6 @@ import type {
   ITxBuilderFees,
   ITxBuilderReferralFee,
   TChainLeg,
-  TChainLegLegacy,
   TSupportedNetworks,
   TUTXO,
 } from "../@types/index.js";
@@ -217,27 +216,27 @@ export interface IBatchV4Args {
 }
 
 /**
- * Arguments for {@link TxBuilderV4.orderRouteSwap}: a chain of orders that
- * starts with a v4 order. The v4 order pays into a v3 or stableswap order
- * (`swapB`), which can pay into one more order (`swapC`).
+ * The first order of a chain that starts on v4: the v4 order the transaction
+ * places. `minReceived` is a single asset because it is exactly what the next
+ * order offers, so it must be one of that order's pool assets.
  */
+export type TV4ChainFirstLeg = Omit<
+  ISwapV4Args,
+  "ownerAddress" | "destination" | "minReceived"
+> & {
+  minReceived: AssetAmount<IAssetAmountMetadata>;
+};
+
+/** Arguments for {@link TxBuilderV4.orderRouteSwap}. */
 export interface IOrderRouteSwapV4Args {
   /** Owns every order in the chain, and is the only party that can cancel one. */
   ownerAddress: string;
   /**
-   * The first order, on v4. `minReceived` is a single asset because it is
-   * exactly what `swapB` offers, so it must be one of `swapB`'s pool assets.
+   * The orders, in the order they fill. The first is the v4 order this
+   * transaction places; each later order is the one the order before it pays
+   * into.
    */
-  swapA: Omit<ISwapV4Args, "ownerAddress" | "destination" | "minReceived"> & {
-    minReceived: AssetAmount<IAssetAmountMetadata>;
-  };
-  /** The second order, which `swapA` pays into: a v3 or stableswap swap. */
-  swapB: TChainLegLegacy;
-  /**
-   * An optional third order, which `swapB` pays into: a v4 order (covering
-   * any number of v4 pools), or a v3 or stableswap swap.
-   */
-  swapC?: TChainLeg;
+  legs: [TV4ChainFirstLeg, TChainLeg, ...TChainLeg[]];
   /** Where the last order pays out. Defaults to `ownerAddress`. */
   destination?: TDestinationAddress;
 }
@@ -707,10 +706,9 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
   /**
    * Places a chain of orders that starts on v4: a v4 order that pays its
-   * output into a v3 or stableswap order, optionally followed by one more
-   * order (v4, v3 or stableswap). Each order is filled in its own scoop, one
-   * after another; if a later order cannot fill, the earlier ones have still
-   * filled.
+   * output into the next order in `legs`, which pays into the one after it,
+   * and so on. Each order is filled in its own scoop, one after another; if a
+   * later order cannot fill, the earlier ones have still filled.
    *
    * This is the reverse of the v1/v3 `orderRouteSwap`, which chain an older
    * order into v4. The v4 order is the same plain order {@link swapIntent}
@@ -718,31 +716,67 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * order's datum attached inline. It does not use the route constraint that
    * {@link swap} refuses to build.
    *
+   * It refuses three kinds of chain:
+   *
    * - **No v1.** A v4 order can only attach its payout's datum inline, and a
    *   v1 order is a Plutus V1 script, which cannot read an inline datum. A v1
    *   order anywhere after the v4 order would lock funds that nothing could
    *   spend, not even a cancel, so this throws instead.
-   * - **Amounts.** `swapB` offers exactly `swapA.minReceived`, the least the
-   *   v4 order can deliver. If the v4 order delivers more, the extra lands in
-   *   `swapB`'s order unswapped and is passed on to `swapB`'s destination.
+   * - **No two v4 orders in a row.** One v4 order already routes across any
+   *   number of v4 pools, so a second one directly after it is never needed.
+   * - **A later v4 order must be last.** A v4 order in the middle of a chain
+   *   is not supported yet: the ADA it needs to arrive with has not been
+   *   worked out.
+   *
+   * For the chains it places:
+   *
+   * - **Amounts.** Each older-pool order offers exactly the least the order
+   *   before it can deliver: the v4 order's `minReceived`, or the previous
+   *   older-pool order's minimum priced on its pool. If an order delivers
+   *   more, the extra arrives in the next order unswapped and is passed on to
+   *   that order's destination.
    * - **ADA.** The v4 order locks every later order's fee on top of its own
-   *   budget and deposit, plus the extra deposit `swapB` needs when it pays
-   *   into `swapC`. A v4 fill passes ADA it doesn't spend through to its
-   *   payout, so `swapB`'s order arrives already funded. `fees.scooperFee`
-   *   reports the v4 budget plus that forwarded ADA.
+   *   budget and deposit, plus the larger deposit an order needs when it pays
+   *   into another order. Fills pass ADA they don't spend through to their
+   *   payout, so each order arrives already funded. `fees.scooperFee` reports
+   *   the v4 budget plus that forwarded ADA.
    * - **Referrals.** Every order's referral fee is paid in one output of this
    *   transaction, so they must all name the same destination; if they don't,
-   *   this throws. The label published is the first leg's that has one, in
-   *   leg order `swapA`, `swapB`, `swapC`.
+   *   this throws. The label published is the first one in `legs` order.
    * - **Ownership.** `ownerAddress` owns every order, so the owner can cancel
    *   any order that cannot fill.
    */
   public async orderRouteSwap(
     args: IOrderRouteSwapV4Args,
   ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
-    const { ownerAddress, swapA, swapB, swapC } = args;
-    for (const leg of swapC ? [swapB, swapC] : [swapB]) {
-      if (!isChainLegV4(leg) && leg.pool.version === EContractVersion.V1) {
+    const {
+      ownerAddress,
+      legs: [first, ...rest],
+    } = args;
+
+    // What each later order is offered: the least the order before it can
+    // deliver, since every datum is fixed before any order fills.
+    const offeredTo: AssetAmount<IAssetAmountMetadata>[] = [];
+    let arriving = first.minReceived;
+    rest.forEach((leg, index) => {
+      offeredTo.push(arriving);
+      const isLast = index === rest.length - 1;
+      if (isChainLegV4(leg)) {
+        if (index === 0) {
+          throw new Error(
+            "TxBuilderV4.orderRouteSwap cannot place two v4 orders in a row: " +
+              "one v4 order already routes across any number of v4 pools.",
+          );
+        }
+        if (!isLast) {
+          throw new Error(
+            "TxBuilderV4.orderRouteSwap only places a later v4 order as the " +
+              "last order of the chain.",
+          );
+        }
+        return;
+      }
+      if (leg.pool.version === EContractVersion.V1) {
         throw new Error(
           "TxBuilderV4.orderRouteSwap cannot chain into v1: a v4 order " +
             "attaches its payout datum inline, and a v1 order (a Plutus V1 " +
@@ -750,69 +784,56 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
             "be spent or cancelled. Route through a v3 pool instead.",
         );
       }
-    }
-
-    const chain = {
-      blazeInstance: this.blaze,
-      queryProvider: this.queryProvider,
-    };
+      if (!isLast) {
+        const { suppliedAsset, minReceivable } = new SwapConfig({
+          ...leg,
+          suppliedAsset: arriving,
+          ownerAddress,
+          orderAddresses: {
+            DestinationAddress: {
+              address: ownerAddress,
+              datum: { type: EDatumType.NONE },
+            },
+          },
+        }).buildArgs();
+        arriving = legacyLegMinOutput(leg.pool, suppliedAsset, minReceivable);
+      }
+    });
 
     // Built last to first: each order's datum names the order it pays into,
     // so the next order has to exist before the one before it.
-    let legBDestination = args.destination;
+    let destination = args.destination;
     // ADA the v4 order locks on behalf of the orders after it.
     let forwarded = 0n;
-    let referralC: ITxBuilderReferralFee | undefined;
-    if (swapC) {
-      // swapC is offered the least swapB can deliver: swapB's minimum,
-      // priced on its pool from the least the v4 order can deliver.
-      const legB = new SwapConfig({
-        ...swapB,
-        suppliedAsset: swapA.minReceived,
+    const referrals: (ITxBuilderReferralFee | undefined)[] = [];
+    for (let index = rest.length - 1; index >= 0; index--) {
+      const built = await buildChainLeg({
+        blazeInstance: this.blaze,
+        queryProvider: this.queryProvider,
+        leg: rest[index],
         ownerAddress,
-        orderAddresses: {
-          DestinationAddress: {
-            address: ownerAddress,
-            datum: { type: EDatumType.NONE },
-          },
-        },
-      }).buildArgs();
-      const builtC = await buildChainLeg({
-        ...chain,
-        leg: swapC,
-        ownerAddress,
-        destination: args.destination,
-        suppliedAsset: legacyLegMinOutput(
-          swapB.pool,
-          legB.suppliedAsset,
-          legB.minReceivable,
-        ),
+        destination,
+        suppliedAsset: offeredTo[index],
       });
-      legBDestination = {
-        address: builtC.orderScriptAddress,
-        datum: { type: EDatumType.INLINE, value: builtC.datum },
+      forwarded += built.scooperFee;
+      referrals[index] = built.referralFee;
+      destination = {
+        address: built.orderScriptAddress,
+        datum: { type: EDatumType.INLINE, value: built.datum },
       };
-      // swapB pays swapC's fee forward and, because it pays into another
-      // order, needs the larger routed deposit. The v4 order's own deposit
-      // reaches swapB with the fill, so only the difference is added.
-      forwarded +=
-        builtC.scooperFee + ORDER_ROUTE_DEPOSIT_DEFAULT - ORDER_DEPOSIT_DEFAULT;
-      referralC = builtC.referralFee;
+    }
+    // An order that pays into another order needs the larger routed deposit.
+    // The v4 order's own deposit reaches the second order with the fill, and
+    // each deposit passes on with the next fill, so the difference is added
+    // once however long the chain is.
+    if (rest.length > 1) {
+      forwarded += ORDER_ROUTE_DEPOSIT_DEFAULT - ORDER_DEPOSIT_DEFAULT;
     }
 
-    const builtB = await buildChainLeg({
-      ...chain,
-      leg: swapB,
-      ownerAddress,
-      destination: legBDestination,
-      suppliedAsset: swapA.minReceived,
-    });
-    forwarded += builtB.scooperFee;
-
     // Every order's referral fee is paid once, in this transaction, under the
-    // first leg's label. One output pays them all, so they must share a
-    // destination.
-    const paid = [swapA.referralFee, builtB.referralFee, referralC].filter(
+    // first label in `legs` order. One output pays them all, so they must
+    // share a destination.
+    const paid = [first.referralFee, ...referrals].filter(
       (fee): fee is ITxBuilderReferralFee => fee !== undefined,
     );
     if (paid.some((fee) => fee.destination !== paid[0].destination)) {
@@ -828,25 +849,16 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     const { offered, constraints, configToken } =
       await this.buildBasicPlacement({
-        ...swapA,
+        ...first,
         ownerAddress,
         type: EV4BasicConstraint.Swap,
-        offered: [swapA.offered],
-        minReceived: [swapA.minReceived],
+        offered: [first.offered],
+        minReceived: [first.minReceived],
       });
     const tx = this.newTxInstance();
     const { inline, deposit, budget } = await this.lockOrderIntoTx(
       tx,
-      {
-        ...swapA,
-        ownerAddress,
-        configToken,
-        referralFee,
-        destination: {
-          address: builtB.orderScriptAddress,
-          datum: { type: EDatumType.INLINE, value: builtB.datum },
-        },
-      },
+      { ...first, ownerAddress, configToken, referralFee, destination },
       offered,
       constraints,
       forwarded,
