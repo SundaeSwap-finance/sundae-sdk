@@ -82,11 +82,11 @@ does not make the order unfillable, because the scooper consumes at most
 what the order holds. So a chain into v4 can state the EXPECTED fill of a
 token and convert all of it.
 
-It must name the asset the previous leg delivers, and it cannot name more
-ADA than the previous leg guarantees; either throws. The scooper spends
-the full offered lovelace, taking any shortfall from the order's deposit
-and budget, and cannot fill the order once those run out. ADA won above
-the guarantee reaches the destination unconverted.
+It must name the asset the previous leg delivers, or this throws. ADA is
+capped at what the previous leg guarantees: the scooper spends the full
+offered lovelace, taking any shortfall from the order's deposit and
+budget, and cannot fill the order once those run out. ADA won above the
+guarantee reaches the destination unconverted.
 
 Only safe for a leg whose contract bounds consumption this way. v1 and v3
 cannot overstate what they offer, which is why this is a per-leg override
