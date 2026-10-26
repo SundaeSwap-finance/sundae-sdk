@@ -1,8 +1,11 @@
 import {
   ADA_ASSET_ID,
+  EContractVersion,
   IPoolByIdentQuery,
   type IPoolByPairQuery,
+  type IPoolData,
   type ITxBuilderFees,
+  type QueryProvider,
 } from "@sundaeswap/core";
 import type { TTasteTestFees } from "@sundaeswap/taste-test";
 import { Dispatch, FC, SetStateAction, useState } from "react";
@@ -28,12 +31,38 @@ import { Withdraw } from "./modules/Withdraw";
 import { Zap } from "./modules/Zap";
 
 export const poolQuery: IPoolByPairQuery = {
-  pair: ["", "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459"],
+  pair: [
+    "",
+    "fa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a351535183.74494e4459",
+  ],
   fee: "0.30",
 };
 
 export const newPoolQuery: IPoolByIdentQuery = {
   ident: "2e74e6af9739616dd021f547bca1f68c937b566bb6ca2e4782e76001",
+};
+
+/**
+ * The demo's ADA/tINDY pool: the v3 pool by ident, or the deepest v1 pool for
+ * the pair. A pair query returns every pool for the pair across versions.
+ */
+export const findDemoPool = async (
+  query: QueryProvider,
+  useV3Contracts: boolean,
+): Promise<IPoolData> => {
+  const found = await query.findPoolData(
+    useV3Contracts ? newPoolQuery : poolQuery,
+  );
+  if (!Array.isArray(found)) {
+    return found;
+  }
+  const [deepest] = found
+    .filter(({ version }) => version === EContractVersion.V1)
+    .sort((a, b) => (b.liquidity.aReserve > a.liquidity.aReserve ? 1 : -1));
+  if (!deepest) {
+    throw new Error("No v1 ADA/tINDY pool found on preview.");
+  }
+  return deepest;
 };
 
 interface ICBOR {
