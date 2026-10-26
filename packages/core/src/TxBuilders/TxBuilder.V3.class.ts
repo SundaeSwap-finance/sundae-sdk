@@ -734,6 +734,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       ...chain,
       leg: legB,
       ownerAddress: args.ownerAddress,
+      destination: args.destination,
       suppliedAsset: aOutputAsset,
     });
 
@@ -783,16 +784,10 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       const metadata = new Map<bigint, Core.Metadatum>();
       metadata.set(
         103251n,
-        Core.Metadatum.fromCore(
-          new Map([
-            [
-              Buffer.from(datumHash, "hex"),
-              SundaeUtils.splitMetadataString(builtLegB.datum).map((v) =>
-                Buffer.from(v, "hex"),
-              ),
-            ],
-          ]),
-        ),
+        BlazeHelper.buildDatumMetadatum([
+          builtLegB.datum,
+          ...(builtLegB.supplementalDatums ?? []),
+        ]),
       );
       data.setMetadata(new Core.Metadata(metadata));
       tx.setAuxiliaryData(data);

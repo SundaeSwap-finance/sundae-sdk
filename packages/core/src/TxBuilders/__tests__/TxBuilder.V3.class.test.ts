@@ -6,13 +6,20 @@ import {
 } from "@blaze-cardano/sdk";
 import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 
-import { Void } from "@blaze-cardano/data";
+import { parse, Void } from "@blaze-cardano/data";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
 import { IComposedTx, ITxBuilderFees } from "../../@types/txbuilders.js";
+import {
+  V1Types,
+  V3Types,
+  V4Types,
+} from "../../DatumBuilders/ContractTypes/index.js";
 import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
+import { DatumBuilderV4 } from "../../DatumBuilders/DatumBuilder.V4.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
+import { BlazeHelper } from "../../Utilities/BlazeHelper.class.js";
 import {
   ADA_METADATA,
   ORDER_DEPOSIT_DEFAULT,
@@ -66,6 +73,19 @@ const getPaymentAddressFromOutput = (output: Core.TransactionOutput) => {
   }
 
   return Core.addressFromCredential(0, Core.Credential.fromCore(credential));
+};
+
+/** Leg A's payout in a chained swap: the next leg's address and inline datum. */
+const getNextLeg = (datum: string) => {
+  const { destination } = parse(
+    V3Types.OrderDatum,
+    Core.PlutusData.fromCbor(Core.HexBlob(datum)),
+  );
+  const next = destination === "Self" ? undefined : destination.Fixed;
+  if (typeof next?.datum !== "object" || !("InlineDatum" in next.datum)) {
+    throw new Error("Expected leg A to carry the next leg's datum inline.");
+  }
+  return { address: next.address, datum: next.datum.InlineDatum[0] };
 };
 
 const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (blaze) => {
@@ -538,6 +558,43 @@ describe("TxBuilderBlazeV3", () => {
     intent.mockRestore();
   });
 
+  it("orderRouteSwap() - v3 to v4 pays out to a custom destination", async () => {
+    const owner = PREVIEW_DATA.addresses.current;
+    const destination = {
+      address: PREVIEW_DATA.addresses.alternatives[0],
+      datum: { type: EDatumType.NONE as const },
+    };
+
+    const { datum } = await builder.orderRouteSwap({
+      ownerAddress: owner,
+      destination,
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        contractVersion: EContractVersion.V4,
+        minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+        budget: 3_000_000n,
+        configToken: "aabb",
+      },
+    });
+
+    // Leg A pays into the v4 order script.
+    const next = getNextLeg(datum as string);
+    expect(next.address.paymentCredential).toEqual({
+      ScriptCredential: [V4_ORDER_HASH],
+    });
+
+    const legB = parse(V4Types.OrderDatum, next.datum);
+    const v4 = new DatumBuilderV4("preview");
+    expect(legB.destination).toEqual(
+      v4.buildDestinationAddresses(destination).schema,
+    );
+    expect(legB.owner).toEqual(v4.buildOwnerDatum(owner).schema);
+  });
+
   it("orderRouteSwap() - v1 refuses to chain into v4", async () => {
     // A v1 order names its destination datum by hash; a v4 order needs an
     // inline datum to be spendable. Building it would place a UTxO at the v4
@@ -638,6 +695,47 @@ describe("TxBuilderBlazeV3", () => {
     );
   });
 
+  it("orderRouteSwap() - v3 to v3 pays out to a custom destination", async () => {
+    const destination = PREVIEW_DATA.addresses.alternatives[0];
+    const { datum } = await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      destination: { address: destination, datum: { type: EDatumType.NONE } },
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: {
+          ...PREVIEW_DATA.pools.v3,
+          assetB: {
+            ...PREVIEW_DATA.pools.v3.assetB,
+            assetId:
+              // iBTC
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          },
+          assetLP: {
+            ...PREVIEW_DATA.pools.v3.assetLP,
+            assetId:
+              "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702004",
+          },
+        },
+      },
+    });
+
+    const legB = getNextLeg(datum as string).datum.toCbor();
+
+    expect(DatumBuilderV3.getDestinationAddressesFromDatum(legB)).toEqual({
+      paymentKeyHash: BlazeHelper.getPaymentHashFromBech32(destination),
+      stakingKeyHash: BlazeHelper.getStakingHashFromBech32(destination),
+    });
+    // Leg B keeps the original owner.
+    const owner = DatumBuilderV3.getSignerKeyFromDatum(datum as string);
+    expect(owner).toBeDefined();
+    expect(DatumBuilderV3.getSignerKeyFromDatum(legB)).toEqual(owner as string);
+  });
+
   it("orderRouteSwap() - v3 to v1", async () => {
     const { build, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
@@ -729,6 +827,62 @@ describe("TxBuilderBlazeV3", () => {
         "a158208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fb85581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a011b5ec7d8799f1a00833c12ff42ffff",
       ),
     );
+  });
+
+  it("orderRouteSwap() - v3 to v1 names an inline destination datum by hash", async () => {
+    // A v1 scoop can't pay out an inline datum, so leg A publishes it.
+    const unitDatum = "d87980";
+    const unitDatumHash =
+      "923918e403bf43c34b4ef6b48eb2ee04babed17320d8d1b9ff9ad086e86f44ec";
+    const legBSwap = spyOn(TxBuilderV1.prototype, "swap");
+
+    const { build } = await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      destination: {
+        // A script that isn't a SundaeSwap order script.
+        address: Core.addressFromCredential(
+          0,
+          Core.Credential.fromCore({
+            hash: Core.Hash28ByteBase16(
+              "e6c8a314ae942401619460f00c69de3d1b996db588d4042243a4b259",
+            ),
+            type: Core.CredentialType.ScriptHash,
+          }),
+        ).toBech32(),
+        datum: { type: EDatumType.INLINE, value: unitDatum },
+      },
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+        pool: PREVIEW_DATA.pools.v3,
+      },
+      swapB: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: { ...PREVIEW_DATA.pools.v1, ident: "04" },
+      },
+    });
+
+    const { datum: legB } = (await legBSwap.mock.results[0].value) as {
+      datum: string;
+    };
+    legBSwap.mockRestore();
+    const { orderAddresses } = parse(
+      V1Types.SwapOrder,
+      Core.PlutusData.fromCbor(Core.HexBlob(legB)),
+    );
+    expect(orderAddresses.destination.datum).toEqual(unitDatumHash);
+
+    const { builtTx } = await build();
+    const published = builtTx
+      .auxiliaryData()
+      ?.metadata()
+      ?.metadata()
+      ?.get(103251n)
+      ?.toCbor();
+    expect(published).toEqual(
+      BlazeHelper.buildDatumMetadatum([legB, unitDatum]).toCbor(),
+    );
+    expect(published).toContain(`5820${unitDatumHash}8143${unitDatum}`);
   });
 
   it("deposit()", async () => {
