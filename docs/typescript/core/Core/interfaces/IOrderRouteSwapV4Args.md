@@ -4,9 +4,9 @@
 
 # Interface: IOrderRouteSwapV4Args
 
-Arguments for a chained swap that STARTS on v4, via
-[TxBuilderV4.orderRouteSwap](../classes/TxBuilderV4.md#orderrouteswap): a v4 intent that pays into a legacy
-order, optionally followed by one more leg.
+Arguments for [TxBuilderV4.orderRouteSwap](../classes/TxBuilderV4.md#orderrouteswap): a chain of orders that
+starts with a v4 order. The v4 order pays into a v3 or stableswap order
+(`swapB`), which can pay into one more order (`swapC`).
 
 ## Properties
 
@@ -14,7 +14,7 @@ order, optionally followed by one more leg.
 
 > `optional` **destination**: [`TDestinationAddress`](../type-aliases/TDestinationAddress.md)
 
-Final payout destination. Defaults to `ownerAddress`.
+Where the last order pays out. Defaults to `ownerAddress`.
 
 #### Defined in
 
@@ -26,7 +26,7 @@ Final payout destination. Defaults to `ownerAddress`.
 
 > **ownerAddress**: `string`
 
-Owns every leg, and is the only party that can cancel one.
+Owns every order in the chain, and is the only party that can cancel one.
 
 #### Defined in
 
@@ -38,8 +38,8 @@ Owns every leg, and is the only party that can cancel one.
 
 > **swapA**: `Omit`\<[`ISwapV4Args`](ISwapV4Args.md), `"minReceived"` \| `"destination"` \| `"ownerAddress"`\> & `object`
 
-The v4 leg. Its single `minReceived` asset is what `swapB` offers, so it
-must be one of `swapB`'s pool assets.
+The first order, on v4. `minReceived` is a single asset because it is
+exactly what `swapB` offers, so it must be one of `swapB`'s pool assets.
 
 #### Type declaration
 
@@ -57,7 +57,7 @@ must be one of `swapB`'s pool assets.
 
 > **swapB**: [`TChainLegLegacy`](../type-aliases/TChainLegLegacy.md)
 
-The legacy leg the v4 leg pays into: a v3 or stableswap swap.
+The second order, which `swapA` pays into: a v3 or stableswap swap.
 
 #### Defined in
 
@@ -69,8 +69,8 @@ The legacy leg the v4 leg pays into: a v3 or stableswap swap.
 
 > `optional` **swapC**: [`TChainLeg`](../type-aliases/TChainLeg.md)
 
-An optional leg after `swapB`: a v4 intent (a whole v4 tail), or a v3 or
-stableswap swap.
+An optional third order, which `swapB` pays into: a v4 order (covering
+any number of v4 pools), or a v3 or stableswap swap.
 
 #### Defined in
 

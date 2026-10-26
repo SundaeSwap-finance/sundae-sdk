@@ -49,7 +49,7 @@ route constraint in either era.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:865](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L865)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:873](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L873)
 
 ***
 
@@ -84,7 +84,7 @@ ignored here, so a caller can't accidentally pay it N times.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1003](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1003)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1011](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1011)
 
 ***
 
@@ -117,7 +117,7 @@ automatically; a headless signer must opt in — e.g. blaze's
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1168](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1168)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1177](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1177)
 
 ***
 
@@ -138,7 +138,7 @@ constant-sum pool's bounty) rather than trading against its reserves.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:979](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L979)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:987](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L987)
 
 ***
 
@@ -162,7 +162,7 @@ Deposit is a basic order whose min-received names the pool's LP asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:962](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L962)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:970](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L970)
 
 ***
 
@@ -303,7 +303,7 @@ The circulating LP (issued to the creator via change) defaults to
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1297](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1297)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1306](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1306)
 
 ***
 
@@ -331,32 +331,36 @@ Should create a new transaction instance from the supplied transaction library.
 
 > **orderRouteSwap**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
 
-Places a chained swap that STARTS on v4: a v4 intent whose payout lands as
-a v3 or stableswap order, optionally followed by one more leg (v4, v3 or
-stableswap). Each leg fills in its own scoop; the chain is sequential, not
-atomic.
+Places a chain of orders that starts on v4: a v4 order that pays its
+output into a v3 or stableswap order, optionally followed by one more
+order (v4, v3 or stableswap). Each order is filled in its own scoop, one
+after another; if a later order cannot fill, the earlier ones have still
+filled.
 
-The reverse of the legacy builders' `orderRouteSwap`, which chain a legacy
-order INTO v4. It uses the same plain intent as [swapIntent](TxBuilderV4.md#swapintent), with a
-`Fixed` destination at the next order's script address carrying that
-order's datum inline. It does not use the route constraint
+This is the reverse of the v1/v3 `orderRouteSwap`, which chain an older
+order into v4. The v4 order is the same plain order [swapIntent](TxBuilderV4.md#swapintent)
+places, with its payout sent to the next order's script address and that
+order's datum attached inline. It does not use the route constraint that
 [swap](TxBuilderV4.md#swap) refuses to build.
 
-- **Inline datums only.** A v4 order can attach its payout's datum only
-  inline. A v1 order is a Plutus V1 script, which cannot read an inline
-  datum, so a v1 leg anywhere after the v4 leg would lock funds that
-  nothing can ever spend, cancel included. This throws instead.
-- **Amounts.** `swapB` offers exactly `swapA.minReceived`, the floor the
-  v4 order guarantees. Anything the v4 leg wins above that arrives in the
-  legacy order unnamed and is passed on to that order's destination.
-- **ADA.** The v4 order carries every later leg's fee (and the larger
-  routed deposit when `swapB` forwards into a third leg), on top of its
-  own budget and deposit. A v4 fill passes unconsumed ADA through to its
-  destination, so this arrives with the legacy order already funded.
-- **Referrals.** Every leg's referral fee is paid in one output, so they
-  must share a destination; differing destinations throw.
-- **Ownership.** `ownerAddress` owns every leg, so a leg that cannot fill
-  can always be cancelled by the owner.
+- **No v1.** A v4 order can only attach its payout's datum inline, and a
+  v1 order is a Plutus V1 script, which cannot read an inline datum. A v1
+  order anywhere after the v4 order would lock funds that nothing could
+  spend, not even a cancel, so this throws instead.
+- **Amounts.** `swapB` offers exactly `swapA.minReceived`, the least the
+  v4 order can deliver. If the v4 order delivers more, the extra lands in
+  `swapB`'s order unswapped and is passed on to `swapB`'s destination.
+- **ADA.** The v4 order locks every later order's fee on top of its own
+  budget and deposit, plus the extra deposit `swapB` needs when it pays
+  into `swapC`. A v4 fill passes ADA it doesn't spend through to its
+  payout, so `swapB`'s order arrives already funded. `fees.scooperFee`
+  reports the v4 budget plus that forwarded ADA.
+- **Referrals.** Every order's referral fee is paid in one output of this
+  transaction, so they must all name the same destination; if they don't,
+  this throws. The label published is the first leg's that has one, in
+  leg order `swapA`, `swapB`, `swapC`.
+- **Ownership.** `ownerAddress` owns every order, so the owner can cancel
+  any order that cannot fill.
 
 #### Parameters
 
@@ -368,7 +372,7 @@ order's datum inline. It does not use the route constraint
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:736](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L736)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:740](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L740)
 
 ***
 
@@ -395,7 +399,7 @@ tx completion.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1048](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1048)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1056](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1056)
 
 ***
 
@@ -423,7 +427,7 @@ falls back to the package the deployed modules imply.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:917](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L917)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:925](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L925)
 
 ***
 
@@ -531,7 +535,7 @@ with the stake key explicitly.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1256](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1256)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1265](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1265)
 
 ***
 
@@ -555,4 +559,4 @@ Withdraw is a basic order whose offered asset is the pool's LP asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:969](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L969)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:977](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L977)
