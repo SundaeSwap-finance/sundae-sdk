@@ -16,7 +16,7 @@ The initial reserves — at least two distinct assets.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:278](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L278)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:285](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L285)
 
 ***
 
@@ -28,7 +28,7 @@ The curve (pool kind) and its config.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:280](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L280)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:287](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L287)
 
 ***
 
@@ -40,7 +40,7 @@ The pool creator (bech32) — funds the seed UTxO and receives the circulating L
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:282](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L282)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:289](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L289)
 
 ***
 
@@ -53,4 +53,4 @@ omitted it is computed per curve — for constant-sum, `Σ price_i·reserve_i`.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:287](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L287)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:294](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L294)
