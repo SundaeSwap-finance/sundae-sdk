@@ -9,6 +9,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -103,7 +104,14 @@ export const AppStateProvider: FC<
     status: "disconnected",
   });
 
+  // A wallet that never answers `enable()` leaves its promise pending forever.
+  // Each attempt gets a number; a cancelled or superseded attempt's result is
+  // dropped when it eventually settles.
+  const attemptRef = useRef(0);
+
   const connect = useCallback(async (key: string) => {
+    const attempt = ++attemptRef.current;
+    const isStale = () => attempt !== attemptRef.current;
     setConnection({ status: "connecting", wallet: key });
     setSDK(undefined);
     try {
@@ -112,6 +120,9 @@ export const AppStateProvider: FC<
         throw new Error(`${key} is not installed in this browser.`);
       }
       const api = await wallet.enable();
+      if (isStale()) {
+        return;
+      }
 
       const address =
         (await api.getUsedAddresses())?.[0] ??
@@ -145,12 +156,18 @@ export const AppStateProvider: FC<
         }),
         new WebWallet(api),
       );
+      if (isStale()) {
+        return;
+      }
 
       setActiveWalletAddr(activeAddress.toBech32());
       setSDK(SundaeSDK.new({ blazeInstance, debug: true }));
       setConnection({ status: "connected", wallet: key });
       localStorage.setItem(LAST_WALLET_KEY, key);
     } catch (e) {
+      if (isStale()) {
+        return;
+      }
       const message =
         e instanceof Error
           ? e.message
@@ -162,6 +179,7 @@ export const AppStateProvider: FC<
   }, []);
 
   const disconnect = useCallback(() => {
+    attemptRef.current += 1;
     localStorage.removeItem(LAST_WALLET_KEY);
     setSDK(undefined);
     setActiveWalletAddr("");

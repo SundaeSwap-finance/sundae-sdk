@@ -1,4 +1,4 @@
-import { FC, StrictMode } from "react";
+import { FC, StrictMode, useEffect, useState } from "react";
 
 import Actions from "./components/Actions";
 import Loader from "./components/Loader";
@@ -53,7 +53,24 @@ const WalletStatus: FC = () => {
 
 /** Shown until a wallet connects: the detected wallets, and why one failed. */
 const ConnectPanel: FC = () => {
-  const { wallets, connection, connect } = useAppState();
+  const { wallets, connection, connect, disconnect } = useAppState();
+  const connectingTo =
+    connection.status === "connecting" ? connection.wallet : undefined;
+
+  // Some wallets never answer when they can't show their approval window, so
+  // after a few seconds say what to check rather than spin forever.
+  const [stalled, setStalled] = useState(false);
+  useEffect(() => {
+    setStalled(false);
+    if (!connectingTo) {
+      return;
+    }
+    const timer = setTimeout(() => setStalled(true), 6000);
+    return () => clearTimeout(timer);
+  }, [connectingTo]);
+  const rawName =
+    wallets.find(({ key }) => key === connectingTo)?.name ?? connectingTo ?? "";
+  const stalledName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
   return (
     <div className="mx-auto mt-16 max-w-md rounded-xl border border-slate-700 bg-slate-800/60 p-8 shadow-xl">
@@ -95,6 +112,29 @@ const ConnectPanel: FC = () => {
           );
         })}
       </div>
+
+      {connectingTo && stalled && (
+        <div className="mt-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-100">
+          <p className="font-semibold">{stalledName} hasn't answered yet</p>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>
+              Click the {stalledName} icon in your browser toolbar. The approval
+              request may be waiting there.
+            </li>
+            <li>Make sure the wallet is unlocked and set to Preview.</li>
+            <li>
+              In Eternl, the wallet you want must be enabled as a dApp account
+              before sites can connect to it.
+            </li>
+          </ul>
+          <button
+            className="mt-3 rounded-md border border-amber-400/50 px-3 py-1 text-xs font-semibold hover:bg-amber-500/20"
+            onClick={disconnect}
+          >
+            Cancel and try again
+          </button>
+        </div>
+      )}
 
       {connection.status === "error" && (
         <div className="mt-6 rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
