@@ -1,5 +1,89 @@
 # Change Log
 
+## 3.4.0
+
+### Minor Changes
+
+- 123f5b7: `IComposedTx`, `ITxBuilderSign` and `ITxBuilderSubmit` take a `SubmitResult` type parameter: what `submit()` resolves to. It defaults to `string`, the transaction hash, so every existing builder and caller is unchanged. A builder that hands its transaction to a destination other than the wallet can declare a richer result for those builds only.
+- 9e63b24: `TxBuilderV4.orderRouteSwap` places chained swaps that start on v4. It takes
+  `legs`, the orders in the order they fill: the first is the v4 order the
+  transaction places (`TV4ChainFirstLeg`), and each later one is a `TChainLeg`
+  the order before it pays into. This covers routes such as v4 → v3,
+  v4 → v3 → v4 and v4 → v3 → v3 → stableswap, the reverse of the legacy builders'
+  chains into v4.
+
+  The v4 order is a plain intent, like `swapIntent`, with a `Fixed` destination at
+  the next order's script address carrying that order's datum inline. It does not
+  use the route constraint that `TxBuilderV4.swap` refuses to build.
+
+  These chains are refused:
+  - No v1 order after the v4 one: a v1 order cannot read the inline datum a v4
+    order attaches, so its funds could never be spent or cancelled.
+  - Only v3 and stableswap older-pool orders: an nft-check order is only scooped
+    while it holds its condition NFT, which a chain does not forward.
+  - Each older-pool order's pool must hold the asset the order before it
+    delivers.
+  - At most five orders: each order nests the next one's datum, and a long
+    enough chain nests deeper than SundaeSwap's datum parsers read.
+  - No two v4 orders in a row: one v4 order already routes across any number of
+    v4 pools.
+  - A later v4 order must be the last one; a v4 order in the middle of a chain is
+    not supported yet.
+
+  For the chains it places:
+  - Each older-pool order offers exactly the least the order before it can
+    deliver. Anything an order wins above that is passed on to the next order's
+    destination.
+  - The v4 order carries every later order's fee, plus the extra routed deposit
+    when the chain has more than one later order. `fees.scooperFee` reports the
+    v4 budget plus that forwarded ADA.
+  - `ownerAddress` owns every order, so the owner can cancel any order that
+    cannot fill.
+  - Every order's referral fee is paid in one output, so they must name the same
+    destination; differing destinations throw. The label published under
+    metadata key 674 is the first one in `legs` order.
+
+  The v1 and v3 `orderRouteSwap` builders now compare ADA asset ids alias-aware
+  (`""`, `"."`, `"ada.lovelace"` are the same asset) when working out which asset
+  their first leg delivers. An ADA id written in an alias form previously picked
+  the wrong side of the pool, so the second leg was offered the wrong asset.
+
+### Patch Changes
+
+- 07f36be: `@sundaeswap/core/utilities` no longer pulls in the Cardano serialization
+  library. `constants.ts` built `VOID_BYTES` with `@blaze-cardano/sdk` and
+  `@blaze-cardano/data`, and `SundaeUtils` imports `constants.ts`, so any app that
+  imported only `SundaeUtils` or a plain constant shipped all of blaze (about
+  290 KB brotli in the dex app's first load).
+
+  `VOID_BYTES` is removed; the datum builders that used it now build the empty
+  `extension` value inline.
+
+- 0d26585: `BlazeHelper.mergeValues` now sums native tokens across every value. It reset
+  its token map for each token-bearing input, so only the last one's tokens
+  survived: merged referral fees in `orderRouteSwap` (v1, v3, v4) and in
+  cancel-and-replace updates under-paid token referrals.
+- 04fc356: `SundaeUtils.getSwapOutput` now compares asset ids alias-aware, as
+  `getSwapInput` already did. It matched the supplied asset against the pool's
+  `assetA` with a raw `===`, so ADA written as `""` or `"."` against a pool whose
+  `assetA` is `"ada.lovelace"` was priced against the other side of the pool. A
+  MARKET swap's minimum received, which comes from this quote, was then wrong. In
+  a chained swap that could leave an order unable to fill. On a v4 pool the
+  alias was refused outright as an asset the pool does not hold.
+- fffafd0: A chained v4 order's `offered` override (`IChainLegV4.offered`) is now checked
+  against what the order before it delivers, in both `orderRouteSwap` directions:
+  - It must name the asset that arrives, or it throws. Naming another asset built
+    an order that could never fill.
+  - ADA is capped at what the order before it guarantees. The v4 scooper spends
+    the full offered lovelace, so an ADA offer above what arrived was paid from
+    the order's deposit and budget, and once those ran out the order could not
+    fill. The docs said over-offering was always safe; that holds only for
+    native tokens, which the scooper caps at what the order holds.
+
+- 6eed8d3: `TxBuilderV4` now publishes a referral fee's `feeLabel` under metadata key 674,
+  as the v1 and v3 builders do. Every v4 order, batch, cancel and pool mint paid
+  the referral but dropped its label.
+
 ## 3.3.0
 
 ### Minor Changes
