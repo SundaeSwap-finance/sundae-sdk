@@ -8,17 +8,19 @@ import {
   spyOn,
 } from "bun:test";
 
+import { Void } from "@blaze-cardano/data";
 import { Core } from "@blaze-cardano/sdk";
 import {
   EDatumType,
   TOrderAddressesArgs,
 } from "../../../@types/datumbuilder.js";
-import { VOID_BYTES } from "../../../constants.js";
 import { BlazeHelper } from "../../../Utilities/BlazeHelper.class.js";
 import { V1_EXPECTATIONS } from "../../__data__/v1.expectations.js";
 import { DatumBuilderV1 } from "../../DatumBuilder.V1.class.js";
 
 let builderInstance: DatumBuilderV1;
+
+const voidBytes = Core.PlutusData.newBytes(Buffer.from(Void().toCbor(), "hex"));
 
 const expectations = V1_EXPECTATIONS.datums.buildOrderAddresses;
 
@@ -171,7 +173,7 @@ describe("buildDestinationAddresses()", () => {
     expect(() => builderInstance.buildOrderAddresses({
       DestinationAddress: {
         address: orderAddress,
-        datum: { type: EDatumType.INLINE, value: VOID_BYTES.toCbor() }
+        datum: { type: EDatumType.INLINE, value: voidBytes.toCbor() }
       }
     })).toThrowError("Inline datum types are not supported in V1 contracts! Convert this to a hash.")
   })
@@ -188,11 +190,11 @@ describe("buildDestinationAddresses()", () => {
     const result = builderInstance.buildOrderAddresses({
       DestinationAddress: {
         address: orderAddress,
-        datum: { type: EDatumType.INLINE, value: VOID_BYTES.toCbor() }
+        datum: { type: EDatumType.INLINE, value: voidBytes.toCbor() }
       }
     })
 
     // Named by hash: a v1 scoop can't pay out an inline datum.
-    expect(result.schema.destination.datum).toEqual(VOID_BYTES.hash())
+    expect(result.schema.destination.datum).toEqual(voidBytes.hash())
   })
 });
