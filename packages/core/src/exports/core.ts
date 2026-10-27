@@ -8,7 +8,6 @@ export * from "../@types/index.js";
 export * from "../Abstracts/index.js";
 export * from "../Configs/index.js";
 export * from "../constants.js";
-export * from "../constants.plutus.js";
 export * from "../DatumBuilders/index.js";
 export * from "../QueryProviders/index.js";
 export { SundaeSDK } from "../SundaeSDK.class.js";

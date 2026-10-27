@@ -8,6 +8,5 @@ library. `constants.ts` built `VOID_BYTES` with `@blaze-cardano/sdk` and
 imported only `SundaeUtils` or a plain constant shipped all of blaze (about
 290 KB brotli in the dex app's first load).
 
-`VOID_BYTES` moves to `constants.plutus.ts`. It is still exported from
-`@sundaeswap/core`; it is no longer exported from `@sundaeswap/core/utilities`,
-the light entry. Import it from `@sundaeswap/core` instead.
+`VOID_BYTES` is removed; the datum builders that used it now build the empty
+`extension` value inline.
