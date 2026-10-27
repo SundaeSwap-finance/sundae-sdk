@@ -3,7 +3,7 @@ import { Core } from "@blaze-cardano/sdk";
 import { sqrt } from "@sundaeswap/bigint-math";
 import { TDatumResult } from "../@types/datumbuilder.js";
 import { DatumBuilderAbstractCondition } from "../Abstracts/DatumBuilderCondition.abstract.class.js";
-import { VOID_BYTES } from "../constants.js";
+import { VOID_BYTES } from "../constants.plutus.js";
 import * as ConditionTypes from "./ContractTypes/Contract.Condition.js";
 import {
   DatumBuilderV3,

@@ -12,7 +12,7 @@ import {
   TSupportedNetworks,
 } from "../@types/index.js";
 import { DatumBuilderAbstract } from "../Abstracts/DatumBuilder.abstract.class.js";
-import { VOID_BYTES } from "../constants.js";
+import { VOID_BYTES } from "../constants.plutus.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { StableswapsTypes, V3Types } from "./ContractTypes/index.js";

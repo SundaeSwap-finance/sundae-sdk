@@ -13,7 +13,7 @@ import {
   EDatumType,
   TOrderAddressesArgs,
 } from "../../../@types/datumbuilder.js";
-import { VOID_BYTES } from "../../../constants.js";
+import { VOID_BYTES } from "../../../constants.plutus.js";
 import { BlazeHelper } from "../../../Utilities/BlazeHelper.class.js";
 import { V1_EXPECTATIONS } from "../../__data__/v1.expectations.js";
 import { DatumBuilderV1 } from "../../DatumBuilder.V1.class.js";
