@@ -17,7 +17,7 @@ on-chain module identifiers surfaced by the GraphQL `Pool.modules` field.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:83](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L83)
+[packages/core/src/@types/txbuilders.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L89)
 
 ***
 
@@ -27,7 +27,7 @@ on-chain module identifiers surfaced by the GraphQL `Pool.modules` field.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:81](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L81)
+[packages/core/src/@types/txbuilders.ts:87](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L87)
 
 ***
 
@@ -37,7 +37,7 @@ on-chain module identifiers surfaced by the GraphQL `Pool.modules` field.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L82)
+[packages/core/src/@types/txbuilders.ts:88](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L88)
 
 ***
 
@@ -62,4 +62,4 @@ stores `D` in the pool datum and has no per-asset rates, while v4 stores no
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:100](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L100)
+[packages/core/src/@types/txbuilders.ts:106](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L106)

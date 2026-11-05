@@ -1,4 +1,4 @@
-import { parse, serialize } from "@blaze-cardano/data";
+import { parse, serialize, Void } from "@blaze-cardano/data";
 import { Core } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 import { sqrt } from "@sundaeswap/bigint-math";
@@ -12,7 +12,6 @@ import {
   TSupportedNetworks,
 } from "../@types/index.js";
 import { DatumBuilderAbstract } from "../Abstracts/DatumBuilder.abstract.class.js";
-import { VOID_BYTES } from "../constants.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import { StableswapsTypes, V3Types } from "./ContractTypes/index.js";
@@ -155,7 +154,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
           minReceived: this.buildAssetAmountDatum(order.minReceived).schema,
         },
       },
-      extension: VOID_BYTES,
+      extension: Core.PlutusData.newBytes(Buffer.from(Void().toCbor(), "hex")),
     };
 
     const data = serialize(V3Types.OrderDatum, datum);
@@ -201,7 +200,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
         .schema,
       poolIdent: this.validatePoolIdent(ident),
       maxProtocolFee: scooperFee,
-      extension: VOID_BYTES,
+      extension: Core.PlutusData.newBytes(Buffer.from(Void().toCbor(), "hex")),
     };
 
     const data = serialize(V3Types.OrderDatum, datum);
@@ -235,7 +234,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
   }: IDatumBuilderWithdrawV3Args): TDatumResult<V3Types.OrderDatum> {
     const datum: V3Types.OrderDatum = {
       destination: this.buildDestinationAddresses(destinationAddress).schema,
-      extension: VOID_BYTES,
+      extension: Core.PlutusData.newBytes(Buffer.from(Void().toCbor(), "hex")),
       details: {
         Withdrawal: {
           amount: this.buildAssetAmountDatum(order.lpToken).schema,
@@ -272,7 +271,7 @@ export class DatumBuilderV3 implements DatumBuilderAbstract {
         };
     const datum: V3Types.OrderDatum = {
       destination: this.buildDestination(destination).schema,
-      extension: VOID_BYTES,
+      extension: Core.PlutusData.newBytes(Buffer.from(Void().toCbor(), "hex")),
       details: {
         Strategy: {
           auth,

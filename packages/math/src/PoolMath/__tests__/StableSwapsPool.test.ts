@@ -104,19 +104,57 @@ describe("getPrice()", () => {
     );
   });
 
-  test("matches 4A on-chain spot for preview pool (issue #172)", () => {
-    const laf = 500n;
-    const aReserve = 250275094796n;
-    const bReserve = 250515678047n;
-    const price = getPrice(aReserve, bReserve, laf);
-    expect(price.toNumber()).toBeCloseTo(0.999999040146, 11);
-
+  // |dx/dy| of the on-chain invariant 4A(x + y) + D = 4AD + D^3/(4xy), as an
+  // exact rational on the scaled reserves. Independent of getPrice's integer
+  // arithmetic, so it pins both the amplification term and the orientation.
+  const exactSpot = (aReserve: bigint, bReserve: bigint, laf: bigint) => {
     const d = getSumInvariant(laf, aReserve, bReserve);
-    const y0 = getNewY(aReserve, laf, d);
-    const y1 = getNewY(aReserve + 1n, laf, d);
-    const dyDx =
-      Number(y1 - y0) / Number(RESERVE_PRECISION);
-    expect(-1 / dyDx).toBeCloseTo(price.toNumber(), 11);
+    const x = aReserve * RESERVE_PRECISION;
+    const y = bReserve * RESERVE_PRECISION;
+    const dCubed = d * d * d;
+    return new Fraction(
+      x * (16n * laf * x * y * y + dCubed),
+      y * (16n * laf * x * x * y + dCubed),
+    );
+  };
+  const relativeError = (actual: Fraction, expected: Fraction) =>
+    Math.abs(actual.toNumber() / expected.toNumber() - 1);
+
+  const offParPools: [bigint, bigint, bigint][] = [
+    [250275094796n, 250515678047n, 500n],
+    [1_000_000_000n, 1_100_000_000n, 100n],
+    [2_000_000_000n, 1_000_000_000n, 50n],
+    [5_000_000_000n, 1_000_000_000n, 10n],
+    [1_010_000_000n, 990_000_250n, 200n],
+  ];
+
+  test.each(offParPools)(
+    "matches the derivative of the on-chain invariant (a=%s, b=%s, laf=%s)",
+    (aReserve, bReserve, laf) => {
+      const price = getPrice(aReserve, bReserve, laf);
+      expect(
+        relativeError(price, exactSpot(aReserve, bReserve, laf)),
+      ).toBeLessThan(1e-9);
+    },
+  );
+
+  test.each(offParPools)(
+    "agrees with a central finite difference of getNewY (a=%s, b=%s, laf=%s)",
+    (aReserve, bReserve, laf) => {
+      const dA = 1000n;
+      const d = getSumInvariant(laf, aReserve, bReserve);
+      const lowY = getNewY(aReserve + dA, laf, d);
+      const highY = getNewY(aReserve - dA, laf, d);
+      const slope = new Fraction(dA * 2n * RESERVE_PRECISION, highY - lowY);
+      expect(
+        relativeError(getPrice(aReserve, bReserve, laf), slope),
+      ).toBeLessThan(1e-9);
+    },
+  );
+
+  test("issue #172: preview pool 488fe776 at laf 500", () => {
+    const price = getPrice(250275094796n, 250515678047n, 500n);
+    expect(price.toNumber()).toBeCloseTo(0.999999040146, 11);
   });
 });
 
@@ -481,31 +519,31 @@ describe("getSwapInput", () => {
       input: 1n,
       reserves: [1n, 2n],
       fee: zeroPct,
-      impact: new Fraction(0n, 1n),
+      impact: new Fraction(0n, 4000n),
     },
     {
       input: 100n,
       reserves: [1n, 2n],
       fee: zeroPct,
-      impact: new Fraction(0n, 1n),
+      impact: new Fraction(0n, 4000n),
     },
     {
       input: 100n,
       reserves: [1n, 100n],
       fee: zeroPct,
-      impact: new Fraction(380769n, 1000000n),
+      impact: new Fraction(245025n, 643500n),
     },
     {
       input: 100n,
       reserves: [100n, 100n],
       fee: zeroPct,
-      impact: new Fraction(1n, 50n),
+      impact: new Fraction(800400n, 40020000n),
     },
     {
       input: 50n,
       reserves: [100n, 100n],
       fee: zeroPct,
-      impact: new Fraction(1n, 50n),
+      impact: new Fraction(400200n, 20010000n),
     },
 
     // Simple boundary cases
@@ -513,25 +551,25 @@ describe("getSwapInput", () => {
       input: 10n,
       reserves: [10n, 30n],
       fee: threePct,
-      impact: new Fraction(50337n, 500000n),
+      impact: new Fraction(40315n, 400450n),
     },
     {
       input: 100n,
       reserves: [1n, 100n],
       fee: threePct,
-      impact: new Fraction(399533n, 1000000n),
+      impact: new Fraction(257100n, 643500n),
     },
     {
       input: 100n,
       reserves: [100n, 100n],
       fee: threePct,
-      impact: new Fraction(1n, 20n),
+      impact: new Fraction(2001000n, 40020000n),
     },
     {
       input: 50n,
       reserves: [100n, 100n],
       fee: threePct,
-      impact: new Fraction(3n, 50n),
+      impact: new Fraction(1200600n, 20010000n),
     },
 
     // // Real world examples
@@ -539,19 +577,19 @@ describe("getSwapInput", () => {
       input: 5n,
       reserves: [84159832107n, 123172010729n],
       fee: fivePct,
-      impact: new Fraction(200161n, 1000000n),
+      impact: new Fraction(337126570533235n, 1684271322211955n),
     },
     {
       input: 100n,
       reserves: [84159832107n, 123172010729n],
       fee: fivePct,
-      impact: new Fraction(50191n, 1000000n),
+      impact: new Fraction(1690738591869500n, 33685426444239100n),
     },
     {
       input: 1291591603n,
       reserves: [5753371381n, 672426600000n],
       fee: onePct,
-      impact: new Fraction(18519n, 200000n),
+      impact: new Fraction(5112429850089508046677n, 55212615531111655078080n),
     },
   ] as {
     input: bigint;
@@ -590,7 +628,7 @@ describe("getSwapInput", () => {
       expect(actual.nextInputReserve).toBe(outcomeForActual.nextInputReserve);
       expect(actual.nextOutputReserve).toBe(outcomeForActual.nextOutputReserve);
       expect(actual.priceImpact).toEqual(outcomeForActual.priceImpact);
-      expect(actual.priceImpact.toPrecision(6)).toStrictEqual(impact);
+      expect(actual.priceImpact).toStrictEqual(impact);
     },
   );
 });

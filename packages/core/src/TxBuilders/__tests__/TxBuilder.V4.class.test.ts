@@ -1,5 +1,5 @@
 import { parse, serialize } from "@blaze-cardano/data";
-import { Core, makeValue } from "@blaze-cardano/sdk";
+import { TxBuilder as BlazeTx, Core, makeValue } from "@blaze-cardano/sdk";
 import { AssetAmount } from "@sundaeswap/asset";
 import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 
@@ -193,6 +193,29 @@ const datumOf = async (
     V4Types.OrderDatum,
     Core.PlutusData.fromCbor(Core.HexBlob(composed.datum as string)),
   );
+
+const REFERRAL_LABEL = "Test Referral";
+const referralWithLabel = {
+  destination:
+    "addr1qyh6eumj4qnjcu8grfj5p685h0dcj8erx4hj6dfst9vp03xeju03vcyu4zeemm6v9q38zth2wp6pnuma4pnl7axhj42szaqkjk",
+  payment: new Core.Value(1_000_000n),
+  feeLabel: REFERRAL_LABEL,
+};
+
+/**
+ * The 674 label `run` attaches to its transaction. Read where it is set,
+ * because cancel and mintPool can't be serialized without the real scripts.
+ */
+const labelAttachedBy = async (run: () => Promise<unknown>) => {
+  const attach = spyOn(BlazeTx.prototype, "setAuxiliaryData");
+  try {
+    await run();
+    const [data] = attach.mock.calls.at(-1) ?? [];
+    return data?.metadata()?.metadata()?.get(674n)?.asText();
+  } finally {
+    attach.mockRestore();
+  }
+};
 
 describe("TxBuilderV4", () => {
   beforeEach(() => {
@@ -901,6 +924,79 @@ describe("TxBuilderV4", () => {
           ownerAddress: OWNER,
         }),
       ).rejects.toThrow(new RegExp(GOV_HASH));
+    });
+
+    it("publishes the referral fee's label under metadata key 674", async () => {
+      wireMints();
+      const label = await labelAttachedBy(() =>
+        builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve: { kind: "constantSum", fee: { num: 1n, den: 1000n } },
+          ownerAddress: OWNER,
+          referralFee: referralWithLabel,
+        }),
+      );
+      expect(label).toEqual(REFERRAL_LABEL);
+    });
+  });
+
+  describe("referral label", () => {
+    it("an order publishes the referral fee's label under metadata key 674", async () => {
+      const label = await labelAttachedBy(() =>
+        builder.swapIntent({
+          ownerAddress: OWNER,
+          offered: TOKEN,
+          minReceived: ADA,
+          referralFee: referralWithLabel,
+        }),
+      );
+      expect(label).toEqual(REFERRAL_LABEL);
+    });
+
+    it("a batch publishes the batch referral fee's label", async () => {
+      const label = await labelAttachedBy(() =>
+        builder.batch({
+          orders: [
+            {
+              type: EV4BasicConstraint.Deposit,
+              ownerAddress: OWNER,
+              offered: [TOKEN],
+              minReceived: [ADA],
+            },
+          ],
+          referralFee: referralWithLabel,
+        }),
+      );
+      expect(label).toEqual(REFERRAL_LABEL);
+    });
+
+    it("a cancel publishes the referral fee's label", async () => {
+      const order = await builder.swapIntent({
+        ownerAddress: OWNER,
+        offered: TOKEN,
+        minReceived: ADA,
+        configToken: "aabb",
+      });
+      await mockOrderAndRefUtxos(order.datum as string);
+      const label = await labelAttachedBy(() =>
+        builder.cancel({
+          utxo: { hash: ORDER_UTXO_HASH, index: 0 },
+          referralFee: referralWithLabel,
+        }),
+      );
+      expect(label).toEqual(REFERRAL_LABEL);
+    });
+
+    it("a referral fee without a label attaches no metadata", async () => {
+      const label = await labelAttachedBy(() =>
+        builder.swapIntent({
+          ownerAddress: OWNER,
+          offered: TOKEN,
+          minReceived: ADA,
+          referralFee: { ...referralWithLabel, feeLabel: undefined },
+        }),
+      );
+      expect(label).toBeUndefined();
     });
   });
 });

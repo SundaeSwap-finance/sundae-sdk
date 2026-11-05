@@ -23,7 +23,7 @@ The unique pool identifier.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:169](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L169)
+[packages/core/src/@types/datumbuilder.ts:178](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L178)
 
 ***
 
@@ -35,7 +35,7 @@ The addresses that are allowed to cancel the Order.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:171](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L171)
+[packages/core/src/@types/datumbuilder.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L180)
 
 ***
 
@@ -47,4 +47,4 @@ The fee paid to scoopers.
 
 #### Defined in
 
-[packages/core/src/@types/datumbuilder.ts:173](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L173)
+[packages/core/src/@types/datumbuilder.ts:182](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/datumbuilder.ts#L182)

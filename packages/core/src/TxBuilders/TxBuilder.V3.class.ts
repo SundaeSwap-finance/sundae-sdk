@@ -46,6 +46,12 @@ import {
 import { DatumBuilderV3 } from "../DatumBuilders/DatumBuilder.V3.class.js";
 import { QueryProviderSundaeSwap } from "../QueryProviders/QueryProviderSundaeSwap.js";
 import { BlazeHelper } from "../Utilities/BlazeHelper.class.js";
+import {
+  buildChainLeg,
+  chainLegOrderAddress,
+  chainLegVersion,
+  legacyLegMinOutput,
+} from "../Utilities/ChainLeg.js";
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 import {
   ADA_METADATA,
@@ -624,14 +630,21 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
 
     let isOrderRoute = false;
     if (swapArgs.orderAddresses.PoolDestinationVersion) {
-      // Dynamic import to avoid circular dependency
-      const { SundaeSDK } = await import("../SundaeSDK.class.js");
-      const destinationBuilder = SundaeSDK.new({
-        blazeInstance: this.blaze,
-        customQueryProvider: this.queryProvider,
-      }).builder(swapArgs.orderAddresses.PoolDestinationVersion);
       isOrderRoute = true;
-      scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
+      const { PoolDestinationScooperFee } = swapArgs.orderAddresses;
+      if (PoolDestinationScooperFee !== undefined) {
+        // The caller built the destination order and knows its exact budget.
+        // A v4 destination must take this path: its budget is per-order.
+        scooperFee += PoolDestinationScooperFee;
+      } else {
+        // Dynamic import to avoid circular dependency
+        const { SundaeSDK } = await import("../SundaeSDK.class.js");
+        const destinationBuilder = SundaeSDK.new({
+          blazeInstance: this.blaze,
+          customQueryProvider: this.queryProvider,
+        }).builder(swapArgs.orderAddresses.PoolDestinationVersion);
+        scooperFee += await destinationBuilder.getMaxScooperFeeAmount();
+      }
     }
 
     const baseOrderDeposit = isOrderRoute
@@ -677,16 +690,18 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
   async orderRouteSwap(
     args: IOrderRouteSwapArgs,
   ): Promise<IComposedTx<BlazeTx, Core.Transaction>> {
-    // Dynamic import to avoid circular dependency
-    const { SundaeSDK } = await import("../SundaeSDK.class.js");
-    const secondBuilder = SundaeSDK.new({
+    const chain = {
       blazeInstance: this.blaze,
-      customQueryProvider: this.queryProvider,
-    }).builder(args.swapB.pool.version);
+      queryProvider: this.queryProvider,
+    };
+    const legB = args.swapB;
+    const legBVersion = chainLegVersion(legB);
 
-    const secondSwapAddress = await secondBuilder.getOrderScriptAddress(
-      args.ownerAddress,
-    );
+    const secondSwapAddress = await chainLegOrderAddress({
+      ...chain,
+      leg: legB,
+      ownerAddress: args.ownerAddress,
+    });
 
     const swapA = new SwapConfig({
       ...args.swapA,
@@ -696,56 +711,41 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
           address: secondSwapAddress,
           datum: { type: EDatumType.NONE },
         },
-        PoolDestinationVersion: args.swapB.pool.version,
+        PoolDestinationVersion: legBVersion,
       },
     }).buildArgs();
 
-    const [aReserve, bReserve] = SundaeUtils.sortSwapAssetsWithAmounts([
-      new AssetAmount(
-        args.swapA.pool.liquidity.aReserve,
-        args.swapA.pool.assetA,
-      ),
-      new AssetAmount(
-        args.swapA.pool.liquidity.bReserve,
-        args.swapA.pool.assetB,
-      ),
-    ]);
+    const aOutputAsset = legacyLegMinOutput(
+      args.swapA.pool,
+      swapA.suppliedAsset,
+      swapA.minReceivable,
+    );
 
-    const aOutputAsset =
-      swapA.suppliedAsset.metadata.assetId === aReserve.metadata.assetId
-        ? bReserve.withAmount(swapA.minReceivable.amount)
-        : aReserve.withAmount(swapA.minReceivable.amount);
-
-    const swapB = new SwapConfig({
-      ...args.swapB,
+    const builtLegB = await buildChainLeg({
+      ...chain,
+      leg: legB,
+      ownerAddress: args.ownerAddress,
+      destination: args.destination,
       suppliedAsset: aOutputAsset,
-      orderAddresses: {
-        DestinationAddress: {
-          address: args.ownerAddress,
-          datum: { type: EDatumType.NONE },
-        },
-      },
-    }).buildArgs();
-
-    const secondSwapData = await secondBuilder.swap({
-      ...swapB,
-      swapType: args.swapB.swapType,
     });
 
     const referralFeeAmount = BlazeHelper.mergeValues(
       swapA.referralFee?.payment,
-      swapB.referralFee?.payment,
+      builtLegB.referralFee?.payment,
     );
 
     let mergedReferralFee: ITxBuilderReferralFee | undefined;
     if (swapA.referralFee) {
       mergedReferralFee = { ...swapA.referralFee, payment: referralFeeAmount };
-    } else if (swapB.referralFee) {
-      mergedReferralFee = { ...swapB.referralFee, payment: referralFeeAmount };
+    } else if (builtLegB.referralFee) {
+      mergedReferralFee = {
+        ...builtLegB.referralFee,
+        payment: referralFeeAmount,
+      };
     }
 
     const datumHash = Core.PlutusData.fromCbor(
-      Core.HexBlob(secondSwapData.datum as string),
+      Core.HexBlob(builtLegB.datum),
     ).hash();
 
     const { tx, datum, fees } = await this.swap({
@@ -754,14 +754,15 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       ownerAddress: args.ownerAddress,
       orderAddresses: {
         ...swapA.orderAddresses,
+        PoolDestinationScooperFee: builtLegB.scooperFee,
         DestinationAddress: {
           ...swapA.orderAddresses.DestinationAddress,
           datum: {
-            type: secondBuilder.getDatumType(),
+            type: builtLegB.datumType,
             value:
-              secondBuilder.getDatumType() === EDatumType.HASH
+              builtLegB.datumType === EDatumType.HASH
                 ? datumHash
-                : (secondSwapData.datum as string),
+                : builtLegB.datum,
           },
         },
         AlternateAddress: args.ownerAddress,
@@ -769,21 +770,15 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       referralFee: mergedReferralFee,
     });
 
-    if (secondBuilder.getDatumType() === EDatumType.HASH) {
+    if (builtLegB.datumType === EDatumType.HASH) {
       const data = new Core.AuxiliaryData();
       const metadata = new Map<bigint, Core.Metadatum>();
       metadata.set(
         103251n,
-        Core.Metadatum.fromCore(
-          new Map([
-            [
-              Buffer.from(datumHash, "hex"),
-              SundaeUtils.splitMetadataString(
-                secondSwapData.datum as string,
-              ).map((v) => Buffer.from(v, "hex")),
-            ],
-          ]),
-        ),
+        BlazeHelper.buildDatumMetadatum([
+          builtLegB.datum,
+          ...(builtLegB.supplementalDatums ?? []),
+        ]),
       );
       data.setMetadata(new Core.Metadata(metadata));
       tx.setAuxiliaryData(data);
@@ -794,7 +789,7 @@ export class TxBuilderV3 extends TxBuilderAbstractV3 {
       datum: datum,
       deposit: ORDER_ROUTE_DEPOSIT_DEFAULT,
       referralFee: mergedReferralFee?.payment,
-      scooperFee: fees.scooperFee.add(secondSwapData.fees.scooperFee).amount,
+      scooperFee: fees.scooperFee.amount + builtLegB.scooperFee,
     });
   }
 

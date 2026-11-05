@@ -263,15 +263,23 @@ export class DatumBuilderV1 implements DatumBuilderAbstract {
       }
     }
 
+    // A v1 scoop can't pay out an inline datum, so name it by hash; the tx
+    // builder publishes the datum itself.
+    let destinationDatum: string | undefined;
+    if (DestinationAddress.datum.type === EDatumType.INLINE) {
+      destinationDatum = Core.PlutusData.fromCbor(
+        Core.HexBlob(DestinationAddress.datum.value),
+      ).hash();
+    } else if (DestinationAddress.datum.type === EDatumType.HASH) {
+      destinationDatum = DestinationAddress.datum.value;
+    }
+
     const destination: V1Types.Destination = {
       credentials: {
         paymentKey: paymentKeyData,
         stakingKey: stakingKeyData ? { value: stakingKeyData } : undefined,
       },
-      datum:
-        DestinationAddress.datum.type !== EDatumType.NONE
-          ? DestinationAddress.datum.value
-          : undefined,
+      datum: destinationDatum,
     };
 
     let alternatePaymentPart: string | undefined = undefined;

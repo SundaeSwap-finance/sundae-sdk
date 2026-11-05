@@ -44,7 +44,7 @@ An instance of the Blaze class, providing various utility methods for blockchain
 
 ### claim()
 
-> **claim**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+> **claim**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 Processes a claim transaction, handling various pre-conditions and state checks.
 
@@ -64,7 +64,7 @@ The required arguments for the claim operation.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
 
@@ -80,7 +80,7 @@ Throws errors if the claim conditions are not met, such as missing keys, inabili
 
 ### deposit()
 
-> **deposit**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+> **deposit**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 Initiates a deposit transaction, conducting various checks and orchestrating the transaction construction.
 
@@ -104,7 +104,7 @@ The required arguments for the deposit operation.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 - Returns a promise that resolves with a transaction builder object,
 which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
@@ -147,7 +147,7 @@ True to enable tracing, false to turn it off. (default: false)
 
 ### update()
 
-> **update**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+> **update**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 Initiates an update transaction for a node's assets, ensuring various checks and constructing the transaction.
 
@@ -171,7 +171,7 @@ The arguments required for the update operation, including potential UTXOs and t
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 - Returns a promise that resolves with a transaction builder object,
 equipped with the transaction, its associated fees, and functions to build, sign, and submit the transaction.
@@ -192,7 +192,7 @@ Throws an error if the user's payment credential hash is missing or if the node 
 
 ### withdraw()
 
-> **withdraw**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+> **withdraw**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 Processes a withdrawal transaction, handling various pre-conditions and state checks.
 
@@ -216,7 +216,7 @@ The required arguments for the withdrawal operation.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md)\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, [`ITasteTestFees`](../interfaces/ITasteTestFees.md), `string`\>\>
 
 - Returns a promise that resolves with a transaction builder object, which includes the transaction, its associated fees, and functions to build, sign, and submit the transaction.
 

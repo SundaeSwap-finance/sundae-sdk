@@ -49,6 +49,7 @@ SundaeSwap protocol.
 - [IBasicV4Args](interfaces/IBasicV4Args.md)
 - [IBatchV4Args](interfaces/IBatchV4Args.md)
 - [ICancelConfigArgs](interfaces/ICancelConfigArgs.md)
+- [IChainLegV4](interfaces/IChainLegV4.md)
 - [IComposedTx](interfaces/IComposedTx.md)
 - [ICurrentFeeFromDecayingFeeArgs](interfaces/ICurrentFeeFromDecayingFeeArgs.md)
 - [IDatumBuilderBaseV3Args](interfaces/IDatumBuilderBaseV3Args.md)
@@ -74,6 +75,7 @@ SundaeSwap protocol.
 - [IMintPoolV4Args](interfaces/IMintPoolV4Args.md)
 - [IOrderConfigArgs](interfaces/IOrderConfigArgs.md)
 - [IOrderRouteSwapArgs](interfaces/IOrderRouteSwapArgs.md)
+- [IOrderRouteSwapV4Args](interfaces/IOrderRouteSwapV4Args.md)
 - [IOrderV4Base](interfaces/IOrderV4Base.md)
 - [IPoolByAssetQuery](interfaces/IPoolByAssetQuery.md)
 - [IPoolByIdentQuery](interfaces/IPoolByIdentQuery.md)
@@ -99,6 +101,7 @@ SundaeSwap protocol.
 - [ITxBuilderCompleteTxArgs](interfaces/ITxBuilderCompleteTxArgs.md)
 - [ITxBuilderFees](interfaces/ITxBuilderFees.md)
 - [ITxBuilderReferralFee](interfaces/ITxBuilderReferralFee.md)
+- [ITxBuilderSubmit](interfaces/ITxBuilderSubmit.md)
 - [ITxBuilderV1BlazeParams](interfaces/ITxBuilderV1BlazeParams.md)
 - [IUpdateArgs](interfaces/IUpdateArgs.md)
 - [IUpdateV4Args](interfaces/IUpdateV4Args.md)
@@ -110,6 +113,8 @@ SundaeSwap protocol.
 ### Type Aliases
 
 - [TCancelerAddress](type-aliases/TCancelerAddress.md)
+- [TChainLeg](type-aliases/TChainLeg.md)
+- [TChainLegLegacy](type-aliases/TChainLegLegacy.md)
 - [TConditionDatumArgs](type-aliases/TConditionDatumArgs.md)
 - [TDatum](type-aliases/TDatum.md)
 - [TDatumHash](type-aliases/TDatumHash.md)
@@ -134,6 +139,7 @@ SundaeSwap protocol.
 - [TUpdateSwap](type-aliases/TUpdateSwap.md)
 - [TUpdateV4Order](type-aliases/TUpdateV4Order.md)
 - [TUTXO](type-aliases/TUTXO.md)
+- [TV4ChainFirstLeg](type-aliases/TV4ChainFirstLeg.md)
 - [TWithdraw](type-aliases/TWithdraw.md)
 
 ### Variables

@@ -396,33 +396,32 @@ export const getSwapOutput = (
 };
 
 /**
- * Calculates the current price (exchange rate) of asset A in terms of asset B for a Stableswaps pool.
- * The price is derived from the Stableswaps curve equation and takes into account the amplification factor.
+ * The pool's marginal price as raw units of asset A per raw unit of asset B,
+ * |dx/dy| at the current reserves. This is the "ideal" price that swap price
+ * impact is measured against.
  *
- * The calculation uses the formula:
+ * Derived from the Stableswaps invariant 4A(x + y) + D = 4AD + D^3 / (4xy):
  * price = (xpA + (dR * aReserve) / bReserve) / (xpA + dR)
- * where xpA = (Ann * aReserve) / A_PRECISION with Ann = 4 * laf * A_PRECISION (matching
- * getSumInvariant) and dR is derived from the sum invariant
+ * where xpA = 4 * laf * aReserve and dR = D^3 / (4 * aReserve * bReserve)
  *
  * @param {bigint} aReserve - The current reserve amount of asset A in the pool.
  * @param {bigint} bReserve - The current reserve amount of asset B in the pool.
  * @param {bigint} laf - The linear amplification factor of the pool.
- * @returns {Fraction} Marginal |dx/dy| (raw A per raw B) at the current reserves.
+ * @returns {Fraction} Raw A per raw B at the current reserves.
  */
 export function getPrice(
   aReserve: bigint,
   bReserve: bigint,
   laf: bigint,
 ): Fraction {
-  // Marginal |dx/dy| at the current reserves (matches on-chain 4A spot).
-  const ann = laf * 4n * A_PRECISION;
   const sumInvariant =
     getSumInvariant(laf, aReserve, bReserve) / RESERVE_PRECISION;
   // D / n^n with n = 2
   let dR = sumInvariant / 4n;
   dR = (dR * sumInvariant) / aReserve;
   dR = (dR * sumInvariant) / bReserve;
-  const xpA = (ann * aReserve) / A_PRECISION;
+  // 4A is the amplification term of the on-chain invariant, A = laf.
+  const xpA = 4n * laf * aReserve;
   const p = new Fraction(xpA + (dR * aReserve) / bReserve, xpA + dR);
   return p;
 }

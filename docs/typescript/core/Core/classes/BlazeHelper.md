@@ -23,6 +23,27 @@ Cardano addresses. These functions include:
 
 ## Methods
 
+### buildDatumMetadatum()
+
+> `static` **buildDatumMetadatum**(`datums`): `TransactionMetadatum`
+
+Builds the metadatum (label 103251) that publishes datums a transaction
+names only by hash, keyed by hash, so a scooper can supply them.
+
+#### Parameters
+
+• **datums**: `string`[]
+
+#### Returns
+
+`TransactionMetadatum`
+
+#### Defined in
+
+[packages/core/src/Utilities/BlazeHelper.class.ts:262](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L262)
+
+***
+
 ### getAddressAsType()
 
 > `static` **getAddressAsType**(`address`): `object`
@@ -47,7 +68,7 @@ Helper function to parse addresses hashes from a Bech32 encoded address.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:30](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L30)
+[packages/core/src/Utilities/BlazeHelper.class.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L31)
 
 ***
 
@@ -69,7 +90,7 @@ The address type.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:59](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L59)
+[packages/core/src/Utilities/BlazeHelper.class.ts:60](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L60)
 
 ***
 
@@ -91,7 +112,7 @@ The address type.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:46](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L46)
+[packages/core/src/Utilities/BlazeHelper.class.ts:47](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L47)
 
 ***
 
@@ -115,7 +136,7 @@ Throws a useful error if the address, network, and instance network are on the w
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:199](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L199)
+[packages/core/src/Utilities/BlazeHelper.class.ts:200](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L200)
 
 ***
 
@@ -137,7 +158,7 @@ A list of values to merge together.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:241](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L241)
+[packages/core/src/Utilities/BlazeHelper.class.ts:242](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L242)
 
 ***
 
@@ -159,7 +180,7 @@ Throws an error describing the address and contextual information.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:226](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L226)
+[packages/core/src/Utilities/BlazeHelper.class.ts:227](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L227)
 
 ***
 
@@ -186,7 +207,7 @@ and that the address is on the correct network.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:111](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L111)
+[packages/core/src/Utilities/BlazeHelper.class.ts:112](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L112)
 
 ***
 
@@ -208,4 +229,4 @@ Validates that an address matches the provided network.
 
 #### Defined in
 
-[packages/core/src/Utilities/BlazeHelper.class.ts:163](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L163)
+[packages/core/src/Utilities/BlazeHelper.class.ts:164](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/Utilities/BlazeHelper.class.ts#L164)

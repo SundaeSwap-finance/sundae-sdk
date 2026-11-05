@@ -6,13 +6,20 @@ import {
 } from "@blaze-cardano/sdk";
 import { afterAll, describe, expect, it, mock, spyOn } from "bun:test";
 
-import { Void } from "@blaze-cardano/data";
+import { parse, Void } from "@blaze-cardano/data";
 import { ESwapType } from "../../@types/configs.js";
 import { EDatumType, EDestinationType } from "../../@types/datumbuilder.js";
-import { ITxBuilderFees } from "../../@types/txbuilders.js";
+import { IComposedTx, ITxBuilderFees } from "../../@types/txbuilders.js";
+import {
+  V1Types,
+  V3Types,
+  V4Types,
+} from "../../DatumBuilders/ContractTypes/index.js";
 import { DatumBuilderV3 } from "../../DatumBuilders/DatumBuilder.V3.class.js";
+import { DatumBuilderV4 } from "../../DatumBuilders/DatumBuilder.V4.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
+import { BlazeHelper } from "../../Utilities/BlazeHelper.class.js";
 import {
   ADA_METADATA,
   ORDER_DEPOSIT_DEFAULT,
@@ -21,6 +28,9 @@ import {
 import { PREVIEW_DATA } from "../../exports/testing.js";
 import { TxBuilderV1 } from "../TxBuilder.V1.class.js";
 import { TxBuilderV3 } from "../TxBuilder.V3.class.js";
+import { TxBuilderV4, V4_VALIDATORS } from "../TxBuilder.V4.class.js";
+import { EContractVersion } from "../../@types/index.js";
+import { AssetAmount } from "@sundaeswap/asset";
 import {
   mockOrderToCancel,
   params,
@@ -65,9 +75,33 @@ const getPaymentAddressFromOutput = (output: Core.TransactionOutput) => {
   return Core.addressFromCredential(0, Core.Credential.fromCore(credential));
 };
 
+/** Leg A's payout in a chained swap: the next leg's address and inline datum. */
+const getNextLeg = (datum: string) => {
+  const { destination } = parse(
+    V3Types.OrderDatum,
+    Core.PlutusData.fromCbor(Core.HexBlob(datum)),
+  );
+  const next = destination === "Self" ? undefined : destination.Fixed;
+  if (typeof next?.datum !== "object" || !("InlineDatum" in next.datum)) {
+    throw new Error("Expected leg A to carry the next leg's datum inline.");
+  }
+  return { address: next.address, datum: next.datum.InlineDatum[0] };
+};
+
 const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (blaze) => {
   builder = new TxBuilderV3(blaze);
 });
+
+// A v3 -> v4 chain asks the v4 builder for its order address and datum, which
+// needs the v4 deployment hashes. Resolve them locally, as the v4 suite does.
+const V4_ORDER_HASH = "11".repeat(28);
+spyOn(TxBuilderV4.prototype, "getValidatorScript").mockImplementation(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (async (name: string) => {
+    const hash = name === V4_VALIDATORS.order ? V4_ORDER_HASH : "22".repeat(28);
+    return { hash, blueprint: { validators: [] } };
+  }) as any,
+);
 
 afterAll(() => {
   mock.restore();
@@ -390,9 +424,7 @@ describe("TxBuilderBlazeV3", () => {
       feePadding: 1_000_000n,
     });
 
-    expect(fees.deposit.amount).toEqual(
-      ORDER_DEPOSIT_DEFAULT + 1_000_000n,
-    );
+    expect(fees.deposit.amount).toEqual(ORDER_DEPOSIT_DEFAULT + 1_000_000n);
     expect(fees.deposit.amount).toEqual(3_000_000n);
 
     const { builtTx } = await build();
@@ -434,6 +466,207 @@ describe("TxBuilderBlazeV3", () => {
     } catch (e) {
       expect((e as Error).message).toEqual(DatumBuilderV3.INVALID_POOL_IDENT);
     }
+  });
+
+  it("orderRouteSwap() - v3 to v4 chains into a v4 intent", async () => {
+    // The v4 tail is ONE pool-agnostic intent, so a route whose tail spans
+    // several v4 pools is still a single chain leg. Leg A is a v3 swap whose
+    // payout destination is the v4 order address, carrying the v4 datum.
+    const { fees } = await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        contractVersion: EContractVersion.V4,
+        minReceived: new AssetAmount(1_000_000n, {
+          assetId:
+            "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          decimals: 6,
+        }),
+        // Hex asset name, explicit so the test does not depend on the query.
+        budget: 3_000_000n,
+        configToken: "aabb",
+      },
+    });
+
+    // v3's own 1 ADA plus the v4 leg's 3 ADA budget, which leg A forwards so
+    // the v4 order arrives already funded.
+    expect(fees.scooperFee.amount.toString()).toEqual("4000000");
+  });
+
+  it("orderRouteSwap() - a v4 leg may be offered more than the previous leg guarantees", async () => {
+    // A chained leg's datum is fixed before the previous leg fills, so by
+    // default it can only name that leg's MINIMUM. Anything won above it
+    // arrives unclaimed and comes back unconverted. A v4 order's `offered` is
+    // an upper bound (the validator checks `consumed <= offered`), and the
+    // scooper consumes at most the tokens the order holds, so a caller may
+    // name the expected token fill and have all of it converted.
+    const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
+    // swapA sells 20 ADA for tINDY, guaranteeing well under 25,000,000.
+    const expected = PREVIEW_DATA.assets.tindy.withAmount(25_000_000n);
+
+    await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tada,
+      },
+      swapB: {
+        contractVersion: EContractVersion.V4,
+        minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+        offered: expected,
+        budget: 3_000_000n,
+        configToken: "aabb",
+      },
+    });
+
+    expect(intent).toHaveBeenCalled();
+    const [args] = intent.mock.calls[0] as [{ offered: AssetAmount }];
+    expect(args.offered.amount).toBe(expected.amount);
+    intent.mockRestore();
+  });
+
+  it("orderRouteSwap() - a v4 leg's ADA offer is capped at what the previous leg guarantees", async () => {
+    // The scooper spends the full offered lovelace, so an ADA offer above
+    // what arrives would eat the order's deposit and budget, then stop it
+    // filling.
+    const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
+    const placeWith = (offered?: AssetAmount) =>
+      builder.orderRouteSwap({
+        ownerAddress: PREVIEW_DATA.addresses.current,
+        swapA: {
+          swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+          pool: PREVIEW_DATA.pools.v3,
+          // Sells 20,000,000 tINDY, guaranteeing well under 25 ADA.
+          suppliedAsset: PREVIEW_DATA.assets.tindy,
+        },
+        swapB: {
+          contractVersion: EContractVersion.V4,
+          minReceived: PREVIEW_DATA.assets.usdc,
+          offered,
+          budget: 3_000_000n,
+          configToken: "aabb",
+        },
+      });
+
+    await placeWith(new AssetAmount(25_000_000n, ADA_METADATA));
+    await placeWith();
+
+    const [capped, guaranteed] = intent.mock.calls.map(
+      ([args]) => args.offered.amount,
+    );
+    expect(guaranteed).toBeLessThan(25_000_000n);
+    expect(capped).toEqual(guaranteed);
+    intent.mockRestore();
+  });
+
+  it("orderRouteSwap() - a v4 leg's offered must be the asset the previous leg delivers", async () => {
+    await expect(
+      builder.orderRouteSwap({
+        ownerAddress: PREVIEW_DATA.addresses.current,
+        swapA: {
+          swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+          pool: PREVIEW_DATA.pools.v3,
+          // Sells tINDY, so swapA delivers ADA.
+          suppliedAsset: PREVIEW_DATA.assets.tindy,
+        },
+        swapB: {
+          contractVersion: EContractVersion.V4,
+          minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+          offered: PREVIEW_DATA.assets.usdc,
+          budget: 3_000_000n,
+          configToken: "aabb",
+        },
+      }),
+    ).rejects.toThrow(/must be the asset the order before it delivers/);
+  });
+
+  it("orderRouteSwap() - a v4 leg defaults to what the previous leg guarantees", async () => {
+    // Without an expectation there is nothing better to name than the
+    // minimum, which is always present and so always fillable.
+    const intent = spyOn(TxBuilderV4.prototype, "swapIntent");
+
+    await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        contractVersion: EContractVersion.V4,
+        minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+        budget: 3_000_000n,
+        configToken: "aabb",
+      },
+    });
+
+    const [args] = intent.mock.calls[0] as [{ offered: AssetAmount }];
+    // swapA's minReceivable, not an arbitrary figure.
+    expect(args.offered.amount).toBeGreaterThan(0n);
+    intent.mockRestore();
+  });
+
+  it("orderRouteSwap() - v3 to v4 pays out to a custom destination", async () => {
+    const owner = PREVIEW_DATA.addresses.current;
+    const destination = {
+      address: PREVIEW_DATA.addresses.alternatives[0],
+      datum: { type: EDatumType.NONE as const },
+    };
+
+    const { datum } = await builder.orderRouteSwap({
+      ownerAddress: owner,
+      destination,
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        contractVersion: EContractVersion.V4,
+        minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+        budget: 3_000_000n,
+        configToken: "aabb",
+      },
+    });
+
+    // Leg A pays into the v4 order script.
+    const next = getNextLeg(datum as string);
+    expect(next.address.paymentCredential).toEqual({
+      ScriptCredential: [V4_ORDER_HASH],
+    });
+
+    const legB = parse(V4Types.OrderDatum, next.datum);
+    const v4 = new DatumBuilderV4("preview");
+    expect(legB.destination).toEqual(
+      v4.buildDestinationAddresses(destination).schema,
+    );
+    expect(legB.owner).toEqual(v4.buildOwnerDatum(owner).schema);
+  });
+
+  it("orderRouteSwap() - v1 refuses to chain into v4", async () => {
+    // A v1 order names its destination datum by hash; a v4 order needs an
+    // inline datum to be spendable. Building it would place a UTxO at the v4
+    // order address that no scooper can spend, so this must throw.
+    const v1 = new TxBuilderV1(builder.blaze);
+    await expect(
+      v1.orderRouteSwap({
+        ownerAddress: PREVIEW_DATA.addresses.current,
+        swapA: {
+          swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+          pool: PREVIEW_DATA.pools.v1,
+          suppliedAsset: PREVIEW_DATA.assets.tindy,
+        },
+        swapB: {
+          contractVersion: EContractVersion.V4,
+          minReceived: new AssetAmount(1_000_000n, ADA_METADATA),
+        },
+      }),
+    ).rejects.toThrow(/cannot chain into v4/);
   });
 
   it("orderRouteSwap() - v3 to v3", async () => {
@@ -513,6 +746,47 @@ describe("TxBuilderBlazeV3", () => {
         "d8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd87a9f581c484969d936f484c45f143d911f81636fe925048e205048ee1fe412aaffd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87b9fd8799fd8799f581ca933477ea168013e2b5af4a9e029e36d26738eb6dfe382e1f3eab3e2ffd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ff1a000f4240d8799fd8799fd8799f581cc279a3fb3b4e62bbc78e288783b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd22e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87980ffd87a9f9f40401a011b5ec7ff9f581c2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb544694254431a00f9f216ffff43d87980ffffffd87a9f9f581cfa3eff2047fdf9293c5feef4dc85ce58097ea1c6da4845a3515351834574494e44591a01312d00ff9f40401a011b5ec7ffff43d87980ff",
       ),
     );
+  });
+
+  it("orderRouteSwap() - v3 to v3 pays out to a custom destination", async () => {
+    const destination = PREVIEW_DATA.addresses.alternatives[0];
+    const { datum } = await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      destination: { address: destination, datum: { type: EDatumType.NONE } },
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v3,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: {
+          ...PREVIEW_DATA.pools.v3,
+          assetB: {
+            ...PREVIEW_DATA.pools.v3.assetB,
+            assetId:
+              // iBTC
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          },
+          assetLP: {
+            ...PREVIEW_DATA.pools.v3.assetLP,
+            assetId:
+              "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702004",
+          },
+        },
+      },
+    });
+
+    const legB = getNextLeg(datum as string).datum.toCbor();
+
+    expect(DatumBuilderV3.getDestinationAddressesFromDatum(legB)).toEqual({
+      paymentKeyHash: BlazeHelper.getPaymentHashFromBech32(destination),
+      stakingKeyHash: BlazeHelper.getStakingHashFromBech32(destination),
+    });
+    // Leg B keeps the original owner.
+    const owner = DatumBuilderV3.getSignerKeyFromDatum(datum as string);
+    expect(owner).toBeDefined();
+    expect(DatumBuilderV3.getSignerKeyFromDatum(legB)).toEqual(owner as string);
   });
 
   it("orderRouteSwap() - v3 to v1", async () => {
@@ -606,6 +880,62 @@ describe("TxBuilderBlazeV3", () => {
         "a158208d35dd309d5025e51844f3c8b6d6f4e93ec55bf4a85b5c3610860500efc1e9fb85581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a011b5ec7d8799f1a00833c12ff42ffff",
       ),
     );
+  });
+
+  it("orderRouteSwap() - v3 to v1 names an inline destination datum by hash", async () => {
+    // A v1 scoop can't pay out an inline datum, so leg A publishes it.
+    const unitDatum = "d87980";
+    const unitDatumHash =
+      "923918e403bf43c34b4ef6b48eb2ee04babed17320d8d1b9ff9ad086e86f44ec";
+    const legBSwap = spyOn(TxBuilderV1.prototype, "swap");
+
+    const { build } = await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      destination: {
+        // A script that isn't a SundaeSwap order script.
+        address: Core.addressFromCredential(
+          0,
+          Core.Credential.fromCore({
+            hash: Core.Hash28ByteBase16(
+              "e6c8a314ae942401619460f00c69de3d1b996db588d4042243a4b259",
+            ),
+            type: Core.CredentialType.ScriptHash,
+          }),
+        ).toBech32(),
+        datum: { type: EDatumType.INLINE, value: unitDatum },
+      },
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+        pool: PREVIEW_DATA.pools.v3,
+      },
+      swapB: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: { ...PREVIEW_DATA.pools.v1, ident: "04" },
+      },
+    });
+
+    const { datum: legB } = (await legBSwap.mock.results[0].value) as {
+      datum: string;
+    };
+    legBSwap.mockRestore();
+    const { orderAddresses } = parse(
+      V1Types.SwapOrder,
+      Core.PlutusData.fromCbor(Core.HexBlob(legB)),
+    );
+    expect(orderAddresses.destination.datum).toEqual(unitDatumHash);
+
+    const { builtTx } = await build();
+    const published = builtTx
+      .auxiliaryData()
+      ?.metadata()
+      ?.metadata()
+      ?.get(103251n)
+      ?.toCbor();
+    expect(published).toEqual(
+      BlazeHelper.buildDatumMetadatum([legB, unitDatum]).toCbor(),
+    );
+    expect(published).toContain(`5820${unitDatumHash}8143${unitDatum}`);
   });
 
   it("deposit()", async () => {
@@ -1367,5 +1697,49 @@ describe("TxBuilderBlazeV3", () => {
         "Decaying fees are currently not supported in the scoopers. For now, use the same fee for both start and end values.",
       );
     }
+  });
+});
+
+type SubmitResultOf<Composed> = Composed extends {
+  build: () => Promise<{
+    sign: () => Promise<{ submit: () => Promise<infer Result> }>;
+  }>;
+}
+  ? Result
+  : never;
+
+// True only when A and B are the same type; `typecheck` fails otherwise.
+type IsExactly<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2
+    ? true
+    : false;
+
+describe("submit() result type", () => {
+  it("is the transaction hash for every builder's orders", () => {
+    const v1: IsExactly<
+      SubmitResultOf<Awaited<ReturnType<TxBuilderV1["swap"]>>>,
+      string
+    > = true;
+    const v3: IsExactly<
+      SubmitResultOf<Awaited<ReturnType<TxBuilderV3["swap"]>>>,
+      string
+    > = true;
+    const v4: IsExactly<
+      SubmitResultOf<Awaited<ReturnType<TxBuilderV4["swapIntent"]>>>,
+      string
+    > = true;
+    expect([v1, v3, v4]).toEqual([true, true, true]);
+  });
+
+  it("follows the composed transaction's declared result", () => {
+    type Result = { txHash: string; extra: number };
+
+    const declared: IsExactly<
+      SubmitResultOf<
+        IComposedTx<BlazeTx, Core.Transaction, string, object, Result>
+      >,
+      Result
+    > = true;
+    expect(declared).toBe(true);
   });
 });
