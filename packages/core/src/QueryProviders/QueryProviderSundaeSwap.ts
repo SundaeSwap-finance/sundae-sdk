@@ -77,6 +77,10 @@ interface IPoolDataQueryResult {
   modules?: { kind: string; identifier: string }[] | null;
   /** v4 constant-sum per-asset prices. Empty for every other curve. */
   prices?: string[] | null;
+  /** Every asset of a v4 pool, in pool order; the API serves it for every pool. */
+  assets?: IPoolDataAsset[] | null;
+  /** The reserve of each entry of `assets`, in the same order. */
+  quantities?: string[] | null;
   /** v4 concentrated-liquidity sqrt bounds, flattened. Empty for every other curve. */
   sqrtPrices?: string[] | null;
   /** v4 stableswap per-asset rates. Empty for every other curve. */
@@ -117,9 +121,20 @@ const mapV4CurveFields = (pool: IPoolDataQueryResult): Partial<IPoolData> => {
 
   const pair = (raw?: string[] | null): [bigint, bigint] | undefined =>
     raw && raw.length >= 2 ? [BigInt(raw[0]), BigInt(raw[1])] : undefined;
+  // A constant-sum pool prices every asset it holds, and it can hold more
+  // than two, so keep the whole vector: `pair()` would drop the third
+  // asset's price and misprice any trade touching it.
+  const all = (raw?: string[] | null): bigint[] | undefined =>
+    raw && raw.length >= 2 ? raw.map((value) => BigInt(value)) : undefined;
 
-  const prices = pair(pool.prices);
+  const prices = all(pool.prices);
   const rates = pair(pool.rates);
+  const assets =
+    pool.assets && pool.assets.length >= 2 ? pool.assets : undefined;
+  const reserves =
+    assets && pool.quantities && pool.quantities.length === assets.length
+      ? pool.quantities.map((quantity) => BigInt(quantity))
+      : undefined;
   // Flattened by the API as [lowerNum, lowerDen, upperNum, upperDen].
   const sp = pool.sqrtPrices;
   const sqrtPrices =
@@ -132,6 +147,8 @@ const mapV4CurveFields = (pool: IPoolDataQueryResult): Partial<IPoolData> => {
 
   return {
     curve,
+    ...(assets ? { assets } : {}),
+    ...(reserves ? { reserves } : {}),
     ...(prices ? { prices } : {}),
     ...(sqrtPrices ? { sqrtPrices } : {}),
     ...(rates ? { rates } : {}),
@@ -220,6 +237,11 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 kind
                 identifier
               }
+              assets {
+                assetId: id
+                decimals
+              }
+              quantities
               prices
               sqrtPrices
               rates
@@ -271,6 +293,11 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 kind
                 identifier
               }
+              assets {
+                assetId: id
+                decimals
+              }
+              quantities
               prices
               sqrtPrices
               rates
@@ -367,6 +394,11 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 kind
                 identifier
               }
+              assets {
+                assetId: id
+                decimals
+              }
+              quantities
               prices
               sqrtPrices
               rates
@@ -418,6 +450,11 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 kind
                 identifier
               }
+              assets {
+                assetId: id
+                decimals
+              }
+              quantities
               prices
               sqrtPrices
               rates
@@ -514,6 +551,11 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 kind
                 identifier
               }
+              assets {
+                assetId: id
+                decimals
+              }
+              quantities
               prices
               sqrtPrices
               rates
@@ -565,6 +607,11 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 kind
                 identifier
               }
+              assets {
+                assetId: id
+                decimals
+              }
+              quantities
               prices
               sqrtPrices
               rates
@@ -694,6 +741,11 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                   kind
                   identifier
                 }
+                assets {
+                  assetId: id
+                  decimals
+                }
+                quantities
                 prices
                 sqrtPrices
                 rates
