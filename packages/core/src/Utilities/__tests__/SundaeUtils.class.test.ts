@@ -1730,3 +1730,142 @@ describe("SundaeUtils class", () => {
     });
   });
 });
+
+describe("SundaeUtils N-asset estimators", () => {
+  const assetC = {
+    ...PREVIEW_DATA.pools.v1.assetB,
+    assetId: "cccccccccccccccccccccccccccccccccccccccccccccccccccccccc.434343",
+  };
+  const pool: IPoolData = {
+    ...PREVIEW_DATA.pools.v1,
+    version: EContractVersion.V4,
+    curve: EPoolCurve.ConstantSum,
+    currentFee: 0.003,
+    liquidity: {
+      ...PREVIEW_DATA.pools.v1.liquidity,
+      aReserve: 1_000_000_000n,
+      bReserve: 2_000_000_000n,
+    },
+    assets: [
+      { ...PREVIEW_DATA.pools.v1.assetA, quantity: 1_000_000_000n },
+      { ...PREVIEW_DATA.pools.v1.assetB, quantity: 2_000_000_000n },
+      { ...assetC, quantity: 3_000_000_000n },
+    ],
+    // C is worth two of A or B.
+    prices: [1_000_000n, 1_000_000n, 2_000_000n],
+  };
+
+  it("prices a trade between the second and third asset by their own entries", () => {
+    const { output } = SundaeUtils.getNSwapOutput(
+      pool,
+      new AssetAmount(10_000n, pool.assetB),
+      assetC.assetId,
+    );
+    const direct = ConstantSumPool.getSwapOutput(
+      pool.assetB,
+      10_000n,
+      2_000_000_000n,
+      3_000_000_000n,
+      1_000_000n,
+      2_000_000n,
+      0.003,
+      false,
+    );
+    expect(output).toEqual(direct.output);
+    // 10,000 B at par less 0.3% is 9,970 B of value, which is 4,985 C.
+    expect(output).toEqual(4_985n);
+  });
+
+  it("agrees with the pair estimator on the pool's first two assets", () => {
+    const supplied = new AssetAmount(10_000n, pool.assetA);
+    const n = SundaeUtils.getNSwapOutput(pool, supplied, pool.assetB.assetId);
+    const pair = SundaeUtils.getSwapOutput(pool, supplied);
+    expect(n.output).toEqual(pair.output);
+  });
+
+  it("round-trips through getNSwapInput", () => {
+    const { input } = SundaeUtils.getNSwapInput(
+      pool,
+      new AssetAmount(4_985n, assetC),
+      pool.assetB.assetId,
+    );
+    const { output } = SundaeUtils.getNSwapOutput(
+      pool,
+      new AssetAmount(input, pool.assetB),
+      assetC.assetId,
+    );
+    expect(output).toBeGreaterThanOrEqual(4_985n);
+    expect(input).toBeLessThanOrEqual(10_000n);
+  });
+
+  it("falls back to the pair fields when pool data names no asset list", () => {
+    const { assets: _assets, ...pairOnly } = pool;
+    const { output } = SundaeUtils.getNSwapOutput(
+      { ...pairOnly, prices: [1_000_000n, 1_000_000n] },
+      new AssetAmount(10_000n, pool.assetA),
+      pool.assetB.assetId,
+    );
+    expect(output).toEqual(9_970n);
+  });
+
+  it("refuses an asset the pool does not hold, and a same-asset swap", () => {
+    expect(() =>
+      SundaeUtils.getNSwapOutput(
+        pool,
+        new AssetAmount(1n, pool.assetA),
+        "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd.4444",
+      ),
+    ).toThrowError(/not one of the pool's assets/);
+    expect(() =>
+      SundaeUtils.getNSwapOutput(
+        pool,
+        new AssetAmount(1n, pool.assetA),
+        pool.assetA.assetId,
+      ),
+    ).toThrowError(/both/);
+  });
+
+  it("accepts an alias of a pair asset's id and prices it as the pool's own", () => {
+    // The v1 fixture's first asset is ADA, which the pool spells
+    // "ada.lovelace". A caller may spell it "." or "cardano.ada"; the pair
+    // estimators' membership guards compare ids exactly, so the alias must
+    // be normalized before delegating.
+    const pair: IPoolData = {
+      ...PREVIEW_DATA.pools.v1,
+      version: EContractVersion.V4,
+      curve: EPoolCurve.ConstantSum,
+      currentFee: 0.003,
+      liquidity: {
+        ...PREVIEW_DATA.pools.v1.liquidity,
+        aReserve: 1_000_000_000n,
+        bReserve: 1_000_000_000n,
+      },
+      prices: [1_000_000n, 1_000_000n],
+    };
+    expect(SundaeUtils.isAssetIdsEqual(pair.assetA.assetId, ".")).toBe(true);
+    const aliasAda = { ...pair.assetA, assetId: "." };
+    const { output } = SundaeUtils.getNSwapOutput(
+      pair,
+      new AssetAmount(10_000n, aliasAda),
+      pair.assetB.assetId,
+    );
+    expect(output).toEqual(9_970n);
+    const { input } = SundaeUtils.getNSwapInput(
+      pair,
+      new AssetAmount(9_970n, aliasAda),
+      pair.assetB.assetId,
+    );
+    expect(input).toBeLessThanOrEqual(10_000n);
+    expect(input).toBeGreaterThan(0n);
+  });
+
+  it("refuses more than two assets on a curve that is a pair by construction", () => {
+    expect(() =>
+      SundaeUtils.getNSwapOutput(
+        { ...pool, curve: EPoolCurve.ConstantProduct },
+        new AssetAmount(1n, pool.assetA),
+        assetC.assetId,
+      ),
+    ).toThrowError(/constant-sum/);
+  });
+});

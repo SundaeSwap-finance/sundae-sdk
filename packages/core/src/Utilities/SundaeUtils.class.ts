@@ -7,6 +7,7 @@ import {
   EPoolCurve,
   ICurrentFeeFromDecayingFeeArgs,
   IPoolData,
+  IPoolDataAsset,
   ISundaeProtocolParams,
   TFee,
   TSupportedNetworks,
@@ -918,6 +919,168 @@ export class SundaeUtils {
           `Unsupported pool version: ${poolData.version}. Cannot get swap input.`,
         );
     }
+  }
+
+  /**
+   * The legs of a pool as an asset-indexed list: every asset it holds, its
+   * reserve and, for a constant-sum pool, its price. A v4 pool can hold more
+   * than two assets; pre-v4 pool data and v4 data built before `assets`
+   * existed describe a pair, so the pair fields stand in.
+   */
+  private static poolLegs(poolData: IPoolData): {
+    assets: IPoolDataAsset[];
+    reserves: bigint[];
+    prices?: bigint[];
+  } {
+    const legs =
+      poolData.assets && poolData.assets.length >= 2
+        ? poolData.assets
+        : [
+            { ...poolData.assetA, quantity: poolData.liquidity.aReserve },
+            { ...poolData.assetB, quantity: poolData.liquidity.bReserve },
+          ];
+    const assets = legs.map(({ quantity: _quantity, ...asset }) => asset);
+    const reserves = legs.map(({ quantity }) => quantity);
+    const prices =
+      poolData.prices && poolData.prices.length === assets.length
+        ? [...poolData.prices]
+        : undefined;
+    return { assets, reserves, prices };
+  }
+
+  private static legIndex(
+    legs: { assets: IPoolDataAsset[] },
+    assetId: string,
+    role: string,
+  ): number {
+    const index = legs.assets.findIndex((asset) =>
+      SundaeUtils.isAssetIdsEqual(asset.assetId, assetId),
+    );
+    if (index < 0) {
+      throw new Error(
+        `Cannot compute a swap: ${role} asset ${assetId} is not one of the pool's assets.`,
+      );
+    }
+    return index;
+  }
+
+  /**
+   * Estimates a swap's output between any two assets of a pool, named
+   * explicitly. `getSwapOutput` assumes a pair and takes the output to be
+   * "the other side"; a v4 constant-sum pool can hold more than two assets,
+   * so the output has to be named and priced by its own entry in the pool's
+   * price vector.
+   *
+   * For a pool of two assets this is `getSwapOutput` with the output checked,
+   * on every curve. For more than two assets only the constant-sum curve is
+   * defined; the other curves are pairs by construction.
+   *
+   * @param poolData - The pool.
+   * @param suppliedAsset - What the user supplies.
+   * @param takenAssetId - The asset id the user wants out.
+   */
+  static getNSwapOutput(
+    poolData: IPoolData,
+    suppliedAsset: AssetAmount<IAssetAmountMetadata>,
+    takenAssetId: string,
+  ): TGenericSwapOutcome {
+    const legs = SundaeUtils.poolLegs(poolData);
+    const given = SundaeUtils.legIndex(
+      legs,
+      suppliedAsset.metadata.assetId,
+      "supplied",
+    );
+    const taken = SundaeUtils.legIndex(legs, takenAssetId, "taken");
+    if (given === taken) {
+      throw new Error(
+        `Cannot compute a swap: supplied and taken asset are both ${takenAssetId}.`,
+      );
+    }
+    if (legs.assets.length === 2) {
+      // Hand the pair estimator the pool's own spelling of the asset: its
+      // membership guard compares ids exactly, so an alias that legIndex
+      // accepted (ADA as "." or "ada.lovelace") would be refused there.
+      return SundaeUtils.getSwapOutput(
+        poolData,
+        new AssetAmount(suppliedAsset.amount, legs.assets[given]),
+      );
+    }
+    if (
+      poolData.version !== EContractVersion.V4 ||
+      poolData.curve !== EPoolCurve.ConstantSum
+    ) {
+      throw new Error(
+        `A pool of ${legs.assets.length} assets is only defined on the constant-sum curve.`,
+      );
+    }
+    if (!legs.prices) {
+      throw new Error(
+        "Constant-sum pool is missing a price per asset; cannot get swap output.",
+      );
+    }
+    return ConstantSumPool.getSwapOutput(
+      legs.assets[given],
+      suppliedAsset.amount,
+      legs.reserves[given],
+      legs.reserves[taken],
+      legs.prices[given],
+      legs.prices[taken],
+      poolData.currentFee,
+      false,
+    );
+  }
+
+  /**
+   * Estimates the input a swap needs to produce `output`, between any two
+   * assets of a pool. The counterpart of `getNSwapOutput`; see it for why the
+   * given asset is named rather than taken to be "the other side".
+   *
+   * @param poolData - The pool.
+   * @param output - What the user wants out.
+   * @param givenAssetId - The asset id the user supplies.
+   */
+  static getNSwapInput(
+    poolData: IPoolData,
+    output: AssetAmount<IAssetAmountMetadata>,
+    givenAssetId: string,
+  ): ReturnType<typeof SundaeUtils.getSwapInput> {
+    const legs = SundaeUtils.poolLegs(poolData);
+    const given = SundaeUtils.legIndex(legs, givenAssetId, "given");
+    const taken = SundaeUtils.legIndex(legs, output.metadata.assetId, "taken");
+    if (given === taken) {
+      throw new Error(
+        `Cannot compute a swap: given and taken asset are both ${givenAssetId}.`,
+      );
+    }
+    if (legs.assets.length === 2) {
+      // See getNSwapOutput: the pair estimator's guard compares ids exactly.
+      return SundaeUtils.getSwapInput(
+        poolData,
+        new AssetAmount(output.amount, legs.assets[taken]),
+      );
+    }
+    if (
+      poolData.version !== EContractVersion.V4 ||
+      poolData.curve !== EPoolCurve.ConstantSum
+    ) {
+      throw new Error(
+        `A pool of ${legs.assets.length} assets is only defined on the constant-sum curve.`,
+      );
+    }
+    if (!legs.prices) {
+      throw new Error(
+        "Constant-sum pool is missing a price per asset; cannot get swap input.",
+      );
+    }
+    return ConstantSumPool.getSwapInput(
+      legs.assets[given],
+      output.amount,
+      legs.reserves[given],
+      legs.reserves[taken],
+      legs.prices[given],
+      legs.prices[taken],
+      poolData.currentFee,
+    );
   }
 
   /**

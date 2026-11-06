@@ -84,6 +84,11 @@ export type TFee = [bigint, bigint];
 /**
  * Pool data that is returned from {@link Core.QueryProvider.findPoolData}.
  */
+/** One reserve of a pool: the asset, as {@link IPoolDataAsset}, and how much the pool holds of it. */
+export interface IPoolDataReserve extends IPoolDataAsset {
+  quantity: bigint;
+}
+
 export interface IPoolData {
   /** Returns the current pool fee as a float. */
   currentFee: number;
@@ -138,7 +143,17 @@ export interface IPoolData {
    * config, aligned to `[assetA, assetB]`. Required to compute constant-sum swap
    * output; ignored by other curves.
    */
-  prices?: [bigint, bigint];
+  prices?: [bigint, bigint] | bigint[];
+  /**
+   * Every asset the pool holds with its reserve, in the pool's own order:
+   * the same element shape as {@link IPoolV4.assets} (`assetId`, `quantity`)
+   * plus the asset's decimals. A v4 pool can hold more than two; `assetA`,
+   * `assetB` and `liquidity` always describe its first two, so the
+   * pair-shaped fields and functions keep working, and a consumer that needs
+   * the rest reads this list. Absent for pre-v4 pools and for pool data
+   * built before this field existed.
+   */
+  assets?: IPoolDataReserve[];
   /**
    * For v4 concentrated-liquidity pools, the immutable sqrt-price range bounds
    * from the pool's CL config as exact rationals `[[aNum, aDen], [bNum, bDen]]`
