@@ -997,7 +997,13 @@ export class SundaeUtils {
       );
     }
     if (legs.assets.length === 2) {
-      return SundaeUtils.getSwapOutput(poolData, suppliedAsset);
+      // Hand the pair estimator the pool's own spelling of the asset: its
+      // membership guard compares ids exactly, so an alias that legIndex
+      // accepted (ADA as "." or "ada.lovelace") would be refused there.
+      return SundaeUtils.getSwapOutput(
+        poolData,
+        new AssetAmount(suppliedAsset.amount, legs.assets[given]),
+      );
     }
     if (
       poolData.version !== EContractVersion.V4 ||
@@ -1013,7 +1019,7 @@ export class SundaeUtils {
       );
     }
     return ConstantSumPool.getSwapOutput(
-      suppliedAsset.metadata,
+      legs.assets[given],
       suppliedAsset.amount,
       legs.reserves[given],
       legs.reserves[taken],
@@ -1047,7 +1053,11 @@ export class SundaeUtils {
       );
     }
     if (legs.assets.length === 2) {
-      return SundaeUtils.getSwapInput(poolData, output);
+      // See getNSwapOutput: the pair estimator's guard compares ids exactly.
+      return SundaeUtils.getSwapInput(
+        poolData,
+        new AssetAmount(output.amount, legs.assets[taken]),
+      );
     }
     if (
       poolData.version !== EContractVersion.V4 ||

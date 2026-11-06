@@ -1825,6 +1825,40 @@ describe("SundaeUtils N-asset estimators", () => {
     ).toThrowError(/both/);
   });
 
+  it("accepts an alias of a pair asset's id and prices it as the pool's own", () => {
+    // The v1 fixture's first asset is ADA, which the pool spells
+    // "ada.lovelace". A caller may spell it "." or "cardano.ada"; the pair
+    // estimators' membership guards compare ids exactly, so the alias must
+    // be normalized before delegating.
+    const pair: IPoolData = {
+      ...PREVIEW_DATA.pools.v1,
+      version: EContractVersion.V4,
+      curve: EPoolCurve.ConstantSum,
+      currentFee: 0.003,
+      liquidity: {
+        ...PREVIEW_DATA.pools.v1.liquidity,
+        aReserve: 1_000_000_000n,
+        bReserve: 1_000_000_000n,
+      },
+      prices: [1_000_000n, 1_000_000n],
+    };
+    expect(SundaeUtils.isAssetIdsEqual(pair.assetA.assetId, ".")).toBe(true);
+    const aliasAda = { ...pair.assetA, assetId: "." };
+    const { output } = SundaeUtils.getNSwapOutput(
+      pair,
+      new AssetAmount(10_000n, aliasAda),
+      pair.assetB.assetId,
+    );
+    expect(output).toEqual(9_970n);
+    const { input } = SundaeUtils.getNSwapInput(
+      pair,
+      new AssetAmount(9_970n, aliasAda),
+      pair.assetB.assetId,
+    );
+    expect(input).toBeLessThanOrEqual(10_000n);
+    expect(input).toBeGreaterThan(0n);
+  });
+
   it("refuses more than two assets on a curve that is a pair by construction", () => {
     expect(() =>
       SundaeUtils.getNSwapOutput(

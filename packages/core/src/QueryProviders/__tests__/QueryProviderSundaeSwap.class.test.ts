@@ -55,7 +55,18 @@ describe("QueryProviderSundaeSwap curve data", () => {
   // repositories: a pool query that omits a field the estimator REQUIRES. The
   // symptom is never an error at the fetch — it is a pool that silently cannot
   // be priced, surfacing much later as "Unsupported v4 pool curve: undefined".
-  const CURVE_FIELDS = ["modules", "prices", "sqrtPrices", "rates", "totalLp"];
+  // `assets` and `quantities` joined the list when v4 pools of more than
+  // two assets arrived: a query without them maps a three-asset pool to a
+  // pair and misprices every trade touching the third asset.
+  const CURVE_FIELDS = [
+    "modules",
+    "prices",
+    "sqrtPrices",
+    "rates",
+    "totalLp",
+    "assets",
+    "quantities",
+  ];
 
   it("selects every curve field on the ident query", async () => {
     mockFetch({ data: { pools: { byId: STABLESWAP_POOL } } });
@@ -198,6 +209,64 @@ describe("QueryProviderSundaeSwap curve data", () => {
       [1n, 2n],
       [2n, 1n],
     ]);
+  });
+
+  it("keeps every asset, reserve and price of a three-asset constant-sum pool", async () => {
+    mockFetch({
+      data: {
+        pools: {
+          byId: {
+            ...STABLESWAP_POOL,
+            modules: [{ kind: "invariant", identifier: "constant_sum" }],
+            assets: [
+              { assetId: "aa.55534472", decimals: 6 },
+              { assetId: "bb.7355534472", decimals: 0 },
+              { assetId: "dd.5553444378", decimals: 6 },
+            ],
+            quantities: ["10794901263", "10186281970", "3000000000"],
+            prices: ["1000000", "1000000", "2000000"],
+            rates: [],
+          },
+        },
+      },
+    });
+    const pool = await new QueryProviderSundaeSwap("preview").findPoolDataByIdent(
+      { ident: STABLESWAP_POOL.id },
+    );
+    expect(pool.assets).toEqual([
+      { assetId: "aa.55534472", decimals: 6, quantity: 10_794_901_263n },
+      { assetId: "bb.7355534472", decimals: 0, quantity: 10_186_281_970n },
+      { assetId: "dd.5553444378", decimals: 6, quantity: 3_000_000_000n },
+    ]);
+    expect(pool.prices).toEqual([1_000_000n, 1_000_000n, 2_000_000n]);
+    // The pair fields still describe the first two assets.
+    expect(pool.assetA.assetId).toBe("aa.55534472");
+    expect(pool.liquidity.aReserve).toBe(10_794_901_263n);
+  });
+
+  it("drops the asset list when the API's reserves do not line up with it", async () => {
+    mockFetch({
+      data: {
+        pools: {
+          byId: {
+            ...STABLESWAP_POOL,
+            modules: [{ kind: "invariant", identifier: "constant_sum" }],
+            assets: [
+              { assetId: "aa.55534472", decimals: 6 },
+              { assetId: "bb.7355534472", decimals: 0 },
+              { assetId: "dd.5553444378", decimals: 6 },
+            ],
+            quantities: ["10794901263", "10186281970"],
+            prices: ["1000000", "1000000", "2000000"],
+            rates: [],
+          },
+        },
+      },
+    });
+    const pool = await new QueryProviderSundaeSwap("preview").findPoolDataByIdent(
+      { ident: STABLESWAP_POOL.id },
+    );
+    expect(pool.assets).toBeUndefined();
   });
 
   it("leaves a pre-v4 pool with no curve at all", async () => {
