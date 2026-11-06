@@ -932,19 +932,15 @@ export class SundaeUtils {
     reserves: bigint[];
     prices?: bigint[];
   } {
-    const assets =
+    const legs =
       poolData.assets && poolData.assets.length >= 2
         ? poolData.assets
-        : [poolData.assetA, poolData.assetB];
-    const reserves =
-      poolData.reserves && poolData.reserves.length === assets.length
-        ? poolData.reserves
-        : [poolData.liquidity.aReserve, poolData.liquidity.bReserve];
-    if (reserves.length !== assets.length) {
-      throw new Error(
-        `Pool data lists ${assets.length} assets but ${reserves.length} reserves.`,
-      );
-    }
+        : [
+            { ...poolData.assetA, quantity: poolData.liquidity.aReserve },
+            { ...poolData.assetB, quantity: poolData.liquidity.bReserve },
+          ];
+    const assets = legs.map(({ quantity: _quantity, ...asset }) => asset);
+    const reserves = legs.map(({ quantity }) => quantity);
     const prices =
       poolData.prices && poolData.prices.length === assets.length
         ? [...poolData.prices]

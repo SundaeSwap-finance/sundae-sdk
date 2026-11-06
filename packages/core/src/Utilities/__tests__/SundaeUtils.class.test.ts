@@ -1746,8 +1746,11 @@ describe("SundaeUtils N-asset estimators", () => {
       aReserve: 1_000_000_000n,
       bReserve: 2_000_000_000n,
     },
-    assets: [PREVIEW_DATA.pools.v1.assetA, PREVIEW_DATA.pools.v1.assetB, assetC],
-    reserves: [1_000_000_000n, 2_000_000_000n, 3_000_000_000n],
+    assets: [
+      { ...PREVIEW_DATA.pools.v1.assetA, quantity: 1_000_000_000n },
+      { ...PREVIEW_DATA.pools.v1.assetB, quantity: 2_000_000_000n },
+      { ...assetC, quantity: 3_000_000_000n },
+    ],
     // C is worth two of A or B.
     prices: [1_000_000n, 1_000_000n, 2_000_000n],
   };
@@ -1796,7 +1799,7 @@ describe("SundaeUtils N-asset estimators", () => {
   });
 
   it("falls back to the pair fields when pool data names no asset list", () => {
-    const { assets: _assets, reserves: _reserves, ...pairOnly } = pool;
+    const { assets: _assets, ...pairOnly } = pool;
     const { output } = SundaeUtils.getNSwapOutput(
       { ...pairOnly, prices: [1_000_000n, 1_000_000n] },
       new AssetAmount(10_000n, pool.assetA),

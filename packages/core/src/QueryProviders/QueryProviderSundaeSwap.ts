@@ -129,11 +129,17 @@ const mapV4CurveFields = (pool: IPoolDataQueryResult): Partial<IPoolData> => {
 
   const prices = all(pool.prices);
   const rates = pair(pool.rates);
+  // Every reserve the pool holds, in pool order, the shape IPoolV4 reads
+  // from the datum. Both lists come from the API or neither counts.
   const assets =
-    pool.assets && pool.assets.length >= 2 ? pool.assets : undefined;
-  const reserves =
-    assets && pool.quantities && pool.quantities.length === assets.length
-      ? pool.quantities.map((quantity) => BigInt(quantity))
+    pool.assets &&
+    pool.quantities &&
+    pool.assets.length >= 2 &&
+    pool.quantities.length === pool.assets.length
+      ? pool.assets.map((asset, index) => ({
+          ...asset,
+          quantity: BigInt(pool.quantities![index]),
+        }))
       : undefined;
   // Flattened by the API as [lowerNum, lowerDen, upperNum, upperDen].
   const sp = pool.sqrtPrices;
@@ -148,7 +154,6 @@ const mapV4CurveFields = (pool: IPoolDataQueryResult): Partial<IPoolData> => {
   return {
     curve,
     ...(assets ? { assets } : {}),
-    ...(reserves ? { reserves } : {}),
     ...(prices ? { prices } : {}),
     ...(sqrtPrices ? { sqrtPrices } : {}),
     ...(rates ? { rates } : {}),

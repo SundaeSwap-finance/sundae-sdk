@@ -5,9 +5,10 @@
 Pool data now describes every asset a v4 pool holds, and swaps between any two
 of them can be estimated.
 
-`IPoolData` gains optional `assets` (every asset, in pool order) and `reserves`
-(one per asset), and `prices` may hold one entry per asset rather than exactly
-two. `assetA`, `assetB`, `liquidity` and the existing estimators are unchanged
+`IPoolData` gains optional `assets`: every asset the pool holds with its
+`quantity`, in pool order, the element shape `IPoolV4.assets` already reads
+from the datum, plus decimals. `prices` may hold one entry per asset rather
+than exactly two. `assetA`, `assetB`, `liquidity` and the existing estimators are unchanged
 and keep describing the pool's first two assets, so nothing that works today
 changes.
 
