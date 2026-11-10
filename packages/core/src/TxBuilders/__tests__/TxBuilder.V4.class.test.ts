@@ -1,7 +1,15 @@
 import { parse, serialize } from "@blaze-cardano/data";
 import { TxBuilder as BlazeTx, Core, makeValue } from "@blaze-cardano/sdk";
 import { AssetAmount } from "@sundaeswap/asset";
-import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
+import {
+  afterAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+  spyOn,
+} from "bun:test";
 
 import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
 
@@ -18,6 +26,7 @@ import { SundaeSDK } from "../../SundaeSDK.class.js";
 import { setupBlaze } from "../../TestUtilities/setupBlaze.js";
 import {
   IBasicV4Args,
+  IBatchV4Args,
   TxBuilderV4,
   V4_VALIDATORS,
 } from "../TxBuilder.V4.class.js";
@@ -44,8 +53,7 @@ const ORDER_UTXO_HASH = "ab".repeat(32);
 const ORDER_REF_HASH = "cd".repeat(32);
 
 const TOKEN = new AssetAmount(1_000_000n, {
-  assetId:
-    "9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d77.534e454b",
+  assetId: "9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d77.534e454b",
   decimals: 0,
 });
 const ADA = new AssetAmount(2_000_000n, ADA_METADATA);
@@ -166,12 +174,42 @@ spyOn(
   "getProtocolSettings",
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ).mockResolvedValue([
-  { label: "settings", txIn: { hash: "aa", index: 0 }, datum: "d8", values: null },
-  { label: "fee-settings", txIn: { hash: "af", index: 0 }, datum: "d8", values: { baseFee: "1000000", feePerStep: "500000" } },
-  { label: "swap-order", txIn: { hash: "bb", index: 0 }, datum: SWAP_ORDER_CONFIG_DATUM, values: { token: SWAP_CONFIG_TOKEN, requiredConstraints: [] } },
-  { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: BASIC_ORDER_CONFIG_DATUM, values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
-  { label: "strategy-order", txIn: { hash: "ce", index: 0 }, datum: STRATEGY_ORDER_CONFIG_DATUM, values: { token: "00d5ea9b", requiredConstraints: [] } },
-  { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: CS_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
+  {
+    label: "settings",
+    txIn: { hash: "aa", index: 0 },
+    datum: "d8",
+    values: null,
+  },
+  {
+    label: "fee-settings",
+    txIn: { hash: "af", index: 0 },
+    datum: "d8",
+    values: { baseFee: "1000000", feePerStep: "500000" },
+  },
+  {
+    label: "swap-order",
+    txIn: { hash: "bb", index: 0 },
+    datum: SWAP_ORDER_CONFIG_DATUM,
+    values: { token: SWAP_CONFIG_TOKEN, requiredConstraints: [] },
+  },
+  {
+    label: "basic-order",
+    txIn: { hash: "cc", index: 0 },
+    datum: BASIC_ORDER_CONFIG_DATUM,
+    values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] },
+  },
+  {
+    label: "strategy-order",
+    txIn: { hash: "ce", index: 0 },
+    datum: STRATEGY_ORDER_CONFIG_DATUM,
+    values: { token: "00d5ea9b", requiredConstraints: [] },
+  },
+  {
+    label: "pool",
+    txIn: { hash: "dd".repeat(32), index: 0 },
+    datum: CS_POOL_CONFIG_DATUM,
+    values: { moduleConfigs: POOL_MODULE_CONFIGS },
+  },
 ] as any);
 
 const { getUtxosByOutRefMock, getUtxosMock } = setupBlaze(
@@ -258,7 +296,9 @@ describe("TxBuilderV4", () => {
       );
       // stake credential comes from the owner
       expect(String(parsed.asBase()!.getStakeCredential().hash)).toEqual(
-        String(Core.addressFromBech32(OWNER).asBase()!.getStakeCredential().hash),
+        String(
+          Core.addressFromBech32(OWNER).asBase()!.getStakeCredential().hash,
+        ),
       );
     });
   });
@@ -413,10 +453,7 @@ describe("TxBuilderV4", () => {
         configToken: "aabb",
       });
       const datum = await datumOf(composed);
-      const strat = parse(
-        V4Types.StrategyConstraints,
-        datum.constraints[0][1],
-      );
+      const strat = parse(V4Types.StrategyConstraints, datum.constraints[0][1]);
       expect(strat.auth).toHaveProperty("Signature");
       expect(strat.final_destinations.length).toEqual(1);
     });
@@ -487,7 +524,10 @@ describe("TxBuilderV4", () => {
       }).toCore(),
     ]);
     const refUtxo = Core.TransactionUnspentOutput.fromCore([
-      new Core.TransactionInput(Core.TransactionId(ORDER_REF_HASH), 0n).toCore(),
+      new Core.TransactionInput(
+        Core.TransactionId(ORDER_REF_HASH),
+        0n,
+      ).toCore(),
       Core.TransactionOutput.fromCore({
         address: Core.getPaymentAddress(Core.addressFromBech32(OWNER)),
         value: makeValue(5_000_000n).toCore(),
@@ -533,7 +573,12 @@ describe("TxBuilderV4", () => {
         "getProtocolSettings",
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ).mockResolvedValueOnce([
-        { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: feeConfigDatum, values: { token: FEE_CONFIG_TOKEN } },
+        {
+          label: "basic-order",
+          txIn: { hash: "cc", index: 0 },
+          datum: feeConfigDatum,
+          values: { token: FEE_CONFIG_TOKEN },
+        },
       ] as any);
       builder.settings = undefined;
       const composed = await builder.deposit({
@@ -566,7 +611,9 @@ describe("TxBuilderV4", () => {
           [V4_VALIDATORS.feeConstraint]: FEE_HASH,
         }[name];
         if (!hash) {
-          throw new Error(`Could not find a validator that matched the key: ${name}`);
+          throw new Error(
+            `Could not find a validator that matched the key: ${name}`,
+          );
         }
         return { hash, title: name, compiledCode: "" };
       };
@@ -622,7 +669,9 @@ describe("TxBuilderV4", () => {
       expect(composed.fees.scooperFee.amount).toEqual(0n);
       expect(signerSpy).toHaveReturnedTimes(1);
       expect(signerSpy.mock.results[0]?.value).toEqual(
-        String(Core.addressFromBech32(OWNER).asBase()!.getStakeCredential().hash),
+        String(
+          Core.addressFromBech32(OWNER).asBase()!.getStakeCredential().hash,
+        ),
       );
 
       signerSpy.mockRestore();
@@ -739,6 +788,412 @@ describe("TxBuilderV4", () => {
       );
       expect(referralOutputs.length).toEqual(1);
       expect(referralOutputs[0].amount().coin()).toEqual(2_000_000n);
+    });
+  });
+
+  describe("placing as a sub-transaction", () => {
+    const VALID_UNTIL = Core.Slot(1_000);
+
+    // Every seeded UTxO holds `lovelace`, so a sub-transaction's consumed ADA
+    // is that times its input count.
+    const seedWallet = (lovelace: bigint, count: number) =>
+      getUtxosMock.mockResolvedValue(
+        [...Array(count).keys()].map((i) =>
+          Core.TransactionUnspentOutput.fromCore([
+            new Core.TransactionInput(
+              Core.TransactionId("ab".repeat(32)),
+              BigInt(i),
+            ).toCore(),
+            Core.TransactionOutput.fromCore({
+              address: Core.getPaymentAddress(Core.addressFromBech32(OWNER)),
+              value: makeValue(lovelace).toCore(),
+            }).toCore(),
+          ]),
+        ),
+      );
+
+    const leftForBatch = (subTx: Core.SubTransaction, lovelace: bigint) =>
+      BigInt(subTx.body().inputs().size()) * lovelace -
+      subTx
+        .body()
+        .outputs()
+        .reduce((sum, output) => sum + output.amount().coin(), 0n);
+
+    const depositOrder: IBasicV4Args = {
+      type: EV4BasicConstraint.Deposit,
+      ownerAddress: OWNER,
+      offered: [ADA],
+      minReceived: [ADA],
+    };
+
+    beforeEach(() => {
+      seedWallet(100_000_000n, 2);
+    });
+
+    describe("swapIntent({ subTx })", () => {
+      const SERVICES = ["https://one.test/api/cardano/", "https://two.test"];
+      const swap = { ownerAddress: OWNER, offered: ADA, minReceived: TOKEN };
+
+      // Each service answers with `reply(offerId)`; the posted requests are kept.
+      const mockServices = (
+        reply: (
+          service: string,
+          offerId: string,
+        ) => { status: number; body: object },
+      ) => {
+        const posted: { url: string; init: RequestInit }[] = [];
+        const fetchMock = spyOn(globalThis, "fetch").mockImplementation((async (
+          url: string,
+          init: RequestInit,
+        ) => {
+          posted.push({ url, init });
+          const envelope = Core.HexBlob(
+            Buffer.from(init.body as Uint8Array).toString("hex"),
+          );
+          const reader = new Core.CborReader(envelope);
+          reader.readStartArray();
+          reader.readInt();
+          reader.readInt();
+          reader.readTag();
+          const subTx = Core.SubTransaction.fromCbor(
+            Core.HexBlob(Buffer.from(reader.readByteString()).toString("hex")),
+          );
+          const { status, body } = reply(url, subTx.getId());
+          return new Response(JSON.stringify(body), { status });
+        }) as unknown as typeof fetch);
+        return { posted, fetchMock };
+      };
+
+      const signedOffer = async (builder: TxBuilderV4) => {
+        const composed = await builder.swapIntent(swap, {
+          subTx: { validUntil: VALID_UNTIL },
+        });
+        const built = await composed.build();
+        const signSubTransaction = spyOn(
+          blazeInstance,
+          "signSubTransaction",
+        ).mockResolvedValue(built.builtTx);
+        const signed = await built.sign();
+        signSubTransaction.mockRestore();
+        return { built, signed };
+      };
+
+      it("refuses to build without a service to offer the order to", async () => {
+        await expect(
+          builder.swapIntent(swap, { subTx: { validUntil: VALID_UNTIL } }),
+        ).rejects.toThrow("pass offerServices to SundaeSDK.new()");
+      });
+
+      it("reaches the builder through SundaeSDK", () => {
+        const sdk = SundaeSDK.new({ blazeInstance, offerServices: SERVICES });
+        expect(sdk.builder(EContractVersion.V4).offerServices).toEqual(
+          SERVICES,
+        );
+      });
+
+      it("builds the order as a sub-transaction leaving its ADA deficit to the batch", async () => {
+        seedWallet(3_000_000n, 1);
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const composed = await v4.swapIntent(swap, {
+          subTx: { validUntil: VALID_UNTIL },
+        });
+        const { builtTx, cbor } = await composed.build();
+
+        expect(cbor).toEqual(builtTx.toCbor());
+        expect(builtTx.body().ttl()).toEqual(VALID_UNTIL);
+        expect(leftForBatch(builtTx, 3_000_000n)).toBeLessThan(0n);
+        expect(composed.fees.deposit.amount).toBeGreaterThan(0n);
+        expect((await composed.build()).builtTx).toBe(builtTx);
+      });
+
+      it("signs through the wallet", async () => {
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const built = await (
+          await v4.swapIntent(swap, { subTx: { validUntil: VALID_UNTIL } })
+        ).build();
+        const signSubTransaction = spyOn(
+          blazeInstance,
+          "signSubTransaction",
+        ).mockResolvedValue(built.builtTx);
+
+        const { cbor } = await built.sign();
+        expect(signSubTransaction).toHaveBeenCalledWith(built.builtTx);
+        expect(cbor).toEqual(built.builtTx.toCbor());
+        signSubTransaction.mockRestore();
+      });
+
+      it("is valid for ten minutes by default", async () => {
+        const now = spyOn(Date, "now").mockReturnValue(1_800_000_000_000);
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const { builtTx } = await (
+          await v4.swapIntent(swap, { subTx: {} })
+        ).build();
+        now.mockRestore();
+
+        expect(builtTx.body().ttl()).toEqual(
+          blazeInstance.provider.unixToSlot(1_800_000_000_000 + 600_000),
+        );
+      });
+
+      it("posts the CIP-0198 envelope to every service and resolves to the offer id", async () => {
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const { built, signed } = await signedOffer(v4);
+        const { posted, fetchMock } = mockServices((_, offerId) => ({
+          status: 202,
+          body: { offerId },
+        }));
+
+        expect(await signed.submit()).toEqual({
+          offerId: built.builtTx.getId(),
+          services: [
+            { url: "https://one.test/api/cardano", accepted: true },
+            { url: "https://two.test", accepted: true },
+          ],
+        });
+        fetchMock.mockRestore();
+
+        expect(posted.map(({ url }) => url)).toEqual([
+          "https://one.test/api/cardano/offers",
+          "https://two.test/offers",
+        ]);
+        const [{ init }] = posted;
+        expect(init.method).toEqual("POST");
+        expect(init.headers).toEqual({ "Content-Type": "application/cbor" });
+        const reader = new Core.CborReader(
+          Core.HexBlob(Buffer.from(init.body as Uint8Array).toString("hex")),
+        );
+        expect(reader.readStartArray()).toEqual(3);
+        expect(reader.readInt()).toEqual(1n);
+        expect(reader.readInt()).toEqual(7n);
+        expect(Number(reader.readTag())).toEqual(24);
+        expect(Buffer.from(reader.readByteString()).toString("hex")).toEqual(
+          signed.cbor,
+        );
+      });
+
+      it("resolves with every service's answer when any accepts the offer", async () => {
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const { built, signed } = await signedOffer(v4);
+        const { fetchMock } = mockServices((service, offerId) =>
+          service.startsWith("https://one.test")
+            ? { status: 400, body: { error: "expired", message: "too late" } }
+            : { status: 202, body: { offerId } },
+        );
+
+        expect(await signed.submit()).toEqual({
+          offerId: built.builtTx.getId(),
+          services: [
+            {
+              url: "https://one.test/api/cardano",
+              accepted: false,
+              reason: "expired too late",
+            },
+            { url: "https://two.test", accepted: true },
+          ],
+        });
+        fetchMock.mockRestore();
+      });
+
+      it("fails with every service's reason when none accepts it", async () => {
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const { signed } = await signedOffer(v4);
+        const { fetchMock } = mockServices((service) =>
+          service.startsWith("https://one.test")
+            ? { status: 400, body: { error: "expired", message: "too late" } }
+            : { status: 202, body: { offerId: "ff".repeat(32) } },
+        );
+
+        await expect(signed.submit()).rejects.toThrow(
+          /one\.test\/api\/cardano: expired too late; https:\/\/two\.test: answered with offer f{64}$/,
+        );
+        fetchMock.mockRestore();
+      });
+
+      it("reports a service it can't reach as refusing", async () => {
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const { built, signed } = await signedOffer(v4);
+        const offerId = built.builtTx.getId();
+        const fetchMock = spyOn(globalThis, "fetch").mockImplementation((async (
+          url: string,
+        ) => {
+          if (url.startsWith("https://one.test")) {
+            throw new Error("connection refused");
+          }
+          return new Response(JSON.stringify({ offerId }), { status: 202 });
+        }) as unknown as typeof fetch);
+
+        expect((await signed.submit()).services[0]).toEqual({
+          url: "https://one.test/api/cardano",
+          accepted: false,
+          reason: "connection refused",
+        });
+        fetchMock.mockRestore();
+      });
+
+      it("reports a service that doesn't answer in time as refusing", async () => {
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const { built, signed } = await signedOffer(v4);
+        const offerId = built.builtTx.getId();
+        // Every request times out at once; one.test only answers by failing
+        // when its request is aborted.
+        const timeout = spyOn(AbortSignal, "timeout").mockImplementation(() =>
+          AbortSignal.abort(
+            new DOMException("The operation timed out.", "TimeoutError"),
+          ),
+        );
+        const signals: (AbortSignal | null | undefined)[] = [];
+        const fetchMock = spyOn(globalThis, "fetch").mockImplementation((async (
+          url: string,
+          init: RequestInit,
+        ) => {
+          signals.push(init.signal);
+          if (url.startsWith("https://one.test")) {
+            return new Promise((_, reject) => {
+              const { signal } = init;
+              if (!signal) return reject(new Error("posted without a timeout"));
+              if (signal.aborted) reject(signal.reason);
+              signal.addEventListener("abort", () => reject(signal.reason));
+            });
+          }
+          return new Response(JSON.stringify({ offerId }), { status: 202 });
+        }) as unknown as typeof fetch);
+
+        const { services } = await signed.submit();
+        timeout.mockRestore();
+        fetchMock.mockRestore();
+
+        expect(signals.every(Boolean)).toBe(true);
+        expect(services[0].accepted).toBe(false);
+        expect(services[0].reason).toBeDefined();
+        expect(services[1].accepted).toBe(true);
+      });
+
+      it("estimates what the service covers before building", async () => {
+        seedWallet(3_000_000n, 1);
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const composed = await v4.swapIntent(swap, {
+          subTx: { validUntil: VALID_UNTIL },
+        });
+        const { babel } = composed;
+
+        expect(babel.validUntil).toEqual(VALID_UNTIL);
+        expect(babel.feeShare).toBeGreaterThan(0n);
+        expect(babel.serviceCovers.multiasset()?.size ?? 0).toEqual(0);
+
+        const { builtTx } = await composed.build();
+        expect(babel.serviceCovers.coin()).toEqual(
+          -leftForBatch(builtTx, 3_000_000n),
+        );
+      });
+
+      it("estimates nothing to cover when the wallet covers the order", async () => {
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const { babel } = await v4.swapIntent(swap, {
+          subTx: { validUntil: VALID_UNTIL },
+        });
+
+        expect(babel.serviceCovers.coin()).toEqual(0n);
+        expect(babel.serviceCovers.multiasset()?.size ?? 0).toEqual(0);
+      });
+
+      it("pays the service nothing", async () => {
+        seedWallet(3_000_000n, 1);
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const { babel } = await v4.swapIntent(swap, {
+          subTx: { validUntil: VALID_UNTIL },
+        });
+
+        expect(babel.paid.coin()).toEqual(0n);
+        expect(babel.paid.multiasset()?.size ?? 0).toEqual(0);
+      });
+
+      it("refuses an order offering a token the wallet lacks", async () => {
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const [policyId] = TOKEN.metadata.assetId.split(".");
+
+        await expect(
+          v4.swapIntent(
+            { ownerAddress: OWNER, offered: TOKEN, minReceived: ADA },
+            { subTx: { validUntil: VALID_UNTIL } },
+          ),
+        ).rejects.toThrow(policyId);
+      });
+
+      it("builds from the UTxOs the wallet held when the order was composed", async () => {
+        seedWallet(3_000_000n, 1);
+        const v4 = new TxBuilderV4(blazeInstance, undefined, SERVICES);
+        const composed = await v4.swapIntent(swap, {
+          subTx: { validUntil: VALID_UNTIL },
+        });
+        seedWallet(50_000_000n, 3);
+
+        const { builtTx } = await composed.build();
+        expect(builtTx.body().inputs().size()).toEqual(1);
+        expect(leftForBatch(builtTx, 3_000_000n)).toEqual(
+          -composed.babel.serviceCovers.coin(),
+        );
+      });
+    });
+
+    describe("other placements with { subTx }", () => {
+      const SUB_TX = { subTx: { validUntil: VALID_UNTIL } };
+      const placements: Record<
+        string,
+        (
+          v4: TxBuilderV4,
+          options?: typeof SUB_TX,
+        ) => Promise<{
+          datum: string | undefined;
+          build: () => Promise<{
+            builtTx: Core.Transaction | Core.SubTransaction;
+          }>;
+        }>
+      > = {
+        deposit: (v4, options) =>
+          options
+            ? v4.deposit(depositOrder, options)
+            : v4.deposit(depositOrder),
+        withdraw: (v4, options) =>
+          options
+            ? v4.withdraw(depositOrder, options)
+            : v4.withdraw(depositOrder),
+        batch: (v4, options) => {
+          const orders = { orders: [depositOrder, depositOrder] };
+          return options ? v4.batch(orders, options) : v4.batch(orders);
+        },
+      };
+
+      const orderOutputs = async (
+        v4: TxBuilderV4,
+        builtTx: Core.Transaction | Core.SubTransaction,
+      ) => {
+        const orderAddress = await v4.getOrderScriptAddress(OWNER);
+        return builtTx
+          .body()
+          .outputs()
+          .filter((output) => output.address().toBech32() === orderAddress)
+          .map((output) => output.toCbor());
+      };
+
+      for (const [name, place] of Object.entries(placements)) {
+        it(`places a ${name} as a sub-transaction with the orders the transaction would carry`, async () => {
+          const v4 = new TxBuilderV4(blazeInstance, undefined, [
+            "https://ces.test",
+          ]);
+          const plain = await place(v4);
+          const offer = await place(v4, SUB_TX);
+          const { builtTx: plainTx } = await plain.build();
+          const { builtTx: subTx } = await offer.build();
+
+          expect(subTx).toBeInstanceOf(Core.SubTransaction);
+          expect(subTx.body().ttl()).toEqual(VALID_UNTIL);
+          expect(offer.datum).toEqual(plain.datum as string);
+          expect(await orderOutputs(v4, subTx)).toEqual(
+            await orderOutputs(v4, plainTx),
+          );
+          expect((offer as unknown as { babel: unknown }).babel).toBeDefined();
+        });
+      }
     });
   });
 
@@ -895,7 +1350,11 @@ describe("TxBuilderV4", () => {
       const configWithGov = serialize(V4Types.PoolConfig, {
         pool_validator: POOL_HASH,
         actions: [
-          { tag: 3n, enabled: true, modules: [CS_HASH, FEESPLIT_HASH, FAIRNESS_MOD_HASH] },
+          {
+            tag: 3n,
+            enabled: true,
+            modules: [CS_HASH, FEESPLIT_HASH, FAIRNESS_MOD_HASH],
+          },
           { tag: 1n, enabled: true, modules: [GOV_HASH] },
         ],
         module_params: [],
@@ -913,7 +1372,12 @@ describe("TxBuilderV4", () => {
         "getProtocolSettings",
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ).mockResolvedValueOnce([
-        { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: configWithGov, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
+        {
+          label: "pool",
+          txIn: { hash: "dd".repeat(32), index: 0 },
+          datum: configWithGov,
+          values: { moduleConfigs: POOL_MODULE_CONFIGS },
+        },
       ] as any);
       wireMints();
 

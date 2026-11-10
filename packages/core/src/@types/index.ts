@@ -13,6 +13,13 @@ export interface ISundaeSDKOptions {
   minLockAda?: bigint;
   /** A built blaze instance. */
   blazeInstance: Blaze<Provider, Wallet>;
+  /**
+   * Base URLs of the CIP-0198 services an order placed as a sub-transaction
+   * is offered to, such as `https://ces.example/api/cardano`.
+   *
+   * @experimental CIP-0118 is not live on mainnet; this API may change.
+   */
+  offerServices?: string[];
 }
 
 export * from "./configs.js";

@@ -545,4 +545,37 @@ describe("TxBuilderV4.orderRouteSwap()", () => {
       }),
     ).rejects.toThrow(/must name the same destination/);
   });
+
+  it("places the chain as a sub-transaction with the same v4 order", async () => {
+    const validUntil = Core.Slot(1_000);
+    const v4 = new TxBuilderV4(blaze, undefined, ["https://ces.test"]);
+    const plain = await v4.orderRouteSwap({
+      ownerAddress: owner,
+      legs: [v4First, v3Leg],
+    });
+    const offer = await v4.orderRouteSwap(
+      { ownerAddress: owner, legs: [v4First, v3Leg] },
+      { subTx: { validUntil } },
+    );
+    const { builtTx } = await offer.build();
+
+    expect(builtTx.body().ttl()).toEqual(validUntil);
+    expect(offer.datum).toEqual(plain.datum as string);
+    expect(offer.fees.scooperFee.amount).toEqual(plain.fees.scooperFee.amount);
+    expect(offer.babel.validUntil).toEqual(validUntil);
+    // The same 31 ADA as the transaction: offered 25 + deposit 2 + budget 3
+    // + forwarded v3 fee 1.
+    expect(
+      builtTx
+        .body()
+        .outputs()
+        .find(
+          (out) =>
+            out.address().asBase()?.getPaymentCredential().hash ===
+            V4_ORDER_HASH,
+        )
+        ?.amount()
+        .coin(),
+    ).toEqual(31_000_000n);
+  });
 });

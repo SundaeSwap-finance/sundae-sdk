@@ -197,3 +197,97 @@ export type TTxBuilder =
   | TxBuilderV3
   | TxBuilderNftCheck
   | TxBuilderStableswaps;
+
+/**
+ * Places an order as a CIP-0118 sub-transaction offered to the SDK's
+ * `offerServices`, instead of as a transaction of its own.
+ *
+ * @experimental CIP-0118 is not live on mainnet; this API may change.
+ */
+export interface IOrderSubTxOptions {
+  /** The first slot a batch can no longer carry the order in: the sub-transaction's exclusive `ttl`. Defaults to ten minutes from now. */
+  validUntil?: Core.Slot;
+}
+
+/**
+ * An order assembled as a CIP-0118 sub-transaction and not yet completed.
+ * `estimate` may run any number of times before the one `complete`.
+ *
+ * @experimental CIP-0118 is not live on mainnet; this API may change.
+ */
+export interface IOrderSubTxDraft {
+  datum: string;
+  fees: Omit<ITxBuilderFees, "cardanoTxFee">;
+  /**
+   * Estimates the sub-transaction leaving `surplus` for its batch: the
+   * `deficit` the wallet can't cover (non-positive entries), the `fee` it adds
+   * to its top-level transaction, and its `signedSize` in bytes.
+   */
+  estimate: (surplus?: Core.Value) => Promise<{
+    deficit: Core.Value;
+    fee: bigint;
+    signedSize: number;
+  }>;
+  /**
+   * Completes the sub-transaction leaving `imbalance` for its batch: positive
+   * entries for the batch to collect, negative ones for it to supply.
+   */
+  complete: (imbalance: Core.Value) => Promise<IOrderSubTx>;
+}
+
+/**
+ * A completed order sub-transaction.
+ *
+ * @experimental CIP-0118 is not live on mainnet; this API may change.
+ */
+export interface IOrderSubTx {
+  subTx: Core.SubTransaction;
+  /** Requests the wallet's signature and adds it to `subTx`. */
+  sign: () => Promise<Core.SubTransaction>;
+}
+
+/**
+ * What the babel service carrying a sub-transaction order supplies and is
+ * paid. Composing the order selects the wallet's UTxOs, and `build` completes
+ * the sub-transaction from those same UTxOs, so it matches these amounts. If
+ * the wallet spends one of them first, every service refuses the offer;
+ * compose the order again.
+ *
+ * @experimental CIP-0118 is not live on mainnet; this API may change.
+ */
+export interface IBabelFeeInfo {
+  /** The ADA the service supplies because the wallet can't. Composing refuses an order offering tokens the wallet lacks. */
+  serviceCovers: Core.Value;
+  /** What the sub-transaction leaves for the service, as positive amounts. Always empty: orders don't pay the service yet. */
+  paid: Core.Value;
+  /** Lovelace the sub-transaction adds to its batch transaction's fee, which the service pays. */
+  feeShare: bigint;
+  /** The first slot a batch can no longer carry the order in. */
+  validUntil: Core.Slot;
+}
+
+/**
+ * What submitting a sub-transaction order resolves to.
+ *
+ * @experimental CIP-0118 is not live on mainnet; this API may change.
+ */
+export interface IOfferSubmitResult {
+  /** The CIP-0198 offer id, which is also the hash the order output lands under. */
+  offerId: string;
+  /** Each service's answer, in `offerServices` order. */
+  services: IOfferServiceReply[];
+}
+
+/**
+ * One service's answer to an offer.
+ *
+ * @experimental CIP-0118 is not live on mainnet; this API may change.
+ */
+export interface IOfferServiceReply {
+  /** The service's base URL, without a trailing slash. */
+  url: string;
+  /** Whether it took the offer; its status is then at `GET {url}/offers/{offerId}`. */
+  accepted: boolean;
+  /** Why it refused: the CIP-0198 refusal code and message, or the request's error. */
+  reason?: string;
+}
