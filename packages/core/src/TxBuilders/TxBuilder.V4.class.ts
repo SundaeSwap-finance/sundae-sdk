@@ -1,10 +1,23 @@
 import { parse } from "@blaze-cardano/data";
-import { Blaze, Core, makeValue, Provider, Wallet } from "@blaze-cardano/sdk";
+import {
+  Blaze,
+  Core,
+  makeValue,
+  Provider,
+  Value,
+  Wallet,
+} from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
 
 import type {
   ICancelConfigArgs,
   IComposedTx,
+  IBabelFeeInfo,
+  IOfferServiceReply,
+  IOfferSubmitResult,
+  IOrderSubTx,
+  IOrderSubTxDraft,
+  IOrderSubTxOptions,
   ISundaeProtocolParamsFull,
   ISundaeProtocolReference,
   ISundaeProtocolSetting,
@@ -40,6 +53,15 @@ import {
 import { SundaeUtils } from "../Utilities/SundaeUtils.class.js";
 
 type TBlazeTx = ReturnType<Blaze<Provider, Wallet>["newTransaction"]>;
+
+/** An order composed as a sub-transaction offer; see {@link TxBuilderV4.offerTx}. */
+type TOfferTx = IComposedTx<
+  TBlazeTx,
+  Core.SubTransaction,
+  string | undefined,
+  Record<string, AssetAmount<IAssetAmountMetadata>>,
+  IOfferSubmitResult
+> & { babel: IBabelFeeInfo };
 
 /**
  * The validator titles the v4 builder resolves out of the protocol params
@@ -256,6 +278,20 @@ export interface IUpdateV4Args {
   order: TUpdateV4Order;
 }
 
+/** A transaction with its outputs in place, waiting to be completed. */
+export interface IAssembledOrderV4 {
+  tx: TBlazeTx;
+  datum: string;
+  referralFee?: Core.Value;
+  deposit?: bigint;
+  /**
+   * The max batcher fee (`budget`) the order reserves in its output — surfaced
+   * so callers see the ADA actually locked. `0n`/omitted for transactions that
+   * reserve no order budget (cancel, mintPool).
+   */
+  scooperFee?: bigint;
+}
+
 /** A `Rational` fraction (`num/den`) as used by v4 module configs. */
 export interface IFractionV4 {
   num: bigint;
@@ -346,6 +382,8 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   constructor(
     public blaze: Blaze<Provider, Wallet>,
     queryProvider?: QueryProviderSundaeSwap,
+    /** Base URLs of the CIP-0198 services sub-transaction orders are offered to. */
+    public offerServices: string[] = [],
   ) {
     super();
     const resolvedNetwork = SundaeUtils.getNetworkFromProvider(
@@ -696,19 +734,34 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * fills) — a market swap, not a resting/limit order. Route a serial fill
    * (single pool, or a genuine multi-hop chain across different pairs) through
    * {@link swap} instead, to keep its on-chain anti-skim guarantee.
+   *
+   * With `options.subTx` the order is built as a CIP-0118 sub-transaction
+   * whose ADA shortfall the carrying batch supplies; see {@link offerTx}.
    */
+  public swapIntent(
+    args: ISwapV4Args,
+    options: { subTx: IOrderSubTxOptions },
+  ): Promise<TOfferTx>;
+  // Last, so `ReturnType`/`Parameters` of swapIntent keep describing a transaction.
+  public swapIntent(
+    args: ISwapV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>>;
   public async swapIntent(
     args: ISwapV4Args,
-  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    options?: { subTx?: IOrderSubTxOptions },
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction> | TOfferTx> {
     const minReceived = Array.isArray(args.minReceived)
       ? args.minReceived
       : [args.minReceived];
-    return this.basic({
+    const order: IBasicV4Args = {
       ...args,
       type: EV4BasicConstraint.Swap,
       offered: [args.offered],
       minReceived,
-    });
+    };
+    return options?.subTx
+      ? this.basic(order, { subTx: options.subTx })
+      : this.basic(order);
   }
 
   /**
@@ -761,9 +814,18 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * - **Ownership.** `ownerAddress` owns every order, so the owner can cancel
    *   any order that cannot fill.
    */
+  public orderRouteSwap(
+    args: IOrderRouteSwapV4Args,
+    options: { subTx: IOrderSubTxOptions },
+  ): Promise<TOfferTx>;
+  // Last: see swapIntent.
+  public orderRouteSwap(
+    args: IOrderRouteSwapV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>>;
   public async orderRouteSwap(
     args: IOrderRouteSwapV4Args,
-  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    options?: { subTx?: IOrderSubTxOptions },
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction> | TOfferTx> {
     const {
       ownerAddress,
       legs: [first, ...rest],
@@ -911,13 +973,17 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       forwarded,
     );
 
-    return this.completeTx({
+    const assembled = {
       tx,
       datum: inline,
       referralFee: referralFee?.payment,
       deposit,
       scooperFee: budget + forwarded,
-    });
+    };
+
+    return options?.subTx
+      ? this.offerTx(assembled, options.subTx)
+      : this.completeTx(assembled);
   }
 
   /**
@@ -928,13 +994,32 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * `OrderConfig` requires — the basic-order payload plus deployment-defined
    * fillers (launch: the fee constraint; pre-audit: fairness). There is no
    * route constraint in either era.
+   *
+   * With `options.subTx` the order is built as a CIP-0118 sub-transaction;
+   * see {@link offerTx}.
    */
+  public basic(
+    args: IBasicV4Args,
+    options: { subTx: IOrderSubTxOptions },
+  ): Promise<TOfferTx>;
+  // Last: see swapIntent.
+  public basic(
+    args: IBasicV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>>;
   public async basic(
     args: IBasicV4Args,
-  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    options?: { subTx?: IOrderSubTxOptions },
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction> | TOfferTx> {
     const { offered, constraints, configToken } =
       await this.buildBasicPlacement(args);
-    return this.placeOrder({ ...args, configToken }, offered, constraints);
+    const assembled = await this.assembleOrder(
+      { ...args, configToken },
+      offered,
+      constraints,
+    );
+    return options?.subTx
+      ? this.offerTx(assembled, options.subTx)
+      : this.completeTx(assembled);
   }
 
   /**
@@ -1004,7 +1089,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       args.configToken ??
       (await this.getOrderConfigToken(V4_ORDER_CONFIG_LABEL.strategy));
 
-    return this.placeOrder(
+    const assembled = await this.assembleOrder(
       { ...args, configToken },
       args.offered,
       await this.resolveOrderConstraints(
@@ -1016,6 +1101,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         ],
       ),
     );
+    return this.completeTx(assembled);
   }
 
   /** Resolves several validator hashes from the protocol params in one pass. */
@@ -1026,17 +1112,41 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   }
 
   /** Deposit is a basic order whose min-received names the pool's LP asset. */
+  public deposit(
+    args: Omit<IBasicV4Args, "type">,
+    options: { subTx: IOrderSubTxOptions },
+  ): Promise<TOfferTx>;
+  // Last: see swapIntent.
+  public deposit(
+    args: Omit<IBasicV4Args, "type">,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>>;
   public async deposit(
     args: Omit<IBasicV4Args, "type">,
-  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
-    return this.basic({ ...args, type: EV4BasicConstraint.Deposit });
+    options?: { subTx?: IOrderSubTxOptions },
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction> | TOfferTx> {
+    const order = { ...args, type: EV4BasicConstraint.Deposit };
+    return options?.subTx
+      ? this.basic(order, { subTx: options.subTx })
+      : this.basic(order);
   }
 
   /** Withdraw is a basic order whose offered asset is the pool's LP asset. */
+  public withdraw(
+    args: Omit<IBasicV4Args, "type">,
+    options: { subTx: IOrderSubTxOptions },
+  ): Promise<TOfferTx>;
+  // Last: see swapIntent.
+  public withdraw(
+    args: Omit<IBasicV4Args, "type">,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>>;
   public async withdraw(
     args: Omit<IBasicV4Args, "type">,
-  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
-    return this.basic({ ...args, type: EV4BasicConstraint.Withdraw });
+    options?: { subTx?: IOrderSubTxOptions },
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction> | TOfferTx> {
+    const order = { ...args, type: EV4BasicConstraint.Withdraw };
+    return options?.subTx
+      ? this.basic(order, { subTx: options.subTx })
+      : this.basic(order);
   }
 
   /**
@@ -1067,9 +1177,18 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
    * is taken once for the batch rather than per order — the per-order field is
    * ignored here, so a caller can't accidentally pay it N times.
    */
+  public batch(
+    args: IBatchV4Args,
+    options: { subTx: IOrderSubTxOptions },
+  ): Promise<TOfferTx>;
+  // Last: see swapIntent.
+  public batch(
+    args: IBatchV4Args,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>>;
   public async batch(
     args: IBatchV4Args,
-  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    options?: { subTx?: IOrderSubTxOptions },
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction> | TOfferTx> {
     if (!args.orders.length) {
       throw new Error("A batch needs at least one order.");
     }
@@ -1097,26 +1216,28 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     this.payReferral(tx, args.referralFee);
 
-    return this.completeTx({
+    const assembled = {
       tx,
       datum: firstDatum as string,
       referralFee: args.referralFee?.payment,
       deposit: totalDeposit,
       scooperFee: totalBudget,
-    });
+    };
+    return options?.subTx
+      ? this.offerTx(assembled, options.subTx)
+      : this.completeTx(assembled);
   }
 
   /**
-   * Shared placement primitive: assemble the `OrderDatum`, lock the offered
-   * assets + the fee budget at the order script address, and complete. Exposed
-   * (protected) so the datum/output assembly is unit-testable without a live
-   * tx completion.
+   * Shared placement primitive: assemble the `OrderDatum` and lock the offered
+   * assets + the fee budget at the order script address, leaving the
+   * transaction for {@link completeTx} or {@link offerTx} to complete.
    */
-  protected async placeOrder(
+  protected async assembleOrder(
     args: IOrderV4Base & { configToken: string },
     offered: AssetAmount<IAssetAmountMetadata>[],
     constraints: Array<[string, Core.PlutusData]>,
-  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+  ): Promise<IAssembledOrderV4> {
     const tx = this.newTxInstance();
     const { inline, deposit, budget } = await this.lockOrderIntoTx(
       tx,
@@ -1125,13 +1246,13 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       constraints,
     );
 
-    return this.completeTx({
+    return {
       tx,
       datum: inline,
       referralFee: args.referralFee?.payment,
       deposit,
       scooperFee: budget,
-    });
+    };
   }
 
   /**
@@ -1161,7 +1282,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
   /**
    * Assembles the `OrderDatum` and locks the offered assets + fee budget at the
    * order script address on the given transaction, returning the inline datum,
-   * the ADA deposit, and the reserved `budget`. Shared by {@link placeOrder},
+   * the ADA deposit, and the reserved `budget`. Shared by {@link assembleOrder},
    * {@link orderRouteSwap} and {@link update} (which locks the replacement
    * order onto the same tx that cancels the old one).
    *
@@ -1780,39 +1901,17 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
   // -- Completion -----------------------------------------------------
 
-  protected async completeTx({
-    tx,
-    datum,
-    referralFee,
-    deposit,
-    scooperFee,
-  }: {
-    tx: TBlazeTx;
-    datum: string;
-    referralFee?: Core.Value;
-    deposit?: bigint;
-    /**
-     * The max batcher fee (`budget`) the order reserves in its output — surfaced
-     * so callers see the ADA actually locked. `0n`/omitted for transactions that
-     * reserve no order budget (cancel, mintPool).
-     */
-    scooperFee?: bigint;
-  }): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+  protected async completeTx(
+    assembled: IAssembledOrderV4,
+  ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
+    const { tx, datum } = assembled;
     let finishedTx: Core.Transaction | undefined;
     const that = this;
-
-    const baseFees: Omit<ITxBuilderFees, "cardanoTxFee"> = {
-      deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
-      scooperFee: new AssetAmount(scooperFee ?? 0n, ADA_METADATA),
-      referral: referralFee
-        ? new AssetAmount(referralFee.coin() ?? 0n, ADA_METADATA)
-        : undefined,
-    };
 
     const thisTx: IComposedTx<TBlazeTx, Core.Transaction> = {
       tx,
       datum,
-      fees: baseFees,
+      fees: this.baseFees(assembled),
       async build() {
         if (!finishedTx) {
           finishedTx = await tx.complete();
@@ -1840,7 +1939,206 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
 
     return thisTx;
   }
+
+  /**
+   * Prepares an assembled order to complete as a CIP-0118 sub-transaction,
+   * valid until `validUntil`. Placement only: cancel and update spend the
+   * order through a PlutusV3 script, which a sub-transaction can't carry.
+   *
+   * @experimental CIP-0118 is not live on mainnet; this API may change.
+   */
+  protected async orderSubTx(
+    assembled: IAssembledOrderV4,
+    validUntil: Core.Slot,
+  ): Promise<IOrderSubTxDraft> {
+    const { tx, datum } = assembled;
+    tx.setValidUntil(validUntil);
+    const that = this;
+
+    return {
+      datum,
+      fees: this.baseFees(assembled),
+      estimate: (surplus) => tx.estimateSubTransaction(surplus),
+      async complete(imbalance) {
+        const subTx = await tx.completeSubTransaction(imbalance);
+        return {
+          subTx,
+          sign: () => that.blaze.signSubTransaction(subTx),
+        };
+      },
+    };
+  }
+
+  /**
+   * Composes an assembled order as a sub-transaction offer, with what the
+   * babel service supplies and is paid in `babel`. Composing selects the
+   * wallet's UTxOs and refuses an order offering tokens the wallet lacks.
+   * `build` completes the sub-transaction from those UTxOs, leaving its ADA
+   * deficit for the batch to supply, `sign` asks the wallet to sign it, and
+   * `submit` posts it to every service in {@link offerServices}. Once each
+   * service has answered or timed out, `submit` resolves to the offer id and
+   * every answer, or fails when none accepted it. The order output lands
+   * under that id.
+   *
+   * @experimental CIP-0118 is not live on mainnet; this API may change.
+   */
+  protected async offerTx(
+    assembled: IAssembledOrderV4,
+    { validUntil }: IOrderSubTxOptions,
+  ): Promise<TOfferTx> {
+    const services = this.offerServices;
+    if (services.length === 0) {
+      throw new Error(
+        "Placing an order as a sub-transaction needs a service to offer it " +
+          "to: pass offerServices to SundaeSDK.new().",
+      );
+    }
+    const until =
+      validUntil ??
+      this.blaze.provider.unixToSlot(Date.now() + DEFAULT_OFFER_TTL_MS);
+    const draft = await this.orderSubTx(assembled, until);
+    const babel = await this.babelFeeInfo(draft, until);
+    const missing = [...(babel.serviceCovers.multiasset() ?? [])]
+      .filter(([, amount]) => amount !== 0n)
+      .map(([assetId]) => assetId);
+    if (missing.length > 0) {
+      throw new Error(
+        "Placing an order as a sub-transaction: the wallet holds too little " +
+          `of ${missing.join(", ")}, and a babel service only supplies ADA.`,
+      );
+    }
+    let completed: IOrderSubTx | undefined;
+
+    return {
+      tx: assembled.tx,
+      datum: draft.datum,
+      fees: draft.fees,
+      babel,
+      async build() {
+        completed ??= await draft.complete(Value.negate(babel.serviceCovers));
+        const { subTx, sign } = completed;
+
+        return {
+          cbor: subTx.toCbor(),
+          builtTx: subTx,
+          sign: async () => {
+            const signed = await sign();
+            return {
+              cbor: signed.toCbor(),
+              submit: () => postOffer(services, signed),
+            };
+          },
+        };
+      },
+    };
+  }
+
+  /**
+   * Estimates what the service carrying `draft` supplies and is paid: its
+   * deficit and surplus as positive amounts, and the fee share its estimate
+   * reports.
+   */
+  private async babelFeeInfo(
+    draft: IOrderSubTxDraft,
+    validUntil: Core.Slot,
+  ): Promise<IBabelFeeInfo> {
+    const estimate = await draft.estimate();
+    return {
+      serviceCovers: Value.negate(estimate.deficit),
+      paid: Value.zero(),
+      feeShare: estimate.fee,
+      validUntil,
+    };
+  }
+
+  private baseFees({
+    referralFee,
+    deposit,
+    scooperFee,
+  }: IAssembledOrderV4): Omit<ITxBuilderFees, "cardanoTxFee"> {
+    return {
+      deposit: new AssetAmount(deposit ?? ORDER_DEPOSIT_DEFAULT, ADA_METADATA),
+      scooperFee: new AssetAmount(scooperFee ?? 0n, ADA_METADATA),
+      referral: referralFee
+        ? new AssetAmount(referralFee.coin() ?? 0n, ADA_METADATA)
+        : undefined,
+    };
+  }
 }
+
+const DEFAULT_OFFER_TTL_MS = 10 * 60 * 1000;
+/** How long each service has to answer an offer before it counts as refusing. */
+const OFFER_POST_TIMEOUT_MS = 10 * 1000;
+
+/** CIP-0198 sets the envelope version; its era tags are still TBD, so 7 (Dijkstra) is what services accept today. */
+const OFFER_ENVELOPE_VERSION = 1;
+const DIJKSTRA_ERA_TAG = 7;
+const ENCODED_CBOR_TAG = 24;
+
+/** The CIP-0198 envelope: `[envelope_version, era_tag, #6.24(subtx_bytes)]`. */
+const offerEnvelope = (subTx: Core.SubTransaction): Uint8Array => {
+  const writer = new Core.CborWriter();
+  writer.writeStartArray(3);
+  writer.writeInt(OFFER_ENVELOPE_VERSION);
+  writer.writeInt(DIJKSTRA_ERA_TAG);
+  writer.writeTag(ENCODED_CBOR_TAG);
+  // Verbatim: the witnesses sign the body as encoded.
+  writer.writeByteString(Buffer.from(subTx.toCbor(), "hex"));
+  return writer.encode();
+};
+
+const offerTo = async (
+  url: string,
+  offerId: string,
+  envelope: Uint8Array,
+): Promise<IOfferServiceReply> => {
+  try {
+    const response = await fetch(`${url}/offers`, {
+      method: "POST",
+      headers: { "Content-Type": "application/cbor" },
+      body: envelope,
+      signal: AbortSignal.timeout(OFFER_POST_TIMEOUT_MS),
+    });
+    const reply = await response.json().catch(() => ({}));
+    if (response.status !== 202) {
+      const reason = `${reply.error ?? response.status} ${reply.message ?? ""}`;
+      return { url, accepted: false, reason: reason.trim() };
+    }
+    if (reply.offerId !== offerId) {
+      const reason = `answered with offer ${reply.offerId}`;
+      return { url, accepted: false, reason };
+    }
+    return { url, accepted: true };
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    return { url, accepted: false, reason };
+  }
+};
+
+/**
+ * Posts a signed sub-transaction to every service, waits until each has
+ * answered or timed out, and fails only when none accepts it. Without a quote the offer pays whichever service batches it, so
+ * offering it to all of them costs nothing.
+ */
+const postOffer = async (
+  services: string[],
+  subTx: Core.SubTransaction,
+): Promise<IOfferSubmitResult> => {
+  const offerId = subTx.getId();
+  const envelope = offerEnvelope(subTx);
+  const replies = await Promise.all(
+    services.map((service) =>
+      offerTo(service.replace(/\/+$/, ""), offerId, envelope),
+    ),
+  );
+  if (!replies.some(({ accepted }) => accepted)) {
+    const reasons = replies.map(({ url, reason }) => `${url}: ${reason}`);
+    throw new Error(
+      `No service accepted offer ${offerId}: ${reasons.join("; ")}`,
+    );
+  }
+  return { offerId, services: replies };
+};
 
 /** The empty-list constraint payload (`[]`, CBOR `80`) — the route constraint. */
 const emptyListData = (): Core.PlutusData =>

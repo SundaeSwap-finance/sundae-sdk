@@ -95,7 +95,11 @@ export class SundaeSDK {
     );
     instance.builders.set(
       EContractVersion.V4,
-      new TxBuilderV4(instance.options.blazeInstance),
+      new TxBuilderV4(
+        instance.options.blazeInstance,
+        undefined,
+        instance.options.offerServices,
+      ),
     );
     instance.builders.set(
       EContractVersion.NftCheck,
