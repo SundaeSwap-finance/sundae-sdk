@@ -981,6 +981,158 @@ describe("TxBuilderV4", () => {
       expect(datum.module_state[3]).toEqual([ORACLE_HASH, "80"]);
     });
 
+    // sundae-v4 #229 (SV4-007): Create requires
+    // total_lp >= min_counter_per_weight * weight_total, with
+    // min_counter_per_weight = 1000.
+    const datumOf = (composed: { datum?: unknown }) =>
+      parse(
+        V4Types.PoolDatum,
+        Core.PlutusData.fromCbor(Core.HexBlob(composed.datum as string)),
+      );
+    const scaledLadder = (
+      ladder: BandedConcentratedLiquidityPool.TLadder,
+      scale: bigint,
+    ): BandedConcentratedLiquidityPool.TLadder => ({
+      ...ladder,
+      bands: ladder.bands.map((b) => ({ ...b, weight: b.weight * scale })),
+      weightTotal: ladder.weightTotal * scale,
+    });
+
+    it("refuses a banded counter below 1000 × weight_total", async () => {
+      const ladder = BandedConcentratedLiquidityPool.uniformLadder(
+        8,
+        { num: 95n, den: 100n },
+        { num: 105n, den: 100n },
+        { num: 3n, den: 1000n },
+      );
+      await expect(
+        builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve: {
+            kind: "bandedConcentratedLiquidity",
+            ladder,
+            launchSqrtPrice: { num: 1n, den: 1n },
+            counter: 7_999n,
+          },
+          ownerAddress: OWNER,
+        }),
+      ).rejects.toThrow(/at least 8000 \(1000 × weight_total 8\)/);
+    });
+
+    it("defaults the banded counter to at least 1000 × weight_total", async () => {
+      wireMints();
+      // weight_total 8e6: the minimum counter 8e9 is above the 1e9 default.
+      const ladder = scaledLadder(
+        BandedConcentratedLiquidityPool.uniformLadder(
+          8,
+          { num: 95n, den: 100n },
+          { num: 105n, den: 100n },
+          { num: 3n, den: 1000n },
+        ),
+        1_000_000n,
+      );
+      const datum = datumOf(
+        await builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve: {
+            kind: "bandedConcentratedLiquidity",
+            ladder,
+            launchSqrtPrice: { num: 1n, den: 1n },
+          },
+          ownerAddress: OWNER,
+        }),
+      );
+      expect(datum.total_lp >= 8_000_000_000n).toBe(true);
+      const [a, b] = datum.assets.map((x) => x[1]);
+      expect(
+        BandedConcentratedLiquidityPool.findWitness(ladder, a, b)!.x,
+      ).toEqual(datum.total_lp);
+    });
+
+    it("raises a counter whose derived witness falls below 1000 × weight_total", async () => {
+      wireMints();
+      // At counter 186000 = 1000 × 186 and this launch price, the floored
+      // reserves witness X = 185999, one below the minimum.
+      const ladder = BandedConcentratedLiquidityPool.shapedLadder(
+        8,
+        { num: 95n, den: 100n },
+        { num: 105n, den: 100n },
+        { num: 3n, den: 1000n },
+        { shape: "concentrated" },
+      );
+      expect(ladder.weightTotal).toEqual(186n);
+      const datum = datumOf(
+        await builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve: {
+            kind: "bandedConcentratedLiquidity",
+            ladder,
+            launchSqrtPrice: { num: 1043n, den: 1000n },
+            counter: 186_000n,
+          },
+          ownerAddress: OWNER,
+        }),
+      );
+      expect(datum.total_lp >= 186_000n).toBe(true);
+      const [a, b] = datum.assets.map((x) => x[1]);
+      expect(
+        BandedConcentratedLiquidityPool.findWitness(ladder, a, b)!.x,
+      ).toEqual(datum.total_lp);
+    });
+
+    // sundae-v4 #227 (SV4-005): at Create the pool output may hold only
+    // lovelace, the declared reserve assets and tokens under the pool
+    // policy.
+    it.each([
+      ["a banded pool", "banded"],
+      ["a constant-sum pool", "constantSum"],
+    ])(
+      "puts no undeclared token in the pool output of %s",
+      async (_name, kind) => {
+        wireMints();
+        const composed = await builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve:
+            kind === "banded"
+              ? {
+                  kind: "bandedConcentratedLiquidity",
+                  ladder: BandedConcentratedLiquidityPool.uniformLadder(
+                    4,
+                    { num: 95n, den: 100n },
+                    { num: 105n, den: 100n },
+                    { num: 3n, den: 1000n },
+                  ),
+                  launchSqrtPrice: { num: 1n, den: 1n },
+                }
+              : { kind: "constantSum", fee: { num: 1n, den: 1000n } },
+          ownerAddress: OWNER,
+        });
+        const datum = datumOf(composed);
+        const declared = new Set(
+          datum.assets.map(([c]) => c.policy + c.name),
+        );
+        // The blaze builder keeps its body private; read it to see the
+        // pool output before balancing.
+        const body = (
+          composed.tx as unknown as { body: Core.TransactionBody }
+        ).body;
+        const poolOutputs = body
+          .outputs()
+          .filter((o) => o.datum()?.asInlineData() !== undefined);
+        expect(poolOutputs.length).toEqual(1);
+        const units = [
+          ...(poolOutputs[0]!.amount().multiasset()?.keys() ?? []),
+        ].map(String);
+        expect(units.length).toBeGreaterThan(0);
+        for (const unit of units) {
+          expect(
+            unit.startsWith(POOL_MINT_HASH) || declared.has(unit),
+          ).toBe(true);
+        }
+        for (const d of declared) expect(units).toContain(d);
+      },
+    );
+
     it("refuses a banded launch price outside the ladder", async () => {
       const ladder = BandedConcentratedLiquidityPool.uniformLadder(
         4,
