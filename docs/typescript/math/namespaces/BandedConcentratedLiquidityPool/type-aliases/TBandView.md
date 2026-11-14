@@ -44,4 +44,4 @@ The active band's view at a witness: its residual reserves and liquidity.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:282](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L282)
+[BandedConcentratedLiquidityPool.ts:283](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L283)

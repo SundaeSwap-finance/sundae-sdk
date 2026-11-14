@@ -26,4 +26,4 @@ The band's reserves in canonical order. The bands sum to the pool's reserves.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:519](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L519)
+[BandedConcentratedLiquidityPool.ts:529](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L529)

@@ -26,4 +26,4 @@ The last band's UPPER sqrt-price edge.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:48](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L48)
+[BandedConcentratedLiquidityPool.ts:49](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L49)

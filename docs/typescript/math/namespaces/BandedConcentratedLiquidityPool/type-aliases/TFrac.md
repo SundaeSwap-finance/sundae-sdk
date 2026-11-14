@@ -20,4 +20,4 @@ An exact rational `num / den`.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:31](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L31)
+[BandedConcentratedLiquidityPool.ts:32](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L32)

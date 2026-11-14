@@ -20,4 +20,4 @@ The witness the chain checks: the ladder counter and the active band.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:56](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L56)
+[BandedConcentratedLiquidityPool.ts:57](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L57)

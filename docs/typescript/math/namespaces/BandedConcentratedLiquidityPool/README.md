@@ -28,6 +28,7 @@
 
 - [aSat](functions/aSat.md)
 - [bandCapacity](functions/bandCapacity.md)
+- [bandFee](functions/bandFee.md)
 - [bandOf](functions/bandOf.md)
 - [bandOutput](functions/bandOutput.md)
 - [bandProof](functions/bandProof.md)

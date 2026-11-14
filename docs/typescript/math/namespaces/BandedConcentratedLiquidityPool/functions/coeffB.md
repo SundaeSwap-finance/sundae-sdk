@@ -20,4 +20,4 @@ The same on the B side.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:106](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L106)
+[BandedConcentratedLiquidityPool.ts:107](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L107)

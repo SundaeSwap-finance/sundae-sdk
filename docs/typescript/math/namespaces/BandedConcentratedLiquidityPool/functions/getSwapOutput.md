@@ -37,4 +37,4 @@ price. Throws when the ladder cannot absorb the input.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:459](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L459)
+[BandedConcentratedLiquidityPool.ts:469](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L469)

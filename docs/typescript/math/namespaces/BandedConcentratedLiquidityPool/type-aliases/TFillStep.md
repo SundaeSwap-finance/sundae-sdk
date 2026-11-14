@@ -28,4 +28,4 @@ One band of a fill: what it paid, and the state it left.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:376](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L376)
+[BandedConcentratedLiquidityPool.ts:386](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L386)
