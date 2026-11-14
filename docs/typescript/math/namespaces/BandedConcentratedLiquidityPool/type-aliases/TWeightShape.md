@@ -10,4 +10,4 @@ Band weight profiles. Every weight is at least 1, as `Create` demands.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:666](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L666)
+[BandedConcentratedLiquidityPool.ts:687](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L687)

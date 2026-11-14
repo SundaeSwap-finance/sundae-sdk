@@ -20,4 +20,4 @@ The largest input whose output stays within the band.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:349](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L349)
+[BandedConcentratedLiquidityPool.ts:370](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L370)

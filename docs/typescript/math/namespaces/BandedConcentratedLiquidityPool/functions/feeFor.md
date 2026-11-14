@@ -20,4 +20,4 @@ The band's fee for a direction: `feeSell` when A is sold, `feeBuy` when A is bou
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:314](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L314)
+[BandedConcentratedLiquidityPool.ts:326](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L326)

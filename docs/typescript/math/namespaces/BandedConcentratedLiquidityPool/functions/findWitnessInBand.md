@@ -30,4 +30,4 @@ DOWN from `lo` first. Mirrors `banded_math::find_witness_in_band_from`.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:214](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L214)
+[BandedConcentratedLiquidityPool.ts:226](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L226)

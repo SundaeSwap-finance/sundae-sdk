@@ -789,7 +789,8 @@ describe("SundaeUtils class", () => {
 
     it("dispatches the banded curve across its ladder, seeded by the indexed witness", () => {
       // The eight-band ladder of sundae-v4's banded_cl_check tests: 624 B in
-      // pays 616 A at reserves (8,637,368 A, 624,999 B).
+      // pays 615 A at reserves (8,637,368 A, 624,999 B). The band fee rounds
+      // up to 2 (sundae-v4 #228); with the floored fee of 1 it paid 616.
       const fee: [bigint, bigint] = [3n, 1000n];
       const bands = Array.from({ length: 8 }, (_, i) => ({
         start: [1_000_000n + 10_000n * BigInt(i), 1_000_000n] as [bigint, bigint],
@@ -813,13 +814,13 @@ describe("SundaeUtils class", () => {
         pool,
         new AssetAmount(624n, base.assetB),
       );
-      expect(output).toEqual(616n);
+      expect(output).toEqual(615n);
       // A stale witness is recovered from.
       const stale = SundaeUtils.getSwapOutput(
         { ...pool, bandCounter: 123n, activeBand: 5 },
         new AssetAmount(624n, base.assetB),
       );
-      expect(stale.output).toEqual(616n);
+      expect(stale.output).toEqual(615n);
     });
 
     it("throws for a banded pool missing its ladder", () => {

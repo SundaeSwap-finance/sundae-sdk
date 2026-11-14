@@ -26,4 +26,4 @@ The band proof, P1 through P7. The chain runs exactly this.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:187](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L187)
+[BandedConcentratedLiquidityPool.ts:199](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L199)

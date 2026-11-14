@@ -20,4 +20,4 @@ What the band can pay out in a direction: its residual of the output asset.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:345](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L345)
+[BandedConcentratedLiquidityPool.ts:366](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L366)

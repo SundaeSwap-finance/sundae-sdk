@@ -20,4 +20,4 @@ below band k. `banded_cl_check.build_index`, to the digit.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:123](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L123)
+[BandedConcentratedLiquidityPool.ts:135](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L135)

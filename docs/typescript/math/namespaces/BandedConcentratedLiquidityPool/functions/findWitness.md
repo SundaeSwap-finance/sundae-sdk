@@ -27,4 +27,4 @@ sit on no point of the ladder — the chain would reject them too.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:262](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L262)
+[BandedConcentratedLiquidityPool.ts:274](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L274)

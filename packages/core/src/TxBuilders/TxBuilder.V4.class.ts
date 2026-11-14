@@ -256,9 +256,12 @@ export type TPoolCurveV4 =
       launchSqrtPrice: IFractionV4;
       /**
        * The ladder counter, the pool's initial `total_lp` and liquidity
-       * scale (default 1,000,000,000). Rounding of the derived reserves can
-       * move the counter the chain accepts by a few; the pool is built on
-       * the one it accepts.
+       * scale. The chain requires at least `1000 × ladder.weightTotal` at
+       * Create (`minCreateCounter`); a smaller value is refused. The
+       * default is the larger of 1,000,000,000 and that minimum. Rounding
+       * of the derived reserves can move the counter the chain accepts by
+       * a few; the pool is built on the one it accepts, raised if needed
+       * so that it is not below the minimum.
        */
       counter?: bigint;
       /**
@@ -1235,7 +1238,19 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       | undefined;
     if (args.curve.kind === "bandedConcentratedLiquidity") {
       const { ladder, launchSqrtPrice } = args.curve;
-      const asked = args.curve.counter ?? 1_000_000_000n;
+      // sundae-v4 #229 (SV4-007): Create requires
+      // total_lp >= 1000 * weight_total.
+      const minCounter =
+        BandedConcentratedLiquidityPool.minCreateCounter(ladder);
+      const defaultCounter = 1_000_000_000n;
+      const asked =
+        args.curve.counter ??
+        (defaultCounter > minCounter ? defaultCounter : minCounter);
+      if (asked < minCounter) {
+        throw new Error(
+          `mintPool: the banded counter ${asked} is too small; the chain requires at least ${minCounter} (1000 × weight_total ${ladder.weightTotal}).`,
+        );
+      }
       const launch = { num: launchSqrtPrice.num, den: launchSqrtPrice.den };
       const first = ladder.bands[0]?.start;
       if (
@@ -1248,16 +1263,31 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         );
       }
       const k0 = BandedConcentratedLiquidityPool.bandOf(ladder, launch);
-      const r = BandedConcentratedLiquidityPool.reservesAt(
-        ladder,
-        asked,
-        k0,
-        launch,
-      );
-      const w = BandedConcentratedLiquidityPool.findWitness(ladder, r.A, r.B);
-      if (!w) {
+      // The floored reserves can witness a counter a few below the one
+      // asked for. Raise the ask by the shortfall until the witness is at
+      // or above the minimum.
+      let target = asked;
+      let r: { A: bigint; B: bigint } | undefined;
+      let w: BandedConcentratedLiquidityPool.TWitness | null = null;
+      for (let attempt = 0; attempt < 32; attempt++) {
+        r = BandedConcentratedLiquidityPool.reservesAt(
+          ladder,
+          target,
+          k0,
+          launch,
+        );
+        w = BandedConcentratedLiquidityPool.findWitness(ladder, r.A, r.B);
+        if (!w || w.x >= minCounter) break;
+        target += minCounter - w.x;
+      }
+      if (!w || !r) {
         throw new Error(
           "mintPool: no witness for the derived reserves; the counter is too small for this ladder.",
+        );
+      }
+      if (w.x < minCounter) {
+        throw new Error(
+          `mintPool: the derived reserves witness counter ${w.x}, below the chain's minimum ${minCounter} (1000 × weight_total ${ladder.weightTotal}); pass a larger counter.`,
         );
       }
       assets = [

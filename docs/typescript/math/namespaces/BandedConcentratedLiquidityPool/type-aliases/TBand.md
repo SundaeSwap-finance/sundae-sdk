@@ -42,4 +42,4 @@ The band's share of the ladder's liquidity counter.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:34](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L34)
+[BandedConcentratedLiquidityPool.ts:35](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L35)

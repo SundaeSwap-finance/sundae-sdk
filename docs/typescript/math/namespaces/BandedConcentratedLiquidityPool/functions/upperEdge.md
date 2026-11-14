@@ -20,4 +20,4 @@ Band i's upper sqrt-price edge.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:64](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L64)
+[BandedConcentratedLiquidityPool.ts:76](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L76)

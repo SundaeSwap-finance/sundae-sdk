@@ -21,6 +21,7 @@ export type { TSwapOutcome };
  * and the transaction fails. The rounding is not negotiable:
  *
  *   - `L_k` floors; saturation ceils, in ONE division;
+ *   - the band fee ceils, per step, on the step's real input;
  *   - the prefix sums come from the LADDER INDEX (cumulative coefficients
  *     in fixed point at 2^64, spec §2.3), multiplied by the counter and
  *     ceiled ONCE. A per-band sum of ceilings is a different number and the
@@ -57,6 +58,17 @@ export type TWitness = { x: bigint; k: number };
 
 /** 2^64, the fixed-point scale of the ladder index. */
 export const FIXED_ONE = 1n << 64n;
+
+/**
+ * The least counter per unit of weight a ladder may be created with.
+ * Mirrors `cl_check.min_counter_per_weight` (sundae-v4 #229, SV4-007):
+ * Create requires `total_lp >= MIN_COUNTER_PER_WEIGHT * weightTotal`.
+ */
+export const MIN_COUNTER_PER_WEIGHT = 1000n;
+
+/** The least counter (initial `total_lp`) the chain accepts at Create for `ladder`. */
+export const minCreateCounter = (ladder: TLadder): bigint =>
+  MIN_COUNTER_PER_WEIGHT * ladder.weightTotal;
 
 const ceilDiv = (n: bigint, d: bigint): bigint => (n + d - 1n) / d;
 
@@ -314,6 +326,15 @@ export const bandView = (
 export const feeFor = (v: TBandView, isAInput: boolean): TFrac =>
   isAInput ? v.feeSell : v.feeBuy;
 
+/**
+ * The band fee on a step's real input `dx`: `ceil(dx * num / den)`.
+ * Mirrors `cl_check.band_fee` (sundae-v4 #228, SV4-006). The chain charges
+ * it per transcript step and rounds it UP, so a step below `den / num`
+ * units still pays one unit. A zero rate charges nothing.
+ */
+export const bandFee = (dx: bigint, fee: TFrac): bigint =>
+  (dx * fee.num + fee.den - 1n) / fee.den;
+
 /** The output one band pays for `dx` within itself. Mirrors `banded_math::band_output`. */
 export const bandOutput = (
   v: TBandView,
@@ -322,7 +343,7 @@ export const bandOutput = (
 ): bigint => {
   const fee = feeFor(v, isAInput);
   if (fee.den <= 0n) return 0n;
-  const dxEff = dx - (dx * fee.num) / fee.den;
+  const dxEff = dx - bandFee(dx, fee);
   if (dxEff <= 0n) return 0n;
   if (v.curve === 0) {
     const va0 = v.ra * v.hi.num + v.l * v.hi.den;
@@ -479,7 +500,7 @@ export const getSwapOutput = (
     output += s.output;
     const band = l.bands[s.band]!;
     const fee = isAInput ? band.feeSell : band.feeBuy;
-    lpFee += (s.input * fee.num) / fee.den;
+    lpFee += bandFee(s.input, fee);
   }
   const inputReserve = isAInput ? aReserve : bReserve;
   const outputReserve = isAInput ? bReserve : aReserve;

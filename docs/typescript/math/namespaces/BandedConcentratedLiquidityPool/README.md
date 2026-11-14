@@ -23,11 +23,13 @@
 ### Variables
 
 - [FIXED\_ONE](variables/FIXED_ONE.md)
+- [MIN\_COUNTER\_PER\_WEIGHT](variables/MIN_COUNTER_PER_WEIGHT.md)
 
 ### Functions
 
 - [aSat](functions/aSat.md)
 - [bandCapacity](functions/bandCapacity.md)
+- [bandFee](functions/bandFee.md)
 - [bandOf](functions/bandOf.md)
 - [bandOutput](functions/bandOutput.md)
 - [bandProof](functions/bandProof.md)
@@ -43,6 +45,7 @@
 - [getSwapOutput](functions/getSwapOutput.md)
 - [liquidityOf](functions/liquidityOf.md)
 - [maxDxInBand](functions/maxDxInBand.md)
+- [minCreateCounter](functions/minCreateCounter.md)
 - [nextBand](functions/nextBand.md)
 - [prefixes](functions/prefixes.md)
 - [reservesAt](functions/reservesAt.md)
