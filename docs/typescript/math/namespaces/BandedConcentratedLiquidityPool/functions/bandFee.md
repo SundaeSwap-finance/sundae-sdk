@@ -23,4 +23,4 @@ units still pays one unit. A zero rate charges nothing.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:324](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L324)
+[BandedConcentratedLiquidityPool.ts:335](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L335)

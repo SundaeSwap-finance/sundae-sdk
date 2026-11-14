@@ -20,4 +20,4 @@ Which band holds a sqrt-price.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:574](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L574)
+[BandedConcentratedLiquidityPool.ts:585](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L585)

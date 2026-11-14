@@ -29,4 +29,4 @@ must stay below 2^64 (spec V9).
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:640](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L640)
+[BandedConcentratedLiquidityPool.ts:651](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L651)

@@ -20,4 +20,4 @@ One index entry: the cumulative coefficients above and below band k.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:117](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L117)
+[BandedConcentratedLiquidityPool.ts:128](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L128)

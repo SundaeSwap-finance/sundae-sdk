@@ -22,4 +22,4 @@
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:73](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L73)
+[BandedConcentratedLiquidityPool.ts:84](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L84)

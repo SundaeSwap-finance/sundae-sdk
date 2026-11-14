@@ -18,4 +18,4 @@ the cost of a quote.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:146](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L146)
+[BandedConcentratedLiquidityPool.ts:157](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L157)

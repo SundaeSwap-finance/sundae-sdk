@@ -20,4 +20,4 @@ Band i's A-side saturation coefficient: the part of `a_sat_i` independent of X, 
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:97](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L97)
+[BandedConcentratedLiquidityPool.ts:108](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L108)

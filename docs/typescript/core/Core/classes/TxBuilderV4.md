@@ -49,7 +49,7 @@ route constraint in either era.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:682](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L682)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:685](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L685)
 
 ***
 
@@ -84,7 +84,7 @@ ignored here, so a caller can't accidentally pay it N times.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:851](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L851)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:854](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L854)
 
 ***
 
@@ -117,7 +117,7 @@ automatically; a headless signer must opt in — e.g. blaze's
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1022](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1022)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1025](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1025)
 
 ***
 
@@ -138,7 +138,7 @@ constant-sum pool's bounty) rather than trading against its reserves.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:827](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L827)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:830](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L830)
 
 ***
 
@@ -162,7 +162,7 @@ Deposit is a basic order whose min-received names the pool's LP asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:779](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L779)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:782](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L782)
 
 ***
 
@@ -183,7 +183,7 @@ Resolves an order type's `config_token` (the value an order sets as its
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:519](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L519)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:522](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L522)
 
 ***
 
@@ -205,7 +205,7 @@ placed orders stay delegated to the owner's pool.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:575](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L575)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:578](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L578)
 
 ***
 
@@ -228,7 +228,7 @@ build a deposit/withdraw order against the pool. See [IPoolV4](../interfaces/IPo
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:539](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L539)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:542](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L542)
 
 ***
 
@@ -246,7 +246,7 @@ Returns `[]` if the API isn't serving settings yet — callers must then pass
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:412](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L412)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:415](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L415)
 
 ***
 
@@ -282,7 +282,7 @@ The circulating LP (issued to the creator via change) defaults to
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1156](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1156)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1159](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1159)
 
 ***
 
@@ -309,7 +309,7 @@ cross-pair one adds a swap leg.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:802](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L802)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:805](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L805)
 
 ***
 
@@ -329,7 +329,7 @@ Should create a new transaction instance from the supplied transaction library.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:356](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L356)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:359](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L359)
 
 ***
 
@@ -356,7 +356,7 @@ tx completion.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:901](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L901)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:904](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L904)
 
 ***
 
@@ -384,7 +384,7 @@ falls back to the package the deployed modules imply.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:734](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L734)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:737](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L737)
 
 ***
 
@@ -420,7 +420,7 @@ Returns when the route module is audited and route orders are supported.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:628](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L628)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:631](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L631)
 
 ***
 
@@ -460,7 +460,7 @@ fills) — a market swap, not a resting/limit order. Route a serial fill
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:659](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L659)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:662](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L662)
 
 ***
 
@@ -492,7 +492,7 @@ with the stake key explicitly.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1115](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1115)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1118](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1118)
 
 ***
 
@@ -516,4 +516,4 @@ Withdraw is a basic order whose offered asset is the pool's LP asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:786](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L786)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:789](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L789)

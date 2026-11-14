@@ -31,4 +31,4 @@ direction is exhausted, or the remainder pays nothing).
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:399](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L399)
+[BandedConcentratedLiquidityPool.ts:410](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L410)

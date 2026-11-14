@@ -36,4 +36,4 @@ derives — usually `x`, but rounding can move it.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:589](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L589)
+[BandedConcentratedLiquidityPool.ts:600](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L600)

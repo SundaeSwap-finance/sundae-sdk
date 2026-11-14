@@ -44,4 +44,4 @@ Overrides `fee` per band.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:719](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L719)
+[BandedConcentratedLiquidityPool.ts:730](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L730)

@@ -26,4 +26,4 @@ the reserves sit on no point of the ladder.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:541](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L541)
+[BandedConcentratedLiquidityPool.ts:552](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L552)

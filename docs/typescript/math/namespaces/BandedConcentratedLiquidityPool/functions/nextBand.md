@@ -22,4 +22,4 @@ The next band a fill enters: selling A walks down the ladder, buying A walks up.
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:378](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L378)
+[BandedConcentratedLiquidityPool.ts:389](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L389)

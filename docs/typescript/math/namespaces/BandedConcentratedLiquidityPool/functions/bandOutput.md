@@ -22,4 +22,4 @@ The output one band pays for `dx` within itself. Mirrors `banded_math::band_outp
 
 ## Defined in
 
-[BandedConcentratedLiquidityPool.ts:328](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L328)
+[BandedConcentratedLiquidityPool.ts:339](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/BandedConcentratedLiquidityPool.ts#L339)
