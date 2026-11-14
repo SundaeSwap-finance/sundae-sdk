@@ -59,6 +59,17 @@ export type TWitness = { x: bigint; k: number };
 /** 2^64, the fixed-point scale of the ladder index. */
 export const FIXED_ONE = 1n << 64n;
 
+/**
+ * The least counter per unit of weight a ladder may be created with.
+ * Mirrors `cl_check.min_counter_per_weight` (sundae-v4 #229, SV4-007):
+ * Create requires `total_lp >= MIN_COUNTER_PER_WEIGHT * weightTotal`.
+ */
+export const MIN_COUNTER_PER_WEIGHT = 1000n;
+
+/** The least counter (initial `total_lp`) the chain accepts at Create for `ladder`. */
+export const minCreateCounter = (ladder: TLadder): bigint =>
+  MIN_COUNTER_PER_WEIGHT * ladder.weightTotal;
+
 const ceilDiv = (n: bigint, d: bigint): bigint => (n + d - 1n) / d;
 
 /** Band i's upper sqrt-price edge. */
