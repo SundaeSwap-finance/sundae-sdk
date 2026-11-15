@@ -77,15 +77,49 @@ canonicalised to the empty policy / empty name.
 
 ***
 
-### buildBandedCLConfigDatum()
+### buildBasicConstraintData()
 
-> **buildBandedCLConfigDatum**(`ladder`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+> **buildBasicConstraintData**(`__namedParameters`): `PlutusData`
 
-Builds the Create config of a **banded concentrated-liquidity** pool: the
-ladder as the on-chain `BandedCLConfig`.
+Builds the constraint `data` for a **basic** order — `Deposit`, `Withdraw`,
+`Swap`, or `Claim`. All share the same field shape and are distinguished by
+their constructor index (verified against the CLI's `plutusBasicConstraints`):
+```
+Deposit  = Constr 0 [offered: List<(AssetClass, Int)>, min_received: List<(AssetClass, Int)>]
+Withdraw = Constr 1 [ …same… ]
+Swap     = Constr 2 [ …same… ]   // single offered asset; routing-free swap
+Claim    = Constr 3 [ …same… ]
+```
+
+#### Parameters
+
+• **\_\_namedParameters**
+
+• **\_\_namedParameters.minReceived**: `AssetAmount`\<`IAssetAmountMetadata`\>[]
+
+• **\_\_namedParameters.offered**: `AssetAmount`\<`IAssetAmountMetadata`\>[]
+
+• **\_\_namedParameters.type**: [`EV4BasicConstraint`](../enumerations/EV4BasicConstraint.md)
+
+#### Returns
+
+`PlutusData`
+
+#### Defined in
+
+[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:330](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L330)
+
+***
+
+### buildConcentratedLiquidityConfigDatum()
+
+> **buildConcentratedLiquidityConfigDatum**(`ladder`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+
+Builds the Create config of a **concentrated-liquidity** pool: the
+ladder as the on-chain `ConcentratedLiquidityConfig`.
 
 ```
-BandedCLConfig = Constr 0 [
+ConcentratedLiquidityConfig = Constr 0 [
   bands: List<BandSpec>,       -- BandSpec = Constr 0 [start, weight, curve, fee_buy, fee_sell]
   index: List<[ca, cb]>,       -- the ladder index, derived from the bands
   closing: Rational,
@@ -136,11 +170,11 @@ every step of the pool's life.
 
 ***
 
-### buildBandedCLCreateRedeemer()
+### buildConcentratedLiquidityCreateRedeemer()
 
-> **buildBandedCLCreateRedeemer**(`__namedParameters`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
+> **buildConcentratedLiquidityCreateRedeemer**(`__namedParameters`): [`TDatumResult`](../type-aliases/TDatumResult.md)\<`object`\>
 
-The banded module's `Create` redeemer:
+The concentrated-liquidity module's `Create` redeemer:
 `Constr 0 [initial_state, pool_output_index, initial_band]`. Unlike the
 other curve modules it names the band holding the launch price; the
 counter is not a field, it is the pool's `total_lp` (spec V12).
@@ -198,40 +232,6 @@ counter is not a field, it is the pool's `total_lp` (spec V12).
 #### Defined in
 
 [packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:439](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L439)
-
-***
-
-### buildBasicConstraintData()
-
-> **buildBasicConstraintData**(`__namedParameters`): `PlutusData`
-
-Builds the constraint `data` for a **basic** order — `Deposit`, `Withdraw`,
-`Swap`, or `Claim`. All share the same field shape and are distinguished by
-their constructor index (verified against the CLI's `plutusBasicConstraints`):
-```
-Deposit  = Constr 0 [offered: List<(AssetClass, Int)>, min_received: List<(AssetClass, Int)>]
-Withdraw = Constr 1 [ …same… ]
-Swap     = Constr 2 [ …same… ]   // single offered asset; routing-free swap
-Claim    = Constr 3 [ …same… ]
-```
-
-#### Parameters
-
-• **\_\_namedParameters**
-
-• **\_\_namedParameters.minReceived**: `AssetAmount`\<`IAssetAmountMetadata`\>[]
-
-• **\_\_namedParameters.offered**: `AssetAmount`\<`IAssetAmountMetadata`\>[]
-
-• **\_\_namedParameters.type**: [`EV4BasicConstraint`](../enumerations/EV4BasicConstraint.md)
-
-#### Returns
-
-`PlutusData`
-
-#### Defined in
-
-[packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts:330](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/DatumBuilders/DatumBuilder.V4.class.ts#L330)
 
 ***
 

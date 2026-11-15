@@ -16,17 +16,17 @@ titles matching the V1/V3/Stableswaps convention (`pool.mint`,
 
 ## Type declaration
 
-### bandedConcentratedLiquidity
-
-> `readonly` **bandedConcentratedLiquidity**: `"banded_concentrated_liquidity.withdraw"` = `"banded_concentrated_liquidity.withdraw"`
-
-The banded concentrated-liquidity curve module.
-
 ### basicConstraint
 
 > `readonly` **basicConstraint**: `"basic_order.withdraw"` = `"basic_order.withdraw"`
 
 The basic-order constraint module — keyed in Deposit/Withdraw/Claim orders.
+
+### concentratedLiquidity
+
+> `readonly` **concentratedLiquidity**: `"concentrated_liquidity.withdraw"` = `"concentrated_liquidity.withdraw"`
+
+The concentrated-liquidity curve module.
 
 ### constantSum
 

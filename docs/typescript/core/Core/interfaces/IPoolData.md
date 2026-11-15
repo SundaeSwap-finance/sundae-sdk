@@ -12,11 +12,11 @@ Pool data that is returned from [Core.QueryProvider.findPoolData](../classes/Que
 
 > `optional` **activeBand**: `number`
 
-For v4 banded pools, the zero-based band holding the current price.
+For v4 concentrated-liquidity pools, the zero-based band holding the current price.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:171](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L171)
+[packages/core/src/@types/queryprovider.ts:164](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L164)
 
 ***
 
@@ -24,11 +24,11 @@ For v4 banded pools, the zero-based band holding the current price.
 
 > `optional` **bandClosing**: [`bigint`, `bigint`]
 
-For v4 banded pools, the ladder's top sqrt-price edge as `[num, den]`.
+For v4 concentrated-liquidity pools, the ladder's top sqrt-price edge as `[num, den]`.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:169](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L169)
+[packages/core/src/@types/queryprovider.ts:162](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L162)
 
 ***
 
@@ -36,13 +36,13 @@ For v4 banded pools, the ladder's top sqrt-price edge as `[num, den]`.
 
 > `optional` **bandCounter**: `bigint`
 
-For v4 banded pools, the ladder counter X: band i's liquidity is
+For v4 concentrated-liquidity pools, the ladder counter X: band i's liquidity is
 `floor(bands[i].weight · X / bandWeightTotal)`. Seeds the witness search
 when quoting; a stale value is recovered from.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:177](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L177)
+[packages/core/src/@types/queryprovider.ts:170](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L170)
 
 ***
 
@@ -50,14 +50,14 @@ when quoting; a stale value is recovered from.
 
 > `optional` **bands**: [`IPoolBand`](IPoolBand.md)[]
 
-For v4 banded concentrated-liquidity pools, the ladder in ascending price
+For v4 concentrated-liquidity pools, the ladder in ascending price
 order. Band i spans sqrt-prices `[bands[i].start, bands[i+1].start)`; the
-last band ends at `bandClosing`. Required to compute banded swap output;
+last band ends at `bandClosing`. Required to compute concentrated-liquidity swap output;
 empty for every other curve.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:167](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L167)
+[packages/core/src/@types/queryprovider.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L160)
 
 ***
 
@@ -65,11 +65,11 @@ empty for every other curve.
 
 > `optional` **bandWeightTotal**: `bigint`
 
-For v4 banded pools, the sum of every band's `weight`.
+For v4 concentrated-liquidity pools, the sum of every band's `weight`.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:179](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L179)
+[packages/core/src/@types/queryprovider.ts:172](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L172)
 
 ***
 
@@ -162,19 +162,4 @@ above, which serves v3 and v4 alike. `rates` is the v4-only half.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L160)
-
-***
-
-### sqrtPrices?
-
-> `optional` **sqrtPrices**: [[`bigint`, `bigint`], [`bigint`, `bigint`]]
-
-For v4 concentrated-liquidity pools, the immutable sqrt-price range bounds
-from the pool's CL config as exact rationals `[[aNum, aDen], [bNum, bDen]]`
-(lower bound `a` < upper bound `b`). Required to compute CL swap output;
-ignored by other curves.
-
-#### Defined in
-
-[packages/core/src/@types/queryprovider.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L148)
+[packages/core/src/@types/queryprovider.ts:153](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L153)

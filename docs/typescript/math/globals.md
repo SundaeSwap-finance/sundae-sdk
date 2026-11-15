@@ -6,7 +6,6 @@
 
 ## Namespaces
 
-- [BandedConcentratedLiquidityPool](namespaces/BandedConcentratedLiquidityPool/README.md)
 - [ConcentratedLiquidityPool](namespaces/ConcentratedLiquidityPool/README.md)
 - [ConstantProductPool](namespaces/ConstantProductPool/README.md)
 - [ConstantSumPool](namespaces/ConstantSumPool/README.md)

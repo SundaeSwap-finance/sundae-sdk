@@ -4,7 +4,7 @@
 
 # Interface: IPoolBand
 
-One band of a v4 banded concentrated-liquidity pool's ladder.
+One band of a v4 concentrated-liquidity pool's ladder.
 
 ## Properties
 
@@ -16,7 +16,7 @@ Whether this is the band the current price sits in.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:203](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L203)
+[packages/core/src/@types/queryprovider.ts:196](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L196)
 
 ***
 
@@ -28,7 +28,7 @@ Whether this is the band the current price sits in.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:189](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L189)
+[packages/core/src/@types/queryprovider.ts:182](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L182)
 
 ***
 
@@ -40,7 +40,7 @@ Fee on swaps that buy the pool's first asset, as `[num, den]`.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:191](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L191)
+[packages/core/src/@types/queryprovider.ts:184](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L184)
 
 ***
 
@@ -52,7 +52,7 @@ Fee on swaps that sell the pool's first asset, as `[num, den]`.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:193](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L193)
+[packages/core/src/@types/queryprovider.ts:186](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L186)
 
 ***
 
@@ -64,7 +64,7 @@ The band's liquidity, `floor(weight · bandCounter / bandWeightTotal)`.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:201](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L201)
+[packages/core/src/@types/queryprovider.ts:194](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L194)
 
 ***
 
@@ -78,7 +78,7 @@ place the reserves on the ladder.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:199](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L199)
+[packages/core/src/@types/queryprovider.ts:192](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L192)
 
 ***
 
@@ -90,7 +90,7 @@ The band's lower sqrt-price edge as `[num, den]`.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:185](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L185)
+[packages/core/src/@types/queryprovider.ts:178](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L178)
 
 ***
 
@@ -102,4 +102,4 @@ The band's share of the ladder's liquidity counter.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:187](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L187)
+[packages/core/src/@types/queryprovider.ts:180](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L180)
