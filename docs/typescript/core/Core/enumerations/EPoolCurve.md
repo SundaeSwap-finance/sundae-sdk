@@ -26,7 +26,7 @@ the rename; the query provider maps that identifier to this value too.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:93](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L93)
+[packages/core/src/@types/txbuilders.ts:99](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L99)
 
 ***
 
@@ -36,7 +36,7 @@ the rename; the query provider maps that identifier to this value too.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:81](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L81)
+[packages/core/src/@types/txbuilders.ts:87](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L87)
 
 ***
 
@@ -46,7 +46,7 @@ the rename; the query provider maps that identifier to this value too.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L82)
+[packages/core/src/@types/txbuilders.ts:88](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L88)
 
 ***
 
@@ -71,4 +71,4 @@ stores `D` in the pool datum and has no per-asset rates, while v4 stores no
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:110](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L110)
+[packages/core/src/@types/txbuilders.ts:116](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L116)

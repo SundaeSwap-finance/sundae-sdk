@@ -19,7 +19,7 @@ Reserves, in pool-datum order. `assetId` is `policy.name` (`ada.lovelace` for AD
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:308](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L308)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:353](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L353)
 
 ***
 
@@ -31,7 +31,7 @@ The pool identifier (28-byte hex).
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:306](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L306)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:351](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L351)
 
 ***
 
@@ -43,7 +43,7 @@ The pool's LP token (`policy.name`), i.e. the `333` asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:314](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L314)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:359](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L359)
 
 ***
 
@@ -55,7 +55,7 @@ The pool's NFT (`policy.name`), i.e. the `222` asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:316](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L316)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:361](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L361)
 
 ***
 
@@ -67,7 +67,7 @@ LP accounting from the pool datum.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:310](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L310)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:355](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L355)
 
 ***
 
@@ -79,4 +79,4 @@ The live pool UTxO.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:318](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L318)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:363](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L363)

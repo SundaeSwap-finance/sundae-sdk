@@ -9,16 +9,11 @@ import {
 import { FC, useCallback, useState } from "react";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
+import { IActionArgs, findDemoPool } from "../Actions";
 
 export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const {
-    SDK,
-    ready,
-    activeWalletAddr,
-    useReferral,
-    useV3Contracts,
-  } = useAppState();
+  const { SDK, ready, activeWalletAddr, useReferral, useV3Contracts } =
+    useAppState();
   const [reverseSwapping, setReverseSwapping] = useState(false);
 
   const handleSwap = useCallback(async () => {
@@ -28,9 +23,7 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
 
     setReverseSwapping(true);
     try {
-      const pool = await SDK.query().findPoolData(
-        useV3Contracts ? newPoolQuery : poolQuery,
-      );
+      const pool = await findDemoPool(SDK.query(), useV3Contracts);
       const args: ISwapConfigArgs = {
         swapType: {
           type: ESwapType.MARKET,
@@ -58,7 +51,7 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
       }
 
       await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
+        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1,
       )
         .swap(args)
         .then(async ({ build, fees }) => {
@@ -81,14 +74,7 @@ export const SwapAB: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
     }
 
     setReverseSwapping(false);
-  }, [
-    SDK,
-    submit,
-    activeWalletAddr,
-    useReferral,
-    useV3Contracts,
-    poolQuery,
-  ]);
+  }, [SDK, submit, activeWalletAddr, useReferral, useV3Contracts]);
 
   if (!SDK) {
     return null;

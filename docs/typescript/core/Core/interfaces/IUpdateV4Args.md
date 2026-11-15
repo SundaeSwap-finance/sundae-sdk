@@ -16,7 +16,7 @@ The order UTxO being replaced — spent via the order validator's Cancel path.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:222](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L222)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:267](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L267)
 
 ***
 
@@ -28,4 +28,4 @@ The replacement order (swap or basic) locked in the same transaction.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:224](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L224)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:269](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L269)

@@ -25,7 +25,7 @@ methods to run; the titles resolved are [V4_VALIDATORS](../variables/V4_VALIDATO
 
 ### basic()
 
-> **basic**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> **basic**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Places a v4 basic order — `Deposit`, `Withdraw`, or `Claim` (per
 `args.type`).
@@ -41,7 +41,7 @@ route constraint in either era.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Overrides
 
@@ -49,13 +49,13 @@ route constraint in either era.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:693](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L693)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:979](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L979)
 
 ***
 
 ### batch()
 
-> **batch**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> **batch**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Places SEVERAL basic orders in one transaction.
 
@@ -80,17 +80,17 @@ ignored here, so a caller can't accidentally pay it N times.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:862](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L862)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1148)
 
 ***
 
 ### cancel()
 
-> **cancel**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> **cancel**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Cancels an existing v4 order, returning its locked assets to the owner. The
 order UTxO is spent through the order validator's `Cancel` path (redeemer
@@ -109,7 +109,7 @@ automatically; a headless signer must opt in — e.g. blaze's
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Overrides
 
@@ -117,13 +117,13 @@ automatically; a headless signer must opt in — e.g. blaze's
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1033](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1033)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1314](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1314)
 
 ***
 
 ### claim()
 
-> **claim**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> **claim**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Claim is a basic order that collects a pool's accrued claimables (e.g. a
 constant-sum pool's bounty) rather than trading against its reserves.
@@ -134,17 +134,17 @@ constant-sum pool's bounty) rather than trading against its reserves.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:838](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L838)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1124](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1124)
 
 ***
 
 ### deposit()
 
-> **deposit**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> **deposit**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Deposit is a basic order whose min-received names the pool's LP asset.
 
@@ -154,7 +154,7 @@ Deposit is a basic order whose min-received names the pool's LP asset.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Overrides
 
@@ -162,7 +162,28 @@ Deposit is a basic order whose min-received names the pool's LP asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:790](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L790)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1076](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1076)
+
+***
+
+### getDatumType()
+
+> **getDatumType**(): [`EDatumType`](../enumerations/EDatumType.md)
+
+How a preceding order must attach a v4 order's datum when it pays out to
+the v4 order address. v4 locks its orders with an inline datum (see
+`basic`), so a chained leg needs no datum-hash metadata entry.
+
+Present so a v1/v3 `orderRouteSwap` can chain into v4: the first leg reads
+this to decide how to carry the next leg's datum.
+
+#### Returns
+
+[`EDatumType`](../enumerations/EDatumType.md)
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:654](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L654)
 
 ***
 
@@ -183,7 +204,7 @@ Resolves an order type's `config_token` (the value an order sets as its
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:530](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L530)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:595](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L595)
 
 ***
 
@@ -205,7 +226,7 @@ placed orders stay delegated to the owner's pool.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:586](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L586)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:663](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L663)
 
 ***
 
@@ -228,7 +249,7 @@ build a deposit/withdraw order against the pool. See [IPoolV4](../interfaces/IPo
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:550](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L550)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:615](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L615)
 
 ***
 
@@ -246,13 +267,13 @@ Returns `[]` if the API isn't serving settings yet — callers must then pass
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:423](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L423)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:488](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L488)
 
 ***
 
 ### mintPool()
 
-> **mintPool**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> **mintPool**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Creates (mints) a new v4 pool. Consumes a seed UTxO from the creator to
 derive the pool `identifier`, mints the CIP-68 `100`/`222`/`333` tokens, and
@@ -274,7 +295,7 @@ The circulating LP (issued to the creator via change) defaults to
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Overrides
 
@@ -282,13 +303,13 @@ The circulating LP (issued to the creator via change) defaults to
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1167](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1167)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1443](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1443)
 
 ***
 
 ### moveLiquidity()
 
-> **moveLiquidity**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> **moveLiquidity**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Moves liquidity between pools in ONE order: burn `from` (one or more
 pools' LP tokens, CIP-67 label `0014df10` + ident) and receive at least
@@ -305,11 +326,11 @@ cross-pair one adds a swap leg.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:813](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L813)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1099](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1099)
 
 ***
 
@@ -329,13 +350,80 @@ Should create a new transaction instance from the supplied transaction library.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:367](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L367)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:412](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L412)
+
+***
+
+### orderRouteSwap()
+
+> **orderRouteSwap**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
+
+Places a chain of orders that starts on v4: a v4 order that pays its
+output into the next order in `legs`, which pays into the one after it,
+and so on. Each order is filled in its own scoop, one after another; if a
+later order cannot fill, the earlier ones have still filled.
+
+This is the reverse of the v1/v3 `orderRouteSwap`, which chain an older
+order into v4. The v4 order is the same plain order [swapIntent](TxBuilderV4.md#swapintent)
+places, with its payout sent to the next order's script address and that
+order's datum attached inline. It does not use the route constraint that
+[swap](TxBuilderV4.md#swap) refuses to build.
+
+It refuses these chains:
+
+- **No v1.** A v4 order can only attach its payout's datum inline, and a
+  v1 order is a Plutus V1 script, which cannot read an inline datum. A v1
+  order anywhere after the v4 order would lock funds that nothing could
+  spend, not even a cancel, so this throws instead.
+- **Only v3 and stableswap older-pool orders.** An nft-check order is
+  only scooped while it holds its condition NFT, which a chain does not
+  forward, so it would never fill.
+- **Each older-pool order's pool must hold what arrives.** Otherwise the
+  order could never fill, and it would only be found after the orders
+  before it had filled.
+- **At most five orders.** Each order nests the next one's datum, and a
+  long enough chain nests deeper than SundaeSwap's datum parsers read.
+- **No two v4 orders in a row.** One v4 order already routes across any
+  number of v4 pools, so a second one directly after it is never needed.
+- **A later v4 order must be last.** A v4 order in the middle of a chain
+  is not supported yet: the ADA it needs to arrive with has not been
+  worked out.
+
+For the chains it places:
+
+- **Amounts.** Each older-pool order offers exactly the least the order
+  before it can deliver: the v4 order's `minReceived`, or the previous
+  older-pool order's minimum priced on its pool. If an order delivers
+  more, the extra arrives in the next order unswapped and is passed on to
+  that order's destination.
+- **ADA.** The v4 order locks every later order's fee on top of its own
+  budget and deposit, plus the larger deposit an order needs when it pays
+  into another order. Fills pass ADA they don't spend through to their
+  payout, so each order arrives already funded. `fees.scooperFee` reports
+  the v4 budget plus that forwarded ADA.
+- **Referrals.** Every order's referral fee is paid in one output of this
+  transaction, so they must all name the same destination; if they don't,
+  this throws. The label published is the first one in `legs` order.
+- **Ownership.** `ownerAddress` owns every order, so the owner can cancel
+  any order that cannot fill.
+
+#### Parameters
+
+• **args**: [`IOrderRouteSwapV4Args`](../interfaces/IOrderRouteSwapV4Args.md)
+
+#### Returns
+
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
+
+#### Defined in
+
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:811](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L811)
 
 ***
 
 ### placeOrder()
 
-> `protected` **placeOrder**(`args`, `offered`, `constraints`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> `protected` **placeOrder**(`args`, `offered`, `constraints`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Shared placement primitive: assemble the `OrderDatum`, lock the offered
 assets + the fee budget at the order script address, and complete. Exposed
@@ -352,17 +440,17 @@ tx completion.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:912](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L912)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1193](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1193)
 
 ***
 
 ### strategy()
 
-> **strategy**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> **strategy**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Places a v4 strategy order. The order locks the offered assets and names a
 strategist (`authSigner`) authorized to sign the `StrategyExecution` the
@@ -376,7 +464,7 @@ falls back to the package the deployed modules imply.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Overrides
 
@@ -384,7 +472,7 @@ falls back to the package the deployed modules imply.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:745](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L745)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1031](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1031)
 
 ***
 
@@ -420,13 +508,13 @@ Returns when the route module is audited and route orders are supported.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:639](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L639)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:716](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L716)
 
 ***
 
 ### swapIntent()
 
-> **swapIntent**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> **swapIntent**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Places a v4 swap.
 
@@ -456,17 +544,17 @@ fills) — a market swap, not a resting/limit order. Route a serial fill
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:670](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L670)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:747](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L747)
 
 ***
 
 ### update()
 
-> **update**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> **update**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Updates an order in place: cancels the existing order UTxO and locks a
 fresh swap/basic order in the same transaction. The replacement carries its
@@ -484,7 +572,7 @@ with the stake key explicitly.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Overrides
 
@@ -492,13 +580,13 @@ with the stake key explicitly.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1126](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1126)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1402](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1402)
 
 ***
 
 ### withdraw()
 
-> **withdraw**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+> **withdraw**(`args`): `Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 Withdraw is a basic order whose offered asset is the pool's LP asset.
 
@@ -508,7 +596,7 @@ Withdraw is a basic order whose offered asset is the pool's LP asset.
 
 #### Returns
 
-`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>\>\>
+`Promise`\<[`IComposedTx`](../interfaces/IComposedTx.md)\<`TxBuilder`, `Transaction`, `undefined` \| `string`, `Record`\<`string`, `AssetAmount`\<`IAssetAmountMetadata`\>\>, `string`\>\>
 
 #### Overrides
 
@@ -516,4 +604,4 @@ Withdraw is a basic order whose offered asset is the pool's LP asset.
 
 #### Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:797](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L797)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:1083](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L1083)

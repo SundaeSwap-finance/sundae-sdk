@@ -657,14 +657,18 @@ export class SundaeUtils {
     poolData: IPoolData,
     suppliedAsset: AssetAmount<IAssetAmountMetadata>,
   ): TGenericSwapOutcome {
-    const inputReserve =
-      poolData.assetA.assetId === suppliedAsset.metadata.assetId
-        ? poolData.liquidity.aReserve
-        : poolData.liquidity.bReserve;
-    const outputReserve =
-      poolData.assetA.assetId === suppliedAsset.metadata.assetId
-        ? poolData.liquidity.bReserve
-        : poolData.liquidity.aReserve;
+    // Alias-aware, so ADA written as "", "." or "ada.lovelace" prices against
+    // the same side of the pool.
+    const suppliedIsA = SundaeUtils.isAssetIdsEqual(
+      poolData.assetA.assetId,
+      suppliedAsset.metadata.assetId,
+    );
+    const inputReserve = suppliedIsA
+      ? poolData.liquidity.aReserve
+      : poolData.liquidity.bReserve;
+    const outputReserve = suppliedIsA
+      ? poolData.liquidity.bReserve
+      : poolData.liquidity.aReserve;
     switch (poolData.version) {
       case EContractVersion.V1:
       case EContractVersion.V3:
@@ -679,9 +683,7 @@ export class SundaeUtils {
         );
       case EContractVersion.Stableswaps:
         return StableSwapsPool.getSwapOutput(
-          poolData.assetA.assetId === suppliedAsset.metadata.assetId
-            ? poolData.assetB
-            : poolData.assetA,
+          suppliedIsA ? poolData.assetB : poolData.assetA,
           suppliedAsset.amount,
           inputReserve,
           outputReserve,
@@ -696,8 +698,11 @@ export class SundaeUtils {
         // failure shipped repeatedly in the UI as the display-pair trap —
         // refuse it here instead of propagating it.
         if (
-          suppliedAsset.metadata.assetId !== poolData.assetA.assetId &&
-          suppliedAsset.metadata.assetId !== poolData.assetB.assetId
+          !suppliedIsA &&
+          !SundaeUtils.isAssetIdsEqual(
+            poolData.assetB.assetId,
+            suppliedAsset.metadata.assetId,
+          )
         ) {
           throw new Error(
             `Cannot compute a swap output: supplied asset ${suppliedAsset.metadata.assetId} is not one of the pool's assets.`,
@@ -723,8 +728,6 @@ export class SundaeUtils {
                 "Constant-sum pool is missing `prices`; cannot get swap output.",
               );
             }
-            const suppliedIsA =
-              poolData.assetA.assetId === suppliedAsset.metadata.assetId;
             const [priceIn, priceOut] = suppliedIsA
               ? [poolData.prices[0], poolData.prices[1]]
               : [poolData.prices[1], poolData.prices[0]];
@@ -749,8 +752,6 @@ export class SundaeUtils {
                 "Concentrated-liquidity pool is missing `bands`, `bandClosing` or `bandWeightTotal`; cannot get swap output.",
               );
             }
-            const isAInput =
-              poolData.assetA.assetId === suppliedAsset.metadata.assetId;
             const hint =
               poolData.bandCounter && poolData.activeBand !== undefined
                 ? { x: poolData.bandCounter, k: poolData.activeBand }
@@ -761,7 +762,7 @@ export class SundaeUtils {
               poolData.liquidity.aReserve,
               poolData.liquidity.bReserve,
               SundaeUtils.ladderOf(poolData),
-              isAInput,
+              suppliedIsA,
               hint,
             );
           }
@@ -773,8 +774,6 @@ export class SundaeUtils {
                 "Stableswap pool is missing `rates` or `linearAmplificationFactor`; cannot get swap output.",
               );
             }
-            const suppliedIsA =
-              poolData.assetA.assetId === suppliedAsset.metadata.assetId;
             const [rateIn, rateOut] = suppliedIsA
               ? [poolData.rates[0], poolData.rates[1]]
               : [poolData.rates[1], poolData.rates[0]];

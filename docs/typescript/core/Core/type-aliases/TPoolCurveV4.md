@@ -12,4 +12,4 @@ so new curves slot in without changing the call shape. `constantSum` and
 
 ## Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:238](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L238)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:283](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L283)

@@ -11,16 +11,11 @@ import { FC, useCallback, useState } from "react";
 import { Core } from "@blaze-cardano/sdk";
 import { useAppState } from "../../../state/context";
 import Button from "../../Button";
-import { IActionArgs, newPoolQuery, poolQuery } from "../Actions";
+import { IActionArgs, findDemoPool } from "../Actions";
 
 export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
-  const {
-    SDK,
-    ready,
-    activeWalletAddr,
-    useReferral,
-    useV3Contracts,
-  } = useAppState();
+  const { SDK, ready, activeWalletAddr, useReferral, useV3Contracts } =
+    useAppState();
   const [updating, setUpdating] = useState(false);
 
   const handleUpdateSwap = useCallback(async () => {
@@ -38,9 +33,7 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
         return;
       }
 
-      const pool = await SDK.query().findPoolData(
-        useV3Contracts ? newPoolQuery : poolQuery,
-      );
+      const pool = await findDemoPool(SDK.query(), useV3Contracts);
 
       const cancelConfig: ICancelConfigArgs = {
         utxo: {
@@ -81,29 +74,33 @@ export const UpdateSwap: FC<IActionArgs> = ({ setCBOR, setFees, submit }) => {
           : {}),
       };
 
-      await SDK.builder(
-        useV3Contracts ? EContractVersion.V3 : EContractVersion.V1
-      )
-        .update({
-          cancelArgs: cancelConfig,
-          swapArgs: updatedSwapConfig,
-        })
-        .then(async ({ build, fees }) => {
-          setFees(fees);
-          const builtTx = await build();
+      // v1 and v3 name the update's parts differently.
+      await (
+        useV3Contracts
+          ? SDK.builder(EContractVersion.V3).update({
+              cancelConfig,
+              updateConfig: { type: "Swap", args: updatedSwapConfig },
+            })
+          : SDK.builder(EContractVersion.V1).update({
+              cancelArgs: cancelConfig,
+              swapArgs: updatedSwapConfig,
+            })
+      ).then(async ({ build, fees }) => {
+        setFees(fees);
+        const builtTx = await build();
 
-          if (submit) {
-            const { cbor, submit } = await builtTx.sign();
-            setCBOR({
-              cbor,
-              hash: await submit(),
-            });
-          } else {
-            setCBOR({
-              cbor: builtTx.cbor,
-            });
-          }
-        });
+        if (submit) {
+          const { cbor, submit } = await builtTx.sign();
+          setCBOR({
+            cbor,
+            hash: await submit(),
+          });
+        } else {
+          setCBOR({
+            cbor: builtTx.cbor,
+          });
+        }
+      });
     } catch (e) {
       console.log(e);
     }
