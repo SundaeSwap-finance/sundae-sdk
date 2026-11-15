@@ -15,9 +15,9 @@ import { useAppState } from "../../../state/context";
 import Button from "../../Button";
 import { IActionArgs } from "../Actions";
 
-// Preview assets and pools. Every v4 pool holding ADA is a banded
-// concentrated-liquidity pool, which the SDK cannot quote client-side, so the
-// v4 orders are priced from the API's own quotes.
+// Preview assets and pools. Every v4 pool holding ADA is a
+// concentrated-liquidity pool. The v4 orders are priced from the API's own
+// quotes.
 const PREVIEW_API = "https://api.preview.sundae.fi/graphql";
 const USDM: IAssetAmountMetadata = {
   assetId:
