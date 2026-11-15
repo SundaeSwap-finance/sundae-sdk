@@ -1,6 +1,7 @@
 import { parse, serialize } from "@blaze-cardano/data";
 import { TxBuilder as BlazeTx, Core, makeValue } from "@blaze-cardano/sdk";
 import { AssetAmount } from "@sundaeswap/asset";
+import { ConcentratedLiquidityPool } from "@sundaeswap/math";
 import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 
 import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
@@ -37,6 +38,8 @@ const POOL_MINT_HASH = "77".repeat(28);
 const CS_HASH = "88".repeat(28);
 const FEESPLIT_HASH = "99".repeat(28);
 const FAIRNESS_MOD_HASH = "aa".repeat(28);
+const CL_HASH = "ac".repeat(28);
+const ORACLE_HASH = "ad".repeat(28);
 
 // A 32-byte tx id for the order UTxO being cancelled, and one for the order
 // reference-script UTxO cancel/update read from.
@@ -70,6 +73,8 @@ spyOn(TxBuilderV4.prototype, "getValidatorScript").mockImplementation(
       [V4_VALIDATORS.constantSum]: CS_HASH,
       [V4_VALIDATORS.feeSplit]: FEESPLIT_HASH,
       [V4_VALIDATORS.fairnessModule]: FAIRNESS_MOD_HASH,
+      [V4_VALIDATORS.concentratedLiquidity]: CL_HASH,
+      [V4_VALIDATORS.oracle]: ORACLE_HASH,
     }[name];
     return { hash, title: name, compiledCode: "" };
   }) as any,
@@ -96,11 +101,41 @@ const CS_POOL_CONFIG_DATUM = serialize(V4Types.PoolConfig, {
   ),
 }).toCbor();
 
+// Concentrated-liquidity PoolConfigs: one without the oracle, one with it (preprod's
+// "bcl-pool" and "bcl-oracle-pool").
+const clPoolConfig = (withOracle: boolean) =>
+  serialize(V4Types.PoolConfig, {
+    pool_validator: POOL_HASH,
+    actions: [
+      {
+        tag: 3n,
+        enabled: true,
+        modules: [
+          CL_HASH,
+          FEESPLIT_HASH,
+          FAIRNESS_MOD_HASH,
+          ...(withOracle ? [ORACLE_HASH] : []),
+        ],
+      },
+    ],
+    module_params: [],
+    mint_permission: Core.PlutusData.newConstrPlutusData(
+      new Core.ConstrPlutusData(1n, new Core.PlutusList()),
+    ),
+    min_surplus: 5_000_000n,
+    extension: Core.PlutusData.newConstrPlutusData(
+      new Core.ConstrPlutusData(0n, new Core.PlutusList()),
+    ),
+  }).toCbor();
+const CL_POOL_CONFIG_DATUM = clPoolConfig(false);
+const CL_ORACLE_POOL_CONFIG_DATUM = clPoolConfig(true);
+
 // Published Create configs for the non-curve modules (curve config comes from
 // the caller). Fairness is config-less (null).
 const POOL_MODULE_CONFIGS = {
   [FEESPLIT_HASH]: { configCbor: "d87980" },
   [FAIRNESS_MOD_HASH]: { configCbor: null },
+  [ORACLE_HASH]: { configCbor: null },
 };
 
 // Protocol validators + references, keyed so mintPool can resolve modules by
@@ -111,6 +146,8 @@ const MODULE_HASHES: Record<string, string> = {
   constantSum: CS_HASH,
   feeSplit: FEESPLIT_HASH,
   fairness: FAIRNESS_MOD_HASH,
+  concentrated_liquidity: CL_HASH,
+  oracle: ORACLE_HASH,
 };
 const refHashFor = (key: string) =>
   Buffer.from(`ref-${key}`.padEnd(32, "_")).toString("hex").slice(0, 64);
@@ -172,6 +209,8 @@ spyOn(
   { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: BASIC_ORDER_CONFIG_DATUM, values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
   { label: "strategy-order", txIn: { hash: "ce", index: 0 }, datum: STRATEGY_ORDER_CONFIG_DATUM, values: { token: "00d5ea9b", requiredConstraints: [] } },
   { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: CS_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
+  { label: "bcl-pool", txIn: { hash: "de".repeat(32), index: 0 }, datum: CL_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
+  { label: "bcl-oracle-pool", txIn: { hash: "df".repeat(32), index: 0 }, datum: CL_ORACLE_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
 ] as any);
 
 const { getUtxosByOutRefMock, getUtxosMock } = setupBlaze(
@@ -378,6 +417,38 @@ describe("TxBuilderV4", () => {
       ]);
       expect(datum.constraints[0][1].toCbor().startsWith("d87c")).toBe(true);
       expect(datum.config_token).toEqual(BASIC_CONFIG_TOKEN);
+    });
+  });
+
+  describe("moveLiquidity()", () => {
+    it("is one Withdraw-shaped basic order burning the source LP for the target LP", async () => {
+      const lpFrom = new AssetAmount(100_000n, {
+        assetId: `${POOL_MINT_HASH}.0014df10${"01".repeat(28)}`,
+        decimals: 0,
+      });
+      const lpTo = new AssetAmount(1n, {
+        assetId: `${POOL_MINT_HASH}.0014df10${"02".repeat(28)}`,
+        decimals: 0,
+      });
+      const composed = await builder.moveLiquidity({
+        ownerAddress: OWNER,
+        from: [lpFrom],
+        minReceived: [lpTo],
+      });
+      const datum = await datumOf(composed);
+      expect(datum.constraints.map((c) => c[0])).toEqual([
+        BASIC_HASH,
+        FAIRNESS_HASH,
+      ]);
+      // Constr 1 = Withdraw: the offered list carries the LP to burn, the
+      // min-received list the LP to mint.
+      expect(datum.constraints[0][1].toCbor().startsWith("d87a")).toBe(true);
+    });
+
+    it("needs at least one LP on each side", async () => {
+      await expect(
+        builder.moveLiquidity({ ownerAddress: OWNER, from: [], minReceived: [] }),
+      ).rejects.toThrow(/at least one LP/);
     });
   });
 
@@ -859,15 +930,295 @@ describe("TxBuilderV4", () => {
       expect(datum.module_state[0][1].length).toEqual(64); // blake2b-256 hex
     });
 
+    it("builds a concentrated-liquidity pool: reserves from the ladder at the launch price, total_lp its counter", async () => {
+      wireMints();
+      const ladder = ConcentratedLiquidityPool.uniformLadder(
+        8,
+        { num: 95n, den: 100n },
+        { num: 105n, den: 100n },
+        { num: 3n, den: 1000n },
+      );
+      const composed = await builder.mintPool({
+        assets: [TOKEN, TOKEN_B],
+        curve: {
+          kind: "concentratedLiquidity",
+          ladder,
+          launchSqrtPrice: { num: 1n, den: 1n },
+          counter: 1_000_000_000n,
+        },
+        ownerAddress: OWNER,
+      });
+      const datum = parse(
+        V4Types.PoolDatum,
+        Core.PlutusData.fromCbor(Core.HexBlob(composed.datum as string)),
+      );
+      // The reserves are what the ladder holds at the launch price, and the
+      // pool witnesses them at its own counter.
+      const [a, b] = datum.assets.map((x) => x[1]);
+      const w = ConcentratedLiquidityPool.findWitness(ladder, a, b)!;
+      expect(w).not.toBeNull();
+      expect(datum.total_lp).toEqual(w.x);
+      expect(datum.circulating_lp).toEqual(w.x);
+      expect(datum.preminted_lp).toEqual(w.x);
+      // The plain concentrated-liquidity PoolConfig, not the oracle one.
+      expect(datum.actions[0].modules).toEqual([
+        CL_HASH,
+        FEESPLIT_HASH,
+        FAIRNESS_MOD_HASH,
+      ]);
+      // module_state commits to the ladder config, index included.
+      const config = builder.datumBuilder.buildConcentratedLiquidityConfigDatum(ladder);
+      expect(datum.module_state[0]).toEqual([CL_HASH, config.hash]);
+    });
+
+    it("builds a concentrated-liquidity pool against the oracle PoolConfig when asked", async () => {
+      wireMints();
+      const ladder = ConcentratedLiquidityPool.uniformLadder(
+        4,
+        { num: 95n, den: 100n },
+        { num: 105n, den: 100n },
+        { num: 3n, den: 1000n },
+      );
+      const composed = await builder.mintPool({
+        assets: [TOKEN, TOKEN_B],
+        curve: {
+          kind: "concentratedLiquidity",
+          ladder,
+          launchSqrtPrice: { num: 1n, den: 1n },
+          oracle: true,
+        },
+        ownerAddress: OWNER,
+      });
+      const datum = parse(
+        V4Types.PoolDatum,
+        Core.PlutusData.fromCbor(Core.HexBlob(composed.datum as string)),
+      );
+      expect(datum.actions[0].modules).toEqual([
+        CL_HASH,
+        FEESPLIT_HASH,
+        FAIRNESS_MOD_HASH,
+        ORACLE_HASH,
+      ]);
+      // The oracle's slot starts as the config-less sentinel; its first
+      // spend writes the accumulators.
+      expect(datum.module_state[3]).toEqual([ORACLE_HASH, "80"]);
+    });
+
+    // sundae-v4 #229 (SV4-007): Create requires
+    // total_lp >= min_counter_per_weight * weight_total, with
+    // min_counter_per_weight = 1000.
+    const datumOf = (composed: { datum?: unknown }) =>
+      parse(
+        V4Types.PoolDatum,
+        Core.PlutusData.fromCbor(Core.HexBlob(composed.datum as string)),
+      );
+    const scaledLadder = (
+      ladder: ConcentratedLiquidityPool.TLadder,
+      scale: bigint,
+    ): ConcentratedLiquidityPool.TLadder => ({
+      ...ladder,
+      bands: ladder.bands.map((b) => ({ ...b, weight: b.weight * scale })),
+      weightTotal: ladder.weightTotal * scale,
+    });
+
+    it("falls back to the module title an older protocol row uses", async () => {
+      wireMints();
+      const lookup = builder.getValidatorScript.bind(builder);
+      const asked: string[] = [];
+      builder.getValidatorScript = (async (name: string) => {
+        asked.push(name);
+        if (name === V4_VALIDATORS.concentratedLiquidity) {
+          throw new Error(
+            `Could not find a validator that matched the key: ${name}`,
+          );
+        }
+        if (name === "banded_concentrated_liquidity.withdraw") {
+          return { hash: CL_HASH, title: name, compiledCode: "" };
+        }
+        return lookup(name);
+      }) as typeof builder.getValidatorScript;
+      const composed = await builder.mintPool({
+        assets: [TOKEN, TOKEN_B],
+        curve: {
+          kind: "concentratedLiquidity",
+          ladder: ConcentratedLiquidityPool.uniformLadder(
+            4,
+            { num: 95n, den: 100n },
+            { num: 105n, den: 100n },
+            { num: 3n, den: 1000n },
+          ),
+          launchSqrtPrice: { num: 1n, den: 1n },
+        },
+        ownerAddress: OWNER,
+      });
+      expect(asked).toContain("banded_concentrated_liquidity.withdraw");
+      expect(datumOf(composed).actions[0].modules[0]).toEqual(CL_HASH);
+    });
+
+    it("refuses a concentrated-liquidity counter below 1000 × weight_total", async () => {
+      const ladder = ConcentratedLiquidityPool.uniformLadder(
+        8,
+        { num: 95n, den: 100n },
+        { num: 105n, den: 100n },
+        { num: 3n, den: 1000n },
+      );
+      await expect(
+        builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve: {
+            kind: "concentratedLiquidity",
+            ladder,
+            launchSqrtPrice: { num: 1n, den: 1n },
+            counter: 7_999n,
+          },
+          ownerAddress: OWNER,
+        }),
+      ).rejects.toThrow(/at least 8000 \(1000 × weight_total 8\)/);
+    });
+
+    it("defaults the concentrated-liquidity counter to at least 1000 × weight_total", async () => {
+      wireMints();
+      // weight_total 8e6: the minimum counter 8e9 is above the 1e9 default.
+      const ladder = scaledLadder(
+        ConcentratedLiquidityPool.uniformLadder(
+          8,
+          { num: 95n, den: 100n },
+          { num: 105n, den: 100n },
+          { num: 3n, den: 1000n },
+        ),
+        1_000_000n,
+      );
+      const datum = datumOf(
+        await builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve: {
+            kind: "concentratedLiquidity",
+            ladder,
+            launchSqrtPrice: { num: 1n, den: 1n },
+          },
+          ownerAddress: OWNER,
+        }),
+      );
+      expect(datum.total_lp >= 8_000_000_000n).toBe(true);
+      const [a, b] = datum.assets.map((x) => x[1]);
+      expect(
+        ConcentratedLiquidityPool.findWitness(ladder, a, b)!.x,
+      ).toEqual(datum.total_lp);
+    });
+
+    it("raises a counter whose derived witness falls below 1000 × weight_total", async () => {
+      wireMints();
+      // At counter 186000 = 1000 × 186 and this launch price, the floored
+      // reserves witness X = 185999, one below the minimum.
+      const ladder = ConcentratedLiquidityPool.shapedLadder(
+        8,
+        { num: 95n, den: 100n },
+        { num: 105n, den: 100n },
+        { num: 3n, den: 1000n },
+        { shape: "concentrated" },
+      );
+      expect(ladder.weightTotal).toEqual(186n);
+      const datum = datumOf(
+        await builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve: {
+            kind: "concentratedLiquidity",
+            ladder,
+            launchSqrtPrice: { num: 1043n, den: 1000n },
+            counter: 186_000n,
+          },
+          ownerAddress: OWNER,
+        }),
+      );
+      expect(datum.total_lp >= 186_000n).toBe(true);
+      const [a, b] = datum.assets.map((x) => x[1]);
+      expect(
+        ConcentratedLiquidityPool.findWitness(ladder, a, b)!.x,
+      ).toEqual(datum.total_lp);
+    });
+
+    // sundae-v4 #227 (SV4-005): at Create the pool output may hold only
+    // lovelace, the declared reserve assets and tokens under the pool
+    // policy.
+    it.each([
+      ["a concentrated-liquidity pool", "concentratedLiquidity"],
+      ["a constant-sum pool", "constantSum"],
+    ])(
+      "puts no undeclared token in the pool output of %s",
+      async (_name, kind) => {
+        wireMints();
+        const composed = await builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve:
+            kind === "concentratedLiquidity"
+              ? {
+                  kind: "concentratedLiquidity",
+                  ladder: ConcentratedLiquidityPool.uniformLadder(
+                    4,
+                    { num: 95n, den: 100n },
+                    { num: 105n, den: 100n },
+                    { num: 3n, den: 1000n },
+                  ),
+                  launchSqrtPrice: { num: 1n, den: 1n },
+                }
+              : { kind: "constantSum", fee: { num: 1n, den: 1000n } },
+          ownerAddress: OWNER,
+        });
+        const datum = datumOf(composed);
+        const declared = new Set(
+          datum.assets.map(([c]) => c.policy + c.name),
+        );
+        // The blaze builder keeps its body private; read it to see the
+        // pool output before balancing.
+        const body = (
+          composed.tx as unknown as { body: Core.TransactionBody }
+        ).body;
+        const poolOutputs = body
+          .outputs()
+          .filter((o) => o.datum()?.asInlineData() !== undefined);
+        expect(poolOutputs.length).toEqual(1);
+        const units = [
+          ...(poolOutputs[0]!.amount().multiasset()?.keys() ?? []),
+        ].map(String);
+        expect(units.length).toBeGreaterThan(0);
+        for (const unit of units) {
+          expect(
+            unit.startsWith(POOL_MINT_HASH) || declared.has(unit),
+          ).toBe(true);
+        }
+        for (const d of declared) expect(units).toContain(d);
+      },
+    );
+
+    it("refuses a concentrated-liquidity launch price outside the ladder", async () => {
+      const ladder = ConcentratedLiquidityPool.uniformLadder(
+        4,
+        { num: 95n, den: 100n },
+        { num: 105n, den: 100n },
+        { num: 3n, den: 1000n },
+      );
+      await expect(
+        builder.mintPool({
+          assets: [TOKEN, TOKEN_B],
+          curve: {
+            kind: "concentratedLiquidity",
+            ladder,
+            launchSqrtPrice: { num: 2n, den: 1n },
+          },
+          ownerAddress: OWNER,
+        }),
+      ).rejects.toThrow(/inside the ladder/);
+    });
+
     it("rejects a non-constant-sum curve", async () => {
       await expect(
         builder.mintPool({
           assets: [TOKEN, TOKEN_B],
-          // @ts-expect-error — only constantSum is wired today
+          // @ts-expect-error — constantProduct is not wired
           curve: { kind: "constantProduct", fee: { num: 1n, den: 1000n } },
           ownerAddress: OWNER,
         }),
-      ).rejects.toThrow(/only the "constantSum" curve/);
+      ).rejects.toThrow(/unsupported curve "constantProduct"/);
     });
 
     it("rejects duplicate pool assets", async () => {

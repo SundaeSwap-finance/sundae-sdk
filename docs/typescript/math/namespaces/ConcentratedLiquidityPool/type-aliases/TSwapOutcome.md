@@ -6,9 +6,9 @@
 
 > **TSwapOutcome**: `object`
 
-Holds the calculated outcome of a concentrated-liquidity swap. Mirrors
-[ConstantProductPool.TSwapOutcome](../../ConstantProductPool/type-aliases/TSwapOutcome.md) so it flows through the same generic
-swap-outcome consumers.
+Holds the calculated outcome of a concentrated-liquidity swap. It has the
+same shape as `ConstantProductPool.TSwapOutcome`, so the generic
+swap-outcome consumers accept it.
 
 ## Type declaration
 
@@ -38,4 +38,4 @@ swap-outcome consumers.
 
 ## Defined in
 
-[ConcentratedLiquidityPool.ts:11](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConcentratedLiquidityPool.ts#L11)
+[ConcentratedLiquidityPool.ts:9](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/ConcentratedLiquidityPool.ts#L9)

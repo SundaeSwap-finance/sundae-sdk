@@ -102,7 +102,7 @@ export interface IPoolData {
      * For a v4 pool this is the pool datum's `total_lp`: circulating LP plus
      * the protocol's earned-but-unharvested fees. It is NOT the circulating
      * supply alone. Every v4 curve module reads `total_lp`, and concentrated
-     * liquidity uses it as its liquidity term `L`, so a client that substitutes
+     * liquidity uses it as its ladder counter, so a client that substitutes
      * the circulating figure computes against a different pool than the chain
      * will validate.
      *
@@ -140,13 +140,6 @@ export interface IPoolData {
    */
   prices?: [bigint, bigint];
   /**
-   * For v4 concentrated-liquidity pools, the immutable sqrt-price range bounds
-   * from the pool's CL config as exact rationals `[[aNum, aDen], [bNum, bDen]]`
-   * (lower bound `a` < upper bound `b`). Required to compute CL swap output;
-   * ignored by other curves.
-   */
-  sqrtPrices?: [[bigint, bigint], [bigint, bigint]];
-  /**
    * For v4 stableswap pools (`EPoolCurve.V4Stableswap`), the per-asset integer
    * rates from the pool's stableswap config, aligned to `[assetA, assetB]`. The
    * curve balances where `aReserve·rates[0] == bReserve·rates[1]`, so a
@@ -158,6 +151,49 @@ export interface IPoolData {
    * above, which serves v3 and v4 alike. `rates` is the v4-only half.
    */
   rates?: [bigint, bigint];
+  /**
+   * For v4 concentrated-liquidity pools, the ladder in ascending price
+   * order. Band i spans sqrt-prices `[bands[i].start, bands[i+1].start)`; the
+   * last band ends at `bandClosing`. Required to compute concentrated-liquidity swap output;
+   * empty for every other curve.
+   */
+  bands?: IPoolBand[];
+  /** For v4 concentrated-liquidity pools, the ladder's top sqrt-price edge as `[num, den]`. */
+  bandClosing?: [bigint, bigint];
+  /** For v4 concentrated-liquidity pools, the zero-based band holding the current price. */
+  activeBand?: number;
+  /**
+   * For v4 concentrated-liquidity pools, the ladder counter X: band i's liquidity is
+   * `floor(bands[i].weight · X / bandWeightTotal)`. Seeds the witness search
+   * when quoting; a stale value is recovered from.
+   */
+  bandCounter?: bigint;
+  /** For v4 concentrated-liquidity pools, the sum of every band's `weight`. */
+  bandWeightTotal?: bigint;
+}
+
+/** One band of a v4 concentrated-liquidity pool's ladder. */
+export interface IPoolBand {
+  /** The band's lower sqrt-price edge as `[num, den]`. */
+  start: [bigint, bigint];
+  /** The band's share of the ladder's liquidity counter. */
+  weight: bigint;
+  /** 0 = concentrated-liquidity arc, 1 = constant-sum bin. */
+  curve: 0 | 1;
+  /** Fee on swaps that buy the pool's first asset, as `[num, den]`. */
+  feeBuy: [bigint, bigint];
+  /** Fee on swaps that sell the pool's first asset, as `[num, den]`. */
+  feeSell: [bigint, bigint];
+  /**
+   * What the band holds at the pool's current reserves, in `[assetA, assetB]`
+   * order; the bands sum to the pool's reserves. Empty when the API could not
+   * place the reserves on the ladder.
+   */
+  quantities?: [bigint, bigint];
+  /** The band's liquidity, `floor(weight · bandCounter / bandWeightTotal)`. */
+  liquidity?: bigint;
+  /** Whether this is the band the current price sits in. */
+  active?: boolean;
 }
 
 /**

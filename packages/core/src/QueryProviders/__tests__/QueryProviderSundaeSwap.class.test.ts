@@ -28,7 +28,6 @@ const STABLESWAP_POOL = {
   totalLp: "20980352866116849",
   modules: [{ kind: "invariant", identifier: "stableswap" }],
   prices: [],
-  sqrtPrices: [],
   rates: ["1000000", "1001000"],
   protocolAskFee: [0, 10000],
   version: "V4",
@@ -55,7 +54,17 @@ describe("QueryProviderSundaeSwap curve data", () => {
   // repositories: a pool query that omits a field the estimator REQUIRES. The
   // symptom is never an error at the fetch — it is a pool that silently cannot
   // be priced, surfacing much later as "Unsupported v4 pool curve: undefined".
-  const CURVE_FIELDS = ["modules", "prices", "sqrtPrices", "rates", "totalLp"];
+  const CURVE_FIELDS = [
+    "modules",
+    "prices",
+    "rates",
+    "bands",
+    "bandClosing",
+    "activeBand",
+    "bandCounter",
+    "bandWeightTotal",
+    "totalLp",
+  ];
 
   it("selects every curve field on the ident query", async () => {
     mockFetch({ data: { pools: { byId: STABLESWAP_POOL } } });
@@ -155,7 +164,7 @@ describe("QueryProviderSundaeSwap curve data", () => {
     expect(pool.linearAmplificationFactor).toBe(200n);
     // Empty arrays belong to other curves and must not become [0n, 0n].
     expect(pool.prices).toBeUndefined();
-    expect(pool.sqrtPrices).toBeUndefined();
+    expect(pool.bands).toBeUndefined();
   });
 
   it("maps the sibling curves' config too", async () => {
@@ -178,26 +187,54 @@ describe("QueryProviderSundaeSwap curve data", () => {
     expect(cs.prices).toEqual([1_000_000n, 1_000_000n]);
     expect(cs.rates).toBeUndefined();
 
-    mockFetch({
-      data: {
-        pools: {
-          byId: {
-            ...STABLESWAP_POOL,
-            modules: [{ kind: "invariant", identifier: "concentrated_liquidity" }],
-            rates: [],
-            sqrtPrices: ["1", "2", "2", "1"],
+    // The API reported the module as `banded_concentrated_liquidity` before
+    // the rename. Both identifiers map to the one curve.
+    for (const identifier of [
+      "concentrated_liquidity",
+      "banded_concentrated_liquidity",
+    ]) {
+      mockFetch({
+        data: {
+          pools: {
+            byId: {
+              ...STABLESWAP_POOL,
+              modules: [{ kind: "invariant", identifier }],
+              rates: [],
+              bands: [
+                {
+                  start: ["1", "1"],
+                  weight: "1",
+                  curve: 0,
+                  feeBuy: ["3", "1000"],
+                  feeSell: ["3", "1000"],
+                },
+              ],
+              bandClosing: ["11", "10"],
+              activeBand: 0,
+              bandCounter: "1000000000",
+              bandWeightTotal: "1",
+            },
           },
         },
-      },
-    });
-    const cl = await new QueryProviderSundaeSwap("preview").findPoolDataByIdent({
-      ident: STABLESWAP_POOL.id,
-    });
-    expect(cl.curve).toBe(EPoolCurve.ConcentratedLiquidity);
-    expect(cl.sqrtPrices).toEqual([
-      [1n, 2n],
-      [2n, 1n],
-    ]);
+      });
+      const cl = await new QueryProviderSundaeSwap(
+        "preview",
+      ).findPoolDataByIdent({ ident: STABLESWAP_POOL.id });
+      expect(cl.curve).toBe(EPoolCurve.ConcentratedLiquidity);
+      expect(cl.bands).toEqual([
+        {
+          start: [1n, 1n],
+          weight: 1n,
+          curve: 0,
+          feeBuy: [3n, 1000n],
+          feeSell: [3n, 1000n],
+        },
+      ]);
+      expect(cl.bandClosing).toEqual([11n, 10n]);
+      expect(cl.activeBand).toBe(0);
+      expect(cl.bandCounter).toBe(1_000_000_000n);
+      expect(cl.bandWeightTotal).toBe(1n);
+    }
   });
 
   it("leaves a pre-v4 pool with no curve at all", async () => {

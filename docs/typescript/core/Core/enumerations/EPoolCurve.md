@@ -15,9 +15,18 @@ on-chain module identifiers surfaced by the GraphQL `Pool.modules` field.
 
 > **ConcentratedLiquidity**: `"concentrated_liquidity"`
 
+The v4 concentrated-liquidity module: a ladder of sqrt-price bands, each
+a concentrated-liquidity arc or a constant-sum bin with its own share of
+the pool's liquidity and its own fees. LP is one fungible token for the
+whole ladder. The estimator is `ConcentratedLiquidityPool` in
+`@sundaeswap/math`.
+
+The API reported this module as `banded_concentrated_liquidity` before
+the rename; the query provider maps that identifier to this value too.
+
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L89)
+[packages/core/src/@types/txbuilders.ts:99](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L99)
 
 ***
 
@@ -62,4 +71,4 @@ stores `D` in the pool datum and has no per-asset rates, while v4 stores no
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:106](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L106)
+[packages/core/src/@types/txbuilders.ts:116](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L116)

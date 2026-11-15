@@ -77,10 +77,29 @@ interface IPoolDataQueryResult {
   modules?: { kind: string; identifier: string }[] | null;
   /** v4 constant-sum per-asset prices. Empty for every other curve. */
   prices?: string[] | null;
-  /** v4 concentrated-liquidity sqrt bounds, flattened. Empty for every other curve. */
-  sqrtPrices?: string[] | null;
   /** v4 stableswap per-asset rates. Empty for every other curve. */
   rates?: string[] | null;
+  /** v4 concentrated-liquidity ladder. Empty for every other curve. */
+  bands?:
+    | {
+        start: string[];
+        weight: string;
+        curve: number;
+        feeBuy: string[];
+        feeSell: string[];
+        quantities?: string[] | null;
+        liquidity?: string | null;
+        active?: boolean | null;
+      }[]
+    | null;
+  /** v4 concentrated-liquidity top sqrt-price edge, `[num, den]`. Empty for every other curve. */
+  bandClosing?: string[] | null;
+  /** v4 concentrated-liquidity active band index. Null for every other curve. */
+  activeBand?: number | null;
+  /** v4 concentrated-liquidity ladder counter. "0" for every other curve. */
+  bandCounter?: string | null;
+  /** v4 concentrated-liquidity weight total. "0" for every other curve. */
+  bandWeightTotal?: string | null;
   /**
    * The LP supply the pool's own invariant is denominated in — the denominator
    * every deposit, withdrawal and liquidity-depth calculation divides by.
@@ -89,7 +108,7 @@ interface IPoolDataQueryResult {
    * `current.quantityLP` is the CIRCULATING supply, the only claim on reserves,
    * while `totalLp` is circulating plus the protocol's earned-but-unharvested
    * fees. Every v4 curve module reads `total_lp` from the pool datum, and
-   * concentrated liquidity uses it as its liquidity term `L`.
+   * concentrated liquidity uses it as its ladder counter.
    *
    * For pre-v4 pools there is no separate fee accounting and the two are equal,
    * which is why reading this field is right for every version rather than only
@@ -110,9 +129,24 @@ interface IPoolDataQueryResult {
  * Returns an empty object for a pre-v4 pool, which has no curve and needs
  * none.
  */
+/**
+ * The legacy API identifiers of curves that were renamed, mapped to the
+ * current {@link EPoolCurve} value. The API reported the concentrated-
+ * liquidity module as `banded_concentrated_liquidity` before the rename.
+ */
+const LEGACY_CURVE_IDENTIFIERS: Record<string, EPoolCurve> = {
+  banded_concentrated_liquidity: EPoolCurve.ConcentratedLiquidity,
+};
+
+/** The {@link EPoolCurve} of an API invariant-module identifier. */
+const curveOf = (identifier?: string): EPoolCurve | undefined => {
+  if (!identifier) return undefined;
+  return LEGACY_CURVE_IDENTIFIERS[identifier] ?? (identifier as EPoolCurve);
+};
+
 const mapV4CurveFields = (pool: IPoolDataQueryResult): Partial<IPoolData> => {
   const invariant = pool.modules?.find((module) => module.kind === "invariant");
-  const curve = (invariant?.identifier as EPoolCurve) || undefined;
+  const curve = curveOf(invariant?.identifier);
   if (!curve) return {};
 
   const pair = (raw?: string[] | null): [bigint, bigint] | undefined =>
@@ -120,21 +154,39 @@ const mapV4CurveFields = (pool: IPoolDataQueryResult): Partial<IPoolData> => {
 
   const prices = pair(pool.prices);
   const rates = pair(pool.rates);
-  // Flattened by the API as [lowerNum, lowerDen, upperNum, upperDen].
-  const sp = pool.sqrtPrices;
-  const sqrtPrices =
-    sp && sp.length >= 4
-      ? ([
-          [BigInt(sp[0]), BigInt(sp[1])],
-          [BigInt(sp[2]), BigInt(sp[3])],
-        ] as [[bigint, bigint], [bigint, bigint]])
+
+  const bands =
+    pool.bands && pool.bands.length > 0
+      ? pool.bands.map((b) => ({
+          start: pair(b.start)!,
+          weight: BigInt(b.weight),
+          curve: (b.curve === 1 ? 1 : 0) as 0 | 1,
+          feeBuy: pair(b.feeBuy)!,
+          feeSell: pair(b.feeSell)!,
+          ...(b.quantities && b.quantities.length >= 2
+            ? { quantities: pair(b.quantities)! }
+            : {}),
+          ...(b.liquidity ? { liquidity: BigInt(b.liquidity) } : {}),
+          ...(b.active !== undefined && b.active !== null
+            ? { active: b.active }
+            : {}),
+        }))
       : undefined;
+  const bandClosing = pair(pool.bandClosing);
 
   return {
     curve,
     ...(prices ? { prices } : {}),
-    ...(sqrtPrices ? { sqrtPrices } : {}),
     ...(rates ? { rates } : {}),
+    ...(bands ? { bands } : {}),
+    ...(bandClosing ? { bandClosing } : {}),
+    ...(pool.activeBand !== undefined && pool.activeBand !== null
+      ? { activeBand: pool.activeBand }
+      : {}),
+    ...(pool.bandCounter ? { bandCounter: BigInt(pool.bandCounter) } : {}),
+    ...(pool.bandWeightTotal
+      ? { bandWeightTotal: BigInt(pool.bandWeightTotal) }
+      : {}),
   };
 };
 
@@ -221,8 +273,21 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 identifier
               }
               prices
-              sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -272,8 +337,21 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 identifier
               }
               prices
-              sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -368,8 +446,21 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 identifier
               }
               prices
-              sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -419,8 +510,21 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 identifier
               }
               prices
-              sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -515,8 +619,21 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 identifier
               }
               prices
-              sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -566,8 +683,21 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                 identifier
               }
               prices
-              sqrtPrices
               rates
+              bands {
+                start
+                weight
+                curve
+                feeBuy
+                feeSell
+                quantities
+                liquidity
+                active
+              }
+              bandClosing
+              activeBand
+              bandCounter
+              bandWeightTotal
               totalLp
               protocolAskFee
               version
@@ -695,8 +825,21 @@ export class QueryProviderSundaeSwap implements QueryProvider {
                   identifier
                 }
                 prices
-                sqrtPrices
                 rates
+                bands {
+                  start
+                  weight
+                  curve
+                  feeBuy
+                  feeSell
+                  quantities
+                  liquidity
+                  active
+                }
+                bandClosing
+                activeBand
+                bandCounter
+                bandWeightTotal
                 totalLp
                 protocolAskFee
                 version

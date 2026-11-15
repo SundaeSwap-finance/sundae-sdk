@@ -8,6 +8,71 @@ Pool data that is returned from [Core.QueryProvider.findPoolData](../classes/Que
 
 ## Properties
 
+### activeBand?
+
+> `optional` **activeBand**: `number`
+
+For v4 concentrated-liquidity pools, the zero-based band holding the current price.
+
+#### Defined in
+
+[packages/core/src/@types/queryprovider.ts:164](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L164)
+
+***
+
+### bandClosing?
+
+> `optional` **bandClosing**: [`bigint`, `bigint`]
+
+For v4 concentrated-liquidity pools, the ladder's top sqrt-price edge as `[num, den]`.
+
+#### Defined in
+
+[packages/core/src/@types/queryprovider.ts:162](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L162)
+
+***
+
+### bandCounter?
+
+> `optional` **bandCounter**: `bigint`
+
+For v4 concentrated-liquidity pools, the ladder counter X: band i's liquidity is
+`floor(bands[i].weight · X / bandWeightTotal)`. Seeds the witness search
+when quoting; a stale value is recovered from.
+
+#### Defined in
+
+[packages/core/src/@types/queryprovider.ts:170](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L170)
+
+***
+
+### bands?
+
+> `optional` **bands**: [`IPoolBand`](IPoolBand.md)[]
+
+For v4 concentrated-liquidity pools, the ladder in ascending price
+order. Band i spans sqrt-prices `[bands[i].start, bands[i+1].start)`; the
+last band ends at `bandClosing`. Required to compute concentrated-liquidity swap output;
+empty for every other curve.
+
+#### Defined in
+
+[packages/core/src/@types/queryprovider.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L160)
+
+***
+
+### bandWeightTotal?
+
+> `optional` **bandWeightTotal**: `bigint`
+
+For v4 concentrated-liquidity pools, the sum of every band's `weight`.
+
+#### Defined in
+
+[packages/core/src/@types/queryprovider.ts:172](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L172)
+
+***
+
 ### currentFee
 
 > **currentFee**: `number`
@@ -97,19 +162,4 @@ above, which serves v3 and v4 alike. `rates` is the v4-only half.
 
 #### Defined in
 
-[packages/core/src/@types/queryprovider.ts:160](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L160)
-
-***
-
-### sqrtPrices?
-
-> `optional` **sqrtPrices**: [[`bigint`, `bigint`], [`bigint`, `bigint`]]
-
-For v4 concentrated-liquidity pools, the immutable sqrt-price range bounds
-from the pool's CL config as exact rationals `[[aNum, aDen], [bNum, bDen]]`
-(lower bound `a` < upper bound `b`). Required to compute CL swap output;
-ignored by other curves.
-
-#### Defined in
-
-[packages/core/src/@types/queryprovider.ts:148](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L148)
+[packages/core/src/@types/queryprovider.ts:153](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/queryprovider.ts#L153)

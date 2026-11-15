@@ -77,6 +77,7 @@ SundaeSwap protocol.
 - [IOrderRouteSwapArgs](interfaces/IOrderRouteSwapArgs.md)
 - [IOrderRouteSwapV4Args](interfaces/IOrderRouteSwapV4Args.md)
 - [IOrderV4Base](interfaces/IOrderV4Base.md)
+- [IPoolBand](interfaces/IPoolBand.md)
 - [IPoolByAssetQuery](interfaces/IPoolByAssetQuery.md)
 - [IPoolByIdentQuery](interfaces/IPoolByIdentQuery.md)
 - [IPoolByPairQuery](interfaces/IPoolByPairQuery.md)

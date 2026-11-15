@@ -20,4 +20,4 @@ Final payout destination. Defaults to `ownerAddress`.
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:192](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L192)
+[packages/core/src/@types/txbuilders.ts:202](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L202)

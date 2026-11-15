@@ -792,24 +792,43 @@ describe("SundaeUtils class", () => {
       ).toThrowError(/prices/);
     });
 
-    it("dispatches the concentrated-liquidity curve using the sqrt-price bounds", () => {
+    it("dispatches the concentrated-liquidity curve across its ladder, seeded by the indexed witness", () => {
+      // The eight-band ladder of sundae-v4's cl_check_unit tests: 624 B in
+      // pays 615 A at reserves (8,637,368 A, 624,999 B). The band fee rounds
+      // up to 2 (sundae-v4 #228); with the floored fee of 1 it paid 616.
+      const fee: [bigint, bigint] = [3n, 1000n];
+      const bands = Array.from({ length: 8 }, (_, i) => ({
+        start: [1_000_000n + 10_000n * BigInt(i), 1_000_000n] as [bigint, bigint],
+        weight: 1n,
+        curve: 0 as const,
+        feeBuy: fee,
+        feeSell: fee,
+      }));
+      const pool: IPoolData = {
+        ...base,
+        version: EContractVersion.V4,
+        curve: EPoolCurve.ConcentratedLiquidity,
+        liquidity: { ...base.liquidity, aReserve: 8_637_368n, bReserve: 624_999n },
+        bands,
+        bandClosing: [1_080_000n, 1_000_000n],
+        bandWeightTotal: 8n,
+        bandCounter: 999_999_813n,
+        activeBand: 0,
+      };
       const { output } = SundaeUtils.getSwapOutput(
-        {
-          ...base,
-          version: EContractVersion.V4,
-          curve: EPoolCurve.ConcentratedLiquidity,
-          sqrtPrices: [
-            [1n, 2n],
-            [2n, 1n],
-          ],
-        },
-        suppliedA,
+        pool,
+        new AssetAmount(624n, base.assetB),
       );
-      // Non-degenerate quote (exact math is covered in the math package).
-      expect(output).toBeGreaterThan(0n);
+      expect(output).toEqual(615n);
+      // A stale witness is recovered from.
+      const stale = SundaeUtils.getSwapOutput(
+        { ...pool, bandCounter: 123n, activeBand: 5 },
+        new AssetAmount(624n, base.assetB),
+      );
+      expect(stale.output).toEqual(615n);
     });
 
-    it("throws for a concentrated-liquidity pool missing sqrtPrices", () => {
+    it("throws for a concentrated-liquidity pool missing its ladder", () => {
       expect(() =>
         SundaeUtils.getSwapOutput(
           {
@@ -819,7 +838,7 @@ describe("SundaeUtils class", () => {
           },
           suppliedA,
         ),
-      ).toThrowError(/sqrtPrices/);
+      ).toThrowError(/bands/);
     });
 
     // The v4 stableswap CURVE. Unrelated to EContractVersion.Stableswaps,
@@ -1013,28 +1032,7 @@ describe("SundaeUtils class", () => {
       ).toThrowError(/prices/);
     });
 
-    it("dispatches the concentrated-liquidity curve and inverts getSwapOutput", () => {
-      const pool: IPoolData = {
-        ...base,
-        version: EContractVersion.V4,
-        curve: EPoolCurve.ConcentratedLiquidity,
-        sqrtPrices: [
-          [1n, 2n],
-          [2n, 1n],
-        ],
-      };
-      const { input } = SundaeUtils.getSwapInput(
-        pool,
-        new AssetAmount(9_970n, base.assetB),
-      );
-      const forward = SundaeUtils.getSwapOutput(
-        pool,
-        new AssetAmount(input, base.assetA),
-      );
-      expect(forward.output).toBeGreaterThanOrEqual(9_970n);
-    });
-
-    it("throws for a concentrated-liquidity pool missing sqrtPrices", () => {
+    it("refuses a concentrated-liquidity pool: the ladder has no exact inverse here", () => {
       expect(() =>
         SundaeUtils.getSwapInput(
           {
@@ -1044,7 +1042,7 @@ describe("SundaeUtils class", () => {
           },
           new AssetAmount(10_000n, base.assetB),
         ),
-      ).toThrowError(/sqrtPrices/);
+      ).toThrowError(/Unsupported v4 pool curve/);
     });
 
     it("dispatches the stableswap curve and inverts getSwapOutput", () => {
@@ -1199,7 +1197,7 @@ describe("SundaeUtils class", () => {
     });
 
     it("dispatches the concentrated-liquidity curve to proportional (CP) pinning", () => {
-      // CL deposits reuse constant-product proportional pinning, so the result
+      // A concentrated-liquidity deposit is proportional, so the result
       // matches the constant-product dispatch for the same reserves/offer.
       const cl = SundaeUtils.calculateLiquidity(
         {
