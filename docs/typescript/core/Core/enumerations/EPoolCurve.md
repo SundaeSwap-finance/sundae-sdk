@@ -24,7 +24,7 @@ token for the whole ladder. The estimator is
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:109](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L109)
+[packages/core/src/@types/txbuilders.ts:115](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L115)
 
 ***
 
@@ -34,7 +34,7 @@ token for the whole ladder. The estimator is
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:83](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L83)
+[packages/core/src/@types/txbuilders.ts:89](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L89)
 
 ***
 
@@ -44,7 +44,7 @@ token for the whole ladder. The estimator is
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:81](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L81)
+[packages/core/src/@types/txbuilders.ts:87](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L87)
 
 ***
 
@@ -54,7 +54,7 @@ token for the whole ladder. The estimator is
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:82](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L82)
+[packages/core/src/@types/txbuilders.ts:88](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L88)
 
 ***
 
@@ -79,4 +79,4 @@ stores `D` in the pool datum and has no per-asset rates, while v4 stores no
 
 #### Defined in
 
-[packages/core/src/@types/txbuilders.ts:100](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L100)
+[packages/core/src/@types/txbuilders.ts:106](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/@types/txbuilders.ts#L106)

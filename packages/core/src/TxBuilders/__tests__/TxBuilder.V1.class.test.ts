@@ -4,6 +4,7 @@ import {
   Core,
   makeValue,
 } from "@blaze-cardano/sdk";
+import { parse } from "@blaze-cardano/data";
 import { AssetAmount } from "@sundaeswap/asset";
 import { describe, expect, it, spyOn } from "bun:test";
 
@@ -12,6 +13,7 @@ import { EDatumType } from "../../@types/datumbuilder.js";
 import { IPoolData } from "../../@types/queryprovider.js";
 import { EContractVersion, ITxBuilderFees } from "../../@types/txbuilders.js";
 import { ADA_METADATA, ORDER_DEPOSIT_DEFAULT } from "../../constants.js";
+import { V1Types } from "../../DatumBuilders/ContractTypes/index.js";
 import { DatumBuilderV1 } from "../../DatumBuilders/DatumBuilder.V1.class.js";
 import { QueryProviderSundaeSwap } from "../../QueryProviders/QueryProviderSundaeSwap.js";
 import { PREVIEW_DATA } from "../../TestUtilities/mockData.js";
@@ -27,6 +29,20 @@ const { getUtxosByOutRefMock, resolveDatumMock } = setupBlaze(async (blaze) => {
 });
 
 const TEST_REFERRAL_DEST = PREVIEW_DATA.addresses.alternatives[0];
+
+// A script that isn't a SundaeSwap order script.
+const TEST_SCRIPT_DEST = Core.addressFromCredential(
+  0,
+  Core.Credential.fromCore({
+    hash: Core.Hash28ByteBase16(
+      "e6c8a314ae942401619460f00c69de3d1b996db588d4042243a4b259",
+    ),
+    type: Core.CredentialType.ScriptHash,
+  }),
+).toBech32();
+const UNIT_DATUM = "d87980";
+const UNIT_DATUM_HASH =
+  "923918e403bf43c34b4ef6b48eb2ee04babed17320d8d1b9ff9ad086e86f44ec";
 
 spyOn(
   QueryProviderSundaeSwap.prototype,
@@ -256,6 +272,39 @@ describe("TxBuilderBlazeV1", () => {
     }
   });
 
+  it("swap() - names an inline destination datum by hash and publishes it", async () => {
+    // A v1 scoop can't pay out an inline datum.
+    const { build, datum } = await builder.swap({
+      orderAddresses: {
+        DestinationAddress: {
+          address: TEST_SCRIPT_DEST,
+          datum: { type: EDatumType.INLINE, value: UNIT_DATUM },
+        },
+      },
+      swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+      pool: PREVIEW_DATA.pools.v1,
+      suppliedAsset: PREVIEW_DATA.assets.tada,
+      referralFee: {
+        destination: TEST_REFERRAL_DEST,
+        payment: new Core.Value(1_000_000n),
+        feeLabel: "Test Label",
+      },
+    });
+
+    const { orderAddresses } = parse(
+      V1Types.SwapOrder,
+      Core.PlutusData.fromCbor(Core.HexBlob(datum as string)),
+    );
+    expect(orderAddresses.destination.datum).toEqual(UNIT_DATUM_HASH);
+
+    const { builtTx } = await build();
+    const metadata = builtTx.auxiliaryData()?.metadata()?.metadata();
+    expect(metadata?.get(103251n)?.toCbor()).toEqual(
+      Core.HexBlob(`a15820${UNIT_DATUM_HASH}8143${UNIT_DATUM}`),
+    );
+    expect(metadata?.get(674n)?.asText()).toEqual("Test Label");
+  });
+
   it("orderRouteSwap() - v1 to v1", async () => {
     const { build, datum, fees } = await builder.orderRouteSwap({
       ownerAddress: PREVIEW_DATA.addresses.current,
@@ -361,6 +410,52 @@ describe("TxBuilderBlazeV1", () => {
         "a158202f046e481ae60ba18b449cda20c7c0878be2aee90ca79bbf3528f21b5478019585581fd8799f4104d8799fd8799fd8799fd8799f581cc279a3fb3b4e62bbc78e2887581f83b58045d4ae82a18867d8352d02775affd8799fd8799fd8799f581c121fd2581f2e0b57ac206fefc763f8bfa0771919f5218b40691eea4514d0ffffffffd87a581f80ffd87a80ff1a002625a0d8799fd879801a021f1b48d8799f1a00f39ad2ff42ffff",
       ),
     );
+  });
+
+  it("orderRouteSwap() - v1 to v1 pays out to a custom destination", async () => {
+    // The owner must stay the v1 canceller.
+    const swap = spyOn(TxBuilderV1.prototype, "swap");
+    const destination = PREVIEW_DATA.addresses.alternatives[0];
+
+    await builder.orderRouteSwap({
+      ownerAddress: PREVIEW_DATA.addresses.current,
+      destination: { address: destination, datum: { type: EDatumType.NONE } },
+      swapA: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: PREVIEW_DATA.pools.v1,
+        suppliedAsset: PREVIEW_DATA.assets.tindy,
+      },
+      swapB: {
+        swapType: { type: ESwapType.MARKET, slippage: 0.03 },
+        pool: {
+          ...PREVIEW_DATA.pools.v1,
+          ident: "04",
+          assetB: {
+            ...PREVIEW_DATA.pools.v1.assetB,
+            assetId:
+              // iBTC
+              "2fe3c3364b443194b10954771c95819b8d6ed464033c21f03f8facb5.69425443",
+          },
+          assetLP: {
+            ...PREVIEW_DATA.pools.v1.assetLP,
+            assetId:
+              "4086577ed57c514f8e29b78f42ef4f379363355a3b65b9a032ee30c9.6c702004",
+          },
+        },
+      },
+    });
+
+    const legB = swap.mock.calls
+      .map(([args]) => args.orderAddresses)
+      .find((o) => o.DestinationAddress.address === destination);
+    expect(legB).toEqual({
+      DestinationAddress: {
+        address: destination,
+        datum: { type: EDatumType.NONE },
+      },
+      AlternateAddress: PREVIEW_DATA.addresses.current,
+    });
+    swap.mockRestore();
   });
 
   it("orderRouteSwap() - v1 to v3", async () => {

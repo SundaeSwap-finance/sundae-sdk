@@ -6,12 +6,13 @@
 
 > **getPrice**(`aReserve`, `bReserve`, `laf`): `Fraction`
 
-Calculates the current price (exchange rate) of asset A in terms of asset B for a Stableswaps pool.
-The price is derived from the Stableswaps curve equation and takes into account the amplification factor.
+The pool's marginal price as raw units of asset A per raw unit of asset B,
+|dx/dy| at the current reserves. This is the "ideal" price that swap price
+impact is measured against.
 
-The calculation uses the formula:
+Derived from the Stableswaps invariant 4A(x + y) + D = 4AD + D^3 / (4xy):
 price = (xpA + (dR * aReserve) / bReserve) / (xpA + dR)
-where xpA = (Ann * aReserve) / A_PRECISION and dR is derived from the sum invariant
+where xpA = 4 * laf * aReserve and dR = D^3 / (4 * aReserve * bReserve)
 
 ## Parameters
 
@@ -31,8 +32,8 @@ The linear amplification factor of the pool.
 
 `Fraction`
 
-The price of asset A in terms of asset B as a Fraction.
+Raw A per raw B at the current reserves.
 
 ## Defined in
 
-[StableSwapsPool.ts:411](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L411)
+[StableSwapsPool.ts:412](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/math/src/PoolMath/StableSwapsPool.ts#L412)

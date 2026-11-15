@@ -12,4 +12,4 @@ wired today; `constantProduct`/`concentratedLiquidity` are reserved.
 
 ## Defined in
 
-[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:230](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L230)
+[packages/core/src/TxBuilders/TxBuilder.V4.class.ts:275](https://github.com/SundaeSwap-finance/sundae-sdk/blob/main/packages/core/src/TxBuilders/TxBuilder.V4.class.ts#L275)
