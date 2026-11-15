@@ -1,6 +1,6 @@
 ---
-"@sundaeswap/math": major
-"@sundaeswap/core": major
+"@sundaeswap/math": minor
+"@sundaeswap/core": minor
 ---
 
 Concentrated liquidity on Sundae v4 is now the ladder curve. The SDK
@@ -45,10 +45,12 @@ the whole ladder.
   `minCreateCounter`). `mintPool` throws for a smaller explicit `counter`.
   The default counter is the larger of 1,000,000,000 and that minimum.
 
-## Breaking changes
+## Changes to the concentrated-liquidity API
 
-`EPoolCurve.ConcentratedLiquidity` (`"concentrated_liquidity"`) now means
-the ladder curve, not the single-range curve.
+The single-range curve never reached mainnet, so this release removes it
+in a minor version. `EPoolCurve.ConcentratedLiquidity`
+(`"concentrated_liquidity"`) now means the ladder curve, not the
+single-range curve.
 
 Removed from `@sundaeswap/math`, in `ConcentratedLiquidityPool`:
 
