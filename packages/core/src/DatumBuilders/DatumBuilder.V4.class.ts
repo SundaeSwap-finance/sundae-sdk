@@ -1,4 +1,4 @@
-import { BandedConcentratedLiquidityPool } from "@sundaeswap/math";
+import { ConcentratedLiquidityPool } from "@sundaeswap/math";
 import { parse, serialize } from "@blaze-cardano/data";
 import { Core } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
@@ -377,11 +377,11 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
   }
 
   /**
-   * Builds the Create config of a **banded concentrated-liquidity** pool: the
-   * ladder as the on-chain `BandedCLConfig`.
+   * Builds the Create config of a **concentrated-liquidity** pool: the
+   * ladder as the on-chain `ConcentratedLiquidityConfig`.
    *
    * ```
-   * BandedCLConfig = Constr 0 [
+   * ConcentratedLiquidityConfig = Constr 0 [
    *   bands: List<BandSpec>,       -- BandSpec = Constr 0 [start, weight, curve, fee_buy, fee_sell]
    *   index: List<[ca, cb]>,       -- the ladder index, derived from the bands
    *   closing: Rational,
@@ -394,11 +394,13 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
    * spend reads one entry of it, so a wrong entry is a wrong residual on
    * every step of the pool's life.
    */
-  public buildBandedCLConfigDatum(
-    ladder: BandedConcentratedLiquidityPool.TLadder,
-  ): TDatumResult<V4Types.BandedCLConfig> {
+  public buildConcentratedLiquidityConfigDatum(
+    ladder: ConcentratedLiquidityPool.TLadder,
+  ): TDatumResult<V4Types.ConcentratedLiquidityConfig> {
     if (ladder.bands.length === 0) {
-      throw new Error("A banded ladder needs at least one band.");
+      throw new Error(
+        "A concentrated-liquidity ladder needs at least one band.",
+      );
     }
     const weightTotal = ladder.bands.reduce((s, b) => s + b.weight, 0n);
     if (weightTotal !== ladder.weightTotal) {
@@ -406,15 +408,13 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
         `weightTotal ${ladder.weightTotal} is not the sum of the band weights ${weightTotal}.`,
       );
     }
-    const index = BandedConcentratedLiquidityPool.buildIndex(ladder).map(
-      (e) => {
-        const pair = new Core.PlutusList();
-        pair.add(Core.PlutusData.newInteger(e.ca));
-        pair.add(Core.PlutusData.newInteger(e.cb));
-        return Core.PlutusData.newList(pair);
-      },
-    );
-    const config: V4Types.BandedCLConfig = {
+    const index = ConcentratedLiquidityPool.buildIndex(ladder).map((e) => {
+      const pair = new Core.PlutusList();
+      pair.add(Core.PlutusData.newInteger(e.ca));
+      pair.add(Core.PlutusData.newInteger(e.cb));
+      return Core.PlutusData.newList(pair);
+    });
+    const config: V4Types.ConcentratedLiquidityConfig = {
       bands: ladder.bands.map((b) => ({
         start: { num: b.start.num, den: b.start.den },
         weight: b.weight,
@@ -426,32 +426,32 @@ export class DatumBuilderV4 implements DatumBuilderAbstract {
       closing: { num: ladder.closing.num, den: ladder.closing.den },
       weight_total: ladder.weightTotal,
     };
-    const data = serialize(V4Types.BandedCLConfig, config);
+    const data = serialize(V4Types.ConcentratedLiquidityConfig, config);
     return { hash: data.hash(), inline: data.toCbor(), schema: config };
   }
 
   /**
-   * The banded module's `Create` redeemer:
+   * The concentrated-liquidity module's `Create` redeemer:
    * `Constr 0 [initial_state, pool_output_index, initial_band]`. Unlike the
    * other curve modules it names the band holding the launch price; the
    * counter is not a field, it is the pool's `total_lp` (spec V12).
    */
-  public buildBandedCLCreateRedeemer({
+  public buildConcentratedLiquidityCreateRedeemer({
     ladder,
     poolOutputIndex = 0n,
     initialBand,
   }: {
-    ladder: BandedConcentratedLiquidityPool.TLadder;
+    ladder: ConcentratedLiquidityPool.TLadder;
     poolOutputIndex?: bigint;
     initialBand: bigint;
-  }): TDatumResult<V4Types.BandedCLCreate> {
-    const config = this.buildBandedCLConfigDatum(ladder).schema;
-    const redeemer: V4Types.BandedCLCreate = {
+  }): TDatumResult<V4Types.ConcentratedLiquidityCreate> {
+    const config = this.buildConcentratedLiquidityConfigDatum(ladder).schema;
+    const redeemer: V4Types.ConcentratedLiquidityCreate = {
       initial_state: config,
       pool_output_index: poolOutputIndex,
       initial_band: initialBand,
     };
-    const data = serialize(V4Types.BandedCLCreate, redeemer);
+    const data = serialize(V4Types.ConcentratedLiquidityCreate, redeemer);
     return { hash: data.hash(), inline: data.toCbor(), schema: redeemer };
   }
 

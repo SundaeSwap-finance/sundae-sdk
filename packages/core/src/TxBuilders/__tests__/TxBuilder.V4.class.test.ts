@@ -1,7 +1,7 @@
 import { parse, serialize } from "@blaze-cardano/data";
 import { Core, makeValue } from "@blaze-cardano/sdk";
 import { AssetAmount } from "@sundaeswap/asset";
-import { BandedConcentratedLiquidityPool } from "@sundaeswap/math";
+import { ConcentratedLiquidityPool } from "@sundaeswap/math";
 import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 
 import { Blaze, Provider, Wallet } from "@blaze-cardano/sdk";
@@ -38,7 +38,7 @@ const POOL_MINT_HASH = "77".repeat(28);
 const CS_HASH = "88".repeat(28);
 const FEESPLIT_HASH = "99".repeat(28);
 const FAIRNESS_MOD_HASH = "aa".repeat(28);
-const BANDED_HASH = "ac".repeat(28);
+const CL_HASH = "ac".repeat(28);
 const ORACLE_HASH = "ad".repeat(28);
 
 // A 32-byte tx id for the order UTxO being cancelled, and one for the order
@@ -73,7 +73,7 @@ spyOn(TxBuilderV4.prototype, "getValidatorScript").mockImplementation(
       [V4_VALIDATORS.constantSum]: CS_HASH,
       [V4_VALIDATORS.feeSplit]: FEESPLIT_HASH,
       [V4_VALIDATORS.fairnessModule]: FAIRNESS_MOD_HASH,
-      [V4_VALIDATORS.bandedConcentratedLiquidity]: BANDED_HASH,
+      [V4_VALIDATORS.concentratedLiquidity]: CL_HASH,
       [V4_VALIDATORS.oracle]: ORACLE_HASH,
     }[name];
     return { hash, title: name, compiledCode: "" };
@@ -101,9 +101,9 @@ const CS_POOL_CONFIG_DATUM = serialize(V4Types.PoolConfig, {
   ),
 }).toCbor();
 
-// Banded PoolConfigs: one without the oracle, one with it (preprod's
+// Concentrated-liquidity PoolConfigs: one without the oracle, one with it (preprod's
 // "bcl-pool" and "bcl-oracle-pool").
-const bandedPoolConfig = (withOracle: boolean) =>
+const clPoolConfig = (withOracle: boolean) =>
   serialize(V4Types.PoolConfig, {
     pool_validator: POOL_HASH,
     actions: [
@@ -111,7 +111,7 @@ const bandedPoolConfig = (withOracle: boolean) =>
         tag: 3n,
         enabled: true,
         modules: [
-          BANDED_HASH,
+          CL_HASH,
           FEESPLIT_HASH,
           FAIRNESS_MOD_HASH,
           ...(withOracle ? [ORACLE_HASH] : []),
@@ -127,8 +127,8 @@ const bandedPoolConfig = (withOracle: boolean) =>
       new Core.ConstrPlutusData(0n, new Core.PlutusList()),
     ),
   }).toCbor();
-const BCL_POOL_CONFIG_DATUM = bandedPoolConfig(false);
-const BCL_ORACLE_POOL_CONFIG_DATUM = bandedPoolConfig(true);
+const CL_POOL_CONFIG_DATUM = clPoolConfig(false);
+const CL_ORACLE_POOL_CONFIG_DATUM = clPoolConfig(true);
 
 // Published Create configs for the non-curve modules (curve config comes from
 // the caller). Fairness is config-less (null).
@@ -146,7 +146,7 @@ const MODULE_HASHES: Record<string, string> = {
   constantSum: CS_HASH,
   feeSplit: FEESPLIT_HASH,
   fairness: FAIRNESS_MOD_HASH,
-  banded_concentrated_liquidity: BANDED_HASH,
+  concentrated_liquidity: CL_HASH,
   oracle: ORACLE_HASH,
 };
 const refHashFor = (key: string) =>
@@ -209,8 +209,8 @@ spyOn(
   { label: "basic-order", txIn: { hash: "cc", index: 0 }, datum: BASIC_ORDER_CONFIG_DATUM, values: { token: BASIC_CONFIG_TOKEN, requiredConstraints: [] } },
   { label: "strategy-order", txIn: { hash: "ce", index: 0 }, datum: STRATEGY_ORDER_CONFIG_DATUM, values: { token: "00d5ea9b", requiredConstraints: [] } },
   { label: "pool", txIn: { hash: "dd".repeat(32), index: 0 }, datum: CS_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
-  { label: "bcl-pool", txIn: { hash: "de".repeat(32), index: 0 }, datum: BCL_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
-  { label: "bcl-oracle-pool", txIn: { hash: "df".repeat(32), index: 0 }, datum: BCL_ORACLE_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
+  { label: "bcl-pool", txIn: { hash: "de".repeat(32), index: 0 }, datum: CL_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
+  { label: "bcl-oracle-pool", txIn: { hash: "df".repeat(32), index: 0 }, datum: CL_ORACLE_POOL_CONFIG_DATUM, values: { moduleConfigs: POOL_MODULE_CONFIGS } },
 ] as any);
 
 const { getUtxosByOutRefMock, getUtxosMock } = setupBlaze(
@@ -907,9 +907,9 @@ describe("TxBuilderV4", () => {
       expect(datum.module_state[0][1].length).toEqual(64); // blake2b-256 hex
     });
 
-    it("builds a banded pool: reserves from the ladder at the launch price, total_lp its counter", async () => {
+    it("builds a concentrated-liquidity pool: reserves from the ladder at the launch price, total_lp its counter", async () => {
       wireMints();
-      const ladder = BandedConcentratedLiquidityPool.uniformLadder(
+      const ladder = ConcentratedLiquidityPool.uniformLadder(
         8,
         { num: 95n, den: 100n },
         { num: 105n, den: 100n },
@@ -918,7 +918,7 @@ describe("TxBuilderV4", () => {
       const composed = await builder.mintPool({
         assets: [TOKEN, TOKEN_B],
         curve: {
-          kind: "bandedConcentratedLiquidity",
+          kind: "concentratedLiquidity",
           ladder,
           launchSqrtPrice: { num: 1n, den: 1n },
           counter: 1_000_000_000n,
@@ -932,25 +932,25 @@ describe("TxBuilderV4", () => {
       // The reserves are what the ladder holds at the launch price, and the
       // pool witnesses them at its own counter.
       const [a, b] = datum.assets.map((x) => x[1]);
-      const w = BandedConcentratedLiquidityPool.findWitness(ladder, a, b)!;
+      const w = ConcentratedLiquidityPool.findWitness(ladder, a, b)!;
       expect(w).not.toBeNull();
       expect(datum.total_lp).toEqual(w.x);
       expect(datum.circulating_lp).toEqual(w.x);
       expect(datum.preminted_lp).toEqual(w.x);
-      // The plain banded PoolConfig, not the oracle one.
+      // The plain concentrated-liquidity PoolConfig, not the oracle one.
       expect(datum.actions[0].modules).toEqual([
-        BANDED_HASH,
+        CL_HASH,
         FEESPLIT_HASH,
         FAIRNESS_MOD_HASH,
       ]);
       // module_state commits to the ladder config, index included.
-      const config = builder.datumBuilder.buildBandedCLConfigDatum(ladder);
-      expect(datum.module_state[0]).toEqual([BANDED_HASH, config.hash]);
+      const config = builder.datumBuilder.buildConcentratedLiquidityConfigDatum(ladder);
+      expect(datum.module_state[0]).toEqual([CL_HASH, config.hash]);
     });
 
-    it("builds a banded pool against the oracle PoolConfig when asked", async () => {
+    it("builds a concentrated-liquidity pool against the oracle PoolConfig when asked", async () => {
       wireMints();
-      const ladder = BandedConcentratedLiquidityPool.uniformLadder(
+      const ladder = ConcentratedLiquidityPool.uniformLadder(
         4,
         { num: 95n, den: 100n },
         { num: 105n, den: 100n },
@@ -959,7 +959,7 @@ describe("TxBuilderV4", () => {
       const composed = await builder.mintPool({
         assets: [TOKEN, TOKEN_B],
         curve: {
-          kind: "bandedConcentratedLiquidity",
+          kind: "concentratedLiquidity",
           ladder,
           launchSqrtPrice: { num: 1n, den: 1n },
           oracle: true,
@@ -971,7 +971,7 @@ describe("TxBuilderV4", () => {
         Core.PlutusData.fromCbor(Core.HexBlob(composed.datum as string)),
       );
       expect(datum.actions[0].modules).toEqual([
-        BANDED_HASH,
+        CL_HASH,
         FEESPLIT_HASH,
         FAIRNESS_MOD_HASH,
         ORACLE_HASH,
@@ -990,16 +990,50 @@ describe("TxBuilderV4", () => {
         Core.PlutusData.fromCbor(Core.HexBlob(composed.datum as string)),
       );
     const scaledLadder = (
-      ladder: BandedConcentratedLiquidityPool.TLadder,
+      ladder: ConcentratedLiquidityPool.TLadder,
       scale: bigint,
-    ): BandedConcentratedLiquidityPool.TLadder => ({
+    ): ConcentratedLiquidityPool.TLadder => ({
       ...ladder,
       bands: ladder.bands.map((b) => ({ ...b, weight: b.weight * scale })),
       weightTotal: ladder.weightTotal * scale,
     });
 
-    it("refuses a banded counter below 1000 × weight_total", async () => {
-      const ladder = BandedConcentratedLiquidityPool.uniformLadder(
+    it("falls back to the module title an older protocol row uses", async () => {
+      wireMints();
+      const lookup = builder.getValidatorScript.bind(builder);
+      const asked: string[] = [];
+      builder.getValidatorScript = (async (name: string) => {
+        asked.push(name);
+        if (name === V4_VALIDATORS.concentratedLiquidity) {
+          throw new Error(
+            `Could not find a validator that matched the key: ${name}`,
+          );
+        }
+        if (name === "banded_concentrated_liquidity.withdraw") {
+          return { hash: CL_HASH, title: name, compiledCode: "" };
+        }
+        return lookup(name);
+      }) as typeof builder.getValidatorScript;
+      const composed = await builder.mintPool({
+        assets: [TOKEN, TOKEN_B],
+        curve: {
+          kind: "concentratedLiquidity",
+          ladder: ConcentratedLiquidityPool.uniformLadder(
+            4,
+            { num: 95n, den: 100n },
+            { num: 105n, den: 100n },
+            { num: 3n, den: 1000n },
+          ),
+          launchSqrtPrice: { num: 1n, den: 1n },
+        },
+        ownerAddress: OWNER,
+      });
+      expect(asked).toContain("banded_concentrated_liquidity.withdraw");
+      expect(datumOf(composed).actions[0].modules[0]).toEqual(CL_HASH);
+    });
+
+    it("refuses a concentrated-liquidity counter below 1000 × weight_total", async () => {
+      const ladder = ConcentratedLiquidityPool.uniformLadder(
         8,
         { num: 95n, den: 100n },
         { num: 105n, den: 100n },
@@ -1009,7 +1043,7 @@ describe("TxBuilderV4", () => {
         builder.mintPool({
           assets: [TOKEN, TOKEN_B],
           curve: {
-            kind: "bandedConcentratedLiquidity",
+            kind: "concentratedLiquidity",
             ladder,
             launchSqrtPrice: { num: 1n, den: 1n },
             counter: 7_999n,
@@ -1019,11 +1053,11 @@ describe("TxBuilderV4", () => {
       ).rejects.toThrow(/at least 8000 \(1000 × weight_total 8\)/);
     });
 
-    it("defaults the banded counter to at least 1000 × weight_total", async () => {
+    it("defaults the concentrated-liquidity counter to at least 1000 × weight_total", async () => {
       wireMints();
       // weight_total 8e6: the minimum counter 8e9 is above the 1e9 default.
       const ladder = scaledLadder(
-        BandedConcentratedLiquidityPool.uniformLadder(
+        ConcentratedLiquidityPool.uniformLadder(
           8,
           { num: 95n, den: 100n },
           { num: 105n, den: 100n },
@@ -1035,7 +1069,7 @@ describe("TxBuilderV4", () => {
         await builder.mintPool({
           assets: [TOKEN, TOKEN_B],
           curve: {
-            kind: "bandedConcentratedLiquidity",
+            kind: "concentratedLiquidity",
             ladder,
             launchSqrtPrice: { num: 1n, den: 1n },
           },
@@ -1045,7 +1079,7 @@ describe("TxBuilderV4", () => {
       expect(datum.total_lp >= 8_000_000_000n).toBe(true);
       const [a, b] = datum.assets.map((x) => x[1]);
       expect(
-        BandedConcentratedLiquidityPool.findWitness(ladder, a, b)!.x,
+        ConcentratedLiquidityPool.findWitness(ladder, a, b)!.x,
       ).toEqual(datum.total_lp);
     });
 
@@ -1053,7 +1087,7 @@ describe("TxBuilderV4", () => {
       wireMints();
       // At counter 186000 = 1000 × 186 and this launch price, the floored
       // reserves witness X = 185999, one below the minimum.
-      const ladder = BandedConcentratedLiquidityPool.shapedLadder(
+      const ladder = ConcentratedLiquidityPool.shapedLadder(
         8,
         { num: 95n, den: 100n },
         { num: 105n, den: 100n },
@@ -1065,7 +1099,7 @@ describe("TxBuilderV4", () => {
         await builder.mintPool({
           assets: [TOKEN, TOKEN_B],
           curve: {
-            kind: "bandedConcentratedLiquidity",
+            kind: "concentratedLiquidity",
             ladder,
             launchSqrtPrice: { num: 1043n, den: 1000n },
             counter: 186_000n,
@@ -1076,7 +1110,7 @@ describe("TxBuilderV4", () => {
       expect(datum.total_lp >= 186_000n).toBe(true);
       const [a, b] = datum.assets.map((x) => x[1]);
       expect(
-        BandedConcentratedLiquidityPool.findWitness(ladder, a, b)!.x,
+        ConcentratedLiquidityPool.findWitness(ladder, a, b)!.x,
       ).toEqual(datum.total_lp);
     });
 
@@ -1084,7 +1118,7 @@ describe("TxBuilderV4", () => {
     // lovelace, the declared reserve assets and tokens under the pool
     // policy.
     it.each([
-      ["a banded pool", "banded"],
+      ["a concentrated-liquidity pool", "concentratedLiquidity"],
       ["a constant-sum pool", "constantSum"],
     ])(
       "puts no undeclared token in the pool output of %s",
@@ -1093,10 +1127,10 @@ describe("TxBuilderV4", () => {
         const composed = await builder.mintPool({
           assets: [TOKEN, TOKEN_B],
           curve:
-            kind === "banded"
+            kind === "concentratedLiquidity"
               ? {
-                  kind: "bandedConcentratedLiquidity",
-                  ladder: BandedConcentratedLiquidityPool.uniformLadder(
+                  kind: "concentratedLiquidity",
+                  ladder: ConcentratedLiquidityPool.uniformLadder(
                     4,
                     { num: 95n, den: 100n },
                     { num: 105n, den: 100n },
@@ -1133,8 +1167,8 @@ describe("TxBuilderV4", () => {
       },
     );
 
-    it("refuses a banded launch price outside the ladder", async () => {
-      const ladder = BandedConcentratedLiquidityPool.uniformLadder(
+    it("refuses a concentrated-liquidity launch price outside the ladder", async () => {
+      const ladder = ConcentratedLiquidityPool.uniformLadder(
         4,
         { num: 95n, den: 100n },
         { num: 105n, den: 100n },
@@ -1144,7 +1178,7 @@ describe("TxBuilderV4", () => {
         builder.mintPool({
           assets: [TOKEN, TOKEN_B],
           curve: {
-            kind: "bandedConcentratedLiquidity",
+            kind: "concentratedLiquidity",
             ladder,
             launchSqrtPrice: { num: 2n, den: 1n },
           },

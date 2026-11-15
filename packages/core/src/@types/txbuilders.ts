@@ -80,6 +80,16 @@ export enum EContractVersion {
 export enum EPoolCurve {
   ConstantProduct = "constant_product",
   ConstantSum = "constant_sum",
+  /**
+   * The v4 concentrated-liquidity module: a ladder of sqrt-price bands, each
+   * a concentrated-liquidity arc or a constant-sum bin with its own share of
+   * the pool's liquidity and its own fees. LP is one fungible token for the
+   * whole ladder. The estimator is `ConcentratedLiquidityPool` in
+   * `@sundaeswap/math`.
+   *
+   * The API reported this module as `banded_concentrated_liquidity` before
+   * the rename; the query provider maps that identifier to this value too.
+   */
   ConcentratedLiquidity = "concentrated_liquidity",
   /**
    * The v4 stableswap invariant module: a Curve-style two-asset curve for
@@ -98,15 +108,6 @@ export enum EPoolCurve {
    * `D` and carries `rates`.
    */
   V4Stableswap = "stableswap",
-  /**
-   * The v4 banded concentrated-liquidity module: a ladder of sqrt-price
-   * bands, each a concentrated-liquidity arc or a constant-sum bin with its
-   * own share of the pool's liquidity and its own fees. LP is one fungible
-   * token for the whole ladder. The estimator is
-   * `BandedConcentratedLiquidityPool` in `@sundaeswap/math`; the single-range
-   * `ConcentratedLiquidity` curve above was removed from the protocol.
-   */
-  BandedConcentratedLiquidity = "banded_concentrated_liquidity",
 }
 
 /**

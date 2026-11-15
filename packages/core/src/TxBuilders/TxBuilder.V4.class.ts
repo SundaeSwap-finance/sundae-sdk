@@ -1,4 +1,4 @@
-import { BandedConcentratedLiquidityPool } from "@sundaeswap/math";
+import { ConcentratedLiquidityPool } from "@sundaeswap/math";
 import { parse } from "@blaze-cardano/data";
 import { Blaze, Core, makeValue, Provider, Wallet } from "@blaze-cardano/sdk";
 import { AssetAmount, IAssetAmountMetadata } from "@sundaeswap/asset";
@@ -67,11 +67,19 @@ export const V4_VALIDATORS = {
   feeSplit: "fee_split.withdraw",
   /** The fairness pool module (distinct from the `fairness_order` constraint). */
   fairnessModule: "fairness.withdraw",
-  /** The banded concentrated-liquidity curve module. */
-  bandedConcentratedLiquidity: "banded_concentrated_liquidity.withdraw",
+  /** The concentrated-liquidity curve module. */
+  concentratedLiquidity: "concentrated_liquidity.withdraw",
   /** The price-and-volume oracle module a pool may carry beside its curve. */
   oracle: "oracle.withdraw",
 } as const;
+
+/**
+ * The title a protocol row gave the concentrated-liquidity module before the
+ * module was renamed. `mintPool` falls back to it when the protocol row has
+ * no `V4_VALIDATORS.concentratedLiquidity` entry.
+ */
+const LEGACY_CONCENTRATED_LIQUIDITY_TITLE =
+  "banded_concentrated_liquidity.withdraw";
 
 /**
  * Default order economics (see sundae-v4 docs/fee-system.md). Callers can
@@ -224,8 +232,8 @@ export interface IFractionV4 {
 
 /**
  * The curve (pool kind) for {@link TxBuilderV4.mintPool}. A discriminated union
- * so new curves slot in without changing the call shape. Only `constantSum` is
- * wired today; `constantProduct`/`concentratedLiquidity` are reserved.
+ * so new curves slot in without changing the call shape. `constantSum` and
+ * `concentratedLiquidity` are wired today; `constantProduct` is reserved.
  */
 export type TPoolCurveV4 =
   | {
@@ -240,13 +248,13 @@ export type TPoolCurveV4 =
       waiveFeeOnClaim?: boolean;
     }
   | {
-      kind: "bandedConcentratedLiquidity";
+      kind: "concentratedLiquidity";
       /**
        * The ladder: bands in ascending sqrt-price order, the top edge and
        * the weight total. Build one with `shapedLadder` / `uniformLadder`
        * from `@sundaeswap/math`. The index the chain pins is derived here.
        */
-      ladder: BandedConcentratedLiquidityPool.TLadder;
+      ladder: ConcentratedLiquidityPool.TLadder;
       /**
        * The launch sqrt-price (B per A, under a square root), which must lie
        * inside the ladder. The pool's reserves are DERIVED from it and the
@@ -1160,19 +1168,15 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     args: IMintPoolV4Args,
   ): Promise<IComposedTx<TBlazeTx, Core.Transaction>> {
     const curveKind = args.curve.kind;
-    if (
-      curveKind !== "constantSum" &&
-      curveKind !== "bandedConcentratedLiquidity"
-    ) {
+    if (curveKind !== "constantSum" && curveKind !== "concentratedLiquidity") {
       throw new Error(
-        `mintPool: unsupported curve "${String(curveKind)}" (constantSum and bandedConcentratedLiquidity are wired).`,
+        `mintPool: unsupported curve "${String(curveKind)}" (constantSum and concentratedLiquidity are wired).`,
       );
     }
-    if (
-      curveKind === "bandedConcentratedLiquidity" &&
-      args.assets.length !== 2
-    ) {
-      throw new Error("mintPool: a banded pool holds exactly two assets.");
+    if (curveKind === "concentratedLiquidity" && args.assets.length !== 2) {
+      throw new Error(
+        "mintPool: a concentrated-liquidity pool holds exactly two assets.",
+      );
     }
     if (args.assets.length < 2 || args.assets.length > 16) {
       throw new Error(
@@ -1193,17 +1197,19 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
     // The curve module (user-chosen) is resolved by title; the pool + pool-mint
     // scripts by title too. The auxiliary modules are resolved generically from
     // whatever hashes the on-chain PoolConfig references.
-    const curveTitle =
+    const curveScriptLookup =
       curveKind === "constantSum"
-        ? V4_VALIDATORS.constantSum
-        : V4_VALIDATORS.bandedConcentratedLiquidity;
+        ? this.getValidatorScript(V4_VALIDATORS.constantSum)
+        : this.getValidatorScript(V4_VALIDATORS.concentratedLiquidity).catch(
+            () => this.getValidatorScript(LEGACY_CONCENTRATED_LIQUIDITY_TITLE),
+          );
     const [poolMintScript, curveScript, poolScript] = await Promise.all([
       this.getValidatorScript(V4_VALIDATORS.poolMint),
-      this.getValidatorScript(curveTitle),
+      curveScriptLookup,
       this.getValidatorScript(V4_VALIDATORS.pool),
     ]);
     const wantOracle =
-      args.curve.kind === "bandedConcentratedLiquidity" && !!args.curve.oracle;
+      args.curve.kind === "concentratedLiquidity" && !!args.curve.oracle;
     const oracleHash = wantOracle
       ? (await this.getValidatorScript(V4_VALIDATORS.oracle)).hash
       : undefined;
@@ -1225,30 +1231,29 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
           `curve module (${curveScript.hash}).`,
       );
     }
-    // A banded pool's reserves are what the ladder holds at the launch price;
+    // A concentrated-liquidity pool's reserves are what the ladder holds at the launch price;
     // its counter is the pool's total_lp (spec V12), re-derived from the
     // floored reserves so it is the one the chain accepts.
     let assets = args.assets;
-    let bandedCreate:
+    let clCreate:
       | {
-          ladder: BandedConcentratedLiquidityPool.TLadder;
+          ladder: ConcentratedLiquidityPool.TLadder;
           initialBand: bigint;
           counter: bigint;
         }
       | undefined;
-    if (args.curve.kind === "bandedConcentratedLiquidity") {
+    if (args.curve.kind === "concentratedLiquidity") {
       const { ladder, launchSqrtPrice } = args.curve;
       // sundae-v4 #229 (SV4-007): Create requires
       // total_lp >= 1000 * weight_total.
-      const minCounter =
-        BandedConcentratedLiquidityPool.minCreateCounter(ladder);
+      const minCounter = ConcentratedLiquidityPool.minCreateCounter(ladder);
       const defaultCounter = 1_000_000_000n;
       const asked =
         args.curve.counter ??
         (defaultCounter > minCounter ? defaultCounter : minCounter);
       if (asked < minCounter) {
         throw new Error(
-          `mintPool: the banded counter ${asked} is too small; the chain requires at least ${minCounter} (1000 × weight_total ${ladder.weightTotal}).`,
+          `mintPool: the concentrated-liquidity counter ${asked} is too small; the chain requires at least ${minCounter} (1000 × weight_total ${ladder.weightTotal}).`,
         );
       }
       const launch = { num: launchSqrtPrice.num, den: launchSqrtPrice.den };
@@ -1262,21 +1267,16 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
           "mintPool: the launch sqrt-price must lie inside the ladder.",
         );
       }
-      const k0 = BandedConcentratedLiquidityPool.bandOf(ladder, launch);
+      const k0 = ConcentratedLiquidityPool.bandOf(ladder, launch);
       // The floored reserves can witness a counter a few below the one
       // asked for. Raise the ask by the shortfall until the witness is at
       // or above the minimum.
       let target = asked;
       let r: { A: bigint; B: bigint } | undefined;
-      let w: BandedConcentratedLiquidityPool.TWitness | null = null;
+      let w: ConcentratedLiquidityPool.TWitness | null = null;
       for (let attempt = 0; attempt < 32; attempt++) {
-        r = BandedConcentratedLiquidityPool.reservesAt(
-          ladder,
-          target,
-          k0,
-          launch,
-        );
-        w = BandedConcentratedLiquidityPool.findWitness(ladder, r.A, r.B);
+        r = ConcentratedLiquidityPool.reservesAt(ladder, target, k0, launch);
+        w = ConcentratedLiquidityPool.findWitness(ladder, r.A, r.B);
         if (!w || w.x >= minCounter) break;
         target += minCounter - w.x;
       }
@@ -1294,7 +1294,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         new AssetAmount(r.A, args.assets[0]!.metadata),
         new AssetAmount(r.B, args.assets[1]!.metadata),
       ];
-      bandedCreate = { ladder, initialBand: BigInt(w.k), counter: w.x };
+      clCreate = { ladder, initialBand: BigInt(w.k), counter: w.x };
     }
 
     // Seed UTxO → pool identifier + CIP-68 asset names.
@@ -1361,25 +1361,26 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
       curveCreateRedeemer =
         DatumBuilderV4.buildModuleCreateRedeemer(curveConfig);
     } else {
-      // V12: a banded pool's total_lp IS its ladder counter.
-      const banded = bandedCreate!;
-      if (args.totalLp !== undefined && args.totalLp !== banded.counter) {
+      // V12: a concentrated-liquidity pool's total_lp IS its ladder counter.
+      const cl = clCreate!;
+      if (args.totalLp !== undefined && args.totalLp !== cl.counter) {
         throw new Error(
-          `mintPool: a banded pool's total_lp is its ladder counter ${banded.counter}; drop totalLp.`,
+          `mintPool: a concentrated-liquidity pool's total_lp is its ladder counter ${cl.counter}; drop totalLp.`,
         );
       }
-      circulatingLp = banded.counter;
+      circulatingLp = cl.counter;
       curveConfig = Core.PlutusData.fromCbor(
         Core.HexBlob(
-          this.datumBuilder.buildBandedCLConfigDatum(banded.ladder).inline,
+          this.datumBuilder.buildConcentratedLiquidityConfigDatum(cl.ladder)
+            .inline,
         ),
       );
       curveCreateRedeemer = Core.PlutusData.fromCbor(
         Core.HexBlob(
-          this.datumBuilder.buildBandedCLCreateRedeemer({
-            ladder: banded.ladder,
+          this.datumBuilder.buildConcentratedLiquidityCreateRedeemer({
+            ladder: cl.ladder,
             poolOutputIndex: 0n,
-            initialBand: banded.initialBand,
+            initialBand: cl.initialBand,
           }).inline,
         ),
       );
@@ -1628,7 +1629,7 @@ export class TxBuilderV4 extends TxBuilderAbstractV4 {
         Core.PlutusData.fromCbor(Core.HexBlob(entry.datum as string)),
       );
       // The trade action is action[0]; its first module is the curve module.
-      // With several configs for one curve (preprod publishes a banded one
+      // With several configs for one curve (preprod publishes a concentrated-liquidity one
       // with the oracle module and one without), the oracle decides.
       const runsOracle = (h: string) =>
         config.actions.some((a) => a.modules.includes(h));

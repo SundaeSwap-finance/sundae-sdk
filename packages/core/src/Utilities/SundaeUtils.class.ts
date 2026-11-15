@@ -30,7 +30,6 @@ import {
   V3_POOL_IDENT_LENGTH,
 } from "../constants.js";
 import {
-  BandedConcentratedLiquidityPool,
   ConcentratedLiquidityPool,
   ConstantProductPool,
   ConstantSumPool,
@@ -43,10 +42,9 @@ import {
 // switches below dispatch on `version` for the first and on `curve` for the
 // second.
 export type TGenericSwapOutcome =
-  | BandedConcentratedLiquidityPool.TSwapOutcome
+  | ConcentratedLiquidityPool.TSwapOutcome
   | ConstantProductPool.TSwapOutcome
   | ConstantSumPool.TSwapOutcome
-  | ConcentratedLiquidityPool.TSwapOutcome
   | StableSwapsPool.TSwapOutcome
   | V4StableswapPool.TSwapOutcome;
 
@@ -625,14 +623,12 @@ export class SundaeUtils {
   }
 
   /**
-   * The ladder of a v4 banded pool as `@sundaeswap/math` wants it, from the
+   * The ladder of a v4 concentrated-liquidity pool as `@sundaeswap/math` wants it, from the
    * API's pool data. Throws for a pool with no ladder.
    */
-  static ladderOf(
-    poolData: IPoolData,
-  ): BandedConcentratedLiquidityPool.TLadder {
+  static ladderOf(poolData: IPoolData): ConcentratedLiquidityPool.TLadder {
     if (!poolData.bands || !poolData.bandClosing || !poolData.bandWeightTotal) {
-      throw new Error("Pool data carries no banded ladder.");
+      throw new Error("Pool data carries no concentrated-liquidity ladder.");
     }
     const frac = (p: [bigint, bigint]) => ({ num: p[0], den: p[1] });
     return {
@@ -744,35 +740,13 @@ export class SundaeUtils {
             );
           }
           case EPoolCurve.ConcentratedLiquidity: {
-            if (!poolData.sqrtPrices) {
-              throw new Error(
-                "Concentrated-liquidity pool is missing `sqrtPrices`; cannot get swap output.",
-              );
-            }
-            // CL swaps run on raw assetA/assetB reserves (not input/output
-            // oriented); direction is selected by isAInput.
-            const isAInput =
-              poolData.assetA.assetId === suppliedAsset.metadata.assetId;
-            return ConcentratedLiquidityPool.getSwapOutput(
-              suppliedAsset.metadata,
-              suppliedAsset.amount,
-              poolData.liquidity.aReserve,
-              poolData.liquidity.bReserve,
-              poolData.liquidity.lpTotal,
-              poolData.sqrtPrices[0],
-              poolData.sqrtPrices[1],
-              poolData.currentFee,
-              isAInput,
-            );
-          }
-          case EPoolCurve.BandedConcentratedLiquidity: {
             if (
               !poolData.bands ||
               !poolData.bandClosing ||
               !poolData.bandWeightTotal
             ) {
               throw new Error(
-                "Banded pool is missing `bands`, `bandClosing` or `bandWeightTotal`; cannot get swap output.",
+                "Concentrated-liquidity pool is missing `bands`, `bandClosing` or `bandWeightTotal`; cannot get swap output.",
               );
             }
             const isAInput =
@@ -781,7 +755,7 @@ export class SundaeUtils {
               poolData.bandCounter && poolData.activeBand !== undefined
                 ? { x: poolData.bandCounter, k: poolData.activeBand }
                 : undefined;
-            return BandedConcentratedLiquidityPool.getSwapOutput(
+            return ConcentratedLiquidityPool.getSwapOutput(
               suppliedAsset.metadata,
               suppliedAsset.amount,
               poolData.liquidity.aReserve,
@@ -917,26 +891,6 @@ export class SundaeUtils {
               priceIn,
               priceOut,
               poolData.currentFee,
-            );
-          }
-          case EPoolCurve.ConcentratedLiquidity: {
-            if (!poolData.sqrtPrices) {
-              throw new Error(
-                "Concentrated-liquidity pool is missing `sqrtPrices`; cannot get swap input.",
-              );
-            }
-            // Input asset is the non-output side; A→B swap iff output is B.
-            const isAInput = !isOutputAssetA;
-            return ConcentratedLiquidityPool.getSwapInput(
-              isOutputAssetA ? poolData.assetB : poolData.assetA,
-              output.amount,
-              poolData.liquidity.aReserve,
-              poolData.liquidity.bReserve,
-              poolData.liquidity.lpTotal,
-              poolData.sqrtPrices[0],
-              poolData.sqrtPrices[1],
-              poolData.currentFee,
-              isAInput,
             );
           }
           case EPoolCurve.V4Stableswap: {
@@ -1150,24 +1104,13 @@ export class SundaeUtils {
               poolData.prices[0],
               poolData.prices[1],
             );
-          case EPoolCurve.BandedConcentratedLiquidity:
-            // A banded deposit is proportional (banded_cl_check's non-swap
+          case EPoolCurve.ConcentratedLiquidity:
+            // A concentrated-liquidity deposit is proportional (cl_check's non-swap
             // step is `check_proportional`): every reserve moves at least in
             // proportion to total_lp, and the counter follows because the
             // prefix sums and L_i are degree-1 homogeneous in it. Same pin
             // as constant product, surplus refunded.
             return ConstantProductPool.calculateLiquidity(
-              a,
-              b,
-              poolData.liquidity.aReserve,
-              poolData.liquidity.bReserve,
-              poolData.liquidity.lpTotal,
-            );
-          case EPoolCurve.ConcentratedLiquidity:
-            // CL deposits reuse the constant-product proportional pinning: the
-            // per-asset bounds it produces (a1·L0≥a0·L1, b1·L0≥b0·L1) multiply
-            // to the on-chain CL non-swap invariant va1·vb1·L0²≥va0·vb0·L1².
-            return ConcentratedLiquidityPool.calculateLiquidity(
               a,
               b,
               poolData.liquidity.aReserve,
